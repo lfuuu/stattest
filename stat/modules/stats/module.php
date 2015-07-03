@@ -25,8 +25,6 @@ class m_stats extends IModule{
     }
 
 	function stats_default($fixclient){
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$this->stats_voip($fixclient);
 	}
 
@@ -36,8 +34,7 @@ class m_stats extends IModule{
 			trigger_error2('Выберите клиента');
 			return;
 		}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+        $clientNick = ClientAccount::findOne($fixclient)->client;
 		
 		$route=get_param_raw('route','');
 		
@@ -56,7 +53,7 @@ class m_stats extends IModule{
 		$detality = get_param_protected('detality','day');
 		$design->assign('detality',$detality);
 
-		list($routes_all,$routes_allB)=$this->get_routes_list($fixclient);
+		list($routes_all,$routes_allB)=$this->get_routes_list($clientNick);
 
 		//если сеть не задана, выводим все подсети клиента.
 		if($route){
@@ -67,7 +64,6 @@ class m_stats extends IModule{
 				return;
 			}
 		}else{
-			$client=$fixclient;
 			$routes=array();
 			foreach($routes_allB as $r)
 				$routes[] = $r;
@@ -96,8 +92,7 @@ class m_stats extends IModule{
 	function stats_vpn($fixclient) {
 		global $db,$design;
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+        $clientNick = ClientAccount::findOne($fixclient)->client;
 		$ip=get_param_raw('ip','');
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
@@ -133,7 +128,7 @@ class m_stats extends IModule{
 			ON
 				T.id=get_tarif_internet(S.id)
 			where
-				S.client="'.$fixclient.'"
+				S.client="'.$clientNick.'"
 			AND
 				T.type="V"
 			and
@@ -163,22 +158,21 @@ class m_stats extends IModule{
 
 		$login=get_param_integer('login',0);
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
 
 		if ($login){
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (id="'.$login.'")');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (id="'.$login.'")');
 			if (!($r=$db->NextRecord())) {trigger_error2('Логин не существует'); return; }
 			$logins=array($r['login']);
 
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (login!="") order by login');
 			$logins_all=array();
 			while ($r=$db->NextRecord()){
 				$logins_all[]=$r;
 			}
 		} else {
 			//список всех сетей, нужен для вывода их списка.
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (login!="") order by login');
 			$logins_all=array(); $logins=array();
 			while ($r=$db->NextRecord()){
 				$logins[]=$r['login'];
@@ -218,10 +212,7 @@ class m_stats extends IModule{
             trigger_error2('Клиент не выбран');
             return;
         }
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
-
-        $client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
+        $client = ClientAccount::findOne($fixclient);
 
         $timezones = [ $client['timezone_name'] ];
 
@@ -297,9 +288,6 @@ class m_stats extends IModule{
         $direction = get_param_raw('direction','both');
         if(!in_array($direction,array('both','in','out')))
             $direction = 'both';
-
-        /** @var \app\models\ClientAccount $client */
-        $client = \app\models\ClientAccount::findOne($client_id);
 
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
@@ -628,8 +616,6 @@ class m_stats extends IModule{
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error2('Выберите клиента');return;}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
@@ -642,7 +628,7 @@ class m_stats extends IModule{
 
 		$detality=get_param_protected('detality','day');
 
-		$stats=$this->GetStatsCallback($from,$to,$detality,$fixclient_data['id']);
+		$stats=$this->GetStatsCallback($from,$to,$detality,$fixclient);
 		if (!$stats) return;
 		$design->assign('detality',$detality);
 		$design->assign('stats',$stats);
@@ -1346,8 +1332,6 @@ class m_stats extends IModule{
 
 	function stats_send_add($fixclient){
 		global $db,$design;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$clients=get_param_raw('clients');
 		$year = get_param_integer('year');
 		$month = get_param_integer('month');
@@ -1355,7 +1339,7 @@ class m_stats extends IModule{
 		$max_bytes=get_param_raw('max_bytes');
 		$port_id=get_param_raw('port_id');
 		$flag=get_param_raw('flag');
-		if (!$year || !$month || !is_array($flag) || !is_array($in_bytes) || !is_array($out_bytes) || !is_array($max_bytes) || !is_array($port_id) || !is_array($clients)) return;// $this->stats_send_view($fixclient);
+		if (!$year || !$month || !is_array($flag) || !is_array($bytes) || !is_array($max_bytes) || !is_array($port_id) || !is_array($clients)) return;// $this->stats_send_view($fixclient);
 		foreach ($clients as $i=>$c) if (isset($flag[$i]) && $flag[$i]){
 			@$db->Query('insert into stats_send (client,state,year,month,port_id,bytes,max_bytes,message) value ("'.$c.'","ready",'.$year.','.$month.','.$port_id[$i].','.$bytes[$i].','.$max_bytes[$i].',"'.$email[$i].'")');
 		}
@@ -1364,8 +1348,6 @@ class m_stats extends IModule{
 
 	function stats_send_process($fixclient){
 		global $design,$db;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$is_test=get_param_integer('test',1);
 		$cont=get_param_integer('cont',0);
 		$db->Query('select client from stats_send where (!last_send || (last_send+INTERVAL 1 DAY < NOW())) AND (state!="sent") group by client order by state,last_send desc,client LIMIT 5');
@@ -1394,8 +1376,6 @@ class m_stats extends IModule{
 	}
 	function stats_send_view($fixclient){
 		global $db,$design;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$db->Query('select * from stats_send order by state,last_send desc,client');
 		$R=array(); while ($r=$db->NextRecord()) {
 			if (isset($R[$r['client']])){
@@ -2337,8 +2317,6 @@ class m_stats extends IModule{
     {
         global $db,$design,$user;
 
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $date_begin = get_param_raw('date_from', date('Y-m-d'));
         $date_end = get_param_raw('date_to',  date('Y-m-d'));
         $design->assign(array('date_begin'=>$date_begin, 'date_end'=>$date_end));
@@ -2529,8 +2507,6 @@ class m_stats extends IModule{
 		trigger_error2('Выберите клиента');
 		return;
 	}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 	global $design,$fixclient_data,$db;
 	
 	if ($fixclient_data['is_agent'] != "Y")
@@ -2584,8 +2560,6 @@ class m_stats extends IModule{
 		header('Location: ?module=stats&action=agent_settings');
         exit;
 	}
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 	global $fixclient_data;
 	
 	if ($fixclient_data['is_agent'] != "Y")
@@ -2717,8 +2691,6 @@ function make_sum(&$dd)
 function stats_report_wimax($fixclient, $genReport = false){
     global $db,$design;
 
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     if($genReport)
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
@@ -2784,8 +2756,6 @@ function stats_report_wimax($fixclient, $genReport = false){
 function stats_courier_sms($fixclient, $genReport = false){
     global $db,$design;
 
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     if($genReport)
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
@@ -2829,8 +2799,6 @@ function stats_support_efficiency($fixclient)
 {
     global $db,$design;
 
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $m = array();
     $total = array(
         "monitoring"   => 0, 
@@ -3200,33 +3168,23 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 }
 
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'nbn', $genReport, $viewLink);
 }
 
 function stats_report_onlime($fixclient, $genReport = false, $viewLink = true){
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime', $genReport, $viewLink);
 }
 
 function stats_report_onlime2($fixclient, $genReport = false, $viewLink = true){
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime2', $genReport, $viewLink);
 }
 
 function stats_report_onlime_all($fixclient, $genReport = false, $viewLink = true){
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime_all', $genReport, $viewLink);
 }
 
 function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLink = true){
     global $db,$design;
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
     $viewLink = $viewLink && !defined("no_link");
 
@@ -3490,8 +3448,6 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 function stats_onlime_details($fixclient)
 {
     global $design;
-    if(is_numeric($fixclient))
-        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $order_id = get_param_integer('order_id', '');
     $data = array();
     if ($order_id && OnlimeOrder::exists($order_id))
@@ -4545,30 +4501,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
   }
 	function stats_report_vpbx_stat_space($fixclient)
 	{
-		global $db, $design,$fixclient_data;
-
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+		global $design;
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
 		$from = $dateFrom->getSqlDay();
 		$to = $dateTo->getSqlDay();
-		
+
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+
 		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
 		DatePickerPeriods::assignPeriods(new DateTime());
 		
 		$vpbx_id = get_param_integer('vpbx', 0);
 		$design->assign('vpbx_id', $vpbx_id);
 		$vpbx_id = 0;
-		if ($fixclient)
-		{
-			$client_id = $fixclient_data['id'];
-		} else {
-			$client_id = get_param_integer('client_id', 0);
-		}
-		$design->assign('client_id', $client_id);
+		$design->assign('client_id', $fixclient);
 
-		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to);
+		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $fixclient, $vpbx_id, $from, $to);
 		$design->assign('stats', $stats);
 		$design->assign('stat_detailed', $stat_detailed);
 
@@ -4607,10 +4556,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         $to,
                         $from
 		);
-		if ($fixclient)
+		if ($clientNick)
 		{
 			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $fixclient;
+			$condition_values[] = $clientNick;
 		}
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
@@ -4636,8 +4585,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to) 
 	{
 		global $db;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
 		$stat_detailed = array();
 		$options = array();
 		$options['select'] = '
@@ -4709,10 +4657,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			$condition_string .=' AND stat.client_id = ?';
 			$condition_values[] = $client_id;
 		}
-		if ($fixclient)
+		if ($clientNick)
 		{
 			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $fixclient;
+			$condition_values[] = $clientNick;
 		} else {
 			$options['select'] .= ',UV.client';
 		}
@@ -4762,16 +4710,12 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 	function stats_phone_sales_details($fixclient)
 	{
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		include_once 'PhoneSalesDetails.php';
 		PhoneSalesDetails::getDetails();
 	}
 
 	function stats_report_agent_details($fixclient)
     {
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         include_once 'AgentReport.php';
         AgentReport::getDetails();
     }
@@ -4779,8 +4723,6 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function stats_report_reserve($fixclient)
     {
         global $design;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $options = array();
         $options['select'] = '
             UNIX_TIMESTAMP(MAX(LT.ts)) as max_ts, 

@@ -9,6 +9,17 @@ class ClientContragent extends ActiveRecord
     public $cPerson = null;
     public $historyVersionDate = null;
 
+    public static $taxRegtimeTypes = [
+        'full' => 'Полный (НДС 18%)',
+        'simplified' => 'без НДС'
+    ];
+
+    public static $legalTypes = [
+        'legal' => 'Юр. лицо',
+        'ip' => 'ИП',
+        'person' => 'Физю лицо',
+    ];
+
     public static function tableName()
     {
         return 'client_contragent';

@@ -636,7 +636,6 @@ class ClientCS {
     public $D;
 
     function ClientCS ($id = null, $get_params = false) {
-        $id = 9130;
         if ($id) $this->F['id']=$id;
         if ($get_params) {
             if (is_array($get_params)) {

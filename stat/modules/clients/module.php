@@ -340,7 +340,7 @@ class m_clients {
 				replace into
 					`clients_contracts_yota`
 				set
-					client_id = (select id from clients where client='".addcslashes($fixclient, "\\\\'")."' limit 1),
+					client_id = $fixclient,
 					json_data = '".addcslashes($json, "\\\\'")."'
 			";
 
@@ -350,7 +350,7 @@ class m_clients {
 		}elseif(isset($_REQUEST['get_vals'])){
 			Header('Content-type: text/plain; charset=utf8');
 			$db->Query('set names utf8');
-			$db->Query("select json_data from clients_contracts_yota where client_id = (select id from clients where client='".addcslashes($fixclient,"\\\\'")."' limit 1)");
+			$db->Query("select json_data from clients_contracts_yota where client_id = $fixclient");
 			$json = $db->NextRecord(MYSQL_ASSOC);
 			if($json)
 				echo $json['json_data'];
@@ -383,7 +383,7 @@ class m_clients {
 					from
 						`clients` `c`
 					where
-						`c`.`client` = '".addcslashes($fixclient,"\\\\'")."'
+						`c`.`id` = '".$fixclient."'
 				";
 DBG::sql_out($select_client_data);
 				$db->Query($select_client_data);
@@ -685,14 +685,5 @@ DBG::sql_out($select_client_data);
         $design->assign('files',$R);
         $design->AddMain('clients/files_report.tpl');
     }
-
-	function get_client_info($client){
-		global $db;
-		if (is_numeric($client)) {
-			$q='(id="'.$client.'")';
-		} else $q='(client="'.$client.'")';
-		$db->Query("select * from clients where	".$q);
-		if ($r=$db->NextRecord()) return $r; else return false;
-	}
 }
 

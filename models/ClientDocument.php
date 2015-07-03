@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\FileManager;
 use Yii;
 use yii\db\ActiveRecord;
 use app\queries\ClientDocumentQuery;
@@ -68,6 +69,16 @@ class ClientDocument extends ActiveRecord
         }
         return urlencode(base64_encode($data2) . $d);
 
+    }
+
+    public function getFileManager()
+    {
+        return FileManager::create($this->id);
+    }
+
+    public function getFiles()
+    {
+        return $this->hasMany(ClientFile::className(), ['contract_id' => 'id'])->orderBy("ts");
     }
 
     public function getClient()

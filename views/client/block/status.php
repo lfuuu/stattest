@@ -8,7 +8,7 @@ use \yii\helpers\Url;
 ?>
 <div class="status-block">
     <?php
-    $f = ActiveForm::begin(['action' => Url::toRoute(['contract/edit', 'id' => $contractForm->id, 'childId' => $client->id])]);
+    $f = ActiveForm::begin(['action' => Url::toRoute(['contract/edit', 'id' => $contractForm->id, 'childId' => $account->id])]);
     ?>
     <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
         <div class="col-sm-3">
@@ -19,41 +19,41 @@ use \yii\helpers\Url;
         </div>
         <div class="col-sm-9">
 
-            <?php if($client->lkWizardState) :?>
-            <b style="color: green;"> Wizard включен</b>, шаг: <?= $client->lkWizardState->step ?> (<?= $client->lkWizardState->stepName ?>)
+            <?php if($account->lkWizardState) :?>
+            <b style="color: green;"> Wizard включен</b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
             <small>
                 [
-                <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=off">выключить</a>
+                <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
 
-                <?php if($client->lkWizardState->step == 4): ?>
+                <?php if($account->lkWizardState->step == 4): ?>
 
-                    <?if($client->lkWizardState->step!='rejected'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=rejected">отклонить</a>
+                    <?if($account->lkWizardState->step!='rejected'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=rejected">отклонить</a>
                     <?php endif; ?>
 
-                    <?if($client->lkWizardState->step!='approve'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=approve">одобрить</a>
+                    <?if($account->lkWizardState->step!='approve'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=approve">одобрить</a>
                     <?php endif; ?>
 
-                    <?if($client->lkWizardState->step!='review'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=review">рассмотрение</a>
+                    <?if($account->lkWizardState->step!='review'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=review">рассмотрение</a>
                     <?php endif; ?>
 
                 <?php endif; ?>
 
-                <?if($client->lkWizardState->step!=1):?>
-                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=first">*первый шаг*</a>
+                <?if($account->lkWizardState->step!=1):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=first">*первый шаг*</a>
                 <?php endif; ?>
 
-                <?if($client->lkWizardState->step!=4):?>
-                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=next">*след шаг*</a>
+                <?if($account->lkWizardState->step!=4):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=next">*след шаг*</a>
                 <?php endif; ?>
 
                 ]</small>
             <?php else: ?>
-                <?php  if(\app\models\LkWizardState::isBPStatusAllow($client->contract->business_process_status_id, $client->contract->id)): ?>
+                <?php  if(\app\models\LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
                     <b style="color: gray;"> Wizard выключен</b>
-                    [<a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=on">включить</a>]
+                    [<a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=on">включить</a>]
                 <?php endif; ?>
             <?php endif; ?>
 
@@ -61,7 +61,7 @@ use \yii\helpers\Url;
     </div>
     <div class="row" id="statuses">
         <div class="col-sm-12">
-            <?php foreach ($client->contract->comments as $comment): ?>
+            <?php foreach ($account->contract->comments as $comment): ?>
                 <div class="col-sm-12">
                     <input type="checkbox"
                            name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish ? 'checked' : '' ?>>
@@ -128,7 +128,7 @@ use \yii\helpers\Url;
             $('.status-block-toggle').click();
         <?php endif; ?>
 
-        var statuses = <?= json_encode($client->getBpStatuses()) ?>;
+        var statuses = <?= json_encode($account->getBpStatuses()) ?>;
         var s1 = $('#contracteditform-contract_type_id');
         var s2 = $('#contracteditform-business_process_id');
         var s3 = $('#contracteditform-business_process_status_id');

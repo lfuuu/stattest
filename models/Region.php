@@ -16,6 +16,9 @@ use yii\helpers\ArrayHelper;
  */
 class Region extends ActiveRecord
 {
+    const MOSCOW = 99;
+    const TIMEZONE_MOSCOW = 'Europe/Moscow';
+
     public static function tableName()
     {
         return 'regions';
@@ -30,5 +33,11 @@ class Region extends ActiveRecord
     {
         $arr = self::find()->all();
         return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public static function getTimezoneList()
+    {
+        $arr = self::find()->groupBy(['timezone_name'])->all();
+        return ArrayHelper::map($arr, 'timezone_name', 'timezone_name');
     }
 }

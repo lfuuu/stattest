@@ -42,38 +42,38 @@ class ClientController extends BaseController
 
     public function actionView($id)
     {
-        $client = ClientAccount::findOne($id);
-        if (!$client)
+        $account = ClientAccount::findOne($id);
+        if (!$account)
             throw new Exception('Client not found');
 
         //Для старого стата, для старых модулей
-        Yii::$app->session->set('clients_client', $client->id);
-        $this->applyFixClient($client->id);
+        Yii::$app->session->set('clients_client', $account->id);
+        $this->applyFixClient($account->id);
 
-        $sClient = ClientSuper::findOne($client->super_id);
+        $client = ClientSuper::findOne($account->super_id);
 
-        $contractForm = new ContractEditForm(['id' => $client->contract_id]);
+        $contractForm = new ContractEditForm(['id' => $account->contract_id]);
 
         $troubles = Trouble::find()
-            ->andWhere(['client' => $client->client])
+            ->andWhere(['client' => $account->client])
             ->andWhere(['server_id' => 0])
             ->orderBy('`date_creation` DESC')
             ->all();
 
         $services = [];
-        $services['voip'] = UsageVoip::find()->where(['client' => $client->client])->all();
-        $services['welltime'] = UsageWelltime::find()->where(['client' => $client->client])->all();
-        $services['extra'] = UsageExtra::find()->where(['client' => $client->client])->all();
-        $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $client->client])->all();
-        $services['sms'] = UsageSms::find()->where(['client' => $client->client])->all();
-        $services['ipport'] = UsageIpPorts::find()->where(['client' => $client->client])->all();
+        $services['voip'] = UsageVoip::find()->where(['client' => $account->client])->all();
+        $services['welltime'] = UsageWelltime::find()->where(['client' => $account->client])->all();
+        $services['extra'] = UsageExtra::find()->where(['client' => $account->client])->all();
+        $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $account->client])->all();
+        $services['sms'] = UsageSms::find()->where(['client' => $account->client])->all();
+        $services['ipport'] = UsageIpPorts::find()->where(['client' => $account->client])->all();
 
         return
             $this->render(
                 'view',
                 [
-                    'sClient' => $sClient,
-                    'activeClient' => $client,
+                    'client' => $client,
+                    'account' => $account,
                     'contractForm' => $contractForm,
                     'troubles' => $troubles,
                     'services' => $services,
@@ -86,7 +86,7 @@ class ClientController extends BaseController
         $request = Yii::$app->request->post();
         $contragent = new ContragentEditForm(['super_id' => 1]);
         $contract = new ContractEditForm(['contragent_id' => 1, 'super_id' => 1]);
-        $client = new AccountEditForm(['contract_id' => 1, 'contragent_id' => 1, 'super_id' => 1]);
+        $account = new AccountEditForm(['contract_id' => 1, 'contragent_id' => 1, 'super_id' => 1]);
         if ($request) {
             $transaction = Yii::$app->db->beginTransaction();
             $commit = false;
@@ -98,20 +98,21 @@ class ClientController extends BaseController
                 if ($contragent->load($request) && $contragent->validate() && $contragent->save()) {
                     $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
                     if ($contract->load($request) && $contract->validate() && $contract->save()) {
-                        $client = new AccountEditForm(['id' => $contract->newClient->id]);
-                        if ($client->load($request) && $client->validate() && $client->save())
+                        $account = new AccountEditForm(['id' => $contract->newClient->id]);
+                        $account->load($request) && $account->validate();
+                        if ($account->load($request) && $account->validate() && $account->save())
                             $commit = true;
                     }
                 }
             }
             if ($commit) {
                 $transaction->commit();
-                return $this->redirect(['client/view', 'id' => $client->id]);
+                return $this->redirect(['client/view', 'id' => $account->id]);
             } else {
                 $transaction->rollback();
             }
         }
 
-        return $this->render('create', ['contragent' => $contragent, 'client' => $client, 'contract' => $contract]);
+        return $this->render('create', ['contragent' => $contragent, 'account' => $account, 'contract' => $contract]);
     }
 }

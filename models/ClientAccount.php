@@ -5,7 +5,6 @@ use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\classes\FileManager;
 
 /**
  * @property int $id
@@ -22,6 +21,8 @@ use app\classes\FileManager;
  */
 class ClientAccount extends ActiveRecord
 {
+    const STATUS_INCOME = 'income';
+
     public $client_orig = '';
     public $sale_channel=0;
     public $historyVersionDate = null;
@@ -49,6 +50,23 @@ class ClientAccount extends ActiveRecord
         'operator' => array('name' => 'Оператор', 'color' => 'lightblue')
     );
 
+    public static $formTypes = [
+        'manual' => 'ручное',
+        'bill' => 'при выставлении счета',
+        'payment' => 'при внесении платежа',
+    ];
+
+    public static $nalTypes = [
+        'beznal' => 'безнал',
+        'nal' => 'нал',
+        'prov' => 'пров'
+    ];
+
+    public static $contractTypes = [
+        'full' => 'Полный (НДС 18%)',
+        'simplified' => 'без НДС'
+    ];
+
     private $_lastComment = false;
 /*For old stat*/
     public function getType()
@@ -68,7 +86,7 @@ class ClientAccount extends ActiveRecord
 
     public function getManager_name()
     {
-        return \app\models\User::find()->where(['user' => $this->contract->manager])->one()->name;;
+        return User::find()->where(['user' => $this->contract->manager])->one()->name;;
     }
 
     public function getNumber()
@@ -153,7 +171,7 @@ class ClientAccount extends ActiveRecord
 
     public function getOkpo()
     {
-        return $this->contract->contragent->Okpo;
+        return $this->contract->contragent->okpo;
     }
 
     public function getOpf()
@@ -214,25 +232,15 @@ class ClientAccount extends ActiveRecord
         return [
             'password' => 'Пароль',
             'comment' => 'Комментарий',
-            //'status' => '   ',
             'usd_rate_percent' => 'USD уровень в процентах',
             'address_post' => 'Почтовый адрес',
             'address_post_real' => 'Действительный почтовый адрес',
-            //'support' => '',
-            //'login' => '',
             'bik' => 'БИК',
             'bank_properties' => 'Банковские реквизиты',
             'currency' => 'Валюта',
-            //'currency_bill' => '',
             'stamp' => 'Печатать штамп',
             'nal' => 'Нал',
-            //'telemarketing' => '',
             'sale_channel' => 'Канал продаж',
-            //'uid' => '',
-            //'site_req_no' => '',
-            //'credit_USD' => '',
-            //'credit_RUB' => '',
-            //'credit' => '',
             'user_impersonate' => 'Наследовать права пользователя',
             'address_connect' => 'Предполагаемый адрес подключения',
             'phone_connect' => 'Предполагаемый телефон подключения',
@@ -243,42 +251,27 @@ class ClientAccount extends ActiveRecord
             'payment_comment' => 'Комментарии к платежу',
             'credit' => 'Разрешить кредит',
             'credit_size' => 'Размер кредита',
-            //'previous_reincarnation' => '',
-            //'cli_1c' => '',
-            //'con_1c' => '',
             'corr_acc' => 'К/С',
             'pay_acc' => 'Р/С',
             'bank_name' => 'Название банка',
             'bank_city' => 'Город банка',
-            //'sync_1c' => '',
             'price_type' => 'Тип цены',
             'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
             'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
             'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
             'balance' => 'Баланс',
-            //'balance_usd' => '',
             'voip_is_day_calc' => 'Включить пересчет дневного лимита',
             'region' => 'Регион',
-            //'last_account_date' => '',
-            //'last_payed_voip_month' => '',
             'mail_print' => 'Печать конвертов',
             'mail_who' => '"Кому" письмо',
             'head_company' => 'Головная компания',
             'head_company_address_jur' => 'Юр. адрес головной компании',
-            //'created' => '',
             'bill_rename1' => 'Номенклатура',
-            //'nds_calc_method' => '',
-            //'admin_contact_id' => '',
-            //'admin_is_active' => '',
             'is_agent' => 'Агент',
-            //'is_bill_only_contract' => '',
-            //'is_bill_with_refund' => '',
             'is_with_consignee' => 'Использовать грузополучателя',
             'consignee' => 'Грузополучатель',
             'is_upd_without_sign' => 'Печать УПД без подписей',
-            //'is_active' => '',
             'is_blocked' => 'Блокировка',
-            //'is_closed' => '',
             'timezone_name' => 'Часовой пояс',
         ];
     }
@@ -324,12 +317,12 @@ class ClientAccount extends ActiveRecord
 
     public function getUserManager()
     {
-        return \app\models\User::findOne(['user' => $this->contract->manager]);
+        return User::findOne(['user' => $this->contract->manager]);
     }
 
     public function getUserAccountManager()
     {
-        return \app\models\User::findOne(['user' => $this->contract->account_manager]);
+        return User::findOne(['user' => $this->contract->account_manager]);
     }
 
     public function getLkWizardState()
@@ -348,16 +341,6 @@ class ClientAccount extends ActiveRecord
         if(isset($this->historyVersionDate))
             $date = $this->historyVersionDate;
         return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->getContract()->contragent_id, $date);
-    }
-
-    public function getFiles()
-    {
-        return $this->hasMany(ClientFile::className(), ['client_id' => 'id'])->orderBy("ts");
-    }
-
-    public function getFileManager()
-    {
-        return FileManager::create($this->id);
     }
 
     public function getStatusName()

@@ -128,22 +128,13 @@ class BaseController extends Controller
     {
         global $fixclient, $fixclient_data;
 
-        if ($clientToFix === false) {
+        $fixclient = $clientToFix;
+        if (!$fixclient) {
             Yii::$app->session->open();
             $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
-        } else {
-            $fixclient = $clientToFix;
         }
 
-        if ($fixclient) {
-            if (is_numeric($fixclient)) {
-                $fixclient_data = ClientAccount::find()->andWhere(['id' => $fixclient])->asArray()->one();
-            } else {
-                $fixclient_data = ClientAccount::find()->andWhere(['client' => $fixclient])->asArray()->one();
-            }
-        } else {
-            $fixclient_data = null;
-        }
+        $fixclient_data = ClientAccount::findOne($fixclient);
 
         if ($fixclient_data === null) {
             $fixclient_data = [];

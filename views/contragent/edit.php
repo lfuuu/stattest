@@ -4,16 +4,14 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use kartik\builder\Form;
+use \app\models\ClientContragent;
 
 ?>
 <div class="row">
     <div class="col-sm-12">
         <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h2>
 
-        <?php
-        $f = ActiveForm::begin();
-        $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
-        ?>
+        <?php $f = ActiveForm::begin(); ?>
 
         <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
             <div class="btn-group" id="type-select">
@@ -71,7 +69,7 @@ use kartik\builder\Form;
                     'attributes' => [
                         'tax_regime' => [
                             'type' => Form::INPUT_DROPDOWN_LIST,
-                            'items' => $taxRegtimeItems,
+                            'items' => ClientContragent::$taxRegtimeTypes,
                             'container' => ['style' => 'width:50%;']
                         ],
                         'position' => [],
@@ -120,7 +118,7 @@ use kartik\builder\Form;
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
-                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems, 'container' => ['style' => 'width:50%;']],
+                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContragent::$taxRegtimeTypes, 'container' => ['style' => 'width:50%;']],
                     ],
                 ]);
 
@@ -279,6 +277,7 @@ use kartik\builder\Form;
 
     <?php if (!$model->isNewRecord): ?>
         <div class="col-sm-12 form-group">
+            <a href="#" onclick="return showVersion({ClientContragent:<?= $model->id ?>}, true);">Версии</a><br/>
             <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
             <span>История изменений</span>
         </div>

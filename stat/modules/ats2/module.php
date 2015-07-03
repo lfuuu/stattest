@@ -7,56 +7,6 @@ include_once PATH_TO_ROOT."modules/ats2/freeaccount.php";
 include_once PATH_TO_ROOT."modules/ats2/reservaccount.php";
 include_once PATH_TO_ROOT."modules/ats2/linedb.php";
 
-function getClient($fixClient = null )
-{
-
-    global $db;
-
-    if($fixClient == null)
-    {
-        if(isset($_SESSION["clients_client"]) && $_SESSION["clients_client"])
-            $fixClient = $_SESSION["clients_client"];
-    }
-
-    if($fixClient === null)
-        return "true = false";
-
-    static $cach = array();
-    if(!isset($cach[$fixClient]))
-    {
-        $cach[$fixClient] = $db->GetRow("select * from clients where client = '".$db->escape($fixClient)."'");
-    }
-
-    return $cach[$fixClient];
-    //
-}
-    function getClientById($id)
-    {
-        global $db;
-        static $c = array();
-        if(!isset($c[$id]))
-            $c[$id] = $db->GetValue("select client from clients where id = '".$id."'");
-
-        return $c[$id];
-    }
-
-function getClientId($fixClient = null)
-{
-    $r = getClient($fixClient);
-    return $r ? $r["id"] : false;
-}
-
-function sqlClient($fixClient = null)
-{
-    $c = getClientId($fixClient);
-
-    if(!$c) {
-        die("Клиент не выбран");
-        return "true = false";
-    }
-    return "client_id = ".$c;
-}
-
 class m_ats2 extends IModule
 {
 
@@ -185,7 +135,7 @@ class m_ats2 extends IModule
                                 a_virtpbx_link l, a_virtpbx v 
                             where 
                                     v.id = l.virtpbx_id 
-                                and v.client_id = '".getClientId()."' 
+                                and v.client_id = '".$_SESSION['clients_client']."'
                                 and type='number' 
                                 and type_id = n.id
                         ) as is_virtpbx
@@ -193,7 +143,7 @@ class m_ats2 extends IModule
                     left join a_link k on (k.number_id = n.id) 
                     left join a_line l on (l.id = k.c_id and k.c_type != 'multitrunk') 
                     left join a_multitrunk m on (m.id = k.c_id and k.c_type = 'multitrunk')
-                    where n.".sqlClient()." order by number, k.id") as $n)
+                    where n.client_id = {$_SESSION['clients_client']} order by number, k.id") as $n)
         {
             if(!isset($ns[$n["number"]]))
                 $ns[$n["number"]] = array(
@@ -229,7 +179,7 @@ class m_ats2 extends IModule
                         s.id, parent_id, 
                         account, serial, sequence, is_group 
                     from a_line s, a_connect c
-                    where c_id = c.id and ".sqlClient()." 
+                    where c_id = c.id and client_id = {$_SESSION['clients_client']} 
                     order by serial, is_group desc, sequence") as $l)
         {
 
@@ -298,7 +248,7 @@ class m_ats2 extends IModule
 
             $gData["id"] = $id;
             $gData["is_group"] = $a["is_group"];
-            $gData["client_id"] = getClientId();
+            $gData["client_id"] = $_SESSION['clients_client'];
 
             try{
                 $this->check($gData, $map);
@@ -643,7 +593,7 @@ class m_ats2 extends IModule
                     left join ".SQL_DB.".user_users u on (u.id = p.user_id)                    
                     left join a_line l on (l.id = p.c_id and p.c_type='line')
                     left join a_multitrunk m on (l.id = p.c_id and p.c_type='multitrunk')
-                    where l.".sqlClient()." order by p.id desc limit ".($isFull ? 100 : 4));
+                    where l.client_id = {$_SESSION['clients_client']} order by p.id desc limit ".($isFull ? 100 : 4));
 
         if($isFull)
         {
@@ -705,14 +655,14 @@ class m_ats2 extends IModule
     {
         global $design, $db_ats;
 
-        $design->assign("update_time", $db_ats->GetValue("select unix_timestamp(date) as date from a_update_client where ".sqlClient()));
+        $design->assign("update_time", $db_ats->GetValue("select unix_timestamp(date) as date from a_update_client where client_id = {$_SESSION['clients_client']}"));
 
         $design->addMain("ats2/update_key.htm");
     }
 
     public function ats2_set_update($fixclient)
     {
-        ats2sync::updateClient(getClientId($fixclient));
+        ats2sync::updateClient($fixclient);
 
         Header("Location: ./?module=ats2");
 
@@ -732,7 +682,7 @@ class m_ats2 extends IModule
     {
         global $design;
 
-        $clientId = getClientId();
+        $clientId = $_SESSION['clients_client'];
 
         try{
             virtPbx::startVpbx($clientId);

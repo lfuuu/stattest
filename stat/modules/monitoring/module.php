@@ -97,7 +97,7 @@ class m_monitoring {
 		$design->assign('D',$D);
 		$design->AddMain('monitoring/view_day.tpl');
 	}
-	function monitoring_view2() {
+	function monitoring_view2($fixclient) {
 		global $design,$db,$user;
 		$design->assign('ip',$ip=get_param_protected('ip'));
 		if (!$ip) return $this->monitoring_default($fixclient);

@@ -62,14 +62,7 @@ class UsageIpPorts extends ActiveRecord implements Usage
 
     public function getCurrentTariff()
     {
-        $logTariff =
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->id])
-                ->andWhere('date_activation <= now()')
-                ->andWhere('id_tarif != 0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
+        $logTariff = $this->getCurrentLogTariff();
         if ($logTariff === null) {
             return false;
         }
@@ -88,12 +81,12 @@ class UsageIpPorts extends ActiveRecord implements Usage
         return $this->hasOne(TechPort::className(), ['id' => 'port_id']);
     }
 
-    public function getCpe()
+    public function getCpeList()
     {
         return TechCpe::find()->where(['service' => Transaction::SERVICE_IPPORT, 'id_service' => $this->id])->all();
     }
 
-    public function getNet()
+    public function getNetList()
     {
         return UsageIpRoutes::find()
             ->where(['port_id' => $this->id])

@@ -3,6 +3,7 @@ namespace app\forms\client;
 
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
+use app\models\Country;
 use app\models\HistoryVersion;
 use Yii;
 use app\classes\Form;
@@ -18,41 +19,49 @@ class ContragentEditForm extends Form
     public $ddate = null;
 
     public $legal_type,
-        $name = '',
-        $name_full = '',
-        $address_jur = '',
-        $inn = '',
-        $kpp = '',
-        $position = '',
-        $fio = '',
+        $name,
+        $name_full,
+        $address_jur,
+        $inn,
+        $kpp,
+        $position,
+        $fio,
         $tax_regime,
-        $opf = '',
-        $okpo = '',
-        $okvd = '',
-        $ogrn = '',
-        $country_id = 643,
+        $opf,
+        $okpo,
+        $okvd,
+        $ogrn,
+        $country_id = Country::RUSSIA,
 
-        $contragent_id = '',
-        $first_name = '',
-        $last_name = '',
-        $middle_name = '',
-        $passport_date_issued = '1970-01-01',
-        $passport_serial = '',
-        $passport_number = '',
-        $passport_issued = '',
-        $registration_address = '';
+        $contragent_id,
+        $first_name,
+        $last_name,
+        $middle_name,
+        $passport_date_issued,
+        $passport_serial,
+        $passport_number,
+        $passport_issued,
+        $registration_address;
 
     public function rules()
     {
         $rules = [
-            [['legal_type', 'name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
-            ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
-            ['tax_regime', 'in', 'range' => ['simplified', 'full']],
             [['legal_type', 'super_id'], 'required'],
+            [['name', 'name_full', 'address_jur', 'inn',
+                'kpp', 'position', 'fio', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
+            [['name', 'name_full', 'address_jur', 'inn',
+                'kpp', 'position', 'fio', 'opf', 'okpo', 'okvd', 'ogrn'], 'default', 'value' => ''],
+
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'string'],
+            [['first_name', 'last_name', 'middle_name', 'passport_serial',
+                'passport_number', 'passport_issued', 'registration_address'], 'default', 'value' => ''],
+            ['passport_date_issued', 'default', 'value' => '1970-01-01'],
+
+            ['legal_type', 'in', 'range' => array_keys(ClientContragent::$legalTypes)],
+            ['tax_regime', 'in', 'range' => array_keys(ClientContragent::$taxRegtimeTypes)],
             [['super_id', 'country_id'], 'integer'],
+
         ];
         return $rules;
     }

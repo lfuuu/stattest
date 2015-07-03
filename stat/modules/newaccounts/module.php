@@ -40,7 +40,7 @@ class m_newaccounts extends IModule
         $saldo = get_param_protected('saldo');
         $date = get_param_protected('date');
         $db->Query('update newsaldo set is_history=1 where client_id='.$fixclient_data['id']);
-        $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].','.$saldo.',"'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
+        $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].',"'.$saldo.'","'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
         ClientAccount::dao()->updateBalance($fixclient_data['id']);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
@@ -86,9 +86,7 @@ class m_newaccounts extends IModule
 
         set_time_limit(60);
 
-        $client = ClientAccount::find()->where('id = :id or client = :id', [':id' => $fixclient])->one();
-
-        $_SESSION['clients_client'] = $client->id;
+        $_SESSION['clients_client'] = $fixclient;
 
         $t = get_param_raw('simple',null);
         if($t!==null)
@@ -825,7 +823,7 @@ class m_newaccounts extends IModule
             exit();
         }
         $_SESSION['clients_client'] = $bill->Get("client_id");
-        $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
+        $fixclient_data = ClientAccount::findOne($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
         
@@ -1014,17 +1012,16 @@ class m_newaccounts extends IModule
             }
         } elseif ($obj=='regular') {
             if(is_numeric($fixclient)) {
-                $ca = ClientAccount::findOne($fixclient);
+                $client = ClientAccount::findOne($fixclient);
                 $fixclient = $ca->client;
             }
-            $services = get_all_services($fixclient,$fixclient_data['id']);
+            $services = get_all_services($client->client,$fixclient);
             $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
 
-            $client = \app\models\ClientAccount::findOne($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
-                ClientAccount::dao()->updateBalance($fixclient_data['id']);
-                $client = \app\models\ClientAccount::findOne($fixclient_data['id']);
+                ClientAccount::dao()->updateBalance($fixclient);
+                $client->refresh();
             }
 
             $_R = [];
@@ -3489,7 +3486,7 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
 
         global $user,$db;
 
-        $fixclient_data = ClientCS::FetchClient($clientId);
+        $fixclient_data = ClientAccount::findOne($clientId);
 
         // saldo
         $sum = array('USD'=>array('delta'=>0,'bill'=>0,'ts'=>''),'RUB'=>array('delta'=>0,'bill'=>0,'ts'=>''));

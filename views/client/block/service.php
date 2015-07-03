@@ -97,12 +97,12 @@ if($has) :
 
                         <?php
                         $j = true;
-                        if ($service->cpe) :
-                            foreach ($service->cpe as $cpe) :
+                        if ($service->cpeList) :
+                            foreach ($service->cpeList as $cpe) :
                                 ?>
                                 <tr bgcolor="<?= $actual($cpe->actual_from, $cpe->actual_to) ? '#DCEEA9' : '#fffff5' ?>">
                                     <?php if ($j): ?>
-                                        <td rowspan=<?= count($service->cpe) ?>bgcolor=#DCEEA9>
+                                        <td rowspan=<?= count($service->cpeList) ?>bgcolor=#DCEEA9>
                                             <a href='/?module=routers&action=d_add'>
                                                 <img class=icon src='/images/icons/add.gif'>
                                             </a>Создать устройство
@@ -134,12 +134,12 @@ if($has) :
 
                         <?php
                         $j = true;
-                        if ($service->net) :
-                            foreach ($service->net as $net) :
+                        if ($service->netList) :
+                            foreach ($service->netList as $net) :
                                 ?>
                                 <tr bgcolor="<?= $actual($net->actual_from, $net->actual_to) ? '#DCEEA9' : '#fffff5' ?>">
                                     <?php if ($j): ?>
-                                        <td rowspan=<?= count($service->cpe) ?>bgcolor=#DCEEA9>
+                                        <td rowspan=<?= count($service->netList) ?>bgcolor=#DCEEA9>
                                             <a href='/?module=services&action=in_add2&id=<?= $service->id ?>'>
                                                 <img class=icon src='/images/icons/add.gif'>
                                             </a>Создать сеть

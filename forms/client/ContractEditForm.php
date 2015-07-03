@@ -129,7 +129,13 @@ class ContractEditForm extends Form
         $attributes = $this->getAttributes();
         unset($attributes['public_comment'], $attributes['comment']);
 
-        $contract->setAttributes(array_filter($attributes), false);
+        $contract->setAttributes(
+            array_filter($attributes,
+                function($var){
+                    return $var !== null;
+                }
+            ),
+            false);
 
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);

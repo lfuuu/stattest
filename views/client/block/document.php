@@ -1,7 +1,7 @@
 <?php
 use \yii\helpers\Url;
 ?>
-<?php $docs = $client->allDocuments; ?>
+<?php $docs = $account->allDocuments; ?>
 
 <div class="data-block">
     <div class="row">
@@ -100,11 +100,11 @@ use \yii\helpers\Url;
                     </div>
                 <?php endif; ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $client->id ?>" method="post">
+                    <form action="/document/create?id=<?= $account->id ?>" method="post">
                         <div class="col-sm-2">
                             <input type="hidden" name="contract_type" value="contract">
                             <input class="form-control" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>">
+                                   value="<?= $account->contract->id ?>">
                         </div>
                         <div class="col-sm-2">
                             <input class="form-control contract_datepicker" type="text"
@@ -182,7 +182,7 @@ use \yii\helpers\Url;
                     </div>
                 <?php endif; ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $client->id ?>" method="post">
+                    <form action="/document/create?id=<?= $account->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
                             <input class="form-control" type="text" name="contract_no"
                                    value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
@@ -253,7 +253,7 @@ use \yii\helpers\Url;
                     </div>
                 <?php endif; ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $client->id ?>" method="post">
+                    <form action="/document/create?id=<?= $account->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
                             <input class="form-control" type="text" name="contract_no"
                                    value="<?= $armnt ? $armnt + 1 : 1 ?>"></div>

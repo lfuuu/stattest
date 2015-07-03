@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\ClientFile;
 use Yii;
 use app\classes\BaseController;
@@ -26,11 +27,11 @@ class FileController extends BaseController
         ];
     }
 
-    public function actionList($userId)
+    public function actionList($contractId)
     {
-        $model = ClientAccount::findOne($userId);
+        $model = ClientContract::findOne($contractId);
         if (null === $model)
-            throw new Exception('Клиент не найден');
+            throw new Exception('Договор не найден');
 
         return $this->render('list', ['model' => $model]);
     }
@@ -52,17 +53,20 @@ class FileController extends BaseController
         die;
     }
 
-    public function actionUpload($userId)
+    public function actionUpload($contractId, $childId = null)
     {
-        $model = ClientAccount::findOne($userId);
+        $model = ClientContract::findOne($contractId);
 
         if (!$model)
-            throw new Exception("ЛС не найден");
+            throw new Exception("Договор не найден");
 
         $request = Yii::$app->request->post();
         $model->fileManager->addFile($request['comment'], $request['name']);
 
-        return $this->redirect(['file/list', 'userId'=> $userId]);
+        if ($childId)
+            return $this->redirect(['client/view', 'id' => $childId]);
+        else
+            return $this->redirect(['file/list', 'contractId' => $childId]);
     }
 
     public function actionDelete($id)
@@ -72,7 +76,7 @@ class FileController extends BaseController
         if (null === $model)
             throw new Exception('Файл не найден');
 
-        $model->client->fileManager->removeFile($id);
+        $model->contract->fileManager->removeFile($id);
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return ['status' => 'ok'];
@@ -88,7 +92,7 @@ class FileController extends BaseController
         $res = [
             'file_name' => $model->name,
             'file_content' => base64_encode($model->content),
-            'msg_session' => md5(rand()+time()),
+            'msg_session' => md5(rand() + time()),
             'file_mime' => $model->mime,
         ];
 

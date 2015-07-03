@@ -239,7 +239,7 @@ class aNumber
     {
         global $db_ats;
         
-        return $db_ats->GetValue("select id from a_number where number = '".$number."' and ".sqlClient());
+        return $db_ats->GetValue("select id from a_number where number = '".$number."' and client_id = {$_SESSION['clients_client']}");
     }
 
     private function getNumberLink($numberId)
@@ -292,7 +292,7 @@ class aNumber
                     from 
                         a_line al 
                     where 
-                            al.client_id = '".getClientId()."' 
+                            al.client_id = '".($_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0)."'
                         and is_group = 0
 
                         /* not in used sip accounts */

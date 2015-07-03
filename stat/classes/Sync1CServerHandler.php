@@ -1,5 +1,8 @@
 <?php
 use \ActiveRecord\RecordNotFound;
+use \app\forms\client\ContragentEditForm;
+use \app\forms\client\ContractEditForm;
+use \app\forms\client\AccountEditForm;
 
 class Sync1CServerHandler
 {
@@ -21,20 +24,20 @@ class Sync1CServerHandler
         $super->setAttribute('name', 'autocreate');
         $super->save();
 
-        $cg = new \app\forms\client\ContragentEditForm(['super_id' => $super->id]);
+        $cg = new ContragentEditForm(['super_id' => $super->id]);
         $cg->name = $data->Наименование;
         $cg->name_full = $data->Наименование;
         $cg->inn = $data->ИНН;
         $cg->legal_type = $data->ЮрЛицо ? 'legal' : 'person';
         $cg->save();
 
-        $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
+        $cr = new ContractEditForm(['contragent_id' => $cg->id]);
         $cr->contract_type_id = 5; //Интернет-магазин
         $cr->business_process_id = 3; //Интернет-магазин
         $cr->business_process_status_id = 33; //Интернет-магазин
         $cr->save();
 
-        $client = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
+        $client = new AccountEditForm(['id' => $cr->id]);
         $client->status = "once";
         $client->save();
 

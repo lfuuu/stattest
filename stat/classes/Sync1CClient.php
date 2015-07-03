@@ -19,19 +19,17 @@ class Sync1CClient
 
     public function saveClientCards($cl_main_card)
     {
-        $cls = \app\models\ClientAccount::find(['client' => $cl_main_card])->all();
-        foreach ($cls as $cl) {
-            if (!$this->saveClientCard($cl->id)) {
-                return false;
-            }
+        $account = \app\models\ClientAccount::findOne(['client' => $cl_main_card]);
+        if (!$this->saveClientCard($account->id)) {
+            return false;
         }
         return true;
     }
 
     public function saveClientCard($clientCardId)
     {
-        $client = \app\models\ClientAccount::findOne($clientCardId);
-        if (!$client)
+        $account = \app\models\ClientAccount::findOne($clientCardId);
+        if (!$account)
             return false;
 
         global $user;
@@ -39,19 +37,19 @@ class Sync1CClient
         try {
             $params = array(
                 'contract' => array(
-                    'ИдКлиентаСтат' => $client->client,
-                    'ИдКарточкиКлиентаСтат' => $client->client,
-                    'КодКлиентаСтат' => $client->id,
-                    'КодКарточкиКлиентаСтат' => $client->id,
-                    'НаименованиеКомпании' => $client->contract->contragent->name,
-                    'ПолноеНаименованиеКомпании' => $client->contract->contragent->name_full,
-                    'ИНН' => $client->contract->contragent->inn,
-                    'КПП' => $client->contract->contragent->kpp,
-                    'ЮридическийАдрес' => $client->contract->contragent->address_jur,
-                    'ПравоваяФорма' => in_array($client->contract->contragent->legal_type, ['legal', 'ip']) ? 'ЮрЛицо' : 'ФизЛицо',
-                    'Организация' => $client->contract->organization,
-                    'ВалютаРасчетов' => $client->currency,
-                    'ВидЦен' => $client->price_type ? $client->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
+                    'ИдКлиентаСтат' => $account->client,
+                    'ИдКарточкиКлиентаСтат' => $account->client,
+                    'КодКлиентаСтат' => $account->id,
+                    'КодКарточкиКлиентаСтат' => $account->id,
+                    'НаименованиеКомпании' => $account->contract->contragent->name,
+                    'ПолноеНаименованиеКомпании' => $account->contract->contragent->name_full,
+                    'ИНН' => $account->contract->contragent->inn,
+                    'КПП' => $account->contract->contragent->kpp,
+                    'ЮридическийАдрес' => $account->contract->contragent->address_jur,
+                    'ПравоваяФорма' => in_array($account->contract->contragent->legal_type, ['legal', 'ip']) ? 'ЮрЛицо' : 'ФизЛицо',
+                    'Организация' => $account->contract->organization,
+                    'ВалютаРасчетов' => $account->currency,
+                    'ВидЦен' => $account->price_type ? $account->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
                 ),
                 'Пользователь' => $user->Get("user")
             );
@@ -61,7 +59,7 @@ class Sync1CClient
         } catch (\SoapFault $e) {
             $this->helper->throw1CException($e);
         }
-        Yii::$app->db->createCommand("delete from z_sync_1c where tname='clientCard' and tid='$client->id'")->execute();
+        Yii::$app->db->createCommand("delete from z_sync_1c where tname='clientCard' and tid='$account->id'")->execute();
 
         return true;
     }

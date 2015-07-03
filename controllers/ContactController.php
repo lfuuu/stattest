@@ -2,9 +2,9 @@
 namespace app\controllers;
 
 use app\classes\BaseController;
+use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\LkNoticeSetting;
-use app\models\TagToModel;
 use \Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -29,20 +29,19 @@ class ContactController extends BaseController
     public function actionCreate($clientId)
     {
         $data = Yii::$app->request->post();
-        $model = new ClientContact();
-        $model->setAttributes($data, false);
-        $model->client_id = $clientId;
-        $model->is_active = 1;
-        $model->save();
 
-        if ($data['tags']) {
-            foreach ($data['tags'] as $tagId) {
-                $tagModel = new TagToModel();
-                $tagModel->tag_id = $tagId;
-                $tagModel->model = self::className();
-                $tagModel->model_id = $model->id;
-                $tagModel->save();
+        if (isset($data['admin-lk-id']) && isset($data['set-admin-lk'])) {
+            $client = ClientAccount::findOne($clientId);
+            if ($data['admin-lk-id'] != $client->admin_contact_id) {
+                $client->admin_contact_id = $data['admin-lk-id'];
+                $client->save();
             }
+        } elseif (!empty($data['data'])) {
+            $model = new ClientContact();
+            $model->setAttributes($data, false);
+            $model->client_id = $clientId;
+            $model->is_active = 1;
+            $model->save();
         }
 
         $this->redirect(Yii::$app->request->referrer);

@@ -19,16 +19,16 @@ class ClientFile extends ActiveRecord
 
     public function getContent()
     {
-        return FileManager::create($this->client_id)->getContent($this);
+        return FileManager::create($this->contract_id)->getContent($this);
     }
 
     public function getMime()
     {
-        return FileManager::create($this->client_id)->getMime($this);
+        return FileManager::create($this->contract_id)->getMime($this);
     }
 
-    public function getClient()
+    public function getContract()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
     }
 }

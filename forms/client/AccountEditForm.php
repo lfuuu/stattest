@@ -5,12 +5,11 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Currency;
 use app\models\HistoryVersion;
+use app\models\PriceType;
 use app\models\Region;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
-use app\models\Client;
-use yii\helpers\ArrayHelper;
 
 class AccountEditForm extends Form
 {
@@ -23,107 +22,80 @@ class AccountEditForm extends Form
         $contract_id;
 
     public
-        $client = '',
-        $region = 99,
-        $password = '',
-        $password_type = 'plaintext',
-        $status = 'income',
-        $support = '',
-        $login = '',
-        $currency_bill = 'RUB',
-        $telemarketing = '',
-        $site_req_no = '',
-        $cli_1c,
-        $con_1c,
-        $country_id = 643,
-        $credit_RUB = 0,
-        $credit_USD = 0,
-        $previous_reincarnation,
-        $nds_calc_method = 1,
-        $admin_contact_id = 0,
-        $admin_is_active = 1,
-        $is_bill_only_contract = 0,
-        $is_bill_with_refund = 0,
-        $is_active = 1,
-        $is_closed = 0,
-        $balance_usd = 0.00,
-        $sync_1c = 'no',
-        $last_account_date,
-        $comment = '',
-        $usd_rate_percent = 0.0,
-        $address_post = '',
-        $address_post_real = '',
-        $address_connect = '',
-        $bik = '',
-        $bank_properties = '',
-        $currency = 'RUB',
-        $stamp = 0,
-        $nal = 'beznal',
-        $credit = -1,
-        $credit_size = 0,
-        $sale_channel = 0,
-        $user_impersonate = 'client',
-        $phone_connect = '',
-        $id_all4net = 0,
-        $dealer_comment = '',
-        $form_type = 'manual',
-        $metro_id = 0,
-        $payment_comment = '',
-        $corr_acc = '',
-        $pay_acc = '',
-        $bank_name = '',
-        $bank_city = '',
-        $price_type = '',
-        $voip_credit_limit = 0,
-        $voip_disabled = 0,
-        $voip_credit_limit_day = 0,
-        $balance = 0.00,
-        $voip_is_day_calc = 1,
-        $mail_print = 'yes',
-        $mail_who = '',
-        $head_company = '',
-        $head_company_address_jur = '',
-        $bill_rename1 = 'no',
-        $is_agent = 'N',
-        $is_with_consignee = 0,
-        $consignee = '',
-        $is_upd_without_sign = 0,
-        $is_blocked = 0,
-        $timezone_name = 'Europe/Moscow';
+        $client,
+        $region = Region::MOSCOW,
+        $password,
+        $status,
+        $address_post,
+        $address_post_real,
+        $address_connect,
+        $currency,
+        $stamp,
+        $nal,
+        $credit,
+        $credit_size,
+        $sale_channel,
+        $phone_connect,
+        $form_type,
+        $payment_comment,
+        $price_type,
+        $voip_credit_limit,
+        $voip_disabled,
+        $voip_credit_limit_day,
+        $voip_is_day_calc,
+        $mail_print,
+        $mail_who,
+        $head_company,
+        $head_company_address_jur,
+        $bill_rename1,
+        $is_agent,
+        $is_with_consignee,
+        $consignee,
+        $is_upd_without_sign,
+        $timezone_name = Region::TIMEZONE_MOSCOW;
 
     public function rules()
     {
         $rules = [
             [
                 [
-                    'client', 'password', 'password_type', 'comment', 'status', 'address_post', 'address_post_real', 'support', 'login', 'bik', 'bank_properties', 'currency', 'currency_bill',
-                    'nal', 'telemarketing', 'site_req_no', 'user_impersonate', 'address_connect', 'phone_connect',
-                    'dealer_comment', 'form_type', 'payment_comment', 'cli_1c', 'con_1c', 'corr_acc', 'pay_acc', 'bank_name', 'bank_city', 'sync_1c', 'price_type',
-                    'last_account_date', 'mail_who', 'head_company', 'head_company_address_jur', 'bill_rename1',
-                    'consignee', 'timezone_name',
+                    'client', 'password', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
+                    'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                 ],
                 'string'
             ],
             [
                 [
-                    'id', 'super_id', 'contragent_id', 'contract_id', 'country_id', 'stamp', 'sale_channel', 'credit_USD', 'credit_RUB', 'credit', 'id_all4net',
-                    'metro_id', 'previous_reincarnation', 'voip_credit_limit', 'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'region',
-                    'nds_calc_method', 'admin_contact_id', 'admin_is_active', 'is_bill_only_contract', 'is_bill_with_refund', 'is_with_consignee',
-                    'is_upd_without_sign', 'is_active', 'is_blocked', 'is_closed', 'is_agent', 'mail_print'
+                    'client', 'password', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
+                    'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                ],
+                'default', 'value' => ''
+            ],
+            [
+                [
+                    'id', 'super_id', 'contragent_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'voip_credit_limit',
+                    'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
+                    'is_agent', 'mail_print'
                 ],
                 'integer'
             ],
             [
                 [
-                    'usd_rate_percent', 'balance', 'balance_usd'
+                    'stamp', 'sale_channel', 'credit', 'voip_credit_limit', 'is_agent', 'mail_print',
+                    'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
                 ],
-                'number'
+                'default', 'value' => 0
             ],
-            ['password_type', 'in', 'range' => ['plaintext', 'MD5']],
-            ['status', 'in', 'range' => ['negotiations', 'testing', 'connecting', 'work', 'closed', 'tech_deny', 'telemarketing', 'income', 'deny', 'debt', 'double', 'trash', 'move', 'already', 'denial', 'once', 'reserved', 'suspended', 'operator', 'distr', 'blocked']],
-            ['nal', 'in', 'range' => ['nal', 'beznal', 'prov']],
-            ['sync_1c', 'in', 'range' => ['no', 'yes']],
+            ['currency', 'in', 'range' => array_keys(Currency::map())],
+            ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
+            ['region', 'in', 'range' => array_keys(Region::getList())],
+            ['price_type', 'in', 'range' => array_keys(PriceType::getList())],
+            ['timezone_name', 'in', 'range' => array_keys(Region::getTimezoneList())],
+            ['status', 'in', 'range' => array_keys(ClientAccount::$statuses)],
+            ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
+
+            ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
         ];
         return $rules;
     }
@@ -167,7 +139,7 @@ class AccountEditForm extends Form
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
-        $client->setAttributes(array_filter($this->getAttributes()), false);
+        $client->setAttributes($this->getAttributes(null, ['ddate', 'id']), false);
 
         if ($client->save()) {
             if (!$client->client) {
@@ -188,25 +160,9 @@ class AccountEditForm extends Form
         return $this->id ? false : true;
     }
 
-    public function getTimezones()
-    {
-        $arr = Region::find()->groupBy(['timezone_name'])->all();
-        return ArrayHelper::map($arr, 'timezone_name', 'timezone_name');
-    }
-
-    public function getNalTypes()
-    {
-        return ['beznal' => 'Безнал', 'nal' => 'нал', 'prov' => 'пров'];
-    }
-
     public function getCurrencyTypes()
     {
         return Currency::map();
-    }
-
-    public function getFormTypes()
-    {
-        return ['manual' => 'ручное', 'bill' => 'при выставлении счета', 'payment' => 'при внесении платежа',];
     }
 
 }

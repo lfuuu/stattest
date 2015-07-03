@@ -11,7 +11,7 @@ function get_file($filePath)
 
     if($file != 0 && file_exists($filePath.$file.".mp3"))
     {
-        $name = $db->GetValue("SELECT file FROM anonses WHERE id='".$file."' and ".sqlClient());
+        $name = $db->GetValue("SELECT file FROM anonses WHERE id='".$file."' and client_id = {$_SESSION['clients_client']}");
 
         header("Content-type: audio/mp3");
         header("Content-Disposition: attachment; filename=\"".$name.".mp3\"");
@@ -56,9 +56,9 @@ function anonses_edit($filePath)
         if (!$error) 
         {
             if ($id != 0) {
-                $db->Query("update      anonses set name = '".$rGet["name"]."' where ".sqlClient()." and id='".$id."'");
+                $db->Query("update      anonses set name = '".$rGet["name"]."' where client_id = {$_SESSION['clients_client']} and id='".$id."'");
             } else {
-                $db->Query("insert into anonses set name = '".$rGet["name"]."', ".sqlClient().", id='".$id."'");
+                $db->Query("insert into anonses set name = '".$rGet["name"]."', client_id = {$_SESSION['clients_client']}, id='".$id."'");
             }
 
             if ($id == 0) {
@@ -78,7 +78,7 @@ function anonses_edit($filePath)
             if(saveFile($error, $msg, $id, $filePath))
             {
                 $fn = $_FILES['upfile']["name"];
-                $db->Query("update anonses set file ='".$db->escape(substr($fn,0,strrpos($fn, ".")))."' where id = '".$id."' and ".sqlClient());
+                $db->Query("update anonses set file ='".$db->escape(substr($fn,0,strrpos($fn, ".")))."' where id = '".$id."' and client_id = {$_SESSION['clients_client']}");
             }
 
         }else{
@@ -106,7 +106,7 @@ function anonses_edit($filePath)
     } else {
         $title= "Редактирование приветствия";
 
-        $r = $db->GetRow("SELECT * from anonses WHERE id='".$id."' and ".sqlClient());
+        $r = $db->GetRow("SELECT * from anonses WHERE id='".$id."' and client_id = {$_SESSION['clients_client']}");
     }
 
 

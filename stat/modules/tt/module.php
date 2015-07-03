@@ -53,8 +53,6 @@ class m_tt extends IModule{
         global $db,$design,$user;
         $this->curclient = $fixclient;
         $f = $user->Flag('tt_tasks');
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if($f<2 || $f>4)
             $f = 2;
         $mode = get_param_integer('mode',$f);
@@ -401,8 +399,6 @@ class m_tt extends IModule{
     }
     function tt_view_type($fixclient){
         global $db, $design, $user;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if(isset($_REQUEST['type_pk'])){
             $type = $db->GetRow('select * from tt_types where pk='.(int)$_REQUEST['type_pk']);
         }elseif(isset($_REQUEST['type'])){
@@ -459,8 +455,6 @@ class m_tt extends IModule{
 
     function tt_report($fixclient){
         global $db,$design,$user;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         $from=getdate();
         $from['mday']=1;
@@ -514,8 +508,6 @@ class m_tt extends IModule{
     //всякие функции
     function tt_view($fixclient){
         global $db,$design,$user;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
 
         if(!$this->cur_trouble_id){
@@ -759,8 +751,6 @@ where c.client="'.$trouble['client_orig'].'"')
     }
     function tt_timetable($fixclient) {
         global $db,$design,$user;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         $this->showTimeTable(true);
     }
@@ -788,11 +778,6 @@ where c.client="'.$trouble['client_orig'].'"')
         //printdbg(func_get_args());
         global $db,$user,$design;
         $tt_design = 'full';
-        /*
-        if(isset($_REQUEST['client']) && $_REQUEST['client']!=='---'){ //
-            $client = $_REQUEST['client'];
-        }
-        */
                 $state = false;
 
 
@@ -1069,7 +1054,7 @@ where c.client="'.$trouble['client_orig'].'"')
         //}
 
         if($client)
-            $W[]='T.client="'.addslashes($client).'"';
+            $W[]='cl.id="'.$client.'"';
         if($service)
             $W[]='service="'.addslashes($service).'"';
         if($service_id)
@@ -1392,10 +1377,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($this->dont_again)
             return 0;
-        global $db,$design,$user;
-
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
+        global $db,$design;
 
         if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id, $server_ids);
@@ -1762,9 +1744,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     function tt_sapply($fixclient){
         global $design,$db;
         $this->InitDbMap();
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
-        $row=get_param_raw('row',array());
         if (($this->dbmap->ApplyChanges('tt_states')!="ok") && (get_param_protected('dbaction','')!='delete')) {
             $row=get_param_raw('row',array());
             $this->dbmap->ShowEditForm('tt_states','',$row);
@@ -2008,8 +1987,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     function tt_doers_list($fixclient){
         global $db,$design;
 
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $dateFrom = new DatePickerValues('date_from', 'today');
         $dateTo = new DatePickerValues('date_to', 'today');
         $dateFrom->format = 'Y-m-d 00:00:00';$dateTo->format = 'Y-m-d 23:59:59';
@@ -2482,8 +2459,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
     function tt_refix_doers($fixclient){
         if(count($_POST)>0){
-            if(is_numeric($fixclient))
-                $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
             global $db,$design;
             $trouble_id = (int)$_POST['id'];
 
@@ -2645,8 +2620,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function tt_doers($fixclient){
         global $db,$design;
-        if(is_numeric($fixclient))
-            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         if((isset($_POST['change']) && $_POST['change']) || (isset($_POST['append'])) || isset($_GET['drop'])){
             if(isset($_GET['drop']) && is_numeric($_GET['drop']) && $_GET['drop']){

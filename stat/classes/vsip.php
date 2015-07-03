@@ -5,7 +5,7 @@ class vSip
 
     public static function get($id, $withFixClient = true)
     {
-        $sqlClient = $withFixClient ? " and s.".sqlClient() : "";
+        $sqlClient = $withFixClient ? " and s.client_id = {$_SESSION['clients_client']}" : "";
 
         if($id == 0)
         {
@@ -526,7 +526,7 @@ class vSip
     {
         global $db;
 
-        return $db->GetValue("select max(line_pref) from v_sip where ".sqlClient()." and line_mask='".$mask."'");
+        return $db->GetValue("select max(line_pref) from v_sip where client_id = {$_SESSION['clients_client']} and line_mask='".$mask."'");
     }
 
 

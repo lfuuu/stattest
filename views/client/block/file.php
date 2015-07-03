@@ -2,7 +2,7 @@
 use \yii\helpers\Url;
 
 ?>
-<?php $files = $client->files; ?>
+<?php $files = $account->contract->allFiles; ?>
 
 <div class="data-block row">
     <div class="row">
@@ -55,7 +55,7 @@ use \yii\helpers\Url;
             <?php endforeach; ?>
 
             <div class="row">
-                <form action="/file/upload?userId=<?= $client->id ?>" method=post enctype="multipart/form-data">
+                <form action="/file/upload?contractId=<?= $account->contract->id ?>&childId=<?=$account->id?>" method=post enctype="multipart/form-data">
                     <div class="col-sm-4">
                         <input class="form-control" type=text name="name" placeholder="Название файла">
                     </div>
@@ -82,7 +82,7 @@ use \yii\helpers\Url;
                   action="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5">
                 <label for="client-email">Email</label>
                 <select id="client-email" class="form-control" name="to">
-                    <?php foreach ($client->allContacts as $contact)
+                    <?php foreach ($account->allContacts as $contact)
                         if ($contact->is_active && $contact->type == 'email'):?>
                             <option value="<?= $contact->data ?>"><?= $contact->data ?></option>
                         <?php endif; ?>
@@ -121,24 +121,26 @@ use \yii\helpers\Url;
 
     $('.fileSend').on('click', function (e) {
         e.preventDefault();
-        $.get('/file/send', {id: $(this).data('id')}, function (data) {
+        $.getJSON('/file/send', {id: $(this).data('id')}, function (data) {
             $('#file_content').val(data['file_content']);
             $('#file_name').val(data['file_name']);
             $('#file_mime').val(data['file_mime']);
             $('#msg_session').val(data['msg_session']);
             dialog.dialog("open");
-        }, 'json');
+        });
     });
 
     $('.deleteFile').on('click', function (e) {
         e.preventDefault();
         var fid = $(this).data('id');
-        var row = $(this).closest('tr');
+        var row = $(this).closest('.row');
         if (confirm('Вы уверены, что хотите удалить файл?')) {
-            $.get('/file/delete', {id: fid}, function (data) {
+            $.getJSON('/file/delete', {id: fid}, function (data) {
+                console.log(data);
+                console.log(data['status'] == 'ok');
                 if (data['status'] == 'ok')
                     row.remove();
-            }, 'json');
+            });
         }
     });
 </script>

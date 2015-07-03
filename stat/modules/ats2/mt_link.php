@@ -95,13 +95,13 @@ class MTLink
                 "data_all" => array(array("type" => "query", "query" => "
                         select id, concat(number, 'x', call_count) as number 
                         from a_number 
-                        where ".sqlClient()." 
+                        where client_id = {$_SESSION['clients_client']} 
                         and id not in ( #not in linked, except self binding
                             select number_id 
                             from a_link l, a_number n 
                             where 
                             l.number_id =n.id 
-                            and ((n.".sqlClient()." )
+                            and ((n.client_id = {$_SESSION['clients_client']} )
                                 and !(c_type ='multitrunk' and c_id = ".$id."))
                             )
                         and id not in ( # not in virtpbx
@@ -109,7 +109,7 @@ class MTLink
                             from a_virtpbx_link l, a_virtpbx v
                             where 
                                     l.virtpbx_id = v.id
-                                and v.".sqlClient()."
+                                and v.client_id = {$_SESSION['clients_client']}
                             )
 
                         order by number
@@ -148,7 +148,6 @@ class mtLinkDB
     {
         if($id == 0)
         {
-            $c = getClient();
             $data = array(
                     "id"            => 0,
                     "multitrunk_id" => 0,
@@ -156,7 +155,7 @@ class mtLinkDB
                     );
         }else{
             global $db_ats;
-            $data = $db_ats->GetRow($q = "select id, parent_id as multitrunk_id from a_multitrunk where ".sqlClient()." and id='".$id."'");
+            $data = $db_ats->GetRow($q = "select id, parent_id as multitrunk_id from a_multitrunk where client_id = {$_SESSION['clients_client']} and id='".$id."'");
 
             //$data = $db_ats->GetRow("select id from a_multitrunk m, a_connect c where c.id = m.c_id and m.id = ".$id);
 
@@ -185,7 +184,7 @@ class mtLinkDB
         $id = $db_ats->QueryInsert("a_multitrunk", array(
                     "name" => $db_ats->GetValue("select name from a_multitrunk where id ='".$d["multitrunk_id"]."'"),
                     "parent_id" => $d["multitrunk_id"],
-                    "client_id" => getClientId()
+                    "client_id" => $_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0
                     )
                 );
 

@@ -7,16 +7,16 @@ use app\models\ClientFile;
 
 class FileManager
 {
-    private $accountId = null;
+    private $contractId = null;
 
-    public function create($accountId)
+    public function create($contractId)
     {
-        return new self($accountId);
+        return new self($contractId);
     }
 
-    private function __construct($accountId)
+    private function __construct($contractId)
     {
-        $this->accountId = $accountId;
+        $this->contractId = $contractId;
     }
 
     public function addFile($comment = "", $name = "")
@@ -33,7 +33,7 @@ class FileManager
         }
 
         $file = new ClientFile;
-        $file->client_id = $this->accountId;
+        $file->contract_id = $this->contractId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
         $file->name = $name;
@@ -57,7 +57,7 @@ class FileManager
 
 
         $file = new ClientFile;
-        $file->client_id = $this->accountId;
+        $file->contract_id = $this->contractId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
         $file->name = $name;
@@ -76,7 +76,7 @@ class FileManager
 
     public function removeFile($id)
     {
-        $f = ClientFile::findOne(["client_id" => $this->accountId, "id" => $id]);
+        $f = ClientFile::findOne(["contract_id" => $this->contractId, "id" => $id]);
         if ($f)
         {
             $f->delete();

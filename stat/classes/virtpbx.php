@@ -12,22 +12,6 @@ class virtPbxChecker
             virtPbxDiff::apply($diff);
     }
 
-    private function sqlClient($client = null)
-    {
-        global $db;
-        if($client == null)
-        {
-            $client = $_SESSION["clients_client"];
-        }
-        
-        static $c = array();
-
-        if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from clients where client = '".$db->escape($client)."'");
-
-        return "client_id='".$c[$client]."'";
-    }
-
     private static $sqlActual = "
             SELECT
                 u.id as usage_id,
@@ -152,7 +136,7 @@ class virtPbx
         global $db_ats;
 
         if ($clientId === null)
-            $clientId = getClientId();
+            $clientId = $_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0;
 
         $numbers = array();
         $accounts = array();

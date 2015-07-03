@@ -84,7 +84,7 @@ class aVirtPbx
                     FROM 
                         `a_link` l, a_number n 
                     WHERE 
-                            n.client_id = '".getClientId()."' 
+                            n.client_id = '".($_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0)."'
                         and n.id = l.number_id") as $l)
         {
             if ($l["number_id"])
@@ -139,7 +139,7 @@ class aVirtPbx
         $add = array_diff($posted, $saved);
         $del = array_diff($saved, $posted);
 
-        $clientId = getClientId();
+        $clientId = $_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0;
 
 
         $result = array();
@@ -224,7 +224,7 @@ class aVirtPbx
         $map = array();
 
         $sqlNumbers = array(array("type" => "query", "query" => 
-                    "select id, concat(number, 'x', call_count), number from a_number where id not in (select distinct number_id from a_link) and client_id = '".getClientId()."' order by number",
+                    "select id, concat(number, 'x', call_count), number from a_number where id not in (select distinct number_id from a_link) and client_id = '".($_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0)."' order by number",
                     "db" => "db_ats"
                     )
                 );
@@ -243,7 +243,7 @@ class aVirtPbx
     {
         global $db_ats;
         
-        return $db_ats->GetValue("select id from a_virtpbx where client_id = '".getClientId()."'");
+        return $db_ats->GetValue("select id from a_virtpbx where client_id = '".($_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0)."'");
     }
 
 }

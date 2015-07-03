@@ -1,19 +1,19 @@
 <div class="row" style="margin-right: 0;">
     <div class="col-sm-12">
-        <?= $this->render('block/main', ['sClient' => $sClient, 'activeClient' => $activeClient]); ?>
+        <?= $this->render('block/main', ['client' => $client, 'active' => $account]); ?>
         <div class="row">
             <div class="col-sm-10">
-                <?= $this->render('block/status', ['client' => $activeClient, 'contractForm' => $contractForm]); ?>
-                <?= $this->render('block/contact', ['client' => $activeClient]); ?>
-                <?= $this->render('block/document', ['client' => $activeClient]); ?>
-                <?= $this->render('block/file', ['client' => $activeClient]); ?>
+                <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
+                <?= $this->render('block/contact', ['account' => $account]); ?>
+                <?= $this->render('block/document', ['account' => $account]); ?>
+                <?= $this->render('block/file', ['account' => $account]); ?>
             </div>
             <div class="col-sm-2">
-                <?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>
+                <?= $this->render('block/rightmenu', ['account' => $account]); ?>
             </div>
         </div>
         <?= $this->render('block/trouble', ['troubles' => $troubles]); ?>
-        <?= $this->render('block/service', ['client' => $activeClient, 'services' => $services]); ?>
+        <?= $this->render('block/service', ['services' => $services]); ?>
 
     </div>
 

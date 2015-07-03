@@ -196,10 +196,10 @@ CREATE TABLE `client_contract_type` (
 -- Table structure for table `client_document`
 --
 
-DROP TABLE IF EXISTS `client_document`;
+DROP TABLE IF EXISTS `client_contracts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_document` (
+CREATE TABLE `client_contracts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL,
   `contract_no` varchar(100) NOT NULL,

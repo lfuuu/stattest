@@ -34,7 +34,7 @@ class MT
                     select id, name, client_id, parent_id, call_count, is_pool 
                     from a_multitrunk order by name") as $l)
         {
-            $l["client"] = getClientById($l["client_id"]);
+            $l["client"] = \app\models\ClientAccount::findOne($l["client_id"])->client;
             $m[$l["id"]] = $l;
             if(!isset($p[$l["parent_id"]])) $p[$l["parent_id"]] = array();
             $p[$l["parent_id"]][] = $l["id"];
@@ -225,7 +225,7 @@ class MT
             $this->logPassword($data, "change");
         }
 
-        $data["client_id"] = getClientId($data["client"]);
+        $data["client_id"] = \app\models\ClientAccount::findOne(['client' => $data["client"]])->id;
         unset($data["client"]);
 
         if($data["id"] == 0)
@@ -242,9 +242,9 @@ class MT
     {
             global $user, $db_ats;
 
-            $client = getClient($s["client"]);
+            $cid = \app\models\ClientAccount::findOne(['client' => $s["client"]])->id;
             $db_ats->QueryInsert("a_log_password",array(
-                        "client_id" => $client["id"],
+                        "client_id" => $cid,
                         "time" => array("NOW()"),
                         "account" => $s["name"],
                         "c_id" => $s["id"],
@@ -367,7 +367,7 @@ class MT
         checker::isEmpty($data["name"], "Название транка не задано!");
         checker::isEmpty($data["client"], "Клиент не задан!");
 
-        checker::isEmpty(getClient($data["client"]), "Клиент не найден!");
+        checker::isEmpty(\app\models\ClientAccount::findOne($_SESSION['clients_client']), "Клиент не найден!");
 
         if($data["host_type"] != "static")
             checker::isEmpty($data["password"], "Пароль не задан!");
@@ -408,11 +408,11 @@ class mtDB
     {
         if($id == 0)
         {
-            $c = getClient();
+            $c = \app\models\ClientAccount::findOne($_SESSION["clients_client"])->client;
             $data = array(
                     "id" => 0,
                     "name" => "",
-                    "client" => $c["client"],
+                    "client" => $c,
                     "password" => "********",
                     "host_type" => "dynamic",
                     "host_static" => "",
@@ -430,7 +430,7 @@ class mtDB
 
             $data = $db_ats->GetRow("select * from a_multitrunk m, a_connect c where c.id = m.c_id and m.id = ".$id);
             $data["id"] = $id;
-            $data["client"] = getClientById($data["client_id"]);
+            $data["client"] = \app\models\ClientAccount::findOne($data["client_id"])->client;
             unset($data["client_id"]);
 
         }

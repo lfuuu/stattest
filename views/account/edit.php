@@ -2,24 +2,21 @@
 
 use yii\helpers\Html;
 use app\models\Region;
-use app\models\Metro;
 use app\models\SaleChannel;
-use app\models\Bank;
 use app\models\PriceType;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
 use kartik\widgets\DatePicker;
+use app\models\ClientAccount;
+use \app\models\Currency;
 
 ?>
 <div class="row">
     <div class="col-sm-12">
         <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> Лицевого Счета</h2>
 
-        <?php
-        $f = ActiveForm::begin();
-        $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
-        ?>
+        <?php $f = ActiveForm::begin(); ?>
 
         <div class="row" style="width: 1100px;">
             <?php
@@ -48,7 +45,7 @@ use kartik\widgets\DatePicker;
                             ])
                             . '</div>'
                     ],
-                    'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->timezones],
+                    'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Region::getTimezoneList()],
                     'sale_channel' => [
                         'type' => Form::INPUT_RAW,
                         'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['sale_channel'] . '</label>'
@@ -65,8 +62,8 @@ use kartik\widgets\DatePicker;
                     ],
                     'password' => [],
 
-                    'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->nalTypes],
-                    'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->currencyTypes],
+                    'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$nalTypes],
+                    'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Currency::map()],
                     'price_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => PriceType::getList()],
                     'empty1' => ['type' => Form::INPUT_RAW,],
 
@@ -113,7 +110,7 @@ use kartik\widgets\DatePicker;
                     'stamp' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'is_upd_without_sign' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
-                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->formTypes],
+                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$formTypes],
 
                     'address_connect' => ['columnOptions' => ['colspan' => 2],],
                     'phone_connect' => ['columnOptions' => ['colspan' => 2],],
@@ -170,6 +167,7 @@ use kartik\widgets\DatePicker;
 
             <?php if (!$model->isNewRecord): ?>
                 <div class="col-sm-12 form-group">
+                    <a href="#" onclick="return showVersion({ClientAccount:<?= $model->id ?>}, true);">Версии</a><br/>
                     <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientAccount:' . $model->id . '})']); ?>
                     <span>История изменений</span>
                 </div>

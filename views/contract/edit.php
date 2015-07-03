@@ -13,10 +13,7 @@ use kartik\widgets\DatePicker;
     <div class="col-sm-12">
         <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> договора</h2>
 
-        <?php
-        $f = ActiveForm::begin();
-        $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
-        ?>
+        <?php $f = ActiveForm::begin(); ?>
 
         <div class="row" style="width: 1100px;">
             <?php
@@ -141,6 +138,7 @@ use kartik\widgets\DatePicker;
 
             <?php if (!$model->isNewRecord): ?>
                 <div class="col-sm-12 form-group">
+                    <a href="#" onclick="return showVersion({ClientContract:<?= $model->id ?>}, true);">Версии</a><br/>
                     <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
                     <span>История изменений</span>
                 </div>

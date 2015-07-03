@@ -11,16 +11,9 @@ class ClientContact extends ActiveRecord
         return 'client_contacts';
     }
 
-    public function getUserName()
-    {
-        $r = $this->hasOne(User::className(), ['id' => 'user_id'])->one();
-        return $r->name;
-    }
-
     public function getUserUser()
     {
-        $r = $this->hasOne(User::className(), ['id' => 'user_id'])->one();
-        return $r->user;
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     public static function dao()

@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\FileManager;
 use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
 
@@ -63,11 +64,6 @@ class ClientContract extends ActiveRecord
         }
     }
 
-    public function getClients()
-    {
-        return $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
-    }
-
     public function getManagerName()
     {
         $m = User::findByUsername($this->manager);
@@ -82,15 +78,14 @@ class ClientContract extends ActiveRecord
 
     public function getManagerColor()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'manager']);
         $m = User::findByUsername($this->manager);
-        return ($m) ? $m->color : $this->manager;
+        return ($m) ? $m->color : '';
     }
 
     public function getAccountManagerColor()
     {
         $m = User::findByUsername($this->account_manager);
-        return ($m) ? $m->color : $this->account_manager;
+        return ($m) ? $m->color : '';
     }
 
     public function getBusinessProcess()
@@ -141,20 +136,33 @@ class ClientContract extends ActiveRecord
         if(isset($this->historyVersionDate))
             $date = $this->historyVersionDate;
 
-        $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
+        $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id'])->all();
         foreach($models as &$model)
         {
             $model = HistoryVersion::getVersionOnDate(ClientAccount::className(), $model->id, $date);
         }
+
         return $models;
+    }
+
+    public function getAllFiles()
+    {
+        return $this->hasMany(ClientFile::className(), ['contract_id' => 'id']);
+    }
+
+    public function getFileManager()
+    {
+        return FileManager::create($this->id);
     }
 
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
         if ($insert) {
-            $client = new AccountEditForm(['contract_id' => $this->id]);
+            $client = new ClientAccount();
             $client->contract_id = $this->id;
+            $client->super_id = $this->super_id;
+            $client->validate();
             $client->save();
             $this->newClient = $client;
             $this->number = $client->id;

@@ -7,34 +7,34 @@ use \app\models\ClientContract;
 
     <div class="row">
         <div class="col-sm-8">
-            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $sClient->id ?>&childId=<?=$activeClient->id?>"><?= $sClient->name ?></a></h2>
+            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?=$account->id?>"><?= $client->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <a href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_client_id=<?= $sClient->id ?>">
+            <a href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>">
                 Переход в ЛК
             </a>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $sClient->id, 'childId' => $activeClient->id]) ?>">
+            <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $client->id, 'childId' => $account->id]) ?>">
                 <span class="c-blue-color">
                     <i class="glyphicon glyphicon-plus"></i> Новый контрагент
                 </span>
             </a>
         </div>
         <div class="col-sm-12">
-            <?php $contragents = $sClient->contragents;
+            <?php $contragents = $client->contragents;
             foreach ($contragents as $k => $contragent): ?>
                 <div class="row contragent-wrap"
                      style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
-                        <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $activeClient->id]) ?>">
+                        <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
                             <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
                     </div>
                     <div class="col-sm-5">
                         <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>
                     </div>
                     <div class="col-sm-2">
-                        <a href="<?= Url::toRoute(['contract/create', 'parentId' => $contragent->id, 'childId' => $activeClient->id]) ?>">
+                        <a href="<?= Url::toRoute(['contract/create', 'parentId' => $contragent->id, 'childId' => $account->id]) ?>">
                             <span class="c-blue-color"><i class="glyphicon glyphicon-plus"></i> Новый договор
                             </span>
                         </a>
@@ -44,7 +44,7 @@ use \app\models\ClientContract;
                         foreach ($contracts as $contract): ?>
                             <div class="row" style="margin-left: 0px;">
                                 <div class="col-sm-5">
-                                    <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $activeClient->id]) ?>">
+                                    <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">
                                             Договор № <?= $contract->number ? $contract->number : 'Без номера' ?>
                                             (<?= $contract->organizationName ?>)
@@ -86,35 +86,34 @@ use \app\models\ClientContract;
                                         <?php endif; ?>
                                 </div>
                                 <div class="col-sm-12">
-                                    <?php $clients = $contract->clients;
-                                    foreach ($clients as $ck => $client): ?>
+                                    <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                         <div
                                             style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
-                                            onclick="location.href='/client/view?id=<?= $client->id ?>'"
-                                            class="row row-ls  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
+                                            onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
+                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? 'active-client' : ''; ?>">
                         <span class="col-sm-2"
-                              style="font-weight: bold; color:<?= ($client->is_active) ? 'green' : 'black' ?>;">
-                            ЛС № <?= $client->id ?>
+                              style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
+                            ЛС № <?= $contractAccount->id ?>
                         </span>
                         <span class="col-sm-2" style="font-weight: bold; color:red;">
-                            <?= $client->is_blocked ? 'Заблокирован' : '' ?>
+                            <?= $contractAccount->is_blocked ? 'Заблокирован' : '' ?>
                         </span>
                                             <span class="col-sm-2" style="text-align: right;">
-                                                <?= $client->regionName ?>
+                                                <?= $contractAccount->regionName ?>
                                             </span>
                         <span class="col-sm-2"
-                              style="text-align: right;color:<?= ($client->balance < 0) ? 'red' : 'green'; ?>;">
-                            <?= $client->balance ?>
+                              style="text-align: right;color:<?= ($contractAccount->balance < 0) ? 'red' : 'green'; ?>;">
+                            <?= $contractAccount->balance ?>
                             RUB
                         </span>
                                             <span class="col-sm-2">
-                                                (Кредит: <?= $client->credit > 0 ? $client->credit : '0' ?>)
+                                                (Кредит: <?= $contractAccount->credit > 0 ? $contractAccount->credit : '0' ?>)
                                             </span>
                                             <button type="button" class="btn btn-sm set-block
-                                            <?= $client->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                            <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
                                                     style="width: 120px;float: right;padding: 3px 10px;"
-                                                    data-id="<?= $client->id ?>">
-                                                <?= $client->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
+                                                    data-id="<?= $contractAccount->id ?>">
+                                                <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                             </button>
                                         </div>
                                     <?php endforeach; ?>

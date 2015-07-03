@@ -3,24 +3,21 @@
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-
 use app\models\Region;
 use app\models\SaleChannel;
 use app\models\PriceType;
 use kartik\widgets\Select2;
-
 use \app\models\ClientContract;
+use app\models\ClientContragent;
+use app\models\ClientAccount;
+use app\models\Currency;
 
 ?>
 <div class="row">
     <div class="col-sm-12">
         <h2>Создание клиента</h2>
 
-        <?php
-        $f = ActiveForm::begin();
-        $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
-        $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
-        ?>
+        <?php $f = ActiveForm::begin(); ?>
 
         <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
             <div class="btn-group" id="type-select">
@@ -76,8 +73,9 @@ use \app\models\ClientContract;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => $taxRegtimeItems,
+                    'tax_regime' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => ClientContragent::$taxRegtimeTypes,
                         'container' => ['style' => 'width:50%;']
                     ],
                     'position' => [],
@@ -126,7 +124,7 @@ use \app\models\ClientContract;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems, 'container' => ['style' => 'width:50%;']],
+                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContragent::$taxRegtimeTypes, 'container' => ['style' => 'width:50%;']],
                 ],
             ]);
 
@@ -211,7 +209,6 @@ use \app\models\ClientContract;
 
             echo '</div>';
 
-
             echo '<div class="col-sm-12">';
             echo Form::widget([
                 'model' => $contragent,
@@ -235,7 +232,6 @@ use \app\models\ClientContract;
             ]);
 
             echo '</div>';
-
             ?>
         </div>
 
@@ -252,10 +248,20 @@ use \app\models\ClientContract;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList(), 'columnOptions' => ['class' => 'col-sm-offset-9 col-md-pull-9']],
-                    'empty' => [
+                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList()],
+                    //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],
+                    'state' => [
                         'type' => Form::INPUT_RAW,
-                        'value' => ''
+                        'value' => function() use ($f, $contract){
+                            $res = '<div class="col-sm-12">';
+                            $res .= $f->field($contract, 'state')->begin();
+                            $res .= Html::activeLabel($contract,'state', ['class' => 'control-label']); //label
+                            $res .= Html::activeDropDownList($contract, 'state', ClientContract::$states, ['class' => 'form-control '.$contract->state]); //Field
+                            $res .= Html::error($contract,'state', ['class' => 'help-block', 'encode' => false]); //error
+                            $res .= $f->field($contract, 'state')->end();
+                            $res .= '</div>';
+                            return $res;
+                        },
                     ],
                     'empty2' => [
                         'type' => Form::INPUT_RAW,
@@ -300,7 +306,7 @@ use \app\models\ClientContract;
 
             echo '<div>';
             echo Form::widget([
-                'model' => $client,
+                'model' => $account,
                 'form' => $f,
                 'columns' => 4,
                 'attributeDefaults' => [
@@ -310,24 +316,21 @@ use \app\models\ClientContract;
                 'attributes' => [
                     'region' => [
                         'type' => Form::INPUT_RAW,
-                        'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $client->attributeLabels()['region'] . '</label>'
+                        'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $account->attributeLabels()['region'] . '</label>'
                             . Select2::widget([
-                                'model' => $client,
+                                'model' => $account,
                                 'attribute' => 'region',
                                 'data' => Region::getList(),
                                 'options' => ['placeholder' => 'Начните вводить название'],
-                                'pluginOptions' => [
-                                    'allowClear' => true
-                                ],
                             ])
                             . '</div>'
                     ],
-                    'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $client->timezones],
+                    'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Region::getTimezoneList()],
                     'sale_channel' => [
                         'type' => Form::INPUT_RAW,
-                        'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $client->attributeLabels()['sale_channel'] . '</label>'
+                        'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $account->attributeLabels()['sale_channel'] . '</label>'
                             . Select2::widget([
-                                'model' => $client,
+                                'model' => $account,
                                 'attribute' => 'sale_channel',
                                 'data' => SaleChannel::getList(),
                                 'options' => ['placeholder' => 'Начните вводить название'],
@@ -339,8 +342,8 @@ use \app\models\ClientContract;
                     ],
                     'password' => [],
 
-                    'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $client->nalTypes],
-                    'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $client->currencyTypes],
+                    'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$nalTypes],
+                    'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Currency::map()],
                     'price_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => PriceType::getList()],
                     'empty1' => ['type' => Form::INPUT_RAW,],
 
@@ -350,7 +353,7 @@ use \app\models\ClientContract;
                     'empty17' => ['type' => Form::INPUT_RAW,],
 
                     'credit' => ['type' => Form::INPUT_CHECKBOX, 'options' => ['id' => 'credit'], 'columnOptions' => ['style' => 'margin-top: 20px;']],
-                    'credit_size' => ['columnOptions' => ['id' => 'credit-size', 'style' => $client->credit > 0 ? '' : 'display:none;']],
+                    'credit_size' => ['columnOptions' => ['id' => 'credit-size', 'style' => $account->credit > 0 ? '' : 'display:none;']],
                     'empty13' => ['type' => Form::INPUT_RAW,],
                     'empty14' => ['type' => Form::INPUT_RAW,],
 
@@ -375,7 +378,7 @@ use \app\models\ClientContract;
                     'empty5' => ['type' => Form::INPUT_RAW,],
 
                     'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'], 'options' => ['id' => 'with-consignee']],
-                    'consignee' => ['columnOptions' => ['colspan' => 3, 'style' => $client->is_with_consignee ? '' : 'display:none;', 'id' => 'consignee']],
+                    'consignee' => ['columnOptions' => ['colspan' => 3, 'style' => $account->is_with_consignee ? '' : 'display:none;', 'id' => 'consignee']],
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
@@ -387,7 +390,7 @@ use \app\models\ClientContract;
                     'stamp' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'is_upd_without_sign' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
-                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $client->formTypes],
+                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$formTypes],
 
                     'address_connect' => ['columnOptions' => ['colspan' => 2],],
                     'phone_connect' => ['columnOptions' => ['colspan' => 2],],

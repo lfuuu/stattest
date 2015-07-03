@@ -13,6 +13,8 @@ use yii\db\ActiveRecord;
  */
 class HistoryVersion extends ActiveRecord
 {
+    public $diffs = [];
+
     public static function tableName()
     {
         return 'history_version';

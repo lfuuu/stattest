@@ -258,7 +258,7 @@ class WizardController extends /*BaseController*/ApiController
         if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["name"])
             throw new \Exception("data_error");
 
-        $file = $this->account->fileManager->addFileFromParam(
+        $file = $this->account->contract->fileManager->addFileFromParam(
             $data["file"]["name"], 
             base64_decode($data["file"]["content"]), 
             "ЛК - wizard", 

@@ -47,8 +47,7 @@ class m_logs extends IModule{
 
 		if ($fixclient) 
 		{
-			$client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
-			$client_id = $client['id'];
+			$client_id = $fixclient;
 		} else {
 			$client_id = 0;
 		}

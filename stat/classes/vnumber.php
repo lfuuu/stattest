@@ -6,7 +6,7 @@ class vNumber
     public static function getAll()
     {
         global $db;
-        $rr = $db->AllRecords($q ="select * from v_number where ".sqlClient()." order by enabled, number");
+        $rr = $db->AllRecords($q ="select * from v_number where client_id = {$_SESSION['clients_client']} order by enabled, number");
 
         $ns = self::getFree();
         foreach($rr as &$r)
@@ -21,7 +21,7 @@ class vNumber
         
         $allNums = array();
         foreach($db->AllRecords("select id, number, call_count from v_number 
-                    where ".sqlClient()." 
+                    where client_id = {$_SESSION['clients_client']}
                     and enabled='yes' 
                     and (
                            number like '749%' # moskov number
@@ -33,7 +33,7 @@ class vNumber
         foreach($db->AllRecords(
                     "select *, (select group_concat(number_id) from v_number_mt where sip_id = s.id) as numbers_mt 
                     from v_sip s where 
-                     atype in ('number','link') and ".sqlClient()
+                     atype in ('number','link') and client_id = {$_SESSION['clients_client']} "
                     .($id !== false ? " and s.id != '".$id."'" : "")
                     ) as $n)
         {

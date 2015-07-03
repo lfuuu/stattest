@@ -9,7 +9,7 @@
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($model->files as $file): ?>
+    <?php foreach ($model->contract->allFiles as $file): ?>
         <tr>
             <td>
                 <a href="/file/download?id=<?= $file->id ?>" target="_blank">
@@ -31,7 +31,7 @@
     <?php endforeach; ?>
     </tbody>
     <tfoot>
-    <form action="/file/upload?userId=<?= $model->id ?>" method=post enctype="multipart/form-data">
+    <form action="/file/upload?contractId=<?= $model->id ?>" method=post enctype="multipart/form-data">
         <tr>
             <td><input class="col-sm-12 form-control" type=text name="name" placeholder="Название файла"></td>
             <td><input class="col-sm-12 form-control" type=text name="comment" placeholder="Комментарий"></td>

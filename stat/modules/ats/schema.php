@@ -7,7 +7,7 @@ class Schema
     {
         //router
 
-        $clientId = $this->resolveClientId($fixclient);
+        $clientId = $fixclient;
 
         if(get_param_raw("make","") == "schedule")
         {
@@ -35,12 +35,6 @@ class Schema
         }else{
             $this->listSchema($clientId);
         }
-    }
-
-    private function resolveClientId($fixclient)
-    {
-        global $db;
-        return $db->GetValue("select id from ".SQL_DB.".clients where id = '".$fixclient."' or client = '".$fixclient."'");
     }
 
 
@@ -131,7 +125,7 @@ class Schema
         $schemaId = $id;
         $d = array();
 
-        $soundFiles = $db->AllRecords("select id, name from anonses where ".sqlClient(), "id");
+        $soundFiles = $db->AllRecords("select id, name from anonses where client_id = {$_SESSION['clients_client']}", "id");
         $schemaName = $db->GetValue("select name from r_schema where id = '".$schemaId."'");
 
         $d = schemaLoader::load($schemaId, $soundFiles, $aStatus);

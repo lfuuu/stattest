@@ -68,7 +68,7 @@ class lineDB
     {
         global $db_ats;
 
-        return $db_ats->GetValue("select c_id from a_line where id = '".$lineId."' and ".sqlClient());
+        return $db_ats->GetValue("select c_id from a_line where id = '".$lineId."' and client_id = {$_SESSION['clients_client']}");
     }
 
     public static function bulk_del($numbers)
