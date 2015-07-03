@@ -52,6 +52,7 @@ use app\models\Person;
                             ArrayHelper::map(Country::find()->where(['in_use' => 1])->orderBy('code desc')->all(), 'code', 'name'),
                             [
                                 'data-action' => 'applyCountry',
+                                'data-target' => '#applyTaxSystem',
                                 'readonly' => $mode == 'duplicate' ? true : false
                             ]
                         );
@@ -176,7 +177,10 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'tax_system')
                         ->dropDownList([], [
-                            'data-action' => 'applyTaxSystem'
+                            'id' => 'applyTaxSystem',
+                            'data-action' => 'applyTaxSystem',
+                            'data-target' => '#vatRate',
+                            'data-value' => $model->tax_system,
                         ])
                         ->label('Система налогообложения');
                     ?>
@@ -188,7 +192,8 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'vat_rate')
                         ->textInput([
-                            'data-value' => 'vatRate'
+                            'id' => 'vatRate',
+                            'data-value' => $model->vat_rate,
                         ])
                         ->label('Ставка НДС');
                     ?>
