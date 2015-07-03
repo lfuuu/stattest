@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
+use yii\filters\AccessControl;
 use app\models\Organization;
 use app\forms\organization\OrganizationForm;
 
@@ -13,25 +14,23 @@ class OrganizationController extends BaseController
 
     public function behaviors()
     {
-        $behaviors = parent::behaviors();
-        /*
-        $behaviors['access']['rules'] = [
-            [
-                'allow' => true,
-                'actions' => ['add'],
-                'roles' => ['person.edit'],
-            ],
-            [
-                'allow' => true,
-                'actions' => ['delete'],
-                'roles' => ['person.delete'],
-            ],
-            [
-                'allow' => false,
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['organization.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['add', 'edit', 'duplicate'],
+                        'roles' => ['organization.edit'],
+                    ],
+                ],
             ],
         ];
-        */
-        return $behaviors;
     }
 
     public function actionIndex()

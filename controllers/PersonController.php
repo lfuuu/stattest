@@ -5,35 +5,38 @@ namespace app\controllers;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
+use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
 use app\models\Person;
 use app\forms\person\PersonForm;
-use yii\web\Response;
 
 class PersonController extends BaseController
 {
 
     public function behaviors()
     {
-        $behaviors = parent::behaviors();
-        /*
-        $behaviors['access']['rules'] = [
-            [
-                'allow' => true,
-                'actions' => ['add'],
-                'roles' => ['person.edit'],
-            ],
-            [
-                'allow' => true,
-                'actions' => ['delete'],
-                'roles' => ['person.delete'],
-            ],
-            [
-                'allow' => false,
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['person.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['add', 'edit'],
+                        'roles' => ['person.edit'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['person.delete'],
+                    ],
+                ],
             ],
         ];
-        */
-        return $behaviors;
     }
 
     public function actionIndex()

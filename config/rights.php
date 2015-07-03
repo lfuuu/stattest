@@ -322,4 +322,21 @@ return [
             'admin'   =>  'администрирование',
         ],
     ],
+    'organization' => [
+        'id'   => 'organization',
+        'name' => 'Организации',
+        'permissions' => [
+            'read'    =>  'чтение',
+            'edit'    =>  'изменение',
+        ],
+    ],
+    'person' => [
+        'id'   => 'person',
+        'name' => 'Ответственные лица',
+        'permissions' => [
+            'read'    =>  'чтение',
+            'edit'    =>  'изменение',
+            'delete'  =>  'удаление',
+        ],
+    ],
 ];

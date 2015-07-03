@@ -43,6 +43,14 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('settings')
+                ->setTitle('Настройки')
+                    ->addItem('Организации', ['/organization'])
+                    ->addItem('Ответственные лица', ['/person'])
+        );
     }
 
     /**
