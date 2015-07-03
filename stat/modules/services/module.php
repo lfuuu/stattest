@@ -627,9 +627,7 @@ class m_services extends IModule{
       $db->Query("
                 select
                     usage_voip.*,
-                    IF((actual_from<=NOW())
-                and
-                    (actual_to>NOW()),1,0) as actual
+                    IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual
                 from
                     usage_voip
                     ".($where ? "where (".implode(") and (", $where).")" : "")."
@@ -656,9 +654,7 @@ class m_services extends IModule{
             $db->Query($q='
                 select
                     usage_voip.*,
-                    IF((actual_from<=NOW())
-                and
-                    (actual_to>NOW()),1,0) as actual,
+                    IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                     IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
                 from
                     usage_voip
@@ -1395,7 +1391,9 @@ class m_services extends IModule{
         $design->assign('sort',$sort);
         $design->assign('so',$so);
 
-        $db->Query('select domains.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from domains'.($fixclient?' where client="'.$fixclient.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
+        $db->Query('select domains.*,
+            IF(cast(NOW() as date) between actual_from and actual_to,1,0) as actual 
+                from domains'.($fixclient?' where client="'.$fixclient.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
         while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('domains',$R);
         $design->AddMain('services/domains.tpl'); 
@@ -1729,7 +1727,10 @@ class m_services extends IModule{
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
-        $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,(actual_from<=NOW()) as save_from from emails where id='.$id);
+        $db->Query('select *,
+            IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
+                (actual_from<=NOW()) as save_from 
+            from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
 
         if ($r['actual']) {
@@ -1792,7 +1793,10 @@ class m_services extends IModule{
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id',0);
-        $db->Query('select S.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,T.* from usage_extra as S inner join tarifs_extra as T ON T.id=S.tarif_id where (S.id="'.$id.'") and (client="'.$fixclient.'")');
+        $db->Query('select S.*,
+            IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) AS actual,
+                T.* 
+            from usage_extra as S inner join tarifs_extra as T ON T.id=S.tarif_id where (S.id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
         if ($r['period']=='month') $r['period_rus']='ежемесячно'; else
         if ($r['period']=='year') $r['period_rus']='ежегодно';
@@ -1858,7 +1862,7 @@ class m_services extends IModule{
             select
                 T.*,
                 S.*,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             from
                 usage_extra as S
@@ -1910,7 +1914,7 @@ class m_services extends IModule{
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
@@ -1948,7 +1952,7 @@ class m_services extends IModule{
                 S.*,
                 S.id as id,
                 sp.name as server_pbx,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
@@ -2210,7 +2214,7 @@ class m_services extends IModule{
             select
                 T.*,
                 S.*,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF(CAST(NOW() AS DATE) BETWEEN actual_from and actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             from
                 usage_extra as S
@@ -2262,9 +2266,7 @@ class m_services extends IModule{
             select
                 *,
                 IF(
-                        (actual_from<=NOW())
-                    and
-                        (actual_to>NOW())
+                    (CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to)
                     and
                         (enabled=1)
                 ,1,0) as actual
