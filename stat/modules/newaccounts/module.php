@@ -1947,7 +1947,7 @@ class m_newaccounts extends IModule
             $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum / (1 + $tax_rate)) * ($tax_rate?:1));
+            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(
