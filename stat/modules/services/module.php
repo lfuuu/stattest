@@ -2961,8 +2961,6 @@ class m_services extends IModule{
 
                 having date_add(ifnull(actual_to,'2000-01-01'), interval 6 month) <= now()
 
-                 and NOT (number between '74996854000' and '74996854999')
-
                 order by
                 ifnull(actual_to, '2000-01-01') asc , rand()
                 limit 1
