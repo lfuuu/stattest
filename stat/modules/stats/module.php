@@ -3477,7 +3477,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
-    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0, "count_18" => 0, "count_22" => 0);
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0, "count_18" => 0, "count_19" => 0, "count_22" => 0);
 
     foreach($list as $l)
     {
@@ -3486,6 +3486,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $total["count_11"] += $l["count_11"];
         $total["count_12"] += $l["count_12"];
         $total["count_18"] += $l["count_18"];
+        $total["count_19"] += $l["count_19"];
         $total["count_22"] += $l["count_22"];
     }
 
@@ -3514,6 +3515,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_11"] = (int)$l["count_11"];
             $l["count_12"] = (int)$l["count_12"];
             $l["count_18"] = (int)$l["count_18"];
+            $l["count_19"] = (int)$l["count_19"];
             $l["count_22"] = (int)$l["count_22"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
@@ -3546,6 +3548,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "Кол-во HD-ресивер с диском" => "count_11",
                     "NetGear Беспроводной роутер, JNR3210-1NNRUS" => "count_12",
                     "Zyxel KEENETIC EXTRA Беспроводной роутер" => "count_18",
+                    "D-Link DWA-182/RU/C1A Беспроводной адаптер" => "count_19",
                     "Gigaset C530 IP IP-телефон" => "count_22",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
@@ -3870,6 +3873,10 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_18,
 
 				(select sum(amount) from newbill_lines nl
+                        where item_id in ('14265ab3-9bca-11e4-8402-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_19,
+
+				(select sum(amount) from newbill_lines nl
                         where item_id in ('4454e4d5-a79e-11e4-a330-00155d881200')
                         and nl.bill_no = t.bill_no) as count_22,
 
@@ -3994,6 +4001,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('55b6f916-b3fb-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_18,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('14265ab3-9bca-11e4-8402-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_19,
 
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('4454e4d5-a79e-11e4-a330-00155d881200')
