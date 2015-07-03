@@ -44,10 +44,10 @@ class PersonController extends BaseController
             'sort' => [
                 'attributes' => [
                     'id',
-                    'name_nominativus',
+                    'name_nominative',
                 ],
                 'defaultOrder' => [
-                    'name_nominativus' => SORT_ASC,
+                    'name_nominative' => SORT_ASC,
                 ],
             ],
 

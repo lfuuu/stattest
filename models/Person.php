@@ -5,10 +5,10 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- * @property string $name_nominativus       ФИО в именительном падеже
- * @property string $name_genitivus         ФИО в родительском падаже
- * @property string $post_nominativus       Должность в именительном падеже
- * @property string $post_genitivus         Должность в родительском падеже
+ * @property string $name_nominative       ФИО в именительном падеже
+ * @property string $name_genitive         ФИО в родительском падаже
+ * @property string $post_nominative       Должность в именительном падеже
+ * @property string $post_genitive         Должность в родительском падеже
  * @property string $signature_file_name    Название файла с подписью
  */
 class Person extends ActiveRecord
@@ -23,10 +23,10 @@ class Person extends ActiveRecord
     public function getOldModeInfo()
     {
         return [
-            'name'      => $this->name_nominativus,
-            'name_'     => $this->name_genitivus,
-            'position'  => $this->post_nominativus,
-            'position_' => $this->post_genitivus,
+            'name'      => $this->name_nominative,
+            'name_'     => $this->name_genitive,
+            'position'  => $this->post_nominative,
+            'position_' => $this->post_genitive,
             'sign'      => [
                 'src' => \Yii::$app->params['SIGNATURE_DIR'] . $this->signature_file_name
             ]

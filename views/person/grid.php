@@ -34,14 +34,14 @@ echo GridView::widget([
     'id' => 'PersonList',
     'dataProvider' => $dataProvider,
     'columns' => [
-        'name_nominativus' => [
+        'name_nominative' => [
             'class' => 'app\classes\grid\column\NameColumn',
-            'attribute' => 'name_nominativus',
+            'attribute' => 'name_nominative',
             'label' => 'ФИО',
             'width' => '30%',
         ],
-        'post_nominativus' => [
-            'attribute' => 'post_nominativus',
+        'post_nominative' => [
+            'attribute' => 'post_nominative',
             'label' => 'Должность',
             'width' => '30%',
         ],

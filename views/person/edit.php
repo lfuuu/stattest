@@ -21,7 +21,7 @@ $form = ActiveForm::begin([
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'name_nominativus');
+                    echo $form->field($model, 'name_nominative');
                     ?>
                 </div>
             </div>
@@ -29,7 +29,7 @@ $form = ActiveForm::begin([
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'name_genitivus');
+                    echo $form->field($model, 'name_genitive');
                     ?>
                 </div>
             </div>
@@ -39,14 +39,14 @@ $form = ActiveForm::begin([
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'post_nominativus');
+                    echo $form->field($model, 'post_nominative');
                     ?>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'post_genitivus');
+                    echo $form->field($model, 'post_genitive');
                     ?>
                 </div>
             </div>

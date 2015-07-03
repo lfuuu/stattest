@@ -44,8 +44,8 @@ use app\classes\Html;
                     <?php endif; ?>
                     <b>р/с:</b> <span style="word-wrap: break-word;"><?= $record->bank_account; ?></span>
                     <div class="break"></div>
-                    <b>Директор:</b> <?= $record->director->name_nominativus; ?><br />
-                    <b>Бухгалтер:</b> <?= $record->accountant->name_nominativus; ?>
+                    <b>Директор:</b> <?= $record->director->name_nominative; ?><br />
+                    <b>Бухгалтер:</b> <?= $record->accountant->name_nominative; ?>
                     <div class="date">
                         <?= (new DateTime($record->actual_from))->format('d.m.Y'); ?> г.
                     </div>

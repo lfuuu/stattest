@@ -141,15 +141,18 @@ use app\models\Person;
         <div class="row">
             <div class="col-sm-6">
                 <div class="col-sm-12">
+                    <div class="form-inline">
                     <?php
                     echo $form->field($model, 'director_id')
                         ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus'),[
+                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominative'),[
                                 'prompt' => 'Выберите директора',
                             ]
                         )
                         ->label('Директор');
                     ?>
+                    <button type="submit" class="btn btn-primary">Transfer cash</button>
+                    </div>
                 </div>
             </div>
             <div class="col-sm-6">
@@ -157,7 +160,7 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'accountant_id')
                         ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus'), [
+                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominative'), [
                                 'prompt' => 'Выберите бухгалтера',
                             ]
                         )
