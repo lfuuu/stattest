@@ -10,6 +10,7 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
+/** @var $organization app\models\Organization */
 $organization = $document->getOrganization();
 
 $director = $organization->getDirector()->one();

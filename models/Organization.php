@@ -107,6 +107,11 @@ class Organization extends ActiveRecord
         return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
     }
 
+    public function ifTaxSystem()
+    {
+        return $this->tax_system === 'ОСНО';
+    }
+
     public function getOldModeInfo()
     {
         $director = $this->getDirector()->one();
