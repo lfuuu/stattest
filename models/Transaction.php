@@ -20,7 +20,7 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property float  $price
  * @property float  $amount
- * @property int    $tax_type_id
+ * @property int    $tax_rate
  * @property float  $sum
  * @property float  $sum_tax
  * @property float  $sum_without_tax

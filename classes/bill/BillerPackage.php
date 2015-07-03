@@ -109,10 +109,11 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $transaction->tax_type_id = $this->clientAccount->getDefaultTaxId();
+        $tax_rate = $this->clientAccount->getTaxRate();
+        $transaction->tax_rate = $this->clientAccount->getDefaultTaxId();
 
         $transaction->sum_without_tax = round($transaction->amount * $transaction->price, 2);
-        $transaction->sum_tax = round($transaction->sum_without_tax * TaxType::rate($transaction->tax_type_id), 2);
+        $transaction->sum_tax = round($transaction->sum_without_tax * $tax_rate, 2);
         $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {

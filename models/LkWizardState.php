@@ -86,8 +86,8 @@ class LkWizardState extends ActiveRecord
         $line->type = 'service';
         $line->amount = 1;
         $line->price = $sum / (1 + $tax_rate);
-        $line->tax_type_id = $clientAccount->getDefaultTaxId();
-        $line->calculateSum();
+        $line->tax_rate = $clientAccount->getDefaultTaxId();
+        $line->calculateSum($tax_rate);
         $line->sum = $sum;
         $line->save();
 

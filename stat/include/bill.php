@@ -140,7 +140,7 @@ class Bill {
             }
         }
 
-        $taxTypeId = $this->bill['is_use_tax'] ? ClientAccount::findOne($this->client_id)->getTaxRate($original = true) : 0;
+        $clientAccount = ClientAccount::findOne($this->client_id);
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
@@ -154,8 +154,8 @@ class Bill {
         $line->date_from = $date_from;
         $line->date_to = $date_to;
         $line->is_price_includes_tax = 0;
-        $line->tax_type_id = $taxTypeId;
-        $line->calculateSum();
+        $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getDefaultTaxId() : 0);
+        $line->calculateSum($clientAccount->getTaxRate());
         $line->save();
 
         return true;
@@ -203,7 +203,7 @@ class Bill {
 
         $this->changed = 1;
 
-        $taxTypeId = $this->bill['is_use_tax'] ? ClientAccount::findOne($this->client_id)->getTaxRate($original = true) : 0;
+        $clientAccount = ClientAccount::findOne($this->client_id);
 
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
@@ -213,8 +213,8 @@ class Bill {
             $line->price = $price;
             $line->type = $type;
             $line->is_price_includes_tax = 0;
-            $line->tax_type_id = $taxTypeId;
-            $line->calculateSum();
+            $line->tax_rate = $clientAccount->getDefaultTaxId();
+            $line->calculateSum($clientAccount->getTaxRate());
             $line->save();
         }
 
@@ -696,6 +696,8 @@ class Bill {
      *	@param int $balance текущий баланс клиента
      *	@param bool $nds_zero флаг, приминять НДС или нет 
      */
+    /*
+     * Не используется
     public function applyRefundOverpay($balance)
     {
         if (!$balance) return;
@@ -709,7 +711,11 @@ class Bill {
             $balance = min($lines_info->sum, $balance);
 
             $sumWithTax = -$balance;
+
+            // Ошибочное вычисление
             $sumTax = round($sumWithTax / TaxType::rate($taxTypeId), 2);
+            // /Ошибочное вычисление
+
             $sumWithoutTax = $sumWithTax - $sumTax;
 
 
@@ -732,6 +738,7 @@ class Bill {
             $new_line->save();
         }
     }
+    */
     //------------------------------------------------------------------------------------
 
     /**

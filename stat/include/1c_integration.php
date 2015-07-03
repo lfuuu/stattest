@@ -872,7 +872,7 @@ class SoapHandler{
                 "gtd" => trr($p->{tr('НомерГТД')}),
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
                 'is_price_includes_tax' => 0,
-                'tax_type_id' => 18,
+                'tax_rate' => 18,
                 'sum_without_tax' => $p->{tr('Сумма')} - $p->{tr('СуммаНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
             );
@@ -935,7 +935,7 @@ class SoapHandler{
 
 
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
-                                        "is_price_includes_tax, tax_type_id, sum_without_tax, sum_tax) values";
+                                        "is_price_includes_tax, tax_rate, sum_without_tax, sum_tax) values";
 
         $qSerials = "";
 
@@ -959,7 +959,7 @@ class SoapHandler{
                 "'".$item["gtd"]."',".
                 "'".$item["country_id"]."',".
                 "'".$item["is_price_includes_tax"]."',".
-                "'".$item["tax_type_id"]."',".
+                "'".$item["tax_rate"]."',".
                 "'".$item["sum_without_tax"]."',".
                 "'".$item["sum_tax"]."'".
                 "),";
