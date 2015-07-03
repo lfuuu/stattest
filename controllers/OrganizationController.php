@@ -45,38 +45,38 @@ class OrganizationController extends BaseController
     {
         $model = new OrganizationForm;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['edit', 'id' => $model->id, 'date' => $model->actual_from]);
+            $this->redirect(['edit', 'id' => $model->organization_id, 'date' => $model->actual_from]);
         }
 
         return $this->render('form', [
             'model' => $model,
-            'frm_header' => $model::NEW_TITLE,
+            'title' => $model::NEW_TITLE,
         ]);
     }
 
     public function actionEdit($id, $date)
     {
-        $record = Organization::findOne(['id' => $id, 'actual_from' => $date]);
+        $record = Organization::findOne(['organization_id' => $id, 'actual_from' => $date]);
 
         Assert::isObject($record);
 
         $model = new OrganizationForm;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($record)) {
-            $this->redirect(['edit', 'id' => $model->id, 'date' => $model->actual_from]);
+            $this->redirect(['edit', 'id' => $model->organization_id, 'date' => $model->actual_from]);
         }
+
+        $history = Organization::find()->byId($record->organization_id)->orderBy('actual_from asc')->all();
 
         $model->setAttributes($record->getAttributes(), false);
         return $this->render('edit', [
             'model' => $model,
+            'history' => $history,
         ]);
     }
 
     public function actionDuplicate($id, $date)
     {
-        $organization = Organization::find()
-            ->byId($id)
-            ->actual($date)
-            ->one();
+        $organization = Organization::find()->byId($id)->actual($date)->one();
 
         if (!$organization instanceof Organization)
             $organization = Organization::find()->byId($id)->orderBy('actual_from DESC')->one();

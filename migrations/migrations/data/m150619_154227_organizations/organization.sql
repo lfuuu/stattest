@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `organization` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `organization_id` INT(11) NOT NULL DEFAULT '0',
     `actual_from` DATE NOT NULL DEFAULT '2000-01-01',
     `actual_to` DATE NOT NULL DEFAULT '4000-01-01',
     `firma` VARCHAR(128) NULL DEFAULT NULL COMMENT 'Ключ для связи с clients',
@@ -25,13 +26,13 @@ CREATE TABLE IF NOT EXISTS `organization` (
     `contact_site` VARCHAR(250) NULL DEFAULT NULL,
     `logo_file_name` VARCHAR(50) NULL DEFAULT NULL,
     `stamp_file_name` VARCHAR(50) NULL DEFAULT NULL,
-    `director_id` INT(11) NOT NULL DEFAULT '0',
-    `accountant_id` INT(11) NOT NULL DEFAULT '0',
-    PRIMARY KEY (`id`, `actual_from`)
+    `director_id` INT(11) NULL DEFAULT '0',
+    `accountant_id` INT(11) NULL DEFAULT '0',
+    PRIMARY KEY (`organization_id`, `actual_from`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `organization`
-          (`id`, `actual_from`, `actual_to`, `firma`, `country_id`, `lang_code`, `tax_system`, `vat_rate`, `name`, `full_name`, `legal_address`, `post_address`, `registration_id`, `tax_registration_id`, `tax_registration_reason`, `bank_account`, `bank_name`, `bank_correspondent_account`, `bank_bik`, `bank_swift`, `contact_phone`, `contact_fax`, `contact_email`, `contact_site`, `logo_file_name`, `stamp_file_name`, `director_id`, `accountant_id`)
+          (`organization_id`, `actual_from`, `actual_to`, `firma`, `country_id`, `lang_code`, `tax_system`, `vat_rate`, `name`, `full_name`, `legal_address`, `post_address`, `registration_id`, `tax_registration_id`, `tax_registration_reason`, `bank_account`, `bank_name`, `bank_correspondent_account`, `bank_bik`, `bank_swift`, `contact_phone`, `contact_fax`, `contact_email`, `contact_site`, `logo_file_name`, `stamp_file_name`, `director_id`, `accountant_id`)
       VALUES
           (1, '2000-01-01', '2012-03-31', 'mcn_telekom', 643, 'ru', 'ОСНО', 18, 'ООО «МСН Телеком»', 'Общество с ограниченной ответственностью «МСН Телеком»', '115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8', '115162, г. Москва, а/я №21', NULL, '7727752084', '772401001', '40702810038110015462', 'Московский банк Сбербанка России ОАО, г.Москва', '30101810400000000225', '044525225', NULL, '(495) 950-56-78', '(495) 638-50-17', 'info@mcn.ru', 'www.mcntelecom.ru', 'mcntelecom-logo.png', 'stamp_mcn_telekom.png', 2, 3),
           (1, '2012-04-01', '2013-07-30', 'mcn_telekom', 643, 'ru', 'ОСНО', 18, 'ООО «МСН Телеком»', 'Общество с ограниченной ответственностью «МСН Телеком»', '115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8', '115162, г. Москва, а/я №21', NULL, '7727752084', '772401001', '40702810038110015462', 'Московский банк Сбербанка России ОАО, г.Москва', '30101810400000000225', '044525225', NULL, '(495) 950-56-78', '(495) 638-50-17', 'info@mcn.ru', 'www.mcntelecom.ru', 'mcntelecom-logo.png', 'stamp_mcn_telekom.png', 5, 16),

@@ -18,7 +18,7 @@ class OrganizationQuery extends ActiveQuery
         return
             $this
                 ->select('organization.*')
-                ->leftJoin('organization o2', 'organization.`id` = o2.`id` and organization.`actual_from` = o2.`actual_from`')
+                ->leftJoin('organization o2', 'organization.`organization_id` = o2.`organization_id` and organization.`actual_from` = o2.`actual_from`')
                 ->andWhere('organization.`actual_from` <= CAST(:date AS date)', [':date' => $filter_date])
                 ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $filter_date])
                 ->orderBy('organization.`actual_from` DESC');
@@ -31,7 +31,7 @@ class OrganizationQuery extends ActiveQuery
     {
         return
             $this
-                ->andWhere('organization.`id` = :id', [':id' => $id]);
+                ->andWhere('organization.`organization_id` = :id', [':id' => $id]);
     }
 
     /**

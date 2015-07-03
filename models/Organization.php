@@ -7,6 +7,7 @@ use app\dao\OrganizationDao;
 
 /**
  * @property int $id
+ * @property int $organization_id               ID организации
  * @property string actual_from                 Дата с которой фирма начинает действовать
  * @property string actual_to                   Дата до которой фирма действует
  * @property int $firma                         Ключ для связи с clients*
@@ -45,18 +46,21 @@ class Organization extends ActiveRecord
 
     public function beforeSave($query)
     {
+        if (!(int) $this->organization_id)
+            $this->organization_id = $this->find()->max('organization_id') + 1;
+
         $this->getDb()
             ->createCommand(
                 "
                 UPDATE `organization` SET
                     `actual_to` = :actual_to
                 WHERE
-                    `id` = :id AND
+                    `organization_id` = :id AND
                     `actual_from` < :date
                 ORDER BY `actual_from` DESC
                 LIMIT 1
                 ", [
-                    ':id' => $this->id,
+                    ':id' => $this->organization_id,
                     ':date' => $this->actual_from,
                     ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format('Y-m-d')
                 ]
@@ -65,7 +69,7 @@ class Organization extends ActiveRecord
 
         $next_record = $this
             ->find()
-            ->where(['id' => $this->id])
+            ->where(['organization_id' => $this->id])
             ->andWhere(['>', 'actual_from', $this->actual_from])
             ->orderBy('actual_from asc')
             ->one();

@@ -28,7 +28,7 @@ use app\classes\Html;
             <div class="col-md-3">
                 <div class="well">
                     <div class="title">
-                        <a href="/organization/edit/?id=<?= $record->id; ?>&date=<?= $record->actual_from; ?>"><?= Html::decode($record->name); ?></a>
+                        <a href="/organization/edit/?id=<?= $record->organization_id; ?>&date=<?= $record->actual_from; ?>"><?= Html::decode($record->name); ?></a>
                     </div>
                     <hr size="1" />
                     <?= $record->legal_address; ?><br />
