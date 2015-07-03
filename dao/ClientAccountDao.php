@@ -637,7 +637,7 @@ class ClientAccountDao extends Singleton
         $dNow = date("Y-m-d",strtotime("+1 day"));
         $c = ClientAccount::findOne($clientId)->toArray();
 
-        $trasitFields = array("mail_print", "bill_rename1", "address_post_real");
+        $trasitFields = array("mail_print", "bill_rename1", "address_post_real", "mail_who");
         $transit = array();
 
         foreach($trasitFields as $f)
