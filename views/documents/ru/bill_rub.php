@@ -208,7 +208,7 @@ $payer_company = $document->getPayer();
             <col width="*" />
             <tbody>
                 <tr>
-                    <td><?= $director->post_nominativus; ?></td>
+                    <td><?= $director->post_nominative; ?></td>
                     <?php if ($document->sendEmail): ?>
                         <td>
                             <?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
@@ -236,7 +236,7 @@ $payer_company = $document->getPayer();
                             <br /><br />_________________________________<br /><br />
                         </td>
                     <?php endif; ?>
-                    <td>/ <?= $director->name_nominativus; ?> /</td>
+                    <td>/ <?= $director->name_nominative; ?> /</td>
                 </tr>
                 <tr>
                     <td>Главный бухгалтер</td>
@@ -268,7 +268,7 @@ $payer_company = $document->getPayer();
                         </td>
                     <?php endif; ?>
                     <td>
-                        / <?= $accountant->name_nominativus; ?> /
+                        / <?= $accountant->name_nominative; ?> /
                     </td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
