@@ -196,13 +196,6 @@ class ClientAccount extends ActiveRecord
 
     public function getDefaultTaxId()
     {
-        /*
-        if ($this->nds_zero) {
-            return TaxType::TAX_0;
-        } else {
-            return TaxType::TAX_18;
-        }
-        */
-        return $this->getOrganization()->vat_rate;
+        return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
     }
 }

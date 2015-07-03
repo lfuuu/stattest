@@ -2,7 +2,6 @@
 namespace app\classes\bill;
 
 use app\models\ClientAccount;
-use app\models\TaxType;
 use app\models\Transaction;
 use app\models\Usage;
 use Yii;
