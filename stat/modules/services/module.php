@@ -887,7 +887,7 @@ class m_services extends IModule{
 
         if (!$conn) 
         {
-            mail(ADMIN_EMAIL, "[pg connect]", "services/getInOldSchema");
+            //mail(ADMIN_EMAIL, "[pg connect]", "services/getInOldSchema");
             throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")..");
         }
 

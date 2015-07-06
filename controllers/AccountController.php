@@ -82,6 +82,27 @@ class AccountController extends BaseController
         return $this->redirect('/?module=clients&id='.$accountId);
     }
 
+    public function actionChangeWizardType($id, $type)
+    {
+        $accountId = $id;
+
+        $account = ClientAccount::findOne($accountId);
+
+        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+            throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
+
+        $wizard = LkWizardState::findOne($accountId);
+
+        if (in_array($type, ['t2t', 'mcn']))
+        {
+            $wizard->type = $type;
+            $wizard->save();
+        }
+
+        return $this->redirect('/?module=clients&id='.$accountId);
+    }
+
+
     public function actionDocumentCreate($id)
     {
         $content = Yii::$app->request->post('contract_content');

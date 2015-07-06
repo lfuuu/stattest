@@ -35,3 +35,12 @@
     {/if}
 {/if}
 
+{if $clientAccount->id == 9130}
+[ сделать
+    {if $clientAccount->lkWizardState->type == "mcn"}
+        <a href="/account/change-wizard-type/?id={$clientAccount.id}&type=t2t">Tel2Tel</a>
+    {else}
+        <a href="/account/change-wizard-type/?id={$clientAccount.id}&type=mcn">MCN</a>
+    {/if}
+]
+{/if}

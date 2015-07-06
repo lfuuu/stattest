@@ -303,18 +303,21 @@ class WizardController extends /*BaseController*/ApiController
         $wizard = $this->wizard;
 
         if (!$wizard)
-            return ["step" => -1, "good" => -1];
+            return ["step" => -1, "good" => -1, "wizard_type" => ""];
 
         if ($wizard->step == 4)
         {
             return [
                 "step" => $wizard->step, 
-                "good" => $wizard->step-($wizard->state == 'review' ? 1 : 0), "step_state" => $wizard->state
+                "good" => ($wizard->step-($wizard->state == 'review' ? 1 : 0)), 
+                "step_state" => $wizard->state,
+                "wizard_type" => $wizard->type
             ];
         } else {
             return [
                 "step" => $wizard->step, 
-                "good" => $wizard->step-1
+                "good" => ($wizard->step-1),
+                "wizard_type" => $wizard->type
             ];
         }
     }

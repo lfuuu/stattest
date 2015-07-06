@@ -25,7 +25,7 @@ class LkWizardState extends ActiveRecord
         return $this->hasOne(Trouble::className(), ["id" => "trouble_id"]);
     }
 
-    public static function create($accountId, $troubleId = 0)
+    public static function create($accountId, $type = "mcn", $troubleId = 0)
     {
         $wizard = new self();
         $wizard->account_id = $accountId;
