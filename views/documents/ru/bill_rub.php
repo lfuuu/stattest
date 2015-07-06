@@ -112,7 +112,7 @@ $payer_company = $document->getPayer();
 
                     <?php if ($organization->ifTaxSystem()): ?>
                         <!--td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td-->
-                        <td align="center"><b>НДС <?= $organization->vat_rate; ?>%, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
                         <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php endif; ?>
 
