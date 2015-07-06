@@ -2447,10 +2447,11 @@ class m_newaccounts extends IModule
             //$design->assign("firm", Company::getProperty($r["firma"], $docDate));
 
             $client = $design->get_template_vars('client');
-            $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+            $organization = Organization::find()->byId($client['organization_id'])->actual($docDate)->one();
+
             $design->assign('firma', $organization->getOldModeInfo());
-            $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
-            $design->assign('firm_buh', $organization->getAccountant()->one()->getOldModeInfo());
+            $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
+            $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
             //** /Выпилить */
 
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
@@ -3768,10 +3769,11 @@ class m_newaccounts extends IModule
         //** Выпилить */
         //Company::setResidents($c["firma"], $date_to);
 
-        $organization = Organization::find()->byId($c['organization_id'])->actual()->one();
+        $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
-        $design->assign('firm_buh', $organization->getAccountant()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
+        $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
         //** /Выпилить */
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');

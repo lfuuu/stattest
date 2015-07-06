@@ -103,12 +103,12 @@ class Organization extends ActiveRecord
 
     public function getDirector()
     {
-        return $this->hasOne(Person::className(), ['id' => 'director_id']);
+        return $this->hasOne(Person::className(), ['id' => 'director_id'])->one();
     }
 
     public function getAccountant()
     {
-        return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
+        return $this->hasOne(Person::className(), ['id' => 'accountant_id'])->one();
     }
 
     public function ifTaxSystem()
@@ -118,7 +118,7 @@ class Organization extends ActiveRecord
 
     public function getOldModeInfo()
     {
-        $director = $this->getDirector()->one();
+        $director = $this->getDirector();
 
         return [
             'name'              => $this->name,

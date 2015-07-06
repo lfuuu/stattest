@@ -236,7 +236,7 @@ class ClientDocumentDao extends Singleton
         //** Выпилить */
         //$this->contract_apply_firma($r["firma"], $contractDate);
 
-        $organization = Organization::find()->byId($r['organization_id'])->actual()->one();
+        $organization = Organization::find()->byId($r['organization_id'])->actual($contractDate)->one();
         $this->design->assign('firm', $organization->getOldModeInfo());
         $this->design->assign('firm_detail', $organization->getOldModeDetail());
         //** /Выпилить */

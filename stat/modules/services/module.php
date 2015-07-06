@@ -448,8 +448,9 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
         //** /Выпилить */
 
         $design->assign('ppp',$db->AllRecords('select * FROM usage_ip_ppp where client="'.$conn['client'].'"'));
@@ -499,8 +500,9 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
         //** /Выпилить */
 
         $design->assign('ppp',$db->AllRecords('select * FROM usage_ip_ppp where client="'.$conn['client'].'"'));
@@ -1269,8 +1271,9 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
         //** /Выпилить */
 
         $sendmail = get_param_raw('sendmail',0);
@@ -1305,8 +1308,9 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
         //** /Выпилить */
 
         $design->ProcessEx('../store/acts/voip_act_trunk.tpl');
@@ -2060,8 +2064,9 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
         //** /Выпилить */
 
         $design->assign('d',$r);

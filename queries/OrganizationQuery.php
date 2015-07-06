@@ -10,6 +10,10 @@ class OrganizationQuery extends ActiveQuery
 
     public function actual($date = '')
     {
+        $date = $this->resolveDate($date);
+        if (!is_null($date))
+            $date = date('Y-m-d', $date);
+
         $filter_date =
             (new DateTime($date))
                 ->setTimezone(new DateTimeZone('UTC'))
@@ -26,6 +30,7 @@ class OrganizationQuery extends ActiveQuery
 
     /**
      * @param int $id
+     * @return static
      */
     public function byId($id)
     {
@@ -35,7 +40,8 @@ class OrganizationQuery extends ActiveQuery
     }
 
     /**
-     * @param int $person
+     * @param $person
+     * @return static
      */
     public function byPerson($person)
     {
@@ -45,6 +51,23 @@ class OrganizationQuery extends ActiveQuery
                     ['=', 'organization.`director_id`', $person],
                     ['=', 'organization.`accountant_id`', $person]
                 ]);
+    }
+
+    private static function resolveDate($bill_or_time)
+    {
+        $billDate = null;
+
+        if (is_array($bill_or_time) && isset($bill_or_time["bill_date"])) {
+            $billDate = strtotime($bill_or_time["bill_date"]);
+        }
+        elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
+            $billDate = $bill_or_time;
+        }
+        elseif (preg_match("/\d{4}-\d{2}-\d{2}/", $bill_or_time)) { // date
+            $billDate = strtotime($bill_or_time);
+        }
+
+        return $billDate;
     }
 
 }
