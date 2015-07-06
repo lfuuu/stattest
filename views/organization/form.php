@@ -13,7 +13,7 @@ use app\models\Person;
 /** @var $model OrganizationForm */
 ?>
 
-<?php if (!empty($frm_header)): ?>
+<?php if (!empty($title)): ?>
 <h2>
     <?= $title; ?>
 </h2>

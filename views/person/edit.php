@@ -13,7 +13,9 @@ $form = ActiveForm::begin([
 ]);
 ?>
 
-<h2>Персона</h2>
+<h2>
+    Ответственное лицо
+</h2>
 
 <div class="container well" style="width: 100%; padding-top: 20px;">
     <fieldset style="width: 100%;">

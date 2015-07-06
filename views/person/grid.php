@@ -80,7 +80,7 @@ echo GridView::widget([
     'hover' => true,
     'panel'=>[
         'type' => GridView::TYPE_DEFAULT,
-        'heading' => 'Персоналии',
+        'heading' => 'Ответственные лица',
     ],
 ]);
 ?>

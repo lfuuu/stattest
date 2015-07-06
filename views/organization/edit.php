@@ -25,6 +25,9 @@ foreach ($history as $record):
 endforeach;
 
 ?>
+<h2>
+История изменений <?= $model->name; ?>
+</h2>
 
 <div style="float: right;">
     <?= Html::a(
