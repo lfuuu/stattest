@@ -1,6 +1,5 @@
 <?php
 use app\classes\StatModule;
-use app\classes\Company;
 use app\models\ClientAccount;
 use app\dao\services\SmsServiceDao;
 use app\dao\services\WelltimeServiceDao;

@@ -1,6 +1,6 @@
 <?php
 
-class m150703_142811_bill_line_tax_rate extends \app\classes\Migration
+class m150703_142811_tax_rate extends \app\classes\Migration
 {
     public function up()
     {

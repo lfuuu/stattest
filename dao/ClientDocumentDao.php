@@ -3,7 +3,6 @@ namespace app\dao;
 
 use Yii;
 use app\classes\Assert;
-use app\classes\Company;
 use app\classes\Singleton;
 use app\classes\BillContract;
 use app\models\Contract;
@@ -304,12 +303,6 @@ class ClientDocumentDao extends Singleton
         $this->fix_style($content);
 
 		return $content;
-    }
-
-    private function contract_apply_firma($firma, $date = null)
-    {
-        $this->design->assign("firm_detail", Company::getDetail($firma, $date));
-        $this->design->assign("firm", Company::getProperty($firma, $date));
     }
 
     private function contract_apply_support_phone($region)

@@ -1,7 +1,6 @@
 <?php
 
 use app\classes\StatModule;
-use app\classes\Company;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\models\Courier;

@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS `organization` (
     `stamp_file_name` VARCHAR(50) NULL DEFAULT NULL,
     `director_id` INT(11) NULL DEFAULT '0',
     `accountant_id` INT(11) NULL DEFAULT '0',
-    PRIMARY KEY (`organization_id`, `actual_from`)
+    PRIMARY KEY (`id`),
+    INDEX `organization_id_actual_from` (`organization_id`, `actual_from`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `organization`

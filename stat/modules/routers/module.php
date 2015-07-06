@@ -1,6 +1,5 @@
 <?php
 
-use app\classes\Company;
 use app\models\Organization;
 
 class m_routers {
