@@ -302,21 +302,10 @@ $(function(){
     <tr>
         <td align="right">Фирма, на которую оформлен договор:</td>
         <td>
-            <select style='width:100%' name=firma class=text>
-                <option value="mcn_telekom"{if $client.firma=='mcn_telekom'} selected{/if}>ООО &laquo;МСН Телеком&raquo;</option>
-                <option value='mcn'{if $client.firma=='mcn'} selected{/if}>ООО &laquo;Эм Си Эн&raquo;</option>
-                <option value='markomnet_new'{if $client.firma=='markomnet_new'} selected{/if}>ООО &laquo;МАРКОМНЕТ&raquo;</option>
-                <option value='markomnet_service'{if $client.firma=='markomnet_service'} selected{/if}>ООО &laquo;МАРКОМНЕТ сервис&raquo;</option>
-                <option value='markomnet'{if $client.firma=='markomnet'} selected{/if}>ООО &laquo;МАРКОМНЕТ (старый)&raquo;</option>
-                <option value="ooomcn"{if $client.firma=='ooomcn'} selected{/if}>ООО &laquo;МСН&raquo;</option>
-                <option value="all4net"{if $client.firma=='all4net'} selected{/if}>ООО &laquo;ОЛФОНЕТ&raquo;</option>
-                <option value="ooocmc"{if $client.firma=='ooocmc'} selected{/if}>ООО &laquo;Си Эм Си&raquo;</option>
-                <option value="mcm"{if $client.firma=='mcm'} selected{/if}>ООО &laquo;МСМ&raquo;</option>
-                <option value="mcm_telekom"{if $client.firma=='mcm_telekom'} selected{/if}>ООО &laquo;МСМ Teлеком&raquo;</option>
-                <option value="all4geo"{if $client.firma=='all4geo'} selected{/if}>ООО &laquo;Олфогео&raquo;</option>
-                <option value="wellstart"{if $client.firma=='wellstart'} selected{/if}>ООО &laquo;Веллстарт&raquo;</option>
-                <option value="mcn_telekom_hungary"{if $client.firma=='mcn_telekom_hungary'} selected{/if}>MCN Telecom Kft. (Венгрия)</option>
-                <option value="tel2tel_hungary"{if $client.firma=='tel2tel_hungary'} selected{/if}>Tel2tel Kft. (Венгрия)</option>
+            <select style='width:100%' name="organization_id" class=text>
+                {foreach from=$organizations item='organization'}
+                    <option value="{$organization.organization_id}"{if $organization.organization_id == $client.organization_id} selected="selected"{/if}>{$organization.name}</option>
+                {/foreach}
             </select>
             </td></tr>
     <tr><td align="right">Печатать штамп:</td><td><select name=stamp class=text><option value=0{if $client.stamp==0} selected{/if}>нет</option><option value=1{if $client.stamp==1} selected{/if}>да</option></select></td></tr>
