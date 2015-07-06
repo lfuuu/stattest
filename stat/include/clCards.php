@@ -202,6 +202,7 @@ namespace clCards;
 		public $address_jur;
 		public $kpp;
 		public $firma;
+        public $organization_id;
 		public $type;
 		public $currency;
 		public $price_type;
@@ -373,6 +374,10 @@ namespace clCards;
 			$this->firma = $f;
 			if($this->firma)
 				$this->mask |= self::firma;
+
+            $organization = \app\models\Organization::find()->where(['firma' => $this->firma])->actual()->one();
+            $this->organization_id = $organization->organization_id;
+
 			return $this;
 		}
 		public function setType($t){

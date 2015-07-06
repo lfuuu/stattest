@@ -670,7 +670,7 @@ class ClientCS {
                 $this->P = $get_params;
             } else {
                 $L="client,currency,credit,password,company,company_full,address_jur,address_post,address_connect,phone_connect,sale_channel," .
-                        "account_manager,manager,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
+                        "account_manager,manager,address_post_real,bik,bank_properties,signer_name,signer_position,firma,organization_id," .
                         "usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
@@ -987,6 +987,9 @@ class ClientCS {
 
         if (count($this->F)>1) {
 
+            $organization = \app\models\Organization::find()->byId($this->F['organization_id'])->actual()->one();
+            $this->F['firma'] = $organization->firma;
+
             if(isset($this->F["voip_disabled"]) && $this->F["voip_disabled"] == "") $this->F["voip_disabled"] = 0;
             if(isset($this->F["nds_zero"]) && $this->F["nds_zero"] == "") $this->F["nds_zero"] = 0;
 
@@ -1094,7 +1097,6 @@ class ClientCS {
                         "type" => "company_name"
                         )
             );
-
 
         return $this->id;
     }

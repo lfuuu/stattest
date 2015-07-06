@@ -302,8 +302,8 @@ $(function(){
     <tr>
         <td align="right">Фирма, на которую оформлен договор:</td>
         <td>
-            <select style='width:100%' name=firma class=text>
-                <option value="mcn_telekom"{if $client.firma=='mcn_telekom'} selected{/if}>ООО &laquo;МСН Телеком&raquo;</option>
+            <select style='width:100%' name="organization_id" class=text>
+                <!--option value="mcn_telekom"{if $client.firma=='mcn_telekom'} selected{/if}>ООО &laquo;МСН Телеком&raquo;</option>
                 <option value='mcn'{if $client.firma=='mcn'} selected{/if}>ООО &laquo;Эм Си Эн&raquo;</option>
                 <option value='markomnet_new'{if $client.firma=='markomnet_new'} selected{/if}>ООО &laquo;МАРКОМНЕТ&raquo;</option>
                 <option value='markomnet_service'{if $client.firma=='markomnet_service'} selected{/if}>ООО &laquo;МАРКОМНЕТ сервис&raquo;</option>
@@ -316,7 +316,10 @@ $(function(){
                 <option value="all4geo"{if $client.firma=='all4geo'} selected{/if}>ООО &laquo;Олфогео&raquo;</option>
                 <option value="wellstart"{if $client.firma=='wellstart'} selected{/if}>ООО &laquo;Веллстарт&raquo;</option>
                 <option value="mcn_telekom_hungary"{if $client.firma=='mcn_telekom_hungary'} selected{/if}>MCN Telecom Kft. (Венгрия)</option>
-                <option value="tel2tel_hungary"{if $client.firma=='tel2tel_hungary'} selected{/if}>Tel2tel Kft. (Венгрия)</option>
+                <option value="tel2tel_hungary"{if $client.firma=='tel2tel_hungary'} selected{/if}>Tel2tel Kft. (Венгрия)</option-->
+                {foreach from=$organizations item='organization'}
+                    <option value="{$organization.organization_id}"{if $organization.organization_id == $client.organization_id || $organization.firma == $client.firma} selected="selected"{/if}>{$organization.name}</option>
+                {/foreach}
             </select>
             </td></tr>
     <tr><td align="right">Печатать штамп:</td><td><select name=stamp class=text><option value=0{if $client.stamp==0} selected{/if}>нет</option><option value=1{if $client.stamp==1} selected{/if}>да</option></select></td></tr>

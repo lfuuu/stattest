@@ -10,6 +10,8 @@ use app\models\ClientDocument;
 use app\models\ClientFile;
 use app\models\LkWizardState;
 use app\models\Country;
+use yii\helpers\ArrayHelper;
+use app\models\Organization;
 
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
@@ -1129,6 +1131,7 @@ class m_clients {
 				'));
 
             $design->assign("l_price_type", ClientCS::GetPriceTypeList($r["price_type"]));
+            $design->assign("organizations", Organization::find()->actual()->asArray()->all());
 
 			if($design_echo)
 			{
@@ -1247,6 +1250,8 @@ class m_clients {
         $timezones = \app\models\Region::find()->select('timezone_name')->groupBy('timezone_name')->indexBy('timezone_name')->asArray()->all();
         $design->assign('timezones', $timezones);
 
+        $design->assign("organizations", Organization::find()->actual()->asArray()->all());
+
         $design->AddMain('clients/main_edit.tpl');
 
     }
@@ -1276,6 +1281,8 @@ class m_clients {
         $design->assign('countries', Country::find()->where(['in_use' => 1])->orderBy('code desc')->asArray()->all());
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 		$design->assign("history_flags", $this->get_history_flags($id));
+
+        $design->assign("organizations", Organization::find()->actual()->asArray()->all());
 
 		if($pop){
 			$design->assign('form_action','apply_pop');
@@ -1410,6 +1417,9 @@ class m_clients {
 			}
 		}
 		$design->assign('client',$C->F);
+
+        $design->assign("organizations", Organization::find()->actual()->asArray()->all());
+
 		if($pop){
 			$design->assign('form_action','apply_pop');
 			$design->display('pop_header.tpl');
@@ -1862,6 +1872,9 @@ class m_clients {
         }
         $design->assign('client',$C->F);
         $design->assign("history_flags", $this->get_history_flags(0));
+
+        $design->assign("organizations", Organization::find()->actual()->asArray()->all());
+
         $design->AddMain('clients/main_edit.tpl');
     }
 	function get_client_info($client){
