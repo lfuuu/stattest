@@ -48,6 +48,7 @@ class Navigation
             NavigationBlock::create()
                 ->setId('settings')
                 ->setTitle('Настройки')
+                ->setRights(['organization.read', 'person.read'])
                     ->addItem('Организации', ['/organization'])
                     ->addItem('Ответственные лица', ['/person'])
         );
