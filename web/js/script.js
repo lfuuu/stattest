@@ -381,7 +381,7 @@ function showIframePopup(element) {
             close: function() {
                 $dialog.remove();
             }
-        })
+        });
 
     return false;
 }

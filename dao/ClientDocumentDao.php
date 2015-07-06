@@ -3,13 +3,13 @@ namespace app\dao;
 
 use Yii;
 use app\classes\Assert;
-use app\classes\Company;
 use app\classes\Singleton;
 use app\classes\BillContract;
 use app\models\Contract;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\Organization;
 
 class ClientDocumentDao extends Singleton
 {
@@ -232,7 +232,15 @@ class ClientDocumentDao extends Singleton
 
 
 		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
-		$this->contract_apply_firma($r["firma"], $contractDate);
+
+        //** Выпилить */
+        //$this->contract_apply_firma($r["firma"], $contractDate);
+
+        $organization = Organization::find()->byId($r['organization_id'])->actual($contractDate)->one();
+        $this->design->assign('firm', $organization->getOldModeInfo());
+        $this->design->assign('firm_detail', $organization->getOldModeDetail());
+        //** /Выпилить */
+
         $this->contract_apply_support_phone($r["region"]);
 
         file_put_contents(Yii::$app->params['STORE_PATH'].$file, $content);//шаманство...
@@ -297,12 +305,6 @@ class ClientDocumentDao extends Singleton
 		return $content;
     }
 
-    private function contract_apply_firma($firma, $date = null)
-    {
-        $this->design->assign("firm_detail", Company::getDetail($firma, $date));
-        $this->design->assign("firm", Company::getProperty($firma, $date));
-    }
-
     private function contract_apply_support_phone($region)
     {
         switch($region)
@@ -325,7 +327,9 @@ class ClientDocumentDao extends Singleton
 
     private function makeBlankZakaz($clientId)
     {
-        $client = ClientAccount::findOne(["id" => $clientId])->client;
+        $clientAccount = ClientAccount::findOne(["id" => $clientId]);
+        $client = $clientAccount->client;
+        $tax_rate = $clientAccount->getTaxRate();
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
@@ -342,7 +346,7 @@ class ClientDocumentDao extends Singleton
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
                 'per_month' => round($a->getAbonPerMonth(), 2),
-                'per_month_with_tax' => round($a->getAbonPerMonth() * 1.18, 2)
+                'per_month_with_tax' => round($a->getAbonPerMonth() * (1 + $tax_rate), 2)
             ];
         }
 
@@ -364,7 +368,7 @@ class ClientDocumentDao extends Singleton
                 'gb_month' => $a->currentTariff->mb_month/1024,
                 'pay_mb' => $a->currentTariff->pay_mb,
                 'per_month' => round($a->currentTariff->pay_month, 2),
-                'per_month_with_tax' => round($a->currentTariff->pay_month * 1.18, 2)
+                'per_month_with_tax' => round($a->currentTariff->pay_month * (1 + $tax_rate), 2)
             ];
         }
 
@@ -379,7 +383,7 @@ class ClientDocumentDao extends Singleton
                 'num_ports' => $a->currentTariff->num_ports,
                 'overrun_per_port' => $a->currentTariff->overrun_per_port,
                 'per_month' => round($a->currentTariff->price, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18, 2)
+                'per_month_with_tax' => round($a->currentTariff->price * (1 + $tax_rate), 2)
             ];
         }
 
@@ -390,7 +394,7 @@ class ClientDocumentDao extends Singleton
                 'from' => $a->actual_from,
                 'description' => "SMS-рассылка",
                 'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->per_month_price/1.18, 2),
+                'per_month' => round($a->currentTariff->per_month_price/(1 + $tax_rate), 2),
                 'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
             ];
         }
@@ -404,7 +408,7 @@ class ClientDocumentDao extends Singleton
                 'amount' => $a->amount,
                 'pay_once' => 0,
                 'per_month' => round($a->currentTariff->price * $a->amount, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
+                'per_month_with_tax' => round($a->currentTariff->price * (1 + $tax_rate) * $a->amount, 2)
             ];
         }
 

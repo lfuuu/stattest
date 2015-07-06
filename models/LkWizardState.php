@@ -63,6 +63,7 @@ class LkWizardState extends ActiveRecord
     public function add100Rub()
     {
         $clientAccount = ClientAccount::findOne($this->account_id);
+        $tax_rate = $clientAccount->getTaxRate();
 
         $sum = -100;
 
@@ -84,9 +85,9 @@ class LkWizardState extends ActiveRecord
         $line->date_to = date("Y-m-d", strtotime("last day of this month"));
         $line->type = 'service';
         $line->amount = 1;
-        $line->price = $sum/1.18;
-        $line->tax_type_id = $clientAccount->getDefaultTaxId();
-        $line->calculateSum();
+        $line->price = $sum / (1 + $tax_rate);
+        $line->tax_rate = $clientAccount->getDefaultTaxId();
+        $line->calculateSum($tax_rate);
         $line->sum = $sum;
         $line->save();
 

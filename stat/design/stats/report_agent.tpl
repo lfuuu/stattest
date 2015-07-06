@@ -120,10 +120,10 @@
         </tbody>
     </table>
 </div>
-<div class='tbl_legend'>
+<!--div class='tbl_legend'>
 	Вознаграждение агента в Расчетном периоде составляет {$total.fsum_str} в том числе НДС (18%) {$total.nds_str}<br />
 	Прописью: {$total.fsum|wordify:'RUB'}
-</div>
+</div-->
 <div id="report_details" title="Подробная информация" style="display: none;"></div>
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 <script>

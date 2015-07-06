@@ -86,7 +86,7 @@ class AgentReport
             echo "\n";
             echo ';;;;;;';
             echo "\n";
-            $str = ($interest_type == 'bills')? 'Сумма полученных платежей' : 'Абон плата, с учетом НДС;Сумма оплаченных счетов';
+            $str = ($interest_type == 'bills')? 'Сумма полученных платежей' : 'Абон плата;Сумма оплаченных счетов';
             echo ('Компания;'.$str.';Тип вознаграждения;%;Сумма вознаграждения;');
             echo "\n";
             foreach ($R as $r) {
@@ -384,7 +384,7 @@ class AgentReport
                         $total['fsum'] += $ret[$r['id']]['fsum'];
             }
         }
-        $total = AgentReport::prepareTotals($total);
+        //$total = AgentReport::prepareTotals($total);
         return array($ret, $total);
     }
     
@@ -393,6 +393,7 @@ class AgentReport
      * Подговка массива для вывода текстовых значений вознагрождений
      * @param array $total массив с данными
      */
+    /*
     private static function prepareTotals($total)
     {
         $total['nds'] = round($total['fsum']*(18/118), 2);
@@ -400,6 +401,7 @@ class AgentReport
         $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' коп.';
         return $total;
     }
+    */
     
     /** 
      * Обработка параметров запроса и вызов соответствующей функии для детализации

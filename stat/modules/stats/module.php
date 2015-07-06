@@ -2,9 +2,9 @@
 use app\classes\StatModule;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
+use app\models\ClientAccount;
 
 class m_stats extends IModule{
-
     private $_inheritances = array();
 
     public function __construct()
@@ -303,7 +303,7 @@ class m_stats extends IModule{
             foreach ($regions as $region=>$phones_sel) {
                 $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
-            $stats = $this->prepareStatArray($stats, $detality);
+            $stats = $this->prepareStatArray($client_id, $stats, $detality);
         } else {
             if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
@@ -318,11 +318,13 @@ class m_stats extends IModule{
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
-    function prepareStatArray($data = array(), $detality = '', $all_regions = array()) {
+    function prepareStatArray($client_id, $data = array(), $detality = '', $all_regions = array()) {
 
         if (!count($data)) return $data;
         $Res = array();
         $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
+
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
 
         switch ($detality) {
             case 'dest':
@@ -348,9 +350,9 @@ class m_stats extends IModule{
                 $rt['tsf1']='Итого';
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
                 $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
-                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
 
                 break;
             case 'call':
@@ -375,9 +377,9 @@ class m_stats extends IModule{
                 $rt['num_from']='&nbsp;';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
                 $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
-                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -414,9 +416,9 @@ class m_stats extends IModule{
                 $rt['tsf1']='Итого';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
                 $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
-                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
             break;
         }
 
@@ -1016,6 +1018,7 @@ class m_stats extends IModule{
         $from->setTimezone(new DateTimeZone('UTC'));
         $to->setTimezone(new DateTimeZone('UTC'));
 
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
 
         if ($detality=='call'){
             $group='';
@@ -1142,9 +1145,9 @@ class m_stats extends IModule{
             $rt['num_from']='&nbsp;';
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
             $rt['price_without_tax'] = number_format($rt['price'], 2, '.','');
-            $rt['price_with_tax'] = number_format($rt['price']*1.18, 2, '.','');
+            $rt['price_with_tax'] = number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
 
             $R['total']=$rt;
         }else{
@@ -1196,9 +1199,9 @@ class m_stats extends IModule{
             $rt['tsf1']='<b>Итого</b>';
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
-            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
             $rt['price_without_tax'] = number_format($price, 2, '.','');
-            $rt['price_with_tax'] = number_format($price*1.18, 2, '.','');
+            $rt['price_with_tax'] = number_format($price * (1 + $tax_rate), 2, '.','');
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }

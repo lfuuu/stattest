@@ -1,5 +1,7 @@
 <?php
 
+use app\models\ClientAccount;
+
 class VirtpbxStat extends ActiveRecord\Model
 {
 	static $table_name = "virtpbx_stat";
@@ -113,7 +115,8 @@ class VirtpbxStat extends ActiveRecord\Model
                         $usage_id,
 		);
 		$stat_detailed = self::find('all', $options);
-		$nds = (ClientCard::first($client_id)->nds_zero) ? 1 : 1.18;
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
+		$nds = (ClientCard::first($client_id)->nds_zero) ? 1 : (1 + $tax_rate);
 		foreach ($stat_detailed as $k => &$v) 
 		{
 			$tarif_info = TarifVirtpbx::getTarifByClient($client_id, $v->mdate);

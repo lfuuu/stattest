@@ -1,7 +1,6 @@
 <?php
 
 use app\classes\StatModule;
-use app\classes\Company;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\models\Courier;
@@ -12,6 +11,7 @@ use app\models\BillDocument;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
+use app\models\Organization;
 
 class m_newaccounts extends IModule
 {
@@ -1943,9 +1943,10 @@ class m_newaccounts extends IModule
 
         if($clientId && $sum)
         {
+            $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum/118)*18);
+            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(
@@ -2359,7 +2360,7 @@ class m_newaccounts extends IModule
 
         if(in_array($obj, array("invoice","upd")))
         {
-            $this->checkSF_discount($L_prev);
+            $this->checkSF_discount($L_prev, $tax_rate = ClientAccount::findOne($bill->client_id)->getTaxRate());
         }
 
 
@@ -2439,11 +2440,20 @@ class m_newaccounts extends IModule
             $design->assign('total_amount',$total_amount);
 
             $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
-
-            Company::setResidents($r["firma"], $docDate);
-            $design->assign("firm", Company::getProperty($r["firma"], $docDate));
-
             ClientCS::Fetch($r);
+
+            //** Выпилить */
+            //Company::setResidents($r["firma"], $docDate);
+            //$design->assign("firm", Company::getProperty($r["firma"], $docDate));
+
+            $client = $design->get_template_vars('client');
+            $organization = Organization::find()->byId($client['organization_id'])->actual($docDate)->one();
+
+            $design->assign('firma', $organization->getOldModeInfo());
+            $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
+            $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
+            //** /Выпилить */
+
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
             $design->assign('bill_client',$r);
             return true;
@@ -2454,13 +2464,13 @@ class m_newaccounts extends IModule
         }
     }
 
-    function checkSF_discount(&$L)
+    function checkSF_discount(&$L, $tax_rate)
     {
         foreach($L as &$l)
         {
             if($l["discount_set"] || $l["discount_auto"])
             {
-                $discount = ($l["discount_set"] + $l["discount_auto"])/1.18;
+                $discount = ($l["discount_set"] + $l["discount_auto"]) / (1 + $tax_rate);
 
                 $l["sum_without_tax"] -= $discount;
 
@@ -3755,7 +3765,16 @@ class m_newaccounts extends IModule
         $date_to=$dateTo->getDay();
        
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-        Company::setResidents($c["firma"], $date_to);
+
+        //** Выпилить */
+        //Company::setResidents($c["firma"], $date_to);
+
+        $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
+
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
+        $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
+        //** /Выпилить */
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('saldo', $startsaldo=floatval(get_param_protected('saldo',0)));

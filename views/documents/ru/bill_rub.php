@@ -3,6 +3,7 @@
 use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
+use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
@@ -10,9 +11,11 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-$company = $document->getCompany();
+/** @var $organization app\models\Organization */
+$organization = $document->getOrganization();
 
-$residents = $document->getCompanyResidents();
+$director = $organization->getDirector();
+$accountant = $organization->getAccountant();
 
 $payer_company = $document->getPayer();
 ?>
@@ -39,12 +42,12 @@ $payer_company = $document->getPayer();
                 </td>
                 <td align="right">
                     <div style="width: 110px;  text-align: center;padding-right: 10px;">
-                        <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
+                        <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
                             <?php
                             if ($inline_img):
-                                echo Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]);
-                            else: ?>
-                                <img src="/images/<?= $company['logo']; ?>" width="115" border="0" />
+                                echo Html::inlineImg(MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name), ['width' => 115, 'border' => 0]);
+                                    else: ?>
+                                <img src="<?= MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name); ?>" width="115" border="0" />
                             <?php endif; ?>
                         <?php endif; ?>
 
@@ -106,11 +109,22 @@ $payer_company = $document->getPayer();
                     <td align="center"><b>Единица измерения</b></td>
                     <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+
+                    <?php if ($organization->ifTaxSystem()): ?>
+                        <!--td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td-->
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <?php endif; ?>
+
                     <?php if ($hasDiscount): ?>
                         <td align="center"><b>Скидка</b></td>
-                        <td align="center"><b>Сумма со скидкой,<br>с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center">
+                            <b>
+                                Сумма со скидкой
+                                <?php if($organization->ifTaxSystem()): ?>,<br />с учётом налога<?php endif; ?>
+                                ,&nbsp;<?= $currency_w_o_value; ?>
+                            </b>
+                        </td>
                     <?php endif; ?>
                 </tr>
 
@@ -133,8 +147,12 @@ $payer_company = $document->getPayer();
                         </td>
                         <td align="center"><?= Utils::round($line['price'], 4); ?></td>
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                        <td align="center"><?= ($document->bill->clientAccount->nds_zero || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
-                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+
+                        <?php if($organization->ifTaxSystem()): ?>
+                            <td align="center"><?= (!$document->bill->clientAccount->getTaxRate($original = true) || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <?php endif; ?>
+
                         <?php if ($hasDiscount): ?>
                             <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
                             <td align="center"><?= Utils::round($line['sum'] - ($line['discount_auto'] + $line['discount_set']), 2); ?></td>
@@ -149,51 +167,65 @@ $payer_company = $document->getPayer();
                         </div>
                     </td>
                     <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                    <td align="center">
-                        <?php if (!$hasDiscount): ?>
-                            <?= ($document->bill->clientAccount->nds_zero ? 'без НДС' : Utils::round($document->sum_with_tax, 2)); ?>
-                        <?php else: ?>
-                            &nbsp;
-                        <?php endif; ?>
-                    </td>
+
+                    <?php if($organization->ifTaxSystem()): ?>
+                        <td align="center">
+                            <?php if (!$hasDiscount): ?>
+                                <?= (!$document->bill->clientAccount->getTaxRate($original = true) ? 'без НДС' : Utils::round($document->sum_with_tax, 2)); ?>
+                            <?php else: ?>
+                                &nbsp;11
+                            <?php endif; ?>
+                        </td>
+                    <?php endif; ?>
+
                     <?php if ($hasDiscount): ?>
-                        <td align="center">&nbsp;</td>
+                        <td align="center">&nbsp;1</td>
                         <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
                     <?php endif; ?>
-                    <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
+
+                    <?php if($organization->ifTaxSystem()): ?>
+                        <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
+                    <?php endif; ?>
                 </tr>
             </tbody>
         </table>
         <br />
 
-        <p><i>Сумма прописью: <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?></i></p>
+        <p>
+            <i>
+                Сумма прописью:
+                <?php if($organization->ifTaxSystem()) :?>
+                    <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?>
+                <?php else: ?>
+                    <?= Wordifier::Make($document->sum_without_tax, $document->getCurrency()); ?>
+                <?php endif; ?>
+            </i>
+        </p>
 
         <table border="0" align=center cellspacing="1" cellpadding="0">
+            <col width="*" />
+            <col width="250" />
+            <col width="*" />
             <tbody>
                 <tr>
-                    <td><?= $residents['firm_director']['position']; ?></td>
+                    <td><?= $director->post_nominative; ?></td>
                     <?php if ($document->sendEmail): ?>
                         <td>
-                            <?php if(isset($residents['firm_director']['sign'])):
+                            <?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 140,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
 
-                                if ($residents['firm_director']['sign']['width']):
-                                    $image_options['width'] = $residents['firm_director']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_director']['sign']['height'];
-                                endif;
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/image/<?= $residents['firm_director']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
@@ -204,32 +236,27 @@ $payer_company = $document->getPayer();
                             <br /><br />_________________________________<br /><br />
                         </td>
                     <?php endif; ?>
-                    <td>/ <?= $residents['firm_director']['name']; ?> /</td>
+                    <td>/ <?= $director->name_nominative; ?> /</td>
                 </tr>
                 <tr>
                     <td>Главный бухгалтер</td>
                     <?php if ($document->sendEmail) :?>
                         <td>
-                            <?php if (isset($residents['firm_buh']['sign'])):
+                            <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 140,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
 
-                                if ($residents['firm_buh']['sign']['width']) {
-                                    $image_options['width'] = $residents['firm_buh']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_buh']['sign']['height'];
-                                }
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
@@ -241,33 +268,28 @@ $payer_company = $document->getPayer();
                         </td>
                     <?php endif; ?>
                     <td>
-                        / <?= $residents['firm_buh']['name']; ?> /
+                        / <?= $accountant->name_nominative; ?> /
                     </td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
                     <tr>
                         <td>&nbsp;</td>
                         <td align=left>
-                            <?php if (isset($residents['firma'])):
+                            <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 200,
                                     'border' => 0,
-                                    'style' => $residents['firma']['style'],
+                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
                                 ];
 
-                                if ($residents['firma']['width']) {
-                                    $image_options['width'] = $residents['firma']['width'];
-                                    $image_options['height'] = $residents['firma']['height'];
-                                }
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/images/<?= $residents['firma']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>

@@ -76,11 +76,6 @@ class ClientAccount extends ActiveRecord
         ];
     }
 
-    public function getTaxRate()
-    {
-        return $this->nds_zero ? 0 : 0.18;
-    }
-
     public function getSuperClient()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
@@ -136,6 +131,15 @@ class ClientAccount extends ActiveRecord
         return $this->hasMany(ClientFile::className(), ['client_id' => 'id'])->orderBy("ts");
     }
 
+    /**
+     * @param string $date
+     * @return \app\models\Organization
+     */
+    public function getOrganization($date = '')
+    {
+        return Organization::find()->byId($this->organization_id)->actual($date)->one();
+    }
+
     public function getFileManager()
     {
         return FileManager::create($this->id);
@@ -178,12 +182,20 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
+    public function getTaxRate($original = false)
+    {
+        return
+            $this->nds_zero
+                ? 0
+                : (
+                    $original === true
+                        ? $this->getOrganization()->vat_rate
+                        : $this->getOrganization()->vat_rate / 100
+                );
+    }
+
     public function getDefaultTaxId()
     {
-        if ($this->nds_zero) {
-            return TaxType::TAX_0;
-        } else {
-            return TaxType::TAX_18;
-        }
+        return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
     }
 }

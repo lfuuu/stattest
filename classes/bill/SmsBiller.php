@@ -31,6 +31,7 @@ class SmsBiller extends Biller
     protected function processResource()
     {
         $tariff = $this->usage->tariff;
+        $tax_rate = $this->clientAccount->getTaxRate();
 
         $smsCount = $this->getSmsCount();
         if ($smsCount > 0 && $tariff->per_sms_price > 0)
@@ -44,7 +45,7 @@ class SmsBiller extends Biller
                 BillerPackageResource::create($this)
                     ->setPeriodType($tariff->period)
                     ->setAmount($smsCount)
-                    ->setPrice($tariff->per_sms_price/1.18)
+                    ->setPrice($tariff->per_sms_price / (1 + $tax_rate))
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
             );

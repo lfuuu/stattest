@@ -2,6 +2,7 @@
 
 use app\classes\Utils;
 use app\classes\Html;
+use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
@@ -9,7 +10,11 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-$company = $document->getCompany();
+/** @var $organization app\models\Organization */
+$organization = $document->getOrganization();
+
+$director = $organization->getDirector();
+$accountant = $organization->getAccountant();
 
 $payer_company = $document->getPayer();
 ?>
@@ -37,14 +42,15 @@ $payer_company = $document->getPayer();
                 <td align=right>
                     <table border="0" align="right">
                         <div style="width: 110px;  text-align: center;padding-right: 10px;">
-                            <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
+                            <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
                                 <?php
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name), ['width' => 115, 'border' => 0]);
                                 else: ?>
-                                    <img src="/images/<?= $company['logo']; ?>" width="115" border="0" />
+                                    <img src="<?= MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name); ?>" width="115" border="0" />
                                 <?php endif; ?>
                             <?php endif; ?>
+
                             <?php if (isset($company['site']) && !empty($company['site'])): ?>
                                 <?= $company['site']; ?>
                             <?php endif; ?>
@@ -141,26 +147,21 @@ $payer_company = $document->getPayer();
                     <?php if ($document->sendEmail): ?>
                         <td>
                             <?php
-                            if (isset($residents['firm_director']['sign'])):
+                            if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
-                                    'border' => '0',
+                                    'width' => 140,
+                                    'border' => 0,
                                     'align' => 'top',
                                 ];
 
-                                if ($residents['firm_director']['sign']['width']):
-                                    $image_options['width'] = $residents['firm_director']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_director']['sign']['height'];
-                                endif;
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/image/<?= $residents['firm_director']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
@@ -177,26 +178,21 @@ $payer_company = $document->getPayer();
                     <tr>
                         <td>&nbsp;</td>
                         <td align=left>
-                            <?php if (isset($residents['firma'])):
+                            <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
                                 $image_options = [
-                                    'width' => 115,
-                                    'border' => '0',
-                                    'style' => $residents['firma']['style'],
+                                    'width' => 200,
+                                    'border' => 0,
+                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
                                 ];
 
-                                if ($residents['firma']['width']) {
-                                    $image_options['width'] = $residents['firma']['width'];
-                                    $image_options['height'] = $residents['firma']['height'];
-                                }
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/images/<?= $residents['firma']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>

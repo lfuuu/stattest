@@ -1427,7 +1427,7 @@ class ApiLk
             $ar = array();
             $all_regions = $db->AllRecords('select id, name from regions');
             foreach ($all_regions as $reg) $ar[$reg['id']] =  $reg['name'];
-            $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
+            $stats = $module_stats->prepareStatArray($client['id'], $stats, $detality, $ar);
         } else {
             $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
         }

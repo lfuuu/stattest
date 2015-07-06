@@ -1,18 +1,18 @@
 <?php
 /** @var $document app\classes\documents\DocumentReport */
 
-$company = $document->getCompany();
+$organization = $document->getOrganization();
 ?>
 
 <p>
-    <b><?= $company['name']; ?></b><br />
-    Adószám: <?= $company['inn']; ?><br />
+    <b><?= $organization->name; ?></b><br />
+    Adószám: <?= $organization->tax_registration_id; ?><br />
     Bankszámla:<br />
-    <?= nl2br($company['acc']); ?><br />
-    <?= $company['bank']; ?> SWIFT <?= $company['swift']; ?><br />
-    Telefon: <?= $company['phone']; ?><br />
-    Fax: <?= $company['fax']; ?><br />
-    Postázási cím: <?= $company['post_address']; ?><br />
-    Cégjegyzékszám: <?= $company['reg_no']; ?><br />
-    Email cím: <?= $company['email']; ?>
+    <?= nl2br($organization->bank_account); ?><br />
+    <?= $organization->bank_name; ?> SWIFT <?= $organization->bank_swift; ?><br />
+    Telefon: <?= $organization->contact_phone; ?><br />
+    Fax: <?= $organization->contact_fax; ?><br />
+    Postázási cím: <?= $organization->post_address; ?><br />
+    Cégjegyzékszám: <?= $organization->registration_id; ?><br />
+    Email cím: <?= $organization->contact_email; ?>
 </p>
