@@ -4,6 +4,10 @@ use DateTime;
 use app\classes\Html;
 ?>
 
+<h2>
+    Организации
+</h2>
+
 <div style="text-align: right; padding-bottom: 10px;">
     <?php
     echo Html::a(
@@ -20,7 +24,7 @@ use app\classes\Html;
 
 <div class="container" style="width: 100%;">
     <div class="row">
-        <?php foreach ($records as $index => $record): ?>
+        <?php foreach ($organizations as $index => $record): ?>
             <?php
             $break = (($index + 1) % 4 == 0);
             ?>

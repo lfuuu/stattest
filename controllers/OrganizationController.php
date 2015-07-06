@@ -36,7 +36,7 @@ class OrganizationController extends BaseController
     public function actionIndex()
     {
         return $this->render('list', [
-            'records' => Organization::dao()->getCompleteList()
+            'organizations' => Organization::dao()->getCompleteList()
         ]);
     }
 
