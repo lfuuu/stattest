@@ -2,6 +2,7 @@
 
 use app\classes\Utils;
 use app\models\ClientAccount;
+use app\models\Organization;
 
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
@@ -800,6 +801,7 @@ class ClientCS {
         $defaultFields = array(
             "status" => "income", 
             "firma" => "mcn_telekom", 
+            "organization_id" => Organization::MCN_TELEKOM,
             "password" => password_gen(8, false), 
             "contract_type_id" => 2, // Телеком-клиент
             "business_process_id" => 1, //Сопровождение
