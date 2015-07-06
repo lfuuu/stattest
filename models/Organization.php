@@ -7,13 +7,13 @@ use app\dao\OrganizationDao;
 
 /**
  * @property int $id
- * @property int $organization_id               ID организации
+ * @property int organization_id                ID организации
  * @property string actual_from                 Дата с которой фирма начинает действовать
  * @property string actual_to                   Дата до которой фирма действует
- * @property int $firma                         Ключ для связи с clients*
+ * @property int firma                          Ключ для связи с clients*
  * @property int country_id                     Код страны
  * @property string lang_code                   Код языка
- * @property array tax_system                   Вариант налогообложения (ОСНО, УСН)
+ * @property array is_simple_tax_system         Упрощенная схема налогооблажения (1 - Да)
  * @property int vat_rate                       Ставка налога
  * @property string name                        Название
  * @property string full_name                   Полное название
@@ -69,7 +69,7 @@ class Organization extends ActiveRecord
 
         $next_record = $this
             ->find()
-            ->where(['organization_id' => $this->id])
+            ->where(['organization_id' => $this->organization_id])
             ->andWhere(['>', 'actual_from', $this->actual_from])
             ->orderBy('actual_from asc')
             ->one();
@@ -113,7 +113,7 @@ class Organization extends ActiveRecord
 
     public function ifTaxSystem()
     {
-        return $this->tax_system === 'ОСНО';
+        return !$this->is_simple_tax_system;
     }
 
     public function getOldModeInfo()
@@ -138,8 +138,11 @@ class Organization extends ActiveRecord
             'director_'         => $director->name_genitive,
             'director_post'     => $director->post_nominative,
             'director_post_'    => $director->post_genitive,
-            'logo'              => \Yii::$app->params['ORGANIZATION_LOGO_DIR'] . $this->logo_file_name,
+            'logo'              => str_replace('/images/', '', \Yii::$app->params['ORGANIZATION_LOGO_DIR']) . $this->logo_file_name,
             'site'              => $this->contact_site,
+            'src'               => str_replace('/images/', '', \Yii::$app->params['STAMP_DIR']) . $this->stamp_file_name,
+            'width'             => 200,
+            'height'            => 200,
         ];
     }
 

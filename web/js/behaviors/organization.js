@@ -3,9 +3,14 @@ jQuery(document).ready(function() {
     var $current = {},
         $tax_system = {
             643: [
-                {'label': 'ОСНО', 'vat_rate': 18},
+                {
+                    'label': 'ОСНО',
+                    'value': 0,
+                    'vat_rate': 18
+                },
                 {
                     'label': 'УСН',
+                    'value': 1,
                     'vat_rate': 0,
                     'action': function(element) {
                         element.parent('div').hide();
@@ -13,10 +18,18 @@ jQuery(document).ready(function() {
                 }
             ],
             348: [
-                {'label':'ОСНО', 'vat_rate': 27}
+                {
+                    'label':'ОСНО',
+                    'value': 0,
+                    'vat_rate': 27
+                }
             ],
             'default': [
-                {'label':'ОСНО', 'vat_rate': 0}
+                {
+                    'label':'ОСНО',
+                    'value': 0,
+                    'vat_rate': 0
+                }
             ]
         },
         $actions = {
@@ -34,8 +47,8 @@ jQuery(document).ready(function() {
                     $(target).append(
                         $('<option />')
                             .text(this.label)
-                            .val(this.label)
-                            .prop('selected', this.label == $(target).data('value'))
+                            .val(this.value)
+                            .prop('selected', this.value == $(target).data('value'))
                     );
                 });
                 $(target).trigger('change');
@@ -47,12 +60,12 @@ jQuery(document).ready(function() {
                     target = $(this).data('target');
 
                 $.each(tax_system, function() {
-                    if (this.label == value)
+                    if (this.value == value)
                         $current.tax_system = this;
                 });
 
                 $(target)
-                    .val($(target).data('value') ? $(target).data('value') : $current.tax_system.vat_rate)
+                    .val($current.tax_system.vat_rate)
                     .parent('div')
                         .show();
                 if ($.isFunction($current.tax_system.action))

@@ -192,12 +192,12 @@ use app\models\Person;
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'tax_system')
+                    echo $form->field($model, 'is_simple_tax_system')
                         ->dropDownList([], [
                             'id' => 'applyTaxSystem',
                             'data-action' => 'applyTaxSystem',
                             'data-target' => '#vatRate',
-                            'data-value' => $model->tax_system,
+                            'data-value' => $model->is_simple_tax_system,
                         ])
                         ->label('Система налогообложения');
                     ?>
@@ -388,6 +388,7 @@ use app\models\Person;
                 'model' => $model,
                 'form' => $form,
                 'attributes' => [
+                    'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'id')],
                     'organization_id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'organization_id')],
                     'actions' => [
                         'type' => Form::INPUT_RAW,

@@ -13,8 +13,8 @@ $currency_w_o_value = Utils::money('', $document->getCurrency());
 /** @var $organization app\models\Organization */
 $organization = $document->getOrganization();
 
-$director = $organization->getDirector();
-$accountant = $organization->getAccountant();
+$director = $organization->getDirector()->one();
+$accountant = $organization->getAccountant()->one();
 
 $payer_company = $document->getPayer();
 ?>
