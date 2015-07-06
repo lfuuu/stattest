@@ -2449,7 +2449,10 @@ class m_newaccounts extends IModule
             $client = $design->get_template_vars('client');
             $organization = Organization::find()->byId($client['organization_id'])->actual($docDate)->one();
 
-            $design->assign('firma', $organization->getOldModeInfo());
+            $organization_info = $organization->getOldModeInfo();
+
+            $design->assign('firm', $organization_info);
+            $design->assign('firma', $organization_info);
             $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
             $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
             //** /Выпилить */
