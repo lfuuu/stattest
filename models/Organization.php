@@ -13,7 +13,7 @@ use app\dao\OrganizationDao;
  * @property int firma                          Ключ для связи с clients*
  * @property int country_id                     Код страны
  * @property string lang_code                   Код языка
- * @property array is_simple_tax_system         Упрощенная схема налогооблажения (1 - Да)
+ * @property int is_simple_tax_system         Упрощенная схема налогооблажения (1 - Да)
  * @property int vat_rate                       Ставка налога
  * @property string name                        Название
  * @property string full_name                   Полное название
@@ -111,7 +111,7 @@ class Organization extends ActiveRecord
         return $this->hasOne(Person::className(), ['id' => 'accountant_id'])->one();
     }
 
-    public function ifTaxSystem()
+    public function isNotSimpleTaxSystem()
     {
         return !$this->is_simple_tax_system;
     }

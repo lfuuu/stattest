@@ -1,3 +1,12 @@
+/**
+ * Использование:
+ *   при необходимости базовые величины налоговой ставки меняются на строке №12 в массиве $vat_rate_by_country
+ *
+ * Подключение:
+ *   <script type="text/javascript" src="/js/behaviors/organization.js"></script>
+ *
+ */
+
 jQuery(document).ready(function() {
 
     var $vat_rate_by_country = {
@@ -17,6 +26,8 @@ jQuery(document).ready(function() {
                 !$country_select.find(':selected').val()
             )
                 $country_select.trigger('change', {default: 1});
+            if ($simple_tax_system_checkbox.is(':checked'))
+                $vat_rate_input.parent('div').hide();
         };
 
     $country_select
@@ -54,4 +65,5 @@ jQuery(document).ready(function() {
         });
 
     init();
+
 });
