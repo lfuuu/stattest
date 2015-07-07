@@ -44,8 +44,6 @@ class Organization extends ActiveRecord
 {
     const MCN_TELEKOM = 1;
 
-    const MCN_TELEKOM = 1;
-
     public static function tableName()
     {
         return 'organization';
