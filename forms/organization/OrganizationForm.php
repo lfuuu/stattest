@@ -16,7 +16,7 @@ class OrganizationForm extends Form
         $actual_from,
         $country_id,
         $lang_code,
-        $tax_system,
+        $is_simple_tax_system = 0,
         $vat_rate = 0,
         $name,
         $full_name,
@@ -46,10 +46,10 @@ class OrganizationForm extends Form
     {
         return [
             [['actual_from', 'name', 'firma'], 'required'],
-            [['id', 'country_id', 'director_id', 'accountant_id', 'vat_rate',], 'integer'],
+            [['id', 'country_id', 'director_id', 'accountant_id', 'vat_rate','director_id','accountant_id',], 'integer'],
             [
                 [
-                    'lang_code', 'tax_system', 'full_name', 'legal_address', 'post_address',
+                    'lang_code', 'is_simple_tax_system', 'full_name', 'legal_address', 'post_address',
                     'registration_id', 'tax_registration_id', 'tax_registration_reason', 'bank_account',
                     'bank_bik', 'bank_swift', 'contact_phone', 'contact_fax', 'contact_email',
                     'contact_site', 'logo_file_name', 'stamp_file_name', 'organization_id'
@@ -77,13 +77,14 @@ class OrganizationForm extends Form
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $organization->save();
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
 
-        $this->id = $organization->id;
+        $this->organization_id = $organization->organization_id;
 
         return true;
     }

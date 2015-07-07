@@ -7,13 +7,13 @@ use app\dao\OrganizationDao;
 
 /**
  * @property int $id
- * @property int $organization_id               ID организации
+ * @property int organization_id                ID организации
  * @property string actual_from                 Дата с которой фирма начинает действовать
  * @property string actual_to                   Дата до которой фирма действует
- * @property int $firma                         Ключ для связи с clients*
+ * @property int firma                          Ключ для связи с clients*
  * @property int country_id                     Код страны
  * @property string lang_code                   Код языка
- * @property array tax_system                   Вариант налогообложения (ОСНО, УСН)
+ * @property int is_simple_tax_system         Упрощенная схема налогооблажения (1 - Да)
  * @property int vat_rate                       Ставка налога
  * @property string name                        Название
  * @property string full_name                   Полное название
@@ -35,9 +35,15 @@ use app\dao\OrganizationDao;
  * @property string stamp_file_name             Название файла с печатью
  * @property int director_id                    ID записи персон на должность директора
  * @property int accountant_id                  ID записи персон на должность бухгалтера
+ *
+ * @property Person director
+ * @property Person accountant
+ * @property
  */
 class Organization extends ActiveRecord
 {
+    const MCN_TELEKOM = 1;
+
     const MCN_TELEKOM = 1;
 
     public static function tableName()
@@ -70,7 +76,7 @@ class Organization extends ActiveRecord
 
         $next_record = $this
             ->find()
-            ->where(['organization_id' => $this->id])
+            ->where(['organization_id' => $this->organization_id])
             ->andWhere(['>', 'actual_from', $this->actual_from])
             ->orderBy('actual_from asc')
             ->one();
@@ -104,22 +110,22 @@ class Organization extends ActiveRecord
 
     public function getDirector()
     {
-        return $this->hasOne(Person::className(), ['id' => 'director_id'])->one();
+        return $this->hasOne(Person::className(), ['id' => 'director_id']);
     }
 
     public function getAccountant()
     {
-        return $this->hasOne(Person::className(), ['id' => 'accountant_id'])->one();
+        return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
     }
 
-    public function ifTaxSystem()
+    public function isNotSimpleTaxSystem()
     {
-        return $this->tax_system === 'ОСНО';
+        return !$this->is_simple_tax_system;
     }
 
     public function getOldModeInfo()
     {
-        $director = $this->getDirector();
+        $director = $this->director;
 
         return [
             'name'              => $this->name,

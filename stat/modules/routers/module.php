@@ -524,7 +524,7 @@ class m_routers {
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
+        $design->assign('firm_director', $organization->director->getOldModeInfo());
         //** /Выпилить */
 
         $act=get_param_integer('act');

@@ -1,0 +1,3 @@
+.ui-autocomplete-loading {
+    background: white url('/images/ajax-loader-small.gif') 98% center no-repeat;
+}

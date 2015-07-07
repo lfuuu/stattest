@@ -11,11 +11,10 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-/** @var $organization app\models\Organization */
-$organization = $document->getOrganization();
+$organization = $document->organization;
 
-$director = $organization->getDirector();
-$accountant = $organization->getAccountant();
+$director = $organization->director;
+$accountant = $organization->accountant;
 
 $payer_company = $document->getPayer();
 ?>
@@ -110,7 +109,7 @@ $payer_company = $document->getPayer();
                 <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
                 <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
 
-                <?php if ($organization->ifTaxSystem()): ?>
+                <?php if ($organization->isNotSimpleTaxSystem()): ?>
                     <!--td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td-->
                     <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
@@ -121,7 +120,7 @@ $payer_company = $document->getPayer();
                     <td align="center">
                         <b>
                             Сумма со скидкой
-                            <?php if($organization->ifTaxSystem()): ?>,<br />с учётом налога<?php endif; ?>
+                            <?php if($organization->isNotSimpleTaxSystem()): ?>,<br />с учётом налога<?php endif; ?>
                             ,&nbsp;<?= $currency_w_o_value; ?>
                         </b>
                     </td>
@@ -147,7 +146,7 @@ $payer_company = $document->getPayer();
                     </td>
                     <td align="center"><?= Utils::round($line['price'], 4); ?></td>
 
-                    <?php if($organization->ifTaxSystem()): ?>
+                    <?php if($organization->isNotSimpleTaxSystem()): ?>
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                         <td align="center"><?= (!$document->bill->clientAccount->getTaxRate($original = true) || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
@@ -169,7 +168,7 @@ $payer_company = $document->getPayer();
                     </div>
                 </td>
 
-                <?php if($organization->ifTaxSystem()): ?>
+                <?php if($organization->isNotSimpleTaxSystem()): ?>
                     <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                     <td align="center">
                         <?php if (!$hasDiscount): ?>
@@ -187,7 +186,7 @@ $payer_company = $document->getPayer();
                     <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
                 <?php endif; ?>
 
-                <?php if($organization->ifTaxSystem()): ?>
+                <?php if($organization->isNotSimpleTaxSystem()): ?>
                     <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
                 <?php endif; ?>
             </tr>
@@ -198,7 +197,7 @@ $payer_company = $document->getPayer();
         <p>
             <i>
                 Сумма прописью:
-                <?php if($organization->ifTaxSystem()) :?>
+                <?php if($organization->isNotSimpleTaxSystem()) :?>
                     <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?>
                 <?php else: ?>
                     <?= Wordifier::Make($document->sum_without_tax, $document->getCurrency()); ?>

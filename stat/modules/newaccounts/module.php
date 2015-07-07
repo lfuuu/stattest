@@ -2453,8 +2453,8 @@ class m_newaccounts extends IModule
 
             $design->assign('firm', $organization_info);
             $design->assign('firma', $organization_info);
-            $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
-            $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
+            $design->assign('firm_director', $organization->director->getOldModeInfo());
+            $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
             //** /Выпилить */
 
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
@@ -3773,8 +3773,8 @@ class m_newaccounts extends IModule
         $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->getDirector()->getOldModeInfo());
-        $design->assign('firm_buh', $organization->getAccountant()->getOldModeInfo());
+        $design->assign('firm_director', $organization->director->getOldModeInfo());
+        $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
         //** /Выпилить */
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');

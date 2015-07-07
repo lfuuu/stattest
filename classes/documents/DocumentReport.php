@@ -2,6 +2,7 @@
 
 namespace app\classes\documents;
 
+use app\models\Organization;
 use Yii;
 use yii\base\Object;
 use yii\db\ActiveRecord;
@@ -9,6 +10,10 @@ use app\classes\BillQRCode;
 use app\classes\Html2Mhtml;
 use app\models\Bill;
 
+/**
+ * @property Organization organization
+ * @property
+ */
 abstract class DocumentReport extends Object
 {
 

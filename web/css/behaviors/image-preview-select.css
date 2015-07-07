@@ -1,0 +1,19 @@
+.image_preview {
+    position: relative;
+    border: 1px solid;
+    background-color: #FFFFFF;
+    text-align: center;
+    vertical-align: bottom;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+    .image_preview img {
+        position: absolute;
+        margin: auto;
+        top: -200px;
+        bottom: -200px;
+        left: -200px;
+        right: -200px;
+    }
