@@ -15,6 +15,10 @@ class m150707_135527_markomnet_organization extends \app\classes\Migration
                 (15, '2011-12-01', '2012-03-31', 'markomnet_new', 643, 'ru', 0, 18, 'ООО «МАРКОМНЕТ»', 'Общество с ограниченной ответственностью «МАРКОМНЕТ»', '117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97', NULL, NULL, '7727702076', '772701001', '40702810100540001508', 'ОАО \"УРАЛСИБ\" г. Москва', '30101810100000000787', '044525787', NULL, '(495) 638-63-84', '(495) 638-52-80', NULL, NULL, NULL, NULL, 4, 13),
                 (15, '2012-02-29', '4001-01-01', 'markomnet_new', 643, 'ru', 0, 18, 'ООО «МАРКОМНЕТ»', 'Общество с ограниченной ответственностью «МАРКОМНЕТ»', '117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97', NULL, NULL, '7727702076', '772701001', '40702810100540001508', 'ОАО \"УРАЛСИБ\" г. Москва', '30101810100000000787', '044525787', NULL, '(495) 638-63-84', '(495) 638-52-80', NULL, NULL, NULL, NULL, 4, 4);
         ");
+
+        $this->execute("UPDATE `clients` SET `organization_id`=13 WHERE `firma`='markomnet_service';");
+        $this->execute("UPDATE `clients` SET `organization_id`=14 WHERE `firma`='markomnet';");
+        $this->execute("UPDATE `clients` SET `organization_id`=15 WHERE `firma`='markomnet_new';");
     }
 
     public function down()
