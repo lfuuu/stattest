@@ -19,7 +19,12 @@ use app\models\Person;
 </h2>
 <?php endif; ?>
 
+<link href="/css/behaviors/autocomplete-loading.css" type="text/css" rel="stylesheet" />
+<link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
 <script type="text/javascript" src="/js/behaviors/organization.js"></script>
+<script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
 
 <div class="container" style="width: 100%; padding-top: 20px;">
     <?php
@@ -47,7 +52,7 @@ use app\models\Person;
             <div class="col-sm-3">
                 <div class="col-sm-12">
                     <?php
-                    $field = $form->field($model, 'country_id')
+                    echo $form->field($model, 'country_id')
                         ->dropDownList(
                             ArrayHelper::map(
                                 Country::find()->where(['in_use' => 1])->orderBy('code desc')->all(),
@@ -55,12 +60,12 @@ use app\models\Person;
                                 'name'
                             ),
                             [
-                                'data-action' => 'applyCountry',
-                                'data-target' => '#applyTaxSystem',
-                                'readonly' => $mode == 'duplicate' ? true : false
+                                'prompt' => 'Выберите страну',
+                                'id' => 'Country',
+                                'readonly' => $mode == 'duplicate' ? true : false,
                             ]
-                        );
-                    echo $field->label('Страна');
+                        )
+                        ->label('Страна');
                     ?>
                 </div>
             </div>
@@ -68,17 +73,17 @@ use app\models\Person;
             <div class="col-sm-3">
                 <div class="col-sm-12">
                     <?php
-                    $langs = ArrayHelper::getColumn(
-                        Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('code desc')->all(),
-                        'lang'
-                    );
-                    foreach ($langs as $key => $value):
-                        $langs[$value] = $value;
-                        unset($langs[$key]);
-                    endforeach;
-
                     echo $form->field($model, 'lang_code')
-                        ->dropDownList($langs, ['readonly' => $mode == 'duplicate' ? true : false])
+                        ->dropDownList(
+                            ArrayHelper::map(
+                                Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('lang desc')->all(),
+                                'lang',
+                                'lang'
+                            ),
+                            [
+                                'readonly' => $mode == 'duplicate' ? true : false
+                            ]
+                        )
                         ->label('Язык');
                     ?>
                 </div>
@@ -192,52 +197,36 @@ use app\models\Person;
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'is_simple_tax_system')
-                        ->dropDownList([], [
-                            'id' => 'applyTaxSystem',
-                            'data-action' => 'applyTaxSystem',
-                            'data-target' => '#vatRate',
-                            'data-value' => $model->is_simple_tax_system,
-                        ])
-                        ->label('Система налогообложения');
-                    ?>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
                     echo $form->field($model, 'vat_rate')
                         ->textInput([
-                            'id' => 'vatRate',
-                            'data-value' => $model->vat_rate,
+                            'id' => 'VatRate',
                         ])
                         ->label('Ставка НДС');
+
+                    echo $form->field($model, 'is_simple_tax_system')
+                        ->checkbox([
+                            'id' => 'IsSimpleTaxSystem',
+                            'label' => Html::tag('span', 'Упрощенная система налогообложения', [
+                                'style' => 'display: inline-block; margin-top: 2px;'
+                            ]),
+                        ], true);
                     ?>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
                     echo $form->field($model, 'tax_registration_id')->label('ИНН');
                     ?>
                 </div>
-            </div>
 
-            <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
                     echo $form->field($model, 'tax_registration_reason')->label('КПП');
                     ?>
                 </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
                     echo $form->field($model, 'registration_id')->label('ОГРН');
@@ -263,9 +252,7 @@ use app\models\Person;
                 <div class="col-sm-12">
                     <?php
                     echo $form->field($model, 'bank_bik')->textInput([
-                        'class' => 'search-info',
-                        'data-type' => 'rpc-find-bank-1c',
-                        'data-param' => 'findBik',
+                        'class' => 'search-bik',
                     ])->label('БИК');
                     ?>
                 </div>
@@ -412,76 +399,3 @@ use app\models\Person;
     ActiveForm::end();
     ?>
 </div>
-
-<script type="text/javascript">
-var frm = 'OrganizationFrm',
-    search_result = {
-        'findBik': function(data) {
-            var fields = {
-                'corr_acc' : 'bank_correspondent_account',
-                'bank_name' : 'bank_name'
-            };
-
-            for (var key in data) {
-                if (data.hasOwnProperty(key) && fields[key]) {
-                    $('#' + frm).find('input[name*="' + fields[key] + '"]').val(data[key]);
-                }
-            }
-        }
-    };
-
-jQuery(function() {
-    $('.image_preview_select')
-        .change(function() {
-            var $source = $(this).data('source'),
-                $value = $(this).find('option:selected').val(),
-                $image = ($value != '' ? $('<img />').attr('src', $source + $value) : false);
-
-            if ($(this).data('target'))
-                $($(this).data('target')).html($value ? $image : '');
-        })
-        .trigger('change');
-
-    $('input.search-info').bind('keyup change', function() {
-        var that = $(this);
-
-        $.ajax({
-            url: '/data/' + that.data('type') + '/?value=' + that.val(),
-            dataType: 'json',
-            beforeSend: function() {
-                that.addClass('ui-autocomplete-loading');
-            },
-            success: function(result) {
-                if ($.isFunction(search_result[ that.data('param') ]))
-                    search_result[ that.data('param') ]($.parseJSON(result));
-                that.removeClass('ui-autocomplete-loading');
-            }
-        });
-    });
-});
-</script>
-
-<style type="text/css">
-.image_preview {
-    position: relative;
-    border: 1px solid;
-    background-color: #FFFFFF;
-    text-align: center;
-    vertical-align: bottom;
-    width: 250px;
-    height: 250px;
-    margin: 0 auto;
-    overflow: hidden;
-}
-    .image_preview img {
-        position: absolute;
-        margin: auto;
-        top: -200px;
-        bottom: -200px;
-        left: -200px;
-        right: -200px;
-    }
-.ui-autocomplete-loading {
-    background: white url('images/ajax-loader-small.gif') 98% center no-repeat;
-}
-</style>

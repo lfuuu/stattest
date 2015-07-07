@@ -17,6 +17,10 @@ $form = ActiveForm::begin([
     Ответственное лицо
 </h2>
 
+<link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
+
 <div class="container well" style="width: 100%; padding-top: 20px;">
     <fieldset style="width: 100%;">
         <div class="row">
@@ -108,40 +112,3 @@ $form = ActiveForm::begin([
     ActiveForm::end();
     ?>
 </div>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('.image_preview_select')
-        .change(function() {
-            var $source = $(this).data('source'),
-                $value = $(this).find('option:selected').val(),
-                $image = ($value != '' ? $('<img />').attr('src', $source + $value) : false);
-
-            if ($(this).data('target'))
-                $($(this).data('target')).html($value ? $image : '');
-        })
-        .trigger('change');
-});
-</script>
-
-<style type="text/css">
-    .image_preview {
-        position: relative;
-        border: 1px solid;
-        background-color: #FFFFFF;
-        text-align: center;
-        vertical-align: bottom;
-        width: 250px;
-        height: 250px;
-        margin: 0 auto;
-        overflow: hidden;
-    }
-    .image_preview img {
-        position: absolute;
-        margin: auto;
-        top: -200px;
-        bottom: -200px;
-        left: -200px;
-        right: -200px;
-    }
-</style>

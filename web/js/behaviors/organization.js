@@ -1,85 +1,57 @@
 jQuery(document).ready(function() {
 
-    var $current = {},
-        $tax_system = {
-            643: [
-                {
-                    'label': 'ОСНО',
-                    'value': 0,
-                    'vat_rate': 18
-                },
-                {
-                    'label': 'УСН',
-                    'value': 1,
-                    'vat_rate': 0,
-                    'action': function(element) {
-                        element.parent('div').hide();
-                    }
-                }
-            ],
-            348: [
-                {
-                    'label':'ОСНО',
-                    'value': 0,
-                    'vat_rate': 27
-                }
-            ],
-            'default': [
-                {
-                    'label':'ОСНО',
-                    'value': 0,
-                    'vat_rate': 0
-                }
-            ]
+    var $vat_rate_by_country = {
+            // Россия
+            643: {'vat_rate': 18},
+            // Венгрия
+            348: {'vat_rate': 27},
+            // Иная страна
+            'default': {'vat_rate': 0}
         },
-        $actions = {
-            'applyCountry': function() {
-                var
-                    value = $(this).find('option:selected').val(),
-                    target = $(this).data('target'),
-                    key = $tax_system[value] ? value : 'default',
-                    tax_system = $tax_system[key];
-
-                $current.country_code = key;
-
-                $(target).find('option').detach();
-                $.each(tax_system, function() {
-                    $(target).append(
-                        $('<option />')
-                            .text(this.label)
-                            .val(this.value)
-                            .prop('selected', this.value == $(target).data('value'))
-                    );
-                });
-                $(target).trigger('change');
-            },
-            'applyTaxSystem': function() {
-                var
-                    value = $(this).find('option:selected').val(),
-                    tax_system = $tax_system[$current.country_code],
-                    target = $(this).data('target');
-
-                $.each(tax_system, function() {
-                    if (this.value == value)
-                        $current.tax_system = this;
-                });
-
-                $(target)
-                    .val($current.tax_system.vat_rate)
-                    .parent('div')
-                        .show();
-                if ($.isFunction($current.tax_system.action))
-                   $current.tax_system.action($(target));
-            }
+        $country_select = $('select#Country'),
+        $vat_rate_input = $('input#VatRate'),
+        $simple_tax_system_checkbox = $('input#IsSimpleTaxSystem'),
+        init = function() {
+            if (
+                !$simple_tax_system_checkbox.is(':checked') &&
+                !$country_select.find(':selected').val()
+            )
+                $country_select.trigger('change', {default: 1});
         };
 
-    $('select[data-action]')
-        .change(function() {
-            var action = $(this).data('action');
+    $country_select
+        .change(function(e, input) {
+            var $value = $(this).find(':selected').val();
 
-            if ($.isFunction($actions[action]))
-                $.proxy($actions[action], $(this))();
-        })
-        .trigger('change');
+            if (input && input.default) {
+                $(this).find('option').eq(input.default).prop('selected', true).trigger('change');
+                return false;
+            }
+            if (!$value) {
+                $(this).find('option').eq(1).prop('selected', true).trigger('change');
+                return false;
+            }
 
+            var $country = $vat_rate_by_country[$value] ? $value : 'default';
+
+            if ($vat_rate_input.parent('div').is(':visible'))
+                $vat_rate_input.val($vat_rate_by_country[ $country ][ 'vat_rate' ]);
+        });
+
+    $simple_tax_system_checkbox
+        .click(function() {
+            var $status = $(this).is(':checked'),
+                $country = $country_select.find(':selected').val();
+
+            if ($status) {
+                $vat_rate_input.parent('div').hide();
+                $vat_rate_input.val(0);
+            }
+            else {
+                $vat_rate_input.parent('div').show();
+                $vat_rate_input.val($vat_rate_by_country[ $vat_rate_by_country[ $country ] ? $country : 'default' ][ 'vat_rate' ]);
+            }
+        });
+
+    init();
 });
