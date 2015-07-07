@@ -9,7 +9,7 @@ class FileManager
 {
     private $accountId = null;
 
-    public function create($accountId)
+    public static function create($accountId)
     {
         return new self($accountId);
     }
