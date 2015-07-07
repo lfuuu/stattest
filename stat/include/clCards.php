@@ -378,7 +378,7 @@ namespace clCards;
 			return $this->setOrganizationId($f);
 		}
         private function setOrganizationId($firma) {
-            $organization = \app\models\Organization::find()->where(['firma' => $firma])->actual()->one();
+            $organization = \app\models\Organization::find()->where(['organization.firma' => $firma])->actual()->one();
             $this->organization_id = $organization->organization_id;
             if ($this->organization_id)
                 $this->mask |= self::organization_id;
