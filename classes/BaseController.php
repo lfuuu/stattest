@@ -93,17 +93,6 @@ class BaseController extends Controller
             '!' => 'Клиенты ItPark',
             '+' => 'Тип: Дистрибютор',
             '-' => 'Тип: Оператор',
-            'firma:mcn_telekom' => 'ООО "МСН Телеком"',
-            'firma:mcn' => 'ООО "Эм Си Эн"',
-            'firma:markomnet_new' => 'ООО "МАРКОМНЕТ"',
-            'firma:markomnet_service' => 'ООО "МАРКОМНЕТ сервис"',
-            'firma:ooomcn' => 'ООО "МСН"',
-            'firma:all4net' => 'ООО "ОЛФОНЕТ"',
-            'firma:ooocmc' => 'ООО "Си Эм Си"',
-            'firma:mcm' => 'ООО "МСМ"',
-            'firma:mcm_telekom' => 'ООО "МСМ Телеком"',
-            'firma:all4geo' => 'ООО "Олфогео"',
-            'firma:wellstart' => 'ООО "Веллстарт"',
         ];
     }
 

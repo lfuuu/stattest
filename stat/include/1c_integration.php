@@ -154,39 +154,6 @@ class clientSyncer{
         return $cc;
     }
 
-    public function findClient($card_tid=null,$cli_main_tid=null,$inn=null)
-    {
-        if(is_null($card_tid) && is_null($cli_main_tid) && is_null($inn))
-            return false;
-
-        try{
-            $ret = $this->soap->utGetClient(array(
-                tr('ИдКарточкиКлиентаСтат')=>tr($con_1c),
-                tr('ИдКлиентаСтат')=>tr($cli_1c),
-                tr('ИНН')=>tr($inn)
-            ))->return;
-        }catch(\SoapFault $e){
-            return false;
-        }
-
-        $cc = new \clCards\struct_cardDetails();
-        $cc->setAddressJur(trr($ret->{tr('ЮридическийАдрес')}));
-        $cc->setBankCity(trr($ret->{tr('ГородБанка')}));
-        $cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
-        $cc->setBik(trr($ret->{tr('БИК')}));
-        $cc->setCompany(trr($ret->{tr('НаименованиеКомпании')}));
-        $cc->setCompanyFull(trr($ret->{tr('ПолноеНаименованиеКомпании')}));
-        $cc->setCorrAcc(trr($ret->{tr('КС')}));
-        $cc->setCurrency(trr($ret->{tr('ВалютаРасчетов')}));
-        $cc->setFirma(trr($ret->{tr('Организация')}));
-        $cc->setInn(trr($ret->{tr('ИНН')}));
-        $cc->setKpp(trr($ret->{tr('КПП')}));
-        $cc->setPayAcc(trr($ret->{tr('РC')}));
-        $cc->setType(trr($ret->{tr('ПравоваяФорма')}));
-
-        return $cc;
-    }
-
     public function checkBillExists($bill_no)
     {
         $resp = $this->soap->utOrderExists(array('number'=>$bill_no))->return;

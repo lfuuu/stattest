@@ -28,7 +28,7 @@ class Person extends ActiveRecord
             'position'  => $this->post_nominative,
             'position_' => $this->post_genitive,
             'sign'      => [
-                'src' => \Yii::$app->params['SIGNATURE_DIR'] . $this->signature_file_name
+                'src' => str_replace('/images/', '', \Yii::$app->params['SIGNATURE_DIR']) . $this->signature_file_name,
             ]
         ];
     }
