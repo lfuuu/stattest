@@ -3116,7 +3116,7 @@ class m_newaccounts extends IModule
             //, array("40702810700320000882","40702810038110015462","301422002")
             return $this->importPL_citibank(PAYMENTS_FILES_PATH.$file);
         }else{
-            list($payAccs, $payments)=PaymentParser::Parse(PAYMENTS_FILES_PATH.$file);
+            list($type, $payAccs, $payments)=PaymentParser::Parse(PAYMENTS_FILES_PATH.$file);
             return $this->importPL_citibank(PAYMENTS_FILES_PATH.$file, $payAccs, $this->restructPayments($payAccs, $payments));
         }
 
