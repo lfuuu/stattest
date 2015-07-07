@@ -92,18 +92,6 @@
 {/if}
 
 <hr />
-<H3>Фирмы</H3>
-<table cellSpacing=4 cellPadding=2 border=0>
-	<thead>
-		<tr><th>Фирма</th><th><input id="check_all" type="checkbox" value="1" /> Доступ</th></tr>
-	</thead>
-	<tbody>
-		{foreach from=$firms item='firma' key='key'}
-			<tr><td>{$firma}</td><td><input class="check_firm" type="checkbox" name="user2firm[{$key}]" value="1" {if $user2firm.$key == 1}checked{/if} /></td></tr>
-		{/foreach}
-	</tbody>
-</table>
-<hr />
 
 {if access('users','grant')}
 <H2>Права доступа</H2>
