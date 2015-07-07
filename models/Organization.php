@@ -35,9 +35,15 @@ use app\dao\OrganizationDao;
  * @property string stamp_file_name             Название файла с печатью
  * @property int director_id                    ID записи персон на должность директора
  * @property int accountant_id                  ID записи персон на должность бухгалтера
+ *
+ * @property Person director
+ * @property Person accountant
+ * @property
  */
 class Organization extends ActiveRecord
 {
+
+    const MCN_TELEKOM = 1;
 
     public static function tableName()
     {
@@ -103,12 +109,12 @@ class Organization extends ActiveRecord
 
     public function getDirector()
     {
-        return $this->hasOne(Person::className(), ['id' => 'director_id'])->one();
+        return $this->hasOne(Person::className(), ['id' => 'director_id']);
     }
 
     public function getAccountant()
     {
-        return $this->hasOne(Person::className(), ['id' => 'accountant_id'])->one();
+        return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
     }
 
     public function isNotSimpleTaxSystem()
@@ -118,7 +124,7 @@ class Organization extends ActiveRecord
 
     public function getOldModeInfo()
     {
-        $director = $this->getDirector();
+        $director = $this->director;
 
         return [
             'name'              => $this->name,

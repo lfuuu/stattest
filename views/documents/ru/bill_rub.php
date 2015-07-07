@@ -11,11 +11,10 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-/** @var $organization app\models\Organization */
-$organization = $document->getOrganization();
+$organization = $document->organization;
 
-$director = $organization->getDirector();
-$accountant = $organization->getAccountant();
+$director = $organization->director;
+$accountant = $organization->accountant;
 
 $payer_company = $document->getPayer();
 ?>
