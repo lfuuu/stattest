@@ -89,8 +89,7 @@ class PaymentParser {
             }
 		}
 		fclose($f);
-		if ($tkey=='1CClientBankExchange') $v='markomnet'; else $v='mcn';
-		return array($v,$payAcc, $R);
+		return array($payAcc, $R);
 	}
 }
 

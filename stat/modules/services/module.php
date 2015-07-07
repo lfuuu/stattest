@@ -708,7 +708,7 @@ class m_services extends IModule{
                 if (defined("use_ats3")) {
                     $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
                 } else {
-                    $r["vpbx"] = (virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]) ? "vpbx": "number" );
+                    //$r["vpbx"] = (virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]) ? "vpbx": "number" );
                 }
             }
 

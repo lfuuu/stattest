@@ -25,7 +25,7 @@
 </form>
 {if isset($bills)}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr><th>&nbsp;</th><th>клиент</th><th>компания</th><th>дата/н счёта</th><th>счёт</th>{if $b_show_bonus}<th>бонус</th>{/if}<th title="Менеджер клиента">М. клиента</th><th title="Менеджер счета">М. счета</th><th>&nbsp;</th></tr>
+<tr><th>&nbsp;</th><th>клиент</th><th>компания</th><th>дата/н счёта</th><th>счёт</th>{if $b_show_bonus}<th>бонус</th>{/if}<th title="Менеджер клиента">М. клиента</th><th title="Менеджер счета">М. счета</th></tr>
 {foreach from=$bills item=item key=key name=outer}<tr class={cycle values="even,odd"}>
 <td>{$smarty.foreach.outer.iteration}</td>
 <td{if $item.nal=='nal'} bgcolor='#FFC0C0'{else}{if $item.nal=='prov'} bgcolor='#C0C0FF'{/if}{/if}><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
@@ -35,7 +35,6 @@
 {if $b_show_bonus}<td title="{$item.bonus_info|escape}">{$item.bonus}</td>{/if}
 <td>{$item.client_manager}</td>
 <td>{$item.bill_manager}</td>
-<td>{if $item.firma=='markomnet'}mar{else}mcn{/if}</td>
 </tr>{/foreach}
 
 <tr style='background:#FFFFFF'>

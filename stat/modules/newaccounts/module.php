@@ -3116,7 +3116,7 @@ class m_newaccounts extends IModule
             //, array("40702810700320000882","40702810038110015462","301422002")
             return $this->importPL_citibank(PAYMENTS_FILES_PATH.$file);
         }else{
-            list($type, $payAccs, $payments)=PaymentParser::Parse(PAYMENTS_FILES_PATH.$file);
+            list($payAccs, $payments)=PaymentParser::Parse(PAYMENTS_FILES_PATH.$file);
             return $this->importPL_citibank(PAYMENTS_FILES_PATH.$file, $payAccs, $this->restructPayments($payAccs, $payments));
         }
 
@@ -3700,13 +3700,11 @@ class m_newaccounts extends IModule
         global $design,$db;
         $design->assign('manager',$manager=get_param_protected('manager'));
         $design->assign('cl_off',$cl_off=get_param_protected('cl_off'));
-        $design->assign('cl_mar',$cl_mar=get_param_protected('cl_mar'));
         $design->assign('sort',$sort=get_param_protected('sort'));
 
         if ($manager) {
             $W0 = array('AND');
             if (!$cl_off) $W0[]='clients.status="work"';
-            if ($cl_mar) $W0[]='clients.firma="markomnet"';
             if ($manager!='()') $W0[]='clients.manager="'.$manager.'"';
 
             $W1 = array('AND','newbills.client_id=clients.id');
