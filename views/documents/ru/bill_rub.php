@@ -151,7 +151,7 @@ $payer_company = $document->getPayer();
                         <td align="center"><?= (!$document->bill->clientAccount->getTaxRate($original = true) || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                     <?php else: ?>
-                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                     <?php endif; ?>
 
                     <?php if ($hasDiscount): ?>
@@ -178,7 +178,7 @@ $payer_company = $document->getPayer();
                         <?php endif; ?>
                     </td>
                 <?php else: ?>
-                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                 <?php endif; ?>
 
                 <?php if ($hasDiscount): ?>
