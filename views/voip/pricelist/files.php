@@ -6,7 +6,7 @@ use app\models\billing\PricelistFile;
 /** @var PricelistFile[] $files */
 ?>
 <h2>
-    <a href="/voip/pricelist/list?local=<?=$pricelist->local?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
+    <a href="/voip/pricelist/list?type=<?=$pricelist->type?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
     -> <?=$pricelist->name?>
     -> Файлы
 </h2>

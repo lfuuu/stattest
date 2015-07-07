@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\models\billing\Pricelist;
 use Yii;
 use app\models\ClientGridSettings;
 
@@ -30,9 +31,11 @@ class Navigation
         if ($voipBlock) {
             $this->addBlock(
                 $voipBlock
-                    ->addItem('Плайслисты Оригинация', ['voip/pricelist/list', 'local' => 0, 'orig' => 1])
-                    ->addItem('Плайслисты Терминация', ['voip/pricelist/list', 'local' => 0, 'orig' => 0])
-                    ->addItem('Плайслисты Местные', ['voip/pricelist/list', 'local' => 1, 'orig' => 0])
+                    ->addItem('Плайслисты Клиент Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1])
+                    ->addItem('Плайслисты Клиент Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0])
+                    ->addItem('Плайслисты Опер Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1])
+                    ->addItem('Плайслисты Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0])
+                    ->addItem('Плайслисты Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0])
                     ->addItem('Местные Префиксы', ['voip/network-config/list'])
             );
         }

@@ -9,7 +9,7 @@ use app\models\billing\NetworkConfig;
 ?>
 
 <h2>
-    <a href="/voip/pricelist/list?local=<?=$model->local?>&orig=<?=$model->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
+    <a href="/voip/pricelist/list?type=<?=$model->type?>&orig=<?=$model->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
     -> Добавление
 </h2>
 <?php
@@ -26,7 +26,7 @@ echo Form::widget([
         'orig' => ['type' => Form::INPUT_CHECKBOX],
         'tariffication_by_minutes' => ['type' => Form::INPUT_CHECKBOX],
         'initiate_mgmn_cost' => ['type' => Form::INPUT_TEXT],
-        'local' => ['type' => Form::INPUT_CHECKBOX],
+        'type' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['client' => 'Клиент', 'operator' => 'Оператор', 'network_prices' => 'Местные'], 'options' => ['disabled' => true]],
         'tariffication_full_first_minute' => ['type' => Form::INPUT_CHECKBOX],
         'initiate_zona_cost' => ['type' => Form::INPUT_TEXT],
         'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
