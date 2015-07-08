@@ -1150,7 +1150,13 @@ $(document).ready(function() {
 					.append("<option value='7863309'>7(863) 309</option>");
 			} else if(region_id == '81') {
 				get_free_e164
-                    .append("<option value='36'>36</option>");
+                    .append("<option value='36'>36</option>")
+                    .append("<option value='361'>36 (1) Будапешт</option>")
+                    .append("<option value='3646410'>36 (46) 410 Мишкольц</option>")
+                    .append("<option value='3652300'>36 (52) 300 Дебрецен</option>")
+                    .append("<option value='3662300'>36 (62) 300 Сегед</option>")
+                    .append("<option value='3672250'>36 (72) 250 Печ</option>")
+                    .append("<option value='3696800'>36 (96) 800 Дьёр</option>");
 			} else if(region_id == '82') {
 				get_free_e164
                     .append("<option value='7862'>7(863) 2</option>");
