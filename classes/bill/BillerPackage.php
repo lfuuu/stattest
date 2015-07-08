@@ -88,7 +88,7 @@ abstract class BillerPackage
 
     public function setPrice($price)
     {
-        $this->price = round($price, 4);
+        $this->price = round($price * $this->getTaxRate(), 4);
         return $this;
     }
 
@@ -108,12 +108,16 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $tax_rate = $this->clientAccount->getTaxRate();
-        $transaction->tax_rate = $this->clientAccount->getDefaultTaxId();
+        $organization_tax_rate = $this->clientAccount->getTaxRate();
+        $tariff_tax_rate = $this->getTaxRate();
 
-        $transaction->sum_without_tax = round($transaction->amount * $transaction->price, 2);
-        $transaction->sum_tax = round($transaction->sum_without_tax * $tax_rate, 2);
-        $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
+        $transaction->tax_rate = $this->clientAccount->getTaxRate($origin = true);
+        $transaction->sum = round($transaction->amount * $transaction->price, 2);
+        $transaction->sum_tax =
+            $tariff_tax_rate == 1
+                ? 0
+                : round($transaction->sum / $tariff_tax_rate * $organization_tax_rate, 2);
+        $transaction->sum_without_tax = round($transaction->sum - $transaction->sum_tax, 2);
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {
             $date = $this->biller->billerDate->getTimestamp() + 86400 - 1;
@@ -130,7 +134,7 @@ abstract class BillerPackage
                 $done = $date - $periodFrom;
 
                 $transaction->effective_amount = round($transaction->amount * $done / $all, 6);
-                $transaction->effective_sum = - round($transaction->effective_amount * $transaction->price, 2);
+                $transaction->effective_sum = - round($transaction->sum * $done / $all, 2);
             } else {
                 $transaction->effective_amount = $transaction->amount;
                 $transaction->effective_sum = - $transaction->sum;
@@ -175,19 +179,16 @@ abstract class BillerPackage
             $this->clientAccount->contragent->country->lang
         );
 
-        /*
-        $name = str_replace('{name}', $this->name, $template);
-
-        $name = str_replace('{fromDay}', $from->format('d'), $name);
-        $name = str_replace('{fromDate}', $from->format('d F Y'), $name);
-        $name = str_replace('{toDate}', $to->format('d F Y'), $name);
-
-        $monthSrc = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        $monthDst = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-        $name = str_replace($monthSrc, $monthDst, $name);
-        */
-
         return $name;
+    }
+
+    private function getTaxRate()
+    {
+        if ($this->usage->tariff->price_include_vat && !$this->clientAccount->isOperatorContract()) {
+            $tax_rate = $this->clientAccount->getTaxRate();
+            return $tax_rate? (1 + $tax_rate) : 1;
+        }
+        return 1;
     }
 
 }
