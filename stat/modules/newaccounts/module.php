@@ -7,6 +7,7 @@ use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 use app\models\Payment;
+use app\models\Param;
 use app\models\BillDocument;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
@@ -2518,6 +2519,17 @@ class m_newaccounts extends IModule
 
     function newaccounts_pi_list($fixclient) {
         global $design,$db;
+
+        $param = Param::findOne(["param" => "pi_list_last_info"]);
+        if ($param)
+        {
+            foreach(json_decode($param->value) as $line)
+            {
+                trigger_error2($line);
+            }
+        }
+
+
         $filter=get_param_raw('filter',array('d'=>'','m'=>date('m'),'y'=>date('Y')));
         $R=array();
         $d=dir(PAYMENTS_FILES_PATH);
@@ -2682,13 +2694,26 @@ class m_newaccounts extends IModule
     {
         $import = new importCBE($prefix, $_FILES['file']['tmp_name']);
         $info = $import->save();
+
+        $lines = [];
         if ($info)
         {
             foreach($info as $day => $count)
             {
-                trigger_error2("За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].", обновлено: ".$count["new"]);
+                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].
+                    ($count["new"] ? ", обновлено: ".$count["new"]: "");
             }
         }
+        $param = Param::findOne(["param" => "pi_list_last_info"]);
+
+        if (!$param)
+        {
+            $param = new Param;
+            $param->param = "pi_list_last_info";
+        }
+
+        $param->value = json_encode($lines);
+        $param->save();
 
         /*
         include_once INCLUDE_PATH."mt940.php";
