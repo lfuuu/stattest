@@ -6,17 +6,6 @@ class m150708_000000_number_city extends \app\classes\Migration
     {
 
         $this->execute("
-            CREATE TABLE `did_group` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `name` varchar(255) NOT NULL,
-              `city_id` int(11) NOT NULL,
-              PRIMARY KEY (`id`),
-              KEY `fk_did_group__city_id` (`city_id`),
-              CONSTRAINT `fk_did_group__city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
-        ");
-
-        $this->execute("
             CREATE TABLE `city` (
               `id` int(10) NOT NULL,
               `name` varchar(50) NOT NULL,
@@ -27,6 +16,18 @@ class m150708_000000_number_city extends \app\classes\Migration
               KEY `fk_city__country_id` (`country_id`),
               CONSTRAINT `fk_city__country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`) ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ");
+
+
+        $this->execute("
+            CREATE TABLE `did_group` (
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `name` varchar(255) NOT NULL,
+              `city_id` int(11) NOT NULL,
+              PRIMARY KEY (`id`),
+              KEY `fk_did_group__city_id` (`city_id`),
+              CONSTRAINT `fk_did_group__city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE
+            ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
         ");
 
         $this->execute("
