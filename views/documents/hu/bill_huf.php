@@ -142,7 +142,7 @@ $payer_company = $document->getPayer();
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td>Vezérigazgató</td>
+                    <td><?= $director->post_nominative; ?></td>
                     <?php if ($document->sendEmail): ?>
                         <td>
                             <?php
@@ -171,7 +171,7 @@ $payer_company = $document->getPayer();
                             <br /><br />_________________________________<br /><br />
                         </td>
                     <?php endif; ?>
-                    <td>/ Melnikov A.K. /</td>
+                    <td>/ <?= $director->name_nominative; ?> /</td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
                     <tr>
