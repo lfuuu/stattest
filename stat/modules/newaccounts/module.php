@@ -1907,6 +1907,12 @@ class m_newaccounts extends IModule
 
                             return [$file_name, $file_path];
                         })
+                        ->addMediaFiles(function($src) {
+                            $file_name = 'host_media_' . mt_rand(0, 50);
+                            $file_path = Yii::$app->request->hostInfo . preg_replace('#^\.+#', '', $src);
+
+                            return [$file_name, $file_path];
+                        })
                         ->getFile();
 
                     Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
