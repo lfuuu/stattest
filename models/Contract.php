@@ -10,6 +10,8 @@ use yii\db\ActiveRecord;
  */
 class Contract extends ActiveRecord
 {
+    const TYPE_OPERATOR = 3;
+
     public static function tableName()
     {
         return 'contract';

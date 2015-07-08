@@ -17,6 +17,7 @@ use app\models\ClientContact;
  * @property string $currency
  * @property string $nal
  * @property int $nds_zero
+ * @property int contract_type_id
 
  * @property ClientSuper $superClient
  * @property ClientStatuses $lastComment
@@ -197,5 +198,10 @@ class ClientAccount extends ActiveRecord
     public function getDefaultTaxId()
     {
         return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
+    }
+
+    public function isOperatorContract()
+    {
+        return $this->contract_type_id == Contract::TYPE_OPERATOR;
     }
 }

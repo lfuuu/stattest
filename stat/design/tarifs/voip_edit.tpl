@@ -101,21 +101,21 @@
                 тариф для виртуальных номеров</label>
         </td></tr>
     <tr>
-        <td></td>
-        <td>
-            <label>
-                <input type="checkbox" name="price_include_vat" value="1" {if $data.price_include_vat == 1}checked{/if} />
-                включить в цену ставку налога
-            </label>
-        </td>
-    </tr>
-    <tr>
         <td>тип тарифа:</td>
         <td>
             <select class="select2" name="type">
-                <option value="client">Клиентский</option>
-                <option value="operator">Операторский</option>
+                <option value="client"{if $data.type == 'client'} selected="selected"{/if}>Клиентский</option>
+                <option value="operator"{if $data.type == 'operator'} selected="selected"{/if}>Операторский</option>
             </select>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <label>
+                <input type="checkbox" name="price_include_vat" value="1" disabled="disabled" {if $data.price_include_vat == 1}checked{/if} />
+                включить в цену ставку налога
+            </label>
         </td>
     </tr>
     <tr><td>прайс-лист:</td><td>
