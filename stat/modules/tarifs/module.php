@@ -39,7 +39,6 @@ class m_tarifs{
         if ($m=='internet') {$p='internet'; $q='i';}
         elseif ($m=='vpn') {$p='internet'; $q='v';}
         elseif ($m=='collocation') {$p='internet'; $q='c';}
-        elseif ($m=='hosting') {$p='hosting'; $q='z';}
         elseif ($m=='extra') {$p='extra'; $q='z';}
         elseif ($m=='itpark') {$p='itpark'; $q='z';}
         elseif ($m=='welltime') {$p='welltime'; $q='z';}
@@ -176,11 +175,17 @@ class m_tarifs{
             $data = $data[0];
         }
 
-
+        $pricelists = app\models\billing\Pricelist::find()
+            ->select(['id', 'name', 'type'])
+            ->andWhere(['orig' => true, 'local' => false])
+            ->orderBy('region desc, name asc')
+            ->all();
+        //print_r($pricelists);
 
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
-        $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
+        //$design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
+        $design->assign('pricelists', $pricelists);
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_edit.tpl');

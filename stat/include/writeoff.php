@@ -1402,9 +1402,6 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
-    } elseif ($service=="domains") {
-        $add1='A.*,';
-        $add2=' LEFT JOIN tarifs_hosting as A ON A.id=log_tarif.id_tarif';
     } elseif ($service=="usage_virtpbx") {
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_virtpbx as A ON A.id=log_tarif.id_tarif';
