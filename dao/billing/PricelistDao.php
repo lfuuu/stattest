@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class PricelistDao extends Singleton
 {
 
-    public function getList($type = null, $orig = null)
+    public function getList($type = null, $orig = null, $priceIncludeVat = null)
     {
         $query = Pricelist::find();
 
@@ -20,7 +20,10 @@ class PricelistDao extends Singleton
             $query->andWhere(['type' => $type]);
         }
         if ($orig !== null) {
-            $query->andWhere(['orig' => $orig]);
+            $query->andWhere(['orig' => (bool)$orig]);
+        }
+        if ($priceIncludeVat !== null) {
+            $query->andWhere(['price_include_vat' => (bool)$priceIncludeVat]);
         }
 
         return
