@@ -1700,6 +1700,8 @@ class m_newaccounts extends IModule
         $mode = get_param_protected('mode', 'html');
 
         $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
+        $is_word = get_param_raw('is_word', false);
+
         $design->assign("is_pdf", $is_pdf);
 
         $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print', 'false') == 'true';
@@ -1887,7 +1889,31 @@ class m_newaccounts extends IModule
                 if ($only_html == '1') {
                     return $design->fetch('newaccounts/print_'.$obj.'.tpl');
                 }
-                
+
+                if ($is_word) {
+                    $result = (new \app\classes\Html2Mhtml)
+                        ->addContents(
+                            'index.html',
+                            $design->fetch('newaccounts/print_'.$obj.'.tpl')
+                        )
+                        ->addImages(function($image_src) {
+                            $file_path = '';
+                            $file_name = '';
+
+                            if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src, $m)) {
+                                $file_name = 'host_img_' . mt_rand(0, 50);
+                                $file_path = Yii::$app->request->hostInfo . preg_replace('#^\.+#', '', $image_src);
+                            }
+
+                            return [$file_name, $file_path];
+                        })
+                        ->getFile();
+
+                    Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+                    Yii::$app->end();
+                    exit;
+                }
+
                 if ($is_pdf) {
                     /*wkhtmltopdf*/
                     $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
