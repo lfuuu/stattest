@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\classes\grid\FilterDataProvider;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientFile;
@@ -98,6 +99,25 @@ class FileController extends BaseController
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
+    }
+
+    public function actionReport()
+    {
+        $request = Yii::$app->request->post();
+        $query = ClientFile::find()->orderBy(['ts' => SORT_DESC]);
+
+        if($request['user_id'])
+            $query->andWhere(['user_id' => $request['user_id']]);
+        if($request['date_from'])
+            $query->andWhere(['<=','ts', $request['date_from']]);
+        if($request['date_to'])
+            $query->andWhere(['>=','ts', $request['date_to']]);
+
+        $dataProvider = new FilterDataProvider([
+            'query' => $query,
+        ]);
+
+        return $this->render('report', ['dataProvider' => $dataProvider]);
     }
 }
 

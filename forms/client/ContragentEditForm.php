@@ -79,7 +79,7 @@ class ContragentEditForm extends Form
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id])->loadVersionOnDate($this->ddate);;
+            $this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->ddate);
             if ($this->person === null) {
                 $this->person = new ClientContragentPerson();
             }

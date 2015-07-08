@@ -6,10 +6,13 @@ use app\forms\client\AccountEditForm;
 use app\forms\client\SuperClientEditForm;
 use app\models\ClientBP;
 use app\models\ClientGridSettings;
+use app\models\ClientInn;
+use app\models\ClientPayAcc;
 use app\models\ClientSearch;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Assert;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
 use yii\helpers\Url;
@@ -27,13 +30,12 @@ class AccountController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
-                        'roles' => ['clients.read'],
+                        'roles' => ['clients.edit'],
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['edit', 'create', 'change-wizard-state', 'super-client-edit'],
-                        'roles' => ['clients.edit'],
+                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'roles' => ['clients.read'],
                     ],
                     [
                         'allow' => true,
@@ -90,7 +92,7 @@ class AccountController extends BaseController
             }
         }
 
-        $this->redirect(['client/view', 'id' => $id]);
+        return $this->redirect(['client/view', 'id' => $id]);
     }
 
     public function actionCreate($parentId)
@@ -98,7 +100,7 @@ class AccountController extends BaseController
         $model = new AccountEditForm(['contract_id' => $parentId]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['client/view', 'id' => $model->id]);
+            return $this->redirect(['client/view', 'id' => $model->id]);
         }
 
         return $this->render("edit", [
@@ -111,7 +113,7 @@ class AccountController extends BaseController
         $model = new AccountEditForm(['id' => $id, 'ddate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['client/view', 'id' => $id]);
+            return $this->redirect(['client/view', 'id' => $id]);
         }
 
         return $this->render("edit", [
@@ -132,7 +134,7 @@ class AccountController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['client/view', 'id' => $childId]);
+            return $this->redirect(['client/view', 'id' => $childId]);
         }
 
         return $this->render("superClientEdit", [
@@ -211,9 +213,75 @@ class AccountController extends BaseController
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
     }
-    /*
-        public function actionAutocomplete($q)
-        {
-            ClientSearch::find
-        }*/
+
+    public function actionAdditionalInnList($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientInn();
+
+        return $this->render('additional-inn-list', ['account' => $account, 'model' => $model]);
+    }
+
+    public function actionAdditionalInnCreate($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientInn();
+        $model->load(Yii::$app->request->post());
+        $model->client_id = $accountId;
+        $model->save();
+
+        return $this->redirect(['account/additional-inn-list', 'accountId' => $accountId]);
+    }
+
+    public function actionAdditionalInnDelete($id)
+    {
+        $model = ClientInn::findOne($id);
+        if(!$model)
+            throw new Exception('Inn does not exist');
+        $model->is_active = 0;
+        $model->save();
+
+        return $this->redirect(['account/additional-inn-list', 'accountId' => $model->client_id]);
+    }
+
+    public function actionAdditionalPayAccList($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientPayAcc();
+
+        return $this->render('additional-pay-acc-list', ['account' => $account, 'model' => $model]);
+    }
+
+    public function actionAdditionalPayAccCreate($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientPayAcc();
+        $model->load(Yii::$app->request->post());
+        $model->client_id = $accountId;
+        $model->save();
+
+        return $this->redirect(['account/additional-pay-acc-list', 'accountId' => $accountId]);
+    }
+
+    public function actionAdditionalPayAccDelete($id)
+    {
+        $model = ClientPayAcc::findOne($id);
+        if(!$model)
+            throw new Exception('Pay does not exist');
+        $model->delete();
+
+        return $this->redirect(['account/additional-pay-acc-list', 'accountId' => $model->client_id]);
+    }
 }

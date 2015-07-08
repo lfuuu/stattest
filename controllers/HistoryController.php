@@ -27,7 +27,7 @@ class HistoryController extends BaseController
         $models = [];
         $getRequest = Yii::$app->request->get();
         if(!$getRequest)
-            throw new Exception('Models not exists');
+            throw new Exception('Models does not exists');
 
         $changes = HistoryChanges::find()
             ->joinWith('user');

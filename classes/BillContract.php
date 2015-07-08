@@ -30,7 +30,7 @@ class BillContract
         return "";
     }
 
-    public static function getLastContract($clientId, $dateTs)
+    public static function getLastContract($contractId, $dateTs)
     {
         return ClientDocument::getDb()->createCommand("
             select 
@@ -39,10 +39,10 @@ class BillContract
             from 
                 client_document
             where 
-                    client_id = :client_id
+                    contract_id = :contract_id
                 and contract_date <= FROM_UNIXTIME(:date_ts)
                 and type = 'contract'
             order by is_active desc, contract_date desc, id desc 
-            limit 1", [":client_id" => $clientId, ":date_ts" => $dateTs])->queryOne();
+            limit 1", [":contract_id" => $contractId, ":date_ts" => $dateTs])->queryOne();
     }
 }

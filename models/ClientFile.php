@@ -12,6 +12,17 @@ class ClientFile extends ActiveRecord
         return 'client_files';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'filename' => 'Файл',
+            'companyName' => 'Компания',
+            'user' => 'Кто загрузил',
+            'comment' => 'Комментарий',
+            'ts' => 'Дата загрузки',
+        ];
+    }
+
     public function getUser()
     {
         return $this->hasOne(User::className(), ["id" => "user_id"]);

@@ -165,6 +165,11 @@ class ClientContract extends ActiveRecord
         return FileManager::create($this->id);
     }
 
+    public function getAllDocuments()
+    {
+        return $this->hasMany(ClientDocument::className(), ['contract_id' => 'id']);
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);

@@ -31,7 +31,7 @@ class VersionController extends BaseController
     {
         $getRequest = Yii::$app->request->get();
         if(!$getRequest)
-            throw new Exception('Models not exists');
+            throw new Exception('Models does not exists');
 
         $versions = HistoryVersion::find();
         $models = [];
@@ -62,7 +62,7 @@ class VersionController extends BaseController
         $version = HistoryVersion::findOne(['model' => $model, 'model_id' => $modelId, 'date' => $date]);
 
         if(!$version)
-            throw new Exception('Version not exists');
+            throw new Exception('Version does not exists');
 
         $version->delete();
 

@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientDocument;
 use Yii;
 use app\classes\BaseController;
@@ -36,64 +37,71 @@ class DocumentController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
-    public function actionCreate($id)
+    public function actionCreate()
     {
-        $content = Yii::$app->request->post('contract_content');
-        $contractType = Yii::$app->request->post('contract_type');
-        $contractGroup = Yii::$app->request->post('contract_template_group');
-        $contractTemplate = Yii::$app->request->post('contract_template');
-        $contractDate = Yii::$app->request->post('contract_date');
-        $contractNo = Yii::$app->request->post('contract_no');
-        $comment = Yii::$app->request->post('comment');
+        $clientDocument = new ClientDocument();
+        $clientDocument->load(Yii::$app->request->post());
+        $clientDocument->save();
 
-
-        $contractId = ClientDocument::dao()->addContract(
-            $id,
-            $contractType,
-            $contractGroup,
-            $contractTemplate,
-            $contractNo,
-            $contractDate,
-            $content,
-            $comment
-        );
-
-        if ($contractId && $contractType == 'contract') {
-            $model = ClientAccount::findOne($id)->getContract();
-            $model->number = $contractNo;
-            $model->save();
-        }
-
-        $this->redirect(['client/view', 'id' => $id]);
+        $this->redirect(Yii::$app->request->referrer);
     }
 
-    /*
-        public function actionEdit($id)
-        {
-            $model = ClientDocument::findOne($id);
-            if(null === $model)
-                throw new Exception('Документ не найден');
+    public function actionEdit($id)
+    {
+        $model = ClientDocument::findOne($id);
+        if (null === $model)
+            throw new Exception('Документ не найден');
 
-            $request = Yii::$app->request->post();
+        $request = Yii::$app->request->post();
 
-            if (isset($request)) {
-                ClientDocument::dao()->addContract(
-                    $model->client_id,
-                    $model->type,
-                    $request['contract_template_group'],
-                    $request['contract_template'],
-                    $request['contract_no'],
-                    $request['contract_date'],
-                    $request['contract_content'],
-                    $request['comment']
-                );
-
-                return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
-
-            } else {
-                $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);
-                return $this->render('edit', ['model'=>$model, 'content' => $content]);
-            }
+        if ($request) {
+            $model->load($request);
+            $model->save();
         }
-    */
+        return $this->render('edit', ['model' => $model]);
+    }
+
+    public function actionSend($id)
+    {
+        $document = ClientDocument::findOne($id);
+        if (null === $document)
+            throw new Exception('Документ не найден');
+
+        $account = $document->getAccount();
+        $contact = ClientContact::find()
+            ->andWhere(['client_id' => $account->id])
+            ->andWhere(['is_official' => 1])
+            ->andWhere(['type' => 'email'])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+        $email = $contact ? $contact->data : '';
+
+        $p = data_encode($document->id . '-' . $account->id);
+        $adr = "https://lk.mcn.ru/lk/docs/?code=" . str_replace('=', '%%3D', $p);
+        $body = "Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
+        $body .= "<a href=\"" . $adr . "\">" . $adr . "</a><br><br>";
+
+        echo "<html><meta http-equiv=\"refresh\" content=\"0;url=http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&subject=" . rawurlencode("MCN - договор") . "&new_msg=" . rawurlencode($body) . (!empty($email) ? "&to=" . $email : "") . "\"/><body></body></html>";
+        die;
+    }
+
+    public function actionPrint($id)
+    {
+        $document = ClientDocument::findOne($id);
+        if (null === $document)
+            throw new Exception('Документ не найден');
+
+        echo $document->getContent();
+        die;
+    }
+
+    public function actionPrintEnvelope($clientId)
+    {
+        $model = ClientAccount::findOne($clientId);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $this->layout = null;
+
+        return $this->render('envelope', ['account' => $model]);
+    }
 }

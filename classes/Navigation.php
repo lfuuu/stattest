@@ -18,8 +18,8 @@ class Navigation
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
                 ->addItem('Новый клиент',Url::toRoute(['client/create']), 'clients.read')
-                ->addItem('Каналы продаж', '/?module=clients&action=sc', 'clients.sale_channels')
-                ->addItem('Отчет по файлам', '/?module=clients&action=files_report', 'clients.file')
+                ->addItem('Каналы продаж', '/sale-channel/index', 'clients.edit')
+                ->addItem('Отчет по файлам', '/file/report', 'clients.edit')
         );
 
         $this->addBlockForStatModule('services');

@@ -692,7 +692,7 @@ class DbFormUsageVoip extends DbForm {
     {
         global $db, $fixclient_data;
 
-        if (!is_array($fixclient_data) || !isset($fixclient_data["client"])) {
+        if (!isset($fixclient_data["client"])) {
             throw new Exception("Клиент не найден");
         }
 

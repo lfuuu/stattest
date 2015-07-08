@@ -13,15 +13,18 @@ use yii\helpers\ArrayHelper;
 class CourierDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($withEmpty = false, $depart = false)
     {
+        $models = Courier::find()
+            ->andWhere(['enabled' => 'yes'])
+            ->orderBy('name');
+
+        if($depart)
+            $models = $models->andWhere(['depart' => 'Курьер']);
+
         $list =
             ArrayHelper::map(
-                Courier::find()
-                    ->andWhere(['enabled' => 'yes'])
-                    ->orderBy('name')
-                    ->asArray()
-                    ->all(),
+                $models->all(),
                 'id',
                 'name'
             );

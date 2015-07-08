@@ -524,7 +524,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $design->assign('cpe',$cpe);
         $design->assign('client',$client);
 
-        $t = \app\models\ClientDocument::find()->where(['client_id' => $client->id])
+        $t = \app\models\ClientDocument::find()->andWhere(['contract_id' => $client->contract_id])
             ->leftJoin(\app\models\User::tableName().' u', 'u.id = '.\app\models\ClientDocument::tableName().'.user_id')
             ->orderBy('id DESC')
             ->one();

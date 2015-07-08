@@ -421,7 +421,8 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 if ($l[1] === 'internet_connection_pyment') {
                     $clientId = $this->service["client_id"];
                     if ($clientId) {
-                        if ($contract = BillContract::getLastContract($clientId, $this->date_from)) {
+                        $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                        if ($contract = BillContract::getLastContract($contractId, $this->date_from)) {
                             $l[1] = Yii::t('biller-ipports', 'ipports_monthly_fee_custom', [
                                 'by_agreement' => Yii::t('biller', 'by_agreement', [
                                     'contract_no' => $contract['no'],
@@ -745,7 +746,8 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if($this->client["bill_rename1"] == "yes") {
                 if ($l[1] == 'voip_monthly_fee_per_number' || $l[1] == 'voip_monthly_fee_per_line') {
-                    if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from)) {
+                    $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                    if ($contract = BillContract::getLastContract($contractId, $this->date_from)) {
                         $i18n_params['by_agreement'] = Yii::t('biller', 'by_agreement', [
                             'contract_no' => $contract['no'],
                             'contract_date' => $contract['date']
@@ -757,7 +759,8 @@ class ServiceUsageVoip extends ServicePrototype {
                 }
 
                 if ($l[1] == 'voip_calls_payment' || $l[1] == 'voip_group_calls_payment') {
-                    if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from_prev)) {
+                    $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                    if ($contract = BillContract::getLastContract($contractId, $this->date_from_prev)) {
                         $i18n_params['by_agreement'] = Yii::t('biller', 'by_agreement', [
                             'contract_no' => $contract['no'],
                             'contract_date' => $contract['date']
@@ -987,7 +990,8 @@ class ServiceUsageExtra extends ServicePrototype {
             }
 
             if ($this->client["bill_rename1"] == "yes") {
-                if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from))
+                $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                if ($contract = BillContract::getLastContract($contractId, $this->date_from))
                     $v[1] .= Yii::t('biller', 'by_agreement', [
                         'contract_no' => $contract['no'],
                         'contact_date' => $contract['date']
@@ -1336,7 +1340,8 @@ class ServiceEmails extends ServicePrototype {
 
         if($this->client["bill_rename1"] == "yes")
             foreach($R as &$v) {
-                if ($contract = BillContract::getLastContract($this->service['client_id'], $this->date_from))
+                $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                if ($contract = BillContract::getLastContract($contractId, $this->date_from))
                     $v[1] .= Yii::t('biller', 'by_agreement', [
                         'contract_no' => $contract['no'],
                         'contract_date' => $contract['date']

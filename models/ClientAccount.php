@@ -389,11 +389,6 @@ class ClientAccount extends ActiveRecord
         }
     }
 
-    public function getAllDocuments()
-    {
-        return $this->hasMany(ClientDocument::className(), ['client_id' => 'id']);
-    }
-
     public function getAllContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
@@ -422,6 +417,16 @@ class ClientAccount extends ActiveRecord
         }
 
         return ["processes" => $processes, "statuses" => $statuses];
+    }
+
+    public function getAdditionalInn($isActive = true)
+    {
+        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int) $isActive])->all();
+    }
+
+    public function getAdditionalPayAcc()
+    {
+        return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
     }
 
     /**

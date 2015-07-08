@@ -3,7 +3,9 @@ namespace app\controllers;
 
 use app\forms\client\ContractEditForm;
 use app\classes\BaseController;
+use app\models\ClientContract;
 use \Yii;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 
 
@@ -19,9 +21,24 @@ class ContractController extends BaseController
                         'allow' => true,
                         'roles' => ['clients.edit'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['view'],
+                        'roles' => ['clients.read'],
+                    ],
                 ],
             ],
         ];
+    }
+
+    public function actionView($id)
+    {
+        $model = ClientContract::findOne($id);
+        if(!$model)
+            throw new Exception('Contract does not exists');
+
+        $accountId = $model->getAccounts()[0]->id;
+        return $this->redirect(['client/view', 'id' => $accountId]);
     }
 
     public function actionCreate($parentId, $childId = null)

@@ -1,6 +1,7 @@
 <?php
 namespace app\queries;
 
+use app\models\ClientAccount;
 use yii\db\ActiveQuery;
 use app\models\ClientDocument;
 
@@ -8,7 +9,8 @@ class ClientDocumentQuery extends ActiveQuery
 {
     public function account($accountId)
     {
-        return $this->andWhere(["client_id" => $accountId]);
+        $contractId = ClientAccount::findOne($accountId)->contract_id;
+        return $this->andWhere(['contract_id' => $contractId]);
     }
 
     public function active()

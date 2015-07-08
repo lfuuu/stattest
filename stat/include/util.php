@@ -709,7 +709,7 @@ class ClientCS {
         $c = self::FetchClient($client);
         $design->assign('contacts',$c->allContacts);
         $design->assign('contact',$c->officialContact);
-        $contracts = $c->allDocuments;
+        $contracts = $c->contract->allDocuments;
         if (count($contracts))
             $design->assign('contract',$contracts[count($contracts)-1]);
         $design->assign('contracts',$contracts);

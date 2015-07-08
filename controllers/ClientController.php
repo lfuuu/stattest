@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\dao\ClientDocumentDao;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -28,7 +29,7 @@ class ClientController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['clients.read'],
                     ],
                     [
                         'allow' => true,

@@ -2,7 +2,7 @@
 use \yii\helpers\Url;
 use \kartik\widgets\DatePicker;
 ?>
-<?php $docs = $account->allDocuments; ?>
+<?php $docs = $account->contract->allDocuments; ?>
 
 <div class="data-block">
     <div class="row">
@@ -13,12 +13,12 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'contract' && $doc->is_active): ?>
                     <b>
-                        <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
+                        <a href="/document/print/&id=<?= $doc->id ?>"
                            target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
                     </b> от <?= $doc->contract_date ?>
-                    <span style="font-size:85%">(<?= $doc->userName ?>, <?= $doc->ts ?>)</span>;
+                    <span style="font-size:85%">(<?= $doc->user->name ?>, <?= $doc->ts ?>)</span>;
                 <?php endif; ?>
         </div>
     </div>
@@ -31,12 +31,11 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'blank' && $doc->is_active): ?>
                     <b>
-                        <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
-                           target="_blank">
+                        <a href="/document/print/&id=<?= $doc->id ?>" target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
                     </b> от <?= $doc->contract_date ?>
-                    <span style="font-size:85%">(<?= $doc->userName ?>, <?= $doc->ts ?>)</span>;
+                    <span style="font-size:85%">(<?= $doc->user->name ?>, <?= $doc->ts ?>)</span>;
                 <?php endif; ?>
         </div>
     </div>
@@ -49,12 +48,12 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'agreement' && $doc->is_active): ?>
                     <b>
-                        <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
+                        <a href="/document/print/&id=<?= $doc->id ?>"
                            target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
                     </b> от <?= $doc->contract_date ?>
-                    <span style="font-size:85%">(<?= $doc->userName ?>, <?= $doc->ts ?>)</span>;
+                    <span style="font-size:85%">(<?= $doc->user->name ?>, <?= $doc->ts ?>)</span>;
                 <?php endif; ?>
         </div>
     </div>
@@ -77,16 +76,17 @@ use \kartik\widgets\DatePicker;
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
-                        <div class="col-sm-2"><?= $doc->userName ?></div>
+                        <div class="col-sm-2"><?= $doc->user->name ?></div>
                         <div class="col-sm-2"><?= $doc->ts ?></div>
                         <div class="col-sm-2">
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=contract_edit"
-                               target="_blank"><img
-                                    class="icon" src="/images/icons/edit.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
+                            <a href="/document/edit?id=<?= $doc->id ?>" target="_blank">
+                                <img class="icon" src="/images/icons/edit.gif">
+                            </a>
+                            <a href="/document/print/&id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
-                               target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
+                            <a href="/document/send?id=<?= $doc->id ?>" target="_blank">
+                                <img class="icon" src="/images/icons/contract.gif">
+                            </a>
                             <?php if($doc->is_active) : ?>
                                 <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
@@ -100,17 +100,19 @@ use \kartik\widgets\DatePicker;
                         </div>
                     </div>
                 <?php endif; ?>
+                <?php if($account->contract->state == 'unchecked') : ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $account->id ?>" method="post">
+                    <form action="/document/create" method="post">
                         <div class="col-sm-2">
-                            <input type="hidden" name="contract_type" value="contract">
-                            <input class="form-control" type="text" name="contract_no"
-                                   value="<?= $account->contract->id ?>">
+                            <input type="hidden" name="ClientDocument[contract_id]" value="<?= $account->contract_id ?>">
+                            <input type="hidden" name="ClientDocument[type]" value="contract">
+                            <input class="form-control" type="text" name="ClientDocument[contract_no]"
+                                   value="<?= $account->contract_id ?>">
                         </div>
                         <div class="col-sm-2">
                             <?= DatePicker::widget(
                                 [
-                                    'name' => 'contract_date',
+                                    'name' => 'ClientDocument[contract_date]',
                                     'value' => date('Y-m-d'),
                                     'removeButton' => false,
                                     'pluginOptions' => [
@@ -121,33 +123,23 @@ use \kartik\widgets\DatePicker;
                             ); ?>
                         </div>
                         <div class="col-sm-2">
-                            <input class="form-control" type="text" name="comment">
+                            <input class="form-control" type="text" name="ClientDocument[comment]">
                         </div>
 
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template_group"
-                                    id="contract_template_group_contract"
-                                    onchange="do_change_template_group(this, 'contract')">
-                                <option value="MCN">MCN</option>
-                                <option value="Межоператорка">Межоператорка</option>
-                                <option value="Партнеры">Партнеры</option>
-                                <option value="Интернет-магазин">Интернет-магазин</option>
-                                <option value="WellTime">WellTime</option>
-                                <option value="IT-Park">IT-Park</option>
-                                <option value="Arhiv">Arhiv</option>
+                            <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]"
+                                    data-type="contract"></select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control tmpl" name="ClientDocument[contract_template]" data-type="contract">
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template"
-                                    id="contract_template_contract">
-                                <option value="Dog_UslugiSvayzi">Dog_UslugiSvayzi</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-2">
-                            <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
+                                <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
                         </div>
                     </form>
                 </div>
+                <?php endif; ?>
         </div>
 
         <div class="col-sm-12">
@@ -168,15 +160,15 @@ use \kartik\widgets\DatePicker;
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
-                        <div class="col-sm-2"><?= $doc->userName ?></div>
+                        <div class="col-sm-2"><?= $doc->user->name ?></div>
                         <div class="col-sm-2"><?= $doc->ts ?></div>
                         <div class="col-sm-2">
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=contract_edit"
+                            <a href="/document/edit?id=<?= $doc->id ?>"
                                target="_blank"><img
                                     class="icon" src="/images/icons/edit.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
+                            <a href="/document/print/&id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
+                            <a href="/document/send?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
                             <?php if($doc->is_active) : ?>
                                 <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
@@ -192,14 +184,16 @@ use \kartik\widgets\DatePicker;
                     </div>
                 <?php endif; ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $account->id ?>" method="post">
-                        <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
-                            <input class="form-control" type="text" name="contract_no"
+                    <form action="/document/create" method="post">
+                        <div class="col-sm-2">
+                            <input type="hidden" name="ClientDocument[contract_id]" value="<?= $account->contract_id ?>">
+                            <input type="hidden" name="ClientDocument[type]" value="blank">
+                            <input class="form-control" type="text" name="ClientDocument[contract_no]"
                                    value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
                         <div class="col-sm-2">
                             <?= DatePicker::widget(
                                 [
-                                    'name' => 'contract_date',
+                                    'name' => 'ClientDocument[contract_date]',
                                     'value' => date('Y-m-d'),
                                     'removeButton' => false,
                                     'pluginOptions' => [
@@ -209,23 +203,12 @@ use \kartik\widgets\DatePicker;
                                 ]
                             ); ?>
                         </div>
-                        <div class="col-sm-2"><input class="form-control" type="text" name="comment"></div>
+                        <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template_group" id="contract_template_group_contract"
-                                    onchange="do_change_template_group(this, 'contract')">
-                                <option value="MCN">MCN</option>
-                                <option value="Межоператорка">Межоператорка</option>
-                                <option value="Партнеры">Партнеры</option>
-                                <option value="Интернет-магазин">Интернет-магазин</option>
-                                <option value="WellTime">WellTime</option>
-                                <option value="IT-Park">IT-Park</option>
-                                <option value="Arhiv">Arhiv</option>
-                            </select>
+                            <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]" data-type="blank"></select>
                         </div>
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template" id="contract_template_contract">
-                                <option value="Dog_UslugiSvayzi">Dog_UslugiSvayzi</option>
-                            </select>
+                            <select class="form-control tmpl" name="ClientDocument[contract_template]" data-type="blank"></select>
                         </div>
                         <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button></div>
                     </form>
@@ -250,15 +233,15 @@ use \kartik\widgets\DatePicker;
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
-                        <div class="col-sm-2"><?= $doc->userName ?></div>
+                        <div class="col-sm-2"><?= $doc->user->name ?></div>
                         <div class="col-sm-2"><?= $doc->ts ?></div>
                         <div class="col-sm-2">
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=contract_edit"
+                            <a href="/document/edit?id=<?= $doc->id ?>"
                                target="_blank"><img
                                     class="icon" src="/images/icons/edit.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=print&data=contract"
+                            <a href="/document/print/&id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                            <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
+                            <a href="/document/send?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
                             <?php if($doc->is_active) : ?>
                                 <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
@@ -274,14 +257,16 @@ use \kartik\widgets\DatePicker;
                     </div>
                 <?php endif; ?>
                 <div class="row" style="margin-top: 5px;">
-                    <form action="/document/create?id=<?= $account->id ?>" method="post">
-                        <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
-                            <input class="form-control" type="text" name="contract_no"
+                    <form action="/document/create" method="post">
+                        <div class="col-sm-2">
+                            <input type="hidden" name="ClientDocument[contract_id]" value="<?= $account->contract_id ?>">
+                            <input type="hidden" name="ClientDocument[type]" value="agreement">
+                            <input class="form-control" type="text" name="ClientDocument[contract_no]"
                                    value="<?= $armnt ? $armnt + 1 : 1 ?>"></div>
                         <div class="col-sm-2">
                             <?= DatePicker::widget(
                                 [
-                                    'name' => 'contract_date',
+                                    'name' => 'ClientDocument[contract_date]',
                                     'value' => date('Y-m-d'),
                                     'removeButton' => false,
                                     'pluginOptions' => [
@@ -291,35 +276,12 @@ use \kartik\widgets\DatePicker;
                                 ]
                             ); ?>
                         </div>
-                        <div class="col-sm-2"><input class="form-control" type="text" name="comment"></div>
+                        <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template_group" id="contract_template_group_agreement"
-                                    onchange="do_change_template_group(this, 'agreement')">
-                                <option value="MCN Телефония">MCN Телефония</option>
-                                <option value="MCN Интернет">MCN Интернет</option>
-                                <option value="MCN Дата-центр">MCN Дата-центр</option>
-                                <option value="MCN-СПб">MCN-СПб</option>
-                                <option value="MCN-Краснодар">MCN-Краснодар</option>
-                                <option value="MCN-Самара">MCN-Самара</option>
-                                <option value="MCN-Екатеринбург">MCN-Екатеринбург</option>
-                                <option value="MCN-Новосибирск">MCN-Новосибирск</option>
-                                <option value="MCN-Ростов-на-Дону">MCN-Ростов-на-Дону</option>
-                                <option value="MCN-НижнийНовгород">MCN-НижнийНовгород</option>
-                                <option value="MCN-Казань">MCN-Казань</option>
-                                <option value="MCN-Владивосток">MCN-Владивосток</option>
-                                <option value="Arhiv">Arhiv</option>
-                            </select>
+                            <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]" data-type="agreement"></select>
                         </div>
                         <div class="col-sm-2">
-                            <select class="form-control" name="contract_template" id="contract_template_agreement">
-                                <option value="DC_100kanalnynomer">DC_100kanalnynomer</option>
-                                <option value="DC_Special100kanalny">DC_Special100kanalny</option>
-                                <option value="DC_nomervpodarok_bronza">DC_nomervpodarok_bronza</option>
-                                <option value="DC_telefonia">DC_telefonia</option>
-                                <option value="DS_Nomervpodarok">DS_Nomervpodarok</option>
-                                <option value="DS_Test">DS_Test</option>
-                                <option value="Dop_8800">Dop_8800</option>
-                            </select>
+                            <select class="form-control tmpl" name="ClientDocument[contract_template]" data-type="agreement"></select>
                         </div>
                         <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button></div>
                     </form>
@@ -327,3 +289,40 @@ use \kartik\widgets\DatePicker;
         </div>
     </div>
 </div>
+
+<script>
+    var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
+    var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
+
+    function generateTmplList(type, selected)
+    {
+        if(!selected)
+            selected = $('.tmpl-group[data-type="' + type + '"]').val();
+        var tmpl = $('.tmpl[data-type="' + type + '"]');
+        if(typeof folders[type] !== 'undefined' && typeof folders[type][selected] !== 'undefined') {
+            tmpl.empty();
+            $.each(folders[type][selected], function (k, v) {
+                tmpl.append('<option value="' + v + '">' + v + '</option>');
+            });
+        }
+    }
+
+    $(function(){
+        $('.tmpl-group').each(function(){
+            var type = $(this).data('type');
+            var t = $(this);
+            var first = false;
+            $.each(folders[type], function(k,v){
+                t.append('<option value="'+ k +'" '+(first?'selected=selected':'')+' >'+ folderTranslates[k] +'</option>');
+                if(first == false){
+                    first = k;
+                }
+            });
+            generateTmplList(type, first);
+        });
+
+        $('.tmpl-group').on('change', function(){
+            generateTmplList($(this).data('type'), $(this).val());
+        })
+    });
+</script>

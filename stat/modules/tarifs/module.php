@@ -2,6 +2,7 @@
 
 use \app\models\Contract;
 use \app\models\ClientDocument;
+use \app\dao\ClientDocumentDao;
 
 class m_tarifs{
 
@@ -210,7 +211,7 @@ class m_tarifs{
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
-        $name = ClientDocument::dao()->contract_getFolder($group)."_".$contract;
+        $name = $group."_".$contract;
 
         $filePath = STORE_PATH."contracts/template_".$name.".html";
         $filePathTemplate = STORE_PATH."contracts/template_{}.html";
@@ -249,7 +250,7 @@ class m_tarifs{
 
             if ($newContractTemplate)
             {
-                $newName = ClientDocument::dao()->contract_getFolder($group)."_".$newContractTemplate;
+                $newName = $group."_".$newContractTemplate;
                 $oContract = Contract::findOne(["name" => $name]);
 
                 if ($oContract)
@@ -273,7 +274,7 @@ class m_tarifs{
             $newGroup = get_param_raw("new_contract_template_group");
             if ($newGroup && $newGroup != $group)
             {
-                $newName = ClientDocument::dao()->contract_getFolder($newGroup)."_".$contract;
+                $newName = $newGroup."_".$contract;
                 $oContract = Contract::findOne(["name" => $name]);
 
                 if ($oContract)
@@ -356,13 +357,16 @@ class m_tarifs{
         $design->assign("contract_template_group", $group);
         $design->assign("contract_template", $contract);
         $design->assign("contract_type", $contractType);
+
+        $design->assign("folders", ClientDocumentDao::$folders);
+
         $design->assign("contract_types", [
             'contract' => 'Договор',
             'agreement' => 'Дополнительное соглашение',
             'blank' => 'Бланк заказа'
         ]);
 
-        $design->assign("templates", ClientDocument::dao()->contract_listTemplates());
+        $design->assign("templates", ClientDocumentDao::templateList());
         $design->AddMain("tarifs/contract.tpl");
     }
 

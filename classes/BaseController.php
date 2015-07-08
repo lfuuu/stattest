@@ -133,8 +133,11 @@ class BaseController extends Controller
             Yii::$app->session->open();
             $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
         }
+        $param = (is_numeric($fixclient)) ? $fixclient :['client' => $fixclient];
 
-        $fixclient_data = ClientAccount::findOne($fixclient);
+        $fixclient_data = ClientAccount::findOne($param);
+
+        $fixclient = $fixclient_data->id;
 
         if ($fixclient_data === null) {
             $fixclient_data = [];

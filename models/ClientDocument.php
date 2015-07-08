@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\classes\FileManager;
+use app\classes\BillContract;
 use Yii;
 use yii\db\ActiveRecord;
 use app\queries\ClientDocumentQuery;
@@ -9,9 +9,41 @@ use app\dao\ClientDocumentDao;
 
 class ClientDocument extends ActiveRecord
 {
+    public $content = null,
+        $group = '',
+        $template = '';
+    
+    public static $types = [
+        'contract' => 'Контракт',
+        'agreement' => 'Дополнительное соглашение',
+        'blank' => 'Бланк заказа'
+    ];
+
     public static function tableName()
     {
         return 'client_document';
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'contract_no' => '№',
+            'contract_date' => 'От',
+            'comment' => 'Комментарий'
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            ['contract_id', 'required'],
+            [['contract_id', 'is_active'], 'integer'],
+            [['contract_no', 'contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
+            ['type', 'in', 'range' => array_keys(static::$types)],
+            ['ts', 'default', 'value' => date('Y-m-d H-i-s')],
+            ['is_active', 'default', 'value' => 1],
+            ['user_id', 'default', 'value' => Yii::$app->user->id],
+        ];
     }
 
     public static function find()
@@ -21,40 +53,41 @@ class ClientDocument extends ActiveRecord
 
     public function getAgreements()
     {
-        return self::find()->account($this->client_id)->active()->agreement()->fromContract($this)->orderBy("contract_dop_date")->all();
+        return self::find()->andWhere(['contract_id' => $this->contract_id])->active()->agreement()->fromContract($this)->orderBy('contract_dop_date')->all();
     }
 
     public function getBlank()
     {
-        return self::find()->account($this->client_id)->active()->blank()->fromContract($this)->last();
+        return self::find()->andWhere(['contract_id' => $this->contract_id])->active()->blank()->fromContract($this)->last();
     }
 
-    public static function dao()
+    /**
+     * @return ClientDocumentDao
+     */
+    public function dao()
     {
-        return ClientDocumentDao::me();
+        return ClientDocumentDao::me(['model' => $this]);
     }
 
-    public function getContent()
+    public function getFileContent()
     {
-        return self::dao()->getContent($this->client_id, $this->id);
+        return self::dao()->getContent();
     }
 
     public function erase()
     {
-        @unlink(self::dao()->getFilePath($this->client_id, $this->id));
-
+        self::dao()->delete();
         return $this->delete();
     }
 
-    public function getUserName()
+    public function getUser()
     {
-        $r = $this->hasOne(User::className(), ['id' => 'user_id'])->one();
-        return $r->name;
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     public function getLink()
     {
-        $data = $this->id . '-' . $this->client_id;
+        $data = $this->id . '-' . $this->contract_id;
         $d = substr(md5($data), 0, 1);
         if (($d < '0') || ($d > '9')) {
             $di = 10 + ord($d) - ord('a');
@@ -71,18 +104,44 @@ class ClientDocument extends ActiveRecord
 
     }
 
-    public function getFileManager()
+    public function getAccount()
     {
-        return FileManager::create($this->id);
+        return ClientAccount::findOne(['contract_id' => $this->contract_id])->loadVersionOnDate($this->contract_date);
     }
 
-    public function getFiles()
+    public function getContract()
     {
-        return $this->hasMany(ClientFile::className(), ['contract_id' => 'id'])->orderBy("ts");
+        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->contract_date);
     }
 
-    public function getClient()
+    public function beforeSave($insert)
     {
-        return HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $this->contract_date);
+        if($insert) {
+            $lastContract = BillContract::getLastContract($this->contract_id, time());
+            $this->contract_dop_date = '2012-01-01';
+            $this->contract_dop_no = '0';
+            if ($this->type != 'contract') {
+                $this->contract_no = $lastContract['no'];
+                $this->contract_date = date('Y-m-d', $lastContract['date']);
+                $this->contract_dop_no = $this->contract_no;
+                $this->contract_dop_date = ($this->type == 'agreement') ? $this->contract_date : date('Y-m-d');
+
+                $lastContract = BillContract::getLastContract($this->contract_id, ($this->type == 'blank' ? strtotime('2035-01-01') : (strtotime($this->contract_dop_date) ?: time())));
+                $this->contract_no = $lastContract["no"];
+                $this->contract_date = date("Y-m-d", $lastContract["date"]);
+            }
+        }
+        return parent::beforeSave($insert);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if($insert && $this->group && $this->template){
+            $this->dao()->create();
+        }
+        elseif($this->content !== null){
+            $this->dao()->setContent();
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 }

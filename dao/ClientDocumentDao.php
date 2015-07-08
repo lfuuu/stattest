@@ -1,179 +1,76 @@
 <?php
 namespace app\dao;
 
-use app\models\HistoryVersion;
-use Yii;
-use app\classes\Assert;
-use app\classes\Company;
-use app\classes\Singleton;
-use app\classes\BillContract;
-use app\models\Contract;
 use app\models\ClientDocument;
-use app\models\ClientAccount;
+use Yii;
+use app\classes\Singleton;
+use app\classes\Company;
+use app\models\Contract;
+use yii\base\Exception;
 
 class ClientDocumentDao extends Singleton
 {
-    private $design = null;
+    /**
+     * @var ClientDocument
+     */
+    protected $model = null;
 
-    public function addContract(
-        $accountId, 
-        $contractType, $contractGroup, $contractTemplate,
-        $_contractNo,  $_contractDate, 
-        $content,      $comment, 
-        $userId = null
-    )
+    public static $folders = [
+        'mcn' => 'MCN',
+
+        'mcntelefonija' => 'MCN Телефония',
+        'mcninternet' => 'MCN Интернет',
+        'mcndatacenter' => 'MCN Дата-центр',
+
+        'interop' => 'Межоператорка',
+        'partners' => 'Партнеры',
+        'internetshop' => 'Интернет-магазин',
+
+        'welltime' => 'WellTime',
+        'arhiv' => 'Arhiv',
+    ];
+
+    protected function __construct($config)
     {
-        Assert::isNotFalse(in_array($contractType, ["contract", "blank", "agreement"]));
-
-        $group = $this->contract_getFolder($contractGroup);
-
-        if(!$content)
-            $content = $this->getTemplate('template_'.$group."_".$contractTemplate);
-
-        $lastContract = BillContract::getLastContract($accountId, time());
-
-        //$contractNo = $lastContract["no"];
-        $contractNo = $_contractNo;
-        $contractDate = date("d.m.Y", $lastContract["date"]);
-        $contractDopDate = "01.01.2012";
-        $contractDopNo = "0";
-
-        if ($contractType == "contract")
-        {
-            $contractDate = $_contractDate;
-            //$contractNo = $_contractNo;
-        } else {
-
-            if ($contractType == "agreement")
-            {
-                $contractDopNo = $_contractNo;
-                $contractDopDate = $_contractDate;
-
-                $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
-
-                //$contractNo = $lastContract["no"];
-                $contractDate = date("d.m.Y", $lastContract["date"]);
-            } else { //blank
-                $contractDopDate = date("d.m.Y");
-            }
+        foreach ($config as $key => $value) {
+            $this->$key = $value;
         }
-
-        list($d, $m, $y) = explode(".", $contractDate);
-        $contractDate = $y."-".$m."-".$d;
-
-        list($d, $m, $y) = explode(".", $contractDopDate);
-        $contractDopDate = $y."-".$m."-".$d;
-
-        $contractId = $this->saveContract(
-            $accountId,
-            $content,
-            $contractType,
-            $contractNo,
-            $contractDate,
-            $contractDopNo,
-            $contractDopDate,
-            $comment,
-            $userId
-        );
-
-        $this->fix_contract($accountId, $contractId, $contractDate);
-
-        return $contractId;
+        if($this->model === null)
+            new Exception('Parent document does not exist');
     }
 
-    public function saveContract(
-        $accountId, 
-        $content, $type, 
-        $no, 
-        $date, $dop_no, $dop_date, 
-        $comment,
-        $userId = null
-    )
+    public static function templateList($isWithType = false)
     {
-        /*if(!$no)
-            $no = $accountId.'-'.date('y');*/
-
-        //save in DB
-        $c = new ClientDocument;
-        $c->type = $type;
-        $c->contract_no = $no;
-        $c->contract_date = trim($date);
-        $c->contract_dop_no = $dop_no;
-        $c->contract_dop_date = trim($dop_date);
-        $c->ts = (new \DateTime())->format(\DateTime::ATOM);
-        $c->client_id = $accountId;
-        $c->comment = $comment;
-        $c->user_id = $userId ?: Yii::$app->user->getId();
-        $c->save();
-
-        $cno = $c->id;
-
-
-        //save content
-        $contractFileName = $accountId.'-'.$cno;
-        $contractFileName = preg_replace('[^\w\d\-\_]','',$contractFileName);
-        file_put_contents(Yii::$app->params['STORE_PATH'].'contracts/'.$contractFileName.'.html', $content);
-
-
-        return $cno;
-    }
-
-    public function contract_getFolder($folder = null)
-    {
-        $f = array(
-                "MCN" => "mcn",
-
-                "MCN Телефония" => "mcntelefonija",
-                "MCN Интернет" => "mcninternet",
-                "MCN Дата-центр" => "mcndatacenter",
-
-                "Межоператорка" => "interop",
-                "Партнеры" => "partners",
-                "Интернет-магазин" => "internetshop",
-
-                "WellTime" => "welltime",
-                "Arhiv" => "arhiv",
-                );
-
-        return $folder === null ? $f : $f[$folder];
-    }
-
-    public function contract_listTemplates($isWithType = false) {
         $R = array();
-        foreach (glob(Yii::$app->params['STORE_PATH'].'contracts/template_*.html') as $s) {
-            $t = str_replace(array('template_','.html'),array('',''),basename($s));
+        foreach (glob(Yii::$app->params['STORE_PATH'] . 'contracts/template_*.html') as $s) {
+            $t = str_replace(array('template_', '.html'), array('', ''), basename($s));
 
-            list($group,) = explode("_", $t);
+            list($group,) = explode('_', $t);
 
-            if ($isWithType)
-            {
+            if ($isWithType) {
                 $R[$group][] = $t;
             } else {
-                $R[$group][] = substr($t, strlen($group)+1);
+                $R[$group][] = substr($t, strlen($group) + 1);
             }
         }
 
-        foreach($this->contract_getFolder() as $folderName => $key )
-            $_R[$folderName] = isset($R[$key]) ? $R[$key] : array();
+        foreach (static::$folders as $key => $folderName)
+            $_R[$key] = isset($R[$key]) ? $R[$key] : array();
 
-        if ($isWithType)
-        {
-            $R = ["contract" => [], "blank" => [], "agreement" => []];
+        if ($isWithType) {
+            $R = ['contract' => [], 'blank' => [], 'agreement' => []];
 
-            foreach ($_R as $folder => $rr)
-            {
-                foreach($rr as $k => $r)
-                {
-                    $contract = Contract::findOne(["name" => $r]);
+            foreach ($_R as $folder => $rr) {
+                foreach ($rr as $k => $r) {
+                    $contract = Contract::findOne(['name' => $r]);
 
-                    if ($contract)
-                    {
+                    if ($contract) {
                         $type = $contract->type;
                     } else {
-                        $type = "contract";
+                        $type = 'contract';
                     }
-                    list($group,) = explode("_", $r);
-                    $R[$type][$folder][] = substr($r, strlen($group)+1);
+                    list($group,) = explode('_', $r);
+                    $R[$type][$folder][] = substr($r, strlen($group) + 1);
                 }
             }
         } else {
@@ -183,15 +80,81 @@ class ClientDocumentDao extends Singleton
         return $R;
     }
 
-    public function getTemplate($name) 
+    public function delete()
     {
-        $name = preg_replace('[^\w\d\-\_]','',$name);
+        return $this->deleteFile();
+    }
 
-        if (file_exists(Yii::$app->params['STORE_PATH'].'contracts/'.$name.'.html')) 
-        {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'].'contracts/'.$name.'.html');
+    public function create()
+    {
+        $contractGroup = $this->model->group;
+        $contractTemplate = $this->model->template;
+        $group = static::$folders[$contractGroup];
+        $content = $this->getTemplate('template_' . $group . "_" . $contractTemplate);
+        $this->addContract($content);
+        return $this->generateDefault();
+    }
+
+    public function setContent()
+    {
+        $content = $this->model->content;
+        return $this->addContract($content);
+    }
+
+    public function getContent()
+    {
+        $file = $this->getFilePath();
+
+        if (file_exists($file)) {
+            return file_get_contents($file);
+        }
+
+        return '';
+    }
+
+    private function addContract($content)
+    {
+        return file_put_contents($this->getFilePath(), $content);
+    }
+
+    private function generateDefault()
+    {
+        $contractDate = $this->model->contract_date;
+        $file = $this->getFilePath();
+
+        $document = $this->model;
+        $account = $document->getAccount();
+
+        $design = \app\classes\Smarty::init();
+        $design->assign('client', $account);
+        $design->assign('contract', $document);
+        $design->assign('firm_detail', Company::getDetail($account->contract->organization, $contractDate));
+        $design->assign('firm', Company::getProperty($account->contract->organization, $contractDate));
+
+        $content = $this->contract_fix_static_parts_of_template($design, file_get_contents($file));
+        file_put_contents($file, $content);
+        $newDocument = $design->fetch($file);
+        return file_put_contents($file, $newDocument);
+    }
+
+    private function deleteFile()
+    {
+        $file = $this->getFilePath();
+
+        if (file_exists($file)) {
+            return unlink($file);
+        }
+        return true;
+    }
+
+    private function getTemplate($name)
+    {
+        $name = preg_replace('[^\w\d\-\_]', '', $name);
+
+        if (file_exists(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html')) {
+            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html');
         } else {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'].'contracts/template_mcn_default.html');
+            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/template_mcn_default.html');
         }
 
         $this->fix_style($data);
@@ -199,223 +162,48 @@ class ClientDocumentDao extends Singleton
         return $data;
     }
 
-	private function fix_contract($clientId, $contractId, $contractDate)
+    private function getFilePath()
     {
-		$file = 'contracts/'.$clientId.'-'.$contractId.'.html';
-		$fileTemplate = 'contracts/'.$clientId.'-'.$contractId.'-tpl.html';
-
-		if(file_exists(Yii::$app->params['STORE_PATH'].$fileTemplate)) //already
-            return true;
-
-        $c = ClientDocument::findOne($contractId)->toArray();
-		if (!$c) {
-			trigger_error2('Такого договора не существует');
-			return;
-        }
-
-        $r = HistoryVersion::getVersionOnDate(ClientAccount::className(), $clientId, $c["contract_date"]);
-
-        if (!$r) {
-			trigger_error2('Такого клиента не существует');
-			return;
-        }
-        $r = $r->toArray();
-
-        $c["contract_dop_date"] = strtotime($c["contract_dop_date"]);
-        $c["contract_date"] = strtotime($c["contract_date"]);
-
-
-        $this->design = \app\classes\Smarty::init();
-        $this->design->assign("client", $r);
-        $this->design->assign("contract", $c);
-
-
-		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
-		$this->contract_apply_firma($r["firma"], $contractDate);
-        $this->contract_apply_support_phone($r["region"]);
-
-        file_put_contents(Yii::$app->params['STORE_PATH'].$file, $content);//шаманство...
-
-        $c = $this->design->fetch(Yii::$app->params['STORE_PATH'].$file);
-
-		if(copy(Yii::$app->params['STORE_PATH'].$file, Yii::$app->params['STORE_PATH'].$fileTemplate))
-		{
-			file_put_contents(Yii::$app->params['STORE_PATH'].$file, $c);
-			return true;
-		}
-
-
-		return false;
+        $contractId = $this->model->contract_id;
+        $documentId = $this->model->id;
+        return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $documentId . '.html';
     }
 
     private function fix_style(&$content)
     {
-        if(strpos($content, "{/literal}</style>") === false)
-        {
-            $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
+        if (strpos($content, '{/literal}</style>') === false) {
+            $content = preg_replace('/<style([^>]*)>(.*?)<\/style>/six', '<style\\1>{literal}\\2{/literal}</style>', $content);
         }
     }
 
-
-    private function contract_fix_static_parts_of_template($content, $clientId=0)
+    private function contract_fix_static_parts_of_template(&$design, $content)
     {
-        if(($pos = strpos($content, "{\$include_")) !== false)
-        {
-        	$c = substr($content, $pos);
-        	$templateName = substr($c, 10, strpos($c, "}")-10);
+        if (($pos = strpos($content, '{\$include_')) !== false) {
+            $c = substr($content, $pos);
+            $templateName = substr($c, 10, strpos($c, '}') - 10);
 
-        	$fname =Yii::$app->params['STORE_PATH']."contracts/template_".$templateName.".html";
+            $fname = Yii::$app->params['STORE_PATH'] . 'contracts/template_' . $templateName . '.html';
 
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$this->design->assign("include_".$templateName, $c);
-        	}
+            if (file_exists($fname)) {
+                $c = file_get_contents($fname);
+                $design->assign('include_' . $templateName, $c);
+            }
 
-        	$fname =Yii::$app->params['STORE_PATH']."contracts/".$templateName.".html";
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$this->design->assign("include_".$templateName, $c);
-        	}
-        }
-
-        if (strpos($content, "{*#blank_zakaz#*}") !== false)
-        {
-            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($clientId), $content);
+            $fname = Yii::$app->params['STORE_PATH'] . 'contracts/' . $templateName . '.html';
+            if (file_exists($fname)) {
+                $c = file_get_contents($fname);
+                $design->assign('include_' . $templateName, $c);
+            }
         }
 
 
-		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
-			$repl = ''; // москва(моб.)
-			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
+        if (strpos($content, '{*#voip_moscow_tarifs_mob#*}') !== false) {
+            $repl = ''; // москва(моб.)
+            $content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
         }
 
         $this->fix_style($content);
 
-		return $content;
-    }
-
-    private function contract_apply_firma($firma, $date = null)
-    {
-        $this->design->assign("firm_detail", Company::getDetail($firma, $date));
-        $this->design->assign("firm", Company::getProperty($firma, $date));
-    }
-
-    private function contract_apply_support_phone($region)
-    {
-        switch($region)
-        {
-            case '97': $phone = "(861) 204-00-99"; break;
-            case '98': $phone = "(812) 372-69-99"; break;
-            case '95': $phone = "(343) 302-00-99"; break;
-            case '94': $phone = "(383) 312-00-99"; break;
-            case '96': $phone = "(846) 215-00-99"; break;
-            case '87': $phone = "(863) 309-00-99"; break;
-            case '93': $phone = "(843) 207-00-99"; break;
-            case '88': $phone = "(831) 235-00-99"; break;
-            case '99':
-            default: 
-                $phone = "(495) 105-99-95";
-        }
-
-        $this->design->assign("support_phone", $phone);
-    }
-
-    private function makeBlankZakaz($clientId)
-    {
-        $client = ClientAccount::findOne(["id" => $clientId])->client;
-
-        $data = ['voip' => [], 'ip' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
-
-
-        foreach(\app\models\UsageVoip::find()->client($client)->actual()->all() as $a)
-        {
-            $data['voip'][] = [
-                'from' => $a->actual_from,
-                'description' => "Телефонный номер: " . $a->E164,
-                'number' => $a->E164,
-                'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min,
-                'connect_price' => (string)$a->voipNumber->price,
-                'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->currentTariff->month_number, 2),
-                'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
-        {
-            $data['ip'][] = [
-                'from' => $a->actual_from,
-                'id' => $a->id,
-                'tarif_name' => $a->currentTariff->name,
-                'pay_once' => $a->currentTariff->pay_once,
-                'gb_month' => $a->currentTariff->mb_month/1024,
-                'pay_mb' => $a->currentTariff->pay_mb,
-                'per_month' => round($a->currentTariff->pay_month, 2),
-                'per_month_with_tax' => round($a->currentTariff->pay_month * 1.18, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
-        {
-            $data['vats'][] = [
-                'from' => $a->actual_from,
-                'description' => "ВАТС #".$a->id,
-                'tarif_name' => $a->currentTariff->description,
-                'space' => $a->currentTariff->space,
-                'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
-                'num_ports' => $a->currentTariff->num_ports,
-                'overrun_per_port' => $a->currentTariff->overrun_per_port,
-                'per_month' => round($a->currentTariff->price, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18, 2)
-            ];
-        }
-
-        /*
-        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $a)
-        {
-            $data['sms'][] = [
-                'from' => $a->actual_from,
-                'description' => "SMS-рассылка",
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->per_month_price/1.18, 2),
-                'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
-        {
-            $data['extra'][] = [
-                'from' => $a->actual_from,
-                'description' => "Доп. услуга", 
-                'amount' => $a->amount,
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->price * $a->amount, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
-            ];
-        }
-         */
-
-        $this->design->assign("blank_data", $data);
-        return $this->design->fetch("tarifs/blank.htm");
-    }
-
-    public function getFilePath($clientId, $contractId)
-    {
-        return Yii::$app->params['STORE_PATH'].'contracts/'.$clientId.'-'.$contractId.'.html';
-    }
-
-    public function getContent($clientId, $contractId)
-    {
-        $file = $this->getFilePath($clientId, $contractId);
-
-        if(file_exists($file)) 
-        {
-            return file_get_contents($file);
-        } else {
-            return "File not found";
-        }
+        return $content;
     }
 }

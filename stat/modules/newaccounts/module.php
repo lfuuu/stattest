@@ -3953,7 +3953,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $period_client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
         $design->assign("company_full", $period_client_data["company_full"]);
         $design->assign("client_id", $fixclient_data['id']);
-        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_from_val));
+
+        $contractId = ClientAccount::findOne($fixclient_data['id'])->contract_id;
+        $design->assign("last_contract", BillContract::getLastContract($contractId, $date_from_val));
         $design->assign('data',$R);
         $design->assign('zalog',$zalog);
         $design->assign('sum_bill',$S_b);

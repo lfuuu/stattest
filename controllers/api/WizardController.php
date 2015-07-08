@@ -175,20 +175,18 @@ class WizardController extends /*BaseController*/ApiController
 
         if (!$contract)
         {
-            $contractId = ClientDocument::dao()->addContract(
-                $this->accountId,
 
-                "contract",
-                "MCN",
-                "Dog_UslugiSvayzi",
+            $clientDocument = new ClientDocument();
+            $clientDocument->client_id = $this->accountId;
+            $clientDocument->type = 'contract';
+            $clientDocument->contract_no = $this->accountId."-".date("y");
+            $clientDocument->contract_date = date("Y-m-d");
+            $clientDocument->comment = 'ЛК - wizard';
+            $clientDocument->user_id = User::CLIENT_USER_ID;
+            $clientDocument->group = 'MCN';
+            $clientDocument->template = 'Dog_UslugiSvayzi';
+            $clientDocument->save();
 
-                $this->accountId."-".date("y"),
-                date("d.m.Y"),
-
-                "",
-                "ЛК - wizard",
-                User::CLIENT_USER_ID
-            );
 
             $contract = ClientDocument::findOne([
                 "client_id" => $this->accountId, 
@@ -202,20 +200,17 @@ class WizardController extends /*BaseController*/ApiController
                 ||  UsageVirtpbx::find()->client($this->account->client)->count()
             )
             {
-                $contractId = ClientDocument::dao()->addContract(
-                    $this->accountId,
 
-                    "agreement",
-                    "MCN",
-                    "Zakaz_Uslug",
-
-                    "1",
-                    date("d.m.Y"),
-
-                    "",
-                    "ЛК - wizard",
-                    User::CLIENT_USER_ID
-                );
+                $clientDocument = new ClientDocument();
+                $clientDocument->client_id = $this->accountId;
+                $clientDocument->type = 'agreement';
+                $clientDocument->contract_no = 1;
+                $clientDocument->contract_date = date("Y-m-d");
+                $clientDocument->comment = 'ЛК - wizard';
+                $clientDocument->user_id = User::CLIENT_USER_ID;
+                $clientDocument->group = 'MCN';
+                $clientDocument->template = 'Zakaz_Uslug';
+                $clientDocument->save();
 
                 $agreement = ClientDocument::findOne([
                     "client_id" => $this->accountId, 

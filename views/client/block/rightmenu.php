@@ -14,7 +14,7 @@ use yii\helpers\Url;
             <a href="/account/edit?id=<?= $account->id ?>">Редактировать ЛС</a>
         </li>
         <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
-            <a href="/client/view?id=<?= $account->id ?>&action=print&data=envelope" target="_blank">Напечатать конверт</a>
+            <a href="/document/envelope?clientId=<?= $account->id ?>" target="_blank">Напечатать конверт</a>
         </li>
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">Заказ на Установку/Монтаж</a>
@@ -37,8 +37,14 @@ use yii\helpers\Url;
         <li>
             <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
         </li>
+    </ul>
+
+    <ul>
         <li>
-            <a href="index.php?module=clients&action=print_yota_contract" target="_blank">Печатать договор Yota</a>
+            <a href="/account/additional-inn-list?accountId=<?= $account->id ?>">Дополнительные ИНН</a>
+        </li>
+        <li>
+            <a href="/account/additional-pay-acc-list?accountId=<?= $account->id ?>">Дополнительные Р/С</a>
         </li>
     </ul>
 </div>

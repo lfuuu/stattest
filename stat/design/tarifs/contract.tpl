@@ -10,7 +10,7 @@
     <td>Договор:</td><td>
 	<select class="select2" style="width: 200px;" name=contract_template_group>
     {foreach from=$templates key=k item=item}
-        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
+        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$folders[$k]}</option>
     {/foreach}
 	</select> 
     <input type=text name=contract_template_add>
@@ -33,7 +33,7 @@
 	<input type=hidden name=do value=open>
 	<select class="select2" style="width:200px;" name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
     {foreach from=$templates key=k item=item}
-        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
+        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$folders[$k]}</option>
     {/foreach}
 	</select> 
 
@@ -91,7 +91,7 @@ $(document).ready(function(){
     
 	<select class="select2" style="width:200px;" name=new_contract_template_group id="new_contract_template_group">
     {foreach from=$templates key=k item=item}
-        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
+        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$folders[$k]}</option>
     {/foreach}
 	</select> <input type=submit value="Go" name="move"><br>
     </td>
