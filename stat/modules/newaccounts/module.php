@@ -2579,7 +2579,8 @@ class m_newaccounts extends IModule
                 {
                     case 'sber':
                     case 'ural':
-                        $this->saveClientBankExchangePL($_FILES['file']['tmp_name'], $fName);
+
+                        $this->saveClientBankExchangePL($_FILES['file']['tmp_name'], $d["file"]/*$fName*/);
 
                          /*
                         $data = $this->getUralSibPLDate($fheader);
@@ -2645,12 +2646,24 @@ class m_newaccounts extends IModule
         mt940_list_manager::parseAndSave($c);
     }
 
-    function saveClientBankExchangePL($fPath, $fName)
+    function saveClientBankExchangePL($fPath, $prefix)
     {
+        $import = new importCBE($prefix, $_FILES['file']['tmp_name']);
+        $info = $import->save();
+        if ($info)
+        {
+            foreach($info as $day => $count)
+            {
+                trigger_error2("За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].", обновлено: ".$count["new"]);
+            }
+        }
+
+        /*
         include_once INCLUDE_PATH."mt940.php";
 
         $c = file_get_contents($fPath);
         cbe_list_manager::parseAndSave($c, $fName);
+         */
     }
 
     function readFileHeader($fPath)
