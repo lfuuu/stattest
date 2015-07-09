@@ -219,7 +219,7 @@ www.mcntelecom.ru
         <td align="center">{if $line.okvd_code}{$line.okvd_code|okei_name}{else}{if $line.type == "service"}-{else}шт.{/if}{/if}</td>
         <td align="center">{$line.outprice|round:4}</td>
         <td align="center">{$line.sum_without_tax|round:2}</td>
-        <td align="center">{if $bill_client.nds_zero || $line.line_nds == 0}без НДС{else}{$line.sum_tax|round:2}{/if}</td>
+        <td align="center">{if $line.tax_rate == 0}без НДС{else}{$line.sum_tax|round:2}{/if}</td>
         <td align="center">{$line.sum|round:2}</td>
         {if $isDiscount}
             <td align="center">{$discount|round:2}</td>

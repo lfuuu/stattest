@@ -381,7 +381,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p align=right style='text-align:right'><span>
-            {if $row.sum_tax == 0 && $row.line_nds == 0}
+            {if $row.tax_rate == 0}
                 --
             {else}
                 {$row.sum_tax|round:2}

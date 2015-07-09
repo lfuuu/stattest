@@ -355,7 +355,7 @@
         <td align="center" nowrap>{if $inv_is_new4}без акциза{else}-{/if}</td>
         <td align="center">{if $row.tax_rate == 0}без НДС{else}{if $is_four_order eq true}{$row.tax_rate}%/1{$row.tax_rate}%{else}{$row.tax_rate}%{/if}{/if}</td>
         <td align="center">
-            {if $row.sum_tax == 0 && $row.line_nds == 0}
+            {if $row.tax_rate == 0}
                 -
             {else}
                 {$row.sum_tax|round:2}
