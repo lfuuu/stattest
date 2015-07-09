@@ -827,17 +827,21 @@ class m_newaccounts extends IModule
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
-        
+
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = ClientAccount::findOne($fixclient_data['id']);
+        $organization = $clientAccount->getOrganization();
+
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('l_couriers',Courier::dao()->getList(true));
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        $design->assign('bill_lines',$V);
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        $design->assign('bill_lines',$lines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
 
@@ -911,6 +915,7 @@ class m_newaccounts extends IModule
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $date_from_active = get_param_raw("date_from_active", 'N');
+        $price_include_vat = get_param_raw("price_include_vat", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
         $bill_no_ext_date = $dateFrom->getSqlDay();
         
@@ -922,21 +927,23 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
-        if ($date_from_active == 'Y')
-        {
-		$bill->SetExtNoDate($bill_no_ext_date);
+
+        if ($date_from_active == 'Y') {
+		    $bill->SetExtNoDate($bill_no_ext_date);
         } else {
-		$bill_data = $bill->GetBill();
-		if ($bill_data['bill_no_ext_date'] > 0)
-		{
-			$bill->SetExtNoDate();
-		}
+            $bill_data = $bill->GetBill();
+            if ($bill_data['bill_no_ext_date'] > 0) {
+                $bill->SetExtNoDate();
+            }
         }
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        foreach($V as $k=>$arr_v){
+
+        $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        foreach($lines as $k=>$arr_v){
             if(((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])){
                 $bill->RemoveLine($k);
             }elseif(isset($item[$k]) && $item[$k] && isset($arr_v['item'])){

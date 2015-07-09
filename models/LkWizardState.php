@@ -62,8 +62,9 @@ class LkWizardState extends ActiveRecord
 
     public function add100Rub()
     {
+        /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->account_id);
-        $tax_rate = $clientAccount->getTaxRate();
+        $tax_rate = $clientAccount->getTaxRate(true);
 
         $sum = -100;
 
@@ -77,6 +78,7 @@ class LkWizardState extends ActiveRecord
         $bill->is_use_tax = $clientAccount->nds_zero > 0 ? 0 : 1;
         $bill->bill_date = date('Y-m-d');
         $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
+        $bill->price_include_vat = $clientAccount->isPriceIncludeVat();
         $bill->save();
 
         $line = new BillLine(["bill_no" => $bill->bill_no]);
@@ -85,9 +87,9 @@ class LkWizardState extends ActiveRecord
         $line->date_to = date("Y-m-d", strtotime("last day of this month"));
         $line->type = 'service';
         $line->amount = 1;
-        $line->price = $sum / (1 + $tax_rate);
-        $line->tax_rate = $clientAccount->getDefaultTaxId();
-        $line->calculateSum($tax_rate);
+        $line->price = $sum;
+        $line->tax_rate = $tax_rate;
+        $line->calculateSum($bill->price_include_vat);
         $line->sum = $sum;
         $line->save();
 

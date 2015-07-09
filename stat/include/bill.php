@@ -140,6 +140,7 @@ class Bill {
             }
         }
 
+        /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
 
         $line = new BillLine();
@@ -147,15 +148,14 @@ class Bill {
         $line->sort = $this->max_sort;
         $line->item = $title;
         $line->amount = $amount;
-        $line->price = $price;
         $line->type = $type;
         $line->service = $service;
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->is_price_includes_tax = 0;
-        $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getDefaultTaxId() : 0);
-        $line->calculateSum($clientAccount->getTaxRate());
+        $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
+        $line->price = $price;
+        $line->calculateSum($this->bill['price_include_vat']);
         $line->save();
 
         return true;
@@ -173,28 +173,31 @@ class Bill {
     public function SetNal($nal)
     {
         if ($this->bill["nal"] != $nal && in_array($nal, array("nal", "beznal","prov"))) {
-            global $db,$user;
             $this->Set("nal", $nal);
         }
     }
     public function SetExtNo($bill_no_ext)
     {
         if ($this->bill["bill_no_ext"] != $bill_no_ext) {
-            global $db,$user;
             $this->Set("bill_no_ext", $bill_no_ext);
         }
     }
     public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
     {
         if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {
-            global $db,$user;
             $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
+        }
+    }
+    public function SetPriceIncludeVat($price_include_vat)
+    {
+        if ($this->bill["price_include_vat"] != $price_include_vat) {
+            $this->Set("price_include_vat", $price_include_vat);
         }
     }
     public function SetCourier($courierId){
         if ((int)$courierId != $courierId) return;
         if ($this->bill["courier_id"] != $courierId) {
-            global $db,$user;
+            global $db;
             $this->Set("courier_id", $courierId);
             $db->QueryUpdate("courier", array("id"), array("id" => $courierId, "is_used" => "1"));
         }
@@ -203,8 +206,6 @@ class Bill {
 
         $this->changed = 1;
 
-        $clientAccount = ClientAccount::findOne($this->client_id);
-
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
         if ($line) {
@@ -212,9 +213,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
-            $line->is_price_includes_tax = 0;
-            $line->tax_rate = $clientAccount->getDefaultTaxId();
-            $line->calculateSum($clientAccount->getTaxRate());
+            $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }
 
