@@ -84,4 +84,9 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return $this->tariff ? $this->tariff->description : 'Описание';
     }
 
+    public function getServer()
+    {
+        return $this->hasOne(ServerPBX::className(), ["id" => "server_pbx_id"]);
+    }
+
 }

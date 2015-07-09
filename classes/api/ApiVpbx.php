@@ -4,6 +4,8 @@ namespace app\classes\api;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
+use app\models\UsageVirtpbx;
+use app\models\ClientAccount;
 
 class ApiVpbx
 {
@@ -42,6 +44,16 @@ class ApiVpbx
     {
         $tariff = self::getTariff($usageId);
 
+        $regionId = 99;
+
+        try{
+            $u = UsageVirtpbx::findOne($usageId);
+            if ($u) {
+                $regionId = $u->server->datacenter->region;
+            }
+        } catch(Exception $) {
+        }
+
         ApiVpbx::exec(
             self::getVpbxHost($usageId),
             'create',
@@ -54,6 +66,8 @@ class ApiVpbx
                 "record"     => (bool)$tariff["is_record"],
                 "enable_web_call" => (bool)$tariff["is_web_call"],
                 "disk_space" => (int)$tariff["space"],
+                "timezone"   => ClientAccount::findOne($clientId)->timezone_name,
+                "region"     => $regionId
             ]
         );
     }
