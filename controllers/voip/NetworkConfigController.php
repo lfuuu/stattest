@@ -49,16 +49,12 @@ class NetworkConfigController extends BaseController
 
         $list = $query->all();
         $connectionPoints = Region::dao()->getList();
-        $pricelists = Pricelist::dao()->getList();
 
         return $this->render("list", [
             'list' => $list,
             'connectionPoints' => $connectionPoints,
-            'pricelists' => $pricelists,
         ]);
     }
-
-
 
     public function actionAdd()
     {

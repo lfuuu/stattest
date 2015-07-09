@@ -76,6 +76,28 @@ class Html2Mhtml
         return $this;
     }
 
+    public function addMediaFiles($callback = false)
+    {
+        foreach ($this->files as &$file) {
+            if (preg_match_all('#<link[^>]*href=[\'"]*([^\'"]+)[\'"]*#ui', $file['content'], $matches)) {
+                foreach ($matches[1] as $src) {
+                    $file_name = basename($src);
+                    $file_path = $src;
+
+                    if (is_callable($callback)) {
+                        list($file_name, $file_path) = $callback($src);
+                    }
+
+                    $file['content'] = str_replace($src, $file_name, $file['content']);
+                    $this->addFile($file_name, $file_path);
+
+                }
+            }
+        }
+
+        return $this;
+    }
+
     public function addContents($file_path, $content, $callback = false)
     {
         if (is_callable($callback))

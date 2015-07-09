@@ -28,14 +28,15 @@ use app\models\billing\Pricelist;
         <th>Точка присоединения</th>
         <th>Ид</th>
         <th>Прайслист</th>
-        <?php if ($type == 0 && $orig == 0): ?>
+        <?php if ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
             <th>Метод тарификации</th>
             <th>Инициация<br/>МГМН вызова</th>
             <th>Инициация<br/>зонового вызова</th>
         <?php endif; ?>
-        <?php if ($type == 1): ?>
+        <?php if ($type == Pricelist::TYPE_LOCAL): ?>
             <th>Местные префиксы</th>
         <?php endif; ?>
+        <th>Цена</th>
         <th>Файлы</th>
         <th>Цены</th>
     </tr>
@@ -44,7 +45,7 @@ use app\models\billing\Pricelist;
         <td><?= $connectionPoints[$pricelist->region] ?></td>
         <td><a href='/voip/pricelist/edit?id=<?=$pricelist->id?>'><?=$pricelist->id?></a></td>
         <td><a href='/voip/pricelist/edit?id=<?=$pricelist->id?>'><?=$pricelist->name?></a></td>
-        <?php if ($type == 0 && $orig == 0): ?>
+        <?php if ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
             <td>
                 <?php if ($pricelist->tariffication_by_minutes): ?>
                     поминутная
@@ -61,6 +62,7 @@ use app\models\billing\Pricelist;
         <?php if ($type == Pricelist::TYPE_LOCAL): ?>
             <td><?=$networkConfigs[$pricelist->local_network_config_id]?></td>
         <?php endif; ?>
+        <td><?=$pricelist->price_include_vat ? 'Вкл НДС' : 'Без НДС'?></td>
         <td><a href='/voip/pricelist/files?pricelistId=<?=$pricelist->id?>'>файлы</a></td>
         <td><a href='index.php?module=voipnew&action=defs&pricelist=<?=$pricelist->id?>'>цены</a></td>
     </tr>

@@ -219,11 +219,16 @@
 	$(document).ready(function(){
 		statlib.modules.newaccounts.bill_list_full.simple_tooltip(".del_doc" ,"tooltip");
 	});
-	function show_income_goods()
-	{
-		document.forms["show_incomegoods"].submit();
-	}
+
 
 {/literal}
 </script>
 {/if}
+<script>
+{literal}
+    function show_income_goods()
+    {
+        document.forms["show_incomegoods"].submit();
+    }
+{/literal}
+</script>

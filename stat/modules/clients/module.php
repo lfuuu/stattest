@@ -2041,7 +2041,92 @@ DBG::sql_out($select_client_data);
         }
     }
 
-	function get_history_flags($clientId)
+    function clients_rpc_findClient1c(){
+        global $db;
+        require_once INCLUDE_PATH.'1c_integration.php';
+        $clS = new \_1c\clientSyncer($db);
+
+        $cl = $clS->findClient(null, null, $_GET['findInn']);
+
+        if(!$cl)
+            echo "false";
+        else{
+            Header('Contetn-Type: plain/text; charset="utf-8"');
+            $attrs = $cl->getDetailsArr("\\'");
+            echo "{
+    			company:'".$attrs['company']."',
+    			company_full:'".$attrs['company_full']."',
+    			inn:'".$attrs['inn']."',
+    			bik:'".$attrs['bik']."',
+    			pay_acc:'".$attrs['pay_acc']."',
+    			corr_acc:'".$attrs['corr_acc']."',
+    			bank_name:'".$attrs['bank_name']."',
+    			bank_city:'".$attrs['bank_city']."',
+    			address_jur:'".$attrs['address_jur']."',
+    			kpp:'".$attrs['kpp']."',
+    			type:'".$attrs['type']."'
+    		}";
+        }
+        exit();
+    }
+    function clients_rpc_findBank1c(){
+        global $db;
+        //require_once INCLUDE_PATH.'1c_integration.php';
+        //$clS = new \_1c\clientSyncer($db);
+
+        $bik = $db->GetRow("select * from bik b where b.bik='".$db->escape($_GET['findBik'])."'");
+
+        if(!$bik)
+            echo "false";
+        else{
+            Header('Contetn-Type: plain/text; charset="utf-8"');
+            echo "{
+    			bik:'".$bik['bik']."',
+    			corr_acc:'".$bik['corr_acc']."',
+    			bank_name:'".$bik['bank_name']."',
+    			bank_city:'".$bik['bank_city']."'
+    		}";
+        }
+        exit();
+    }
+    public function clients_rpc_setVoipDisabled()
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isDisabled = (get_param_raw("is_disabled", "false") == "true");
+
+        $client = clientAccount::findOne($accountId);
+
+        Assert::isObject($client);
+
+        if ((bool)$client->voip_disabled != $isDisabled)
+        {
+            $client->voip_disabled = $isDisabled ? 1 : 0;
+            $client->save();
+        }
+        echo "ok";
+        exit();
+    }
+
+    public function clients_rpc_setBlocked($fixclient)
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isBlocked = (get_param_raw("is_blocked", "false") == "true" ? 1 : 0);
+
+        $client = ClientAccount::findOne(["id" => $accountId]);
+
+        Assert::isObject($client);
+
+        if ($isBlocked != $client->is_blocked)
+        {
+            $client->is_blocked = $isBlocked ? 1 : 0;
+            $client->save();
+        }
+
+        echo "ok";
+        exit();
+    }
+
+    function get_history_flags($clientId)
 	{
 		global $db;
 

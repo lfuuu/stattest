@@ -30,7 +30,7 @@ use yii\db\ActiveRecord;
  * @property string $contry_maker   Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
  * @property int    $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
  * @property string $is_price_includes_tax  1 - цена включает налоги, 0 - цена указана без налогов
- * @property string $tax_rate       Значение ставки налога
+ * @property int    $tax_rate       Значение ставки налога
  * @property
  */
 class BillLine extends ActiveRecord
@@ -40,10 +40,16 @@ class BillLine extends ActiveRecord
         return 'newbill_lines';
     }
 
-    public function calculateSum($tax_rate)
+    public function calculateSum($priceIncludeVat)
     {
-        $this->sum = round($this->price * $this->amount, 2);
-        $this->sum_tax = round($this->sum / (1 + $tax_rate) * $tax_rate, 2);
-        $this->sum_without_tax = round($this->sum - $this->sum_tax, 2);
+        if ($priceIncludeVat) {
+            $this->sum = round($this->price * $this->amount, 2);
+            $this->sum_tax = round($this->tax_rate / (100.0 + $this->tax_rate) * $this->sum, 2);
+            $this->sum_without_tax = $this->sum - $this->sum_tax;
+        } else {
+            $this->sum_without_tax = round($this->price * $this->amount, 2);
+            $this->sum_tax = round($this->sum_without_tax * $this->tax_rate / 100, 2);
+            $this->sum = $this->sum_without_tax + $this->sum_tax;
+        }
     }
 }

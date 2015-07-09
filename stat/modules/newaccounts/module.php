@@ -7,6 +7,7 @@ use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 use app\models\Payment;
+use app\models\Param;
 use app\models\BillDocument;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
@@ -826,17 +827,21 @@ class m_newaccounts extends IModule
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
-        
+
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = ClientAccount::findOne($fixclient_data['id']);
+        $organization = $clientAccount->getOrganization();
+
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('l_couriers',Courier::dao()->getList(true));
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        $design->assign('bill_lines',$V);
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        $design->assign('bill_lines',$lines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
 
@@ -910,6 +915,7 @@ class m_newaccounts extends IModule
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $date_from_active = get_param_raw("date_from_active", 'N');
+        $price_include_vat = get_param_raw("price_include_vat", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
         $bill_no_ext_date = $dateFrom->getSqlDay();
         
@@ -921,21 +927,23 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
-        if ($date_from_active == 'Y')
-        {
-		$bill->SetExtNoDate($bill_no_ext_date);
+
+        if ($date_from_active == 'Y') {
+		    $bill->SetExtNoDate($bill_no_ext_date);
         } else {
-		$bill_data = $bill->GetBill();
-		if ($bill_data['bill_no_ext_date'] > 0)
-		{
-			$bill->SetExtNoDate();
-		}
+            $bill_data = $bill->GetBill();
+            if ($bill_data['bill_no_ext_date'] > 0) {
+                $bill->SetExtNoDate();
+            }
         }
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        foreach($V as $k=>$arr_v){
+
+        $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        foreach($lines as $k=>$arr_v){
             if(((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])){
                 $bill->RemoveLine($k);
             }elseif(isset($item[$k]) && $item[$k] && isset($arr_v['item'])){
@@ -1700,6 +1708,8 @@ class m_newaccounts extends IModule
         $mode = get_param_protected('mode', 'html');
 
         $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
+        $is_word = get_param_raw('is_word', false);
+
         $design->assign("is_pdf", $is_pdf);
 
         $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print', 'false') == 'true';
@@ -1887,7 +1897,37 @@ class m_newaccounts extends IModule
                 if ($only_html == '1') {
                     return $design->fetch('newaccounts/print_'.$obj.'.tpl');
                 }
-                
+
+                if ($is_word) {
+                    $result = (new \app\classes\Html2Mhtml)
+                        ->addContents(
+                            'index.html',
+                            $design->fetch('newaccounts/print_'.$obj.'.tpl')
+                        )
+                        ->addImages(function($image_src) {
+                            $file_path = '';
+                            $file_name = '';
+
+                            if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src, $m)) {
+                                $file_name = 'host_img_' . mt_rand(0, 50);
+                                $file_path = Yii::$app->request->hostInfo . preg_replace('#^\.+#', '', $image_src);
+                            }
+
+                            return [$file_name, $file_path];
+                        })
+                        ->addMediaFiles(function($src) {
+                            $file_name = 'host_media_' . mt_rand(0, 50);
+                            $file_path = Yii::$app->request->hostInfo . preg_replace('#^\.+#', '', $src);
+
+                            return [$file_name, $file_path];
+                        })
+                        ->getFile();
+
+                    Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+                    Yii::$app->end();
+                    exit;
+                }
+
                 if ($is_pdf) {
                     /*wkhtmltopdf*/
                     $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
@@ -2486,6 +2526,17 @@ class m_newaccounts extends IModule
 
     function newaccounts_pi_list($fixclient) {
         global $design,$db;
+
+        $param = Param::findOne(["param" => "pi_list_last_info"]);
+        if ($param)
+        {
+            foreach(json_decode($param->value) as $line)
+            {
+                trigger_error2($line);
+            }
+        }
+
+
         $filter=get_param_raw('filter',array('d'=>'','m'=>date('m'),'y'=>date('Y')));
         $R=array();
         $d=dir(PAYMENTS_FILES_PATH);
@@ -2579,7 +2630,8 @@ class m_newaccounts extends IModule
                 {
                     case 'sber':
                     case 'ural':
-                        $this->saveClientBankExchangePL($_FILES['file']['tmp_name'], $fName);
+
+                        $this->saveClientBankExchangePL($_FILES['file']['tmp_name'], $d["file"]/*$fName*/);
 
                          /*
                         $data = $this->getUralSibPLDate($fheader);
@@ -2645,12 +2697,37 @@ class m_newaccounts extends IModule
         mt940_list_manager::parseAndSave($c);
     }
 
-    function saveClientBankExchangePL($fPath, $fName)
+    function saveClientBankExchangePL($fPath, $prefix)
     {
+        $import = new importCBE($prefix, $_FILES['file']['tmp_name']);
+        $info = $import->save();
+
+        $lines = [];
+        if ($info)
+        {
+            foreach($info as $day => $count)
+            {
+                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].
+                    ($count["new"] ? ", обновлено: ".$count["new"]: "");
+            }
+        }
+        $param = Param::findOne(["param" => "pi_list_last_info"]);
+
+        if (!$param)
+        {
+            $param = new Param;
+            $param->param = "pi_list_last_info";
+        }
+
+        $param->value = json_encode($lines);
+        $param->save();
+
+        /*
         include_once INCLUDE_PATH."mt940.php";
 
         $c = file_get_contents($fPath);
         cbe_list_manager::parseAndSave($c, $fName);
+         */
     }
 
     function readFileHeader($fPath)

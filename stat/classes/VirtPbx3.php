@@ -158,7 +158,9 @@ class VirtPbx3Diff
             try {
                 VirtPbx3Action::del($l);
             } catch (Exception $e) {
-                if (!$exception) $exception = $e;
+                if (!$exception) {
+                    $exception = $e;
+                }
             }
         }
     }
@@ -250,7 +252,10 @@ class VirtPbx3Action
             ApiCore::exec('remove_product', SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]);
 
         } catch (Exception $e) {
-            throw $e;
+            if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS)
+            {
+                throw $e;
+            }
         }
 
         return $db->QueryDelete("actual_virtpbx", array(
