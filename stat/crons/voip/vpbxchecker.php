@@ -24,7 +24,15 @@ echo "
 
 
 
-virtPbx::check();
+//virtPbx::check();
+
+try{
+
+VirtPbx3::check();
+}catch (Exception $e)
+{
+    echo "...".$e->getCode()."...".$e->getMessage();
+}
 
 
 
