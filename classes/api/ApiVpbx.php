@@ -51,7 +51,7 @@ class ApiVpbx
             if ($u) {
                 $regionId = $u->server->datacenter->region;
             }
-        } catch(Exception $) {
+        } catch(Exception $e) {
         }
 
         ApiVpbx::exec(
