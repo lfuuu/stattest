@@ -29,7 +29,6 @@ use yii\db\ActiveRecord;
  * @property string $gtd            ??  значения: beznal,nal,prov
  * @property string $contry_maker   Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
  * @property int    $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
- * @property string $is_price_includes_tax  1 - цена включает налоги, 0 - цена указана без налогов
  * @property int    $tax_rate       Значение ставки налога
  * @property
  */

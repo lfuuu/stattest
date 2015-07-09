@@ -7,7 +7,6 @@ use app\dao\services\ExtraServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
-use app\classes\traits\UsageTaxRateTrait;
 
 /**
  * @property int $id
@@ -17,8 +16,6 @@ use app\classes\traits\UsageTaxRateTrait;
  */
 class UsageExtra extends ActiveRecord implements Usage
 {
-    use UsageTaxRateTrait;
-
     public static function tableName()
     {
         return 'usage_extra';

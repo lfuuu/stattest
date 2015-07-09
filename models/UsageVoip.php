@@ -10,7 +10,6 @@ use DateTime;
 use app\models\TariffVoip;
 use app\models\VoipNumber;
 use app\models\Datacenter;
-use app\classes\traits\UsageTaxRateTrait;
 
 /**
  * @property int $id
@@ -18,7 +17,6 @@ use app\classes\traits\UsageTaxRateTrait;
  */
 class UsageVoip extends ActiveRecord implements Usage
 {
-    use UsageTaxRateTrait;
 
     public static function tableName()
     {

@@ -95,7 +95,6 @@ class Bill {
             $bill->is_lk_show = $isLkShow ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
-            $bill->is_use_tax = $this->client_data['nds_zero'] > 0 ? 0 : 1;
             $bill->save();
         }
 
@@ -153,7 +152,7 @@ class Bill {
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
+        $line->tax_rate = $clientAccount->getTaxRate(true);
         $line->price = $price;
         $line->calculateSum($this->bill['price_include_vat']);
         $line->save();
@@ -216,7 +215,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
-            $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
+            $line->tax_rate = $clientAccount->getTaxRate(true);
             $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }
@@ -348,7 +347,6 @@ class Bill {
 			'amount' => 1,
 			'price' => '',
 			'outprice' => '',
-            'is_price_includes_tax' => 0,
             'tax_type_id' => null,
 			'sum' => '',
             'sum_without_tax' => 0,
@@ -709,7 +707,7 @@ class Bill {
         if ($lines_info->sum)
         {
             $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate($original = true);
-            $taxTypeId = $this->bill["is_use_tax"] > 0 ? $tax_rate : 0;
+            $taxTypeId = $tax_rate;
 
             $balance = min($lines_info->sum, $balance);
 
@@ -728,7 +726,6 @@ class Bill {
             $new_line->item = 'Переплата';
             $new_line->amount = 1;
             $new_line->type = 'zadatok';
-            $new_line->is_price_includes_tax = 0;
             $new_line->tax_type_id = $taxTypeId;
 			$new_line->price = $sumWithoutTax;
 			$new_line->sum = $sumWithTax;

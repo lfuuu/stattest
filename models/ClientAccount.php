@@ -202,6 +202,6 @@ class ClientAccount extends ActiveRecord
 
     public function isPriceIncludeVat()
     {
-        return false;
+        return $this->price_include_vat;
     }
 }

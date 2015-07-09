@@ -8,7 +8,6 @@ use app\queries\UsageQuery;
 use app\models\TariffSms;
 use yii\db\ActiveRecord;
 use DateTime;
-use app\classes\traits\UsageTaxRateTrait;
 
 /**
  * @property int $id
@@ -18,8 +17,6 @@ use app\classes\traits\UsageTaxRateTrait;
  */
 class UsageSms extends ActiveRecord implements Usage
 {
-    use UsageTaxRateTrait;
-
     public static function tableName()
     {
         return 'usage_sms';
