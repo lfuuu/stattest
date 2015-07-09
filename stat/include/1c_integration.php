@@ -756,6 +756,7 @@ class SoapHandler{
         $state_1c = trr($o->{tr('СтатусЗаказа')});
         $add_info = $o->{tr('ДопИнформацияЗаказа')};
         $storeId = $o->{tr('КодСклад1С')};
+        $priceIncludeVat = $o->{tr('ЦенаВключаетНДС')};
 
 //        if (strcmp($state_1c, 'Отказ')==0) {
 //            $sum_with_unapproved = 0;
@@ -822,6 +823,12 @@ class SoapHandler{
               */
 
         foreach($l as $p){
+            $price = $p->{tr('Цена')};
+
+            if ($priceIncludeVat) {
+                $price = round($price/1.18,4);
+            }
+
             $list[] = array(
                 'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
                 'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
@@ -830,8 +837,7 @@ class SoapHandler{
                 'dispatch' => $p->{tr('КоличествоОтгружено')},
                 'discount_set' => $p->{tr('СуммаРучнойСкидки')},
                 'discount_auto' => $p->{tr('СуммаАвтоматическойСкидки')},
-                //'price'=>round(($p->{tr('СуммаИтогоБезНДС')}+$p->{tr('СуммаНДС')})/$p->{tr('Количество')}/1.18,4),
-                'price'=>round($p->{tr('Цена')}/1.18,4),
+                'price'=>$price,
                 'sum'=>$p->{tr('Сумма')},
                 'type'=>$p->{tr('ЭтоУслуга')}?'service':'good',
                 'code_1c'=>$p->{tr('КодСтроки')},
@@ -840,7 +846,7 @@ class SoapHandler{
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
                 'is_price_includes_tax' => 0,
                 'tax_rate' => 18,
-                'sum_without_tax' => $p->{tr('Сумма')} - $p->{tr('СуммаНДС')},
+                'sum_without_tax' => $p->{tr('СуммаБезНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
             );
         }
