@@ -542,14 +542,8 @@ class DbFormUsageVoip extends DbForm {
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
 
-        $tarif_type =
-            ClientAccount::findOne($fixclient_data['id'])->isOperatorContract()
-                ? 'operator'
-                : 'client';
-        print $tarif_type;
-
         $R=$db->AllRecords('select * from tarifs_voip '.
-                            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').' and region="'.$region.'"  and type="' . $tarif_type.'"'.
+                            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').' and region="'.$region.'"'.
                             'order by status, month_line, month_min_payment', 'id');
         $design->assign('dbform_f_tarifs',$R);
         $design->assign('region',$region);

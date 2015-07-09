@@ -176,15 +176,14 @@ class m_tarifs{
         }
 
         $pricelists = app\models\billing\Pricelist::find()
-            ->select(['id', 'name', 'type'])
-            ->andWhere(['orig' => true, 'local' => false])
+            ->select(['id', 'name', 'price_include_vat'])
+            ->andWhere(['orig' => 1, 'local' => 0])
             ->orderBy('region desc, name asc')
+            ->asArray()
             ->all();
-        //print_r($pricelists);
 
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
-        //$design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('pricelists', $pricelists);
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));

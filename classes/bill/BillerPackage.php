@@ -184,7 +184,7 @@ abstract class BillerPackage
 
     private function getTaxRate()
     {
-        if ($this->usage->tariff->price_include_vat && !$this->clientAccount->isOperatorContract()) {
+        if ($this->usage->tariff->price_include_vat && $this->clientAccount->price_include_vat) {
             $tax_rate = $this->clientAccount->getTaxRate();
             return $tax_rate? (1 + $tax_rate) : 1;
         }

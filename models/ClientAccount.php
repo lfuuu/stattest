@@ -200,8 +200,4 @@ class ClientAccount extends ActiveRecord
         return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
     }
 
-    public function isOperatorContract()
-    {
-        return $this->contract_type_id == Contract::TYPE_OPERATOR;
-    }
 }

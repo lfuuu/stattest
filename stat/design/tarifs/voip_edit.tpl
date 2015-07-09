@@ -101,19 +101,10 @@
                 тариф для виртуальных номеров</label>
         </td></tr>
     <tr>
-        <td>тип тарифа:</td>
-        <td>
-            <select class="select2" name="type">
-                <option value="client"{if $data.type == 'client'} selected="selected"{/if}>Клиентский</option>
-                <option value="operator"{if $data.type == 'operator'} selected="selected"{/if}>Операторский</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
         <td></td>
         <td>
             <label>
-                <input type="checkbox" name="price_include_vat" value="1" disabled="disabled" {if $data.price_include_vat == 1}checked{/if} />
+                <input type="checkbox" name="price_include_vat" value="1" {if $data.price_include_vat == 1}checked{/if} />
                 включить в цену ставку налога
             </label>
         </td>
@@ -121,7 +112,7 @@
     <tr><td>прайс-лист:</td><td>
         <select class="select2" name="pricelist_id" style="width: 400px">
         {foreach from=$pricelists item='r'}
-            <option data-type="{$r.type}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
+            <option data-type="{$r.price_include_vat}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
         {/foreach}
         </select>
     </td></tr>
