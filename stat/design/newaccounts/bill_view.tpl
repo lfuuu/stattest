@@ -121,6 +121,14 @@
 {if $store}
 <br>Склад:  <b>{$store}</b>
 {/if}
+{assign var="discount" value=0}
+{assign var="sum_tax" value=0}
+{assign var="sum_without_tax" value=0}
+{foreach from=$bill_lines item=item key=key name=outer}
+    {assign var="discount" value=`$discount+$item.discount_auto+$item.discount_set`}
+    {assign var="sum_tax" value=`$sum_tax+$item.sum_tax`}
+    {assign var="sum_without_tax" value=`$sum_without_tax+$item.sum_without_tax`}
+{/foreach}
 <table class="table table-condensed table-hover table-striped">
     <tr class=even style='font-weight:bold'>
         <th>&#8470;</th>
@@ -129,6 +137,9 @@
         <th>Период</th>
         <th>Количество{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
         <th style="text-align: right">Цена</th>
+        {if $discount != 0}
+            <th style="text-align: right">Скидка</th>
+        {/if}
         {if $bill.price_include_vat == 0}
             <th style="text-align: right">Сумма</th>
             <th style="text-align: right">Сумма НДС</th>
@@ -143,8 +154,6 @@
         <th style="text-align: right">Тип</th>
     </tr>
     {assign var="bonus_sum" value=0}
-    {assign var="sum_tax" value=0}
-    {assign var="sum_without_tax" value=0}
     {foreach from=$bill_lines item=item key=key name=outer}
     <tr class='{cycle values="odd,even"}'>
         <td>{$smarty.foreach.outer.iteration}.</td>
@@ -181,6 +190,10 @@
         </td>
         <td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
         <td style="text-align: right">{$item.price}</td>
+        {if $discount != 0}
+            {assign var="row_discount" value=`$item.discount_auto+$item.discount_set`}
+            <td style="text-align: right">{$row_discount}</td>
+        {/if}
         {if $bill.price_include_vat == 0}
             <td style="text-align: right">{$item.sum_without_tax}</td>
             <td style="text-align: right">{$item.sum_tax} ({$item.tax_rate}%)</td>
@@ -193,25 +206,25 @@
             <td  style="text-align: right">{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>
         {/if}
         <td align=right>{$item.type}</td>
-        {assign var="sum_tax" value=`$sum_tax+$item.sum_tax`}
-        {assign var="sum_without_tax" value=`$sum_without_tax+$item.sum_without_tax`}
     </tr>
     {/foreach}
     <tr>
+        <th colspan=6 style="text-align: right">Итого: </th>
+        {if $discount != 0}
+            <td style="text-align: right">{$discount}</td>
+        {/if}
         {if $bill.price_include_vat == 0}
-            <th colspan=6 style="text-align: right">Итого: </th>
             <th style="text-align: right">{$sum_without_tax|round:2}</th>
-            <th style="text-align: right">{$sum_tax|round:2}</th>
+            <td style="text-align: right">{$sum_tax|round:2}</td>
             <th style="text-align: right">{$bill.sum|round:2}</th>
         {else}
-            <th colspan=6 style="text-align: right">Итого: </th>
             <th style="text-align: right">{$bill.sum|round:2}</th>
-            <th style="text-align: right">в т.ч. {$sum_tax|round:2}</th>
+            <td style="text-align: right">в т.ч. {$sum_tax|round:2}</td>
         {/if}
         {if $bill_bonus}
-            <th  style="text-align: right">{$bonus_sum|round:2}</th>
+            <td  style="text-align: right">{$bonus_sum|round:2}</td>
         {/if}
-        <th style="text-align: right">&nbsp;</th>
+        <td style="text-align: right">&nbsp;</td>
     </tr>
 </table>
 

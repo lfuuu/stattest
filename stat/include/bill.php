@@ -503,7 +503,13 @@ class Bill {
 
         foreach($ret as &$r)
         {
-            $r["outprice"] = $r['price'];
+            $r['amount'] = (float)$r['amount'];
+            $r['price'] = (float)$r['price'];
+
+            $r['outprice'] =
+                $this->bill['price_include_vat']
+                    ? round($r['sum'] / $r['amount'], 4)
+                    : round($r['sum_without_tax'] / $r['amount'], 4);
 
 
             $r["country_name"] = Country::dao()->getNameByCode($r["country_id"]);

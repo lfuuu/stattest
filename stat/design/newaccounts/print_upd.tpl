@@ -377,7 +377,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>{if $inv_is_new4}без акциза{else}--{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $row.sum_tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
+			<p ><span>{if $row.tax_rate == 0}без НДС{else}{if $is_four_order eq true}{$row.tax_rate}%/1{$row.tax_rate}%{else}{$row.tax_rate}%{/if}{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p align=right style='text-align:right'><span>

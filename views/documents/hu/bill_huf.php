@@ -89,13 +89,12 @@ $payer_company = $document->getPayer();
                     <td align="center"><b>Megnevezés</b></td>
                     <td align="center"><b>Tört havidíj szorzója</b></td>
                     <td align="center"><b>Nettó egységár,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <?php if ($hasDiscount): ?>
+                        <td align="center"><b>Áfa érték</b></td>
+                    <?php endif; ?>
                     <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Áfa, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <?php if ($hasDiscount): ?>
-                        <td align="center"><b>Áfa érték</b></td>
-                        <td align="center"><b>ÁFA összesen,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <?php endif; ?>
                 </tr>
 
                 <?php foreach ($document->lines as $position => $line): ?>
@@ -104,35 +103,24 @@ $payer_company = $document->getPayer();
                         <td><?= $line['item']; ?></td>
                         <td align="center"><?= Utils::mround($line['amount'], 4,6); ?></td>
                         <td align="center"><?= Utils::round($line['price'], 4); ?></td>
+                        <?php if ($hasDiscount): ?>
+                            <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
+                        <?php endif; ?>
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                         <td align="center"><?= Utils::round($line['sum_tax'], 2); ?></td>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                        <?php if ($hasDiscount): ?>
-                            <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
-                            <td align="center"><?= Utils::round($line['sum'] - ($line['discount_auto'] + $line['discount_set']), 2); ?></td>
-                        <?php endif; ?>
                     </tr>
                 <?php endforeach; ?>
 
                 <tr>
-                    <td colspan="4" align="right">
+                    <td colspan="<?=$hasDiscount ? '5' : '4'?>" align="right">
                         <div style="padding-top: 3px; height: 15px;">
                             <b>Összesen:</b>
                         </div>
                     </td>
                     <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                    <td align="center">
-                        <?php if (!$hasDiscount): ?>
-                            <?= Utils::round($document->sum_with_tax, 2); ?>
-                        <?php else: ?>
-                            &nbsp;
-                        <?php endif; ?>
-                    </td>
-                    <?php if ($hasDiscount): ?>
-                        <td align="center">&nbsp;</td>
-                        <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
-                    <?php endif; ?>
-                    <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 </tr>
 
             </tbody>
