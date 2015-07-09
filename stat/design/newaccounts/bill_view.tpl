@@ -121,39 +121,99 @@
 {if $store}
 <br>Склад:  <b>{$store}</b>
 {/if}
-<TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr class=even style='font-weight:bold'><td>&#8470;</td><td width="1%">артикул</td><td>что</td><td>период</td><td>сколько{if isset($cur_state) && $cur_state == 17}/отгружено{/if}</td><td>цена</td><td>сумма</td>{if $bill_bonus}<td>бонус</td>{/if}<td>тип</td></tr>
-{assign var="bonus_sum" value=0}
-{foreach from=$bill_lines item=item key=key name=outer}
-<tr class='{cycle values="odd,even"}'>
-<td>{$smarty.foreach.outer.iteration}.</td>
-<td align=left><span title="{$item.art|escape}">{$item.art|truncate:10}<br>
-
-{if $item.type == "good"}
-    {if $item.store == "yes"}
-        <b style="color: green;">Склад</b>
-    {elseif $item.store == "no"}
-        <b style="color: blue;">Заказ</b>
-    {elseif $item.store == "remote"}
-        <b style="color: #c40000;">ДалСклад</b>
-    {/if}
-{/if}
-</span></td>
-<td>
-{if $item.service && $item.service != '1C'}<a target=_blank href='{$PATH_TO_ROOT}pop_services.php?table={$item.service}&id={$item.id_service}'>{/if}
-{$item.item}
-{if $item.service}</a>{/if}
-</td>
-<td>{if access('newaccounts_bills','edit')}<a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>{/if}<nobr>{$item.date_from}</nobr><br><nobr>{$item.date_to}</nobr>{if access('newaccounts_bills', 'edit')}</a>{/if}</td>
-<td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
-<td align=right>{$item.price}</td>
-<td align=right>{$item.sum}</td>
-{if $bill_bonus}<td align=right>{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>{/if}
-<td>{$item.type}</td>
-</tr>
-{/foreach}
-<tr><td>&nbsp;</td><td colspan=5 align=right><b>Итого: </b>&nbsp; </td><td align=right><b>{$bill.sum|round:2}</b></td>{if $bill_bonus}<td align=right><b>{$bonus_sum|round:2}</b></td>{/if}</tr>
-</TABLE>
+<table class="table table-condensed table-hover table-striped">
+    <tr class=even style='font-weight:bold'>
+        <th>&#8470;</th>
+        <th width="1%">Артикул</th>
+        <th>Наименование</th>
+        <th>Период</th>
+        <th>Сколько{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
+        <th style="text-align: right">Цена</th>
+        {if $bill.price_include_vat == 0}
+            <th style="text-align: right">Сумма</th>
+            <th style="text-align: right">Сумма НДС</th>
+            <th style="text-align: right">Сумма с НДС</th>
+        {else}
+            <th style="text-align: right">Сумма</th>
+            <th style="text-align: right">Сумма НДС</th>
+        {/if}
+        {if $bill_bonus}
+            <th style="text-align: right">Бонус</th>
+        {/if}
+        <th style="text-align: right">Тип</th>
+    </tr>
+    {assign var="bonus_sum" value=0}
+    {assign var="sum_tax" value=0}
+    {assign var="sum_without_tax" value=0}
+    {foreach from=$bill_lines item=item key=key name=outer}
+    <tr class='{cycle values="odd,even"}'>
+        <td>{$smarty.foreach.outer.iteration}.</td>
+        <td align=left>
+            <span title="{$item.art|escape}">{$item.art|truncate:10}<br>
+            {if $item.type == "good"}
+                {if $item.store == "yes"}
+                    <b style="color: green;">Склад</b>
+                {elseif $item.store == "no"}
+                    <b style="color: blue;">Заказ</b>
+                {elseif $item.store == "remote"}
+                    <b style="color: #c40000;">ДалСклад</b>
+                {/if}
+            {/if}
+            </span>
+        </td>
+        <td>
+            {if $item.service && $item.service != '1C'}
+                <a target=_blank href='{$PATH_TO_ROOT}pop_services.php?table={$item.service}&id={$item.id_service}'>
+                    {$item.item}
+                </a>
+            {else}
+                {$item.item}
+            {/if}
+        </td>
+        <td nowrap>
+            {if access('newaccounts_bills','edit')}
+                <a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>
+                    {$item.date_from}<br>{$item.date_to}
+                </a>
+            {else}
+                {$item.date_from}<br>{$item.date_to}
+            {/if}
+        </td>
+        <td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
+        <td style="text-align: right">{$item.price}</td>
+        {if $bill.price_include_vat == 0}
+            <td style="text-align: right">{$item.sum_without_tax}</td>
+            <td style="text-align: right">{$item.sum_tax} ({$item.tax_rate}%)</td>
+            <td style="text-align: right">{$item.sum}</td>
+        {else}
+            <td style="text-align: right">{$item.sum}</td>
+            <td style="text-align: right">{$item.sum_tax} ({$item.tax_rate}%)</td>
+        {/if}
+        {if $bill_bonus}
+            <td  style="text-align: right">{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>
+        {/if}
+        <td align=right>{$item.type}</td>
+        {assign var="sum_tax" value=`$sum_tax+$item.sum_tax`}
+        {assign var="sum_without_tax" value=`$sum_without_tax+$item.sum_without_tax`}
+    </tr>
+    {/foreach}
+    <tr>
+        {if $bill.price_include_vat == 0}
+            <th colspan=6 style="text-align: right">Итого: </th>
+            <th style="text-align: right">{$sum_without_tax|round:2}</th>
+            <th style="text-align: right">{$sum_tax|round:2}</th>
+            <th style="text-align: right">{$bill.sum|round:2}</th>
+        {else}
+            <th colspan=6 style="text-align: right">Итого: </th>
+            <th style="text-align: right">{$bill.sum|round:2}</th>
+            <th style="text-align: right">в т.ч. {$sum_tax|round:2}</th>
+        {/if}
+        {if $bill_bonus}
+            <th  style="text-align: right">{$bonus_sum|round:2}</th>
+        {/if}
+        <th style="text-align: right">&nbsp;</th>
+    </tr>
+</table>
 
 {if !$isClosed && !$all4net_order_number && !$1c_bill_flag}
 <table>
