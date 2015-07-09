@@ -206,6 +206,9 @@ class Bill {
 
         $this->changed = 1;
 
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = ClientAccount::findOne($this->client_id);
+
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
         if ($line) {
@@ -213,6 +216,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
+            $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
             $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }
