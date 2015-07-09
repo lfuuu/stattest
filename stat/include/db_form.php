@@ -542,9 +542,20 @@ class DbFormUsageVoip extends DbForm {
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
 
-        $R=$db->AllRecords('select * from tarifs_voip '.
-                            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').' and region="'.$region.'"'.
-                            'order by status, month_line, month_min_payment', 'id');
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $client])
+            ->asArray()
+            ->one()['price_include_vat'];
+
+        $R=$db->AllRecords(
+            'select * from tarifs_voip '.
+            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').
+            ' and region="'.$region.'"'.
+            ' and price_include_vat=' . $client_price_include_vat .
+            ' order by status, month_line, month_min_payment', 'id'
+        );
+
         $design->assign('dbform_f_tarifs',$R);
         $design->assign('region',$region);
         DbForm::Display($form_params,$h2,$h3);

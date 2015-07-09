@@ -379,8 +379,8 @@ class Bill {
 		if($pay['type'] == 'PAY'){
             $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate();
 
-			$ret_x['sum'] = $pay['sum'];
-			$ret_x['sum_tax'] = $pay['sum'] / (1 + $tax_rate) * $tax_rate;
+			$ret_x['sum'] = $pay['sum'] * (1 + $tax_rate);
+			$ret_x['sum_tax'] = $pay['sum'];
 		}
 
 		foreach($ret as $key=>&$item){

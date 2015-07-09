@@ -329,7 +329,6 @@ class ClientDocumentDao extends Singleton
     {
         $clientAccount = ClientAccount::findOne(["id" => $clientId]);
         $client = $clientAccount->client;
-        $tax_rate = $clientAccount->getTaxRate();
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
@@ -345,8 +344,8 @@ class ClientDocumentDao extends Singleton
                 'free_local_min' => $a->currentTariff->free_local_min * ($a->currentTariff->freemin_for_number ? 1 : $a->no_of_lines),
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->getAbonPerMonth(), 2),
-                'per_month_with_tax' => round($a->getAbonPerMonth() * (1 + $tax_rate), 2)
+                'per_month' => round($a->getAbonPerMonth() / $a->getTaxRate(), 2),
+                'per_month_with_tax' => round($a->getAbonPerMonth(), 2)
             ];
         }
 
@@ -367,8 +366,8 @@ class ClientDocumentDao extends Singleton
                 'pay_once' => $a->currentTariff->pay_once,
                 'gb_month' => $a->currentTariff->mb_month/1024,
                 'pay_mb' => $a->currentTariff->pay_mb,
-                'per_month' => round($a->currentTariff->pay_month, 2),
-                'per_month_with_tax' => round($a->currentTariff->pay_month * (1 + $tax_rate), 2)
+                'per_month' => round($a->currentTariff->pay_month / $a->getTaxRate(), 2),
+                'per_month_with_tax' => round($a->currentTariff->pay_month, 2)
             ];
         }
 
@@ -382,8 +381,8 @@ class ClientDocumentDao extends Singleton
                 'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
                 'num_ports' => $a->currentTariff->num_ports,
                 'overrun_per_port' => $a->currentTariff->overrun_per_port,
-                'per_month' => round($a->currentTariff->price, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * (1 + $tax_rate), 2)
+                'per_month' => round($a->currentTariff->price / $a->getTaxRate(), 2),
+                'per_month_with_tax' => round($a->currentTariff->price, 2)
             ];
         }
 
@@ -394,7 +393,7 @@ class ClientDocumentDao extends Singleton
                 'from' => $a->actual_from,
                 'description' => "SMS-рассылка",
                 'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->per_month_price/(1 + $tax_rate), 2),
+                'per_month' => round($a->currentTariff->per_month_price / $a->getTaxRate(), 2),
                 'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
             ];
         }
@@ -407,8 +406,8 @@ class ClientDocumentDao extends Singleton
                 'tarif_name' => $a->currentTariff->description,
                 'amount' => $a->amount,
                 'pay_once' => 0,
-                'per_month' => round($a->currentTariff->price * $a->amount, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * (1 + $tax_rate) * $a->amount, 2)
+                'per_month' => round(($a->currentTariff->price / $a->getTaxRate()) * $a->amount, 2),
+                'per_month_with_tax' => round($a->currentTariff->price * $a->amount, 2)
             ];
         }
 

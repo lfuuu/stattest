@@ -18,7 +18,9 @@ class m150709_085546_update_tarifs_price extends \app\classes\Migration
 
         $this->execute("
             UPDATE `tarifs_virtpbx` SET
-                `price` = ROUND(`price` + (`price` * 0.18), 2);
+                `price` = ROUND(`price` + (`price` * 0.18), 2),
+                `overrun_per_port` = ROUND(`overrun_per_port` + (`overrun_per_port` * 0.18), 2),
+                `overrun_per_gb` = ROUND(`overrun_per_gb` + (`overrun_per_gb` * 0.18), 2);
         ");
 
         $this->execute("

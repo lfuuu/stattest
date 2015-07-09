@@ -7,6 +7,7 @@ use app\dao\services\IpPortsServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
+use app\classes\traits\UsageTaxRateTrait;
 
 /**
  * @property int $id
@@ -14,6 +15,8 @@ use DateTime;
  */
 class UsageIpPorts extends ActiveRecord implements Usage
 {
+    use UsageTaxRateTrait;
+
     public static function tableName()
     {
         return 'usage_ip_ports';

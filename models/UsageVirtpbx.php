@@ -7,6 +7,7 @@ use app\dao\services\VirtpbxServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
+use app\classes\traits\UsageTaxRateTrait;
 
 /**
  * @property int $id
@@ -16,6 +17,8 @@ use DateTime;
  */
 class UsageVirtpbx extends ActiveRecord implements Usage
 {
+    use UsageTaxRateTrait;
+
     public static function tableName()
     {
         return 'usage_virtpbx';

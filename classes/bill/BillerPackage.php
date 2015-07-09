@@ -109,7 +109,7 @@ abstract class BillerPackage
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
         $organization_tax_rate = $this->clientAccount->getTaxRate();
-        $tariff_tax_rate = $this->getTaxRate();
+        $tariff_tax_rate = $this->usage->getTaxRate();
 
         $transaction->tax_rate = $this->clientAccount->getTaxRate($origin = true);
         $transaction->sum = round($transaction->amount * $transaction->price, 2);
@@ -180,15 +180,6 @@ abstract class BillerPackage
         );
 
         return $name;
-    }
-
-    private function getTaxRate()
-    {
-        if ($this->usage->tariff->price_include_vat && $this->clientAccount->price_include_vat) {
-            $tax_rate = $this->clientAccount->getTaxRate();
-            return $tax_rate? (1 + $tax_rate) : 1;
-        }
-        return 1;
     }
 
 }

@@ -9,7 +9,7 @@ class m150707_152123_inc_vat_to_tariff extends \app\classes\Migration
 
         $this->execute("
             ALTER TABLE `clients`
-                ADD COLUMN `include_price_vat` TINYINT(1) NULL DEFAULT '1' AFTER `contract_type_id`;
+                ADD COLUMN `price_include_vat` TINYINT(1) NULL DEFAULT '1' AFTER `contract_type_id`;
         ");
         $this->execute("
             UPDATE `clients` c LEFT JOIN `organization` o ON

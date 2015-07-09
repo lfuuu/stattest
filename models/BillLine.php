@@ -42,8 +42,8 @@ class BillLine extends ActiveRecord
 
     public function calculateSum($tax_rate)
     {
-        $this->sum_without_tax = round($this->price * $this->amount, 2);
-        $this->sum_tax = round($this->sum_without_tax * $tax_rate, 2);
-        $this->sum = $this->sum_without_tax + $this->sum_tax;
+        $this->sum = round($this->price * $this->amount, 2);
+        $this->sum_tax = round($this->sum / (1 + $tax_rate) * $tax_rate, 2);
+        $this->sum_without_tax = round($this->sum - $this->sum_tax, 2);
     }
 }

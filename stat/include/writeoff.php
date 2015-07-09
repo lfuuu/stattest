@@ -47,7 +47,7 @@ abstract class ServicePrototype {
         if (!$this->tarif_std) $this->LoadTarif();
 
         $this->country = ClientContragent::findOne($this->client['contragent_id'])->country;
-        $this->tax_rate = ClientAccount::findOne($this->client['id'])->getTaxRate();
+        $this->tax_rate = ClientAccount::findOne($this->client['id'])->organization->vat_rate;
     }
     public function SetDate($date_from,$date_to,$date_from_prev = 0,$date_to_prev = 0){
         $this->date_from = max($date_from,strtotime($this->service['actual_from']));
@@ -1129,11 +1129,11 @@ class ServiceUsageVirtpbx extends ServicePrototype {
             if ($overrun_prev_month['sum_space'] > 0)
             {
                 $price = $overrun_prev_month['overrun_per_gb'];
-                if ($this->client['nds_zero'])
+                if ($this->client['nds_zero'] || !$this->tax_rate)
                 {
-                    $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_gb'];
+                    $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_gb']; // $tax_rate
                 } else {
-                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_gb'] * (1 + $this->tax_rate));
+                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_gb']);
                 }
                 if ($price > 0) {
                     $v = array(
@@ -1155,9 +1155,9 @@ class ServiceUsageVirtpbx extends ServicePrototype {
                 $price = $overrun_prev_month['overrun_per_port'];
                 if ($this->client['nds_zero'])
                 {
-                    $amount = $overrun_prev_month['sum_number']/$overrun_prev_month['overrun_per_port'];
+                    $amount = $overrun_prev_month['sum_number']/($overrun_prev_month['overrun_per_port'] * (1 + ($this->tax_rate / 100)));
                 } else {
-                    $amount = ($overrun_prev_month['sum_number']/($overrun_prev_month['overrun_per_port'] * (1 + $this->tax_rate)));
+                    $amount = ($overrun_prev_month['sum_number']/$overrun_prev_month['overrun_per_port']);
                 }
 
                 if ($price > 0) {
