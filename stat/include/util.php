@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Utils;
+use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\Organization;
 
@@ -820,6 +821,11 @@ class ClientCS {
             if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
                 return false;    //дубликат
         }
+
+        $organization = Organization::find()->byId($this->F['organization_id'])->actual()->one();
+        Assert::isObject($organization);
+        $this->F['firma'] = $organization->firma;
+
         $q1 = '';
         $q2 = '';
         foreach($this->F as $k=>$v)
@@ -989,8 +995,12 @@ class ClientCS {
 
         if (count($this->F)>1) {
 
-            $organization = \app\models\Organization::find()->byId($this->F['organization_id'])->actual()->one();
-            $this->F['firma'] = $organization->firma;
+            if (isset($this->F['organization_id']))
+            {
+                $organization = \app\models\Organization::find()->byId($this->F['organization_id'])->actual()->one();
+                Assert::isObject($organization);
+                $this->F['firma'] = $organization->firma;
+            }
 
             if(isset($this->F["voip_disabled"]) && $this->F["voip_disabled"] == "") $this->F["voip_disabled"] = 0;
             if(isset($this->F["nds_zero"]) && $this->F["nds_zero"] == "") $this->F["nds_zero"] = 0;
