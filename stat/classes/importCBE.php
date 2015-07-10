@@ -5,18 +5,26 @@ class importCBE
 {
     private $helper = null;
     private $filePrefix = "";
+    private $mainList = null;
 
     public function __construct($prefix, $filePath)
     {
         $this->filePrefix = $prefix;
 
-        $this->helper = new helperCBE((new parserCBE($filePath)));
+        $this->mainList = new parserCBE($filePath);
 
-        foreach($this->helper->getByDays() as $day => $devNull)
+        $this->helper   = new helperCBE();
+        $this->helper0  = new helperCBE($this->mainList);
+
+        $a = $this->helper0->getByDays();
+
+        foreach($a as $day => $devNull)
         {
             $o = new parserCBE($this->getFilePath($day));
             $this->helper->combineCBE($o);
         }
+        
+        $this->helper->combineCBE($this->mainList, true);
     }
 
     private function getFilePath($day)
@@ -26,7 +34,7 @@ class importCBE
 
     public function save()
     {
-        $header = $this->helper->getHeader();
+        $header = $this->mainList->getHeader();
         foreach($this->helper->getByDays() as $day => $dayData)
         {
             $builder = new builderCBE($header, $dayData);
@@ -148,10 +156,13 @@ class helperCBE
     private $header = [];
     public $info = null;
 
-    public function __construct(parserCBE $o)
+    public function __construct(parserCBE $o = null)
     {
-        $this->header = $o->getHeader();
-        $this->body = $o->getBody();
+        if ($o !== null)
+        {
+            $this->header = $o->getHeader();
+            $this->body = $o->getBody();
+        }
         $this->info = new infoCBE();
     }
 
@@ -168,12 +179,6 @@ class helperCBE
 
             $days[$date][] = $l;
         }
-
-        foreach($days as $day => $dayData)
-        {
-            $this->info->setValue($day, "all", count($dayData));
-        }
-
 
         return $days;
     }
@@ -200,22 +205,27 @@ class helperCBE
         return $day;
     }
 
-    public function combineCBE(parserCBE $o)
+    public function combineCBE(parserCBE $o, $isInfo = false)
     {
         foreach($o->getBody() as $k => $l)
         {
-            if (isset($this->body[$k]))
+            $day = date("d-m-Y", $this->detectDate($l));
+
+            if ($isInfo)
             {
-                $this->info->increase(date("d-m-Y", $this->detectDate($l)), "new");
-            } else {
+                $section = (isset($this->body[$k]) ? "skiped" : "new");
+                $this->info->increase($day, $section);
+                $this->info->increase($day, "all");
+
+                $this->info->increase($day, "sum_plus", ($l["ДатаСписано"] ? 0 : $l["Сумма"]));
+                $this->info->increase($day, "sum_minus", ($l["ДатаСписано"] ? $l["Сумма"] : 0));
+            }
+
+            if (!isset($this->body[$k]))
+            {
                 $this->body[$k] = $l;
             }
         }
-    }
-
-    public function getHeader()
-    {
-        return $this->header;
     }
 }
 
@@ -230,12 +240,12 @@ class infoCBE
         $this->data[$day][$type] = $value;
     }
 
-    public function increase($day, $type)
+    public function increase($day, $type, $value = 1)
     {
         if (!isset($this->data[$day])) $this->data[$day] = [];
         if (!isset($this->data[$day][$type])) $this->data[$day][$type] = 0;
 
-        $this->data[$day][$type]++;
+        $this->data[$day][$type] += $value;
     }
 
     public function getInfo()

@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\Assert;
 use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
@@ -185,14 +186,17 @@ class ClientAccount extends ActiveRecord
 
     public function getTaxRate($original = false)
     {
+        if ($this->nds_zero) {
+            return 0;
+        }
+
+        $organization = $this->getOrganization();
+        Assert::isObject($organization, 'Organization not found');
+
         return
-            $this->nds_zero
-                ? 0
-                : (
-                    $original === true
-                        ? $this->getOrganization()->vat_rate
-                        : $this->getOrganization()->vat_rate / 100
-                );
+            $original === true
+                ? $organization->vat_rate
+                : $organization->vat_rate / 100;
     }
 
     public function getDefaultTaxId()

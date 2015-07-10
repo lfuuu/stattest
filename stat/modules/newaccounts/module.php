@@ -828,10 +828,6 @@ class m_newaccounts extends IModule
         if(!$bill->CheckForAdmin())
             return;
 
-        /** @var ClientAccount $clientAccount */
-        $clientAccount = ClientAccount::findOne($fixclient_data['id']);
-        $organization = $clientAccount->getOrganization();
-
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
@@ -2396,12 +2392,6 @@ class m_newaccounts extends IModule
 
 
         $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
-        //print_r($L_prev);
-
-        if(in_array($obj, array("invoice","upd")))
-        {
-            $this->checkSF_discount($L_prev, $tax_rate = ClientAccount::findOne($bill->client_id)->getTaxRate());
-        }
 
 
         $design->assign_by_ref('negative_balance', $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
@@ -2504,23 +2494,6 @@ class m_newaccounts extends IModule
             if (in_array($obj, array('invoice','akt','upd'))) {
                 return array('bill'=>$bdata,'bill_lines'=>$L,'inv_no'=>$bdata['bill_no'].'-'.$source,'inv_date'=>$inv_date);
             } else return array('bill'=>$bdata,'bill_lines'=>$L);
-        }
-    }
-
-    function checkSF_discount(&$L, $tax_rate)
-    {
-        foreach($L as &$l)
-        {
-            if($l["discount_set"] || $l["discount_auto"])
-            {
-                $discount = ($l["discount_set"] + $l["discount_auto"]) / (1 + $tax_rate);
-
-                $l["sum_without_tax"] -= $discount;
-
-                if($discount && $l["amount"])
-                    $l["outprice"] = $l["price"] -= $discount/$l["amount"];
-
-            }
         }
     }
 
@@ -2705,11 +2678,25 @@ class m_newaccounts extends IModule
         $lines = [];
         if ($info)
         {
+            $totalPlus = $totalMinus = 0;
             foreach($info as $day => $count)
             {
-                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].
-                    ($count["new"] ? ", обновлено: ".$count["new"]: "");
+                $new = isset($count["new"]) ? $count["new"] : 0;
+                $skiped = isset($count["skiped"]) ? $count["skiped"] : 0;
+                $plus = isset($count["sum_plus"]) ? $count["sum_plus"] : 0;
+                $minus = isset($count["sum_minus"]) ? $count["sum_minus"] : 0;
+
+                $totalPlus += $plus;
+                $totalMinus += $minus;
+
+                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." найдено платежей: ".$count["all"].
+                    ($skiped ? ", пропущено: ".$skiped : "").
+                    ($new ? ", новых: ".$new: "").
+                    "&nbsp;&nbsp;&nbsp;&nbsp;+".number_format($plus,2, ".", "`")."/-".number_format($minus,2, ".", "`");
             }
+
+            trigger_error2("Всего платежей в выгрузке: +".number_format($totalPlus,2, ".", "`")."/-".number_format($totalMinus,2, ".", "`"));
+
         }
         $param = Param::findOne(["param" => "pi_list_last_info"]);
 

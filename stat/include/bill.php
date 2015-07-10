@@ -454,8 +454,6 @@ class Bill {
 	public function GetLines($mode=false){
 		global $db;
 
-        $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate($original = true);
-
 		$ret =
 			$db->AllRecords($q='
 				select
@@ -464,7 +462,6 @@ class Bill {
 					sort as id,
 					UNIX_TIMESTAMP(date_from) as ts_from,
 					UNIX_TIMESTAMP(date_to) as ts_to,
-					if(g.nds is null, ' . $tax_rate . ', g.nds) as line_nds,
 					g.num_id,
 					store,
 					service, 
@@ -501,7 +498,13 @@ class Bill {
 
         foreach($ret as &$r)
         {
-            $r["outprice"] = $r['price'];
+            $r['amount'] = (float)$r['amount'];
+            $r['price'] = (float)$r['price'];
+
+            $r['outprice'] =
+                $this->bill['price_include_vat']
+                    ? round($r['sum'] / $r['amount'], 4)
+                    : round($r['sum_without_tax'] / $r['amount'], 4);
 
 
             $r["country_name"] = Country::dao()->getNameByCode($r["country_id"]);

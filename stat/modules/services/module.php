@@ -1949,7 +1949,7 @@ class m_services extends IModule{
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
-                IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
+                IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id

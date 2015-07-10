@@ -41,12 +41,14 @@ class BillLine extends ActiveRecord
 
     public function calculateSum($priceIncludeVat)
     {
+        $sum = $this->price * $this->amount - $this->discount_auto - $this->discount_set;
+
         if ($priceIncludeVat) {
-            $this->sum = round($this->price * $this->amount, 2);
+            $this->sum = round($sum, 2);
             $this->sum_tax = round($this->tax_rate / (100.0 + $this->tax_rate) * $this->sum, 2);
             $this->sum_without_tax = $this->sum - $this->sum_tax;
         } else {
-            $this->sum_without_tax = round($this->price * $this->amount, 2);
+            $this->sum_without_tax = round($sum, 2);
             $this->sum_tax = round($this->sum_without_tax * $this->tax_rate / 100, 2);
             $this->sum = $this->sum_without_tax + $this->sum_tax;
         }

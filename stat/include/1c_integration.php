@@ -324,12 +324,11 @@ class billMaker{
 
     public function calcGetedOrder(&$positions, $isRollback = false)
     {
-        global $db;
         $positions["sum"] = 0;
         foreach($positions["list"] as &$p) {
             if($isRollback) $p["sum"] = $p["price"]*$p["quantity"];
             $positions["sum"] += @$p["sum"];//-$p["discount_set"]-$p["discount_auto"]);
-            foreach(array("price", "discount_auto", "discount_set", "sum") as $f)
+            foreach(array("price", "sum") as $f)
                 if(isset($p[$f])) $p[$f] = round($p[$f],2);
         }
     }

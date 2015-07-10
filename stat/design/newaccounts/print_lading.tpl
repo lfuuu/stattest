@@ -432,7 +432,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td align="right">{$line.amount|round:2}</td>
 <td align='right'>{$line.outprice|round:2}</td>
 <td align="right">{$line.sum_without_tax|round:2}</td>
-<td align="right">{$line.line_nds|round:0}</td>
+<td align="right">{$line.tax_rate|round:0}</td>
 <td align="right">{$line.sum_tax|round:2}</td>
 <td align="right">{$line.sum|round:2}</td>
 </tr>
@@ -444,9 +444,9 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$line.sum_without_tax|round:2}</td>
+<td align="right">{$bill.sum_without_tax|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$line.sum_tax|round:2}</td>
+<td align="right">{$bill.sum_tax|round:2}</td>
 <td align="right">{$bill.sum|round:2}</td>
 </tr>
 <tr>
@@ -455,9 +455,9 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$line.sum_without_tax|round:2}</td>
+<td align="right">{$bill.sum_without_tax|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$line.sum_tax|round:2}</td>
+<td align="right">{$bill.sum_tax|round:2}</td>
 <td align="right">{$bill.sum|round:2}</td>
 </tr>
 </table>
