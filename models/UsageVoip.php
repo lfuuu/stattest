@@ -17,6 +17,7 @@ use app\models\Datacenter;
  */
 class UsageVoip extends ActiveRecord implements Usage
 {
+
     public static function tableName()
     {
         return 'usage_voip';

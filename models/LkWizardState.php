@@ -64,7 +64,7 @@ class LkWizardState extends ActiveRecord
     {
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->account_id);
-        $tax_rate = $clientAccount->getTaxRate(true);
+        $tax_rate = $clientAccount->getTaxRate();
 
         $sum = -100;
 
@@ -75,10 +75,9 @@ class LkWizardState extends ActiveRecord
         $bill->is_lk_show = 1;
         $bill->is_user_prepay = 0;
         $bill->is_approved = 1;
-        $bill->is_use_tax = $clientAccount->nds_zero > 0 ? 0 : 1;
         $bill->bill_date = date('Y-m-d');
         $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
-        $bill->price_include_vat = $clientAccount->isPriceIncludeVat();
+        $bill->price_include_vat = $clientAccount->price_include_vat;
         $bill->save();
 
         $line = new BillLine(["bill_no" => $bill->bill_no]);

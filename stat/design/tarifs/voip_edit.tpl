@@ -1,4 +1,7 @@
 <h3>Тарифы IP Телефонии (редактирование):</h3>
+
+<script type="text/javascript" src="/js/behaviors/pricelist-voip-filter.js"></script>
+
 <form method="post">
 <input type="hidden" name="module" value="tarifs" />
 <input type="hidden" name="action" value="voip_edit" />
@@ -97,10 +100,19 @@
                 <input type="checkbox" name="is_virtual" value="1" {if $data.is_virtual > 0}checked{/if} />
                 тариф для виртуальных номеров</label>
         </td></tr>
+    <tr>
+        <td></td>
+        <td>
+            <label>
+                <input type="checkbox" name="price_include_vat" value="1" {if $data.price_include_vat == 1}checked{/if} />
+                включить в цену ставку налога
+            </label>
+        </td>
+    </tr>
     <tr><td>прайс-лист:</td><td>
         <select class="select2" name="pricelist_id" style="width: 400px">
         {foreach from=$pricelists item='r'}
-            <option value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
+            <option data-type="{$r.price_include_vat}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
         {/foreach}
         </select>
     </td></tr>
@@ -113,4 +125,3 @@
 </table>
 <input type="submit" value="Сохранить"/>
 </form>
-

@@ -18,12 +18,17 @@ use app\models\ClientContact;
  * @property string $currency
  * @property string $nal
  * @property int $nds_zero
+ * @property int $contract_type_id
+ * @property int $price_include_vat
 
  * @property ClientSuper $superClient
  * @property ClientStatuses $lastComment
  * @property Country $country
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
+ *
+ * @method static ClientAccount findOne($condition)
+
  * @property
  */
 class ClientAccount extends ActiveRecord
@@ -183,7 +188,7 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
-    public function getTaxRate($original = false)
+    public function getTaxRate()
     {
         if ($this->nds_zero) {
             return 0;
@@ -192,19 +197,26 @@ class ClientAccount extends ActiveRecord
         $organization = $this->getOrganization();
         Assert::isObject($organization, 'Organization not found');
 
-        return
-            $original === true
-                ? $organization->vat_rate
-                : $organization->vat_rate / 100;
+        return $organization->vat_rate;
     }
 
-    public function getDefaultTaxId()
+    public function convertSum($originalSum, $taxRate = null)
     {
-        return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
+        if ($taxRate === null) {
+            $taxRate = $this->getTaxRate();
+        }
+
+        if ($this->price_include_vat) {
+            $sum = round($originalSum, 2);
+            $sum_tax = round($taxRate / (100.0 + $taxRate) * $sum, 2);
+            $sum_without_tax = $sum - $sum_tax;
+        } else {
+            $sum_without_tax = round($originalSum, 2);
+            $sum_tax = round($sum_without_tax * $taxRate / 100, 2);
+            $sum = $sum_without_tax + $sum_tax;
+        }
+
+        return [$sum, $sum_without_tax, $sum_tax];
     }
 
-    public function isPriceIncludeVat()
-    {
-        return false;
-    }
 }

@@ -95,7 +95,6 @@ class Bill {
             $bill->is_lk_show = $isLkShow ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
-            $bill->is_use_tax = $this->client_data['nds_zero'] > 0 ? 0 : 1;
             $bill->save();
         }
 
@@ -153,7 +152,7 @@ class Bill {
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
+        $line->tax_rate = $clientAccount->getTaxRate();
         $line->price = $price;
         $line->calculateSum($this->bill['price_include_vat']);
         $line->save();
@@ -216,7 +215,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
-            $line->tax_rate = ($this->bill['is_use_tax'] ? $clientAccount->getTaxRate(true) : 0);
+            $line->tax_rate = $clientAccount->getTaxRate();
             $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }
@@ -348,7 +347,6 @@ class Bill {
 			'amount' => 1,
 			'price' => '',
 			'outprice' => '',
-            'is_price_includes_tax' => 0,
             'tax_type_id' => null,
 			'sum' => '',
             'sum_without_tax' => 0,
@@ -383,7 +381,7 @@ class Bill {
             $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate();
 
 			$ret_x['sum'] = $pay['sum'];
-			$ret_x['sum_tax'] = $pay['sum'] / (1 + $tax_rate) * $tax_rate;
+			$ret_x['sum_tax'] = $pay['sum'] * $tax_rate / (100 + $tax_rate);
 		}
 
 		foreach($ret as $key=>&$item){
@@ -638,7 +636,7 @@ class Bill {
         $time_from = strtotime('first day of next month 00:00:00');
         $time_to = strtotime('last day of next month 23:59:59');
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
-        $nds = $client_data['nds_zero'] > 0 ? 1 : (1 + $tax_rate);
+        $nds = $client_data['nds_zero'] > 0 ? 1 : (1 + $tax_rate/100);
         $R = 0;
         foreach ($services as $service){
             if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))
@@ -654,97 +652,6 @@ class Bill {
 
         return $R;
     }
-    /**
-     *	Предназнеачена для изменения "линий" в счетах, при вызове все линии счета удаляются и заменяются одной обобщенной
-     */
-    public function changeToOnlyContract()
-    {
-	$ts = $this->GetTs();
-	$min_ts = time();
-	$lines = BillLines::find('all', array('select' => '*,UNIX_TIMESTAMP(date_from) as from_ts', 'conditions' => array('bill_no = ?', $this->bill_no), 'order' => 'sort'));
-	if (!empty($lines))
-	{
-		foreach ($lines as $k=>&$v)
-		{
-			if ($k)
-			{
-				$first->price += $v->price;
-				$first->sum += $v->sum;
-				if ($v->service == 'usage_voip' && $v->id_service > 0)
-				{
-					$first->service = 'usage_voip'; 
-					$first->id_service = $v->id_service;
-				}
-				if ($min_ts > $v->from_ts)
-				{
-					$min_ts = $v->from_ts;
-				}
-				unset($v);
-			} else {
-				$v->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);
-				$v->amount = 1;
-				$v->type = 'service';
-				$v->service = "";
-				$v->id_service = "";
-				$first = $v;
-			}
-		}
-		BillLines::delete_all(array('conditions'=>array('bill_no = ? AND sort > ?', $this->bill_no, 1)));
-		$date_string = ' за период c ' . date('d', $min_ts) . ' по ' . mdate('t месяца', $min_ts);
-		$first->item .= $date_string;
-		$first->date_from = date('Y-m-d', $min_ts);
-		$first->date_to = date('Y-m-t', $min_ts);
-		$first->save();
-	}
-    }
-    /**
-     *	Предназнеачена для добавления "линии" переплата
-     *	@param int $balance текущий баланс клиента
-     *	@param bool $nds_zero флаг, приминять НДС или нет 
-     */
-    /*
-     * Не используется
-    public function applyRefundOverpay($balance)
-    {
-        if (!$balance) return;
-
-        $lines_info = BillLines::first(array('select' => 'MAX(sort) as max_sort, SUM(sum) as sum', 'conditions' => array('bill_no = ?', $this->bill_no)));
-        if ($lines_info->sum)
-        {
-            $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate($original = true);
-            $taxTypeId = $this->bill["is_use_tax"] > 0 ? $tax_rate : 0;
-
-            $balance = min($lines_info->sum, $balance);
-
-            $sumWithTax = -$balance;
-
-            // Ошибочное вычисление
-            $sumTax = round($sumWithTax / TaxType::rate($taxTypeId), 2);
-            // /Ошибочное вычисление
-
-            $sumWithoutTax = $sumWithTax - $sumTax;
-
-
-            $new_line = new BillLines();
-            $new_line->bill_no = $this->bill_no;
-            $new_line->sort = $lines_info->max_sort + 1;
-            $new_line->item = 'Переплата';
-            $new_line->amount = 1;
-            $new_line->type = 'zadatok';
-            $new_line->is_price_includes_tax = 0;
-            $new_line->tax_type_id = $taxTypeId;
-			$new_line->price = $sumWithoutTax;
-			$new_line->sum = $sumWithTax;
-            $new_line->sum_without_tax = $sumWithoutTax;
-            $new_line->sum_tax = $sumTax;
-
-            $ts = $this->GetTs();
-            $new_line->date_from = date('Y-m-d', strtotime('first day of previous month', $ts));
-            $new_line->date_to = date('Y-m-d', strtotime('last day of previous month', $ts));
-            $new_line->save();
-        }
-    }
-    */
     //------------------------------------------------------------------------------------
 
     /**

@@ -365,7 +365,19 @@ class DbFormUsageIpPorts extends DbForm{
         }
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
-        $R=$db->AllRecords('select * from tarifs_internet '.(isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').'order by status,type_internet,name');
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
+        $R=$db->AllRecords('
+            select *
+            from tarifs_internet
+            where
+              price_include_vat = "' . $client_price_include_vat . '"
+            '.(isset($fixclient_data['currency'])?' and currency="'.$fixclient_data['currency'].'" ':'').'order by status,type_internet,name');
         $design->assign('dbform_f_tarifs',$R);
         $R = array();
         $A = array('I','C','V');
@@ -541,9 +553,21 @@ class DbFormUsageVoip extends DbForm {
 
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
-        $R=$db->AllRecords('select * from tarifs_voip '.
-                            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').' and region="'.$region.'" '.
-                            'order by status, month_line, month_min_payment', 'id');
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $client])
+            ->asArray()
+            ->one()['price_include_vat'];
+
+        $R=$db->AllRecords(
+            'select * from tarifs_voip '.
+            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').
+            ' and region="'.$region.'"'.
+            ' and price_include_vat=' . $client_price_include_vat .
+            ' order by status, month_line, month_min_payment', 'id'
+        );
+
         $design->assign('dbform_f_tarifs',$R);
         $design->assign('region',$region);
         DbForm::Display($form_params,$h2,$h3);
@@ -975,12 +999,26 @@ class DbFormUsageExtra extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
 
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
 
-            $db->Query('select id,description,price,currency from tarifs_extra where 1 './*(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').*/'and id='.$this->data['tarif_id']);
+            $db->Query('
+                select id,description,price,currency
+                from tarifs_extra
+                where
+                  price_include_vat = "' . $client_price_include_vat . '"' .
+                /*(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').*/
+                ' and id='.$this->data['tarif_id']
+            );
             $r=$db->NextRecord();
 
             $this->fields['tarif_str']['type']='label';
@@ -989,7 +1027,14 @@ class DbFormUsageExtra extends DbForm{
         } else {
 
             $allTarif= array();
-            $db->Query('select id,code,description,price,currency from tarifs_extra where 1 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').'and status!="archive" order by description');
+            $db->Query('
+              select id,code,description,price,currency
+              from tarifs_extra
+              where
+                price_include_vat = "' . $client_price_include_vat . '"' .
+                (isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
+                'and status!="archive" order by description'
+            );
             $R=array(''); 
             while ($r=$db->NextRecord()) {
                 $sName = $r['description'].' ('.$r['price'].' '.$r['currency'].')';
@@ -1074,6 +1119,13 @@ class DbFormUsageITPark extends DbForm{
         global $fixclient_data;
         if(!isset($fixclient_data))
             $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1087,7 +1139,8 @@ class DbFormUsageITPark extends DbForm{
                 from
                     tarifs_extra
                 where
-                    id='.$this->data['tarif_id'].
+                    price_include_vat = "' . $client_price_include_vat . '"
+                    and id='.$this->data['tarif_id'].
                 (isset($fixclient_data['currency'])?' and currency="'.$fixclient_data['currency'].'" ':'')
             );
             $r=$db->NextRecord();
@@ -1104,7 +1157,8 @@ class DbFormUsageITPark extends DbForm{
             from
                 tarifs_extra
             where
-                status="itpark"
+                price_include_vat = "' . $client_price_include_vat . '"
+                and status="itpark"
                 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'')
             );
             $R=array('');
@@ -1164,6 +1218,13 @@ class DbFormUsageWelltime extends DbForm{
         global $fixclient_data;
         if(!isset($fixclient_data))
             $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
             HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
@@ -1177,7 +1238,8 @@ class DbFormUsageWelltime extends DbForm{
                 from
                     tarifs_extra
                 where
-                    id='.$this->data['tarif_id'].
+                    price_include_vat = "' . $client_price_include_vat . '"
+                    and id='.$this->data['tarif_id'].
                 (isset($fixclient_data['currency'])?' and currency="'.$fixclient_data['currency'].'" ':'')
 
             );
@@ -1195,7 +1257,8 @@ class DbFormUsageWelltime extends DbForm{
             from
                 tarifs_extra
             where
-                code="welltime" and status="public"
+                price_include_vat = "' . $client_price_include_vat . '"
+                and code="welltime" and status="public"
                 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
                 " order by description"
             );
@@ -1303,6 +1366,13 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
         if(!isset($fixclient_data))
             $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
             $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
@@ -1310,7 +1380,12 @@ class DbFormUsageVirtpbx extends DbForm{
             HelpDbForm::assign_tarif('usage_virtpbx',$this->data['id']);
         }
 
-        $design->assign('dbform_f_tarifs',$db->AllRecords('select id, description, price, currency, status from tarifs_virtpbx'));
+        $design->assign('dbform_f_tarifs',$db->AllRecords('
+            select id, description, price, currency, status
+            from tarifs_virtpbx
+            where
+                price_include_vat = "' . $client_price_include_vat . '"
+        '));
 
         DbForm::Display($form_params,$h2,$h3);
     }
@@ -1411,6 +1486,12 @@ class DbFormUsageSms extends DbForm{
         if(!isset($fixclient_data))
             $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
 
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
             HelpDbForm::assign_tt('usage_sms',$this->data['id'],$this->data['client']);
@@ -1424,7 +1505,8 @@ class DbFormUsageSms extends DbForm{
                 from
                     tarifs_sms
                 where
-                    id='.$this->data['tarif_id']
+                    price_include_vat = "' . $client_price_include_vat . '"
+                    and id='.$this->data['tarif_id']
             );
 
             $r=$db->NextRecord();
@@ -1440,6 +1522,8 @@ class DbFormUsageSms extends DbForm{
                 currency
             from
                 tarifs_sms
+            where
+                price_include_vat = "' . $client_price_include_vat . '"
             order by per_sms_price desc, per_month_price desc'
             );
             $R=array('');
@@ -1500,6 +1584,13 @@ class DbFormUsageWellSystem extends DbForm{
         global $fixclient_data;
         if(!isset($fixclient_data))
             $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+
+        $client_price_include_vat = ClientAccount::find()
+            ->select('price_include_vat')
+            ->where(['client' => $fixclient_data['client']])
+            ->asArray()
+            ->one()['price_include_vat'];
+
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1513,7 +1604,8 @@ class DbFormUsageWellSystem extends DbForm{
                 from
                     tarifs_extra
                 where
-                    id='.$this->data['tarif_id'].
+                    price_include_vat = "' . $client_price_include_vat . '"
+                    and id='.$this->data['tarif_id'].
                 (isset($fixclient_data['currency'])?' and currency="'.$fixclient_data['currency'].'" ':'')
             );
             $r=$db->NextRecord();
@@ -1530,7 +1622,8 @@ class DbFormUsageWellSystem extends DbForm{
             from
                 tarifs_extra
             where
-                code="wellsystem"
+                price_include_vat = "' . $client_price_include_vat . '"
+                and code="wellsystem"
                 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'')
             );
             $R=array('');
@@ -1962,6 +2055,7 @@ $GLOBALS['translate_arr']=array(
     '*.pay_mb'        => 'плата за мегабайт сверх лимита',
     '*.pay_mb'        => 'плата за мегабайт сверх лимита',
     '*.type_count'    => 'какой-то тип подсчёта',
+    '*.price_include_vat' => 'включить в цену ставку налога',
     '*.type'        => 'тип тарифа',
     '*.month_unit'    => 'ежемесячно за Unit',
     '*.month_case'    => 'ежемесячно за Case',

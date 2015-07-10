@@ -29,7 +29,6 @@ class m_tarifs_head extends IModuleHead{
             array('Интернет',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
             array('VPN',                    'view','&m=vpn'),
-            //            array('Хостинг',                'view','&m=hosting'),
             //             array('Междугородняя связь',    'view','&m=russia'),
             //             array('Международная связь',    'view','&m=world'),
             array('Дополнительные услуги',    'view','&m=extra'),

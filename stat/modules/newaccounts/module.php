@@ -1004,93 +1004,85 @@ class m_newaccounts extends IModule
         if ($obj=='connecting' || $obj=='connecting_ab') {
             $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+            if ($clientAccount->price_include_vat == $bill->Get('price_include_vat')) {
 
-            $connectingTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = true, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
-            $connectingServices = [];
+                $connectingTransactions =
+                    ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = true, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
+                        ->createTransactions()
+                        ->getTransactions();
 
-            foreach ($connectingTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
+                $connectingServices = [];
 
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                foreach ($connectingTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
 
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-                $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
-            }
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-            $b->dao()->recalcBill($b);
-            BillDocument::dao()->updateByBillNo($bill->GetNo());
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
+                    $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
+                }
 
-            foreach ($connectingServices as $connectingService) {
-                $db->Query("update ". $connectingService['type'] ." set status='working' where id='".$connectingService['id']."'");
+                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b->dao()->recalcBill($b);
+                BillDocument::dao()->updateByBillNo($bill->GetNo());
+
+                foreach ($connectingServices as $connectingService) {
+                    $db->Query("update " . $connectingService['type'] . " set status='working' where id='" . $connectingService['id'] . "'");
+                }
+
+            } else {
+                trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
             }
 
         } elseif ($obj=='regular') {
-/*
-            if ($client->status == "operator" && $client->is_bill_with_refund)
-            {
-                ClientAccount::dao()->updateBalance($fixclient_data['id']);
-            }
-*/
-
             $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
-            $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
+            if ($clientAccount->price_include_vat == $bill->Get('price_include_vat')) {
 
-            $periodicalTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+                $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
-            $resourceTransactions =
-                ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalTransactions =
+                    ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
+                        ->createTransactions()
+                        ->getTransactions();
+
+                $resourceTransactions =
+                    ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
+                        ->createTransactions()
+                        ->getTransactions();
 
 
-            foreach ($periodicalTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
+                foreach ($periodicalTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
 
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-            }
-
-            foreach ($resourceTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
-
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
-
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-            }
-
-/*
-            if ($client->status == "operator")
-            {
-                if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
-                {
-                    $bill->changeToOnlyContract();
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
-                if ($client->is_bill_with_refund && $client->balance > 0)
-                {
-                    $bill->applyRefundOverpay($client->balance);
+
+                foreach ($resourceTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
+
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
+
+                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b->dao()->recalcBill($b);
+
+            } else {
+                trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
             }
-*/
-            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-            $b->dao()->recalcBill($b);
 
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
@@ -1982,7 +1974,7 @@ class m_newaccounts extends IModule
             $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
+            $sumNds = (($sum / (1 + $tax_rate/100)) * $tax_rate/100);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(

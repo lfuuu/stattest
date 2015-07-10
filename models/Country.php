@@ -12,6 +12,10 @@ use yii\db\ActiveRecord;
  */
 class Country extends ActiveRecord
 {
+    const RUSSIA = 276;
+    const HUNGARY = 348;
+    const GERMANY = 276;
+
     public static function tableName()
     {
         return 'country';

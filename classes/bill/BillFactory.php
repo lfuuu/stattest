@@ -104,9 +104,9 @@ class BillFactory
                 $bill->is_lk_show = 0;
                 $bill->is_user_prepay = 0;
                 $bill->is_approved = 1;
-                $bill->is_use_tax = $this->clientAccount->nds_zero > 0 ? 0 : 1;
                 $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
                 $bill->sum_with_unapproved = $sum;
+                $bill->price_include_vat = $this->clientAccount->price_include_vat;
                 $bill->sum = $sum;
                 $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();

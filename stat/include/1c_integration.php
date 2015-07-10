@@ -755,7 +755,7 @@ class SoapHandler{
         $state_1c = trr($o->{tr('СтатусЗаказа')});
         $add_info = $o->{tr('ДопИнформацияЗаказа')};
         $storeId = $o->{tr('КодСклад1С')};
-        $priceIncludeVat = $o->{tr('ЦенаВключаетНДС')};
+        $priceIncludeVat = $o->{tr('ЦенаВключаетНДС')} ? 1 : 0;
 
 //        if (strcmp($state_1c, 'Отказ')==0) {
 //            $sum_with_unapproved = 0;
@@ -822,12 +822,6 @@ class SoapHandler{
               */
 
         foreach($l as $p){
-            $price = $p->{tr('Цена')};
-
-            if ($priceIncludeVat) {
-                $price = round($price/1.18,4);
-            }
-
             $list[] = array(
                 'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
                 'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
@@ -836,15 +830,14 @@ class SoapHandler{
                 'dispatch' => $p->{tr('КоличествоОтгружено')},
                 'discount_set' => $p->{tr('СуммаРучнойСкидки')},
                 'discount_auto' => $p->{tr('СуммаАвтоматическойСкидки')},
-                'price'=>$price,
+                'price'=>$p->{tr('Цена')},
                 'sum'=>$p->{tr('Сумма')},
                 'type'=>$p->{tr('ЭтоУслуга')}?'service':'good',
                 'code_1c'=>$p->{tr('КодСтроки')},
                 "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
                 "gtd" => trr($p->{tr('НомерГТД')}),
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
-                'is_price_includes_tax' => 0,
-                'tax_rate' => 18,
+                'tax_rate' => $p->{tr('СуммаНДС')} > 0 ? 18 : 0,
                 'sum_without_tax' => $p->{tr('СуммаБезНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
             );
@@ -900,14 +893,15 @@ class SoapHandler{
                         is_rollback = ".(int)$is_rollback.",
                         postreg= '".$curbill['postreg']."',
                         courier_id = '".$curbill['courier_id']."',
-                        nal = '".$curbill['nal']."'
+                        nal = '".$curbill['nal']."',
+                        price_include_vat = '" . $priceIncludeVat . "'
                         ");
         if(!$err && $err |= mysql_errno())
             $err_msg = mysql_error();
 
 
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
-                                        "is_price_includes_tax, tax_rate, sum_without_tax, sum_tax) values";
+                                        "tax_rate, sum_without_tax, sum_tax) values";
 
         $qSerials = "";
 
@@ -930,7 +924,6 @@ class SoapHandler{
                 "'".$item["dispatch"]."',".
                 "'".$item["gtd"]."',".
                 "'".$item["country_id"]."',".
-                "'".$item["is_price_includes_tax"]."',".
                 "'".$item["tax_rate"]."',".
                 "'".$item["sum_without_tax"]."',".
                 "'".$item["sum_tax"]."'".
