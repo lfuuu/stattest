@@ -529,7 +529,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
             ->orderBy('id DESC')
             ->one();
         $design->assign('contract',$t);
-        Company::setResidents($client->contract->organization);
+        Company::setResidents($client->contract->organization->firma);
 
         $act=get_param_integer('act');
         if ($act=='1') {

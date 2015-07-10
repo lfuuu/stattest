@@ -131,22 +131,40 @@ abstract class Biller
         return $this->transactions;
     }
 
-    public function process($connecting = true, $periodical = true, $resource = true)
+    public function process($onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
     {
         if ($this->beforeProcess() === false) {
             return $this;
         }
 
-        if ($connecting) {
-            $this->processConnecting();
-        }
+        if ($onlyConnecting) {
+            if ($this->usage->status == 'connecting') {
 
-        if ($periodical) {
-            $this->processPeriodical();
-        }
+                if ($connecting) {
+                    $this->processConnecting();
+                }
 
-        if ($resource) {
-            $this->processResource();
+                if ($periodical) {
+                    $this->processPeriodical();
+                }
+
+                if ($resource) {
+                    $this->processResource();
+                }
+            }
+        } else {
+
+            if ($connecting) {
+                $this->processConnecting();
+            }
+
+            if ($periodical) {
+                $this->processPeriodical();
+            }
+
+            if ($resource) {
+                $this->processResource();
+            }
         }
 
         return $this;

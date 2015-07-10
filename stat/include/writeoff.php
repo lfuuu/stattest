@@ -3,6 +3,7 @@
 use app\classes\Utils;
 use app\classes\BillContract;
 use \app\models\ClientContragent;
+use app\models\ClientAccount;
 
 global $writeoff_services;
 $writeoff_services=array("usage_ip_ports","usage_voip", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
@@ -26,6 +27,7 @@ abstract class ServicePrototype {
     public $date_from,$date_to,$date_from_prev,$date_to_prev,$bill_no;
     public $client;
     public $country;
+    public $tax_rate;
     protected $tarif_std = 1;
 
     public function __construct($service,$bill) {
@@ -45,6 +47,7 @@ abstract class ServicePrototype {
         if (!$this->tarif_std) $this->LoadTarif();
 
         $this->country = ClientContragent::findOne($this->client['contragent_id'])->country;
+        $this->tax_rate = ClientAccount::findOne($this->client['id'])->getTaxRate();
     }
     public function SetDate($date_from,$date_to,$date_from_prev = 0,$date_to_prev = 0){
         $this->date_from = max($date_from,strtotime($this->service['actual_from']));
@@ -1125,7 +1128,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         if($this->date_from_prev && $this->date_to_prev){
             $date_range = Yii::t('biller', 'date_range_full', [$this->date_from_prev, $this->date_to_prev], $this->country->lang);
 
-            list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
+            list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->service['id'], $this->date_from_prev, $this->date_to_prev);
 
             if ($overrun_prev_month['sum_space'] > 0)
             {
@@ -1134,7 +1137,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
                 {
                     $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_gb'];
                 } else {
-                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_gb']*1.18);
+                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_gb'] * (1 + $this->tax_rate));
                 }
                 if ($price > 0) {
                     $v = array(
@@ -1158,7 +1161,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
                 {
                     $amount = $overrun_prev_month['sum_number']/$overrun_prev_month['overrun_per_port'];
                 } else {
-                    $amount = ($overrun_prev_month['sum_number']/($overrun_prev_month['overrun_per_port']*1.18));
+                    $amount = ($overrun_prev_month['sum_number']/($overrun_prev_month['overrun_per_port'] * (1 + $this->tax_rate)));
                 }
 
                 if ($price > 0) {
@@ -1211,7 +1214,7 @@ class ServiceUsageSms extends ServicePrototype {
                         'tariff' => $this->tarif_current['description']
                     ], $this->country->lang),
                     1*$this->GetDatePercent(),
-                    $this->tarif_current['per_month_price']/1.18,
+                    $this->tarif_current['per_month_price'] / (1 + $this->tax_rate),
                     'service',
                     $this->service['service'],
                     $this->service['id'],
@@ -1236,7 +1239,7 @@ class ServiceUsageSms extends ServicePrototype {
                         ], $this->country->lang)
                     ], $this->country->lang),
                     $count,
-                    $this->tarif_current['per_sms_price']/1.18,
+                    $this->tarif_current['per_sms_price'] / (1 + $this->tax_rate),
                     'service',
                     $this->service['service'],
                     $this->service['id'],
@@ -1254,7 +1257,7 @@ class ServiceUsageSms extends ServicePrototype {
 
     public function getServicePreBillAmount()
     {
-        return $this->tarif_current['per_month_price']*$this->GetDatePercent()/1.18;
+        return $this->tarif_current['per_month_price']*$this->GetDatePercent() / (1 + $this->tax_rate);
     }
 }
 

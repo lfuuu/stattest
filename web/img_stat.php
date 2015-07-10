@@ -31,6 +31,7 @@
 			$day=mktime(0,0,0,date('m'),date('d'),date('Y'));
 			if ($period==2) $day-=86400;
 		}
+		$day -= 3600 * 3; //т.к. статистика собирается в зоне UTC +3, здесь нужна корректировка
 		$day=floor($day/300);
 		if ($period==1) {
 			$w=' AND time300>='.$day;

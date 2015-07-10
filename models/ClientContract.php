@@ -5,6 +5,10 @@ use app\classes\FileManager;
 use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
 
+/**
+ * @property Organization $organization
+ * @property
+ */
 class ClientContract extends ActiveRecord
 {
     public $newClient = null;
@@ -106,10 +110,18 @@ class ClientContract extends ActiveRecord
         return ($m) ? ['name' => $m->name, 'color' => $m->color] : ['name' => $this->business_process_status_id, 'color' => ''];
     }
 
-    public function getOrganizationName()
+    /**
+     * @return Organization
+     */
+    public function getOrganization()
     {
-        $m = $this->hasOne(Organization::className(), ['id' => 'organization'])->one();
-        return ($m) ? $m->name : $this->organization;
+        $date = $this->historyVersionDate ? $this->historyVersionDate : date('Y-m-d');
+        $organization = Organization::find()
+            ->andWhere(['organization_id' => $this->organization_id])
+            ->andWhere(['<=', 'actual_from', $date])
+            ->andWhere(['>=', 'actual_to', $date])
+            ->one();
+        return $organization;
     }
 
     /**

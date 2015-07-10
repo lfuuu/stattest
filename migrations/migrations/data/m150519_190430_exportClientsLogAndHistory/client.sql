@@ -31,7 +31,7 @@ DELETE FROM log_client
         AND id NOT IN(SELECT DISTINCT ver_id FROM log_client_fields)
 ;
 
-
+SET GLOBAL group_concat_max_len=4294967295;
 
 INSERT INTO history_changes
             (`model`, `model_id`, `user_id`, `created_at`, `action`, `data_json`, `prev_data_json`)
@@ -61,7 +61,7 @@ INSERT INTO history_changes
                                     'ClientAccount' AS `model`,
                                     lc.`client_id` AS `model_id`,
                                     lc.`user_id`,
-                                    lc.`ts` AS `create_at`,
+                                    IF(lc.`apply_ts` > '2006-01-01', CONCAT(lc.`apply_ts`, ' 00:00:00'), lc.`ts`) AS `create_at`,
                                     'update' AS `action`,
                                     IF(ISNULL(lcf.`value_from`), 'null', REPLACE(lcf.`value_from`, '"', '\\"')) AS `value_from`,
                                     IF(ISNULL(lcf.`value_to`), 'null', REPLACE(lcf.`value_to`, '"', '\\"')) AS `value_to`,
@@ -75,14 +75,13 @@ INSERT INTO history_changes
                             GROUP BY `id`
                 ) m
                 WHERE NOT ISNULL(`data_json`)
-        ;
+;
 
-        REPLACE INTO history_version
+REPLACE INTO history_version (
             SELECT
                 'ClientAccount' AS `model`,
                 c.`id` AS `model_id`,
-                IF(DATE(c.`created`) < '2006-01-01' OR ISNULL(c.`created`), '2006-01-01',  DATE(c.`created`))
-                    AS `date`,
+                IF(ISNULL(lc.`ts`), IF(ISNULL(c.`created`), '2006-01-01', DATE_FORMAT(c.`created`, '%Y-%m-%d')),  DATE(lc.`ts`)) AS `date`,
                 CONCAT(
                    '{',
                             '"id":[-id-]', REPLACE(c.`id`, '"', '\\"'), '[-/id-],',
@@ -164,42 +163,39 @@ INSERT INTO history_changes
                    '}'
                 ) AS `data_json`
                 FROM clients c
-        ;
+                LEFT JOIN log_client lc ON lc.`client_id` = c.`id`
+)
+;
 
-REPLACE INTO history_version
-    SELECT * FROM (
-       SELECT hv.`model`, hv.`model_id`, l.`date_c`,
-           REPLACE(hv.`data_json`,
-                       SUBSTRING(hv.`data_json`,
-                         LOCATE(CONCAT('[-', l.`field_name` ,'-]'), hv.`data_json`),
-                         (LOCATE(CONCAT('[-/', l.`field_name` ,'-]'), hv.`data_json`) + LENGTH(CONCAT('[-/', l.`field_name` ,'-]')) - LOCATE(CONCAT('[-', l.`field_name` ,'-]'), hv.`data_json`))
-                       ),
-                       CONCAT('[-', l.`field_name` ,'-]',l.`value_to`,'[-/', l.`field_name` ,'-]')
-                        ) AS `data_json`
-           FROM history_version hv
-           INNER JOIN
-           (
-               SELECT * FROM
-                   (SELECT * FROM
-                       (
-                           SELECT
-                               c.`contract_id`,
-                               DATE(IF(lc.`apply_ts` > lc.`ts`, lc.`apply_ts`, lc.`ts`)) AS `date_c`,
-                               REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
-                               lcf.`field` AS `field_name`
-                               FROM log_client lc
-                               LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
-                               LEFT JOIN clients c ON c.`id` = lc.`client_id`
+INSERT INTO history_version
+  SELECT hv.`model`, hv.`model_id`, hv.`date`, '' FROM history_version hv
+    INNER JOIN (
+        SELECT * FROM (
+          SELECT
+          DATE(IF(lc.`apply_ts` > lc.`ts`, lc.`apply_ts`, lc.`ts`)) AS `date_c`,
+          REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
+                 IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`,
+          lc.client_id
+          FROM log_client lc
+          LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
 
-                               WHERE lc.`type` = 'fields' AND lc.`comment` != 'client'
-                       ) n
-                       ORDER BY `date_c` DESC
-                   ) z
-               GROUP BY `contract_id`, `date_c`, `field_name`
-           ) l ON `contract_id` = hv.`model_id`
-           WHERE hv.`model` = 'ClientAccount' AND NOT ISNULL(l.`value_to`) AND NOT ISNULL(hv.`data_json`)
-           ORDER BY hv.`date` DESC
-    ) m;
+          WHERE lc.`type` = 'fields'
+               ORDER BY date_c DESC
+        ) d
+        GROUP BY `field_name`, `date_c`, `client_id`
+        ORDER BY `date_c`
+    ) l ON l.`client_id` = hv.`model_id` AND l.`date_c` <= hv.`date`
+
+		WHERE hv.`model` = 'ClientAccount'
+		ORDER BY hv.`date` DESC
+ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`data_json`,
+  SUBSTRING(history_version.`data_json`,
+    LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`),
+    (LOCATE(CONCAT('[-/', l.`field_name` ,'-]'), history_version.`data_json`) + LENGTH(CONCAT('[-/', l.`field_name` ,'-]')) - LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`))
+  ),
+  CONCAT('[-', l.`field_name` ,'-]',l.`value_to`,'[-/', l.`field_name` ,'-]')
+)
+;
 
     UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'ClientAccount';
     UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/client-]','"'),'[-client-]','"') WHERE `model` = 'ClientAccount';

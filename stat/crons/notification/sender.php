@@ -53,7 +53,7 @@ runChecker::run();
                 
                 $data["sign"] = md5($data["action"]."|".$data["client"]."|".$data["message"]."|".$data["phone"]."|".$password);
 
-                $result = JSONQuery::exec("http://thiamis.mcn.ru/sms/gateway.php", $data, false);
+                $result = \app\classes\JSONQuery::exec("http://thiamis.mcn.ru/sms/gateway.php", $data, false);
 
                 var_dump($result);
 

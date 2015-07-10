@@ -199,7 +199,7 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label><br />
+        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/documents/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
     {/foreach}
 {/if}
 
@@ -211,9 +211,9 @@
 <input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
 <input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4 аванс)</label><br>
 
-<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label><br>
-<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2 превышение)</label><br>
-<input type=checkbox value=1 name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (Т оборудование)</label><br>
+<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS Word</a><br />
+<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2 превышение)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS Word</a><br />
+<input type=checkbox value=1 name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (Т оборудование)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS Word</a><br />
 
 Действие: <select name=action id="action">
 <option value="bill_mprint">печать</option>
@@ -228,9 +228,9 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 
 </td><td valign=top style='border-width:1 1 1 0; border-style:solid;border-color:#808080'>
 
-<input type=checkbox value=1 name="akt-1" id=cb8><label for=cb8{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Акт (1 абонентка)</label><br>
-<input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2 превышение)</label><br>
-<input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3 оборудование)</label><br>
+<input type=checkbox value=1 name="akt-1" id=cb8><label for=cb8{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Акт (1 абонентка)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS Word</a><br />
+<input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2 превышение)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS Word</a><br />
+<input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3 оборудование)</label><br />
 <input type=checkbox value=1 name="lading" id=cbb><label for=cbb{if !$bill_invoices[4]} style='color:#C0C0C0'{/if}>Накладная</label><br>
 <input type="checkbox" value="1" name="gds" id="gds" /><label for=gds{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
 <input type="checkbox" value="1" name="gds-serial" id="gds_serial" /><label for=gds_serial{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек (с серийными номерами)</label><br>

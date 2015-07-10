@@ -229,17 +229,17 @@ class m_monitoring {
 
 		foreach($pg_db->AllRecords(
 			"SELECT 
-				day, 
-				direction_out, 
-				SUM(len) AS sum_len, 
+				to_char(connect_time, 'YYYY-MM-DD') as day, 
+				orig as direction_out, 
+				SUM(billed_time) AS sum_len, 
 				COUNT(*) AS call_count
 			FROM 
-				calls.calls 
+				calls_raw.calls_raw
 			WHERE 
-				time BETWEEN  '".date("Y-m-d", $from)."' AND '".date("Y-m-d", $to)."'
-				AND srv_region_id = '".$regionId."'
+				connect_time BETWEEN  '".date("Y-m-d", $from)."' AND '".date("Y-m-d", $to)."'
+				AND server_id = '".$regionId."'
 			GROUP BY 
-				srv_region_id, 
+				server_id, 
 				day, 
 				direction_out
 			ORDER BY 
@@ -508,7 +508,7 @@ class m_monitoring {
 		$options['conditions'] = array(
 			'C.region > 0 AND C.status = ? AND C.type IN (?) AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
 			'work',
-			array('org', 'priv'),
+			array('org', 'priv', 'ip'),
 			date('Y-m-d', $from),
 			date('Y-m-d', $to),
 			'RUB',

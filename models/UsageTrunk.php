@@ -3,6 +3,8 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 use DateTime;
+use app\classes\transfer\TrunkServiceTransfer;
+use app\dao\services\TrunkServiceDao;
 
 /**
  * @property int    $id
@@ -31,6 +33,11 @@ class UsageTrunk extends ActiveRecord
         return 'usage_trunk';
     }
 
+    public static function dao()
+    {
+        return TrunkServiceDao::me();
+    }
+
     public function getServiceType()
     {
         return Transaction::SERVICE_TRUNK;
@@ -55,5 +62,21 @@ class UsageTrunk extends ActiveRecord
 
         return $activationDt <= $now and $expireDt >= $now;
     }
+
+    public function getTransferHelper()
+    {
+        return new TrunkServiceTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Телефония транки';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
+    }
+
 }
 

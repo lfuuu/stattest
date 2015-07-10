@@ -1,5 +1,6 @@
 var timeout = null;
 var timeout2 = null;
+var $dialog = null;
 function doLoadUp(step) {
 	if(timeout)
 		clearTimeout(timeout);
@@ -387,4 +388,25 @@ function showVersion(obj, popup) {
         }
     }
     return false;
+}
+
+function createLoader() {
+    return $('<div />')
+        .addClass('dialog-loader')
+        .css({
+            'position':       'fixed',
+            'top':            '50%',
+            'left':           '50%',
+            'margin-left':    '-50px',
+            'margin-top':     '-50px',
+            'text-align':     'center',
+            'z-index':        1234,
+            'overflow':       'auto',
+            'width':          '100px',
+            'height':         '102px'
+        })
+        .append(
+            $('<img />')
+                .attr('src', '/images/ajax-loader.gif')
+        );
 }

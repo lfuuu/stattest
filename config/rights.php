@@ -7,12 +7,6 @@ return [
             'support'   =>  'ограниченный доступ',
         ],
     ],
-    'ats2' => [
-        'name' => 'Учетные записи SIP',
-        'permissions' => [
-            'access'    =>  'доступ',
-        ],
-    ],
     'clients' => [
         'name' => 'Работа с клиентами',
         'permissions' => [
@@ -320,6 +314,23 @@ return [
         'permissions' => [
             'access'  =>  'доступ',
             'admin'   =>  'администрирование',
+        ],
+    ],
+    'organization' => [
+        'id'   => 'organization',
+        'name' => 'Организации',
+        'permissions' => [
+            'read'    =>  'чтение',
+            'edit'    =>  'изменение',
+        ],
+    ],
+    'person' => [
+        'id'   => 'person',
+        'name' => 'Ответственные лица',
+        'permissions' => [
+            'read'    =>  'чтение',
+            'edit'    =>  'изменение',
+            'delete'  =>  'удаление',
         ],
     ],
 ];

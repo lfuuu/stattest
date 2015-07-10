@@ -1,5 +1,7 @@
 <?php
 
+use app\models\ClientAccount;
+
 class VirtpbxStat extends ActiveRecord\Model
 {
 	static $table_name = "virtpbx_stat";
@@ -82,7 +84,7 @@ class VirtpbxStat extends ActiveRecord\Model
 	*	@param int $from - timestamp начала периода 
 	*	@param int $to - timestamp конца периода
 	*/
-	public static function getVpbxStatDetails($client_id, $from, $to)
+	public static function getVpbxStatDetails($client_id, $usage_id, $from, $to)
 	{
 		$options = array();
 		$totals = array(
@@ -106,10 +108,11 @@ class VirtpbxStat extends ActiveRecord\Model
 					0 as for_space,
 					0 as for_number';
 		$options['conditions'] = array(
-						"date >= ? AND date <= ? AND client_id = ?",
+						"date >= ? AND date <= ? AND client_id = ? AND usage_id = ?",
 						date('Y-m-d', $from),
 						date('Y-m-d', $to),
-						$client_id
+						$client_id,
+                        $usage_id,
 		);
 		$stat_detailed = self::find('all', $options);
 		$nds = \app\models\ClientAccount::findOne($client_id)->nds_zero ? 1 : 1.18;
@@ -141,9 +144,10 @@ class VirtpbxStat extends ActiveRecord\Model
 				$options = array();
 				$options['select'] = 'use_space, numbers';
 				$options['conditions'] = array(
-								"date < ? AND client_id = ?",
+								"date < ? AND client_id = ? AND client_id = ?",
 								date('Y-m-d', $v->mdate),
-								$client_id
+								$client_id,
+                                $usage_id,
 				);
 				$options['limit'] = 1;
 				$options['order'] = 'date desc';
@@ -169,7 +173,7 @@ class VirtpbxStat extends ActiveRecord\Model
 	*	@param int $from - timestamp начала периода 
 	*	@param int $to - timestamp конца периода
 	*/
-	public static function getVpbxStatDetailsFormated($client_id, $from, $to)
+	public static function getVpbxStatDetailsFormated($client_id, $usage_id, $from, $to)
     {
 
         if (!$from || strtotime("2000-01-01") > $from || $to < $from || round(($to-$from)/86400) > 100)
@@ -182,7 +186,7 @@ class VirtpbxStat extends ActiveRecord\Model
             return array("data" => array(), "total" => $total);
         }
 
-        list($_data, $total) = self::getVpbxStatDetails($client_id, $from, $to);
+        list($_data, $total) = self::getVpbxStatDetails($client_id, $usage_id, $from, $to);
 
         $data = array();
 

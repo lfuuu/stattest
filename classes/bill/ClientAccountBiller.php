@@ -33,6 +33,7 @@ class ClientAccountBiller
     /** @var BillLine[] */
     protected $billLines = [];
 
+    protected $onlyConnecting;
     protected $connecting;
     protected $periodical;
     protected $resource;
@@ -41,15 +42,16 @@ class ClientAccountBiller
      * @param DateTime $date
      * @return ClientAccountBiller
      */
-    public static function create(ClientAccount $clientAccount, DateTime $date, $connecting = true, $periodical = true, $resource = true)
+    public static function create(ClientAccount $clientAccount, DateTime $date, $onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
     {
-        return new static($clientAccount, $date, $connecting, $periodical, $resource);
+        return new static($clientAccount, $date, $onlyConnecting, $connecting, $periodical, $resource);
     }
 
-    protected function __construct(ClientAccount $clientAccount, DateTime $date, $connecting, $periodical, $resource)
+    protected function __construct(ClientAccount $clientAccount, DateTime $date, $onlyConnecting, $connecting, $periodical, $resource)
     {
         $this->billerDate = $date;
         $this->clientAccount = $clientAccount;
+        $this->onlyConnecting = $onlyConnecting;
         $this->connecting = $connecting;
         $this->periodical = $periodical;
         $this->resource = $resource;
@@ -244,7 +246,7 @@ class ClientAccountBiller
         $transactions =
             $usage
                 ->getBiller($this->billerDate, $this->clientAccount)
-                ->process($this->connecting, $this->periodical, $this->resource)
+                ->process($this->onlyConnecting, $this->connecting, $this->periodical, $this->resource)
                 ->getTransactions();
         $this->transactions = array_merge($this->transactions, $transactions);
     }

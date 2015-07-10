@@ -2,7 +2,6 @@
 namespace app\classes\bill;
 
 use app\models\ClientAccount;
-use app\models\TaxType;
 use app\models\Transaction;
 use app\models\Usage;
 use Yii;
@@ -109,10 +108,11 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $transaction->tax_type_id = $this->clientAccount->getDefaultTaxId();
+        $tax_rate = $this->clientAccount->getTaxRate();
+        $transaction->tax_rate = $this->clientAccount->getDefaultTaxId();
 
         $transaction->sum_without_tax = round($transaction->amount * $transaction->price, 2);
-        $transaction->sum_tax = round($transaction->sum_without_tax * TaxType::rate($transaction->tax_type_id), 2);
+        $transaction->sum_tax = round($transaction->sum_without_tax * $tax_rate, 2);
         $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {
@@ -149,20 +149,28 @@ abstract class BillerPackage
 
         $i18n_params = $this->templateData;
 
-        if ($this->periodType)
+        if ($this->periodType) {
+            $from2 = new DateTime();
+            $from2->setDate($from->format('Y'), $from->format('m'), $from->format('d'));
+            $from2->setTime($from->format('H'), $from->format('i'), $from->format('s'));
+            $to2 = new DateTime();
+            $to2->setDate($to->format('Y'), $to->format('m'), $to->format('d'));
+            $to2->setTime($to->format('H'), $to->format('i'), $to->format('s'));
+
             $i18n_params['date_range'] = Yii::t(
                 'biller',
                 $this->biller->getPeriodTemplate($this->periodType),
                 [
-                    $from->getTimestamp(),
-                    $to->getTimestamp()
+                    $from2,
+                    $to2
                 ],
                 $this->clientAccount->contragent->country->lang
             );
+        }
 
         $name  = Yii::t(
             $this->biller->getTranslateFilename(),
-            $this->template,
+            $template,
             $i18n_params,
             $this->clientAccount->contragent->country->lang
         );

@@ -331,13 +331,10 @@ class ApiLk
         if (!$account)
             return $ret;
 
-        $isDBAtsInited = $db_ats && $db != $db_ats;
-
         foreach(NewBill::find_by_sql(
                 '
                     SELECT
                         u.id,
-                        t.name AS tarif_name,
                         u.E164 AS number,
                         actual_from,
                         actual_to,
@@ -346,21 +343,7 @@ class ApiLk
                         u.region
                     FROM (
                         SELECT
-                            u.*,
-                            (
-                                SELECT
-                                    id_tarif
-                                FROM
-                                    log_tarif
-                                WHERE
-                                    service = "usage_voip"
-                                    AND date_activation<NOW()
-                                    AND id_service= u.id
-                                ORDER BY
-                                    date_activation DESC,
-                                    id DESC
-                                LIMIT 1
-                            ) AS tarif_id
+                            u.*
                         FROM
                             usage_voip u, (
                                 SELECT
@@ -379,22 +362,21 @@ class ApiLk
                             AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
                         ) AS `u`
     
-                    LEFT JOIN tarifs_voip t ON (
-                        t.id = u.tarif_id
-                    )
                      ORDER BY
                          `u`.`actual_from` DESC
     
                 ', array($account->client, $account->client)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
+            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "region"), $v);
 
-            if ($isDBAtsInited)
-            {
-                $line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
-            } else {
-                $line["vpbx"] = 0;
-            }
+            $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
+
+            $line["tarif_name"] = $usage->currentTariff->name;
+            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2);
+
+            //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
+            $line["vpbx"] = 0;
+
             $ret[] = $isSimple ? $line["number"] : $line;
         }
 
@@ -774,9 +756,7 @@ class ApiLk
             WHERE 
 
                 if(a.region = 99,
-                    if (number like '74996854%' and number between '74996854000' and '74996854999', false,
-                        if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true)
-                    ),
+                    if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true),
                 true)
 
             
@@ -1466,6 +1446,7 @@ class ApiLk
 
             $ar = Region::getList();
             $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
+
         } else {
             $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
         }

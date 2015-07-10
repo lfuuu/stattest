@@ -14,7 +14,7 @@ $overrideSettings = $parser->overrideSettings();
 
 ?>
 <h2>
-    <a href="/voip/pricelist/list?local=<?=$pricelist->local?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
+    <a href="/voip/pricelist/list?type=<?=$pricelist->type?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
     -> <?=$pricelist->name?>
     -> Загрузка файла <?=$file->filename?>
 </h2>

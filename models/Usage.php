@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\transfer\ServiceTransfer;
 use DateTime;
 use app\classes\bill\Biller;
 
@@ -20,8 +21,16 @@ interface Usage
     public function getServiceType();
 
     /**
+     * @return ServiceTransfer
+     */
+    public function getTransferHelper();
+
+    /**
      * @return ClientAccount
      */
     public function getClientAccount();
+
+    public static function getTypeTitle();
+    public function getTypeDescription();
 
 }

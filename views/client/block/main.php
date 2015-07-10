@@ -47,7 +47,7 @@ use \app\models\ClientContract;
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">
                                             Договор № <?= $contract->number ? $contract->number : 'Без номера' ?>
-                                            (<?= $contract->organizationName ?>)
+                                            (<?= $contract->organization->name ?>)
                                         </span>
                                         &nbsp;
                                         <span>

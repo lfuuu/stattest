@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\ExtraBiller;
+use app\classes\transfer\ExtraServiceTransfer;
+use app\dao\services\ExtraServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -22,6 +24,11 @@ class UsageExtra extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return ExtraServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -54,4 +61,20 @@ class UsageExtra extends ActiveRecord implements Usage
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
+    
+    public function getTransferHelper()
+    {
+        return new ExtraServiceTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Доп. услуги';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
+    }
+
 }

@@ -1,6 +1,8 @@
 <?php
 
 use app\classes\Utils;
+use app\classes\Html;
+use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
@@ -8,7 +10,12 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-$company = $document->getCompany();
+$organization = $document->organization;
+
+$director = $organization->director;
+$accountant = $organization->accountant;
+
+$payer_company = $document->getPayer();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -16,8 +23,9 @@ $company = $document->getCompany();
     <head>
         <title>Díjbekérő No <?= $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <base href="<?= Yii::$app->request->hostInfo; ?>" />
-        <link title="default" href="/bill.css" type="text/css" rel="stylesheet" />
+        <style type="text/css">
+            <?php readfile(Yii::$app->basePath . '/web/bill.css'); ?>
+        </style>
     </head>
 
     <body bgcolor="#FFFFFF" style="background:#FFFFFF">
@@ -33,16 +41,28 @@ $company = $document->getCompany();
                 <td align=right>
                     <table border="0" align="right">
                         <div style="width: 110px;  text-align: center;padding-right: 10px;">
-                            <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
-                                <img border="0" src="/images/<?= $company['logo']; ?>" width="115" />
+                            <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
+                                <?php
+                                if ($inline_img):
+                                    echo Html::inlineImg(MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name), ['width' => 115, 'border' => 0]);
+                                else: ?>
+                                    <img src="<?= MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name); ?>" width="115" border="0" />
+                                <?php endif; ?>
                             <?php endif; ?>
+
                             <?php if (isset($company['site']) && !empty($company['site'])): ?>
                                 <?= $company['site']; ?>
                             <?php endif; ?>
                         </div>
                         <tr>
                             <td colspan="2" align="center">
-                                <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" />
+                                <?php
+                                if ($inline_img):
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
+                                else: ?>
+                                    <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0" />
+                                <?php endif; ?>
+
                             </td>
                         </tr>
                     </table>
@@ -52,24 +72,25 @@ $company = $document->getCompany();
         </table>
         <hr />
 
-
         <center><h2>Díjbekérő No <?= $document->bill->bill_no; ?></h2></center>
 
         <p align=right>Dátum <b><?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y.m.d'); ?></b></p>
 
         <hr />
         <br />
-        <p><b>Vevő: Napsütéses Idő</b></p>
+        <p>
+            <b>Vevő: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
+        </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
             <tbody>
                 <tr>
                     <td align="center"><b>No</b></td>
                     <td align="center"><b>Megnevezés</b></td>
-                    <td align="center"><b>Me</b></td>
+                    <td align="center"><b>Tört havidíj szorzója</b></td>
                     <td align="center"><b>Nettó egységár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Áfa értéke, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Áfa, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php if ($hasDiscount): ?>
                         <td align="center"><b>Áfa érték</b></td>
@@ -121,28 +142,26 @@ $company = $document->getCompany();
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td>Vezérigazgatója</td>
-                    <?php if ($document->isMail()): ?>
+                    <td><?= $director->post_nominative; ?></td>
+                    <?php if ($document->sendEmail): ?>
                         <td>
-                            <?php if(isset($residents['firm_director']['sign'])): ?>
-                                <img src="/images/<?= $residents['firm_director']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_director']['sign']['width']? ' width="' . $residents['firm_director']['sign']['width'] . '" height="' . $residents['firm_director']['sign']['height'] . '"' : ''); ?>>
-                            <?php else:?>
-                                _________________________________
-                            <?php endif; ?>
-                        </td>
-                    <?php else: ?>
-                        <td>
-                            <br /><br />_________________________________<br /><br />
-                        </td>
-                    <?php endif; ?>
-                    <td>/ Melnikov A.K. /</td>
-                </tr>
-                <tr>
-                    <td>Főkönyvelő</td>
-                    <?php if ($document->isMail()) :?>
-                        <td>
-                            <?php if (isset($residents['firm_buh']['sign'])): ?>
-                                <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_buh']['sign']['width'] ? ' width="' . $residents['firm_buh']['sign']['width'] . '" height="' . $residents['firm_buh']['sign']['height'] . '"' : ''); ?>>
+                            <?php
+                            if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
+                                $image_options = [
+                                    'width' => 140,
+                                    'border' => 0,
+                                    'align' => 'top',
+                                ];
+
+                                if ($inline_img):
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
+                                else:
+                                    array_walk($image_options, function(&$item, $key) {
+                                        $item = $key . '="' . $item . '"';
+                                    });
+                                    ?>
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                                <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
                             <?php endif; ?>
@@ -152,16 +171,28 @@ $company = $document->getCompany();
                             <br /><br />_________________________________<br /><br />
                         </td>
                     <?php endif; ?>
-                    <td>
-                        / Melnikov A.K. /
-                    </td>
+                    <td>/ <?= $director->name_nominative; ?> /</td>
                 </tr>
-                <?php if ($document->isMail()): ?>
+                <?php if ($document->sendEmail): ?>
                     <tr>
                         <td>&nbsp;</td>
                         <td align=left>
-                            <?php if (isset($residents['firma'])): ?>
-                                <img style="<?= $residents['firma']['style']; ?>" src="/images/<?= $residents['firma']['src']; ?>"<?= ($residents['firma']['width'] ? ' width="' . $residents['firma']['width'] . '" height="' . $residents['firma']['height'] . '"' : ''); ?>>
+                            <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+                                $image_options = [
+                                    'width' => 200,
+                                    'border' => 0,
+                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
+                                ];
+
+                                if ($inline_img):
+                                    echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
+                                else:
+                                    array_walk($image_options, function(&$item, $key) {
+                                        $item = $key . '="' . $item . '"';
+                                    });
+                                    ?>
+                                    <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                         <td>&nbsp;</td>

@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\VoipBiller;
+use app\classes\transfer\VoipServiceTransfer;
+use app\dao\services\VoipServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
@@ -23,6 +25,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageVoipQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return VoipServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -80,6 +87,26 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+    
+    public function getTransferHelper()
+    {
+        return new VoipServiceTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Телефония номера';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->E164 . 'x' . $this->no_of_lines;
+    }
+
+    public function getAbonPerMonth()
+    {
+        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines-1));
     }
 }
 

@@ -2,12 +2,18 @@
 
 namespace app\classes\documents;
 
+use app\models\Organization;
 use Yii;
 use yii\base\Object;
-use app\classes\Company;
+use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
+use app\classes\Html2Mhtml;
 use app\models\Bill;
 
+/**
+ * @property Organization organization
+ * @property
+ */
 abstract class DocumentReport extends Object
 {
 
@@ -31,27 +37,22 @@ abstract class DocumentReport extends Object
     protected $optionsPDF = ' --quiet -L 10 -R 10 -T 10 -B 10';
 
     /**
-     * @return mixed
+     * @return ActiveRecord
      */
-    public function getCompany()
+    public function getOrganization()
     {
-        return Company::getProperty($this->bill->clientAccount->firma, $this->bill->bill_date);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCompanyDetails()
-    {
-        return Company::getDetail($this->bill->clientAccount->firma, $this->bill->bill_date);
+        return $this->bill->clientAccount->getOrganization($this->bill->bill_date);
     }
 
     /**
      * @return array
      */
-    public function getCompanyResidents()
+    public function getPayer()
     {
-        return Company::setResidents($this->bill->clientAccount->firma, $this->bill->bill_date);
+        return
+            $this->bill->clientAccount->loadVersionOnDate(
+                $this->bill->bill_date
+            );
     }
 
     /**
@@ -75,12 +76,8 @@ abstract class DocumentReport extends Object
      */
     public function getQrCode()
     {
-        return BillQRCode::getNo($this->bill->bill_no);
-    }
-
-    public function isMail()
-    {
-        return $this->sendEmail;
+        $result = BillQRCode::getNo($this->bill->bill_no);
+        return $result['bill'];
     }
 
     /**
@@ -109,14 +106,15 @@ abstract class DocumentReport extends Object
         return $this
             ->fetchLines()
             ->filterLines()
-            ->postProcessingLines()
+            ->postFilterLines()
             ->calculateSummary();
     }
 
-    public function render()
+    public function render($inline_img = true)
     {
         return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
-            'document' => $this
+            'document' => $this,
+            'inline_img' => $inline_img
         ]);
     }
 
@@ -136,27 +134,53 @@ abstract class DocumentReport extends Object
         }
         */
 
-        ob_start();
-        echo $this->render();
-        $content = ob_get_contents();
-        ob_end_clean();
-
         $file_name = '/tmp/' . time() . Yii::$app->user->id;
         $file_html = $file_name . '.html';
         $file_pdf = $file_name . '.pdf';
 
-        file_put_contents($file_name . '.html', $content);
+        file_put_contents($file_name . '.html', $this->render());
 
         passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
-        $pdf = file_get_contents($file_pdf);
+
+        Yii::$app->response->sendFile($file_pdf, basename($file_pdf), [
+            'mimeType' => 'application/pdf'
+        ]);
+
         unlink($file_html);
         unlink($file_pdf);
 
-        Header('Content-Type: application/pdf');
-        ob_clean();
-        flush();
-        echo $pdf;
-        exit;
+        Yii::$app->end();
+    }
+
+    public function renderAsMhtml()
+    {
+        $result = (new Html2Mhtml)
+            ->addContents(
+                'index.html',
+                $this->render($inline_img = false),
+                function($content) {
+                    return preg_replace('#font\-size:\s?[0-7]{1,2}\%#', 'font-size:8pt', $content);
+                }
+            )
+            ->addImages(function($image_src) {
+                $file_path = '';
+                $file_name = '';
+
+                if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src)) {
+                    $file_name = 'host_img_' . mt_rand(0, 50);
+                    $file_path = Yii::$app->request->hostInfo . $image_src;
+                }
+                else if (strpos($image_src, 'http:\/\/') === false) {
+                    $file_path = Yii::$app->basePath . '/web' . $image_src;
+                    $file_name = basename($image_src);
+                }
+
+                return [$file_name, $file_path];
+            })
+            ->getFile();
+
+        Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+        Yii::$app->end();
     }
 
     /**
@@ -164,37 +188,41 @@ abstract class DocumentReport extends Object
      */
     protected function fetchLines()
     {
+        $tax_rate = $this->bill->clientAccount->getTaxRate($original = true);
+
         $this->lines =
             Yii::$app->db->createCommand('
                 select
-					l.*,
-					if(g.nds is null, 18, g.nds) as nds,
-					g.art as art,
-					g.num_id as num_id,
-					g.store as in_store,
+                    l.*,
+                    if(g.nds is null, ' . $tax_rate . ', g.nds) as nds,
+                    g.art as art,
+                    g.num_id as num_id,
+                    g.store as in_store,
                     if(l.service="usage_extra",
-						(select
-							okvd_code
-						from
-							usage_extra u, tarifs_extra t
-						where
-							u.id = l.id_service and
-							t.id = tarif_id
-						),
-						if (l.type = "good",
-							(select
-								okei
-							FROM
-								g_unit
-							WHERE
-								id = g.unit_id
-							), "")
-					) okvd_code
-				from newbill_lines l
-				left join g_goods g on (l.item_id = g.id)
-				left join g_unit as gu ON g.unit_id = gu.id
-				where l.bill_no=:billNo
-				order by sort
+                      (
+                        select
+                          okvd_code
+                        from
+                          usage_extra u, tarifs_extra t
+                        where
+                            u.id = l.id_service and
+                            t.id = tarif_id
+                      ),
+                      if (l.type = "good",
+                        (
+                          select
+                            okei
+                          from
+                            g_unit
+                          where
+                            id = g.unit_id
+                        ), "")
+                    ) okvd_code
+                from newbill_lines l
+                        left join g_goods g on (l.item_id = g.id)
+                            left join g_unit as gu ON g.unit_id = gu.id
+                where l.bill_no=:billNo
+                order by sort
             ', [
                 ':billNo' => $this->bill->bill_no,
             ])->queryAll();
@@ -210,7 +238,7 @@ abstract class DocumentReport extends Object
         $filtered_lines = [];
 
         foreach ($this->lines as $line) {
-            if (!(int) $line['sum']) continue;
+            if (!$line['sum']) continue;
 
             $filtered_lines[] = $line;
         }
@@ -223,7 +251,7 @@ abstract class DocumentReport extends Object
     /**
      * @return $this
      */
-    protected function postProcessingLines()
+    protected function postFilterLines()
     {
         return $this;
     }

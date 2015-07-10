@@ -66,7 +66,13 @@
         <td>{if $n.status == 'stop'}c {$n.used_until_date}{elseif $n.status == "reserv"}c {$n.date_reserved}{/if}</td>
         <td>{if $n.status == 'stop'}{$n.calls}{/if}</td>
         <td{if $n.count_3m && isset($n.count_avg3m) && $n.count_avg3m <= $minCalls} style="font-weight: bold; color: green;"{/if}>{if $n.status == 'stop'}{$n.count_avg3m}{/if}</td>
-        <td>{if $n.status == 'stop' && isset($n.count_avg3m) && $n.count_3m && $n.count_avg3m <= $minCalls}<input type="checkbox" name="publish_phones[]" value="{$n.number}"{if $n.site_publish == "Y"} checked{/if}>{if $n.site_publish == "Y"}<input type=hidden name="published_phones[]" value="{$n.number}">{/if}{/if}</td>
+        <td>
+            {if $n.status == 'stop' && ((isset($n.count_avg3m) && $n.count_3m && $n.count_avg3m <= $minCalls) || !isset($n.count_avg3m))}
+                <input type="checkbox" name="publish_phones[]" value="{$n.number}"{if $n.site_publish == "Y"} checked{/if}>
+                {if $n.site_publish == "Y"}
+                    <input type=hidden name="published_phones[]" value="{$n.number}">
+                {/if}
+            {/if}</td>
     </tr>
     {/foreach}
 

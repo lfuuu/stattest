@@ -28,7 +28,7 @@
 	{foreach from=$stats item="s" name=outer key="k"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td style="text-align: center;">
-					<a href="?module=stats&action=report_vpbx_stat_space&client_id={$s->client_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
+					<a href="?module=stats&action=report_vpbx_stat_space&usage_id={$s->usage_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
 				</td>
 				{if !$fixclient}
 					<td style="text-align: center;">

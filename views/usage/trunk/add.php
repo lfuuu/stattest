@@ -9,7 +9,7 @@ use app\models\billing\Trunk;
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageTrunkEditForm */
 
-$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($model->connection_point_id);
 
 ?>
 
@@ -26,7 +26,7 @@ echo Form::widget([
     'form' => $form,
     'columns' => 3,
     'attributes' => [
-        'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2']],
+        'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload']],
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Страна</label>

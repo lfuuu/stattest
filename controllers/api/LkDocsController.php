@@ -73,7 +73,8 @@ class LkDocsController extends ApiController
 
     public function getProperty()
     {
-        $c = ClientAccount::findOne($this->accountId)->contragent;
+        $a = ClientAccount::findOne($this->accountId);
+        $c = $a->contragent;
 
         $return = ["error" => "Error"];
 
@@ -123,6 +124,32 @@ class LkDocsController extends ApiController
                 ];
         }
 
+        if ($a->contacts)
+        {
+            $allEmail = [];
+            $officialEmails = [];
+
+            foreach($a->contacts as $contact)
+            {
+                if ($contact->type == "email")
+                {
+                    $email = trim($contact->data);
+                    $allEmail[$email] = 1;
+
+                    if ($contact->is_official)
+                    {
+                        $officialEmails[$email] = 1;
+                    }
+                }
+            }
+
+            $return["emails"] = array_keys($officialEmails);
+            $return["all_emails"] = array_keys($allEmail);
+
+            sort($return["emails"]);
+            sort($return["all_emails"]);
+        }
+
         $data = [];
         $counter = 1;
         foreach($return as $title => $value)
@@ -131,6 +158,7 @@ class LkDocsController extends ApiController
                 "id" => $counter++,
                 "title" => $title,
                 "value" => $value,
+                "is_show" => $title != "all_emails",
                 "tips" => false
                 ];
         }

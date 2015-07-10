@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\IpPortBiller;
+use app\classes\transfer\IpPortsServiceTransfer;
+use app\dao\services\IpPortsServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -27,6 +29,11 @@ class UsageIpPorts extends ActiveRecord implements Usage
             'IF(usage_ip_ports.actual_from<=(NOW()+INTERVAL 5 DAY),1,0) AS actual5d',
             'IF((usage_ip_ports.actual_from<=NOW()) and (usage_ip_ports.actual_to>NOW()),1,0) as actual',
         ]);
+    }
+
+    public static function dao()
+    {
+        return IpPortsServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -93,5 +100,20 @@ class UsageIpPorts extends ActiveRecord implements Usage
             ->andWhere('actual_from <= NOW()')
             ->andWhere('actual_to >= NOW()')
             ->all();
+    }
+
+    public function getTransferHelper()
+    {
+        return new IpPortsServiceTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Интернет';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->address;
     }
 }

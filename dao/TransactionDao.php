@@ -21,7 +21,7 @@ class TransactionDao extends Singleton
         $to->amount                 = $from->amount;
         $to->price                  = $from->price;
         $to->is_partial_write_off   = $from->is_partial_write_off;
-        $to->tax_type_id            = $from->tax_type_id;
+        $to->tax_rate               = $from->tax_rate;
         $to->sum                    = $from->sum;
         $to->sum_tax                = $from->sum_tax;
         $to->sum_without_tax        = $from->sum_without_tax;
@@ -156,7 +156,7 @@ class TransactionDao extends Singleton
         $transaction->transaction_date = $bill->bill_date;
         $transaction->price = $line->price;
         $transaction->amount = $line->amount;
-        $transaction->tax_type_id = $line->tax_type_id;
+        $transaction->tax_rate = $line->tax_rate;
         $transaction->sum = $line->sum;
         $transaction->sum_tax = $line->sum_tax;
         $transaction->sum_without_tax = $line->sum_without_tax;
@@ -178,7 +178,7 @@ class TransactionDao extends Singleton
         $line->type = 'service';
         $line->amount = $transaction->amount;
         $line->price = $transaction->price;
-        $line->tax_type_id = $transaction->tax_type_id;
+        $line->tax_rate = $transaction->tax_rate;
         $line->sum = $transaction->sum;
         $line->sum_without_tax = $transaction->sum_without_tax;
         $line->sum_tax = $transaction->sum_tax;

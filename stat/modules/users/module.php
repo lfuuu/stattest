@@ -77,19 +77,7 @@ class m_users {
 		$this->d_groups_get($d_groups);
 		$this->d_departs_get($d_depart);
 		$id=get_param_protected('id');
-		$Firms = array(
-		                'mcn_telekom'=>'ООО &laquo;МСН Телеком&raquo;',
-		                'mcn'=>'ООО &laquo;Эм Си Эн&raquo;',
-		                'markomnet_new'=>'ООО &laquo;МАРКОМНЕТ&raquo;',
-		                'markomnet_service'=>'ООО &laquo;МАРКОМНЕТ сервис&raquo;',
-		                'ooomcn'=>'ООО &laquo;МСН&raquo;',
-		                'all4net'=>'ООО &laquo;ОЛФОНЕТ&raquo;',
-		                'ooocmc'=>'ООО &laquo;Си Эм Си&raquo;',
-		                'mcm'=>'ООО &laquo;МСМ&raquo;',
-		                'all4geo'=>'ООО &laquo;Олфогео&raquo;',
-		                'wellstart'=>'ООО &laquo;Веллстарт&raquo;'
-		);
-		
+
 		if ($action=='add'){
 			$f=array(
 				'user'			=> get_param_protected('user'),
@@ -97,7 +85,6 @@ class m_users {
 				'depart_id'		=> get_param_protected('depart_id'),
 				'name'			=> get_param_protected('name'),
 				'pass_text'		=> password_gen(8),
-				'firms'	    	=> get_param_protected('user2firm'),
 			    'courier_id'        => get_param_protected('courier_id'),
 			);
 			$f['pass']=password::hash($f['pass_text']);
@@ -111,11 +98,6 @@ class m_users {
 				trigger_error2('Оператор '.$id.' создан. Пароль: '.$f['pass_text']);
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
-
-                //Доступ по фирмам
-                $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
-                if ($f['firms'] != implode(',', array_keys($Firms)))
-                    $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
 			}
 		} else if ($action=='edit'){
 			$f=array(
@@ -134,7 +116,6 @@ class m_users {
 				'phone_mobile'		=> get_param_protected('phone_mobile'),
 				'icq'				=> get_param_protected('icq'),
                 'enabled'           => get_param_protected('enabled', 'no'),
-			    'firms'	          	=> get_param_protected('user2firm'),
 			    'courier_id'        => get_param_protected('courier_id'),
 				);
 			foreach ($f['rights'] as &$v)
@@ -179,20 +160,6 @@ class m_users {
 						$R[$r['resource']]=$r['access'];
 					}
 
-                    //Доступ по фирмам
-                    $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
-                    if ($f['firms'] == implode(',', array_keys($Firms))) {
-                        //Если выбраны все и была запись в таблице - удалим запись из таблицы
-                        if (isset($R['firms'])) 
-                            $db->Query('delete from user_grant_users where (name="'.$id.'") and (resource="firms")');
-                    } else {
-                        if (!isset($R['firms'])) {
-                            $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
-                        } else {
-                            $db->Query('update user_grant_users set access="'.$f['firms'].'" where (name="'.$id.'") and (resource="firms")');
-                        }
-                    }
-
 					$this->d_rights_get($d_rights);
 					foreach ($d_rights as $i=>$v){
 						if (isset($f['rights_radio'][$i]) && $f['rights_radio'][$i]){
@@ -234,13 +201,6 @@ class m_users {
 			$R[$r['resource']]=$r['access'];
 			$R2[$r['resource']]=$r['access'];
 		}
-		if (!isset($R['firms']) || empty($R['firms'])) {
-		    foreach ($Firms as $k=>$v) $user2firm[$k] = 1;
-		} else {
-		    $tmp = explode(',', $R['firms']);
-		    foreach ($tmp as $k) $user2firm[$k] = 1;
-		}
-		$design->assign("user2firm",$user2firm);
 
 		$design->assign_by_ref("rights_real",$R);
 		$design->assign("rights_user",$R2);
@@ -250,7 +210,7 @@ class m_users {
 			if (!isset($couriers[$c['depart']])) $couriers[$c['depart']] = array();
 			$couriers[$c['depart']][$c['id']] = $c['name'];
 		}
-        $design->assign("firms",$Firms);
+
         $design->assign("couriers", $couriers);
 
 		$design->AddMain('users/main_user.tpl');

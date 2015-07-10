@@ -19,31 +19,27 @@ ENGINE=InnoDB;
 ALTER TABLE `clients` ADD COLUMN `contract_id` INT(4) NOT NULL DEFAULT '0' AFTER `contragent_id`, ADD INDEX `contract_id` (`contract_id`);
 
 SET GLOBAL group_concat_max_len=4294967295;
-
-INSERT INTO client_contract
+REPLACE INTO client_contract
     (`id`,`super_id`, `contragent_id`, `number`, `organization`, `manager`, `account_manager`,
         `business_process_id`, `business_process_status_id`, `contract_type_id`)
+
+
     SELECT
-        `id`,
-        `super_id`,
-        `contragent_id`,
-        '',
-        `firma` AS `organization`,
-        `manager`,
-        `account_manager`,
-        `business_process_id`,
-        `business_process_status_id`,
-        `contract_type_id`
-        FROM clients
+        c.`id`,
+        c.`super_id`,
+        c.`contragent_id`,
+        cd.`contract_no`,
+        c.`firma` AS `organization`,
+        c.`manager`,
+        c.`account_manager`,
+        c.`business_process_id`,
+        c.`business_process_status_id`,
+        c.`contract_type_id`
+        FROM clients c
+        LEFT JOIN client_document cd ON cd.`client_id` = c.`id` AND cd.`type` = 'contract' AND cd.`is_active` = 1
 ;
 
 UPDATE clients SET `contract_id` = `id`;
-
-UPDATE client_contract cc
-        LEFT JOIN (
-		  	SELECT * FROM client_document WHERE `type` = 'contract' AND `is_active` = 1
-		  ) cd ON cd.`client_id` = cc.`id`
-	SET cc.`number` = cd.`contract_no`;
 
 INSERT INTO history_changes
     (`model`, `model_id`, `user_id`, `created_at`, `action`, `data_json`, `prev_data_json`)
@@ -73,7 +69,7 @@ INSERT INTO history_changes
                             'ClientContract' AS `model`,
                             c.`contragent_id` AS `model_id`,
                             lc.`user_id`,
-                            lc.`ts` AS `create_at`,
+                            IF(lc.`apply_ts` > '2006-01-01', CONCAT(lc.`apply_ts`, ' 00:00:00'), lc.`ts`) AS `create_at`,
                             'update' AS `action`,
                             REPLACE(lcf.`value_from`, '"', '\\"') AS `value_from`,
                             REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
@@ -94,81 +90,64 @@ INSERT INTO history_changes
         WHERE NOT ISNULL(`data_json`)
 ;
 
-    REPLACE INTO history_version
+REPLACE INTO history_version (
         SELECT
             'ClientContract' AS `model`,
             c.`contract_id` AS `model_id`,
-            IF(DATE_FORMAT(c.`ts`, '%Y-%m-%d') < '2006-01-01' OR ISNULL(DATE_FORMAT(c.`ts`, '%Y-%m-%d')), '2006-01-01',  DATE_FORMAT(c.`ts`, '%Y-%m-%d'))
-                AS `date`,
+            IF(ISNULL(lc.`ts`), IF(ISNULL(c.`created`), '2006-01-01', DATE_FORMAT(c.`created`, '%Y-%m-%d')),  DATE(lc.`ts`)) AS `date`,
             CONCAT(
                '{',
-                    '"super_id":[-super_id-]', c.`super_id`, '[-/super_id-],',
-                    '"contragent_id":[-contragent_id-]', c.`contragent_id`, '[-/contragent_id-],',
-                    '"number":[-number-]', c.`number`, '[-/number-],',
-                    '"organization":[-organization-]', c.`organization`, '[-/organization-],',
-                    '"manager":[-manager-]', c.`manager`, '[-/manager-],',
-                    '"account_manager":[-account_manager-]', c.`account_manager`, '[-/account_manager-],',
-                    '"business_process_id":[-business_process_id-]', c.`business_process_id`, '[-/business_process_id-],',
-                    '"business_process_status_id":[-business_process_status_id-]', c.`business_process_status_id`, '[-/business_process_status_id-],',
-                    '"contract_type_id":[-contract_type_id-]', c.`contract_type_id`, '[-/contract_type_id-]',
+                    '"super_id":[-super_id-]', cc.`super_id`, '[-/super_id-],',
+                    '"contragent_id":[-contragent_id-]', cc.`contragent_id`, '[-/contragent_id-],',
+                    '"number":[-number-]', cc.`number`, '[-/number-],',
+                    '"organization":[-organization-]', cc.`organization`, '[-/organization-],',
+                    '"manager":[-manager-]', cc.`manager`, '[-/manager-],',
+                    '"account_manager":[-account_manager-]', cc.`account_manager`, '[-/account_manager-],',
+                    '"business_process_id":[-business_process_id-]', cc.`business_process_id`, '[-/business_process_id-],',
+                    '"business_process_status_id":[-business_process_status_id-]', cc.`business_process_status_id`, '[-/business_process_status_id-],',
+                    '"contract_type_id":[-contract_type_id-]', cc.`contract_type_id`, '[-/contract_type_id-]',
                '}'
             ) AS `data_json`
-            FROM
-            (
-                SELECT
-                    c.`id`,
-                    c.`contract_id`,
-                     c.`super_id`,
-                     c.`contragent_id`,
-                     IF(ISNULL(c.`created`), '2006-01-01', c.`created`) AS `ts`,
-                     CONCAT(c.`contragent_id`, '-', DATE_FORMAT(IF(ISNULL(c.`created`), '2006-01-01', c.`created`), '%y')) AS `number`,
-                     c.`firma` AS `organization`,
-                     c.`manager`,
-                     c.`account_manager`,
-                     c.`business_process_id`,
-                     c.`business_process_status_id`,
-                     c.`contract_type_id`
-                     FROM clients c
-            ) c
-    ;
+            FROM client_contract cc
+            INNER JOIN clients c ON c.contract_id = cc.id
+            LEFT JOIN log_client lc ON lc.`client_id` = c.`id`
+				    LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
+            WHERE lc.`type` = 'fields'
+							  AND lcf.`field` IN ('super_id', 'contract_id', 'firma','manager','account_manager','business_process_id','business_process_status_id','contract_type_id')
+)
+;
 
-    REPLACE INTO history_version
+INSERT INTO history_version
+  SELECT hv.`model`, hv.`model_id`, hv.`date`, '' FROM history_version hv
+    INNER JOIN clients c ON c.contract_id = hv.model_id
+    INNER JOIN (
         SELECT * FROM (
-           SELECT hv.`model`, hv.`model_id`, l.`date_c`,
-               REPLACE(hv.`data_json`,
-                           SUBSTRING(hv.`data_json`,
-                             LOCATE(CONCAT('[-', l.`field_name` ,'-]'), hv.`data_json`),
-                             (LOCATE(CONCAT('[-/', l.`field_name` ,'-]'), hv.`data_json`) + LENGTH(CONCAT('[-/', l.`field_name` ,'-]')) - LOCATE(CONCAT('[-', l.`field_name` ,'-]'), hv.`data_json`))
-                           ),
-                           CONCAT('[-', l.`field_name` ,'-]',l.`value_to`,'[-/', l.`field_name` ,'-]')
-                            ) AS `data_json`
-               FROM history_version hv
-               LEFT JOIN
-               (
-                   SELECT * FROM
-                       (SELECT * FROM
-                           (
-                               SELECT
-                                   c.`contract_id`,
-                                   DATE(IF(lc.`apply_ts` > lc.`ts`, lc.`apply_ts`, lc.`ts`)) AS `date_c`,
-                                   REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
-                                   IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`
-                                   FROM
-                                   log_client lc
-                                   LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
-                                   LEFT JOIN clients c ON c.`id` = lc.`client_id`
+          SELECT
+          DATE(IF(lc.`apply_ts` > lc.`ts`, lc.`apply_ts`, lc.`ts`)) AS `date_c`,
+          REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
+                 IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`,
+          lc.client_id
+          FROM log_client lc
+          LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
 
-                                   WHERE lc.`type` = 'fields' AND lc.`comment` != 'client'
-                                       AND lcf.`field` IN ('super_id', 'contract_id', 'firma','manager','account_manager','business_process_id','business_process_status_id','contract_type_id')
-                                       AND NOT ISNULL(c.`contract_id`)
-                           ) n
-                           ORDER BY `date_c` DESC
-                       ) z
-                   GROUP BY `contract_id`, `date_c`, `field_name`
-               ) l ON `contract_id` = hv.`model_id`
-               WHERE hv.`model` = 'ClientContract' AND NOT ISNULL(l.`value_to`) AND NOT ISNULL(hv.`data_json`)
-               ORDER BY hv.`date` DESC
-        ) m;
+          WHERE lc.`type` = 'fields'
+            AND lcf.`field` IN ('super_id', 'contract_id', 'firma','manager','account_manager','business_process_id','business_process_status_id','contract_type_id')
+               ORDER BY date_c DESC
+        ) d
+        GROUP BY `field_name`, `date_c`, `client_id`
+        ORDER BY `date_c`
+    ) l ON l.`client_id` = c.`id` AND l.`date_c` <= hv.`date`
+
+		WHERE hv.`model` = 'ClientContract'
+		ORDER BY hv.`date` DESC
+ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`data_json`,
+  SUBSTRING(history_version.`data_json`,
+    LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`),
+    (LOCATE(CONCAT('[-/', l.`field_name` ,'-]'), history_version.`data_json`) + LENGTH(CONCAT('[-/', l.`field_name` ,'-]')) - LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`))
+  ),
+  CONCAT('[-', l.`field_name` ,'-]',l.`value_to`,'[-/', l.`field_name` ,'-]')
+)
+;
 
     UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContract';
     UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContract';

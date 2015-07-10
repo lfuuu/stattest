@@ -331,7 +331,7 @@ abstract class BaseLoader extends Object
             $def = $v['prefix'];
             $country_id = $definfo->get_country($v['prefix']);
             $city_region_id = $definfo->get_region($v['prefix']);
-            $price = $v['price'];
+            $price = $v['rate'];
 
             $cur_l = strlen($def);
             if ($pre_l <> $cur_l || substr($def, 0, $cur_l - 1) <> substr($def, 0, $pre_l - 1)) {

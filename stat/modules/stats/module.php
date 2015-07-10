@@ -3,7 +3,6 @@ use app\classes\StatModule;
 use \app\models\ClientAccount;
 
 class m_stats extends IModule{
-
     private $_inheritances = array();
 
     public function __construct()
@@ -300,7 +299,7 @@ class m_stats extends IModule{
             foreach ($regions as $region=>$phones_sel) {
                 $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
-            $stats = $this->prepareStatArray($stats, $detality);
+            $stats = $this->prepareStatArray($client_id, $stats, $detality);
         } else {
             if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
@@ -315,11 +314,13 @@ class m_stats extends IModule{
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
-    function prepareStatArray($data = array(), $detality = '', $all_regions = array()) {
+    function prepareStatArray($client_id, $data = array(), $detality = '', $all_regions = array()) {
 
         if (!count($data)) return $data;
         $Res = array();
-        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
+
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
 
         switch ($detality) {
             case 'dest':
@@ -345,9 +346,9 @@ class m_stats extends IModule{
                 $rt['tsf1']='Итого';
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
                 $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
-                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
 
                 break;
             case 'call':
@@ -372,9 +373,9 @@ class m_stats extends IModule{
                 $rt['num_from']='&nbsp;';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
                 $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
-                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -411,7 +412,9 @@ class m_stats extends IModule{
                 $rt['tsf1']='Итого';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
             break;
         }
 
@@ -568,6 +571,9 @@ class m_stats extends IModule{
 
             $fromTime = strtotime("first day of -3 month, midnight");
 
+            $months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            $this->getUnUsageCalls($fromTime);
+
             foreach($ns as &$n)
             {
                 if ($n["site_publish"] == "Y" && $n["status"] != "stop")
@@ -578,21 +584,13 @@ class m_stats extends IModule{
 
                 if($n["status"] == "stop")
                 {
-                    foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
-                        sum(1) as count_calls,
-                        sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
-                    from calls.calls_".$n['region']."
-                    where time > '".date("Y-m-d H:i:s", $fromTime)."'
-                    and usage_id is null 
-                    and region=".$n['region']." 
-                    and usage_num = '".$n["number"]."'
-                    group by mnth, mnth_s
-                    order by mnth
-                    ") as $c)
+                    if ($cc = StatVoipFreeCache::findAll(["number" => $n["number"]]))
                     {
-                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
-                        $n["count_3m"] += $c["count_3m"];
+                        foreach($cc as $c)
+                        {
+                            $n["calls"] .= ($n["calls"] ? ", " : "").$months[$c->month-1].": ".$c->calls;
+                            $n["count_3m"] += $c->calls;
+                        }
                     }
                 }
 
@@ -613,6 +611,80 @@ class m_stats extends IModule{
         $design->AddMain("stats/voip_free_stat.htm");
 
     }
+
+    function getUnUsageCalls()
+    {
+        $param = null;
+
+        if ($param = Param::findOne(["param" => "stat_voip_free__last_make"]))
+        {
+            if ($param && $param->value && strtotime($param->value) > strtotime("midnight"))
+            {
+                return true;
+            }
+        }
+
+        $res = $this->makeUnUsageCalls();
+
+        if (!$param)
+        {
+            $param = new Param;
+            $param->param = "stat_voip_free__last_make";
+        }
+        $param->value = date("Y-m-d H:i:s");
+        $param->save();
+
+
+        return true;
+    }
+
+    function makeUnUsageCalls()
+    {
+        ini_set('max_execution_time', 3000);
+
+        global $pg_db;
+
+        $fromTime = strtotime("first day of -3 month, midnight");
+
+        $data = $pg_db->AllRecords("
+        select 
+            dst_number,
+            to_char(connect_time, 'MM') as mnth,
+            sum(1) as count_calls
+            from 
+            \"calls_raw\".\"calls_raw\"
+            where 
+            connect_time > '".date("Y-m-d H:i:s", $fromTime)."' 
+            and number_service_id is null 
+            and orig = true
+            group by dst_number, mnth
+            order by dst_number, mnth
+            ");
+
+
+        StatVoipFreeCache::getDb()->createCommand()->truncateTable("stat_voip_free_cache")->execute();
+
+        $count = 0;
+        $b = [];
+        foreach($data as $line)
+        {
+            $b[] = [$line["dst_number"], $line["mnth"], $line["count_calls"]];
+
+            if (0 == ($count++ % 10000))
+            {
+                StatVoipFreeCache::getDb()->createCommand()->batchInsert("stat_voip_free_cache", ["number", "month", "calls"], $b)->execute();
+                $b = [];
+            }
+        }
+
+        if ($b)
+        {
+            StatVoipFreeCache::getDb()->createCommand()->batchInsert("stat_voip_free_cache", ["number", "month", "calls"], $b)->execute();
+        }
+
+        return true;
+    }
+
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error2('Выберите клиента');return;}
@@ -944,6 +1016,7 @@ class m_stats extends IModule{
         $from->setTimezone(new DateTimeZone('UTC'));
         $to->setTimezone(new DateTimeZone('UTC'));
 
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
 
         if ($detality=='call'){
             $group='';
@@ -1070,9 +1143,9 @@ class m_stats extends IModule{
             $rt['num_from']='&nbsp;';
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price'] * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
             $rt['price_without_tax'] = number_format($rt['price'], 2, '.','');
-            $rt['price_with_tax'] = number_format($rt['price']*1.18, 2, '.','');
+            $rt['price_with_tax'] = number_format($rt['price'] * (1 + $tax_rate), 2, '.','');
 
             $R['total']=$rt;
         }else{
@@ -1124,9 +1197,9 @@ class m_stats extends IModule{
             $rt['tsf1']='<b>Итого</b>';
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
-            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price * (1 + $tax_rate), 2, '.','').' - Сумма с НДС</b>)';
             $rt['price_without_tax'] = number_format($price, 2, '.','');
-            $rt['price_with_tax'] = number_format($price*1.18, 2, '.','');
+            $rt['price_with_tax'] = number_format($price * (1 + $tax_rate), 2, '.','');
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }
@@ -3353,7 +3426,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
-    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0, "count_18" => 0, "count_22" => 0);
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0, "count_18" => 0, "count_19" => 0, "count_22" => 0);
 
     foreach($list as $l)
     {
@@ -3362,6 +3435,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $total["count_11"] += $l["count_11"];
         $total["count_12"] += $l["count_12"];
         $total["count_18"] += $l["count_18"];
+        $total["count_19"] += $l["count_19"];
         $total["count_22"] += $l["count_22"];
     }
 
@@ -3390,6 +3464,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_11"] = (int)$l["count_11"];
             $l["count_12"] = (int)$l["count_12"];
             $l["count_18"] = (int)$l["count_18"];
+            $l["count_19"] = (int)$l["count_19"];
             $l["count_22"] = (int)$l["count_22"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
@@ -3422,6 +3497,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "Кол-во HD-ресивер с диском" => "count_11",
                     "NetGear Беспроводной роутер, JNR3210-1NNRUS" => "count_12",
                     "Zyxel KEENETIC EXTRA Беспроводной роутер" => "count_18",
+                    "D-Link DWA-182/RU/C1A Беспроводной адаптер" => "count_19",
                     "Gigaset C530 IP IP-телефон" => "count_22",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
@@ -3746,6 +3822,10 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_18,
 
 				(select sum(amount) from newbill_lines nl
+                        where item_id in ('14265ab3-9bca-11e4-8402-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_19,
+
+				(select sum(amount) from newbill_lines nl
                         where item_id in ('4454e4d5-a79e-11e4-a330-00155d881200')
                         and nl.bill_no = t.bill_no) as count_22,
 
@@ -3872,6 +3952,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_18,
 
 				(select sum(amount) from newbill_lines nl
+                        where item_id in ('14265ab3-9bca-11e4-8402-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_19,
+
+				(select sum(amount) from newbill_lines nl
                         where item_id in ('4454e4d5-a79e-11e4-a330-00155d881200')
                         and nl.bill_no = t.bill_no) as count_22,
 
@@ -3990,8 +4074,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         FROM 
           usage_voip u 
         WHERE 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE) AND
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND
           E164 NOT LIKE "7800%" AND 
           LENGTH(E164) > 4 
         GROUP BY 
@@ -4004,8 +4087,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	LEFT JOIN 
 		clients as c ON c.client = u.client 
 	WHERE 
-                u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-                u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+        CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
 	GROUP BY
 		c.region
 	', 'region', 'count_vpbx'
@@ -4019,8 +4101,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           u.E164 LIKE "7800%" AND 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
         group by 
           u.region', 'region');
     $curr_no_nums = $db->AllRecords('
@@ -4032,8 +4113,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           LENGTH(u.E164) < 5 AND 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
         group by 
           u.region', 'region');
     $region_clients_count = $db->AllRecordsAssoc("
@@ -4582,7 +4662,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	 *	@param int $from timestamp начала периода
 	 *	@param int $to timestamp конца периода
 	 */
-	function getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to) 
+	function getReportVpbxStatSpace($client_id, $vpbx_id, $from, $to)
 	{
 		global $db;
         $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
@@ -4609,7 +4689,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		
 		$options['joins'] = 
 			'LEFT JOIN clients as C ON C.id = stat.client_id ' . 
-                        'LEFT JOIN usage_virtpbx as UV ON UV.client = C.client and UV.actual_to>="' . $from  . '" and UV.actual_from <= "' . $to . '" ' .
+            'LEFT JOIN usage_virtpbx as UV ON UV.id = stat.usage_id ' .
 			'LEFT JOIN log_tarif as LT ON UV.id = LT.id_service  ' . 
 			'LEFT JOIN tarifs_virtpbx as T ON LT.id_tarif = T.id '
 			;
@@ -4673,7 +4753,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 		if ($client_id && !empty($stats)) 
 		{
-			$stat_detailed = VirtpbxStat::getVpbxStatDetails($client_id, strtotime($from), strtotime($to));
+			$stat_detailed = VirtpbxStat::getVpbxStatDetails($client_id, $vpbx_id, strtotime($from), strtotime($to));
 		}
 		foreach ($stats as $k => &$v) 
 		{

@@ -304,7 +304,6 @@ class HelpDbForm {
             'E164'=>'номер телефона',
             'status'=>'состояние',
             'is_trunk'=>'Транк',
-            'one_sip'=>'Одна SIP-учетка',
             'param_value'=>'param_value',
             'comment'=>'комментарий',
             'ip'=>'ip',
@@ -467,7 +466,6 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['allowed_direction']=array('assoc_enum' => UsageVoip::$allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
-        $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
         $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
@@ -655,31 +653,6 @@ class DbFormUsageVoip extends DbForm {
                         );
                 }
 
-                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
-                    
-                    $toAutoCreate = false;
-
-                    if ($v == "add")
-                    {
-                        $toAutoCreate = true;
-                    } elseif ($v == "edit")
-                    {
-                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field)
-                        {
-                            if ($this->dbform[$field] != $current[$field])
-                            {
-                                $toAutoCreate = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($toAutoCreate)
-                    {
-                        event::go("autocreate_accounts", $this->data["id"]."|".$this->data["one_sip"]);
-                    }
-                }
-
             }else{
                 trigger_error2("Не сохранено! Выберите тариф");
             }
@@ -699,7 +672,7 @@ class DbFormUsageVoip extends DbForm {
         $client = $fixclient_data["client"];
         $data = [
             "vpbxs" => $db->AllRecordsAssoc("select id, concat('id:', id, ' (',actual_from,')') as name from usage_virtpbx where client='".$client."' and cast(now() as date) between actual_from and actual_to", "id", "name"),
-            "multis" => $db->AllRecordsAssoc("select id, name from multitrunk order by name", "id", "name")
+            "multis" => app\classes\api\ApiPhone::getMultitranks()
             ];
 
 
@@ -1391,23 +1364,6 @@ class DbFormUsageVirtpbx extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
-        if(!$this->check_virtats()) {
-            $this->fields['actual_from']['default']=$this->dbform['actual_from'];
-            $this->fields['actual_to']['default']=$this->dbform['actual_to'];
-            $this->fields['amount']['default']=$this->dbform['amount'];
-            $this->fields['status']['default']=$this->dbform['status'];
-            $this->fields['comment']['default']=$this->dbform['comment'];
-
-            if (isset($this->dbform['t_id_tarif'])) {
-                $cur_tarif = $db->getRow('select * from tarifs_virtpbx where id='.$this->dbform['t_id_tarif']);
-                $cur_tarif['date_activation'] = $this->dbform['t_date_activation'];
-                $design->assign('dbform_f_tarif_current', $cur_tarif);
-                
-            }
-
-            return;
-        }
-
         $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
 
         $this->fillUTCPeriod();
@@ -1431,24 +1387,6 @@ class DbFormUsageVirtpbx extends DbForm{
         return $v;
     }
 
-    private function check_virtats()
-    {
-        global $db;
-
-        $f = $this->dbform["actual_from"];
-        $t = $this->dbform["actual_to"];
-
-        $c = $db->GetRow(
-                "select * from usage_virtpbx where ((actual_from between '".$f."' and '".$t."' or actual_to between '".$f."' and '".$t."' or (actual_from <= '".$f."' and '".$t."' <= actual_to ))) and id != '".$this->dbform["id"]."' and client='".$this->dbform["client"]."'");
-
-        if($c)
-        {
-            trigger_error2("На указанные даты виртуальная АТС, у этого клиента, уже работает");
-            return false;
-        }
-
-        return true;
-    }
 }
 
 class DbFormUsageSms extends DbForm{
@@ -1951,7 +1889,6 @@ $GLOBALS['translate_arr']=array(
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
     'usage_voip.is_trunk'              => 'Оператор',
-    'usage_voip.one_sip'              => 'Одна SIP-учетка',
     'usage_voip.allowed_direction'      => 'Разрешенные направления',
         
     'emails.local_part'        => 'почтовый ящик',

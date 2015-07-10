@@ -123,9 +123,9 @@ class Sync1CServerHandler
     {
         $data = $data->organization;
         try {
-            $organization = Organization::find($data->Код1С);
+            $organization = GoodsOrganization::find($data->Код1С);
         } catch (RecordNotFound $e) {
-            $organization = new Organization();
+            $organization = new GoodsOrganization();
             $organization->id = $data->Код1С;
         }
         $organization->name = $data->Наименование;

@@ -47,7 +47,7 @@ class Sync1CClient
                     'КПП' => $account->contract->contragent->kpp,
                     'ЮридическийАдрес' => $account->contract->contragent->address_jur,
                     'ПравоваяФорма' => in_array($account->contract->contragent->legal_type, ['legal', 'ip']) ? 'ЮрЛицо' : 'ФизЛицо',
-                    'Организация' => $account->contract->organization,
+                    'Организация' => $account->contract->organization->firma,
                     'ВалютаРасчетов' => $account->currency,
                     'ВидЦен' => $account->price_type ? $account->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
                 ),

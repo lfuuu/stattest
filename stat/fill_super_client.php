@@ -33,7 +33,7 @@ echo date("r")."\n";
 
 
         $superId = $db->QueryInsert("client_super", array("name" => $c["company"]));
-        $contragentId = $db->QueryInsert("client_contragent", array("name" => $c["company"], "super_id" => $superId));
+        $contragentId = $db->QueryInsert("client_contragent", array("name" => $c["company"], "country_id" => $c["country_id"], "super_id" => $superId));
 
         $db->QueryUpdate("clients", "id", array("id" => $c["id"], "super_id" => $superId, "contragent_id" => $contragentId));
     }

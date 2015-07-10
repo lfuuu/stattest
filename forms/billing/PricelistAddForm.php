@@ -15,12 +15,12 @@ class PricelistAddForm extends PricelistForm
 
     public function save()
     {
-        if ($this->orig && $this->local) {
+        if ($this->orig && $this->type == Pricelist::TYPE_LOCAL) {
             $this->addError('orig', 'Оригинация для местных не поддерживается');
             return false;
         }
 
-        if ($this->local && !$this->local_network_config_id) {
+        if ($this->type == Pricelist::TYPE_LOCAL && !$this->local_network_config_id) {
             $this->addError('orig', 'Поле Местные префиксы должно быть заполнено');
             return false;
         }
@@ -29,7 +29,7 @@ class PricelistAddForm extends PricelistForm
         $pricelist->name = $this->name;
         $pricelist->region = $this->connection_point_id;
         $pricelist->currency_id = $this->currency_id;
-        $pricelist->local = $this->local;
+        $pricelist->type = $this->type;
         $pricelist->orig = $this->orig;
         $pricelist->initiate_mgmn_cost = $this->initiate_mgmn_cost;
         $pricelist->initiate_zona_cost = $this->initiate_zona_cost;

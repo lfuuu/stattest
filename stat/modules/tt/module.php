@@ -543,10 +543,11 @@ class m_tt extends IModule{
         $design->assign(
             'tt_client',
             $db->GetRow('
-SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firma,
+SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, o.firma,
 cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
 FROM `clients` c
 INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+left join organization o on cr.organization_id=o.id and o.actual_from < CAST(now() as DATE) and o.actual_to > CAST(now() as DATE)
 INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where c.client="'.$trouble['client_orig'].'"')
         );

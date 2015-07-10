@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\SmsBiller;
+use app\classes\transfer\SmsServiceTransfer;
+use app\dao\services\SmsServiceDao;
 use app\queries\UsageQuery;
 use app\models\TariffSms;
 use yii\db\ActiveRecord;
@@ -23,6 +25,11 @@ class UsageSms extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return SmsServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -54,5 +61,20 @@ class UsageSms extends ActiveRecord implements Usage
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    public function getTransferHelper()
+    {
+        return new SmsServiceTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'SMS';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
     }
 }

@@ -39,13 +39,13 @@ class PricelistController extends BaseController
         ];
     }
 
-    public function actionList($local, $orig, $connectionPointId = 0)
+    public function actionList($type, $orig, $connectionPointId = 0)
     {
         $query =
             Pricelist::find()
                 ->orderBy('region desc, name asc');
 
-        $query->andWhere('local = ' . ($local > 0 ? 'true' : 'false'));
+        $query->andWhere(['type' => $type]);
         $query->andWhere('orig = ' . ($orig > 0 ? 'true' : 'false'));
         if ($connectionPointId > 0) {
             $query->andWhere(['region' => $connectionPointId]);
@@ -59,16 +59,16 @@ class PricelistController extends BaseController
             'connectionPoints' => Region::dao()->getList(),
             'networkConfigs' => NetworkConfig::dao()->getList(),
             'orig' => (int)$orig,
-            'local' => (int)$local,
+            'type' => $type,
         ]);
     }
 
 
-    public function actionAdd($local = 0, $orig = 0, $connectionPointId = 0)
+    public function actionAdd($type = null, $orig = 0, $connectionPointId = 0)
     {
         $model = new PricelistAddForm();
         $model->orig = $orig;
-        $model->local = $local;
+        $model->type = $type;
         $model->connection_point_id = $connectionPointId;
         $model->tariffication_by_minutes = 0;
         $model->tariffication_full_first_minute = 0;

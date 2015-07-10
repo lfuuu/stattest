@@ -1,11 +1,6 @@
 <TR>
-    <TD align=center colspan=2>
-    <input type=hidden name="voip_ats3_add" id="voip_ats3_add" value="1">
-    <br><b>Настройки новой телефонии</b> (заведение номера)(доп поля)</td>
-</TR>
-<TR>
-    <TD class=left width=40%>Тип подключения</td>
-    <TD class=right width=60%>
+    <TD align=right>Тип подключения</td>
+    <TD class=text>
         <select name="type_connect" id="type_connect">
             <option value="line">Телефонный номер</option>
 {if $form_ats3.vpbxs}<option value="vpbx">Завести на ВАТС</option>{/if}
@@ -15,8 +10,8 @@
 
 {if $form_ats3.vpbxs}
 <TR id="tr_vpbx" style="display: none;">
-    <TD class=left width=40%>ВАТС:</td>
-    <TD class=right width=60%>
+    <TD align=right width=40%>ВАТС:</td>
+    <TD class=text width=60%>
         <select name="vpbx_id" id="vpbx_id">
             <option value=0>-- Не выбранно --</option>
             {html_options options=$form_ats3.vpbxs}
@@ -26,8 +21,8 @@
 
 {if $form_ats3.multis}
 <TR id="tr_multi" style="display: none;">
-    <TD class=left width=40%>Мультитранк:</td>
-    <TD class=right width=60%>
+    <TD align=right width=40%>Мультитранк:</td>
+    <TD class=text width=60%>
         <select name="multitrunk_id" id="multitrunk_id">
             <option value=0>-- Не выбранно --</option>
             {html_options options=$form_ats3.multis}
@@ -36,8 +31,8 @@
 {/if}
 
 <TR id="tr_sip_accounts">
-    <TD class=left width=40%>Кол-во SIP учеток:</td>
-    <TD class=right width=60%>
+    <TD align=right width=40%>Кол-во SIP учеток:</td>
+    <TD class=text width=60%>
         <select name="sip_accounts" id="sip_accounts">
             <option value="0">не создавать</option>
             <option value="1">1 учетка</option>

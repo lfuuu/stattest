@@ -87,6 +87,7 @@ namespace clCards;
 		const type = 32768;
 		const currency = 65536;
 		const price_type = 131072;
+        const organization_id = 262144;
 
 		public $client;
 		public $card_id;
@@ -106,6 +107,7 @@ namespace clCards;
 		public $type;
 		public $currency;
 		public $price_type;
+        public $organization_id;
 
 		private $mask = 0;
 
@@ -274,8 +276,16 @@ namespace clCards;
 			$this->firma = $f;
 			if($this->firma)
 				$this->mask |= self::firma;
-			return $this;
+			return $this->setOrganizationId($f);
 		}
+        private function setOrganizationId($firma) {
+            $organization = \app\models\Organization::find()->where(['organization.firma' => $firma])->actual()->one();
+            $this->organization_id = $organization->organization_id;
+            if ($this->organization_id)
+                $this->mask |= self::organization_id;
+
+            return $this;
+        }
 		public function setType($t){
 			$this->type = $t;
 			if($this->type)

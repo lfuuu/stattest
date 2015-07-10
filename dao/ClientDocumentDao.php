@@ -128,8 +128,8 @@ class ClientDocumentDao extends Singleton
         $design = \app\classes\Smarty::init();
         $design->assign('client', $account);
         $design->assign('contract', $document);
-        $design->assign('firm_detail', Company::getDetail($account->contract->organization, $contractDate));
-        $design->assign('firm', Company::getProperty($account->contract->organization, $contractDate));
+        $design->assign('firm_detail', Company::getDetail($account->contract->organization->firma, $contractDate));
+        $design->assign('firm', Company::getProperty($account->contract->organization->firma, $contractDate));
 
         $content = $this->contract_fix_static_parts_of_template($design, file_get_contents($file));
         file_put_contents($file, $content);

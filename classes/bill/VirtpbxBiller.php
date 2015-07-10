@@ -99,6 +99,7 @@ class VirtpbxBiller extends Biller
             Virtpbx::find()
                 ->select('use_space,numbers')
                 ->andWhere(['client_id' => $this->clientAccount->id])
+                ->andWhere(['usage_id' => $this->usage->id])
                 ->andWhere('date >= :from', [':from' => $from->format('Y-m-d')])
                 ->andWhere('date <= :to', [':to' => $to->format('Y-m-d')])
                 ->asArray()
