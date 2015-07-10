@@ -95,6 +95,7 @@ class Bill {
             $bill->is_lk_show = $isLkShow ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
+            $bill->price_include_vat = $this->client_data['price_include_vat'];
             $bill->save();
         }
 
