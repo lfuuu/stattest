@@ -77,7 +77,7 @@ class LkWizardState extends ActiveRecord
         $bill->is_approved = 1;
         $bill->bill_date = date('Y-m-d');
         $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
-        $bill->price_include_vat = $clientAccount->isPriceIncludeVat();
+        $bill->price_include_vat = $clientAccount->price_include_vat;
         $bill->save();
 
         $line = new BillLine(["bill_no" => $bill->bill_no]);

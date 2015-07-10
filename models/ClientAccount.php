@@ -203,9 +203,4 @@ class ClientAccount extends ActiveRecord
     {
         return $this->nds_zero ? 0 : $this->getOrganization()->vat_rate;
     }
-
-    public function isPriceIncludeVat()
-    {
-        return $this->price_include_vat;
-    }
 }
