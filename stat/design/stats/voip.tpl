@@ -11,13 +11,13 @@
           <TD class=header vAlign=bottom>Направление</TD>
           <TD class=header vAlign=bottom>Входящий номер</TD>
           <TD class=header vAlign=bottom>Время разговора</TD>
-          <TD class=header vAlign=bottom>Стоимость (без НДС)</TD>
+          <TD class=header vAlign=bottom>Стоимость{if !$price_include_vat} (без НДС){/if}</TD>
           <TD class=header vAlign=bottom>Назначение</TD>
 {else}
           <TD class=header vAlign=bottom>Дата/время</TD>
           <TD class=header vAlign=bottom>Число звонков</TD>
           <TD class=header vAlign=bottom>Время разговора</TD>
-          <TD class=header vAlign=bottom>Стоимость (без НДС)</TD>
+          <TD class=header vAlign=bottom>Стоимость{if !$price_include_vat} (без НДС){/if}</TD>
 {/if}
         </TR>
 
