@@ -26,6 +26,9 @@ use app\models\ClientContact;
  * @property Country $country
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
+ *
+ * @method static ClientAccount findOne($condition)
+
  * @property
  */
 class ClientAccount extends ActiveRecord
