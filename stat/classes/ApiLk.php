@@ -1,5 +1,7 @@
 <?php 
 use app\models\BillDocument;
+use app\models\ClientAccount;
+use app\models\Country;
 
 class ApiLk
 {
@@ -638,7 +640,22 @@ class ApiLk
         return $ret;
     }
 
-    public static function getVpbxTarifs($currency = 'RUB', $status = 'public')
+    public static function getVpbxTarifs($accountId = 0)
+    {
+        $currency = "RUB";
+        $status = "public";
+
+        $account = app\models\ClientAccount::findOne(["id" => $accountId]);
+        if ($account)
+        {
+            $currency = $account->currency;
+        }
+
+        return self::_getVpbxTarifs($currency, $status);
+
+    }
+
+    public static function _getVpbxTarifs($currency = 'RUB', $status = 'public')
     {
         $ret = array();
         foreach(NewBill::find_by_sql("
@@ -861,25 +878,33 @@ class ApiLk
         $region_id = (int)$region_id;
         $tarif_id = (int)$tarif_id;
     
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+        $account = ClientAccount::findOne(["id" => $client_id]);
+        if (!$region_id)
+        {
+            if ($account)
+            {
+                $region_id = $account->region;
+            }
+        }
+
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
     
-        if (!$client || !$region || !$tarif)
+        if (!$account || !$region || !$tarif)
             throw new Exception("data_error");
     
         $message = "Заказ услуги Виртуальная АТС из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->company . " (Id: $client_id)\n";
         $message .= 'Регион: ' . $region['name'] . "\n";
         $message .= 'Тарифный план: ' . $tarif["name"];
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
-                            "client"        => $client["client"],
+                            "client"        => $account->client,
                             "actual_from"   => "4000-01-01",
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
-                            "server_pbx_id" => 2 //vpbx-msk
+                            "server_pbx_id" => $account->getServerPbxId($region)
                             )
                         );
 

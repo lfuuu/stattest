@@ -219,4 +219,9 @@ class ClientAccount extends ActiveRecord
         return [$sum, $sum_without_tax, $sum_tax];
     }
 
+    public function getServerPBXId($region)
+    {
+        return self::dao()->getServerPBXId($this, $region);
+    }
+
 }

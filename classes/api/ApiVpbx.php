@@ -147,6 +147,8 @@ class ApiVpbx
 
     public static function getVpbxHost($usageId)
     {
+        return defined("PHONE_SERVER") ? PHONE_SERVER : false;
+        /*
         $command =
             Yii::$app->db->createCommand('
                 SELECT s.ip
@@ -156,6 +158,7 @@ class ApiVpbx
             ', [':usageId' => $usageId]);
 
         return $command->queryScalar();
+         */
     }
 
     public static function getTariff($usageId)
