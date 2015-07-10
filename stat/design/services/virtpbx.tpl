@@ -28,7 +28,7 @@
     	
     </td>
 	<td>{$item.tarif.description}</td>
-	<td>{$item.tarif.price*1.18|round:2} ({$item.tarif.price*1})</td>
+	<td>{$item.tarif.price}</td>
 	<td>{$item.server_pbx}</td>
 </tr>	
 {/foreach}

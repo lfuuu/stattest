@@ -353,12 +353,16 @@ class m_stats extends IModule{
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
 
-                $rt['price_without_tax'] = number_format($rt['price'] * ((100 + $tax_rate) / 100), 2, '.', '');
-                $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-                $rt['price'] =
-                    $clientAccount->price_include_vat
-                        ? $rt['price_with_tax'] . ' (включая НДС)'
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                if ($clientAccount->price_include_vat) {
+                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
+                } else {
+                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                }
+
                 break;
             case 'call':
                 foreach ($data as $r_id=>$reg_data) {
@@ -383,12 +387,16 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                $rt['price_without_tax'] = number_format($rt['price'] / ((100 + $tax_rate) / 100), 2, '.','');
-                $rt['price_with_tax'] = number_format($rt['price'], 2, '.','');
-                $rt['price'] =
-                    $clientAccount->price_include_vat
-                        ? $rt['price_with_tax'] . ' (включая НДС)'
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                if ($clientAccount->price_include_vat) {
+                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
+                } else {
+                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                }
+
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -426,12 +434,16 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                $rt['price_without_tax'] = number_format($rt['price'] / ((100 + $tax_rate) / 100), 2, '.', '');
-                $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-                $rt['price'] =
-                    $clientAccount->price_include_vat
-                        ? $rt['price_with_tax'] . ' (включая НДС)'
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                if ($clientAccount->price_include_vat) {
+                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
+                } else {
+                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
+                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+                }
+
             break;
         }
 
@@ -1160,12 +1172,15 @@ class m_stats extends IModule{
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
 
-            $rt['price_with_tax'] = number_format($rt['price'] * ((100 + $tax_rate) / 100), 2, '.', '');
-            $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-            $rt['price'] =
-                    $clientAccount->price_include_vat
-                        ? $rt['price_with_tax'] . ' (включая НДС)'
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+            if ($clientAccount->price_include_vat) {
+                $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
+                $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
+            } else {
+                $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
+                $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+            }
 
             $R['total']=$rt;
         }else{
@@ -1218,12 +1233,15 @@ class m_stats extends IModule{
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
 
-            $rt['price_without_tax'] = number_format($price * ((100 + $tax_rate) / 100), 2, '.', '');
-            $rt['price_with_tax'] = number_format($price, 2, '.', '');
-            $rt['price'] =
-                    $clientAccount->price_include_vat
-                        ? $rt['price_with_tax'] . ' (включая НДС)'
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+            if ($clientAccount->price_include_vat) {
+                $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
+                $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
+            } else {
+                $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
+                $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
+            }
 
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
