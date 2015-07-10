@@ -178,16 +178,45 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
 		$this->Headers['i']='Тарифы на интернет';
 		$this->Headers['v']='Тарифы на VPN';
 		$this->Headers['c']='Тарифы на Collocation';
-		$this->FieldSets['i']=array('name'=>'Название','pay_once'=>'Подключение','Ежемесячно'=>array('pay_month'=>'сумма','mb_month'=>'Мб'),'pay_mb'=>'сумма/мб','comment'=>'комментарий');
-		$this->FieldSets['v']=array('name'=>'Название','pay_once'=>'Подключение','Ежемесячно'=>array('pay_month'=>'сумма','mb_month'=>'Мб'),'pay_mb'=>'сумма/мб','comment'=>'комментарий');
-		$this->FieldSets['c']=array('name'=>'Название',
-							'pay_once'=>'Подключение',
-							'pay_month'=>'Аб. плата',
-							'Мб в месяц'=>array('month_r'=>'R','month_r2'=>'R2','month_f'=>'F'),
-							'Плата за Мб'=>array('pay_r'=>'R','pay_r2'=>'R2','pay_f'=>'F'),
-							'pay_once'=>'Подключение',
-							'comment'=>'комментарий'
-							);
+        $this->FieldSets['i'] = [
+            'name' => 'Название',
+            'price_include_vat' => 'НДС',
+            'pay_once' => 'Подключение',
+            'Ежемесячно' => [
+                'pay_month' => 'сумма',
+                'mb_month' => 'Мб',
+            ],
+            'pay_mb' => 'сумма/мб',
+            'comment'=>'комментарий',
+        ];
+        $this->FieldSets['v'] = [
+            'name' => 'Название',
+            'price_include_vat' => 'НДС',
+            'pay_once' => 'Подключение',
+            'Ежемесячно' => [
+                'pay_month' => 'сумма',
+                'mb_month' => 'Мб',
+            ]
+            ,'pay_mb' => 'сумма/мб',
+            'comment' => 'комментарий',
+        ];
+        $this->FieldSets['c'] = [
+            'name' => 'Название',
+            'price_include_vat' => 'НДС',
+            'pay_once' => 'Подключение',
+            'pay_month' => 'Аб. плата',
+            'Мб в месяц' => [
+                'month_r' => 'R',
+                'month_r2' => 'R2',
+                'month_f' => 'F'
+            ],
+            'Плата за Мб' => [
+                'pay_r' => 'R',
+                'pay_r2' => 'R2',
+                'pay_f' => 'F'
+            ],
+            'comment' => 'комментарий'
+        ];
 		$this->filters[]='std';
 		$this->SetFieldSet('i');
 	}
@@ -261,12 +290,13 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
 	public function constructChild() {
 		$this->table='tarifs_extra';
 		$this->Headers['z']='Тарифы на дополнительные услуги';
-		$this->FieldSets['z']=array(
-							'description'=>'Описание',
-							'code' => 'Код',
-							'price'=>'Стоимость',
-							'period' => 'Период',
-							);
+        $this->FieldSets['z'] = [
+            'description' => 'Описание',
+            'code' => 'Код',
+            'price_include_vat' => 'НДС',
+            'price'=> 'Стоимость',
+            'period' => 'Период',
+        ];
 		$this->fieldset='z';
 
 		$this->SQLFilters['pa']='1 and code not in ("welltime","wellsystem")';
@@ -317,11 +347,12 @@ class DbViewTarifsITPark extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
 		$this->Headers['z'] = 'Тарифы ITPark';
-		$this->FieldSets['z']=array(
-			'description'=>'Описание',
-			'price'=>'Стоимость',
-			'period' => 'Период',
-		);
+        $this->FieldSets['z'] = [
+            'description' =>'Описание',
+            'price_include_vat' =>'НДС',
+            'price' => 'Стоимость',
+            'period' => 'Период',
+        ];
 		$this->fieldset = 'z';
 
 		$this->SQLFilterGroups = array('Группа тарифов'=>array('itpark'));
@@ -340,11 +371,12 @@ class DbViewTarifsWelltime extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
 		$this->Headers['z'] = 'Тарифы Welltime';
-		$this->FieldSets['z']=array(
-			'description'=>'Описание',
-			'price'=>'Стоимость',
-			'period' => 'Период',
-		);
+        $this->FieldSets['z']=array(
+            'description' => 'Описание',
+            'price_include_vat' => 'НДС',
+            'price' => 'Стоимость',
+            'period' => 'Период',
+        );
 		$this->fieldset = 'z';
 
 		//$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный','adsl_su'=>'adsl.su'));
@@ -376,11 +408,12 @@ class DbViewTarifsVirtpbx extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_virtpbx';
 		$this->Headers['z'] = 'Тарифы на виртуальную АТС';
-		$this->FieldSets['z']=array(
-			'description'=>'Описание',
-			'price'=>'Стоимость',
-			'period' => 'Период',
-		);
+        $this->FieldSets['z']=array(
+            'description' => 'Описание',
+            'price_include_vat' => 'НДС',
+            'price' => 'Стоимость',
+            'period' => 'Период',
+        );
 		$this->fieldset = 'z';
 
 		$this->SQLFilterGroups['Состояние'] = array('public', 'special', 'archive');
@@ -403,11 +436,12 @@ class DbViewTarifsSms extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_sms';
 		$this->Headers['z'] = 'Тарифы на SMS';
-		$this->FieldSets['z']=array(
-			'description'=>'Описание',
-			'per_month_price'=>'Абонентская плата, руб. с НДС',
-			'per_sms_price'=>'за 1 СМС, руб с НДС',
-		);
+        $this->FieldSets['z'] = [
+            'description'=>'Описание',
+            'price_include_vat' => 'НДС',
+            'per_month_price' => 'Абонентская плата, руб.',
+            'per_sms_price' => 'за 1 СМС, руб.',
+        ];
 		$this->fieldset = 'z';
 
 		$this->SQLFilterGroups['Состояние'] = array('public', 'archive');
@@ -428,11 +462,12 @@ class DbViewTarifsWellSystem extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
 		$this->Headers['z'] = 'Тарифы WellSystem';
-		$this->FieldSets['z']=array(
-			'description'=>'Описание',
-			'price'=>'Стоимость',
-			'period' => 'Период',
-		);
+        $this->FieldSets['z'] = [
+            'description' => 'Описание',
+            'price_include_vat' => 'НДС',
+            'price' => 'Стоимость',
+            'period' => 'Период',
+        ];
 		$this->fieldset = 'z';
 
 		$this->SQLFilterGroups = array('Группа тарифов'=>array('wellsystem'));
