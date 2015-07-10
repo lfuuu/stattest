@@ -3,6 +3,7 @@
 use app\classes\Utils;
 use app\models\ClientAccount;
 use app\models\Organization;
+use app\classes\Assert;
 
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
@@ -810,6 +811,7 @@ class ClientCS {
             "voip_is_day_calc" => 1,
             "credit" => 0,
             "timezone_name" => 'Europe/Moscow',
+            "price_include_vat" => 1,
         );
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
@@ -820,6 +822,14 @@ class ClientCS {
             if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
                 return false;    //дубликат
         }
+
+        if ($this->F['contract_type_id'] == 3 || $this->F['country_id'] == 348)
+            $this->F['price_include_vat'] = 0;
+
+        $organization = Organization::find()->byId($this->F['organization_id'])->actual()->one();
+        Assert::isObject($organization);
+        $this->F['firma'] = $organization->firma;
+
         $q1 = '';
         $q2 = '';
         foreach($this->F as $k=>$v)
@@ -989,8 +999,14 @@ class ClientCS {
 
         if (count($this->F)>1) {
 
-            $organization = \app\models\Organization::find()->byId($this->F['organization_id'])->actual()->one();
+            $organization = Organization::find()->byId($this->F['organization_id'])->actual()->one();
+            Assert::isObject($organization);
             $this->F['firma'] = $organization->firma;
+
+            $this->F['price_include_vat'] =
+                $this->F['contract_type_id'] == 3 || $this->F['country_id'] == 348
+                    ? 0
+                    : 1;
 
             if(isset($this->F["voip_disabled"]) && $this->F["voip_disabled"] == "") $this->F["voip_disabled"] = 0;
             if(isset($this->F["nds_zero"]) && $this->F["nds_zero"] == "") $this->F["nds_zero"] = 0;
