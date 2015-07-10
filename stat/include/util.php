@@ -1001,9 +1001,12 @@ class ClientCS {
 
         if (count($this->F)>1) {
 
-            $organization = Organization::find()->byId($this->F['organization_id'])->actual()->one();
-            Assert::isObject($organization);
-            $this->F['firma'] = $organization->firma;
+            if (isset($this->F['organization_id']))
+            {
+                $organization = Organization::find()->byId($this->F['organization_id'])->actual()->one();
+                Assert::isObject($organization);
+                $this->F['firma'] = $organization->firma;
+            }
 
             $this->F['price_include_vat'] =
                 $this->F['contract_type_id'] == Contract::TYPE_OPERATOR || $this->F['country_id'] == Country::HUNGARY
