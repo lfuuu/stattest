@@ -358,7 +358,7 @@ class m_stats extends IModule{
                 $rt['price'] =
                     $clientAccount->price_include_vat
                         ? $rt['price_with_tax']
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - включая НДС</b>)';
+                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
                 break;
             case 'call':
                 foreach ($data as $r_id=>$reg_data) {
@@ -388,7 +388,7 @@ class m_stats extends IModule{
                 $rt['price'] =
                     $clientAccount->price_include_vat
                         ? $rt['price_with_tax']
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - включая НДС</b>)';
+                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -431,7 +431,7 @@ class m_stats extends IModule{
                 $rt['price'] =
                     $clientAccount->price_include_vat
                         ? $rt['price_with_tax']
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - включая НДС</b>)';
+                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
             break;
         }
 
@@ -1165,7 +1165,7 @@ class m_stats extends IModule{
             $rt['price'] =
                     $clientAccount->price_include_vat
                         ? $rt['price_with_tax']
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - включая НДС</b>)';
+                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
 
             $R['total']=$rt;
         }else{
@@ -1223,7 +1223,7 @@ class m_stats extends IModule{
             $rt['price'] =
                     $clientAccount->price_include_vat
                         ? $rt['price_with_tax']
-                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - включая НДС</b>)';
+                        : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
 
             $rt['cnt']=$cnt;
             $R['total'] = $rt;

@@ -13,12 +13,9 @@ class m150707_152123_inc_vat_to_tariff extends \app\classes\Migration
         ");
 
         $this->execute("
-            UPDATE `clients` c LEFT JOIN `organization` o ON
-                c.`organization_id` = o.`organization_id` AND
-                o.`actual_from` <= CAST(NOW() AS DATE) AND
-                o.`actual_to` > CAST(NOW() AS DATE)
+            UPDATE `clients` c
             SET c.`price_include_vat` = 0
-            WHERE c.`contract_type_id` = 3 OR c.`country_id` != 643
+            WHERE c.`contract_type_id` = 3 OR c.`country_id` = 348
         ");
 
         $this->execute("
