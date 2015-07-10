@@ -141,10 +141,10 @@ class m_tarifs{
     function tarifs_voip(){
         global $db, $pg_db, $design;
 
-        $f_country = get_param_integer('f_country', '643');
-        $f_region = get_param_integer('f_region', '99');
+        $f_country = get_param_integer('f_country', '');
+        $f_region = get_param_integer('f_region', '');
         $f_dest = get_param_protected('f_dest', '');
-        $f_currency = get_param_protected('f_currency', 'RUB');
+        $f_currency = get_param_protected('f_currency', '');
         $f_show_archive = get_param_integer('f_show_archive', 0);
         $design->assign('f_country',$f_country);
         $design->assign('f_region',$f_region);
@@ -152,10 +152,15 @@ class m_tarifs{
         $design->assign('f_currency',$f_currency);
         $design->assign('f_show_archive',$f_show_archive);
 
-        $where = 'where t.country_id='.(int)$f_country . ' and t.region='.(int)$f_region;
+        $where = 'where 1=1 ';
+        if ($f_country != '')
+            $where .= ' and t.country_id='.(int)$f_country;
+        if ($f_region != '')
+            $where .= ' and t.region='.(int)$f_region;
         if ($f_dest != '')
             $where .= ' and t.dest='.(int)$f_dest;
-        $where .= " and t.currency='$f_currency'";
+        if ($f_currency != '')
+            $where .= ' and t.currency='.(int)$f_currency;
         if ($f_show_archive == 0)
           $where .= ' and t.status!="archive"';
 
@@ -168,7 +173,7 @@ class m_tarifs{
 
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
-        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'id'));
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'code'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
         $design->AddMain('tarifs/voip_list.tpl');
@@ -224,7 +229,7 @@ class m_tarifs{
 
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
-        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'id'));
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'code'));
         $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));

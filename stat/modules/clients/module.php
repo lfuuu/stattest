@@ -67,6 +67,7 @@ class m_clients {
 //					array('Все клиенты',			'all'),
 					array('Новый клиент',			'new'),
 					array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
+/*
 					array('Телемаркетинг',			'show','&subj=telemarketing'),
 					array('Входящие',				'show','&subj=income'),
 					array('В стадии переговоров',	'show','&subj=negotiations'),
@@ -87,6 +88,7 @@ class m_clients {
 					array('Телефония отключена',	'show','&subj=voip_disabled'),
 					array('Временно заблокирован',	'show','&subj=blocked'),
 					array('',						'sc'),
+        */
 					array('Каналы продаж',			'sc'),
 					array('Отчёт по файлам',		'files_report'),
 				);
@@ -1217,6 +1219,8 @@ class m_clients {
             "business_process_id" => 1,
             "business_process_status_id" => 19,
             "credit" => 0,
+            "country_id" => 643,
+            "region" => 99,
             'timezone_name' => 'Europe/Moscow',
         ];
         $design->assign("client", $client);
@@ -1232,6 +1236,7 @@ class m_clients {
         $design->assign("l_metro", ClientCS::GetMetroList());
         $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
         $design->assign('regions',$db->AllRecords('select * from regions order by id desc', 'id'));
+        $design->assign('countries',$db->AllRecords('select * from country where in_use > 0 ', 'code'));
 
         $design->assign("history_flags", $this->get_history_flags(0));
 
