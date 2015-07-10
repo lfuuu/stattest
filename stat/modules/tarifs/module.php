@@ -121,6 +121,11 @@ class m_tarifs{
         $res = $db->AllRecords("select t.* from tarifs_voip t ".$where.' order by case t.dest >= 4 when true then t.dest else t.dest + 10 end, name');
         $tarifs_by_dest = array();
         foreach ($res as $r) {
+            $r['month_line'] = (float)$r['month_line'];
+            $r['month_number'] = (float)$r['month_number'];
+            $r['once_line'] = (float)$r['once_line'];
+            $r['once_number'] = (float)$r['once_number'];
+            $r['month_min_payment'] = (float)$r['month_min_payment'];
             $tarifs_by_dest[$r['dest']][] = $r;
         }
 
@@ -138,11 +143,11 @@ class m_tarifs{
             $data['name'] = $_POST['name'];
             $data['name_short'] = $_POST['name_short'];
             $data['status'] = $_POST['status'];
-            $data['month_line'] = (int)$_POST['month_line'];
-            $data['month_number'] = (int)$_POST['month_number'];
-            $data['month_min_payment'] = (int)$_POST['month_min_payment'];
-            $data['once_line'] = (int)$_POST['once_line'];
-            $data['once_number'] = (int)$_POST['once_number'];
+            $data['month_line'] = (float)$_POST['month_line'];
+            $data['month_number'] = (float)$_POST['month_number'];
+            $data['month_min_payment'] = (float)$_POST['month_min_payment'];
+            $data['once_line'] = (float)$_POST['once_line'];
+            $data['once_number'] = (float)$_POST['once_number'];
             $data['free_local_min'] = (int)$_POST['free_local_min'];
             $data['freemin_for_number'] = (get_param_integer('freemin_for_number', 0) > 0 ? 1 : 0);
             $data['pricelist_id'] = (int)$_POST['pricelist_id'];

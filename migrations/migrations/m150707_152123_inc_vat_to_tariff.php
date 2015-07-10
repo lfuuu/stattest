@@ -43,6 +43,11 @@ class m150707_152123_inc_vat_to_tariff extends \app\classes\Migration
 
         $this->execute("
             ALTER TABLE `tarifs_voip`
+                MODIFY COLUMN `month_line`  decimal(11,2) NOT NULL DEFAULT 0 AFTER `sum_deposit`,
+                MODIFY COLUMN `month_number`  decimal(11,2) NOT NULL DEFAULT 0 AFTER `month_line`,
+                MODIFY COLUMN `once_line`  decimal(11,2) NOT NULL DEFAULT 0 AFTER `month_number`,
+                MODIFY COLUMN `once_number`  decimal(11,2) NOT NULL DEFAULT 0 AFTER `once_line`,
+                MODIFY COLUMN `month_min_payment`  decimal(11,2) NOT NULL DEFAULT 0 AFTER `freemin_for_number`,
                 ADD COLUMN `price_include_vat` TINYINT(1) NULL DEFAULT '1' AFTER `is_virtual`;
         ");
     }
