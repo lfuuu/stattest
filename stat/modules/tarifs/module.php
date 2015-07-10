@@ -121,6 +121,11 @@ class m_tarifs{
         $res = $db->AllRecords("select t.* from tarifs_voip t ".$where.' order by case t.dest >= 4 when true then t.dest else t.dest + 10 end, name');
         $tarifs_by_dest = array();
         foreach ($res as $r) {
+            $r['month_line'] = (float)$r['month_line'];
+            $r['month_number'] = (float)$r['month_number'];
+            $r['once_line'] = (float)$r['once_line'];
+            $r['once_number'] = (float)$r['once_number'];
+            $r['month_min_payment'] = (float)$r['month_min_payment'];
             $tarifs_by_dest[$r['dest']][] = $r;
         }
 

@@ -10,41 +10,52 @@
 <input type="hidden" name="module" value="tarifs"/>
 <input type="hidden" name="action" value="voip"/>
 <table>
-<tr><td>Регион:</td><td>
-    <select name="f_region" onchange="report()">
-        <option value=""> -- Выберите регион -- </option>
-    {foreach from=$regions item='r'}
-        <option value="{$r.id}"{if $r.id eq $f_region} selected{/if}>{$r.id}. {$r.name}</option>
-    {/foreach}
-    </select>
-</td>
-<td rowspan="3" valign="top" align="right" width="300">
-    {if access('tarifs','edit')}
-    <a href="?module=tarifs&action=voip_edit">Добавить тариф</a>
-    {/if}
-</td>
-</tr>
-<tr><td>Направление:</td><td>
-    <select name="f_dest" onchange="report()">
-        <option value=""> -- Все направления -- </option>
-        <option value="4"{if '4' eq $f_dest} selected{/if}>Местные Стационарные</option>
-        <option value="5"{if '5' eq $f_dest} selected{/if}>Местные Мобильные</option>
-        <option value="1"{if '1' eq $f_dest} selected{/if}>Россия</option>
-        <option value="2"{if '2' eq $f_dest} selected{/if}>Международка</option>
-    </select>
-</td></tr>
-<tr><td>Валюта:</td><td>
-    <select name="f_currency" onchange="report()">
-        <option value=""> -- Все валюты -- </option>
-        <option value="RUB"{if 'RUB' eq $f_currency} selected{/if}>RUB</option>
-        <option value="USD"{if 'USD' eq $f_currency} selected{/if}>USD</option>
-        <option value="HUF"{if 'HUF' eq $f_currency} selected{/if}>HUF</option>
-        <option value="EUR"{if 'EUR' eq $f_currency} selected{/if}>EUR</option>
-    </select>
-</td></tr>
-<tr><td>Показывать архивные:</td><td>
-  <input type="checkbox" name="f_show_archive" {if $f_show_archive > 0}checked{/if} value="1" onchange="report()"/>
-</td></tr>
+    <tr>
+        <td>Регион:</td>
+        <td>
+            <select name="f_region" onchange="report()">
+                <option value=""> -- Выберите регион -- </option>
+            {foreach from=$regions item='r'}
+                <option value="{$r.id}"{if $r.id eq $f_region} selected{/if}>{$r.id}. {$r.name}</option>
+            {/foreach}
+            </select>
+        </td>
+        <td rowspan="3" valign="top" align="right" width="300">
+            {if access('tarifs','edit')}
+            <a href="?module=tarifs&action=voip_edit">Добавить тариф</a>
+            {/if}
+        </td>
+    </tr>
+    <tr>
+        <td>Направление:</td>
+        <td>
+            <select name="f_dest" onchange="report()">
+                <option value=""> -- Все направления -- </option>
+                <option value="4"{if '4' eq $f_dest} selected{/if}>Местные Стационарные</option>
+                <option value="5"{if '5' eq $f_dest} selected{/if}>Местные Мобильные</option>
+                <option value="1"{if '1' eq $f_dest} selected{/if}>Россия</option>
+                <option value="2"{if '2' eq $f_dest} selected{/if}>Международка</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Валюта:</td>
+        <td>
+            <select name="f_currency" onchange="report()">
+                <option value=""> -- Все валюты -- </option>
+                <option value="RUB"{if 'RUB' eq $f_currency} selected{/if}>RUB</option>
+                <option value="USD"{if 'USD' eq $f_currency} selected{/if}>USD</option>
+                <option value="HUF"{if 'HUF' eq $f_currency} selected{/if}>HUF</option>
+                <option value="EUR"{if 'EUR' eq $f_currency} selected{/if}>EUR</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Показывать архивные:</td>
+        <td>
+          <input type="checkbox" name="f_show_archive" {if $f_show_archive > 0}checked{/if} value="1" onchange="report()"/>
+        </td>
+    </tr>
 </table>
 </form>
 
@@ -58,6 +69,7 @@
         <td class=header rowspan="2">Метод<br/>тарификации</td>
         <td class=header colspan="2"><b>Ежемесячно</b></td>
         <td class=header colspan="2"><b>Подключение</b></td>
+        <td class=header rowspan="2">НДС</td>
         <td class=header rowspan="2">Направление</td>
         <td class=header rowspan="2">Валюта</td>
         <td class=header rowspan="2">Прайслист</td>
@@ -69,7 +81,7 @@
         <td class=header>за номер</td>
     </tr>
 {foreach from=$tarifs_by_dest item='tarifs' key='dest'}
-    <tr class="{cycle values='even,odd'}"><td colspan="14"><b>{$dests[$dest]}</b></td></tr>
+    <tr class="{cycle values='even,odd'}"><td colspan="15"><b>{$dests[$dest]}</b></td></tr>
     {foreach from=$tarifs item='o'}
         <tr class="{cycle values='even,odd'}">
             <td>{if access('tarifs','edit')}<a href='index.php?module=tarifs&action=voip_edit&id={$o.id}'>{$o.name}</a>{else}{$o.name}{/if} {$o.name_short}</td>
@@ -94,6 +106,7 @@
             <td align="center">{$o.month_number}</td>
             <td align="center">{$o.once_line}</td>
             <td align="center">{$o.once_number}</td>
+            <td align="center">{if $o.price_include_vat}Вкл. НДС{else}Без НДС{/if}</td>
             <td>{$dests[$o.dest]}</td>
             <td align="center">{$o.currency}</td>
             <td>{$pricelists[$o.pricelist_id].name}</td>
