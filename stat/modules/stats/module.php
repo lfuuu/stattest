@@ -352,8 +352,8 @@ class m_stats extends IModule{
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
 
                 $rt['price_with_tax'] = number_format($rt['price'], 2, '.','');
-                $rt['price_without_tax'] = number_format($rt['price'] / (1 + $tax_rate), 2, '.','');
-                $rt['price'] = number_format($rt['price'] / (1 + $tax_rate), 2, '.','') .' (<b>'.number_format($rt['price'], 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax'] = number_format($rt['price'] / (1 + $tax_rate/100), 2, '.','');
+                $rt['price'] = number_format($rt['price'] / (1 + $tax_rate/100), 2, '.','') .' (<b>'.number_format($rt['price'], 2, '.','').' - Сумма с НДС</b>)';
                 break;
             case 'call':
                 foreach ($data as $r_id=>$reg_data) {
@@ -1149,8 +1149,8 @@ class m_stats extends IModule{
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
 
             $rt['price_with_tax'] = number_format($rt['price'], 2, '.','');
-            $rt['price_without_tax'] = number_format($rt['price'] / (1 + $tax_rate), 2, '.','');
-            $rt['price'] = number_format($rt['price'] / (1 + $tax_rate), 2, '.','') .' (<b>'.number_format($rt['price'], 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price_without_tax'] = number_format($rt['price'] / (1 + $tax_rate/100), 2, '.','');
+            $rt['price'] = number_format($rt['price'] / (1 + $tax_rate/100), 2, '.','') .' (<b>'.number_format($rt['price'], 2, '.','').' - Сумма с НДС</b>)';
 
             $R['total']=$rt;
         }else{

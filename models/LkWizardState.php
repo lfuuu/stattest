@@ -64,7 +64,7 @@ class LkWizardState extends ActiveRecord
     {
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->account_id);
-        $tax_rate = $clientAccount->getTaxRate(true);
+        $tax_rate = $clientAccount->getTaxRate();
 
         $sum = -100;
 

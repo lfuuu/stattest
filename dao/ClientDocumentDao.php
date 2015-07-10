@@ -327,31 +327,37 @@ class ClientDocumentDao extends Singleton
 
     private function makeBlankZakaz($clientId)
     {
+        /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne(["id" => $clientId]);
         $client = $clientAccount->client;
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
+        $taxRate = $clientAccount->getTaxRate();
 
-        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
+        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
         {
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
+
             $data['voip'][] = [
-                'from' => strtotime($a->actual_from),
-                'address' => $a->address ?: $a->datacenter->address,
-                'description' => "Телефонный номер: " . $a->E164,
-                'number' => $a->E164,
-                'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min * ($a->currentTariff->freemin_for_number ? 1 : $a->no_of_lines),
-                'connect_price' => (string)$a->voipNumber->price,
-                'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->getAbonPerMonth() / $a->getTaxRate(), 2),
-                'per_month_with_tax' => round($a->getAbonPerMonth(), 2)
+                'from' => strtotime($usage->actual_from),
+                'address' => $usage->address ?: $usage->datacenter->address,
+                'description' => "Телефонный номер: " . $usage->E164,
+                'number' => $usage->E164,
+                'lines' => $usage->no_of_lines,
+                'free_local_min' => $usage->currentTariff->free_local_min * ($usage->currentTariff->freemin_for_number ? 1 : $usage->no_of_lines),
+                'connect_price' => (string)$usage->voipNumber->price,
+                'tarif_name' => $usage->currentTariff->name,
+                'per_month' => round($sum_without_tax, 2),
+                'per_month_with_tax' => round($sum, 2)
             ];
         }
 
-        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage)
         {
-            switch($a->currentTariff->type)
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->pay_month, $taxRate);
+
+            switch($usage->currentTariff->type)
             {
                 case 'C': $block = 'colocation'; break;
                 case 'V': $block = 'vpn';break;
@@ -360,54 +366,60 @@ class ClientDocumentDao extends Singleton
             }
 
             $data[$block][] = [
-                'from' => strtotime($a->actual_from),
-                'id' => $a->id,
-                'tarif_name' => $a->currentTariff->name,
-                'pay_once' => $a->currentTariff->pay_once,
-                'gb_month' => $a->currentTariff->mb_month/1024,
-                'pay_mb' => $a->currentTariff->pay_mb,
-                'per_month' => round($a->currentTariff->pay_month / $a->getTaxRate(), 2),
-                'per_month_with_tax' => round($a->currentTariff->pay_month, 2)
+                'from' => strtotime($usage->actual_from),
+                'id' => $usage->id,
+                'tarif_name' => $usage->currentTariff->name,
+                'pay_once' => $usage->currentTariff->pay_once,
+                'gb_month' => $usage->currentTariff->mb_month/1024,
+                'pay_mb' => $usage->currentTariff->pay_mb,
+                'per_month' => round($sum_without_tax, 2),
+                'per_month_with_tax' => round($sum, 2)
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
+        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
         {
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price, $taxRate);
+
             $data['vats'][] = [
-                'from' => strtotime($a->actual_from),
-                'description' => "ВАТС ".$a->id,
-                'tarif_name' => $a->currentTariff->description,
-                'space' => $a->currentTariff->space,
-                'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
-                'num_ports' => $a->currentTariff->num_ports,
-                'overrun_per_port' => $a->currentTariff->overrun_per_port,
-                'per_month' => round($a->currentTariff->price / $a->getTaxRate(), 2),
-                'per_month_with_tax' => round($a->currentTariff->price, 2)
+                'from' => strtotime($usage->actual_from),
+                'description' => "ВАТС ".$usage->id,
+                'tarif_name' => $usage->currentTariff->description,
+                'space' => $usage->currentTariff->space,
+                'over_space_per_gb' => $usage->currentTariff->overrun_per_gb,
+                'num_ports' => $usage->currentTariff->num_ports,
+                'overrun_per_port' => $usage->currentTariff->overrun_per_port,
+                'per_month' => round($sum_without_tax, 2),
+                'per_month_with_tax' => round($sum, 2)
             ];
         }
 
         /*
-        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $usage)
         {
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->per_month_price, $taxRate);
+
             $data['sms'][] = [
-                'from' => $a->actual_from,
+                'from' => $usage->actual_from,
                 'description' => "SMS-рассылка",
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->per_month_price / $a->getTaxRate(), 2),
-                'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
+                'tarif_name' => $usage->currentTariff->description,
+                'per_month' => round($sum_without_tax, 2),
+                'per_month_with_tax' => round($sum, 2)
             ];
         }
         */
 
-        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage)
         {
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price * $usage->amount, $taxRate);
+
             $data['extra'][] = [
-                'from' => strtotime($a->actual_from),
-                'tarif_name' => $a->currentTariff->description,
-                'amount' => $a->amount,
+                'from' => strtotime($usage->actual_from),
+                'tarif_name' => $usage->currentTariff->description,
+                'amount' => $usage->amount,
                 'pay_once' => 0,
-                'per_month' => round(($a->currentTariff->price / $a->getTaxRate()) * $a->amount, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * $a->amount, 2)
+                'per_month' => round($sum_without_tax, 2),
+                'per_month_with_tax' => round($sum, 2)
             ];
         }
 

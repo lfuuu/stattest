@@ -189,7 +189,7 @@ abstract class DocumentReport extends Object
      */
     protected function fetchLines()
     {
-        $tax_rate = $this->bill->clientAccount->getTaxRate($original = true);
+        $tax_rate = $this->bill->clientAccount->getTaxRate();
 
         $this->lines =
             Yii::$app->db->createCommand('

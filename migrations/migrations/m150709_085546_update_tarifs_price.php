@@ -8,7 +8,10 @@ class m150709_085546_update_tarifs_price extends \app\classes\Migration
             UPDATE `tarifs_internet` SET
                 `pay_once` = ROUND(`pay_once` + (`pay_once` * 0.18), 2),
                 `pay_month` = ROUND(`pay_month` + (`pay_month` * 0.18), 2),
-                `pay_mb` = ROUND(`pay_mb` + (`pay_mb` * 0.18), 2);
+                `pay_mb` = ROUND(`pay_mb` + (`pay_mb` * 0.18), 4),
+                `pay_r` = ROUND(`pay_r` + (`pay_r` * 0.18), 4),
+                `pay_r2` = ROUND(`pay_r2` + (`pay_r2` * 0.18), 4),
+                `pay_f` = ROUND(`pay_f` + (`pay_f` * 0.18), 4);
         ");
 
         $this->execute("
@@ -21,11 +24,6 @@ class m150709_085546_update_tarifs_price extends \app\classes\Migration
                 `price` = ROUND(`price` + (`price` * 0.18), 2),
                 `overrun_per_port` = ROUND(`overrun_per_port` + (`overrun_per_port` * 0.18), 2),
                 `overrun_per_gb` = ROUND(`overrun_per_gb` + (`overrun_per_gb` * 0.18), 2);
-        ");
-
-        $this->execute("
-            UPDATE `tarifs_sms` SET
-                `per_month_price` = ROUND(`per_month_price` + (`per_month_price` * 0.18), 2);
         ");
 
         $this->execute("

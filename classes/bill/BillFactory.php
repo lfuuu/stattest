@@ -106,7 +106,7 @@ class BillFactory
                 $bill->is_approved = 1;
                 $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
                 $bill->sum_with_unapproved = $sum;
-                $bill->price_include_vat = $this->clientAccount->isPriceIncludeVat();
+                $bill->price_include_vat = $this->clientAccount->price_include_vat;
                 $bill->sum = $sum;
                 $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();

@@ -1076,19 +1076,6 @@ class m_newaccounts extends IModule
                 $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
             }
 
-/*
-            if ($client->status == "operator")
-            {
-                if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
-                {
-                    $bill->changeToOnlyContract();
-                }
-                if ($client->is_bill_with_refund && $client->balance > 0)
-                {
-                    $bill->applyRefundOverpay($client->balance);
-                }
-            }
-*/
             $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
             $b->dao()->recalcBill($b);
 
@@ -1982,7 +1969,7 @@ class m_newaccounts extends IModule
             $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
+            $sumNds = (($sum / (1 + $tax_rate/100)) * $tax_rate/100);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(

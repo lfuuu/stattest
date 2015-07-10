@@ -61,12 +61,13 @@ class EmailBiller extends Biller
             return $this;
         }
 
-        $price = $this->clientAccount->currency == 'RUB' ? 27 : 1;
-        if ($p['email_id'] == $this->usage->id) {
-            $price = 0;
-        }
+        if ($p['email_id'] != $this->usage->id) {
 
-        if ($price > 0) {
+            if ($this->clientAccount->price_include_vat) {
+                $price = $this->clientAccount->currency == 'RUB' ? 31.86 : 1.18;
+            } else {
+                $price = $this->clientAccount->currency == 'RUB' ? 27 : 1;
+            }
 
             $template  = 'email_service';
             $template_data = [

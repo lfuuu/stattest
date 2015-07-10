@@ -88,7 +88,7 @@ abstract class BillerPackage
 
     public function setPrice($price)
     {
-        $this->price = round($price * $this->getTaxRate(), 4);
+        $this->price = round($price, 4);
         return $this;
     }
 
@@ -108,17 +108,10 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $transaction->tax_rate = $this->clientAccount->getTaxRate(true);
+        $transaction->tax_rate = $this->clientAccount->getTaxRate();
 
-        if ($this->clientAccount->price_include_vat) {
-            $transaction->sum = round($transaction->price * $transaction->amount, 2);
-            $transaction->sum_tax = round($transaction->tax_rate / (100.0 + $transaction->tax_rate) * $transaction->sum, 2);
-            $transaction->sum_without_tax = $transaction->sum - $transaction->sum_tax;
-        } else {
-            $transaction->sum_without_tax = round($transaction->price * $transaction->amount, 2);
-            $transaction->sum_tax = round($transaction->sum_without_tax * $transaction->tax_rate / 100, 2);
-            $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
-        }
+        list($transaction->sum, $transaction->sum_without_tax, $transaction->sum_tax) =
+            $this->clientAccount->convertSum($transaction->price * $transaction->amount, $transaction->tax_rate);
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {
             $date = $this->biller->billerDate->getTimestamp() + 86400 - 1;

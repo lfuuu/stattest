@@ -11,12 +11,13 @@ class m150707_152123_inc_vat_to_tariff extends \app\classes\Migration
             ALTER TABLE `clients`
                 ADD COLUMN `price_include_vat` TINYINT(1) NULL DEFAULT '1' AFTER `contract_type_id`;
         ");
+
         $this->execute("
             UPDATE `clients` c LEFT JOIN `organization` o ON
                 c.`organization_id` = o.`organization_id` AND
                 o.`actual_from` <= CAST(NOW() AS DATE) AND
                 o.`actual_to` > CAST(NOW() AS DATE)
-            SET c.`include_price_vat` = 0
+            SET c.`price_include_vat` = 0
             WHERE c.`contract_type_id` = 3 OR c.`country_id` != 643
         ");
 
