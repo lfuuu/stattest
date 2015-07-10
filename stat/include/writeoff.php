@@ -311,7 +311,7 @@ class ServiceUsageSms extends ServicePrototype {
 
     public function getServicePreBillAmount()
     {
-        return $this->tarif_current['per_month_price']*$this->GetDatePercent() / (1 + $this->tax_rate);
+        return $this->tarif_current['per_month_price']*$this->GetDatePercent() / ((100 + $this->tax_rate) /100);
     }
 }
 
