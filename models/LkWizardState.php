@@ -85,6 +85,7 @@ class LkWizardState extends ActiveRecord
             $bill->is_use_tax = $clientAccount->nds_zero > 0 ? 0 : 1;
             $bill->bill_date = date('Y-m-d');
             $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
+            $bill->price_include_vat = $clientAccount->price_include_vat;
             $bill->save();
 
             $line = new BillLine(["bill_no" => $bill->bill_no]);
@@ -93,9 +94,9 @@ class LkWizardState extends ActiveRecord
             $line->date_to = date("Y-m-d", strtotime("last day of this month"));
             $line->type = 'service';
             $line->amount = 1;
-            $line->price = $sum / 1.18;
-            $line->tax_type_id = $clientAccount->getDefaultTaxId();
-            $line->calculateSum();
+            $line->price = $sum;
+            $line->tax_rate = $tax_rate;
+            $line->calculateSum($bill->price_include_vat);
             $line->sum = $sum;
             $line->save();
 

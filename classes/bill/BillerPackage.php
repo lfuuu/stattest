@@ -108,12 +108,10 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $tax_rate = $this->clientAccount->getTaxRate();
-        $transaction->tax_rate = $this->clientAccount->getDefaultTaxId();
+        $transaction->tax_rate = $this->clientAccount->getTaxRate();
 
-        $transaction->sum_without_tax = round($transaction->amount * $transaction->price, 2);
-        $transaction->sum_tax = round($transaction->sum_without_tax * $tax_rate, 2);
-        $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
+        list($transaction->sum, $transaction->sum_without_tax, $transaction->sum_tax) =
+            $this->clientAccount->convertSum($transaction->price * $transaction->amount, $transaction->tax_rate);
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {
             $date = $this->biller->billerDate->getTimestamp() + 86400 - 1;
@@ -130,7 +128,7 @@ abstract class BillerPackage
                 $done = $date - $periodFrom;
 
                 $transaction->effective_amount = round($transaction->amount * $done / $all, 6);
-                $transaction->effective_sum = - round($transaction->effective_amount * $transaction->price, 2);
+                $transaction->effective_sum = - round($transaction->sum * $done / $all, 2);
             } else {
                 $transaction->effective_amount = $transaction->amount;
                 $transaction->effective_sum = - $transaction->sum;
@@ -153,9 +151,11 @@ abstract class BillerPackage
             $from2 = new DateTime();
             $from2->setDate($from->format('Y'), $from->format('m'), $from->format('d'));
             $from2->setTime($from->format('H'), $from->format('i'), $from->format('s'));
+            $from2 = $from2->getTimestamp();
             $to2 = new DateTime();
             $to2->setDate($to->format('Y'), $to->format('m'), $to->format('d'));
             $to2->setTime($to->format('H'), $to->format('i'), $to->format('s'));
+            $to2 = $to2->getTimestamp();
 
             $i18n_params['date_range'] = Yii::t(
                 'biller',
@@ -174,18 +174,6 @@ abstract class BillerPackage
             $i18n_params,
             $this->clientAccount->contragent->country->lang
         );
-
-        /*
-        $name = str_replace('{name}', $this->name, $template);
-
-        $name = str_replace('{fromDay}', $from->format('d'), $name);
-        $name = str_replace('{fromDate}', $from->format('d F Y'), $name);
-        $name = str_replace('{toDate}', $to->format('d F Y'), $name);
-
-        $monthSrc = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        $monthDst = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-        $name = str_replace($monthSrc, $monthDst, $name);
-        */
 
         return $name;
     }

@@ -10,8 +10,8 @@ class Datacenter extends ActiveRecord
         return 'datacenter';
     }
 
-    public function getRegion()
+    public function getDatacenterRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::className(), ["id" => "region"]);
     }
 }

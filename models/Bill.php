@@ -33,6 +33,7 @@ use yii\db\ActiveRecord;
  * @property int    $is_user_prepay ??
  * @property string $bill_no_ext        ??
  * @property string $bill_no_ext_date   ??
+ * @property int    $price_include_vat   ??
 
  * @property ClientAccount $clientAccount   ??
  * @property BillLine[] $lines   ??

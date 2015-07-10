@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\Assert;
 use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
@@ -14,6 +15,9 @@ use app\models\ClientContact;
  * @property string $currency
  * @property string $nal
  * @property int $nds_zero
+ * @property int $contract_type_id
+ * @property int $price_include_vat
+
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
  * @property Country $country
@@ -21,6 +25,7 @@ use app\models\ClientContact;
  * @property DateTimeZone $timezone
  *
  * @property ClientContact $contract
+ * @method static ClientAccount findOne($condition)
  * @property
  */
 class ClientAccount extends ActiveRecord
@@ -379,18 +384,6 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
-    public function getTaxRate($original = false)
-    {
-        return
-            $this->nds_zero
-                ? 0
-                : (
-                    $original === true
-                        ? $this->contract->getOrganization()->vat_rate
-                        : $this->contract->getOrganization()->vat_rate / 100
-                );
-    }
-
     public function getOrganization()
     {
         return $this->contract->getOrganization();
@@ -447,5 +440,36 @@ class ClientAccount extends ActiveRecord
     public function loadVersionOnDate($date)
     {
         return HistoryVersion::loadVersionOnDate($this, $date);
+    }
+
+    public function getTaxRate()
+    {
+        if ($this->nds_zero) {
+            return 0;
+        }
+
+        $organization = $this->getOrganization();
+        Assert::isObject($organization, 'Organization not found');
+
+        return $organization->vat_rate;
+    }
+
+    public function convertSum($originalSum, $taxRate = null)
+    {
+        if ($taxRate === null) {
+            $taxRate = $this->getTaxRate();
+        }
+
+        if ($this->price_include_vat) {
+            $sum = round($originalSum, 2);
+            $sum_tax = round($taxRate / (100.0 + $taxRate) * $sum, 2);
+            $sum_without_tax = $sum - $sum_tax;
+        } else {
+            $sum_without_tax = round($originalSum, 2);
+            $sum_tax = round($sum_without_tax * $taxRate / 100, 2);
+            $sum = $sum_without_tax + $sum_tax;
+        }
+
+        return [$sum, $sum_without_tax, $sum_tax];
     }
 }

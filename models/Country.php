@@ -14,6 +14,8 @@ use yii\helpers\ArrayHelper;
 class Country extends ActiveRecord
 {
     const RUSSIA = 643;
+    const HUNGARY = 348;
+    const GERMANY = 276;
 
     public static function tableName()
     {

@@ -107,23 +107,16 @@ $payer_company = $document->getPayer();
                 <td align="center"><b>Количество</b></td>
                 <td align="center"><b>Единица измерения</b></td>
                 <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
-
-                <?php if ($organization->isNotSimpleTaxSystem()): ?>
-                    <!--td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td-->
-                    <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                <?php if ($hasDiscount): ?>
+                <td align="center"><b>Скидка</b></td>
                 <?php endif; ?>
 
-                <?php if ($hasDiscount): ?>
-                    <td align="center"><b>Скидка</b></td>
-                    <td align="center">
-                        <b>
-                            Сумма со скидкой
-                            <?php if($organization->isNotSimpleTaxSystem()): ?>,<br />с учётом налога<?php endif; ?>
-                            ,&nbsp;<?= $currency_w_o_value; ?>
-                        </b>
-                    </td>
+                <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                    <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                <?php else: ?>
+                    <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                 <?php endif; ?>
             </tr>
 
@@ -146,23 +139,23 @@ $payer_company = $document->getPayer();
                     </td>
                     <td align="center"><?= Utils::round($line['price'], 4); ?></td>
 
-                    <?php if($organization->isNotSimpleTaxSystem()): ?>
-                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                        <td align="center"><?= (!$document->bill->clientAccount->getTaxRate($original = true) || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
-                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                    <?php else: ?>
-                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                    <?php endif; ?>
-
                     <?php if ($hasDiscount): ?>
                         <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
-                        <td align="center"><?= Utils::round($line['sum'] - ($line['discount_auto'] + $line['discount_set']), 2); ?></td>
+                    <?php endif; ?>
+
+                    <?php if($organization->isNotSimpleTaxSystem()): ?>
+                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
+                        <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                    <?php else: ?>
+                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                     <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
 
             <tr>
-                <td colspan="5" align="right">
+
+                <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
                     <div style="padding-top: 3px; height: 15px;">
                         <b>Итого:</b>
                     </div>
@@ -171,23 +164,11 @@ $payer_company = $document->getPayer();
                 <?php if($organization->isNotSimpleTaxSystem()): ?>
                     <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                     <td align="center">
-                        <?php if (!$hasDiscount): ?>
-                            <?= (!$document->bill->clientAccount->getTaxRate($original = true) ? 'без НДС' : Utils::round($document->sum_with_tax, 2)); ?>
-                        <?php else: ?>
-                            &nbsp;
-                        <?php endif; ?>
+                        <?= Utils::round($document->sum_with_tax, 2); ?>
                     </td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php else: ?>
-                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                <?php endif; ?>
-
-                <?php if ($hasDiscount): ?>
-                    <td align="center">&nbsp;1</td>
-                    <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
-                <?php endif; ?>
-
-                <?php if($organization->isNotSimpleTaxSystem()): ?>
-                    <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php endif; ?>
             </tr>
             </tbody>
@@ -196,12 +177,7 @@ $payer_company = $document->getPayer();
 
         <p>
             <i>
-                Сумма прописью:
-                <?php if($organization->isNotSimpleTaxSystem()) :?>
-                    <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?>
-                <?php else: ?>
-                    <?= Wordifier::Make($document->sum_without_tax, $document->getCurrency()); ?>
-                <?php endif; ?>
+                Сумма прописью: <?= Wordifier::Make($document->sum, $document->getCurrency()); ?>
             </i>
         </p>
 

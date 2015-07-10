@@ -828,17 +828,17 @@ class m_newaccounts extends IModule
         $fixclient_data = ClientAccount::findOne($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
-        
+
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('l_couriers',Courier::dao()->getList(true));
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        $design->assign('bill_lines',$V);
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        $design->assign('bill_lines',$lines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
 
@@ -912,6 +912,7 @@ class m_newaccounts extends IModule
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $date_from_active = get_param_raw("date_from_active", 'N');
+        $price_include_vat = get_param_raw("price_include_vat", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
         $bill_no_ext_date = $dateFrom->getSqlDay();
         
@@ -923,21 +924,23 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
-        if ($date_from_active == 'Y')
-        {
-		$bill->SetExtNoDate($bill_no_ext_date);
+
+        if ($date_from_active == 'Y') {
+		    $bill->SetExtNoDate($bill_no_ext_date);
         } else {
-		$bill_data = $bill->GetBill();
-		if ($bill_data['bill_no_ext_date'] > 0)
-		{
-			$bill->SetExtNoDate();
-		}
+            $bill_data = $bill->GetBill();
+            if ($bill_data['bill_no_ext_date'] > 0) {
+                $bill->SetExtNoDate();
+            }
         }
-        $V = $bill->GetLines();
-        $V[$bill->GetMaxSort()+1] = array();
-        $V[$bill->GetMaxSort()+2] = array();
-        $V[$bill->GetMaxSort()+3] = array();
-        foreach($V as $k=>$arr_v){
+
+        $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+
+        $lines = $bill->GetLines();
+        $lines[$bill->GetMaxSort()+1] = array();
+        $lines[$bill->GetMaxSort()+2] = array();
+        $lines[$bill->GetMaxSort()+3] = array();
+        foreach($lines as $k=>$arr_v){
             if(((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])){
                 $bill->RemoveLine($k);
             }elseif(isset($item[$k]) && $item[$k] && isset($arr_v['item'])){
@@ -1002,93 +1005,85 @@ class m_newaccounts extends IModule
         if ($obj=='connecting' || $obj=='connecting_ab') {
             $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+            if ($clientAccount->price_include_vat == $bill->Get('price_include_vat')) {
 
-            $connectingTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = true, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
-            $connectingServices = [];
+                $connectingTransactions =
+                    ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = true, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
+                        ->createTransactions()
+                        ->getTransactions();
 
-            foreach ($connectingTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
+                $connectingServices = [];
 
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                foreach ($connectingTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
 
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-                $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
-            }
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-            $b->dao()->recalcBill($b);
-            BillDocument::dao()->updateByBillNo($bill->GetNo());
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
+                    $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
+                }
 
-            foreach ($connectingServices as $connectingService) {
-                $db->Query("update ". $connectingService['type'] ." set status='working' where id='".$connectingService['id']."'");
+                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b->dao()->recalcBill($b);
+                BillDocument::dao()->updateByBillNo($bill->GetNo());
+
+                foreach ($connectingServices as $connectingService) {
+                    $db->Query("update " . $connectingService['type'] . " set status='working' where id='" . $connectingService['id'] . "'");
+                }
+
+            } else {
+                trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
             }
 
         } elseif ($obj=='regular') {
-/*
-            if ($client->status == "operator" && $client->is_bill_with_refund)
-            {
-                ClientAccount::dao()->updateBalance($fixclient_data['id']);
-            }
-*/
-
             $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
-            $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
+            if ($clientAccount->price_include_vat == $bill->Get('price_include_vat')) {
 
-            $periodicalTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+                $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
-            $resourceTransactions =
-                ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
-                    ->createTransactions()
-                    ->getTransactions();
+                $periodicalTransactions =
+                    ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
+                        ->createTransactions()
+                        ->getTransactions();
+
+                $resourceTransactions =
+                    ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
+                        ->createTransactions()
+                        ->getTransactions();
 
 
-            foreach ($periodicalTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
+                foreach ($periodicalTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
 
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-            }
-
-            foreach ($resourceTransactions as $transaction) {
-                $year = substr($transaction->billing_period, 0, 4);
-                $month = substr($transaction->billing_period, 5, 2);
-
-                $period_from = $year . '-' . $month . '-01';
-                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
-
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
-            }
-
-/*
-            if ($client->status == "operator")
-            {
-                if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
-                {
-                    $bill->changeToOnlyContract();
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
-                if ($client->is_bill_with_refund && $client->balance > 0)
-                {
-                    $bill->applyRefundOverpay($client->balance);
+
+                foreach ($resourceTransactions as $transaction) {
+                    $year = substr($transaction->billing_period, 0, 4);
+                    $month = substr($transaction->billing_period, 5, 2);
+
+                    $period_from = $year . '-' . $month . '-01';
+                    $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+                    $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
+
+                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b->dao()->recalcBill($b);
+
+            } else {
+                trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
             }
-*/
-            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-            $b->dao()->recalcBill($b);
 
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
@@ -1980,7 +1975,7 @@ class m_newaccounts extends IModule
             $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
+            $sumNds = (($sum / (1 + $tax_rate/100)) * $tax_rate/100);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(
@@ -2390,12 +2385,6 @@ class m_newaccounts extends IModule
 
 
         $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
-        //print_r($L_prev);
-
-        if(in_array($obj, array("invoice","upd")))
-        {
-            $this->checkSF_discount($L_prev, $tax_rate = ClientAccount::findOne($bill->client_id)->getTaxRate());
-        }
 
 
         $design->assign_by_ref('negative_balance', $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
@@ -2494,23 +2483,6 @@ class m_newaccounts extends IModule
             if (in_array($obj, array('invoice','akt','upd'))) {
                 return array('bill'=>$bdata,'bill_lines'=>$L,'inv_no'=>$bdata['bill_no'].'-'.$source,'inv_date'=>$inv_date);
             } else return array('bill'=>$bdata,'bill_lines'=>$L);
-        }
-    }
-
-    function checkSF_discount(&$L, $tax_rate)
-    {
-        foreach($L as &$l)
-        {
-            if($l["discount_set"] || $l["discount_auto"])
-            {
-                $discount = ($l["discount_set"] + $l["discount_auto"]) / (1 + $tax_rate);
-
-                $l["sum_without_tax"] -= $discount;
-
-                if($discount && $l["amount"])
-                    $l["outprice"] = $l["price"] -= $discount/$l["amount"];
-
-            }
         }
     }
 
@@ -2695,11 +2667,25 @@ class m_newaccounts extends IModule
         $lines = [];
         if ($info)
         {
+            $totalPlus = $totalMinus = 0;
             foreach($info as $day => $count)
             {
-                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." платежей: ".$count["all"].
-                    ($count["new"] ? ", обновлено: ".$count["new"]: "");
+                $new = isset($count["new"]) ? $count["new"] : 0;
+                $skiped = isset($count["skiped"]) ? $count["skiped"] : 0;
+                $plus = isset($count["sum_plus"]) ? $count["sum_plus"] : 0;
+                $minus = isset($count["sum_minus"]) ? $count["sum_minus"] : 0;
+
+                $totalPlus += $plus;
+                $totalMinus += $minus;
+
+                $lines[] = "За ".mdate("d месяца Y", strtotime($day))." найдено платежей: ".$count["all"].
+                    ($skiped ? ", пропущено: ".$skiped : "").
+                    ($new ? ", новых: ".$new: "").
+                    "&nbsp;&nbsp;&nbsp;&nbsp;+".number_format($plus,2, ".", "`")."/-".number_format($minus,2, ".", "`");
             }
+
+            trigger_error2("Всего платежей в выгрузке: +".number_format($totalPlus,2, ".", "`")."/-".number_format($totalMinus,2, ".", "`"));
+
         }
         $param = Param::findOne(["param" => "pi_list_last_info"]);
 

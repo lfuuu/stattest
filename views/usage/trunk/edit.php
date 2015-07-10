@@ -27,8 +27,8 @@ $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
-$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_LOCAL,false) + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,false);
-$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,true);
+$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_LOCAL,false) + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,false,false);
+$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,true,false);
 
 ?>
 <legend>

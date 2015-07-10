@@ -32,7 +32,7 @@ class Api
                 $balance +=$billingCounter["amount_sum"];
             }
 
-			$result[$c->id] = array("id" => $c->id, "balance" => $balance);
+			$result[$c->id] = array("id" => $c->id, "balance" => $balance, "currency" => $c->currency);
 		}
 
         if ($simple)
