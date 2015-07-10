@@ -357,7 +357,7 @@ class m_stats extends IModule{
                 $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                 $rt['price'] =
                     $clientAccount->price_include_vat
-                        ? $rt['price_with_tax']
+                        ? $rt['price_with_tax'] . ' (включая НДС)'
                         : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
                 break;
             case 'call':
@@ -387,7 +387,7 @@ class m_stats extends IModule{
                 $rt['price_with_tax'] = number_format($rt['price'], 2, '.','');
                 $rt['price'] =
                     $clientAccount->price_include_vat
-                        ? $rt['price_with_tax']
+                        ? $rt['price_with_tax'] . ' (включая НДС)'
                         : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
                 break;
             default:
@@ -430,7 +430,7 @@ class m_stats extends IModule{
                 $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                 $rt['price'] =
                     $clientAccount->price_include_vat
-                        ? $rt['price_with_tax']
+                        ? $rt['price_with_tax'] . ' (включая НДС)'
                         : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
             break;
         }
@@ -1164,7 +1164,7 @@ class m_stats extends IModule{
             $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
             $rt['price'] =
                     $clientAccount->price_include_vat
-                        ? $rt['price_with_tax']
+                        ? $rt['price_with_tax'] . ' (включая НДС)'
                         : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
 
             $R['total']=$rt;
@@ -1222,7 +1222,7 @@ class m_stats extends IModule{
             $rt['price_with_tax'] = number_format($price, 2, '.', '');
             $rt['price'] =
                     $clientAccount->price_include_vat
-                        ? $rt['price_with_tax']
+                        ? $rt['price_with_tax'] . ' (включая НДС)'
                         : $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
 
             $rt['cnt']=$cnt;
