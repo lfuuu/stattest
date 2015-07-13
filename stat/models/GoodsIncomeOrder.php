@@ -5,7 +5,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 	static $belongs_to = array(
 		array('client_card', 'class_name' => 'ClientCard'),
 		array('client', 'class_name' => 'ClientCard'),
-		array('organization', 'class_name' => 'GoodsOrganization'),
+//		array('organization', 'class_name' => 'GoodsOrganization'),
 		array('store', 'class_name' => 'Store', 'foreign_key' => 'store_id'),
         array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
         array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_id')
@@ -195,5 +195,9 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         return $this->trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_STAT_ENTERING;
     }
 
+    public function get_organization()
+    {
+        return GoodsOrganization::find($this->organization_id);
+    }
 
 }
