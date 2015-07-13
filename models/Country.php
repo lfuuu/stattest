@@ -12,7 +12,7 @@ use yii\db\ActiveRecord;
  */
 class Country extends ActiveRecord
 {
-    const RUSSIA = 276;
+    const RUSSIA = 643;
     const HUNGARY = 348;
     const GERMANY = 276;
 

@@ -2,6 +2,7 @@
 use app\models\BillDocument;
 use app\models\ClientAccount;
 use app\models\Country;
+use app\models\Region;
 
 class ApiLk
 {
@@ -586,14 +587,21 @@ class ApiLk
         return $ret;
     }
 
-    public static function getRegionList()
+    public static function getRegionList($clientId)
     {
-        $line['voip_prefix'] = array();
+        $account = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$account)
+            return [];
+
+        $ret = [];
         foreach(NewBill::find_by_sql("
             SELECT
                 *
             FROM
                 `regions`
+            WHERE 
+                country_id = '".$account->country_id."'
             ORDER BY
                 id>97 DESC, `name`
             ") as $service)
@@ -645,7 +653,7 @@ class ApiLk
         $currency = "RUB";
         $status = "public";
 
-        $account = app\models\ClientAccount::findOne(["id" => $accountId]);
+        $account = ClientAccount::findOne(["id" => $accountId]);
         if ($account)
         {
             $currency = $account->currency;
@@ -676,6 +684,17 @@ class ApiLk
         return $ret;
     }
 
+    public static function getVoipTarifsByClientId($clientId)
+    {
+
+        $account = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$account)
+            return [];
+
+        return self::getVoipTarifs($account->currency);
+    }
+
     public static function getVoipTarifs($currency = 'RUB', $status = 'public', $dest = '4')
     {
         $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
@@ -704,10 +723,23 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($region_id = 0, $isSimple = false)
+    public static function getFreeNumbers($client_id, $region_id = 0, $isSimple = false)
     {
-        $valid_regions = array('87', '88', '89', '94', '95', '93', '97', '98', '99');
+        //$valid_regions = array('87', '88', '89', '94', '95', '93', '97', '98', '99');
         $ret = array();
+
+        if (!$region_id)
+            return [];
+
+        $account = ClientAccount::findOne(["id" => $client_id]);
+
+        if (!$account)
+            return [];
+
+        $region = Region::findOne(["country_id" => $account->country_id, "id" => $region_id]);
+
+        if (!$region)
+            return [];
 
         $q = "SELECT 
                 a.number, a.region, a.price, a.beauty_level,
@@ -757,7 +789,7 @@ class ApiLk
                     ) AS date_reserved 
                 FROM 
                     voip_numbers v 
-                ".(($region_id > 0 && in_array($region_id, $valid_regions)) ? ' WHERE region=' . $region_id : '')."
+                WHERE region='" . $region->id . "'
                 )a 
             LEFT JOIN clients c ON (c.id = a.client_id) 
             WHERE 
@@ -765,48 +797,33 @@ class ApiLk
                 if(a.region = 99,
                     if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true),
                 true)
-
             
-            HAVING status IN ('free')";
+            HAVING status IN ('free')
+                limit 1000;
+                ";
         
-        foreach(NewBill::find_by_sql($q/*"
-          SELECT
-                a.*, (
-                    SELECT
-                        max(actual_to)
-                    FROM
-                        usage_voip
-                    WHERE
-                        e164 = a.number
-                        AND NOT (actual_from = '2029-01-01' AND actual_to='2029-01-01')
-                    ) date_to
-          FROM (
-            SELECT
-                number, beauty_level, price, voip_numbers.region
-            FROM
-                voip_numbers
-            LEFT JOIN usage_voip uv ON (uv.E164 = voip_numbers.number)
-            WHERE
-                uv.E164 IS NULL
-                AND client_id IS NULL
-                AND (
-                    (used_until_date IS NULL OR used_until_date < now() - interval 6 MONTH)
-                    OR
-                    (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < now()))
-                    OR
-                        site_publish = 'Y'
-                )
-              )a
-          HAVING date_to IS NULL OR date_to < now()
-          ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number
-          "*/) as $service)
+        foreach(NewBill::find_by_sql($q) as $service)
         {
+            if ($region->country_id == Country::RUSSIA)
+            {
+                $skipFrom = 1;
+                $areaLen = 3;
+            } else {
+                $skipFrom = 0;
+                $areaLen = 2;
+            }
             $line = self::_exportModelRow(array("number", "beauty_level", "price", "region"), $service);
             $line['full_number'] = $line['number'];
-            $line['area_code'] = substr($line['number'],1,3);
+            $line['area_code'] = substr($line['number'],$skipFrom,$areaLen);
             $l = strlen($line['number']);
             $number = $line["number"];
-            $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
+            $aNumber = substr($number, $skipFrom+$areaLen);
+            if (preg_match("/(\d+)(\d{2})(\d{2})$/six", $aNumber, $a))
+            {
+                $line["number"] = $a[1]."-".$a[2]."-".$a[3];
+            } else {
+                $line["number"] = $aNumber;
+            }
             if ($line['price'] == '') $line['price_add'] = 'Договорная';
             else $line['price_add'] = 'руб.';
             $ret[] = $isSimple ? $number : $line;
@@ -835,7 +852,7 @@ class ApiLk
         global $db;
         //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
 
-        $freeNumbers = self::getFreeNumbers(0, true);
+        $freeNumbers = self::getFreeNumbers($client_id, $region_id, true);
         if (array_search($number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'voip_number_not_free');
     
