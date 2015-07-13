@@ -133,14 +133,10 @@ echo Form::widget([
         'tariff_intern_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
         'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT],
         'tariff_group_intern' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
-        ['type' => Form::INPUT_RAW],
-        'tariff_sng_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getSngList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-        'tariff_group_sng_price' => ['type' => Form::INPUT_TEXT],
-        'tariff_group_sng' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
     ],
 ]);
 
-if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tariff_group_intern || $model->tariff_group_sng) {
+if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tariff_group_intern) {
     echo Form::widget([
         'model' => $model,
         'form' => $form,

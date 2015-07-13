@@ -5,7 +5,6 @@ return [
     'voip_group_local' => 'местные мобильные',
     'voip_group_long_distance' => 'междугородные',
     'voip_group_international' => 'дальнее зарубежье',
-    'voip_group_sng' => 'ближнее зарубежье',
 
     'voip_connection' => 'Подключение к IP-телефонии по тарифу {tariff}',
 

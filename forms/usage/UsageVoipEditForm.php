@@ -37,12 +37,12 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [[
             'type_id', 'connection_point_id', 'city_id', 'client_account_id',
             'no_of_lines', 'did',
-            'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id', 'tariff_sng_id',
+            'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'add'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
         $rules[] = [['address'], 'string', 'on' => 'edit'];
         $rules[] = [[
-            'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id', 'tariff_sng_id',
+            'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'change-tariff'];
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number';}];
@@ -194,13 +194,11 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->tariff_russia_id = $currentTariff->id_tarif_russia;
                 $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
                 $this->tariff_intern_id = $currentTariff->id_tarif_intern;
-                $this->tariff_sng_id = $currentTariff->id_tarif_sng;
 
                 $this->tariff_group_price = $currentTariff->minpayment_group;
                 $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
                 $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
                 $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
-                $this->tariff_group_sng_price = $currentTariff->minpayment_sng;
 
                 $i = 0;
                 while ($i < strlen($currentTariff->dest_group)) {
@@ -208,7 +206,6 @@ class UsageVoipEditForm extends UsageVoipForm
                     if ($g == '5') $this->tariff_group_local_mob = 1;
                     if ($g == '1') $this->tariff_group_russia = 1;
                     if ($g== '2') $this->tariff_group_intern = 1;
-                    if ($g== '3') $this->tariff_group_sng = 1;
                     $i++;
                 }
 
@@ -301,10 +298,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $tariff = TariffVoip::findOne($this->tariff_intern_id);
             $this->tariff_group_intern_price = $tariff->month_min_payment;
         }
-        if ($this->tariff_sng_id) {
-            $tariff = TariffVoip::findOne($this->tariff_sng_id);
-            $this->tariff_group_sng_price = $tariff->month_min_payment;
-        }
     }
 
     public function validateDid($attribute, $params)
@@ -360,7 +353,6 @@ class UsageVoipEditForm extends UsageVoipForm
         if ($this->tariff_group_local_mob) $destGroup .= '5';
         if ($this->tariff_group_russia) $destGroup .= '1';
         if ($this->tariff_group_intern) $destGroup .= '2';
-        if ($this->tariff_group_sng) $destGroup .= '3';
 
         $tariffUsages = [$usage];
         foreach ($tariffUsages as $tariffUsage) {
@@ -380,21 +372,19 @@ class UsageVoipEditForm extends UsageVoipForm
             if ($this->tariff_russia_id != $currentTariff->id_tarif_russia) $tariffChanged = true;
             if ($this->tariff_russia_mob_id != $currentTariff->id_tarif_russia_mob) $tariffChanged = true;
             if ($this->tariff_intern_id != $currentTariff->id_tarif_intern) $tariffChanged = true;
-            if ($this->tariff_sng_id != $currentTariff->id_tarif_sng) $tariffChanged = true;
             if ($this->connecting_date != $currentTariff->date_activation) $tariffChanged = true;
             if ($destGroup != $currentTariff->dest_group) $tariffChanged = true;
             if ($this->tariff_group_price != $currentTariff->minpayment_group) $tariffChanged = true;
             if ($this->tariff_group_local_mob_price != $currentTariff->minpayment_local_mob) $tariffChanged = true;
             if ($this->tariff_group_russia_price != $currentTariff->minpayment_russia) $tariffChanged = true;
             if ($this->tariff_group_intern_price != $currentTariff->minpayment_intern) $tariffChanged = true;
-            if ($this->tariff_group_sng != $currentTariff->minpayment_sng) $tariffChanged = true;
 
             if ($tariffChanged) {
                 $this->logTarifUsage('usage_voip',
                     $tariffUsage->id, $tariffDate,
-                    $this->tariff_main_id, $this->tariff_local_mob_id, $this->tariff_russia_id, $this->tariff_russia_mob_id, $this->tariff_intern_id, $this->tariff_sng_id,
+                    $this->tariff_main_id, $this->tariff_local_mob_id, $this->tariff_russia_id, $this->tariff_russia_mob_id, $this->tariff_intern_id,
                     $destGroup, $this->tariff_group_price,
-                    $this->tariff_group_local_mob_price, $this->tariff_group_russia_price, $this->tariff_group_intern_price, $this->tariff_group_sng_price
+                    $this->tariff_group_local_mob_price, $this->tariff_group_russia_price, $this->tariff_group_intern_price
                 );
             }
         }
@@ -457,20 +447,20 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     private function logTarifUsage($service,$id,$dateActivation,
-                                         $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,$tarifSngId,
+                                         $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,
                                          $dest_group, $minpayment_group,
-                                         $minpayment_local_mob, $minpayment_russia, $minpayment_intern, $minpayment_sng)
+                                         $minpayment_local_mob, $minpayment_russia, $minpayment_intern)
     {
         Yii::$app->db->createCommand(
             'insert into log_tarif (service,id_service,id_user,ts,date_activation,comment,
-                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,id_tarif_sng,
+                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,
                                         dest_group,minpayment_group,
-                                        minpayment_local_mob,minpayment_russia,minpayment_intern,minpayment_sng
+                                        minpayment_local_mob,minpayment_russia,minpayment_intern
                                     ) VALUES '.
             '("'.$service.'",'.$id.','.Yii::$app->user->id.',NOW(),"'.addslashes($dateActivation).'","",'.
-            intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.intval($tarifSngId).','.
+            intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
             intval($dest_group).','.intval($minpayment_group).','.
-            intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).','.intval($minpayment_sng).
+            intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
 
     }

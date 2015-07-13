@@ -171,7 +171,6 @@ ActiveForm::end();
                 / МГ <?= Html::encode($item->voipTariffRussia->name_short) ?>
                 / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name_short) ?>
                 / МН <?= Html::encode($item->voipTariffIntern->name_short) ?>
-                / СНГ <?= Html::encode($item->voipTariffSng->name_short) ?>
 
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -182,7 +181,6 @@ ActiveForm::end();
                     <?= strpos($item->dest_group, '5') !== false ? 'Моб' : '' ?>
                     <?= strpos($item->dest_group, '1') !== false ? 'МГ' : '' ?>
                     <?= strpos($item->dest_group, '2') !== false ? 'МН' : '' ?>
-                    <?= strpos($item->dest_group, '3') !== false ? 'СНГ' : '' ?>
                     = <?= $item->minpayment_group ?> /
                 <?php endif; ?>
 
@@ -194,9 +192,6 @@ ActiveForm::end();
                 <?php endif; ?>
                 <?php if (strpos($item->dest_group, '2') === false && $item->minpayment_intern):?>
                 МН <?= $item->minpayment_intern ?> /
-                <?php endif; ?>
-                <?php if (strpos($item->dest_group, '4') === false && $item->minpayment_sng):?>
-                СНГ <?= $item->minpayment_sng ?> /
                 <?php endif; ?>
             </td>
             <td nowrap>
@@ -272,14 +267,10 @@ echo Form::widget([
         'tariff_intern_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload2']],
         'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT],
         'tariff_group_intern' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload2']],
-        ['type' => Form::INPUT_RAW],
-        'tariff_sng_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getSngList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload2']],
-        'tariff_group_sng_price' => ['type' => Form::INPUT_TEXT],
-        'tariff_group_sng' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload2']],
     ],
 ]);
 
-if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tariff_group_intern || $model->tariff_group_sng) {
+if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tariff_group_intern) {
     echo Form::widget([
         'model' => $model,
         'form' => $form,

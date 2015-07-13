@@ -63,7 +63,6 @@
                 <option value="5"{if '5' eq $f_dest} selected{/if}>Местные Мобильные</option>
                 <option value="1"{if '1' eq $f_dest} selected{/if}>Россия</option>
                 <option value="2"{if '2' eq $f_dest} selected{/if}>Международка</option>
-                <option value="3"{if '3' eq $f_dest} selected{/if}>СНГ</option>
             </select>
         </td>
     </tr>
@@ -96,7 +95,7 @@
     </tr>
 {foreach from=$tarifs_by_dest item='tarifs' key='dest'}
     <tr>
-        <td colspan="16"><b>{$dests[$dest]}</b></td>
+        <td colspan="17"><b>{$dests[$dest]}</b></td>
     </tr>
     {foreach from=$tarifs item='o'}
         <tr>

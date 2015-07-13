@@ -960,7 +960,6 @@ class ApiLk
         $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->andWhere(['is_testing' => 1])->scalar();
         $model->tariff_russia_mob_id = $model->tariff_russia_id;
         $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->andWhere(['is_testing' => 1])->scalar();
-        $model->tariff_sng_id =       TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 3])->andWhere(['is_testing' => 1])->scalar();
 
         if (!$model->validate()) {
             Yii::error($model->errors);

@@ -60,7 +60,6 @@ foreach($numbers as $number)
     $l->id_tarif_russia = 72;
     $l->id_tarif_russia_mob= 72;
     $l->id_tarif_intern = 78;
-    $l->id_tarif_sng =75;
     $l->id_user = 54;
     $l->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
     $l->date_activation = (new DateTime())->setTimestamp(strtotime("first day of this month, midnight"))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');;

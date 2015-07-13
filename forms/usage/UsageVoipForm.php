@@ -24,15 +24,12 @@ class UsageVoipForm extends Form
     public $tariff_russia_id;
     public $tariff_russia_mob_id;
     public $tariff_intern_id;
-    public $tariff_sng_id;
     public $tariff_group_local_mob;
     public $tariff_group_russia;
     public $tariff_group_intern;
-    public $tariff_group_sng;
     public $tariff_group_local_mob_price;
     public $tariff_group_russia_price;
     public $tariff_group_intern_price;
-    public $tariff_group_sng_price;
     public $tariff_group_price;
 
     public function rules()
@@ -40,10 +37,10 @@ class UsageVoipForm extends Form
         return [
             [['id','client_account_id','city_id','connection_point_id','number_tariff_id','line7800_id','no_of_lines'], 'integer'],
             [['type_id','did','connecting_date','tariff_change_date','address'], 'string'],
-            [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id','tariff_sng_id'], 'integer'],
+            [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
             [['tariff_main_status'], 'string'],
-            [['tariff_group_local_mob_price','tariff_group_russia','tariff_group_intern','tariff_group_sng'], 'integer'],
-            [['tariff_group_local_mob','tariff_group_russia_price','tariff_group_intern_price','tariff_group_sng_price','tariff_group_price'], 'integer'],
+            [['tariff_group_local_mob_price','tariff_group_russia','tariff_group_intern'], 'integer'],
+            [['tariff_group_local_mob','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'integer'],
         ];
     }
 
@@ -67,15 +64,12 @@ class UsageVoipForm extends Form
             'tariff_russia_id' => 'Тариф Россия стационарные',
             'tariff_russia_mob_id' => 'Тариф Россия мобильные',
             'tariff_intern_id' => 'Тариф Международка',
-            'tariff_sng_id' => 'Тариф СНГ',
             'tariff_group_local_mob' => 'Набор',
             'tariff_group_russia' => 'Набор',
             'tariff_group_intern' => 'Набор',
-            'tariff_group_sng' => 'Набор',
             'tariff_group_local_mob_price' => 'Гарантированный платеж',
             'tariff_group_russia_price' => 'Гарантированный платеж',
             'tariff_group_intern_price' => 'Гарантированный платеж',
-            'tariff_group_sng_price' => 'Гарантированный платеж',
             'tariff_group_price' => 'Гарантированный платеж (Набор)',
         ];
     }
