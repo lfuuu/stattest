@@ -1,5 +1,12 @@
 <?php 
+use app\models\ClientAccount;
+use app\classes\Assert;
 use app\models\BillDocument;
+use app\models\TariffNumber;
+use app\models\TariffVoip;
+use app\models\Country;
+use app\models\City;
+use app\forms\usage\UsageVoipEditForm;
 
 class ApiLk
 {
@@ -311,6 +318,125 @@ class ApiLk
         return $ret;
     }
 
+    public static function getVoipTariffTree($clientAccountId)
+    {
+        $clientAccount = ClientAccount::findOne($clientAccountId);
+
+        $useTestTariff = false;
+        /** @var TariffVoip[] $tariffs */
+        if ($useTestTariff) {
+            $tariffs =
+                TariffVoip::find()
+                    ->andWhere("status in ('public','special')")
+                    ->andWhere(['dest' => 4])
+                    ->andWhere(['is_testing' => 1])
+                    ->all();
+        } else {
+            $tariffs =
+                TariffVoip::find()
+                    ->andWhere(['status' => 'public'])
+                    ->andWhere(['dest' => 4])
+                    ->andWhere(['is_testing' => 0])
+                    ->all();
+        }
+
+        $resultTariffsByConnectionPointId = [];
+
+        foreach ($tariffs as $tariff) {
+
+            if (!isset($resultTariffsByConnectionPointId[$tariff->region])) {
+                $resultTariffsByConnectionPointId[$tariff->region] = [];
+            }
+
+            $resultTariffsByConnectionPointId[$tariff->region][$tariff->id] = [
+                'type' => 'old',
+                'id' => $tariff->id,
+                'name' => $tariff->name,
+                'activation_fee' => (float)$tariff->once_number,
+                'periodical_fee' => (float)$tariff->month_number,
+                'line_activation_fee' => (float)$tariff->once_line,
+                'line_periodical_fee' => (float)$tariff->month_line,
+                'currency_id' => $tariff->currency,
+                'free_local_min' => $tariff->free_local_min,
+            ];
+        }
+
+
+        $resultNumberTariffsByCityId = [];
+
+
+        /** @var TariffNumber[] $tariffs */
+        $tariffs =
+            TariffNumber::find()
+                ->andWhere(['status' => TariffNumber::STATUS_PUBLIC])
+                ->all();
+        foreach ($tariffs as $tariff) {
+            if (!isset($resultNumberTariffsByCityId[$tariff->city_id])) {
+                $resultNumberTariffsByCityId[$tariff->city_id] = [];
+            }
+
+            $resultNumberTariffsByCityId[$tariff->city_id][$tariff->id] = [
+                'id' => $tariff->id,
+                'name' => $tariff->name,
+                'activation_fee' => (float)$tariff->activation_fee,
+                'periodical_fee' => (float)$tariff->periodical_fee,
+                'currency_id' => $tariff->currency_id,
+            ];
+        }
+
+
+        $resultMainTariffsByCityId[] = [];
+
+        $cities =
+            City::find()
+                ->all(); /** @var City[] $cities */
+        $resultCitiesByCountryId = [];
+        foreach ($cities as $city) {
+            if (!isset($resultNumberTariffsByCityId[$city->id])) {
+                continue;
+            }
+
+            if (!isset($resultTariffsByConnectionPointId[$city->connection_point_id])) {
+                continue;
+            }
+            $resultMainTariffsByCityId[$city->id] = $resultTariffsByConnectionPointId[$city->connection_point_id];
+
+            if (!isset($resultCitiesByCountryId[$city->country_id])) {
+                $resultCitiesByCountryId[$city->country_id] = [];
+            }
+            $resultCitiesByCountryId[$city->country_id][] = [
+                'id' => $city->id,
+                'name' => $city->name,
+            ];
+        }
+
+
+        $countries =
+            Country::find()
+                ->andWhere(['in_use' => 1])
+                ->all(); /** @var Country[] $countries */
+        $resultCountries = [];
+        foreach ($countries as $country) {
+            if (!isset($resultCitiesByCountryId[$country->code])) {
+                continue;
+            }
+
+            $resultCountries[] = [
+                'id' => $country->code,
+                'name' => $country->name,
+            ];
+        }
+
+
+        return [
+            'countryId' => $clientAccount->country_id,
+            'countries' => $resultCountries,
+            'citiesByCountryId' => $resultCitiesByCountryId,
+            'numberTariffsByCityId' => $resultNumberTariffsByCityId,
+            'mainTariffsByCityId' => $resultMainTariffsByCityId,
+        ];
+    }
+
     public static function getVoipList($clientId, $isSimple = false)
     {
         global $db, $db_ats;
@@ -357,7 +483,7 @@ class ApiLk
     
                 ', array($card->client, $card->client)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "region"), $v);
+            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
 
             $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
 
@@ -659,6 +785,17 @@ class ApiLk
         return $ret;
     }
 
+    public static function getNumberTariffs($regionId)
+    {
+        return [
+            ['id' => '0', 'name' => 'Стандартные'],
+            ['id' => '1', 'name' => 'Платиновые'],
+            ['id' => '2', 'name' => 'Золотые'],
+            ['id' => '3', 'name' => 'Серебряные'],
+            ['id' => '4', 'name' => 'Бронзовые'],
+        ];
+    }
+
     public static function getVoipTarifs($currency = 'RUB', $status = 'public', $dest = '4')
     {
         $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
@@ -687,111 +824,79 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($region_id = 0, $isSimple = false)
+    public static function getFreeNumbers($numberTariffId, $isSimple = false)
     {
-        $valid_regions = array('87', '88', '89', '94', '95', '93', '97', '98', '99');
+        $numberTariff = TariffNumber::findOne($numberTariffId);
+        Assert::isObject($numberTariff);
+        Assert::isEqual($numberTariff->status, TariffNumber::STATUS_PUBLIC);
+
         $ret = array();
 
-        $q = "SELECT 
-                a.number, a.region, a.price, a.beauty_level,
-                IF(client_id IN ('9130', '764'), 'our', 
-                    IF(date_reserved IS NOT NULL, 'reserv', 
-                        IF(active_usage_id IS NOT NULL, 'used', 
-                            IF(max_date >= (now() - INTERVAL 6 MONTH), 'stop', 'free' 
-                            ) 
-                        ) 
-                    ) 
-                ) AS status 
-            FROM ( 
-                SELECT 
-                    number, region, price, client_id, beauty_level, 
-                    (
-                        SELECT 
-                            MAX(actual_to) 
-                        FROM 
-                            usage_voip u 
-                        WHERE 
-                            u.e164 = v.number AND 
-                            actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')
-                    ) AS max_date, 
-                    (
-                        SELECT 
-                            MAX(id) 
-                        FROM 
-                            usage_voip u 
-                        WHERE 
-                            u.e164 = v.number AND 
-                            (
-                                (
-                                    actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND 
-                                    actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
-                                ) OR 
-                                actual_from > '3000-01-01'
-                            ) 
-                    ) AS active_usage_id, 
-                    (
-                        SELECT 
-                            MAX(created) 
-                        FROM 
-                            usage_voip u 
-                        WHERE 
-                            u.e164 = v.number AND 
-                            actual_from > '3000-01-01'
-                    ) AS date_reserved 
-                FROM 
-                    voip_numbers v 
-                ".(($region_id > 0 && in_array($region_id, $valid_regions)) ? ' WHERE region=' . $region_id : '')."
-                )a 
-            LEFT JOIN clients c ON (c.id = a.client_id) 
-            WHERE 
-
-                if(a.region = 99,
-                    if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true),
-                true)
-
-            
-            HAVING status IN ('free')";
-        
-        foreach(NewBill::find_by_sql($q/*"
-          SELECT
-                a.*, (
+        $numbers =
+            Yii::$app->db->createCommand("
+                SELECT
+                    a.number,
+                    IF(client_id IN ('9130', '764'), 'our',
+                        IF(date_reserved IS NOT NULL, 'reserv',
+                            IF(active_usage_id IS NOT NULL, 'used',
+                                IF(max_date >= (now() - INTERVAL 6 MONTH), 'stop', 'free'
+                                )
+                            )
+                        )
+                    ) AS status
+                FROM (
                     SELECT
-                        max(actual_to)
+                        number, client_id,
+                        (
+                            SELECT
+                                MAX(actual_to)
+                            FROM
+                                usage_voip u
+                            WHERE
+                                u.e164 = v.number AND
+                                actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')
+                        ) AS max_date,
+                        (
+                            SELECT
+                                MAX(id)
+                            FROM
+                                usage_voip u
+                            WHERE
+                                u.e164 = v.number AND
+                                (
+                                    (
+                                        actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND
+                                        actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                                    ) OR
+                                    actual_from >= '2029-01-01'
+                                )
+                        ) AS active_usage_id,
+                        (
+                            SELECT
+                                MAX(created)
+                            FROM
+                                usage_voip u
+                            WHERE
+                                u.e164 = v.number AND
+                                actual_from = '2029-01-01'
+                        ) AS date_reserved
                     FROM
-                        usage_voip
-                    WHERE
-                        e164 = a.number
-                        AND NOT (actual_from = '2029-01-01' AND actual_to='2029-01-01')
-                    ) date_to
-          FROM (
-            SELECT
-                number, beauty_level, price, voip_numbers.region
-            FROM
-                voip_numbers
-            LEFT JOIN usage_voip uv ON (uv.E164 = voip_numbers.number)
-            WHERE
-                uv.E164 IS NULL
-                AND client_id IS NULL
-                AND (
-                    (used_until_date IS NULL OR used_until_date < now() - interval 6 MONTH)
-                    OR
-                    (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < now()))
-                    OR
-                        site_publish = 'Y'
-                )
-              )a
-          HAVING date_to IS NULL OR date_to < now()
-          ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number
-          "*/) as $service)
+                        voip_numbers v
+                    WHERE v.did_group_id='{$numberTariff->did_group_id}'
+                    )a
+                LEFT JOIN clients c ON (c.id = a.client_id)
+                HAVING status IN ('free')
+            ")
+                ->queryAll();
+        
+        foreach($numbers as $number)
         {
-            $line = self::_exportModelRow(array("number", "beauty_level", "price", "region"), $service);
+            $line = ['number' => $number['number']];
             $line['full_number'] = $line['number'];
             $line['area_code'] = substr($line['number'],1,3);
             $l = strlen($line['number']);
             $number = $line["number"];
             $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
-            if ($line['price'] == '') $line['price_add'] = 'Договорная';
-            else $line['price_add'] = 'руб.';
             $ret[] = $isSimple ? $number : $line;
         }
         return $ret;
@@ -813,40 +918,67 @@ class ApiLk
         return array('status'=>'error','message'=>'order_error');
     }
 
-    public static function orderVoip($client_id, $region_id, $number, $tarif_id, $lines_cnt)
+    public static function orderVoip($clientId, $numberTariffId, $mainTariffId, $did, $linesCount)
     {
-        global $db;
-        //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
+        $clientAccount = ClientAccount::findOne($clientId);
+        Assert::isObject($clientAccount);
 
-        $freeNumbers = self::getFreeNumbers(0, true);
-        if (array_search($number, $freeNumbers) === false)
+        $numberTariff = TariffNumber::findOne($numberTariffId);
+        Assert::isObject($numberTariff);
+        Assert::isEqual($clientAccount->currency, $numberTariff->currency_id);
+
+        $number = \app\models\Number::findOne($did);
+        Assert::isObject($number);
+
+        $freeNumbers = self::getFreeNumbers($numberTariffId, true);
+        if (array_search($number->number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'voip_number_not_free');
-    
-        $clientNumbers = self::getVoipList($client_id, true);
-        if (array_search($number, $clientNumbers) !== false)
-            return array('status'=>'error','message'=>'voip_number_already_used');
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from>'3000-01-01' AND actual_to>'3000-01-01'");
-        if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'voip_number_max_reserv');
-    
-        $region = $db->GetRow("select name from regions where id='".$region_id."'");
-    
-        $lines_cnt = (int)$lines_cnt;
-        if ($lines_cnt > 10) $lines_cnt = 10;
-        if ($lines_cnt < 1) $lines_cnt = 1;
 
-        $reserNumber = VoipReservNumber::reserv($number, $client_id, $lines_cnt, $tarif_id);
-    
+        $connectingDate = new DateTime('now', $clientAccount->timezone);
+
+        $mainTariff = TariffVoip::findOne($mainTariffId);
+        Assert::isObject($mainTariff);
+        Assert::isEqual($clientAccount->currency, $mainTariff->currency);
+
+        $linesCount = (int)$linesCount;
+        if ($linesCount > 10) $linesCount = 10;
+        if ($linesCount < 1) $linesCount = 1;
+
+        $model = new UsageVoipEditForm();
+        $model->scenario = 'add';
+        $model->initModel($clientAccount);
+        $model->type_id = 'number';
+        $model->number_tariff_id = $numberTariff->id;
+        $model->tariff_main_id = $mainTariff->id;
+        $model->connection_point_id = $numberTariff->connection_point_id;
+        $model->city_id = $numberTariff->city_id;
+        $model->no_of_lines = $linesCount;
+        $model->did = $number->number;
+        $model->connecting_date = $connectingDate->format('Y-m-d');
+
+        $model->tariff_local_mob_id = TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 5])->andWhere(['is_testing' => 1])->scalar();
+        $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->andWhere(['is_testing' => 1])->scalar();
+        $model->tariff_russia_mob_id = $model->tariff_russia_id;
+        $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->andWhere(['is_testing' => 1])->scalar();
+        $model->tariff_sng_id =       TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 3])->andWhere(['is_testing' => 1])->scalar();
+
+        if (!$model->validate()) {
+            Yii::error($model->errors);
+            return array('status'=>'error','message'=>'order_error');
+        }
+
+        $model->add();
+        $usageId = $model->id;
+
         $message = "Заказ услуги IP Телефония из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: ".$client_id.")\n";
-        $message .= 'Регион: ' . $region['name'] . "\n";
-        $message .= 'Номер: ' . $number . "\n";
-        $message .= 'Кол-во линий: ' . $lines_cnt . "\n";
-        $message .= 'Тарифный план: ' . $reserNumber["tarif"]["name"];
+        $message .= 'Клиент: ' . $clientAccount->company . " (Id: ".$clientAccount->id.")\n";
+        $message .= 'Город: ' . $numberTariff->city->name . "\n";
+        $message .= 'Номер: ' . $number->number . "\n";
+        $message .= 'Кол-во линий: ' . $linesCount . "\n";
+        $message .= 'Тарифный план: ' . $mainTariff->name;
     
     
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager']), "usage_voip", $reserNumber["usage_id"]) > 0)
+        if (self::createTT($message, $clientAccount->client, self::_getUserForTrounble($clientAccount->manager), 'usage_voip', $usageId) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');

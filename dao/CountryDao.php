@@ -2,9 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
-use app\models\ClientCounter;
 use app\models\Country;
-use app\models\Courier;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -23,4 +21,21 @@ class CountryDao extends Singleton
         return $country ? $country->name : '';
     }
 
+    public function getList($withEmpty = false)
+    {
+        $list =
+            ArrayHelper::map(
+                Country::find()
+                    ->andWhere(['in_use' => 1])
+                    ->orderBy('name')
+                    ->asArray()
+                    ->all(),
+                'code',
+                'name'
+            );
+        if ($withEmpty) {
+            $list = ['' => '-- Страна --'] + $list;
+        }
+        return $list;
+    }
 }

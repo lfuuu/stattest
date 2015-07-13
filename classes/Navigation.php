@@ -16,9 +16,16 @@ class Navigation
         $this->addBlockNewClients();
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
-        $this->addBlockForStatModule('tarifs');
+        $this->addBlock(
+            $this->getBlockForStatModule('tarifs')
+                ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
+                ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+        );
         $this->addBlockForStatModule('tt');
-        $this->addBlockForStatModule('stats');
+        $this->addBlock(
+            $this->getBlockForStatModule('stats')
+                ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
+        );
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
         $this->addBlockForStatModule('users');
@@ -77,6 +84,10 @@ class Navigation
 
     private function addBlock(NavigationBlock $block)
     {
+        if (!$block->id) {
+            $block->id = 'block' . md5($block->title);
+        }
+
         if ($block->rights) {
           foreach ($block->rights as $right) {
             if (Yii::$app->user->can($right)) {
@@ -87,6 +98,7 @@ class Navigation
         } else {
           $this->blocks[] = $block;
         }
+
         return $this;
     }
 

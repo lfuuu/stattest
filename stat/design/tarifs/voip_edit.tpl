@@ -7,7 +7,19 @@
 <input type="hidden" name="action" value="voip_edit" />
 <input type="hidden" name="id" value="{$data.id}" />
 <table>
-    <tr><td>Регион:</td><td>
+    <tr><td>Страна:</td><td>
+            {if $data.id > 0}
+                <input type="hidden" name="country_id" value="{$data.country_id}" />
+                {$countries[$data.country_id].name}
+            {else}
+                <select name="country_id">
+                    {foreach from=$countries item='r'}
+                        <option value="{$r.code}"{if $r.code eq $data.country_id} selected{/if}>{$r.name}</option>
+                    {/foreach}
+                </select>
+            {/if}
+        </td></tr>
+    <tr><td>Точка подключения:</td><td>
     {if $data.id > 0}
         <input type="hidden" name="region" value="{$data.region}" />
         {$regions[$data.region].name}
@@ -99,6 +111,10 @@
     <tr><td></td><td><label>
                 <input type="checkbox" name="is_virtual" value="1" {if $data.is_virtual > 0}checked{/if} />
                 тариф для виртуальных номеров</label>
+        </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="is_testing" value="1" {if $data.is_testing > 0}checked{/if} />
+                тариф поумолчанию</label>
         </td></tr>
     <tr>
         <td></td>

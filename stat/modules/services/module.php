@@ -6,6 +6,7 @@ use app\dao\services\WelltimeServiceDao;
 use app\dao\services\EmailsServiceDao;
 use app\dao\services\ExtraServiceDao;
 use app\models\Organization;
+use app\classes\Event;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -1374,7 +1375,9 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        voipNumbers::check();
+
+        Event::go('ats2_numbers_check');
+
         if ($result=='delete') {
             header('Location: ?module=services&action=vo_view');
             exit;
@@ -1402,7 +1405,9 @@ class m_services extends IModule{
                     "comment" => "Подключение закрыто"
                     )
                 );
-        voipNumbers::check();
+
+        Event::go('ats2_numbers_check');
+
         trigger_error2('Номер отключен, создайте заявку на отключение');
 
         $this->services_vo_view($fixclient);
@@ -1426,9 +1431,7 @@ class m_services extends IModule{
         $design->assign('sort',$sort);
         $design->assign('so',$so);
 
-        $db->Query('select domains.*,
-            IF(cast(NOW() as date) between actual_from and actual_to,1,0) as actual 
-                from domains'.($fixclient?' where client="'.$fixclient.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
+        $db->Query('select domains.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from domains'.($fixclient?' where client="'.$fixclient.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
         while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('domains',$R);
         $design->AddMain('services/domains.tpl'); 
@@ -2773,92 +2776,7 @@ class m_services extends IModule{
 
         $design->AddMain('services/voip_e164_pane.tpl');
     }
-    function services_e164_edit($fixclient){
-        global $db, $design, $user;
-        $e164 = get_param_protected('e164','');
-        $reserve = get_param_raw('reserve',null);
-        if(!is_null($reserve)){
-            $reserve = (int)$reserve;
-            if ($reserve == 0) $reserve = 'NULL';
 
-            /* резерв переведен на новую схему */
-            header('location: ?module=services&action=e164_edit&e164='.$e164); 
-            exit();
-
-            $db->Query($q = "
-                update
-                    `voip_numbers`
-                set
-                    `client_id`=".$reserve.",
-                    edit_user_id=".$user->Get('id')."
-                where usage_id is null and
-                    `number` = '".$e164."'
-            ");
-            die();
-        }
-        $query = "
-                select
-                    `vn`.*,
-                    `cl`.`client`,
-                    `cl`.`company_full`,
-                    `vn`.`nullcalls_last_2_days` `count_calls`
-                from
-                    `voip_numbers` `vn`
-                left join
-                    `clients` `cl`
-                on
-                    `cl`.`id` = `vn`.`client_id`
-                where
-                    `vn`.`number` = '".$e164."'";
-
-        $num = $db->AllRecords($query, null, MYSQL_ASSOC);
-
-        $log = $db->AllRecords("
-                select
-                    date_format(`es`.`time`,'%Y-%m-%d %H:%i:%s') `human_time`,
-                    `uu`.`user`,
-                    `es`.`user` `user_id`,
-                    `cl`.`client`,
-                    `es`.`client` `client_id`,
-                    `es`.`addition`,
-                    `es`.`action`
-                from
-                    `e164_stat` `es`
-                left join
-                    `clients` `cl`
-                on
-                    `cl`.`id` = `es`.`client`
-                left join
-                    `user_users` `uu`
-                on
-                    `uu`.`id` = `es`.`user`
-                where
-                    `es`.`e164`='".$e164."' and `es`.`action`<>'nullCall'
-                order by
-                    `es`.`time` desc
-            ");
-
-        if(count($num)==0){
-            header('location: ?module=services&action=e164');
-            die();
-        }
-
-        $n = $num[0];
-        $design->assign('e164',$n['number']);
-        $design->assign('is_using',($n['usage_id']!='')?true:false);
-        $design->assign('is_free',($n['client_id']=='')?true:false);
-        $design->assign('is_reserved',($n['client_id']!='' && $n['usage_id']=='')?true:false);
-        $design->assign('beauty_level',$n['beauty_level']);
-        $design->assign('client',$n['client']);
-        $design->assign('usage_id',$n['usage_id']);
-        $design->assign('client_id',$n['client_id']);
-        $design->assign('company',$n['company_full']);
-        $design->assign('count_calls',$n['count_calls']);
-        $design->assign('current_client',$fixclient);
-        $design->assign('current_client_id',$db->GetValue("select * from clients where '".$fixclient."' in (client, id)"));
-        $design->assign('logs',$log);
-        $design->AddMain('services/voip_e164_edit.tpl');
-    }
     function services_get_tarifs($fixclient)
     {
         global $db;
@@ -2981,7 +2899,6 @@ class m_services extends IModule{
         if(preg_match('/^FREE:(\d{2,7}|short)?/',$_GET['e164'],$m)){
             if(isset($m[1]) && $m[1] != 'short'){
                 $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
-                $ann_ = "substring(`e164` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
             } elseif ($m[1] == 'short') {
                 $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6 and e164 not in ('".implode("','", $spec_numbers)."')";
                 if (($res=$db->GetValue($query)) !== false) {
@@ -2991,11 +2908,7 @@ class m_services extends IModule{
                     return "FAIL";
             }else{
                 $ann = '';
-                $ann_ = '';
             }
-
-            $actual_from = date('Y-m-d', strtotime($_GET['actual_from']));
-            $actual_to = date('Y-m-d', strtotime($_GET['actual_to']));
 
             $query = "
                 select `vn`.`number`, (select max(actual_to) from usage_voip uv where uv.e164 = vn.number) as actual_to

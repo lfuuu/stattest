@@ -49,7 +49,8 @@ abstract class Biller
         $this->usage = $usage;
         $this->clientAccount = $clientAccount;
 
-        $this->timezone = $this->clientAccount->timezone;
+        // $this->timezone = $this->clientAccount->timezone);
+        $this->timezone = $date->getTimezone();
 
         $this->setupBillerDate($date);
         $this->setupBillerPeriod();
@@ -60,10 +61,8 @@ abstract class Biller
 
     protected function setupBillerDate(DateTime $date)
     {
-        $this->billerDate = new DateTime();
+        $this->billerDate = clone $date;
         $this->billerDate->setTimezone($this->timezone);
-        $this->billerDate->setDate($date->format('Y'), $date->format('m'), $date->format('d'));
-        $this->billerDate->setTime($date->format('H'), $date->format('i'), $date->format('s'));
     }
 
     protected function setupBillerPeriod()
@@ -131,40 +130,22 @@ abstract class Biller
         return $this->transactions;
     }
 
-    public function process($onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
+    public function process($connecting = true, $periodical = true, $resource = true)
     {
         if ($this->beforeProcess() === false) {
             return $this;
         }
 
-        if ($onlyConnecting) {
-            if ($this->usage->status == 'connecting') {
+        if ($connecting) {
+            $this->processConnecting();
+        }
 
-                if ($connecting) {
-                    $this->processConnecting();
-                }
+        if ($periodical) {
+            $this->processPeriodical();
+        }
 
-                if ($periodical) {
-                    $this->processPeriodical();
-                }
-
-                if ($resource) {
-                    $this->processResource();
-                }
-            }
-        } else {
-
-            if ($connecting) {
-                $this->processConnecting();
-            }
-
-            if ($periodical) {
-                $this->processPeriodical();
-            }
-
-            if ($resource) {
-                $this->processResource();
-            }
+        if ($resource) {
+            $this->processResource();
         }
 
         return $this;

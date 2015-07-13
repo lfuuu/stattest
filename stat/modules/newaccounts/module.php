@@ -1366,6 +1366,58 @@ class m_newaccounts extends IModule
     }
 
 
+    function create_pdf_from_docs($fixclient, $bills = array())
+    {
+        global $user, $db, $design;
+
+        if (count($bills) == 0) return;
+
+        $fnames = array();
+        $fbasename = '/tmp/'.mktime().$user->_Data['id'];
+        $i=0;
+        $is_invoice = false;
+        $is_upd = false;
+
+        foreach ($bills as $b) {
+            $fname = $fbasename . (++$i) . '.html';
+            if ($b['obj'] == 'envelope') {
+                if (($r = $db->GetRow('select * from clients where (id="'.$b['bill_client'].'") limit 1'))) {
+                    ClientCS::Fetch($r,null);
+                    $content = $design->fetch('../store/acts/envelope.tpl');
+                }
+            } else {
+                if (($pos = strpos($b['obj'], '&to_client=true'))) {
+                    $to_client = true;
+                    $obj = substr($b['obj'], 0, $pos);
+                } else {
+                    $to_client = false;
+                    $obj = $b['obj'];
+                }
+                if (strpos($obj, 'invoice')!==false) $is_invoice = true;
+                if (strpos($obj, 'upd')!==false) $is_upd = true;
+                $content = $this->newaccounts_bill_print($fixclient, array('object'=>$obj,'bill'=>$b['bill_no'], 'only_html'=>'1','to_client'=>$to_client, 'is_pdf'=>1));
+            }
+            if (strlen($content)) {
+                file_put_contents($fname, $content);
+                $fnames[] = $fname;
+            }
+        }
+
+        $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
+        if ($is_invoice || $is_upd) $options .= ' --orientation Landscape ';
+        passthru("/usr/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
+        $pdf = file_get_contents($fbasename . '.pdf');
+        foreach ($fnames as $f) unlink($f);
+        unlink($fbasename.'.pdf');
+
+        header('Content-Type: application/pdf');
+        ob_clean();
+        flush();
+        echo $pdf;
+        exit;
+
+    }
+
     function newaccounts_bill_mprint($fixclient) {
         global $design,$db,$user;
         $this->do_include();
@@ -1392,7 +1444,7 @@ class m_newaccounts extends IModule
 
         //$bills = array("201204-0465");
 
-            $idxs = array();
+        $idxs = array();
 
         foreach($bills as $bill_no)
         {
@@ -1433,7 +1485,7 @@ class m_newaccounts extends IModule
                 if($toDelDate)
                 {
                     $bill->SetDocDate(0);
-                    $bb = $bill->GetBill(); 
+                    $bb = $bill->GetBill();
                 }
             }
 
@@ -1514,17 +1566,17 @@ class m_newaccounts extends IModule
 
                     if ($isFromImport)
                         $r .= "&from=import";
-                    
+
                     if ($isFromImport || $isToPrint)
                         $r .= "&to_print=true";
 
                     $ll = array(
-                            "bill_no" => $bill_no, 
-                            "obj" => $r, 
-                            "bill_client" => $bill->Get("client_id"), 
-                            "g" => get_param_protected($r), 
-                            "r"  => $reCode
-                            );
+                        "bill_no" => $bill_no,
+                        "obj" => $r,
+                        "bill_client" => $bill->Get("client_id"),
+                        "g" => get_param_protected($r),
+                        "r"  => $reCode
+                    );
 
                     $R[] = $ll;
                     $P.=($P?',':'').'1';
@@ -1576,58 +1628,6 @@ class m_newaccounts extends IModule
         $design->assign('objects',$R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
         #$design->ProcessEx('errors.tpl');
-    }
-
-    function create_pdf_from_docs($fixclient, $bills = array())
-    {
-        global $user, $db, $design;
-
-        if (count($bills) == 0) return;
-
-        $fnames = array();
-        $fbasename = '/tmp/'.mktime().$user->_Data['id'];
-        $i=0;
-        $is_invoice = false;
-        $is_upd = false;
-
-        foreach ($bills as $b) {
-            $fname = $fbasename . (++$i) . '.html';
-            if ($b['obj'] == 'envelope') {
-                if (($r = $db->GetRow('select * from clients where (id="'.$b['bill_client'].'") limit 1'))) {
-                    ClientCS::Fetch($r,null);
-                    $content = $design->fetch('../store/acts/envelope.tpl');
-                }
-            } else {
-                if (($pos = strpos($b['obj'], '&to_client=true'))) {
-                    $to_client = true;
-                    $obj = substr($b['obj'], 0, $pos);
-                } else {
-                    $to_client = false;
-                    $obj = $b['obj'];
-                }
-                if (strpos($obj, 'invoice')!==false) $is_invoice = true;
-                if (strpos($obj, 'upd')!==false) $is_upd = true;
-                $content = $this->newaccounts_bill_print($fixclient, array('object'=>$obj,'bill'=>$b['bill_no'], 'only_html'=>'1','to_client'=>$to_client, 'is_pdf'=>1));
-            }
-            if (strlen($content)) {
-                file_put_contents($fname, $content);
-                $fnames[] = $fname;
-            }
-        }
-
-        $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
-        if ($is_invoice || $is_upd) $options .= ' --orientation Landscape ';
-        passthru("/usr/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
-        $pdf = file_get_contents($fbasename . '.pdf');
-        foreach ($fnames as $f) unlink($f);
-        unlink($fbasename.'.pdf');
-
-        header('Content-Type: application/pdf');
-        ob_clean();
-        flush();
-        echo $pdf;
-        exit;
-        
     }
 
     function newaccounts_bill_clear($fixclient) {

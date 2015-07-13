@@ -226,19 +226,22 @@ $(function(){
         <td align="right">Страна:</td>
         <td>
             <select name="country_id" class="select2" style="width: 200px" {if $card_type=='addition'}readonly='readonly'{/if}>
-                {foreach from=$countries item=item}
-                    <option value="{$item.code}"{if $item.code eq $contragent.country_id} selected="selected"{/if}>{$item.name}</option>
+                {foreach from=$countries item='r'}
+                    <option value="{$r.code}"{if $r.code eq $client.country_id} selected{/if}>{$r.name}</option>
                 {/foreach}
             </select>
         </td>
     </tr>
-    <tr><td align="right">Регион:</td><td>
-        <select name="region" class="select2" style="width: 200px" {if $card_type=='addition'}readonly='readonly'{/if}>
-        {foreach from=$regions item='r'}
-            <option value="{$r.id}"{if $r.id eq $client.region} selected{/if}>{$r.name}</option>
-        {/foreach}
-        </select>
-    </td></tr>
+    <tr>
+        <td align="right">Точка подключения:</td>
+        <td>
+            <select name="region" class="select2" style="width: 200px" {if $card_type=='addition'}readonly='readonly'{/if}>
+            {foreach from=$regions item='r'}
+                <option value="{$r.id}"{if $r.id eq $client.region} selected{/if}>{$r.name}</option>
+            {/foreach}
+            </select>
+        </td>
+    </tr>
     <tr><td align="right" width=30%>{if isset($mode_new)}<font color="blue"><b> {/if}Компания:{if isset($mode_new)}</b></font>{/if}</td><td><input style='width:100%' id="cl_company" name=company class=text value='{$client.company}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
     <tr><td align="right">Полное название компании:</td><td><input style='width:100%' name=company_full class=text value='{$client.company_full}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
     <tr><td align="right">Юридический адрес:</td><td><input style='width:100%' name=address_jur class=text value='{$client.address_jur}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>

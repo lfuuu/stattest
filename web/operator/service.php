@@ -211,7 +211,7 @@ if ($action=='add_client') {
                   OR
                     (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < NOW()))
                   OR 
-                    site_publish = 'Y'
+                    status <> 'new'
                  ) ".($region !== null ? " AND vn.region = '".$region."'" : "")."
 
               )a

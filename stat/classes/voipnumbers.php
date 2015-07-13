@@ -31,12 +31,11 @@ class voipNumbersChecker
         return "client_id='".$c[$client]."'";
     }
 
-    private static $sqlActual = "select client_id, e164, no_of_lines, no_of_callfwd from (
+    private static $sqlActual = "select client_id, e164, no_of_lines from (
         SELECT 
             c.id as client_id,
             trim(e164) as e164,
-            u.no_of_lines, 
-            u.no_of_callfwd,
+            u.no_of_lines,
             (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block
         FROM 
             usage_voip u, clients c
@@ -46,7 +45,7 @@ class voipNumbersChecker
             /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
 
     private static $sqlNumber=
-        "SELECT client_id, number as e164, call_count as no_of_lines, callfwd_count as no_of_callfwd
+        "SELECT client_id, number as e164, call_count as no_of_lines
         FROM v_number WHERE enabled = 'yes'
         # and client='id9011'
         order by id";
@@ -85,7 +84,6 @@ class voipNumbersChecker
                 "added" => array(), 
                 "deleted" => array(), 
                 "changed_lines" => array(), 
-                "changed_callfwd" => array(),
                 "new_client" => array()
                 );
 
@@ -98,10 +96,6 @@ class voipNumbersChecker
         foreach($actual as $e164 => $l)
             if(isset($saved[$e164]) && $saved[$e164]["no_of_lines"] != $l["no_of_lines"]) 
                 $d["changed_lines"][$e164] = $l + array("no_of_lines_prev" => $saved[$e164]["no_of_lines"]);
-
-        foreach($actual as $e164 => $l)
-            if(isset($saved[$e164]) && $saved[$e164]["no_of_callfwd"] != $l["no_of_callfwd"])
-                $d["changed_callfwd"][$e164] = $l + array("no_of_callfwd_prev" => $saved[$e164]["no_of_callfwd"]);
 
         foreach($actual as $e164 => $l)
             if(isset($saved[$e164]) && $saved[$e164]["client_id"] != $l["client_id"])
@@ -372,9 +366,6 @@ class voipDiff
         if($diff["changed_lines"])
             self::numOfLineChanged($diff["changed_lines"]);
 
-        if($diff["changed_callfwd"])
-            self::numOfCallFwdChanged($diff["changed_callfwd"]);
-
         if($diff["new_client"])
             self::clientChanged($diff["new_client"]);
     }
@@ -483,19 +474,6 @@ class voipNumberAction
 
         if($n = voipNumbers::isUsed($l))
             vSip::recalcCallCount($n["id"]);
-    }
-    
-    public static function numOfCallFwdChanged($l)
-    {
-        l::ll(__CLASS__,__FUNCTION__, $l);
-
-        global $db;
-
-        $db->QueryUpdate("v_number", "number", array(
-                    "number" => $l["e164"],
-                    "callfwd_count" => $l["no_of_callfwd"]
-                    )
-                );
     }
 
     public static function clientChanged($l)

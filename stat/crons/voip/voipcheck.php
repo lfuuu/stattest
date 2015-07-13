@@ -18,7 +18,8 @@ echo "
 
 
 
-voipNumbers::check();
+// voipNumbers::check(); // moved to ats2Numbers::check()
+
 
 
 

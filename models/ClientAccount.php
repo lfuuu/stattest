@@ -30,6 +30,7 @@ use app\models\ClientContact;
  * @method static ClientAccount findOne($condition)
 
  * @property
+ *
  */
 class ClientAccount extends ActiveRecord
 {

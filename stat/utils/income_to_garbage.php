@@ -2,7 +2,10 @@
 
 //--------------------------------------------------------------------------------------------------
 define("PATH_TO_ROOT",'../');
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
+
+use app\classes\Event;
+
 //--------------------------------------------------------------------------------------------------
 global $db;
 
@@ -18,8 +21,8 @@ foreach ($ids as $r) {
     $comment = 'Автоматическая чистка';
     $cs = new ClientCS($id);
     $cs->Add($status,$comment);
-    event::go("client_set_status", $id);
-    voipNumbers::check();
+    Event::go("client_set_status", $id);
+    Event::go('ats2_numbers_check');
 }
 
 print "\nAll - " . $cnt . ';' . "\n";

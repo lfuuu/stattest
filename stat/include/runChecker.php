@@ -6,7 +6,7 @@ class runChecker
 
 	public static function isRun()
 	{
-		self::$pidFile = "/tmp/".$_SERVER["PHP_SELF"].".pid";
+		self::$pidFile = "/tmp/".str_replace('/', '_', $_SERVER["PHP_SELF"]).".pid";
 
 		clearstatcache();
 		if(file_exists(self::$pidFile))

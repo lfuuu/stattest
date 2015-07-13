@@ -6,6 +6,10 @@ define("PATH_TO_ROOT", "../../../stat/");
 
 include PATH_TO_ROOT."conf_yii.php";
 
+use app\models\User;
+Yii::$app->user->setIdentity(User::findOne(User::SYSTEM_USER_ID));
+
+Yii::info('StatApi request: ' . json_encode($_REQUEST, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
 $function = get_param_raw("function");
 
@@ -13,6 +17,7 @@ try{
     $answer = do_func($function);
 }catch(Exception $e)
 {
+    Yii::error($e);
     say("error", $e->getMessage());
 	exit();
 }
@@ -29,8 +34,10 @@ function say($status, $data)
 	}else{
 		$say["error"] = $data;
 	}
-	echo json_encode($say);
-	//echo array_to_json($say);
+
+	Yii::info('StatApi response: ' . json_encode($say, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+	echo json_encode($say, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
 	exit();
 }
 		
@@ -60,14 +67,16 @@ function do_func($function)
 		case 'getInternetTarifs': return ApiLk::getInternetTarifs(); break;
 		case 'getVpbxTarifs': return ApiLk::getVpbxTarifs(); break;
 		case 'getDomainTarifs': return ApiLk::getDomainTarifs(); break;
+		case 'getNumberTariffs': return ApiLk::getNumberTariffs(get_param_raw("region_id")); break;
 		case 'getVoipTarifs': return ApiLk::getVoipTarifs(); break;
+        case 'getVoipTariffTree': return ApiLk::getVoipTariffTree(get_param_raw("client_id")); break;
 		case 'getRegionList': return ApiLk::getRegionList(); break;
-		case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("region_id")); break;
+		case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("number_tariff_id")); break;
 		case 'checkVoipNumber': return ApiLk::checkVoipNumber(get_param_raw('number')); break;
 		
 		case 'orderInternetTarif': return ApiLk::orderInternetTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderCollocationTarif': return ApiLk::orderCollocationTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
-		case 'orderVoip': return ApiLk::orderVoip(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("number"), get_param_raw("tarif_id"), get_param_raw("lines_cnt")); break;
+		case 'orderVoip': return ApiLk::orderVoip(get_param_raw("client_id"), get_param_raw("number_tariff_id"), get_param_raw("main_tariff_id"), get_param_raw("did"), get_param_raw("lines_count"), get_param_raw("lines_cnt")); break;
 		case 'orderVpbxTarif': return ApiLk::orderVpbxTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderDomainTarif': return ApiLk::orderDomainTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderEmail': return ApiLk::orderEmail(get_param_raw("client_id"), get_param_raw("domain_id"), get_param_raw("local_part"), get_param_raw("password")); break;
