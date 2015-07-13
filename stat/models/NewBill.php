@@ -81,7 +81,7 @@ class NewBill extends ActiveRecord\Model
 
         $currency = "RUB";
         $bill = new Bill(null,$clientId,time(),0,$currency, true, true);
-        $bill->price_include_vat = $clientAccount->price_include_vat;
+        $bill->Set('price_include_vat', $clientAccount->price_include_vat);
         $bill->AddLine("Авансовый платеж за услуги связи",1, $paySum * (1 + $tax_rate/100), "zadatok");
         $bill->Save();
         $billNo = $bill->GetNo();
