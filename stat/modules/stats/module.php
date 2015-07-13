@@ -302,7 +302,7 @@ class m_stats extends IModule{
             foreach ($regions as $region=>$phones_sel) {
                 $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
-            //$stats = $this->prepareStatArray($client_id, $stats, $detality);
+            $stats = $this->prepareStatArray($client_id, $stats, $detality);
         } else {
             if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
