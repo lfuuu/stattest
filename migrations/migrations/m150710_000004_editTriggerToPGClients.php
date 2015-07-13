@@ -1,6 +1,6 @@
     <?php
 
-class m150601_135758_editTriggerToPGClients extends \app\classes\Migration
+class m150710_000004_editTriggerToPGClients extends \app\classes\Migration
 {
     public function up()
     {

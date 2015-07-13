@@ -54,7 +54,7 @@ class CompatibilityController extends BaseController
             $fixclient = $cc;
         }
         else {
-          $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+          $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : 0;
         }
         $fixclient_data = array();
 

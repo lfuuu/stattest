@@ -1,6 +1,6 @@
 <?php
 
-class m150526_131517_alterWizard extends \app\classes\Migration
+class m150710_000003_alterWizard extends \app\classes\Migration
 {
     public function up()
     {

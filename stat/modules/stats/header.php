@@ -57,7 +57,7 @@ class m_stats_head extends IModuleHead{
             array('Свободные номера', 'report_voip_e164_free'),
             array('SMS Gate',		'report_sms_gate'),
             array('Отчет по услугам', 'report_services'),
-            array('Отчёт по файлам',  function() {return 'module=clients&action=files_report';}),
+            array('Отчёт по файлам',  function() {return '/file/report';}),
             array('Отчет по WiMax', 'report_wimax'),
             array('Отчет по Курьерам(SMS)', 'courier_sms'),
             array('Отчет по ТехПоддержке', 'support_efficiency'),

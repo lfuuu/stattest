@@ -366,7 +366,8 @@ class DbFormUsageIpPorts extends DbForm{
             $this->fields['port']['enum'][] = $row['port_name'];
         }
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -554,7 +555,8 @@ class DbFormUsageVoip extends DbForm {
         $this->fields["line7800_id"]["assoc_enum"] = $line7800_default + $lines7800;
 
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1000,7 +1002,8 @@ class DbFormUsageExtra extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1120,7 +1123,7 @@ class DbFormUsageITPark extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1219,7 +1222,7 @@ class DbFormUsageWelltime extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1367,7 +1370,7 @@ class DbFormUsageVirtpbx extends DbForm{
 
         $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1585,7 +1588,7 @@ class DbFormUsageWellSystem extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')

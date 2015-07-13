@@ -1,6 +1,6 @@
 <?php
 
-class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
+class m150710_000002_exportClientsLogAndHistory extends \app\classes\Migration
 {
     public function up()
     {

@@ -1,6 +1,6 @@
 <?php
 
-class m150707_165251_documents extends \app\classes\Migration
+class m150710_000008_documents extends \app\classes\Migration
 {
     public function up()
     {

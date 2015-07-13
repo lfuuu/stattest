@@ -71,6 +71,9 @@ class Bill {
 
             $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
 
+            if(is_object($client_id))
+                $client_id = $client_id->toArray();
+
             if (is_array($client_id)) {
                 $this->client_data=$client_id;
                 $client_id=$client_id['id'];

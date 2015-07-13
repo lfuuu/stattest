@@ -1054,8 +1054,6 @@ where c.client="'.$trouble['client_orig'].'"')
                 $W[] = "T.date_close <= '".$close_date_to."'";
         //}
 
-        if($client)
-            $W[]='cl.id="'.$client.'"';
         if($service)
             $W[]='service="'.addslashes($service).'"';
         if($service_id)
@@ -1106,6 +1104,9 @@ where c.client="'.$trouble['client_orig'].'"')
 
         if($this->curfolder)
             $W[] = "T.folder&".$this->curfolder;
+
+        if($client)
+            $W[]='cl.id='.$client;
 
         $page = get_param_integer("page", 1);
         if(!$page) $page = 1;
@@ -1709,14 +1710,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
 
         return false;
-    }
-
-    function get_counters($client){        //сколько траблов всего / сколько открытых
-        global $db,$design,$user;
-        $r = $db->GetRow('select sum(1) as A,sum(IF(S.state_id!=2,1,0)) as B FROM tt_troubles as T INNER JOIN tt_stages as S ON S.stage_id = cur_stage_id '.
-                        'WHERE client="'.addslashes($client).'"');
-        $design->assign('troubles_total', $r['A']);
-        $design->assign('troubles_opened', $r['B']);
     }
 
     function tt_slist($fixclient){

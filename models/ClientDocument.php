@@ -9,10 +9,12 @@ use app\dao\ClientDocumentDao;
 
 class ClientDocument extends ActiveRecord
 {
+    const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
+
     public $content = null,
         $group = '',
         $template = '';
-    
+
     public static $types = [
         'contract' => 'Контракт',
         'agreement' => 'Дополнительное соглашение',
@@ -94,14 +96,32 @@ class ClientDocument extends ActiveRecord
             if ($di >= 16) $di = 0;
         } else $di = ord($d) - ord('0');
         $data2 = "";
-        $key = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
+        $key = self::KEY;
         $l2 = strlen($key);
         for ($i = 0; $i < strlen($data); $i++) {
             $v = (ord($data[$i]) + ord($key[($i + $di) % $l2])) % 256;
             $data2 .= chr($v);
         }
         return urlencode(base64_encode($data2) . $d);
+    }
 
+    public static function linkDecode($data)
+    {
+        $di = substr($data, strlen($data) - 1, 1);
+        $data = substr($data, 0, strlen($data) - 1);
+        if (($di < '0') || ($di > '9')) {
+            $di = 10 + ord($di) - ord('a');
+            if ($di >= 16) $di = 0;
+        } else $di = ord($di) - ord('0');
+
+        $data = base64_decode($data); //urldecode($data));
+        $data2 = "";
+        $key = self::KEY;
+        $l2 = strlen($key);
+        for ($i = 0; $i < strlen($data); $i++) {
+            $data2 .= chr((ord($data[$i]) + 256 - ord($key[($i + $di) % $l2])) % 256);
+        }
+        return $data2;
     }
 
     public function getAccount()
@@ -116,7 +136,7 @@ class ClientDocument extends ActiveRecord
 
     public function beforeSave($insert)
     {
-        if($insert) {
+        if ($insert) {
             $lastContract = BillContract::getLastContract($this->contract_id, time());
             $this->contract_dop_date = '2012-01-01';
             $this->contract_dop_no = '0';
@@ -136,10 +156,9 @@ class ClientDocument extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if($insert && $this->group && $this->template){
+        if ($insert && $this->group && $this->template) {
             $this->dao()->create();
-        }
-        elseif($this->content !== null){
+        } elseif ($this->content !== null) {
             $this->dao()->setContent();
         }
         parent::afterSave($insert, $changedAttributes);

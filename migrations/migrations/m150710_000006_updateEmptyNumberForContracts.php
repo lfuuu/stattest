@@ -1,6 +1,6 @@
 <?php
 
-class m150629_191154_updateEmptyNumberForContracts extends \app\classes\Migration
+class m150710_000006_updateEmptyNumberForContracts extends \app\classes\Migration
 {
     public function up()
     {

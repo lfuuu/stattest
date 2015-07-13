@@ -4737,7 +4737,7 @@ SELECT cr.manager, c.sale_channel FROM clients c
         $dateFrom = new DatePickerValues('date_from', 'today');
         $from=$dateFrom->getTimestamp();
         $ord = 0;
-        $R = $db->AllRecords('select B.*,cr.name AS company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id
+        $R = $db->AllRecords('select B.*,cg.name AS company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id
  INNER JOIN `client_contract` cr ON cr.id=C.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');

@@ -1,6 +1,6 @@
 <?php
 
-class m150519_095927_history_version extends \app\classes\Migration
+class m150710_000001_history_version extends \app\classes\Migration
 {
 
     public function up()

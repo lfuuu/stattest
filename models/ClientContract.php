@@ -182,6 +182,11 @@ class ClientContract extends ActiveRecord
         return $this->hasMany(ClientDocument::className(), ['contract_id' => 'id']);
     }
 
+    public function getDocument()
+    {
+        return $this->getAllDocuments()->orderBy('id DESC')->one();
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);

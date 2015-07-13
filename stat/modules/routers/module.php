@@ -1,7 +1,7 @@
 <?php
 
-use app\classes\Company;
 use \app\models\ClientAccount;
+use \app\models\Organization;
 
 class m_routers {
     var $actions=array(
@@ -524,12 +524,12 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $design->assign('cpe',$cpe);
         $design->assign('client',$client);
 
-        $t = \app\models\ClientDocument::find()->andWhere(['contract_id' => $client->contract_id])
-            ->leftJoin(\app\models\User::tableName().' u', 'u.id = '.\app\models\ClientDocument::tableName().'.user_id')
-            ->orderBy('id DESC')
-            ->one();
+        $t = $client->contract->document;
         $design->assign('contract',$t);
-        Company::setResidents($client->contract->organization->firma);
+
+        $organization = Organization::find()->byId($client->contract->organization_id)->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->director->getOldModeInfo());
 
         $act=get_param_integer('act');
         if ($act=='1') {
@@ -538,39 +538,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
             $design->ProcessEx('../store/acts/act_device'.$act.'.tpl');
         }
     }
-/*
-    function routers_d_act($fixclient)    {
-        global $design, $db;
-        if (!($id=get_param_integer('id'))) return;
-        $cpe = $db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
-        if (!$cpe) return;
-        $client = $db->GetRow('select * from clients where client="'.$cpe['client'].'"');
-        if (!$client) return;
-        if ($client['currency']=='USD') {
-            $currency=$db->GetRow('select * from bill_currency_rate where date="'.$cpe['actual_from'].'" and currency="USD"');
-            $cpe['deposit_rub']=round($cpe['deposit_sumUSD']*$currency['rate'],2);
-        } else {
-            $cpe['deposit_rub']=round($cpe['deposit_sumRUB'],2);
-        }
-        if ($cpe['service']=='usage_ip_ports' && $cpe['id_service']) $design->assign('conn',$db->GetRow('select * from '.$cpe['service'].' where id='.$cpe['id_service']));
-        $design->assign('cpe',$cpe);
-        $design->assign('client',$client);
 
-        $t = new ClientCS($client['id']);
-        $t = $t->GetContracts();
-        $design->assign('contract',$t[count($t)-1]);
-
-        Company::setResidents($db->GetValue("
-select firma from clients where client = '".$cpe["client"]."'"));
-
-        $act=get_param_integer('act');
-        if ($act=='1') {
-            $design->ProcessEx('../store/acts/act_device.tpl');
-        } elseif ($act>1) {
-            $design->ProcessEx('../store/acts/act_device'.$act.'.tpl');
-        }
-    }
-*/
     function routers_m_list($fixclient){
         global $db,$design;
         $search=get_param_protected('search' , '');

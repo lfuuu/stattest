@@ -1,6 +1,6 @@
 <?php
 
-class m150701_151359_file_clientId_to_contractId extends \app\classes\Migration
+class m150710_000007_file_clientId_to_contractId extends \app\classes\Migration
 {
     public function up()
     {

@@ -3,7 +3,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 {
 	static $table_name = 'g_income_order';
 	static $belongs_to = array(
-		array('organization', 'class_name' => 'Organization'),
+		array('organization', 'class_name' => 'GoodsOrganization'),
 		array('store', 'class_name' => 'Store', 'foreign_key' => 'store_id'),
         array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
         array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_id'),

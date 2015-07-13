@@ -13,7 +13,7 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'contract' && $doc->is_active): ?>
                     <b>
-                        <a href="/document/print/&id=<?= $doc->id ?>"
+                        <a href="/document/print/?id=<?= $doc->id ?>"
                            target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
@@ -31,7 +31,7 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'blank' && $doc->is_active): ?>
                     <b>
-                        <a href="/document/print/&id=<?= $doc->id ?>" target="_blank">
+                        <a href="/document/print/?id=<?= $doc->id ?>" target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
                     </b> от <?= $doc->contract_date ?>
@@ -48,7 +48,7 @@ use \kartik\widgets\DatePicker;
             <?php foreach ($docs as $doc)
                 if ($doc->type == 'agreement' && $doc->is_active): ?>
                     <b>
-                        <a href="/document/print/&id=<?= $doc->id ?>"
+                        <a href="/document/print/?id=<?= $doc->id ?>"
                            target="_blank">
                             <?= $doc->contract_no ?>
                         </a>
@@ -82,7 +82,7 @@ use \kartik\widgets\DatePicker;
                             <a href="/document/edit?id=<?= $doc->id ?>" target="_blank">
                                 <img class="icon" src="/images/icons/edit.gif">
                             </a>
-                            <a href="/document/print/&id=<?= $doc->id ?>"
+                            <a href="/document/print/?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="/document/send?id=<?= $doc->id ?>" target="_blank">
                                 <img class="icon" src="/images/icons/contract.gif">
@@ -96,7 +96,7 @@ use \kartik\widgets\DatePicker;
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
                                 </a>
                             <? endif; ?>
-                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -166,7 +166,7 @@ use \kartik\widgets\DatePicker;
                             <a href="/document/edit?id=<?= $doc->id ?>"
                                target="_blank"><img
                                     class="icon" src="/images/icons/edit.gif"></a>
-                            <a href="/document/print/&id=<?= $doc->id ?>"
+                            <a href="/document/print/?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="/document/send?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
@@ -179,7 +179,7 @@ use \kartik\widgets\DatePicker;
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
                                 </a>
                             <? endif; ?>
-                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -239,7 +239,7 @@ use \kartik\widgets\DatePicker;
                             <a href="/document/edit?id=<?= $doc->id ?>"
                                target="_blank"><img
                                     class="icon" src="/images/icons/edit.gif"></a>
-                            <a href="/document/print/&id=<?= $doc->id ?>"
+                            <a href="/document/print/?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="/document/send?id=<?= $doc->id ?>"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
@@ -252,7 +252,7 @@ use \kartik\widgets\DatePicker;
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
                                 </a>
                             <? endif; ?>
-                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>

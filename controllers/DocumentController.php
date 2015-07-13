@@ -21,6 +21,11 @@ class DocumentController extends BaseController
                         'allow' => true,
                         'roles' => ['clients.edit'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['print-by-code'],
+                        'roles' => ['?'],
+                    ],
                 ],
             ],
         ];
@@ -91,8 +96,20 @@ class DocumentController extends BaseController
         if (null === $document)
             throw new Exception('Документ не найден');
 
-        echo $document->getContent();
+        echo $document->getFileContent();
         die;
+    }
+
+    public function actionPrintByCode($code)
+    {
+        $p = ClientDocument::linkDecode($code);
+        $p = explode('-', $p);
+        $p = array(isset($p[0]) ? intval($p[0]) : 0, isset($p[1]) ? intval($p[1]) : 0);
+        $id = $p[0];
+        if (!$id)
+            die();
+
+        return $this->actionPrint($id);
     }
 
     public function actionPrintEnvelope($clientId)
