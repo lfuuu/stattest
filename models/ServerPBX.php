@@ -8,6 +8,8 @@ use yii\db\ActiveRecord;
  */
 class ServerPBX extends ActiveRecord
 {
+    const MSK_SERVER_ID = 2;
+
     public static function tableName()
     {
         return 'server_pbx';

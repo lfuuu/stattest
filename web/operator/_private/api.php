@@ -1,11 +1,11 @@
 <?php 
 
-header("Content-Type: application/json; charset=UTF-8");
 
 define("PATH_TO_ROOT", "../../../stat/");
 
 include PATH_TO_ROOT."conf_yii.php";
 
+header("Content-Type: application/json; charset=UTF-8");
 
 $function = get_param_raw("function");
 
@@ -58,11 +58,11 @@ function do_func($function)
 		
 		case 'getCollocationTarifs': return ApiLk::getCollocationTarifs(); break;
 		case 'getInternetTarifs': return ApiLk::getInternetTarifs(); break;
-		case 'getVpbxTarifs': return ApiLk::getVpbxTarifs(); break;
+		case 'getVpbxTarifs': return ApiLk::getVpbxTarifs(get_param_raw("client_id")); break;
 		case 'getDomainTarifs': return ApiLk::getDomainTarifs(); break;
-		case 'getVoipTarifs': return ApiLk::getVoipTarifs(); break;
-		case 'getRegionList': return ApiLk::getRegionList(); break;
-		case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("region_id")); break;
+		case 'getVoipTarifs': return ApiLk::getVoipTarifsByClientId(get_param_raw("client_id")); break;
+		case 'getRegionList': return ApiLk::getRegionList(get_param_raw("client_id")); break;
+		case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("client_id"), get_param_raw("region_id")); break;
 		case 'checkVoipNumber': return ApiLk::checkVoipNumber(get_param_raw('number')); break;
 		
 		case 'orderInternetTarif': return ApiLk::orderInternetTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
