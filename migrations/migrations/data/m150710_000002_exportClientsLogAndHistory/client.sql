@@ -435,3 +435,13 @@ ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`d
     UPDATE history_changes SET `data_json` = REPLACE(`data_json`, '":,','":"",');
     UPDATE history_changes SET `prev_data_json` = REPLACE(`prev_data_json`, '":,','":"",');
     UPDATE history_version SET `data_json` = REPLACE(`data_json`, '":,','":"",');
+
+
+
+
+
+
+
+
+DROP TABLE `log_client_fields`;
+DELETE FROM `log_client` WHERE `type` = 'fields' OR `type` = 'company_name';

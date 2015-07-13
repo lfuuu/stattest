@@ -173,7 +173,8 @@ class AccountController extends BaseController
     {
         //Для старого стата, для старых модулей
         Yii::$app->session->set('clients_client', '');
-        return $this->goHome();
+        return $this->redirect(Yii::$app->request->referrer);
+        //return $this->goHome();
     }
 
     public function actionSetBlock($id)
