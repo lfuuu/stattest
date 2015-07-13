@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\forms\client\AccountEditForm;
-use app\forms\client\SuperClientEditForm;
+use app\forms\client\ClientEditForm;
 use app\models\ClientBP;
 use app\models\ClientGridSettings;
 use app\models\ClientInn;
@@ -110,7 +110,7 @@ class AccountController extends BaseController
 
     public function actionEdit($id, $date = null)
     {
-        $model = new AccountEditForm(['id' => $id, 'ddate' => $date]);
+        $model = new AccountEditForm(['id' => $id, 'deferredDate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             return $this->redirect(['client/view', 'id' => $id]);
@@ -123,7 +123,7 @@ class AccountController extends BaseController
 
     public function actionSuperClientEdit($id, $childId)
     {
-        $model = new SuperClientEditForm(['id' => $id]);
+        $model = new ClientEditForm(['id' => $id]);
 
         if($childId===null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);

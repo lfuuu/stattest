@@ -59,7 +59,7 @@ use kartik\widgets\DatePicker;
                         'type' => Form::INPUT_RAW,
                         'value' => ''
                     ],
-                    'organization' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->getOrganizationsList()],
+                    'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
                     'manager' => [
                         'type' => Form::INPUT_RAW,
                         'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['manager'] . '</label>'

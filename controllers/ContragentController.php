@@ -42,7 +42,7 @@ class ContragentController extends BaseController
 
     public function actionEdit($id, $childId = null, $date = null)
     {
-        $model = new ContragentEditForm(['id' => $id, 'ddate' => $date]);
+        $model = new ContragentEditForm(['id' => $id, 'deferredDate' => $date]);
 
         if($childId===null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);

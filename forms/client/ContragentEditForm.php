@@ -16,7 +16,7 @@ class ContragentEditForm extends Form
     protected $person = null,
         $contragent = null;
 
-    public $ddate = null;
+    public $deferredDate = null;
 
     public $legal_type,
         $name,
@@ -74,59 +74,34 @@ class ContragentEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contragent = ClientContragent::findOne($this->id)->loadVersionOnDate($this->ddate);;
+            $this->contragent = ClientContragent::findOne($this->id)->loadVersionOnDate($this->deferredDate);;
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->ddate);
+            $this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->deferredDate);
             if ($this->person === null) {
                 $this->person = new ClientContragentPerson();
             }
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
-        } elseif ($this->super_id) {
+        } else {
             $this->contragent = new ClientContragent();
-            $this->super_id = $this->contragent->super_id = $this->super_id;
             $this->person = new ClientContragentPerson();
-        } else
-            throw new Exception('You must send id or super_id');
+        }
     }
 
     public function save()
     {
+        $this->fillContragent();
+        $this->fillContragentNameByLegalType();
         $contragent = $this->contragent;
-        $person = $this->person;
-
-        $contragent->super_id = $this->super_id;
-        $contragent->legal_type = $this->legal_type;
-        $contragent->name = $this->name;
-        $contragent->name_full = $this->name_full;
-        $contragent->address_jur = $this->address_jur;
-        $contragent->inn = $this->inn;
-        $contragent->kpp = $this->kpp;
-        $contragent->position = $this->position;
-        $contragent->fio = $this->fio;
-        $contragent->tax_regime = $this->tax_regime;
-        $contragent->opf = $this->opf;
-        $contragent->okpo = $this->okpo;
-        $contragent->okvd = $this->okvd;
-        $contragent->ogrn = $this->ogrn;
-        $contragent->country_id = $this->country_id;
-
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);
             if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
+                $this->fillPerson();
+                $person = $this->person;
                 if (!$person->contragent_id)
                     $person->contragent_id = $contragent->id;
-
-                $person->first_name = $this->first_name;
-                $person->last_name = $this->last_name;
-                $person->middle_name = $this->middle_name;
-                $person->passport_date_issued = $this->passport_date_issued;
-                $person->passport_serial = $this->passport_serial;
-                $person->passport_number = $this->passport_number;
-                $person->passport_issued = $this->passport_issued;
-                $person->registration_address = $this->registration_address;
 
                 if ($person->save()) {
                     $contragent->refresh();
@@ -145,9 +120,45 @@ class ContragentEditForm extends Form
 
     public function validate($attributeNames = null, $clearErrors = false)
     {
+        $this->fillContragent();
         $contragent = $this->contragent;
-        $person = $this->person;
+        $contragent->validate() || $this->addErrors($contragent->getErrors());
 
+        if ($contragent->legal_type == ClientContragent::IP_TYPE || $contragent->legal_type == ClientContragent::PERSON_TYPE) {
+            $this->fillPerson();
+            $person = $this->person;
+            $person->validate() || $person->getErrors();
+        }
+
+        return parent::validate($attributeNames, $clearErrors);
+    }
+
+    public function getIsNewRecord()
+    {
+        return $this->id ? false : true;
+    }
+
+    private function fillContragentNameByLegalType()
+    {
+        switch ($this->legal_type) {
+            case ClientContragent::LEGAL_TYPE:
+                if (empty($this->name) && !empty($this->name_full))
+                    $this->name = $this->name_full;
+                elseif (empty($this->name_full) && !empty($this->name))
+                    $this->name_full = $this->name;
+                break;
+            case ClientContragent::IP_TYPE:
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
+                break;
+            case ClientContragent::PERSON_TYPE:
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
+                break;
+        }
+    }
+
+    private function fillContragent()
+    {
+        $contragent = &$this->contragent;
         $contragent->super_id = $this->super_id;
         $contragent->legal_type = $this->legal_type;
         $contragent->name = $this->name;
@@ -163,47 +174,18 @@ class ContragentEditForm extends Form
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;
         $contragent->country_id = $this->country_id;
-        $contragent->validate() || $this->addErrors($contragent->getErrors());
-
-        if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
-            $person->first_name = $this->first_name;
-            $person->last_name = $this->last_name;
-            $person->middle_name = $this->middle_name;
-            $person->passport_date_issued = $this->passport_date_issued;
-            $person->passport_serial = $this->passport_serial;
-            $person->passport_number = $this->passport_number;
-            $person->passport_issued = $this->passport_issued;
-            $person->registration_address = $this->registration_address;
-
-            $person->validate() || $person->getErrors();
-        }
-
-        return parent::validate($attributeNames, $clearErrors);
     }
 
-    public function beforeValidate()
+    private function fillPerson()
     {
-        if (!parent::beforeValidate())
-            return false;
-        switch ($this->legal_type) {
-            case 'legal':
-                if (empty($this->name) && !empty($this->name_full))
-                    $this->name = $this->name_full;
-                elseif (empty($this->name_full) && !empty($this->name))
-                    $this->name_full = $this->name;
-                break;
-            case 'ip':
-                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
-                break;
-            case 'person':
-                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
-                break;
-        }
-        return true;
-    }
-
-    public function getIsNewRecord()
-    {
-        return $this->id ? false : true;
+        $person = &$this->person;
+        $person->first_name = $this->first_name;
+        $person->last_name = $this->last_name;
+        $person->middle_name = $this->middle_name;
+        $person->passport_date_issued = $this->passport_date_issued;
+        $person->passport_serial = $this->passport_serial;
+        $person->passport_number = $this->passport_number;
+        $person->passport_issued = $this->passport_issued;
+        $person->registration_address = $this->registration_address;
     }
 }

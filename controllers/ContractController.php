@@ -57,7 +57,7 @@ class ContractController extends BaseController
 
     public function actionEdit($id, $childId = null, $date = null)
     {
-        $model = new ContractEditForm(['id' => $id, 'ddate' => $date]);
+        $model = new ContractEditForm(['id' => $id, 'deferredDate' => $date]);
 
         if($childId===null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);

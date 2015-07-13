@@ -1,14 +1,12 @@
 <?php
 namespace app\forms\client;
 
-use app\classes\validators\InnValidator;
+use app\classes\Event;
 use app\models\ClientContractComment;
 use app\models\ClientContractType;
 use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
 use app\models\ClientGridSettings;
-use app\models\EventQueue;
-use app\models\HistoryVersion;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
@@ -27,7 +25,7 @@ class ContractEditForm extends Form
         $contragent_id,
         $number = '',
         $date,
-        $organization,
+        $organization_id,
         $manager,
         $comment,
         $account_manager,
@@ -40,13 +38,13 @@ class ContractEditForm extends Form
 
     protected $contract = null;
 
-    public $ddate = null;
+    public $deferredDate = null;
 
     public function rules()
     {
         $rules = [
-            [['number', 'date', 'organization', 'manager', 'account_manager', 'comment'], 'string'],
-            [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id'], 'integer'],
+            [['number', 'date', 'manager', 'account_manager', 'comment'], 'string'],
+            [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id'], 'integer'],
             ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original']],
             [['public_comment'], 'safe'],
         ];
@@ -61,7 +59,7 @@ class ContractEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contract = ClientContract::findOne($this->id)->loadVersionOnDate($this->ddate);
+            $this->contract = ClientContract::findOne($this->id)->loadVersionOnDate($this->deferredDate);
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }
@@ -70,14 +68,19 @@ class ContractEditForm extends Form
             $this->contract = new ClientContract();
             $this->contract->contragent_id = $this->contragent_id;
             $this->super_id = $this->contract->super_id = !$this->super_id ? ClientContragent::findOne($this->contragent_id)->super_id : $this->super_id;
-        } else
-            throw new Exception('You must send id or contragent_id');
+        } else{
+            $this->contract = new ClientContract();
+        }
     }
 
     public function getOrganizationsList()
     {
-        $arr = Organization::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+        $date = $this->deferredDate ? $this->deferredDate : date('Y-m-d');
+        $organizations = Organization::find()
+            ->andWhere(['<=', 'actual_from', $date])
+            ->andWhere(['>=', 'actual_to', $date])
+            ->all();
+        return ArrayHelper::map($organizations, 'id', 'name');
     }
 
     public function getBusinessProcessesList()
@@ -140,14 +143,8 @@ class ContractEditForm extends Form
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);
             $this->newClient = $contract->newClient;
-            ///////////////////
-            $eq = new EventQueue();
-            $eq->event = 'client_set_status';
-            $eq->param = $contract->id;
-            $eq->code = md5('client_set_status' . '|||' . $contract->id);
+            Event::go('client_set_status', $contract->id);
 
-            $eq->save();
-            /*\voipNumbers::check();*/
             return true;
         } else
             $this->addErrors($contract->getErrors());
@@ -177,12 +174,6 @@ class ContractEditForm extends Form
             }
         }
         return parent::validate($attributeNames, $clearErrors);
-    }
-
-    public function beforeValidate()
-    {
-        $this->number .= '';
-        return parent::beforeValidate();
     }
 
     public function getIsNewRecord()

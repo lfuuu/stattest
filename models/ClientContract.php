@@ -29,7 +29,7 @@ class ClientContract extends ActiveRecord
     {
         return [
             'number' => '№ договора',
-            'organization' => 'Организация',
+            'organization_id' => 'Организация',
             'manager' => 'Менеджер',
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
@@ -197,7 +197,7 @@ class ClientContract extends ActiveRecord
             $client->validate();
             $client->save();
             $this->newClient = $client;
-            $this->number = $client->id;
+            $this->number = (string)$client->id;
             $this->save();
         }
     }

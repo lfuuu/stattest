@@ -85,9 +85,9 @@ class ClientController extends BaseController
     public function actionCreate()
     {
         $request = Yii::$app->request->post();
-        $contragent = new ContragentEditForm(['super_id' => 1]);
-        $contract = new ContractEditForm(['contragent_id' => 1, 'super_id' => 1]);
-        $account = new AccountEditForm(['contract_id' => 1, 'contragent_id' => 1, 'super_id' => 1]);
+        $contragent = new ContragentEditForm();
+        $contract = new ContractEditForm();
+        $account = new AccountEditForm();
         if ($request) {
             $transaction = Yii::$app->db->beginTransaction();
             $commit = false;

@@ -4,7 +4,7 @@ namespace app\forms\client;
 use app\classes\Form;
 use app\models\ClientSuper;
 
-class SuperClientEditForm extends Form
+class ClientEditForm extends Form
 {
     public $id,
         $name,

@@ -6,6 +6,10 @@ use yii\db\ActiveRecord;
 
 class ClientContragent extends ActiveRecord
 {
+    const LEGAL_TYPE = 'legal';
+    const PERSON_TYPE = 'person';
+    const IP_TYPE = 'ip';
+
     public $cPerson = null;
     public $historyVersionDate = null;
 
@@ -15,9 +19,9 @@ class ClientContragent extends ActiveRecord
     ];
 
     public static $legalTypes = [
-        'legal' => 'Юр. лицо',
-        'ip' => 'ИП',
-        'person' => 'Физю лицо',
+        self::LEGAL_TYPE => 'Юр. лицо',
+        self::PERSON_TYPE => 'ИП',
+        self::IP_TYPE => 'Физю лицо',
     ];
 
     public static function tableName()

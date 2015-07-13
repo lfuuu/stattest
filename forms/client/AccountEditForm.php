@@ -14,7 +14,7 @@ use yii\base\Exception;
 class AccountEditForm extends Form
 {
     protected $clientM = null;
-    public $ddate = null;
+    public $deferredDate = null;
 
     public $id,
         $super_id,
@@ -108,7 +108,7 @@ class AccountEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->clientM =  ClientAccount::findOne($this->id)->loadVersionOnDate($this->ddate);
+            $this->clientM =  ClientAccount::findOne($this->id)->loadVersionOnDate($this->deferredDate);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
@@ -118,11 +118,12 @@ class AccountEditForm extends Form
             $this->clientM->contract_id = $this->contract_id;
             $this->contragent_id = $this->clientM->contragent_id = !$this->contragent_id ? ClientContract::findOne($this->contract_id)->contragent_id : $this->contragent_id;
             $this->super_id = $this->clientM->super_id = !$this->super_id ? ClientContract::findOne($this->contract_id)->super_id : $this->super_id;
-        } else
-            throw new Exception('You must send id or contract_id');
+        } else{
+            $this->clientM = new ClientAccount();
+        }
 
         $this->credit_size = ($this->credit < 1) ? 0 : $this->credit;
-        $this->sale_channel = ($this->sale_channel < 1) ? 0 : $this->sale_channel;
+        $this->sale_channel = (!is_numeric($this->sale_channel)) ? 0 : $this->sale_channel;
         $this->credit = ($this->credit < 1) ? 0 : 1;
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
@@ -139,7 +140,7 @@ class AccountEditForm extends Form
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
-        $client->setAttributes($this->getAttributes(null, ['ddate', 'id']), false);
+        $client->setAttributes($this->getAttributes(null, ['deferredDate', 'id']), false);
 
         if ($client->save()) {
             if (!$client->client) {
