@@ -74,8 +74,7 @@ class Bill {
             if (is_array($client_id)) {
                 $this->client_data=$client_id;
                 $client_id=$client_id['id'];
-                if (!$currency) $currency=$this->client_data['currency'];
-            } else if (!$currency) {
+            } else {
                 $this->client_data=$db->GetRow("
 					select
 						*
@@ -84,8 +83,9 @@ class Bill {
 					where
 						id='".$client_id."'
                 ");
-                $currency=$this->client_data['currency'];
             }
+            if (!$currency) $currency=$this->client_data['currency'];
+
             $bill = new \app\models\Bill();
             $bill->client_id = $client_id;
             $bill->currency = $currency;

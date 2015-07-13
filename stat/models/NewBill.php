@@ -76,13 +76,9 @@ class NewBill extends ActiveRecord\Model
      */
     public static function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
     {
-        $clientAccount = ClientAccount::findOne($clientId);
-        $tax_rate = $clientAccount->getTaxRate();
-
         $currency = "RUB";
         $bill = new Bill(null,$clientId,time(),0,$currency, true, true);
-        $bill->Set('price_include_vat', $clientAccount->price_include_vat);
-        $bill->AddLine("Авансовый платеж за услуги связи",1, $paySum * (1 + $tax_rate/100), "zadatok");
+        $bill->AddLine("Авансовый платеж за услуги связи",1, $paySum, "zadatok");
         $bill->Save();
         $billNo = $bill->GetNo();
         if ($createAutoLkLog) 
