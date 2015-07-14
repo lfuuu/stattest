@@ -5,7 +5,6 @@ namespace app\classes\grid\column;
 use Yii;
 use yii\helpers\Html;
 
-
 class EnumColumn extends DataColumn
 {
     public $enum;

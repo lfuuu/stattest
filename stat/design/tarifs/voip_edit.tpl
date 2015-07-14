@@ -128,7 +128,7 @@
     <tr><td>прайс-лист:</td><td>
         <select class="select2" name="pricelist_id" style="width: 400px">
         {foreach from=$pricelists item='r'}
-            <option data-type="{$r.price_include_vat}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
+            <option data-type="{if $r.price_include_vat == 1}1{else}0{/if}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
         {/foreach}
         </select>
     </td></tr>

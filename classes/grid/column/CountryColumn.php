@@ -16,7 +16,7 @@ class CountryColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = Country::dao()->getList(true);
+        $this->filter = ['' => ' -------- '] + Country::dao()->getList(false);
         parent::__construct($config);
     }
 }

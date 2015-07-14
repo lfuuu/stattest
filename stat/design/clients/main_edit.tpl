@@ -1,6 +1,9 @@
 <link rel="stylesheet"  href="css/themes/smoothness/jquery.ui.all.css" type="text/css"/>
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 
+<link rel="stylesheet" href="/css/behaviors/select-with-flag.css" type="text/css"/>
+<script type="text/javascript" src="/js/behaviors/select-with-flag.js"></script>
+
 <!--script src="js/ui/jquery.ui.datepicker.js"></script-->
 <script>
 {literal}
@@ -305,9 +308,9 @@ $(function(){
     <tr>
         <td align="right">Фирма, на которую оформлен договор:</td>
         <td>
-            <select style='width:100%' name="organization_id" class=text>
+            <select style='width:100%' name="organization_id" class="text select2-with-flags">
                 {foreach from=$organizations item='organization'}
-                    <option value="{$organization.organization_id}"{if $organization.organization_id == $client.organization_id} selected="selected"{/if}>{$organization.name}</option>
+                    <option value="{$organization.organization_id}" data-country-id="{$organization.country_id}"{if $organization.organization_id == $client.organization_id} selected="selected"{/if}>{$organization.name}</option>
                 {/foreach}
             </select>
             </td></tr>
