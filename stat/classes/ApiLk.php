@@ -365,7 +365,7 @@ class ApiLk
             $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
 
             $line["tarif_name"] = $usage->currentTariff->name;
-            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2);
+            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2, ".", " ");
 
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
             $line["vpbx"] = 0;
@@ -418,6 +418,8 @@ class ApiLk
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
+            $line["price"] = number_format($line["price"], 2, ".", " ");
+            $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
         }
     
@@ -679,6 +681,7 @@ class ApiLk
             ", array($currency, $status)) as $service)
         {
             $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
+            $line["price"] = number_format($line["price"], 2, ".", "");
             $ret[] = $line;
         }
         return $ret;
