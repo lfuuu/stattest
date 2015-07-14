@@ -267,7 +267,7 @@ use app\models\Currency;
                         'type' => Form::INPUT_RAW,
                         'value' => ''
                     ],
-                    'organization' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contract->getOrganizationsList()],
+                    'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contract->getOrganizationsList()],
                     'manager' => [
                         'type' => Form::INPUT_RAW,
                         'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $contract->attributeLabels()['manager'] . '</label>'

@@ -2141,6 +2141,17 @@ class m_services extends IModule{
         return $items;
     }
 
+    function services_sms_add($fixclient){
+        if(!$this->fetch_client($fixclient)){
+            trigger_error2('Не выбран клиент');
+            return;
+        }
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $dbf = new DbFormUsageSms();
+        $dbf->SetDefault('client',$clientNick);
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Новая услуга CMC');
+    }
+
     function services_sms_apply($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
