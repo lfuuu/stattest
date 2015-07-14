@@ -20,15 +20,16 @@ class ClientsController extends BaseController
         }
         $datasets = ClientGridSettings::findByBP($gridSettings->grid_business_process_id);
         $rows = $datasets;
+        ;
         $row = $gridSettings->configAsArray;
-        $row['sql'] = $gridSettings->sql;
+        $row['sql'] = Yii::$app->params['clientGrid'][$gridSettings->id]['sql'];
         $row['id'] = $gridSettings->id;
         foreach ($row['order'] as $key => $value)
         { 
             unset($row['order'][$key]);
             $row['order'][FilterField::QUERY_ALIAS.'.'.$key] = $value;
         }
-        
+
         $query = new Query(['subQuery'=> $row['sql'] ]);
         $query->select(FilterField::QUERY_ALIAS.'.*')
               ->from('(SUB_QUERY)  as '.FilterField::QUERY_ALIAS);
