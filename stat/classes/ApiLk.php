@@ -1417,7 +1417,7 @@ class ApiLk
             }
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
-                $phones[$r['region']] = $r['region_name'].' (все номера)';
+                $phones[$r['region']] = $r['region_name'];
                 $last_region = $r['region'];
             }
             $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
