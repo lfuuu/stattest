@@ -69,6 +69,7 @@ h3 {
 	<td width=* rowspan=4>Наименование покупателя</td>
 	<td width=5% rowspan=4>ИНН покупателя</td>
 	<td width=5% rowspan=4>КПП покупателя</td>
+	<td width=5% rowspan=4>Тип ЛС</td>
 	<td width=5% rowspan=4 class=s>Дата оплаты счета-фактуры продавца</td>
 	<td width=5% rowspan=4>Всего продаж, включая НДС</td>
 	<td width=40% colspan=8>В том числе</td>
@@ -94,6 +95,7 @@ h3 {
 	<td class=s>{$r.company_full}&nbsp;</td>
     <td>{if $r.inn}{$r.inn}{else}&nbsp;{/if}</td>
     <td>{if $r.kpp}{$r.kpp}{else}&nbsp;{/if}</td>
+    <td>{$r.type}</td>
 	<td>{if $r.payment_date}{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
 	<td>{$r.sum|round:2|replace:".":","}</td>
 	<td>{$r.sum_without_tax|round:2|replace:".":","}</td>

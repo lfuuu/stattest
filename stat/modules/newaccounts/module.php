@@ -4232,6 +4232,7 @@ class m_newaccounts extends IModule
 
                     if ((!$date_from || $k>=$date_from) && (!$date_to || $k<=$date_to)) {
                         $A['bill']['company_full'] = $p['company_full'];
+                        $A['bill']['type'] = $c['type'];
 
                         if($p["type"] == "priv")
                         {
