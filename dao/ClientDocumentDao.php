@@ -11,6 +11,10 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\Organization;
 
+/**
+ * @method static ClientDocumentDao me($args = null)
+ * @property
+ */
 class ClientDocumentDao extends Singleton
 {
     private $design = null;
@@ -56,7 +60,8 @@ class ClientDocumentDao extends Singleton
             $lastContract = BillContract::getLastContract($accountId, ($contractType == "blank" ? strtotime("01.01.2035") : (strtotime($contractDopDate) ?: time())));
 
             $contractNo = $lastContract["no"];
-            $contractDate = date("d.m.Y", $lastContract["date"]);
+            // Условие только для бланка заказа, забирать актуальные данные о клиенте
+            $contractDate = date("d.m.Y", ($contractType == "blank" ? time() : $lastContract["date"]));
         }
 
         list($d, $m, $y) = explode(".", $contractDate);
@@ -348,8 +353,8 @@ class ClientDocumentDao extends Singleton
                 'free_local_min' => $usage->currentTariff->free_local_min * ($usage->currentTariff->freemin_for_number ? 1 : $usage->no_of_lines),
                 'connect_price' => (string)$usage->voipNumber->price,
                 'tarif_name' => $usage->currentTariff->name,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
@@ -372,8 +377,8 @@ class ClientDocumentDao extends Singleton
                 'pay_once' => $usage->currentTariff->pay_once,
                 'gb_month' => $usage->currentTariff->mb_month/1024,
                 'pay_mb' => $usage->currentTariff->pay_mb,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
@@ -389,8 +394,8 @@ class ClientDocumentDao extends Singleton
                 'over_space_per_gb' => $usage->currentTariff->overrun_per_gb,
                 'num_ports' => $usage->currentTariff->num_ports,
                 'overrun_per_port' => $usage->currentTariff->overrun_per_port,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
@@ -403,8 +408,8 @@ class ClientDocumentDao extends Singleton
                 'from' => $usage->actual_from,
                 'description' => "SMS-рассылка",
                 'tarif_name' => $usage->currentTariff->description,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
         */
@@ -418,8 +423,8 @@ class ClientDocumentDao extends Singleton
                 'tarif_name' => $usage->currentTariff->description,
                 'amount' => $usage->amount,
                 'pay_once' => 0,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
