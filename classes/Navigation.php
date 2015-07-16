@@ -44,6 +44,7 @@ class Navigation
                     ->addItem('Плайслисты Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0])
                     ->addItem('Плайслисты Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0])
                     ->addItem('Местные Префиксы', ['voip/network-config/list'])
+                    ->addItem('Направления', ['voip/destination'])
             );
         }
 
@@ -53,14 +54,17 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('logs');
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('settings')
-                ->setTitle('Настройки')
-                ->setRights(['organization.read', 'person.read'])
+        $settingsBlock = NavigationBlock::create();
+        if ($settingsBlock) {
+            $this->addBlock(
+                $settingsBlock
+                    ->setId('settings')
+                    ->setTitle('Настройки')
+                    ->setRights(['organization.read', 'person.read'])
                     ->addItem('Организации', ['/organization'])
                     ->addItem('Ответственные лица', ['/person'])
-        );
+            );
+        }
     }
 
     /**

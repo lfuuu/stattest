@@ -16,7 +16,7 @@ class m150714_135339_voip_destination extends \app\classes\Migration
             CREATE TABLE `voip_destination_prefixes` (
                 `destination_id` INT(11) NOT NULL DEFAULT '0',
                 `prefixlist_id` INT(11) NOT NULL DEFAULT '0'
-                PRIMARY KEY (`destination_id`),
+                INDEX `destination_id` (`destination_id`),
                 INDEX `prefix_id` (`prefix_id`),
                 CONSTRAINT `fk_destination_prefixes__pricelist_id` FOREIGN KEY (`prefix_id`) REFERENCES `voip_prefixlist` (`id`) ON UPDATE CASCADE,
                 CONSTRAINT `fk_destination_prefixes__destination_id` FOREIGN KEY (`destination_id`) REFERENCES `voip_destination` (`id`) ON UPDATE CASCADE
