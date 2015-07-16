@@ -24,9 +24,9 @@ foreach ($connectionPoints as $connectionPoint) {
 }
 $connectionPoints = ['' => '-- Точка подключения --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
 
-$destinations = ['' => '-- Направление --'] + TariffVoip::$destinations;
+$destinations = ['0' => '-- Направление --'] + TariffVoip::$destinations;
 $currencies = ['' => '-- Валюта --'] + Currency::dao()->getList('id', true);
-$statuses = ['' => '-- Статус --'] + TariffVoip::$statuses;
+$statuses = TariffVoip::$statuses;
 
 $priceLists =
     Pricelist::find()
@@ -40,7 +40,7 @@ foreach ($priceLists as $priceList) {
         'data-type' => $priceList->price_include_vat == 1 ? 1 : 0
     ];
 }
-$priceLists = ['' => '-- Прайс-лист --'] + ArrayHelper::map($priceLists, 'id', 'name');
+$priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceLists, 'id', 'name');
 ?>
 
 <div class="well">

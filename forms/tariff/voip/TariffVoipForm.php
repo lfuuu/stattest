@@ -3,33 +3,35 @@
 namespace app\forms\tariff\voip;
 
 use app\classes\Form;
+use app\models\TariffVoip;
 
 class TariffVoipForm extends Form
 {
 
-    public $id;
-    public $country_id;
-    public $connection_point_id;
-    public $currency_id;
-    public $pricelist_id;
-    public $name;
-    public $name_short;
-    public $status;
-    public $month_line;
-    public $month_number;
-    public $once_line;
-    public $once_number;
-    public $free_local_min;
-    public $freemin_for_number;
-    public $month_min_payment;
-    public $dest;
-    public $paid_redirect;
-    public $tariffication_by_minutes;
-    public $tariffication_full_first_minute;
-    public $tariffication_free_first_seconds;
-    public $is_virtual;
-    public $is_testing;
-    public $price_include_vat;
+    public
+        $id,
+        $country_id = 0,
+        $connection_point_id = 0,
+        $currency_id = 0,
+        $pricelist_id = 0,
+        $name = '',
+        $name_short = '',
+        $status = 'public',
+        $month_line = 0,
+        $month_number = 0,
+        $once_line = 0,
+        $once_number = 0,
+        $free_local_min = 0,
+        $freemin_for_number = 1,
+        $month_min_payment = 0,
+        $dest = 0,
+        $paid_redirect = 1,
+        $tariffication_by_minutes = 0,
+        $tariffication_full_first_minute = 0,
+        $tariffication_free_first_seconds = 0,
+        $is_virtual = 0,
+        $is_testing = 0,
+        $price_include_vat = 1;
 
     public function rules()
     {
@@ -73,6 +75,27 @@ class TariffVoipForm extends Form
             'is_testing' => 'тариф по-умолчанию',
             'price_include_vat' => 'включить в цену ставку налога',
         ];
+    }
+
+    public function save($tariff = false)
+    {
+        if (!($tariff instanceof TariffVoip))
+            $tariff = new TariffVoip;
+        $tariff->setAttributes($this->getAttributes(), false);
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $tariff->save();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        $this->id = $tariff->id;
+
+        return true;
     }
 
 }

@@ -11,23 +11,39 @@ use app\models\billing\Pricelist;
  */
 class TariffVoip extends ActiveRecord
 {
+    const STATE_PUBLIC = 'public';
+    const STATE_SPECIAL = 'special';
+    const STATE_STORE = 'archive';
+    const STATE_OPERATOR = 'operator';
+
+    const DEST_RUSSIA = 1;
+    const DEST_INTERNATIONAL = 2;
+    const DEST_LOCAL_FIXED = 4;
+    const DEST_LOCAL_MOBILE = 5;
+
     public static $statuses = [
-        'public' => 'Публичный',
-        'special' => 'Специальный',
-        'archive' => 'Архивный',
-        'operator' => 'Оператор',
+        self::STATE_PUBLIC => 'Публичный',
+        self::STATE_SPECIAL => 'Специальный',
+        self::STATE_STORE => 'Архивный',
+        self::STATE_OPERATOR => 'Оператор',
     ];
 
     public static $destinations = [
-        '1' => 'Россия',
-        '2' => 'Международка',
-        '4' => 'Местные Стационарные',
-        '5' => 'Местные Мобильные',
+        self::DEST_RUSSIA => 'Россия',
+        self::DEST_INTERNATIONAL => 'Международка',
+        self::DEST_LOCAL_FIXED => 'Местные Стационарные',
+        self::DEST_LOCAL_MOBILE => 'Местные Мобильные',
     ];
 
     public static function tableName()
     {
         return 'tarifs_voip';
+    }
+
+    public function beforeSave()
+    {
+        $this->edit_user = \Yii::$app->user->id;
+        $this->edit_time = date('Y.m.d H:i:s');
     }
 
     public static function dao()

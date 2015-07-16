@@ -5,6 +5,7 @@ namespace app\controllers\tariff;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
+use yii\filters\AccessControl;
 use app\models\TariffVoip;
 use app\forms\tariff\voip\TariffVoipListForm;
 use app\forms\tariff\voip\TariffVoipForm;
@@ -12,7 +13,6 @@ use app\forms\tariff\voip\TariffVoipForm;
 class VoipController extends BaseController
 {
 
-    /*
     public function behaviors()
     {
         return [
@@ -22,18 +22,17 @@ class VoipController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['index'],
-                        'roles' => ['organization.read'],
+                        'roles' => ['tarifs.read'],
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'duplicate'],
-                        'roles' => ['organization.edit'],
+                        'actions' => ['add', 'edit'],
+                        'roles' => ['tarifs.edit'],
                     ],
                 ],
             ],
         ];
     }
-    */
 
     public function actionIndex()
     {
@@ -53,10 +52,8 @@ class VoipController extends BaseController
     {
         $model = new TariffVoipForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect('index');
         }
 
         return $this->render('edit', [
@@ -74,10 +71,8 @@ class VoipController extends BaseController
 
         $model->setAttributes($tariff->getAttributes(), false);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($tariff)) {
+            $this->redirect(['edit', 'id' => $model->id]);
         }
 
         return $this->render('edit', [
