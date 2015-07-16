@@ -8,7 +8,7 @@ use \kartik\grid\GridView;
         <ul class="nav nav-pills">
             <?php foreach(\app\dao\ClientGridSettingsDao::me()->getTabList($model->bp) as $item): ?>
             <li class="<?= $model->grid == $item['id'] ? 'active' : '' ?>">
-                <a href="/account/index?grid=<?= $item['id'] ?>">
+                <a href="/client/grid?grid=<?= $item['id'] ?>">
                     <?= $item['name'] ?>
                     <?php /*<span class="badge">699</span>*/ ?>
                 </a>

@@ -95,7 +95,7 @@ class ClientGridSettingsDao extends Singleton
             {
                 if ( $item['link'] == null )
                 {
-                    $item['link'] = '/account/index?bp='.$item['id'];
+                    $item['link'] = '/client/grid?bp='.$item['id'];
                 }
                 $blocks_rows[$key]['items'][] = $item;
             }

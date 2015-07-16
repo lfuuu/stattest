@@ -1,11 +1,11 @@
 <?php
 namespace app\controllers;
 
-use app\dao\ClientDocumentDao;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
 use app\models\ClientAccount;
+use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Trouble;
 use app\models\UsageExtra;
@@ -18,6 +18,7 @@ use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 class ClientController extends BaseController
 {
@@ -115,5 +116,48 @@ class ClientController extends BaseController
         }
 
         return $this->render('create', ['contragent' => $contragent, 'account' => $account, 'contract' => $contract]);
+    }
+
+    public function actionGrid($bp = 0, $grid = 0)
+    {
+        $model = (new ClientSearch());
+        $model->getGridSetting($bp, $grid);
+        $model->setAttributes(Yii::$app->request->get());
+        $dataProvider = $model->searchWithSetting();
+
+        //var_dump($dataProvider); die;
+
+        return $this->render('index', [
+//          'searchModel' => $dataProvider,
+            'dataProvider' => $dataProvider,
+            'model' => $model,
+        ]);
+    }
+
+    public function actionSearch()
+    {
+        $searchModel = new ClientSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        if (Yii::$app->request->isAjax) {
+            $res = [];
+            foreach ($dataProvider->models as $model)
+                $res[] = [
+                    'url' => Url::toRoute(['client/view', 'id' => $model->id]),
+                    'value' => $model->contract->contragent->name_full,
+                    'color' => $model->contract->getBusinessProcessStatus()['color'],
+                    'id' => $model->id,
+                ];
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return $res;
+        } else {
+            if ($dataProvider->query->count() == 1)
+                return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
+            else
+                return $this->render('search', [
+//              'searchModel' => $dataProvider,
+                    'dataProvider' => $dataProvider,
+                ]);
+        }
     }
 }

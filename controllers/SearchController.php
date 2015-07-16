@@ -13,7 +13,7 @@ class SearchController extends BaseController
 {
     public function actionIndex($search, $searchType)
     {
-        $controller = 'account';
+        $controller = 'client';
         $action = 'search';
         $params = [];
         switch ($searchType) {
