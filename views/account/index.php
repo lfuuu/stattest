@@ -6,14 +6,16 @@ use \kartik\grid\GridView;
 <div class="row">
     <div class="col-sm-12">
         <ul class="nav nav-pills">
-            <li>
-                <a href="index.php?module=tt&amp;action=view_type&amp;type_pk=8&amp;folder=1&amp;filtred=true">
-                    Все
-                    <span class="badge">699</span>
+            <?php foreach(\app\dao\ClientGridSettingsDao::me()->getTabList($model->bp) as $item): ?>
+            <li class="<?= $model->grid == $item['id'] ? 'active' : '' ?>">
+                <a href="/account/index?grid=<?= $item['id'] ?>">
+                    <?= $item['name'] ?>
+                    <?php /*<span class="badge">699</span>*/ ?>
                 </a>
             </li>
+            <?php endforeach; ?>
         </ul>
-        <div style="height: 1px;background-color: #e7e7e7; margin: 15px; margin-top: 5px"></div>
+        <div style="height: 1px;background-color: #e7e7e7; margin: 5px 0px;"></div>
         <?php
         echo GridView::widget([
                 'dataProvider' => $dataProvider,

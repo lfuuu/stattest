@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use yii\db\Query;
 
 class ClientGridSettingsDao extends Singleton
 {
@@ -43,7 +44,7 @@ class ClientGridSettingsDao extends Singleton
     public function getAllByParams($params)
     {
         $res = [];
-        foreach ($this->grids['data'] as $k => $v) {
+        foreach ($this->grids['data'] as $v) {
             $addToRes = true;
             foreach($params as $paramKey => $paramValue){
                 if($v[$paramKey] != $paramValue)
@@ -60,6 +61,46 @@ class ClientGridSettingsDao extends Singleton
     {
         $this->attributeLabels = $labels;
         return $this;
+    }
+
+    public function getTabList($bpId)
+    {
+        return $this->getAllByParams(['grid_business_process_id' => $bpId]);
+    }
+
+    public static function menuAsArray ()
+    {
+        $query = new Query();
+        $rows = $query->select('ct.id,ct.name')
+            ->from('client_contract_type ct')
+            ->innerJoin('grid_business_process bp', 'bp.client_contract_id = ct.id')
+            ->groupBy('ct.id')
+            ->orderBy('ct.sort')
+            ->all();
+
+        foreach($rows as $row)
+            $blocks_rows[$row['id']] = $row;
+
+        foreach($blocks_rows as $key => $block_row)
+        {
+            $query = new Query();
+            $query->addParams([':id' => $block_row['id']]);
+            $blocks_items = $query->select('bp.id, bp.name, link')
+                ->from('grid_business_process bp')
+                ->orderBy('bp.sort')
+                ->where('bp.client_contract_id = :id')
+                ->all();
+
+            foreach($blocks_items as $item)
+            {
+                if ( $item['link'] == null )
+                {
+                    $item['link'] = '/account/index?bp='.$item['id'];
+                }
+                $blocks_rows[$key]['items'][] = $item;
+            }
+        }
+        return $blocks_rows;
     }
 
     private function constructGridSettingArray($gridSettings)

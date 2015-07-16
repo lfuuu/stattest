@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\dao\ClientGridSettingsDao;
 use app\models\billing\Pricelist;
 use Yii;
 use yii\helpers\Url;
@@ -21,6 +22,7 @@ class Navigation
                 ->addItem('Каналы продаж', '/sale-channel/index', 'clients.edit')
                 ->addItem('Отчет по файлам', '/file/report', 'clients.edit')
         );
+        $this->addBlockNewClients();
 
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
@@ -137,6 +139,30 @@ class Navigation
             $this->addBlock($block);
         }
         return $this;
+    }
+
+    private function addBlockNewClients()
+    {
+
+        $blocks_rows = ClientGridSettingsDao::menuAsArray();
+
+        foreach($blocks_rows as $block_row)
+        {
+
+            $block = NavigationBlock::create()
+                ->setId('client_'.$block_row['id'])
+                ->setRights(['clients.read'])
+                ->setTitle($block_row['name']);
+
+            foreach($block_row['items'] as $item)
+            {
+                $block->addItem($item['name'],$item['link']);
+            }
+
+            $this->addBlock($block);
+
+        }
+
     }
     
 }

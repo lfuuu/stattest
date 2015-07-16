@@ -13,14 +13,14 @@ class ClientSearch extends ClientAccount
     private $gridSetting;
 
     public $bill_date, $sale_channel, $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl,
-        $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $created;
+        $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $created, $regionId;
 
     protected $companyName, $inn, $contractNo;
 
     public function rules()
     {
         return [
-            [['id', 'sale_channel'], 'integer'],
+            [['id', 'sale_channel', 'regionId'], 'integer'],
             [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip' ,'domain', 'address', 'adsl',
                 'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
         ];
@@ -145,6 +145,8 @@ class ClientSearch extends ClientAccount
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
         $query->andFilterWhere(['l.service' => $this->service]);
+        $query->andFilterWhere(['c.region' => $this->regionId]);
+
         if($this->currency)
             $query->andFilterWhere(['c.currency' => $this->currency]);
 
@@ -173,14 +175,20 @@ class ClientSearch extends ClientAccount
             return $this->gridSetting;
 
         $grid_id = ($grid) ? $grid : $this->grid;
-        $bp_id = ($bp) ? $bp : $this->bp;
-
         $gridSettings = ClientGridSettingsDao::me()->setAttributeLabels($this->attributeLabels());
 
-        if($grid_id)
+        if($grid_id) {
             $gridSettings = $gridSettings->getGridByBusinessProcessStatusId($grid_id);
-        else
+            $this->grid = $gridSettings['id'];
+            $this->bp = $gridSettings['grid_business_process_id'];
+        }
+        else {
+            $bp_id = ($bp) ? $bp : $this->bp;
             $gridSettings = $gridSettings->getGridByBusinessProcessId($bp_id);
+
+            $this->grid = $gridSettings['id'];
+            $this->bp = $gridSettings['grid_business_process_id'];
+        }
 
         $this->gridSetting = $gridSettings;
         return $gridSettings;
