@@ -16,10 +16,10 @@ class TariffVoipDao extends Singleton
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 4]);
         if ($connectingPointId !== false) {
-            $query->andWhere(['region' => $connectingPointId]);
+            $query->andWhere(['connection_point_id' => $connectingPointId]);
         }
         if ($currencyId !== false) {
-            $query->andWhere(['currency' => $currencyId]);
+            $query->andWhere(['currency_id' => $currencyId]);
         }
         if ($status !== false) {
             $query->andWhere(['status' => $status]);
@@ -47,10 +47,10 @@ class TariffVoipDao extends Singleton
         $query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
-            $query->andWhere(['region' => $connectingPointId]);
+            $query->andWhere(['connection_point_id' => $connectingPointId]);
         }
         if ($currencyId !== false) {
-            $query->andWhere(['currency' => $currencyId]);
+            $query->andWhere(['currency_id' => $currencyId]);
         }
 
         $list =
@@ -75,10 +75,10 @@ class TariffVoipDao extends Singleton
         $query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
-            $query->andWhere(['region' => $connectingPointId]);
+            $query->andWhere(['connection_point_id' => $connectingPointId]);
         }
         if ($currencyId !== false) {
-            $query->andWhere(['currency' => $currencyId]);
+            $query->andWhere(['currency_id' => $currencyId]);
         }
 
         $list =
@@ -103,10 +103,10 @@ class TariffVoipDao extends Singleton
         $query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
-            $query->andWhere(['region' => $connectingPointId]);
+            $query->andWhere(['connection_point_id' => $connectingPointId]);
         }
         if ($currencyId !== false) {
-            $query->andWhere(['currency' => $currencyId]);
+            $query->andWhere(['currency_id' => $currencyId]);
         }
 
         $list =
@@ -131,10 +131,10 @@ class TariffVoipDao extends Singleton
         $query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
-            $query->andWhere(['region' => $connectingPointId]);
+            $query->andWhere(['connection_point_id' => $connectingPointId]);
         }
         if ($currencyId !== false) {
-            $query->andWhere(['currency' => $currencyId]);
+            $query->andWhere(['currency_id' => $currencyId]);
         }
 
         $list =

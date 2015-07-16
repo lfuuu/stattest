@@ -564,7 +564,7 @@ class DbFormUsageVoip extends DbForm {
         $R=$db->AllRecords(
             'select * from tarifs_voip '.
             (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').
-            ' and region="'.$region.'"'.
+            ' and connection_point_id="'.$region.'"'.
             ' and price_include_vat=' . $client_price_include_vat .
             ' order by status, month_line, month_min_payment', 'id'
         );

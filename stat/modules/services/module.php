@@ -2783,7 +2783,7 @@ class m_services extends IModule{
         $region = get_param_protected('region','');
         $Res = array();
         $C = $db->GetRow('select * from clients where client="'.$fixclient.'"');
-        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency="'.$C['currency'].'" and region="'.$region.'" and status != "archive"'.
+        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency_id="'.$C['currency'].'" and connection_point_id="'.$region.'" and status != "archive"'.
                 'order by status, month_line, month_min_payment', 'id');
         foreach ($R as $r) {
             $Res[$r['id']] = array(
