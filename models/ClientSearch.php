@@ -13,7 +13,7 @@ class ClientSearch extends ClientAccount
     private $gridSetting;
 
     public $bill_date, $sale_channel, $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl,
-        $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $created, $regionId;
+        $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $createdDate, $regionId;
 
     protected $companyName, $inn, $contractNo;
 
@@ -155,8 +155,8 @@ class ClientSearch extends ClientAccount
             $query->andFilterWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
-        if($this->created) {
-            $createdDates = explode('+-+', $this->created);
+        if($this->createdDate) {
+            $createdDates = explode('+-+', $this->createdDate);
             $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 

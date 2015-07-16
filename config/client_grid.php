@@ -14,7 +14,7 @@ $defaultQueryParams = [
         'c.support',
         'c.telemarketing',
         'c.sale_channel',
-        'c.created',
+        'DATE(c.created) AS created',
         'c.currency',
         'c.region',
     ],
@@ -67,17 +67,13 @@ $defaultColumnsParams = [
         },
         'filter' => function () {
             return \kartik\daterange\DateRangePicker::widget([
-                'name' => 'created',
+                'name' => 'createdDate',
                 'presetDropdown' => true,
                 'hideInput' => true,
                 'value' => \Yii::$app->request->get('created'),
                 'containerOptions' => [
                     'style' => 'width:300px;',
                     'class' => 'drp-container input-group',
-                ],
-                'pluginOptions'=>[
-                    'format'=>'Y-m-d',
-                    'separator'=>'+-+',
                 ]
             ]);
         }
