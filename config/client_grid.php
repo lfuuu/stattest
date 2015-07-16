@@ -242,7 +242,7 @@ $defaultColumnsParams = [
             return \kartik\widgets\Select2::widget([
                 'name' => 'account_manager',
                 'data' => \app\models\SaleChannel::getList(),
-                'sale_channel' => \Yii::$app->request->get('account_manager'),
+                'value' => \Yii::$app->request->get('sale_channel'),
                 'options' => ['placeholder' => 'Начните вводить название'],
                 'pluginOptions' => [
                     'allowClear' => true
