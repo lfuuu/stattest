@@ -41,7 +41,7 @@ class ClientGridSettingsDao extends Singleton
         return $this->constructGridSettingArray($gridSettings);
     }
 
-    public function getAllByParams($params)
+    public function getAllByParams($params, $genFilters = false)
     {
         $res = [];
         foreach ($this->grids['data'] as $v) {
@@ -51,7 +51,7 @@ class ClientGridSettingsDao extends Singleton
                     $addToRes = false;
             }
             if($addToRes){
-                $res[$v['id']] = $this->constructGridSettingArray($v);
+                $res[$v['id']] = $this->constructGridSettingArray($v, $genFilters);
             }
         }
         return $res;
@@ -103,7 +103,7 @@ class ClientGridSettingsDao extends Singleton
         return $blocks_rows;
     }
 
-    private function constructGridSettingArray($gridSettings)
+    private function constructGridSettingArray($gridSettings, $genFilters = true)
     {
         $grids = $this->grids;
         if($gridSettings['queryParams'])
@@ -120,7 +120,7 @@ class ClientGridSettingsDao extends Singleton
                 ? $v['label']
                 : (isset($grids['labels'][$columnName])? $grids['labels'][$columnName] : $this->attributeLabels[$columnName]);
 
-            if($columns[$columnName]['filter'] instanceof \Closure) {
+            if($genFilters && $columns[$columnName]['filter'] instanceof \Closure) {
                 $columns[$columnName]['filter'] = $columns[$columnName]['filter']();
             }
         }

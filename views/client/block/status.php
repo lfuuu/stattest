@@ -19,39 +19,43 @@ use \yii\helpers\Url;
         </div>
         <div class="col-sm-9">
 
-            <?php if($account->lkWizardState) :?>
-            <b style="color: green;"> Wizard включен</b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
-            <small>
-                [
-                <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
+            <?php if ($account->lkWizardState) : ?>
+                <b style="color: green;"> Wizard
+                    включен</b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
+                <small>
+                    [
+                    <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
 
-                <?php if($account->lkWizardState->step == 4): ?>
+                    <?php if ($account->lkWizardState->step == 4): ?>
 
-                    <?if($account->lkWizardState->step!='rejected'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=rejected">отклонить</a>
+                        <? if ($account->lkWizardState->step != 'rejected'): ?>
+                            | <a
+                                href="/account/change-wizard-state/?id=<?= $account->id ?>&state=rejected">отклонить</a>
+                        <?php endif; ?>
+
+                        <? if ($account->lkWizardState->step != 'approve'): ?>
+                            | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=approve">одобрить</a>
+                        <?php endif; ?>
+
+                        <? if ($account->lkWizardState->step != 'review'): ?>
+                            | <a
+                                href="/account/change-wizard-state/?id=<?= $account->id ?>&state=review">рассмотрение</a>
+                        <?php endif; ?>
+
                     <?php endif; ?>
 
-                    <?if($account->lkWizardState->step!='approve'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=approve">одобрить</a>
+                    <? if ($account->lkWizardState->step != 1): ?>
+                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=first">*первый шаг*</a>
                     <?php endif; ?>
 
-                    <?if($account->lkWizardState->step!='review'):?>
-                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=review">рассмотрение</a>
+                    <? if ($account->lkWizardState->step != 4): ?>
+                        | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=next">*след шаг*</a>
                     <?php endif; ?>
 
-                <?php endif; ?>
-
-                <?if($account->lkWizardState->step!=1):?>
-                    | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=first">*первый шаг*</a>
-                <?php endif; ?>
-
-                <?if($account->lkWizardState->step!=4):?>
-                    | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=next">*след шаг*</a>
-                <?php endif; ?>
-
-                ]</small>
+                    ]
+                </small>
             <?php else: ?>
-                <?php  if(\app\models\LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
+                <?php if (\app\models\LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
                     <b style="color: gray;"> Wizard выключен</b>
                     [<a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=on">включить</a>]
                 <?php endif; ?>
@@ -118,14 +122,16 @@ use \yii\helpers\Url;
     <?php ActiveForm::end(); ?>
 </div>
 <script>
-    $('.status-block-toggle').on('click', function(){
-        $('#statuses').toggle(); $('#w1 .row').slice(0,2).toggle(); return false;
+    $('.status-block-toggle').on('click', function () {
+        $('#statuses').toggle();
+        $('#w1 .row').slice(0, 2).toggle();
+        return false;
     })
 
     $(function () {
         document.cookie = "openedBlock=;";
         <?php if($_COOKIE['openedBlock']!='statuses'):?>
-            $('.status-block-toggle').click();
+        $('.status-block-toggle').click();
         <?php endif; ?>
 
         var statuses = <?= json_encode($account->getBpStatuses()) ?>;
@@ -137,37 +143,40 @@ use \yii\helpers\Url;
         s2.empty();
         $(statuses.processes).each(function (k, v) {
             if (s1.val() == v['up_id'])
-                s2.append('<option '+(v['id']==vals2 ? 'selected' : '')+' value="' + v['id'] + '">' + v['name'] + '</option>');
+                s2.append('<option ' + (v['id'] == vals2 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
         });
 
         var vals3 = s3.val();
         s3.empty();
         $(statuses.statuses).each(function (k, v) {
             if (s2.val() == v['up_id'])
-                s3.append('<option '+(v['id']==vals3 ? 'selected' : '')+' value="' + v['id'] + '">' + v['name'] + '</option>');
+                s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
         });
 
-        $('.statuses').on('change', 'select', function () {
-            var t = $(this);
+        s1.on('change', function () {
+            s2.empty();
+            $(statuses.processes).each(function (k, v) {
+                if (s1.val() == v['up_id'])
+                    s2.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+            });
 
-            if (t.attr('id') == s1.attr('id')) {
-                s2.empty();
-                $(statuses.processes).each(function (k, v) {
-                    if (s1.val() == v['up_id'])
-                        s2.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
-                });
-            }
+            s3.empty();
+            $(statuses.statuses).each(function (k, v) {
+                if (s2.val() == v['up_id'])
+                    s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+            });
 
-            if (t.attr('id') == s2.attr('id')) {
-                s3.empty();
-                $(statuses.statuses).each(function (k, v) {
-                    if (s2.val() == v['up_id'])
-                        s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
-                });
-            }
         });
 
-        $('#buttonSave').closest('form').on('submit', function(){
+        s2.on('change', function () {
+            s3.empty();
+            $(statuses.statuses).each(function (k, v) {
+                if (s2.val() == v['up_id'])
+                    s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+            });
+        });
+
+        $('#buttonSave').closest('form').on('submit', function () {
             document.cookie = "openedBlock=statuses";
             return true;
         });
