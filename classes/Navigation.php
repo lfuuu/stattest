@@ -44,6 +44,7 @@ class Navigation
                     ->addItem('Плайслисты Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0])
                     ->addItem('Плайслисты Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0])
                     ->addItem('Местные Префиксы', ['voip/network-config/list'])
+                    ->addItem('Списки префиксов', ['voip/prefixlist'])
                     ->addItem('Направления', ['voip/destination'])
             );
         }

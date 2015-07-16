@@ -5,16 +5,15 @@ use app\classes\Html;
 
 $recordBtns = [
     'delete' => function($url, $model, $key) {
-        //if ($model->canDelete !== true)
-            return Html::a(
-                '<span class="glyphicon glyphicon-trash"></span> Удаление',
-                '/voip/destination/delete/?id=' . $model->id,
-                [
-                    'title' => Yii::t('kvgrid', 'Delete'),
-                    'data-pjax' => 0,
-                    'onClick' => 'return confirm("Вы уверены, что хотите удалить запись ?")',
-                ]
-            );
+        return Html::a(
+            '<span class="glyphicon glyphicon-trash"></span> Удаление',
+            '/voip/destination/delete/?id=' . $model->id,
+            [
+                'title' => Yii::t('kvgrid', 'Delete'),
+                'data-pjax' => 0,
+                'onClick' => 'return confirm("Вы уверены, что хотите удалить запись ?")',
+            ]
+        );
     },
 ];
 

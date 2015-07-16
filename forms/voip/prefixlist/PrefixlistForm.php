@@ -2,28 +2,35 @@
 namespace app\forms\voip\prefixlist;
 
 use app\classes\Form;
+use app\models\voip\Prefixlist;
+use app\models\voip\DestinationPrefixes;
 
 class PrefixlistForm extends Form
 {
 
-    public $id;
-    public $name;
-    public $type_id;
-    public $prefixes;
-    public $country_id;
-    public $region_id;
-    public $city_id;
-    public $exclude_operators;
-    public $operators;
+    public
+        $id,
+        $name,
+        $type_id = 1,
+        $prefixes = '',
+        $country_id = 0,
+        $region_id = 0,
+        $city_id = 0,
+        $exclude_operators = '',
+        $operators = '';
 
     public function rules()
     {
         return [
+            [['name',], 'required'],
             [['type_id','country_id','region_id','city_id','exclude_operators',], 'integer'],
-            [['name',], 'string'],
             ['operators', 'each', 'rule' => ['integer']],
-            ['prefixes', 'match', 'pattern' => '/[\d\[\],]+/'],
-            ['country_id', 'required', 'when' => function($model) { return $model->type_id == 3; }],
+            ['prefixes', 'match', 'pattern' => '/^[\d\[\],]+$/'],
+            [
+                'country_id', 'required',
+                'when' => function($model) { return $model->type_id == 3; },
+                'whenClient' => 'function(attribute, value) { return $(\'[name*="type_id"]:checked\').val() == 3; }'
+            ],
         ];
     }
 
@@ -41,6 +48,44 @@ class PrefixlistForm extends Form
         ];
     }
 
+    public function save($prefixlist = false)
+    {
+        if (!($prefixlist instanceof Prefixlist))
+            $prefixlist = new Prefixlist;
+        $prefixlist->setAttributes($this->getAttributes(), false);
 
+        $prefixlist->operators = implode(',', $prefixlist->operators);
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $prefixlist->save();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        $this->id = $prefixlist->id;
+
+        return true;
+    }
+
+    public function delete(Prefixlist $prefixlist)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            DestinationPrefixes::deleteAll(['prefix_id' => $prefixlist->id]);
+
+            $prefixlist->delete();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return true;
+    }
 
 }

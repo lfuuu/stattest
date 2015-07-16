@@ -4,13 +4,14 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use app\models\voip\Prefixlist;
 use app\models\billing\Geo;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoOperator;
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
-$countries = ['' => '-- Страна --'] + GeoCountry::dao()->getList(true);
+$countries = ['0' => '-- Страна --'] + GeoCountry::dao()->getList(true);
 
 $regions = Geo::dao()->getRegionList();
 $regionsOptions = [];
@@ -19,18 +20,19 @@ foreach ($regions as $region) {
         'data-country-id' => $region['country'],
     ];
 }
-$regions = ['' => '-- Регион --'] + ArrayHelper::map($regions, 'region', 'region_name');
+$regions = ['0' => '-- Регион --'] + ArrayHelper::map($regions, 'region', 'region_name');
 
 $cities = Geo::dao()->getCitiesList();
 $citiesOptions = [];
 foreach ($cities as $city) {
     $citiesOptions[ $city['city'] ] = [
-        'data-country' => $city['country'],
-        'data-region' => $city['region'],
+        'data-country-id' => $city['country'],
+        'data-region-id' => $city['region'],
     ];
 }
-$cities = ['' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_name');
+$cities = ['0' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_name');
 
+$model->operators = explode(',', $model->operators);
 $operators = GeoOperator::dao()->getList();
 
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
@@ -60,7 +62,7 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
                     $form
                         ->field($model, 'type_id')
                         ->radioButtonGroup(
-                            [1 => 'Выставить вручную', 3 => 'Используя РосСвязь'], [
+                            Prefixlist::$types, [
                                 'class' => 'btn-group-sm',
                                 'itemOptions' => ['labelOptions' => ['class' => 'btn btn-default']]
                             ]
@@ -116,12 +118,22 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
             'form' => $form,
             'columns' => 3,
             'attributes' => [
-                'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $countries, 'options' => ['class' => 'select2']],
+                'country_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $countries,
+                    'options' => [
+                        'class' => 'select2 chained-select',
+                        'data-chained' => '[name*="region_id"], [name*="city_id"]',
+                        'data-chained-tag' => '[data-country-id="?"]',
+                    ]
+                ],
                 'region_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $regions,
                     'options' =>
                         [
-                            'class' => 'select2',
+                            'class' => 'select2 chained-select',
                             'options' => $regionsOptions,
+                            'data-chained' => '[name*="city_id"]',
+                            'data-chained-tag' => '[data-region-id="?"]',
                         ]
                 ],
                 'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $cities,
@@ -165,4 +177,5 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
     ?>
 </div>
 
+<script type="text/javascript" src="/js/jquery.chained.js"></script>
 <script type="text/javascript" src="/js/behaviors/prefixlist.js"></script>

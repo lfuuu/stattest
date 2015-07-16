@@ -1,17 +1,17 @@
 <?php
 namespace app\controllers\voip;
 
-use app\models\billing\GeoRegion;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
+use yii\filters\AccessControl;
 use app\models\voip\Prefixlist;
 use app\forms\voip\prefixlist\PrefixlistListForm;
 use app\forms\voip\prefixlist\PrefixlistForm;
 
 class PrefixlistController extends BaseController
 {
-    /*
+
     public function behaviors()
     {
         return [
@@ -20,19 +20,18 @@ class PrefixlistController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['list', 'files', 'file-download'],
+                        'actions' => ['index'],
                         'roles' => ['voip.access'],
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'file-upload', 'file-parse'],
+                        'actions' => ['add', 'edit', 'delete'],
                         'roles' => ['voip.admin'],
                     ],
                 ],
             ],
         ];
     }
-    */
 
     public function actionIndex()
     {
@@ -51,10 +50,8 @@ class PrefixlistController extends BaseController
     {
         $model = new PrefixlistForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect('index');
         }
 
         return $this->render('edit', [
@@ -72,16 +69,25 @@ class PrefixlistController extends BaseController
 
         $model->setAttributes($prefixlist->getAttributes(), false);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($prefixlist)) {
+            $this->redirect(['edit', 'id' => $model->id]);
         }
 
         return $this->render('edit', [
             'model' => $model,
             'creatingMode' => false,
         ]);
+    }
+
+    public function actionDelete($id)
+    {
+        $prefixlist = Prefixlist::findOne($id);
+        Assert::isObject($prefixlist);
+
+        $model = new PrefixlistForm;
+        $model->delete($prefixlist);
+
+        $this->redirect('/voip/prefixlist');
     }
 
 }

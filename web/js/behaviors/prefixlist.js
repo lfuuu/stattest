@@ -18,4 +18,10 @@ jQuery(document).ready(function() {
         .change($type_action)
         .eq(1)
             .trigger('change');
+
+    $('.chained-select').chained({
+        'withSelect2': true
+    });
+
 });
+

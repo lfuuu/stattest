@@ -2,6 +2,21 @@
 
 use kartik\grid\GridView;
 use app\classes\Html;
+use app\models\voip\Prefixlist;
+
+$recordBtns = [
+    'delete' => function($url, $model, $key) {
+        return Html::a(
+            '<span class="glyphicon glyphicon-trash"></span> Удаление',
+            '/voip/prefixlist/delete/?id=' . $model->id,
+            [
+                'title' => Yii::t('kvgrid', 'Delete'),
+                'data-pjax' => 0,
+                'onClick' => 'return confirm("Вы уверены, что хотите удалить запись ?")',
+            ]
+        );
+    },
+];
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
@@ -10,9 +25,20 @@ echo GridView::widget([
             'class' => 'app\classes\grid\column\NameColumn',
         ],
         [
+            'class' => 'app\classes\grid\column\FromArrayColumn',
+            'variants' => Prefixlist::$types,
             'attribute' => 'type_id',
-            'label' => 'Тип'
+            'label' => 'Тип',
+            'width' => '20%',
         ],
+        [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '<div style="text-align: center;">{delete}</div>',
+            'header' => '',
+            'buttons' => $recordBtns,
+            'hAlign' => 'center',
+            'width' => '7%',
+        ]
     ],
     'pjax' => true,
     'toolbar'=> [
