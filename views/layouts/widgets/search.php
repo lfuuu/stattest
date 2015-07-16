@@ -79,13 +79,8 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
             }
             setInput();
 
-            var serchs = true;
-
             var substringMatcher = function () {
                 return function findMatches(q, cb) {
-                    searchs = false;
-                    if (serchs)
-                    {
                         $.getJSON('search/index', {
                             search: $("#search").val(),
                             searchType: $("#search-type").val()
@@ -94,7 +89,6 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
                             cb(matches);
                             //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
                         });
-                    }
                 };
             };
 

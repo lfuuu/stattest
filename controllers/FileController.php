@@ -1,8 +1,7 @@
 <?php
 namespace app\controllers;
 
-use app\classes\grid\FilterDataProvider;
-use app\models\ClientAccount;
+use yii\data\ActiveDataProvider;
 use app\models\ClientContract;
 use app\models\ClientFile;
 use Yii;
@@ -113,7 +112,7 @@ class FileController extends BaseController
         if($request['date_to'])
             $query->andWhere(['>=','ts', $request['date_to']]);
 
-        $dataProvider = new FilterDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 

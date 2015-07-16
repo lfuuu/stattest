@@ -3,7 +3,6 @@ namespace app\classes;
 
 use app\models\billing\Pricelist;
 use Yii;
-use app\models\ClientGridSettings;
 use yii\helpers\Url;
 
 

@@ -275,7 +275,7 @@ use app\models\Currency;
                                 'model' => $contract,
                                 'attribute' => 'manager',
                                 'data' => \app\models\User::getManagerList(),
-                                'options' => ['placeholder' => 'Начните воодить фамилию'],
+                                'options' => ['placeholder' => 'Начните вводить фамилию'],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
@@ -289,7 +289,7 @@ use app\models\Currency;
                                 'model' => $contract,
                                 'attribute' => 'account_manager',
                                 'data' => \app\models\User::getAccountManagerList(),
-                                'options' => ['placeholder' => 'Начните воодить фамилию'],
+                                'options' => ['placeholder' => 'Начните вводить фамилию'],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],

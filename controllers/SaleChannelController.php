@@ -1,11 +1,11 @@
 <?php
 namespace app\controllers;
 
-use app\classes\grid\FilterDataProvider;
 use app\models\SaleChannel;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
+use yii\data\ActiveDataProvider;
 
 
 class SaleChannelController extends BaseController
@@ -24,7 +24,7 @@ class SaleChannelController extends BaseController
 
     public function actionIndex()
     {
-        $dataProvider = new FilterDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query' => SaleChannel::find(),
         ]);
 

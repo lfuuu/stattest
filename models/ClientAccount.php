@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\dao\ClientGridSettingsDao;
 use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
@@ -33,7 +34,6 @@ class ClientAccount extends ActiveRecord
     const STATUS_INCOME = 'income';
 
     public $client_orig = '';
-    public $sale_channel=0;
     public $historyVersionDate = null;
 
     public static $statuses = array(
@@ -282,6 +282,9 @@ class ClientAccount extends ActiveRecord
             'is_upd_without_sign' => 'Печать УПД без подписей',
             'is_blocked' => 'Блокировка',
             'timezone_name' => 'Часовой пояс',
+            'manager' => 'Менеджер',
+            'currency' => 'Валюта',
+            'account_manager' => 'Ак. менеджер',
         ];
     }
 
@@ -332,11 +335,6 @@ class ClientAccount extends ActiveRecord
     public function getLkWizardState()
     {
         return LkWizardState::findOne($this->contract->id);
-    }
-
-    public function getStatusBP()
-    {
-        return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
     }
 
     /**
@@ -417,8 +415,8 @@ class ClientAccount extends ActiveRecord
         }
 
         $statuses = [];
-        foreach (ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s) {
-            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
         }
 
         return ["processes" => $processes, "statuses" => $statuses];

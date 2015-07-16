@@ -2,11 +2,11 @@
 namespace app\forms\client;
 
 use app\classes\Event;
+use app\dao\ClientGridSettingsDao;
 use app\models\ClientContractComment;
 use app\models\ClientContractType;
 use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
-use app\models\ClientGridSettings;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
@@ -91,13 +91,13 @@ class ContractEditForm extends Form
 
     public function getBusinessProcessStatusesList()
     {
-        $arr = ClientGridSettings::find()->all();
+        $arr = ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]);
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
     public function getCurrentBusinessProcessStatus()
     {
-        return ClientGridSettings::findOne($this->business_process_status_id);
+        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id);
     }
 
     public function getContractTypes()

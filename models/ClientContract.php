@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\FileManager;
+use app\dao\ClientGridSettingsDao;
 use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
 
@@ -106,8 +107,7 @@ class ClientContract extends ActiveRecord
 
     public function getBusinessProcessStatus()
     {
-        $m = $this->hasOne(ClientGridSettings::className(), ['id' => 'business_process_status_id'])->one();
-        return ($m) ? ['name' => $m->name, 'color' => $m->color] : ['name' => $this->business_process_status_id, 'color' => ''];
+        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id);
     }
 
     /**

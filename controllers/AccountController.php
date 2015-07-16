@@ -2,10 +2,10 @@
 
 namespace app\controllers;
 
+use app\dao\ClientGridSettingsDao;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
 use app\models\ClientBP;
-use app\models\ClientGridSettings;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
 use app\models\ClientSearch;
@@ -142,7 +142,23 @@ class AccountController extends BaseController
         ]);
     }
 
-    public function actionIndex()
+    public function actionIndex($bp = 0, $grid = 0)
+    {
+        $model = (new ClientSearch());
+        $model->getGridSetting($bp, $grid);
+        $model->setAttributes(Yii::$app->request->get());
+        $dataProvider = $model->searchWithSetting();
+
+        //var_dump($dataProvider); die;
+
+        return $this->render('index', [
+//          'searchModel' => $dataProvider,
+            'dataProvider' => $dataProvider,
+            'model' => $model,
+        ]);
+    }
+
+    public function actionSearch()
     {
         $searchModel = new ClientSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -162,13 +178,12 @@ class AccountController extends BaseController
             if ($dataProvider->query->count() == 1)
                 return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
             else
-                return $this->render('index', [
+                return $this->render('search', [
 //              'searchModel' => $dataProvider,
                     'dataProvider' => $dataProvider,
                 ]);
         }
     }
-
     public function actionUnfix()
     {
         //Для старого стата, для старых модулей
@@ -205,8 +220,9 @@ class AccountController extends BaseController
         }
 
         $statuses = [];
-        foreach (ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s) {
-            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+
+        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
         }
 
         $res = ["processes" => $processes, "statuses" => $statuses];

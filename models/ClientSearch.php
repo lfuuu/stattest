@@ -2,25 +2,34 @@
 
 namespace app\models;
 
-use app\classes\grid\FilterDataProvider;
+
+
+use app\dao\ClientGridSettingsDao;
+use yii\data\ActiveDataProvider;
 
 class ClientSearch extends ClientAccount
 {
-    public $channel, $manager, $email, $voip, $ip, $domain, $address, $adsl;
+    public $grid, $bp;
+    private $gridSetting;
+
+    public $bill_date, $sale_channel, $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl,
+        $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $created;
 
     protected $companyName, $inn, $contractNo;
 
     public function rules()
     {
         return [
-            [['id', 'channel', 'manager'], 'integer'],
-            [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip' ,'domain', 'address', 'adsl'], 'string'],
+            [['id', 'sale_channel'], 'integer'],
+            [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip' ,'domain', 'address', 'adsl',
+                'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
         ];
     }
 
     public function attributeLabels()
     {
-        return [
+        return parent::attributeLabels() +
+        [
             'id' => '# ЛС',
             'companyName' => 'Название компании',
             'inn' => 'ИНН',
@@ -60,7 +69,7 @@ class ClientSearch extends ClientAccount
     {
         $query = parent::find();
 
-        $dataProvider = new FilterDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
@@ -109,5 +118,71 @@ class ClientSearch extends ClientAccount
         }
 
         return $dataProvider;
+    }
+
+    public function searchWithSetting()
+    {
+        $gridSettings = $this->getGridSetting();
+        $query = parent::find();
+
+        $params = $gridSettings['queryParams'];
+        $orderBy = $params['orderBy'];
+        unset($params['orderBy']);
+        foreach($params as $paramKey => $param){
+            $query->$paramKey = $param;
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => [
+                'defaultOrder' => $orderBy
+            ]
+        ]);
+
+        $query->andFilterWhere(['c.id' => $this->id]);
+        $query->andFilterWhere(['cg.name_full' => $this->companyName]);
+        $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
+        $query->andFilterWhere(['cr.manager' => $this->manager]);
+        $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
+        $query->andFilterWhere(['l.service' => $this->service]);
+        if($this->currency)
+            $query->andFilterWhere(['c.currency' => $this->currency]);
+
+        if($this->bill_date) {
+            $billDates = explode('+-+', $this->bill_date);
+            $query->andFilterWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
+        }
+
+        if($this->created) {
+            $createdDates = explode('+-+', $this->created);
+            $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+        }
+
+        if($query->params) {
+            $params = [];
+            foreach($query->params as $paramKey => $paramValue)
+                $params[':' . $paramKey] = $this->$paramKey ? $this->$paramKey : $paramValue;
+            $query->addParams($params);
+        }
+
+        return $dataProvider;
+    }
+
+    public function getGridSetting($bp = null, $grid = null){
+        if(!$bp && !$grid && $this->gridSetting)
+            return $this->gridSetting;
+
+        $grid_id = ($grid) ? $grid : $this->grid;
+        $bp_id = ($bp) ? $bp : $this->bp;
+
+        $gridSettings = ClientGridSettingsDao::me()->setAttributeLabels($this->attributeLabels());
+
+        if($grid_id)
+            $gridSettings = $gridSettings->getGridByBusinessProcessStatusId($grid_id);
+        else
+            $gridSettings = $gridSettings->getGridByBusinessProcessId($bp_id);
+
+        $this->gridSetting = $gridSettings;
+        return $gridSettings;
     }
 }

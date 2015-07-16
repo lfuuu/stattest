@@ -67,7 +67,7 @@ use kartik\widgets\DatePicker;
                                 'model' => $model,
                                 'attribute' => 'manager',
                                 'data' => \app\models\User::getManagerList(),
-                                'options' => ['placeholder' => 'Начните воодить фамилию'],
+                                'options' => ['placeholder' => 'Начните вводить фамилию'],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
@@ -81,7 +81,7 @@ use kartik\widgets\DatePicker;
                                 'model' => $model,
                                 'attribute' => 'account_manager',
                                 'data' => \app\models\User::getAccountManagerList(),
-                                'options' => ['placeholder' => 'Начните воодить фамилию'],
+                                'options' => ['placeholder' => 'Начните вводить фамилию'],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
