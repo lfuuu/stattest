@@ -5,7 +5,6 @@
             <div class="col-sm-10">
                 <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
                 <?= $this->render('block/contact', ['account' => $account]); ?>
-                <?= $this->render('block/document', ['account' => $account]); ?>
                 <?= $this->render('block/file', ['account' => $account]); ?>
             </div>
             <div class="col-sm-2">

@@ -10,9 +10,9 @@ use \yii\helpers\Url;
     <?php
     $f = ActiveForm::begin(['action' => Url::toRoute(['contract/edit', 'id' => $contractForm->id, 'childId' => $account->id])]);
     ?>
-    <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
+    <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus['color'] ?>;">
         <div class="col-sm-3">
-            Статус: <b><?= $contractForm->currentBusinessProcessStatus->name ?></b>
+            Статус: <b><?= $contractForm->currentBusinessProcessStatus['name'] ?></b>
             <a href="#" class="status-block-toggle">
                 <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть">
             </a>

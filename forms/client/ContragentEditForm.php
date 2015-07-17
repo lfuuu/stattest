@@ -57,6 +57,7 @@ class ContragentEditForm extends Form
             [['first_name', 'last_name', 'middle_name', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
+            ['tax_regime', 'default', 'value' => 'full'],
 
             ['legal_type', 'in', 'range' => array_keys(ClientContragent::$legalTypes)],
             ['tax_regime', 'in', 'range' => array_keys(ClientContragent::$taxRegtimeTypes)],

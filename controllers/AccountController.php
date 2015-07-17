@@ -8,14 +8,12 @@ use app\forms\client\ClientEditForm;
 use app\models\ClientBP;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
-use app\models\ClientSearch;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Assert;
 use yii\base\Exception;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
-use yii\helpers\Url;
 use yii\web\Response;
 use app\models\ClientAccount;
 
@@ -145,7 +143,8 @@ class AccountController extends BaseController
     public function actionUnfix()
     {
         //Для старого стата, для старых модулей
-        Yii::$app->session->set('clients_client', '');
+        Yii::$app->session->set('clients_client', 0);
+        Yii::$app->user->identity->restriction_client_id = 0;
         return $this->redirect(Yii::$app->request->referrer);
         //return $this->goHome();
     }

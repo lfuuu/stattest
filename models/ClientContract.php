@@ -107,7 +107,7 @@ class ClientContract extends ActiveRecord
 
     public function getBusinessProcessStatus()
     {
-        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id);
+        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id, false);
     }
 
     /**
@@ -179,12 +179,17 @@ class ClientContract extends ActiveRecord
 
     public function getAllDocuments()
     {
-        return $this->hasMany(ClientDocument::className(), ['contract_id' => 'id']);
+        return ClientDocument::find()
+            ->andWhere(['contract_id' => $this->id, 'type' => ['agreement','contract']])
+            ->all();
     }
 
     public function getDocument()
     {
-        return $this->getAllDocuments()->orderBy('id DESC')->one();
+        return ClientDocument::find()
+            ->andWhere(['contract_id' => $this->id, 'type' => 'contract', 'is_active' => 1])
+            ->orderBy('id DESC')
+            ->one();
     }
 
     public function afterSave($insert, $changedAttributes)

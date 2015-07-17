@@ -168,7 +168,7 @@ class ClientDocumentDao extends Singleton
 
     private function getFilePath()
     {
-        $contractId = $this->model->contract_id;
+        $contractId = $this->model->account_id ? $this->model->account_id : $this->model->contract_id;
         $documentId = $this->model->id;
         return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $documentId . '.html';
     }

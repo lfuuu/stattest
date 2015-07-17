@@ -798,11 +798,7 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'c.status' =>
-                                    array(
-                                        'double',
-                                        'trash',
-                                    ),
+                                ['in', 'c.status', ['double', 'trash']],
                                 'cr.contract_type_id = 2',
                             ),
                     ],
@@ -851,11 +847,7 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'c.status' =>
-                                    array(
-                                        'double',
-                                        'trash',
-                                    ),
+                                ['in', 'c.status', ['double', 'trash']],
                                 'cr.contract_type_id = 5',
                             ),
                     ],
@@ -883,11 +875,7 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'c.status' =>
-                                    array(
-                                        'double',
-                                        'trash',
-                                    ),
+                                ['in', 'c.status', ['double', 'trash']],
                                 'cr.contract_type_id = 5',
                             ),
                     ],

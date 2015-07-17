@@ -9,7 +9,8 @@ use kartik\widgets\Select2;
 use kartik\builder\Form;
 use kartik\widgets\DatePicker;
 use app\models\ClientAccount;
-use \app\models\Currency;
+use app\models\Currency;
+use yii\helpers\Url;
 
 ?>
 <div class="row">
@@ -203,4 +204,123 @@ use \app\models\Currency;
             });
         </script>
     </div>
+
+
+    <?php $docs = \app\models\ClientDocument::find()->accountId($model->id)->blank()->all(); ?>
+
+    <div class="col-sm-12">
+        <div class="row"
+             style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
+            <div class="col-sm-12">Бланк заказа</div>
+        </div>
+        <div class="row head3" style="padding: 5px 0;">
+            <div class="col-sm-2">№</div>
+            <div class="col-sm-2">Дата</div>
+            <div class="col-sm-2">Комментарий</div>
+            <div class="col-sm-2">Кто добавил</div>
+            <div class="col-sm-2">Когда</div>
+            <div class="col-sm-2"></div>
+        </div>
+        <?php foreach ($docs as $doc) if ($doc->type == 'blank'): ?>
+            <?php $blnk = $doc->contract_no; ?>
+            <div class="row"
+                 style="padding: 5px 0; border-top: 1px solid black; <?= !$doc->is_active ? 'color:#CCC;' : '' ?>">
+                <div class="col-sm-2"><?= $doc->contract_no ?></div>
+                <div class="col-sm-2"><?= $doc->contract_date ?></div>
+                <div class="col-sm-2"><?= $doc->comment ?></div>
+                <div class="col-sm-2"><?= $doc->user->name ?></div>
+                <div class="col-sm-2"><?= $doc->ts ?></div>
+                <div class="col-sm-2">
+                    <a href="/document/edit?id=<?= $doc->id ?>"
+                       target="_blank"><img
+                            class="icon" src="/images/icons/edit.gif"></a>
+                    <a href="/document/print/?id=<?= $doc->id ?>"
+                       target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
+                    <a href="/document/send?id=<?= $doc->id ?>"
+                       target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
+                    <?php if ($doc->is_active) : ?>
+                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                        </a>
+                    <?php else : ?>
+                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                        </a>
+                    <? endif; ?>
+                    <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                </div>
+            </div>
+        <?php endif; ?>
+        <div class="row" style="margin-top: 5px;">
+            <form action="/document/create" method="post">
+                <div class="col-sm-2">
+                    <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->contract_id ?>">
+                    <input type="hidden" name="ClientDocument[account_id]" value="<?= $model->id ?>">
+                    <input type="hidden" name="ClientDocument[type]" value="blank">
+                    <input class="form-control" type="text" name="ClientDocument[contract_no]"
+                           value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
+                <div class="col-sm-2">
+                    <?= DatePicker::widget(
+                        [
+                            'name' => 'ClientDocument[contract_date]',
+                            'value' => date('Y-m-d'),
+                            'removeButton' => false,
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-mm-dd',
+                            ],
+                        ]
+                    ); ?>
+                </div>
+                <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
+                <div class="col-sm-2">
+                    <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]"
+                            data-type="blank"></select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control tmpl" name="ClientDocument[contract_template]"
+                            data-type="blank"></select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
+        var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
+
+        function generateTmplList(type, selected) {
+            if (!selected)
+                selected = $('.tmpl-group[data-type="' + type + '"]').val();
+            var tmpl = $('.tmpl[data-type="' + type + '"]');
+            if (typeof folders[type] !== 'undefined' && typeof folders[type][selected] !== 'undefined') {
+                tmpl.empty();
+                $.each(folders[type][selected], function (k, v) {
+                    tmpl.append('<option value="' + v + '">' + v + '</option>');
+                });
+            }
+        }
+
+        $(function () {
+            $('.tmpl-group').each(function () {
+                var type = $(this).data('type');
+                var t = $(this);
+                var first = false;
+                $.each(folders[type], function (k, v) {
+                    t.append('<option value="' + k + '" ' + (first ? 'selected=selected' : '') + ' >' + folderTranslates[k] + '</option>');
+                    if (first == false) {
+                        first = k;
+                    }
+                });
+                generateTmplList(type, first);
+            });
+
+            $('.tmpl-group').on('change', function () {
+                generateTmplList($(this).data('type'), $(this).val());
+            })
+        });
+    </script>
 </div>

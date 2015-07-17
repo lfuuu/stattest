@@ -61,7 +61,7 @@ use \app\models\ClientContract;
                                     <?php $bps = $contract->businessProcessStatus; ?>
                                     <span><?= $contract->contractType ?></span>&nbsp;
                                     /&nbsp;<?= $contract->businessProcess ?></span>&nbsp;
-                                    /&nbsp;<b style="background:<?= $bps['color'] ?>;"><?= $bps['name'] ?></b>
+                                    /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>
                                 <div class="col-sm-3" style="text-align: right;">
                                     <?php if ($contract->managerName) : ?>

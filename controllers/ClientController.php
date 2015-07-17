@@ -19,6 +19,7 @@ use app\classes\BaseController;
 use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\web\Response;
+use yii\helpers\Url;
 
 class ClientController extends BaseController
 {

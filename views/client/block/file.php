@@ -4,22 +4,6 @@ use \yii\helpers\Url;
 ?>
 <?php $files = $account->contract->allFiles; ?>
 
-<div class="data-block row">
-    <div class="row">
-        <div class="col-sm-2 showFullTable" style="cursor: pointer;">
-            <a><img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"></a>Файлы
-        </div>
-        <div class="col-sm-10">
-            <div class="row">
-                <div class="col-sm-12">
-                    <?php foreach ($files as $file) : ?>
-                        <a href="/file/download?id=<?= $file->id ?>" target="_blank">
-                            <?= $file->name ?>
-                        </a>;&nbsp;
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
         <div class="col-sm-12 fullTable" style="display: none;">
             <div class="row head3">
                 <div class="col-sm-4">Имя файла</div>
@@ -70,8 +54,6 @@ use \yii\helpers\Url;
                 </form>
             </div>
         </div>
-    </div>
-</div>
 
 
 <div id="dialog-form" title="Отправить файл">

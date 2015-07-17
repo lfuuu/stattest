@@ -1,8 +1,8 @@
 <?php
 use yii\helpers\Url;
 
-
-kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
+kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView());
+$request = Yii::$app->request->get();
 ?>
 <style>
     .tt-dropdown-menu{
@@ -11,15 +11,15 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
     }
 </style>
 <div>
-    <form action="<?= Url::toRoute(['search/index', 'search' => Yii::$app->request->get()['search']]) ?>"
+    <form action="<?= Url::toRoute(['search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
           id="search-form">
-        <input type="hidden" name="searchType" value="<?= Yii::$app->request->get()['searchType'] ?>"
+        <input type="hidden" name="searchType" value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
                id="search-type">
 
         <div class="col-sm-4">
             <div class="input-group">
                 <input id="search" type="text" class="form-control" placeholder="Search ..." name="search"
-                       value="<?= Yii::$app->request->get()['search'] ?>">
+                       value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
             <span class="input-group-btn" title="Submit">
                 <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
             </span>

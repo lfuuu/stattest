@@ -39,7 +39,7 @@ class ClientDocument extends ActiveRecord
     {
         return [
             ['contract_id', 'required'],
-            [['contract_id', 'is_active'], 'integer'],
+            [['contract_id', 'is_active', 'account_id'], 'integer'],
             [['contract_no', 'contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
             ['ts', 'default', 'value' => date('Y-m-d H-i-s')],
@@ -60,7 +60,7 @@ class ClientDocument extends ActiveRecord
 
     public function getBlank()
     {
-        return self::find()->andWhere(['contract_id' => $this->contract_id])->active()->blank()->fromContract($this)->last();
+        return self::find()->andWhere(['account_id' => $this->account_id])->active()->blank()->fromContract($this)->last();
     }
 
     /**
@@ -126,7 +126,8 @@ class ClientDocument extends ActiveRecord
 
     public function getAccount()
     {
-        return ClientAccount::findOne(['contract_id' => $this->contract_id])->loadVersionOnDate($this->contract_date);
+        $params = $this->account_id ? $this->account_id : ['contract_id' => $this->contract_id];
+        return ClientAccount::findOne($params)->loadVersionOnDate($this->contract_date);
     }
 
     public function getContract()
@@ -137,18 +138,24 @@ class ClientDocument extends ActiveRecord
     public function beforeSave($insert)
     {
         if ($insert) {
-            $lastContract = BillContract::getLastContract($this->contract_id, time());
             $this->contract_dop_date = '2012-01-01';
             $this->contract_dop_no = '0';
             if ($this->type != 'contract') {
-                $this->contract_no = $lastContract['no'];
-                $this->contract_date = date('Y-m-d', $lastContract['date']);
+                $utime = $this->type == 'blank' ? strtotime('2035-01-01') : ($this->contract_dop_date ? strtotime($this->contract_dop_date) : time());
+                $lastContract = BillContract::getLastContract($this->contract_id, $utime);
+
+                $this->contract_no = $this->contract_no ? $this->contract_no : ($lastContract ? $lastContract['no'] : 1);
+                $this->contract_date = $this->contract_date ? $this->contract_date :date('Y-m-d', $lastContract ? $lastContract['date'] : time());
                 $this->contract_dop_no = $this->contract_no;
                 $this->contract_dop_date = ($this->type == 'agreement') ? $this->contract_date : date('Y-m-d');
+            }
 
-                $lastContract = BillContract::getLastContract($this->contract_id, ($this->type == 'blank' ? strtotime('2035-01-01') : (strtotime($this->contract_dop_date) ?: time())));
-                $this->contract_no = $lastContract["no"];
-                $this->contract_date = date("Y-m-d", $lastContract["date"]);
+            if($this->type == 'contract')
+            {
+                $oldContracts = self::findAll(['contract_id' => $this->contract_id]);
+                if($oldContracts)
+                    foreach($oldContracts as $oldContract)
+                        $oldContract->erase();
             }
         }
         return parent::beforeSave($insert);

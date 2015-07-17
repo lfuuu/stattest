@@ -7,10 +7,14 @@ use app\models\ClientDocument;
 
 class ClientDocumentQuery extends ActiveQuery
 {
-    public function account($accountId)
+    public function accountId($id)
     {
-        $contractId = ClientAccount::findOne($accountId)->contract_id;
-        return $this->andWhere(['contract_id' => $contractId]);
+        return $this->andWhere(['account_id' => $id]);
+    }
+
+    public function contractId($id)
+    {
+        return $this->andWhere(['contract_id' => $id]);
     }
 
     public function active()

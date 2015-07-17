@@ -105,6 +105,11 @@ class AccountEditForm extends Form
         return (new ClientAccount())->attributeLabels();
     }
 
+    public function getModel()
+    {
+        return $this->clientM;
+    }
+
     public function init()
     {
         if ($this->id) {

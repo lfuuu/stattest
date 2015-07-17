@@ -56,6 +56,11 @@ class ContractEditForm extends Form
         return (new ClientContract())->attributeLabels() + ['comment' => 'Комментарий'];
     }
 
+    public function getModel()
+    {
+        return $this->contract;
+    }
+
     public function init()
     {
         if ($this->id) {
@@ -97,7 +102,7 @@ class ContractEditForm extends Form
 
     public function getCurrentBusinessProcessStatus()
     {
-        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id);
+        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id, false);
     }
 
     public function getContractTypes()

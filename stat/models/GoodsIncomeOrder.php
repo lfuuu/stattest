@@ -193,7 +193,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         return $this->trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_STAT_ENTERING;
     }
 
-<<<<<<< HEAD
+
     public function get_client_card()
     {
         return \app\models\ClientAccount::findOne($this->client_card_id);
