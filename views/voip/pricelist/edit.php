@@ -43,7 +43,7 @@ else:
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2', 'disabled' => true]],
             'orig' => ['type' => Form::INPUT_CHECKBOX, 'disabled' => true],
             'tariffication_by_minutes' => ['type' => Form::INPUT_CHECKBOX],
-            'price_include_vat' => ['type' => Form::INPUT_RAW, 'value' => 'Цена включает НДС: ' . ($model->orig ? 'Да' : 'Нет')],
+            'price_include_vat' => ['type' => Form::INPUT_RAW, 'value' => 'Цена включает НДС: ' . ($model->price_include_vat ? 'Да' : 'Нет')],
             'initiate_mgmn_cost' => ['type' => Form::INPUT_TEXT],
             'type' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['client' => 'Клиент', 'operator' => 'Оператор', 'network_prices' => 'Местные'], 'options' => ['disabled' => true]],
             'tariffication_full_first_minute' => ['type' => Form::INPUT_CHECKBOX],
