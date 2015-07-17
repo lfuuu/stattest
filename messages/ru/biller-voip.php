@@ -52,4 +52,8 @@ return [
     'voip_package_monfly_fee' => 'Абонентская плата за пакет минут {service}{date_range}',
 
     'voip_sip_trunk_monfly_fee' => 'Абонентская плата за Sip транк по тарифу {tariff}{date_range}',
+
+    'voip_package_fee' => 'Абонентская плата за пакет "{tariff}"{date_range}',
+    'voip_package_payment' => 'Плата на пакет "{tariff}"{date_range}',
+    'voip_package_minpay' => 'Минимальный платеж за пакет "{tariff}"{date_range}',
 ];

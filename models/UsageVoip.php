@@ -87,12 +87,12 @@ class UsageVoip extends ActiveRecord implements Usage
     {
         $logTariff =
             LogTarif::find()
-            ->andWhere(['service' => 'usage_voip', 'id_service' => $this->id])
-            ->andWhere('date_activation <= now()')
-            ->andWhere('id_tarif != 0')
-            ->orderBy('date_activation desc, id desc')
-            ->limit(1)
-            ->one();
+                ->andWhere(['service' => 'usage_voip', 'id_service' => $this->id])
+                ->andWhere('date_activation <= now()')
+                ->andWhere('id_tarif != 0')
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
+                ->one();
         if ($logTariff === null) {
             return false;
         }
@@ -118,7 +118,13 @@ class UsageVoip extends ActiveRecord implements Usage
 
     public function getAbonPerMonth()
     {
-        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines-1));
+        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines - 1));
     }
+
+    public function getUsagePackages()
+    {
+        return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+    }
+
 }
 

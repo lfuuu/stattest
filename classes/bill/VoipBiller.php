@@ -110,6 +110,18 @@ class VoipBiller extends Biller
                     ->setTemplateData($template_data)
             );
         }
+
+        $packages = $this->usage->usagePackages;
+        foreach ($packages as $package) {
+            $this->addPackage(
+                BillerPackageConnecting::create($this)
+                    ->setPrice($package->tariff->periodical_fee)
+                    ->setTemplate('voip_package_fee')
+                    ->setTemplateData([
+                        'tariff' => $package->tariff->name
+                    ])
+            );
+        }
     }
 
     protected function processResource()
@@ -200,6 +212,22 @@ class VoipBiller extends Biller
                         ->setTemplate($template)
                         ->setTemplateData($template_data)
             );
+        }
+
+        $packages = $this->usage->usagePackages;
+        foreach ($packages as $package) {
+            $biller =
+                BillerPackageConnecting::create($this)
+                    ->setTemplate('voip_package_payment')
+                    ->setTemplateData([
+                        'tariff' => $package->tariff->name
+                    ]);
+            if ($package->tariff->pricelist_id) {
+                $biller->setMinPayment($package->tariff->min_payment);
+                $biller->setMinPaymentTemplate('voip_package_minpay');
+            }
+
+            $this->addPackage($biller);
         }
     }
 
