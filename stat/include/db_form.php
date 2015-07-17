@@ -1950,8 +1950,8 @@ class DbFormFactory {
             return new DbFormUsageIpPorts();
         }elseif ($table=='usage_ip_ppp') {
             return new DbFormUsageIPPPP();
-        }elseif ($table=='usage_voip') {
-            return new DbFormUsageVoip();
+//        }elseif ($table=='usage_voip') {
+//            return new DbFormUsageVoip();
         }elseif ($table=='tech_cpe') {
             return new DbFormTechCPE();
         }elseif ($table=='tech_cpe_models') {

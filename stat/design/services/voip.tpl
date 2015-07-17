@@ -59,7 +59,11 @@
                         <div style="padding: 0 15 0 15; color: blue;">Мультитранк</div>
                     {else}
                         {if $item.address}
-                            <a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>
+                            {if access("services_voip", "edit")}
+                                <a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.address}</a>
+                            {else}
+                                {$item.address}
+                            {/if}
                         {else}
                             <!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...
                         {/if}
