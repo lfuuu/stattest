@@ -43,7 +43,7 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
-        return $this->redirect(['news/index']);
+        return $this->redirect('/index.php?module=tt&action=view_type&type_pk=2&folder=256&filtred=true');
     }
 
     public function actionLogin()
