@@ -28,7 +28,7 @@ if ($pricelist->orig == false && $pricelist->isLocal()):
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['disabled' => true]],
             'type' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['client' => 'Клиент', 'operator' => 'Оператор', 'network_prices' => 'Местные'], 'options' => ['disabled' => true]],
             'orig' => ['type' => Form::INPUT_RAW, 'value' => 'Оригинация: ' . ($model->orig ? 'Да' : 'Нет')],
-            'price_include_vat' => ['type' => Form::INPUT_RAW, 'value' => 'Цена включает НДС: ' . ($model->orig ? 'Да' : 'Нет')],
+            'price_include_vat' => ['type' => Form::INPUT_RAW, 'value' => 'Цена включает НДС: ' . ($model->price_include_vat ? 'Да' : 'Нет')],
             'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
         ],
     ]);
