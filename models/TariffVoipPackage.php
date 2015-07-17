@@ -4,6 +4,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\models\voip\Destination;
 use app\models\billing\Pricelist;
+use app\dao\TariffVoipPackageDao;
 
 /**
  * @property int $id
@@ -23,6 +24,11 @@ class TariffVoipPackage extends ActiveRecord
         $this->edit_time = date('Y.m.d H:i:s');
 
         return parent::beforeSave($query);
+    }
+
+    public static function dao()
+    {
+        return TariffVoipPackageDao::me();
     }
 
     public function getCountry()

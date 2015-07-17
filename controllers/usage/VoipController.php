@@ -1,12 +1,16 @@
 <?php
 namespace app\controllers\usage;
 
+use app\classes\Assert;
+use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageVoipCloseForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\ClientAccount;
 use app\models\LogTarif;
+use app\models\TariffVoipPackage;
 use app\models\UsageVoip;
+use app\models\UsageVoipPackage;
 use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -65,6 +69,11 @@ class VoipController extends BaseController
             return $this->redirect(['edit', 'id' => $id]);
         }
 
+        $form = new UsageVoipAddPackageForm;
+        if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
+            return $this->redirect(['edit', 'id' => $id, 'rnd' => time()]);
+        }
+
         $model = new UsageVoipEditForm();
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($usage->clientAccount, $usage);
@@ -88,12 +97,38 @@ class VoipController extends BaseController
                 ->orderBy('date_activation desc, id desc')
                 ->all();
 
+        $usagePackages =
+            UsageVoipPackage::find()
+                ->where(['usage_voip_id' => $model->id])
+                ->all();
+
         return $this->render('edit', [
             'model' => $model,
             'clientAccount' => $model->clientAccount,
             'usage' => $usage,
             'tariffHistory' => $tariffHistory,
+            'usagePackages' => $usagePackages,
         ]);
+    }
+
+    public function actionDetachPackage($id)
+    {
+        $usageVoipPackage = UsageVoipPackage::findOne($id);
+        Assert::isObject($usageVoipPackage);
+
+        $usage_id = $usageVoipPackage->usage_voip_id;
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $usageVoipPackage->delete();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $this->redirect(['edit', 'id' => $usage_id]);
     }
 
 }

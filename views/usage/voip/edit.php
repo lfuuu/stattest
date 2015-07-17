@@ -3,10 +3,11 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
+use kartik\daterange\DateRangePicker;
 use yii\helpers\Url;
 use app\models\User;
-
 use app\models\TariffVoip;
+use app\models\TariffVoipPackage;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -54,7 +55,7 @@ echo Form::widget([
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Точка подключения</label>
-                <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly>
+                <input type="text" class="form-control" value="' . $usage->connectionPoint->id . '" readonly>
             </div>
         '],
         ['type' => Form::INPUT_RAW, 'value' => '
@@ -337,3 +338,80 @@ ActiveForm::end();
     $form->end();
     ?>
 </div>
+
+<h2>Подключенные пакеты:</h2>
+<table class="table table-condensed table-striped table-bordered">
+    <col width="10%" />
+    <col width="* " />
+    <col width="15%" />
+    <col width="5%" />
+    <thead>
+        <tr>
+            <th>Период</th>
+            <th>Тариф</th>
+            <th>Добавлено</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($usagePackages as $package):?>
+            <tr>
+                <td nowrap="nowrap"><?= $package->actual_from . ($package->actual_to !== null ? ' - ' .$package->actual_to :  '') ?></td>
+                <td><?= $package->tariff->name; ?></td>
+                <td nowrap="nowrap"><?= $package->edit_time . ' / ' . $package->user->name; ?></td>
+                <td align="center">
+                    <?php
+                    if ($package->actual_from > $now->format('Y-m-d')) {
+                        echo Html::a('Удалить', '/usage/voip/detach-package?id=' . $package->id, [
+                            'class' => 'btn btn-primary btn-xs',
+                            'onClick' => 'return confirm("Вы уверены, что хотите отменить пакет ?")',
+                        ]);
+                    }
+                    ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<h2>Добавить пакет:</h2>
+<?php
+$formModel = new \app\forms\usage\UsageVoipAddPackageForm;
+$formModel->usage_voip_id = $usage->id;
+$form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+echo Html::activeHiddenInput($formModel, 'usage_voip_id');
+
+echo Form::widget([
+    'model' => $formModel,
+    'form' => $form,
+    'columns' => 4,
+    'attributes' => [
+        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+        'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+        'tariff_id' => [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => TariffVoipPackage::dao()->getMainList(true, $model->clientAccount->country->code, $model->connection_point_id, $clientAccount->currency),
+            'options' => ['class' => 'select2']
+        ],
+        'actions' => [
+            'type' => Form::INPUT_RAW,
+            'value' =>
+                '<div class="col-md-12" style="margin-top: 20px;">' .
+                    Html::submitButton('Добавить пакет', ['class' => 'btn btn-primary',]) .
+                '</div>'
+        ],
+    ]
+]);
+
+ActiveForm::end();
+?>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
