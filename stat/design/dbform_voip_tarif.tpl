@@ -242,7 +242,7 @@ $(document).ready(function(){
                 }).done(function(d) {
                     if (d == "ok")
                     {
-                        document.location.href='./pop_services.php?table=usage_voip&id=' + $("#id").val();
+                        document.location.href='/usage/voip/edit?id=' + $("#id").val();
                     } else {
                         alert(d);
                     }
