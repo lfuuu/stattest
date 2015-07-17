@@ -38,7 +38,7 @@ class TariffVoipPackageDao extends Singleton
             );
 
         if ($withEmpty) {
-            $list = ['' => '-- Пакет --'] + $list;
+            $list = ['' => '-- Тариф --'] + $list;
         }
 
         return $list;
