@@ -6,6 +6,7 @@ use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
 use yii\filters\AccessControl;
+use app\models\User;
 use app\models\TariffVoip;
 use app\forms\tariff\voip\TariffVoipListForm;
 use app\forms\tariff\voip\TariffVoipForm;
@@ -77,6 +78,7 @@ class VoipController extends BaseController
 
         return $this->render('edit', [
             'model' => $model,
+            'user' => User::findOne($model->edit_user),
             'creatingMode' => false,
         ]);
     }

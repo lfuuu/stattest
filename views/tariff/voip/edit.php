@@ -155,5 +155,13 @@ $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceList
     ?>
 </div>
 
+<?php if ($model->id): ?>
+    <div class="well">
+        <b>Последние изменения</b><br />
+        Пользователь, изменивший тариф последний раз: <?= $user->name; ?><br />
+        Время последнего изменения тарифа: <?= (new DateTime($model->edit_time))->format('H:i d.m.Y'); ?>
+    </div>
+<?php endif; ?>
+
 <script type="text/javascript" src="/js/behaviors/pricelist-voip-filter.js"></script>
 <script type="text/javascript" src="/js/behaviors/connection-point-voip-filter.js"></script>

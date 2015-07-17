@@ -31,7 +31,9 @@ class TariffVoipForm extends Form
         $tariffication_free_first_seconds = 0,
         $is_virtual = 0,
         $is_testing = 0,
-        $price_include_vat = 1;
+        $price_include_vat = 1,
+        $edit_user = 0,
+        $edit_time = '';
 
     public function rules()
     {
