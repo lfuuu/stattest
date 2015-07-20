@@ -68,10 +68,10 @@ $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceList
                     '<div style="margin-top: 23px;">' .
                         '<div class="form-group">' .
                             '<div id="tariff-voip-package" class="btn-group-sm btn-group" data-toggle="buttons">' .
-                                '<label class="btn btn-default active">' .
+                                '<label class="btn btn-default' . (!$model->pricelist_id ? ' active' : '') . '">' .
                                     '<input type="radio" name="virtual_type" value="minutes"' . (!$model->pricelist_id ? ' checked="checked"' : '') . ' /> Предоплаченные минуты' .
                                 '</label>' .
-                                '<label class="btn btn-default">' .
+                                '<label class="btn btn-default' . ($model->pricelist_id ? ' active' : '') . '">' .
                                     '<input type="radio" name="virtual_type" value="pricelist"' . ($model->pricelist_id ? ' checked="checked"' : '') . ' /> Прайс-лист' .
                                 '</label>' .
                             '</div>'.
