@@ -118,7 +118,8 @@ class VoipBiller extends Biller
                     ->setPrice($package->tariff->periodical_fee)
                     ->setTemplate('voip_package_fee')
                     ->setTemplateData([
-                        'tariff' => $package->tariff->name
+                        'tariff' => $package->tariff->name,
+                        'service' => $this->usage->E164,
                     ])
             );
         }
@@ -220,7 +221,8 @@ class VoipBiller extends Biller
                 BillerPackageConnecting::create($this)
                     ->setTemplate('voip_package_payment')
                     ->setTemplateData([
-                        'tariff' => $package->tariff->name
+                        'tariff' => $package->tariff->name,
+                        'service' => $this->usage->E164,
                     ]);
             if ($package->tariff->pricelist_id) {
                 $biller->setMinPayment($package->tariff->min_payment);
