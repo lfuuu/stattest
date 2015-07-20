@@ -390,6 +390,8 @@ $formModel = new \app\forms\usage\UsageVoipAddPackageForm;
 $formModel->usage_voip_id = $usage->id;
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
 
+$formModel->actual_from = $model->today->format('Y-m-d');
+
 echo Html::activeHiddenInput($formModel, 'usage_voip_id');
 
 echo Form::widget([
@@ -402,7 +404,22 @@ echo Form::widget([
             'items' => TariffVoipPackage::dao()->getMainList(true, $model->clientAccount->country->code, $model->connection_point_id, $clientAccount->currency),
             'options' => ['class' => 'select2']
         ],
-        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+        'actual_from' => [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => \app\widgets\DateControl::className(),
+            'options' => [
+                'autoWidgetSettings' => [
+                    DateControl::FORMAT_DATE => [
+                        'options' => [
+                            'pluginOptions' => [
+                                'todayHighlight' => true,
+                                'startDate' => 'today',
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        ],
         'actions' => [
             'type' => Form::INPUT_RAW,
             'value' =>

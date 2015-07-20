@@ -25,7 +25,7 @@ class UsageVoipAddPackageForm extends Form
             [['usage_voip_id','tariff_id',], 'integer'],
             [['actual_from',], 'string'],
             [['tariff_id','actual_from',], 'required'],
-            ['actual_from', 'validateActualFrom'],
+            ['actual_from', 'required', 'whenClient' => 'function(a, b) { console.log(a); console.log(b); return false }'],
         ];
     }
 
@@ -37,7 +37,7 @@ class UsageVoipAddPackageForm extends Form
         ];
     }
 
-    public function validateActualFrom()
+    public function process()
     {
         $this->usage = UsageVoip::findOne($this->usage_voip_id); /** @var UsageVoip $usage */
         Assert::isObject($this->usage);
@@ -50,13 +50,6 @@ class UsageVoipAddPackageForm extends Form
         if ($actualFrom < $today) {
             Assert::isUnreachable('Дата подключения не может быть в прошлом');
         }
-
-        return true;
-    }
-
-    public function process()
-    {
-        $this->validateActualFrom();
 
         $usageVoipPackage = new UsageVoipPackage;
         $usageVoipPackage->setAttributes($this->getAttributes(), false);
