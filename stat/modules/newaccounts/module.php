@@ -4028,8 +4028,6 @@ class m_newaccounts extends IModule
 	$date_to=$dateTo->getDay();
         $design->assign('date_from_val',$date_from_val=$dateFrom->getTimestamp());
         $design->assign('date_to_val',$date_to_val=$dateTo->getTimestamp());
-        $design->assign('paymethod',$paymethod = get_param_protected('paymethod','nal'));
-        $design->assign('payfilter',$payfilter = get_param_protected('payfilter','1'));
         $design->assign('firma',$firma = get_param_protected('firma','mcn_telekom'));
         set_time_limit(0);
         $R=array();
@@ -4047,38 +4045,12 @@ class m_newaccounts extends IModule
         $W[] = 'B.sum!=0';
         $W[] = 'P.currency="RUB" OR P.currency IS NULL';
 
-        if($payfilter=='1')     $W[] = 'B.is_payed=1';
-        elseif($payfilter=='2') $W[] = 'B.is_payed IN (1,3)';
-
-        if($paymethod) $W[] = 'C.nal="'.$paymethod.'"';
         if($firma)     $W[] = 'C.firma="'.$firma.'"';
 
         $W[] = "C.type in ('org', 'priv', 'ip')";
 
         $W_gds = $W;
         
-        $payment_condition = '';
-        if ($paymethod == 'beznal') {
-            $payment_condition = '0, 1';
-        } elseif ($paymethod) {
-            $payment_condition = '1, 0';
-        }
-        if ($payment_condition)
-        {
-            $W_gds[] = 'IF (B.bill_no like "20____/____",
-                                IF ( (SELECT 
-                                    COUNT(*) 
-                                FROM 
-                                    newpayments_orders as NO 
-                                LEFT JOIN 
-                                    newpayments as NP ON NO.payment_id = NP.id 
-                                WHERE 
-                                        NO.bill_no = B.bill_no 
-                                    AND (NP.type = "prov" OR NP.type = "neprov")
-                                ) > 0, '.$payment_condition.'),
-                                C.nal="'.$paymethod.'"
-                        )'; 
-        }
 
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
@@ -4092,6 +4064,8 @@ class m_newaccounts extends IModule
                     C.inn,
                     C.kpp,
                     C.type,
+                    (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
+                    (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
@@ -4130,6 +4104,8 @@ class m_newaccounts extends IModule
                                     and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
                         C.kpp,
                         C.type,
+                        (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
+                        (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
                         max(P.payment_date) as payment_date,
                         sum(P.sum) as `pay_sum`,
                         (
@@ -4209,6 +4185,8 @@ class m_newaccounts extends IModule
                 if (is_array($A) && $A['bill']['sum']) {
 
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
+                    $A["bill"]["contract"] = $p["contract"];
+                    $A["bill"]["contract_status"] = $p["contract_status"];
 
 
                     $invDate = $A['bill']['shipment_ts'] ? 
