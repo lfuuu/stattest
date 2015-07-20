@@ -13,6 +13,7 @@ use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
+use yii\base\Theme;
 use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
@@ -105,12 +106,6 @@ class ContractEditForm extends Form
         return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id, false);
     }
 
-    public function getContractTypes()
-    {
-        $arr = ClientContractType::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
-    }
-
     public function save()
     {
         $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
@@ -166,6 +161,18 @@ class ContractEditForm extends Form
 
     public function validate($attributeNames = null, $clearErrors = false)
     {
+        if(!array_key_exists($this->state, $this->getModel()->statusesForChange()))
+            $this->addError('state', 'Вы не можете менять статус');
+
+        if( !$this->getIsNewRecord() &&  $this->contract_type_id != $this->getModel()->contract_type_id && !Yii::$app->user->can('clients.restatus'))
+            $this->addError('state', 'Вы не можете менять тип договора');
+
+        if(
+            ($this->business_process_id != $this->getModel()->business_process_id || $this->business_process_status_id != $this->getModel()->business_process_status_id)
+            && !Yii::$app->user->can('clients.restatus')
+        )
+            $this->addError('state', 'Вы не можете менять бизнес процесс');
+
         if ($this->contract->attributes['state'] !== $this->state && $this->state != 'unchecked') {
             $contragent = ClientContragent::findOne($this->contragent_id);
             $contragent->setScenario('checked');

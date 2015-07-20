@@ -41,7 +41,11 @@ use yii\helpers\Url;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList()],
+                    'contract_type_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => \app\models\ClientContractType::getList(),
+                        'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
+                    ],
                     //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],
                     'state' => [
                         'type' => Form::INPUT_RAW,
@@ -49,7 +53,13 @@ use yii\helpers\Url;
                             $res = '<div class="col-sm-12">';
                             $res .= $f->field($model, 'state')->begin();
                             $res .= Html::activeLabel($model, 'state', ['class' => 'control-label']); //label
-                            $res .= Html::activeDropDownList($model, 'state', ClientContract::$states, ['class' => 'form-control ' . $model->state]); //Field
+                            $res .= Html::activeDropDownList(
+                                $model,
+                                'state', $model->model->statusesForChange(),
+                                [
+                                    'class' => 'form-control ' . $model->state,
+                                ]
+                            ); //Field
                             $res .= Html::error($model, 'state', ['class' => 'help-block', 'encode' => false]); //error
                             $res .= $f->field($model, 'state')->end();
                             $res .= '</div>';

@@ -87,9 +87,21 @@ use \yii\helpers\Url;
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->contractTypes],
-                'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessesList],
-                'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessStatusesList],
+                'contract_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ClientContractType::getList(),
+                    'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
+                ],
+                'business_process_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $contractForm->businessProcessesList,
+                    'options' => ['disabled' => !Yii::$app->user->can('clients.restatus')]
+                ],
+                'business_process_status_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $contractForm->businessProcessStatusesList,
+                    'options' => ['disabled' => !Yii::$app->user->can('clients.restatus')]
+                ],
             ],
         ]);
         ?>

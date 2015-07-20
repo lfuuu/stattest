@@ -214,4 +214,21 @@ class ClientContract extends ActiveRecord
     {
         return HistoryVersion::loadVersionOnDate($this, $date);
     }
+
+    public function statusesForChange()
+    {
+        if(!$this->state || $this->state == 'unchecked' || \Yii::$app->user->can('clients.changeback_contract_state'))
+            return self::$states;
+
+        if($this->state == 'checked_original')
+            return ['checked_original' =>self::$states['checked_original']];
+
+        if($this->state == 'checked_copy')
+            return [
+                'checked_copy' =>self::$states['checked_copy'],
+                'checked_original' =>self::$states['checked_original'],
+            ];
+
+        return [];
+    }
 }
