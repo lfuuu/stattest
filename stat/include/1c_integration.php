@@ -266,28 +266,7 @@ class billMaker{
         $this->soap = new \SoapClient($wsdl,$params);
     }
 
-    public function getPriceTypes($client_tid)
-    {
-        try{
-            $resp = $this->soap->utGetPriceTypes(array(
-                tr('ИдКарточкиКлиентаСтат')=>$client_tid
-            ))->return;
-        }catch(\SoapFault $e){
-            return false;
-        }
-
-        $ret = array();
-        $ret['default'] = trr($resp->{tr('ИдВидаЦенПоумолчанию')});
-        $ret['list'] = array();
-
-        foreach($resp->{tr('СписокВидовЦен')} as $p){
-            $ret['list'][trr($p->{tr('ИдВидаЦен')})] = trr($p->{tr('Наименвоание')});
-        }
-        asort($ret['list']);
-        return $ret;
-    }
-
-    public function findProduct($find_string,$id_pice_type,&$fault=null)
+    public function findProduct($find_string,$id_price_type,&$fault=null)
     {
         try{
             $resp = $this->soap->utFindProduct(array(

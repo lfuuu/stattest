@@ -4850,8 +4850,8 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
             }
         }
 
-        $client_id = ClientAccount::find()->where('id = :id or client = :id', [':id' => $client_id])->one()->id;
-        $_SESSION['clients_client'] = $client_id;
+        $account = ClientAccount::find()->where('id = :id or client = :id', [':id' => $client_id])->one();
+        $_SESSION['clients_client'] = $account->id;
 
         // инициализация
         $lMetro = \app\models\Metro::getList();
@@ -4876,16 +4876,13 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         require_once INCLUDE_PATH."clCards.php";
         require_once INCLUDE_PATH."1c_integration.php";
 
-        $cl_c = ClientAccount::findOne($client_id);
-
         $bm = new \_1c\billMaker($db);
 
-        //$pts = $bm->getPriceTypes($client_tid);
-        $pt = $cl_c->price_type;
+        $pt = $account->price_type;
 
         $positions = array(
                 'bill_no' =>$bill_no,
-                'client_id'=>$client_id,
+                'client_id'=>$account->id,
                 'list'=>array(),
                 'sum'=>0,
                 'number'=>'',
@@ -4952,7 +4949,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
 
         // расчет
         if($isToRecalc && !$isRollback) {
-            $positions = $bm->calcOrder($client_id, $positions, $pt);
+            $positions = $bm->calcOrder($account->client, $positions, $pt);
         }elseif($isRollback){
             $bm->calcGetedOrder($positions, true);
         }else{
@@ -5055,7 +5052,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
             $this->compareForChanges($positions, $bm->getStatOrder($positions['bill_no']));
 
             $a = array(
-                'client_tid'=>$client_id,
+                'client_tid'=>$account->client,
                 'order_number'=>$positions['bill_no'],
                 'items_list'=>(isset($positions['list']) ? $positions['list'] : false),
                 //'items_list'=> $positions['list'] ,
@@ -5137,7 +5134,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
 
         $design->assign('show_adds',
-                (!$cl_c || in_array($cl_c->client,array('all4net','wellconnect')) || $cl_c->contract->contragent->legal_type != 'legal'));
+                (in_array($account->client,array('all4net','wellconnect')) || $account->contract->contragent->legal_type != 'legal'));
         $design->assign('order_type',isset($_GET['tty'])?$_GET['tty']:false);
         $design->assign('is_rollback',isset($_GET['is_rollback'])?true:false);
         $positions["client_id"] = $client_id;
