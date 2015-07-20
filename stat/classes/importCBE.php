@@ -14,6 +14,17 @@ class importCBE
         $this->mainList = new parserCBE($filePath);
 
         $this->helper   = new helperCBE();
+        $this->helper->setHeader($this->mainList);
+        $this->helper->combineCBE($this->mainList, true);
+    }
+
+    /* multidays
+    public function __construct($prefix, $filePath)
+    {
+        $this->filePrefix = $prefix;
+
+        $this->mainList = new parserCBE($filePath);
+
         $this->helper0  = new helperCBE($this->mainList);
 
         $a = $this->helper0->getByDays();
@@ -26,6 +37,7 @@ class importCBE
         
         $this->helper->combineCBE($this->mainList, true);
     }
+     */
 
     private function getFilePath($day)
     {
@@ -35,12 +47,12 @@ class importCBE
     public function save()
     {
         $header = $this->mainList->getHeader();
+
         foreach($this->helper->getByDays() as $day => $dayData)
         {
             $builder = new builderCBE($header, $dayData);
             $builder->buildAndSave($this->getFilePath($day));
         }
-        
         return $this->helper->info->getInfo();
     }
 }
@@ -48,6 +60,7 @@ class importCBE
 class parserCBE
 {
     public $header = [];
+    public $section = [];
     public $body = [];
 
     public function __construct($f)
@@ -66,7 +79,7 @@ class parserCBE
         $f = explode("\r\n", $f);
 
         $state = 0;
-        $header = $body = $bodyMain = [];
+        $header = $section = $sectionMain = $body = $bodyMain = [];
         foreach($f as $l)
         {
             $l = trim($l);
@@ -74,24 +87,33 @@ class parserCBE
             if (!$l)
                 continue;
 
-            if ($state == 0)
+            if ($state == 0 || $state == 3)
             {
                 if (strpos("СекцияРасчСчет", $l) !== false)
                 {
                     $state = 1;
+                } else {
+                    if ($state == 0)
+                    {
+                        $this->explodeLine($header, $l);
+                    }
                 }
             } else if ($state == 1)
             {
                 if (strpos("КонецРасчСчет", $l) !== false)
                 {
                     $state = 3;
+                    $this->explodeSection($sectionMain, $section);
+                    $section = [];
                 } else {
                     if ($l)
                     {
-                        $this->explodeLine($header, $l);
+                        $this->explodeLine($section, $l);
                     }
                 }
-            } else if ($state == 3)
+            } 
+
+            if ($state == 3)
             {
                 if (strpos($l, "СекцияДокумент") !== false)
                 {
@@ -104,7 +126,7 @@ class parserCBE
                 {
                     if ($body)
                     {
-                        $this->explodeSection($bodyMain, $body);
+                        $this->explodeBody($bodyMain, $body);
                         $body = [];
                     }
                     $state = 3;
@@ -115,12 +137,19 @@ class parserCBE
         }
 
         $this->header = $header;
+        $this->section = $sectionMain;
         $this->body = $bodyMain;
     }
 
-    private function explodeLine(&$b, &$l)
+    private function explodeLine(&$b, $l)
     {
         $pos = strpos($l, "=");
+
+        if ($pos === false)
+        {
+            $pos = strlen($l);
+            $l .= "=".$l;
+        }
 
         $start = substr($l, 0, $pos);
         $end = substr($l, $pos+1);
@@ -128,6 +157,12 @@ class parserCBE
     }
 
     private function explodeSection(&$bb, &$b)
+    {
+        $k = $b["ДатаНачала"];
+        $bb[$k] = $b;
+    }
+
+    private function explodeBody(&$bb, &$b)
     {
         $k ="";
         foreach(["Дата", "Номер", "Сумма", "Плательщик", "ПлательщикИНН"] as $f)
@@ -154,6 +189,7 @@ class helperCBE
 {
     private $body = [];
     private $header = [];
+    private $day = null;
     public $info = null;
 
     public function __construct(parserCBE $o = null)
@@ -162,8 +198,30 @@ class helperCBE
         {
             $this->header = $o->getHeader();
             $this->body = $o->getBody();
+            $this->checkHeader();
         }
         $this->info = new infoCBE();
+    }
+
+    public function setHeader(parserCBE $o)
+    {
+        $this->header = $o->getHeader();
+        $this->checkHeader();
+    }
+
+
+    public function checkHeader()
+    {
+        if (
+            !isset($this->header["ДатаНачала"]) ||
+            !isset($this->header["ДатаКонца"]) ||
+            ($this->header["ДатаНачала"] != $this->header["ДатаКонца"])
+        )
+        {
+            throw new Exception("Выписка должна быть только за 1 день");
+        }
+
+        $this->day = date("d-m-Y", strtotime($this->header["ДатаНачала"]));
     }
 
     public function getByDays()
@@ -172,7 +230,7 @@ class helperCBE
 
         foreach($this->body as $l)
         {
-            $date = date("d-m-Y", $this->detectDate($l));
+            $date = $this->day;//date("d-m-Y", $this->detectDate($l));
 
             if (!isset($days[$date]))
                 $days[$date] = [];
@@ -209,7 +267,7 @@ class helperCBE
     {
         foreach($o->getBody() as $k => $l)
         {
-            $day = date("d-m-Y", $this->detectDate($l));
+            $day = $this->day;//date("d-m-Y", $this->detectDate($l));
 
             if ($isInfo)
             {
