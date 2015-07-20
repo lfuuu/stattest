@@ -124,22 +124,6 @@ class SyncCore
         }
     }
 
-    public static function updateAdminPassword($clientId)
-    {
-        $struct = false;
-        $action = "sync_user_password_from_stat";
-        $account = \app\models\ClientAccount::findOne($clientId);
-
-        if ($account)
-        {
-            $struct = SyncCoreHelper::getEmailStruct($account->id."@mcn.ru", $account->password?:password_gen());
-        }
-        if ($struct)
-        {
-            ApiCore::exec($action, $struct);
-        }
-    }
-
     public static function checkProductState($product, $param)
     {
         if ($product == "phone" && !defined("PHONE_SERVER") || !PHONE_SERVER) return;
