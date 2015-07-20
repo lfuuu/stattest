@@ -131,6 +131,9 @@ class LkDocsController extends ApiController
 
             foreach($a->contacts as $contact)
             {
+                if ($contact->is_active)
+                    continue;
+
                 if ($contact->type == "email")
                 {
                     $email = trim($contact->data);
