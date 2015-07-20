@@ -12,6 +12,7 @@ class PrefixlistForm extends Form
         $id,
         $name,
         $type_id = 1,
+        $sub_type = 'all',
         $prefixes = '',
         $country_id = 0,
         $region_id = 0,
@@ -31,6 +32,7 @@ class PrefixlistForm extends Form
                 'when' => function($model) { return $model->type_id == 3; },
                 'whenClient' => 'function(attribute, value) { return $(\'[name*="type_id"]:checked\').val() == 3; }'
             ],
+            [['sub_type'], 'string'],
         ];
     }
 

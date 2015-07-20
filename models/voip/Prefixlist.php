@@ -14,6 +14,16 @@ class Prefixlist extends ActiveRecord
         self::TYPE_ROSLINK => 'РосСвязь',
     ];
 
+    const TYPE_ROSLINK_ALL = 'all';
+    const TYPE_ROSLINK_FIXED = 'fixed';
+    const TYPE_ROSLINK_MOBILE = 'mobile';
+
+    public static $roslink_types = [
+        self::TYPE_ROSLINK_ALL => 'Любые',
+        self::TYPE_ROSLINK_FIXED => 'Стационарные',
+        self::TYPE_ROSLINK_MOBILE => 'Мобильные',
+    ];
+
     public static function tableName()
     {
         return 'voip_prefixlist';

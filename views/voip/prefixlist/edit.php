@@ -52,7 +52,7 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 2,
+        'columns' => 3,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
             'type_id' => [
@@ -69,7 +69,21 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
                         )
                         ->label('') .
                     '</div>'
-            ]
+            ],
+            'sub_type' => [
+                'type' => Form::INPUT_RAW,
+                'value' => '<div class="type-id" data-value="3" style="margin-top: 23px; display: none;">' .
+                    $form
+                        ->field($model, 'sub_type')
+                        ->radioButtonGroup(
+                            Prefixlist::$roslink_types, [
+                                'class' => 'btn-group-sm',
+                                'itemOptions' => ['labelOptions' => ['class' => 'btn btn-default']]
+                            ]
+                        )
+                        ->label('') .
+                    '</div>'
+            ],
         ]
     ]);
     ?>
@@ -89,30 +103,6 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
 
     <div class="type-id" data-value="3" style="display: none;">
         <?php
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 2,
-            'attributes' => [
-                'operators' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $operators, 'options' => ['class' => 'select2', 'multiple' => 'multiple']],
-                'exclude_operators' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' =>
-                        '<div style="margin-top: 23px;">' .
-                        $form
-                            ->field($model, 'exclude_operators')
-                            ->radioButtonGroup(
-                                [0 => 'Только выбранные', 1 => 'Все кроме выбранных'], [
-                                    'class' => 'btn-group-sm',
-                                    'itemOptions' => ['labelOptions' => ['class' => 'btn btn-default']]
-                                ]
-                            )
-                            ->label('') .
-                        '</div>'
-                ],
-            ],
-        ]);
-
         echo Form::widget([
             'model' => $model,
             'form' => $form,
@@ -142,6 +132,30 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
                         'class' => 'select2',
                         'options' => $citiesOptions
                     ]
+                ],
+            ],
+        ]);
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 2,
+            'attributes' => [
+                'operators' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $operators, 'options' => ['class' => 'select2', 'multiple' => 'multiple']],
+                'exclude_operators' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' =>
+                        '<div style="margin-top: 23px;">' .
+                        $form
+                            ->field($model, 'exclude_operators')
+                            ->radioButtonGroup(
+                                [0 => 'Только выбранные', 1 => 'Все кроме выбранных'], [
+                                    'class' => 'btn-group-sm',
+                                    'itemOptions' => ['labelOptions' => ['class' => 'btn btn-default']]
+                                ]
+                            )
+                            ->label('') .
+                        '</div>'
                 ],
             ],
         ]);
