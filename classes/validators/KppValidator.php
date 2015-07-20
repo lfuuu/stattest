@@ -14,7 +14,8 @@ class KppValidator extends Validator
 
     public function validateValue($value)
     {
-        if(strlen($value) !== 9){
+        $value = trim($value);
+        if(strlen($value) !== 9 || !is_numeric($value)){
             return [$this->message];
         }
         return null;

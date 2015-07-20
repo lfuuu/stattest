@@ -175,7 +175,6 @@ class ContractEditForm extends Form
 
         if ($this->contract->attributes['state'] !== $this->state && $this->state != 'unchecked') {
             $contragent = ClientContragent::findOne($this->contragent_id);
-            $contragent->setScenario('checked');
             if (!$contragent->validate()) {
                 if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
                     $this->addError('state', 'Введите корректныйе ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');

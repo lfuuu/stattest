@@ -55,7 +55,7 @@ class ClientContragent extends ActiveRecord
     public function rules()
     {
         $rules = [
-            [['inn', 'kpp'],  ['class' => InnKppValidator::className()], 'on' =>'checked'],
+            [['inn', 'kpp'],  ['class' => InnKppValidator::className()]],
         ];
         return $rules;
     }
@@ -107,17 +107,6 @@ class ClientContragent extends ActiveRecord
         if(!$this->name && !$this->name_full)
             $this->name = $this->name_full = 'Новый контрагент ';
         return true;
-    }
-
-    public function beforeValidate()
-    {
-        if(!$this->isNewRecord) {
-            $models = ClientContract::find()->andWhere(['!=', 'state', 'unchecked'])->andWhere(['contragent_id' => $this->id])->all();
-            if($models)
-                $this->setScenario('checked');
-        }
-
-        return parent::beforeValidate();
     }
 
     /**
