@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
+use kartik\widgets\DatePicker;
 use kartik\daterange\DateRangePicker;
 use yii\helpers\Url;
 use app\models\User;
@@ -343,22 +344,31 @@ ActiveForm::end();
 <table class="table table-condensed table-striped table-bordered">
     <col width="10%" />
     <col width="* " />
-    <col width="15%" />
     <col width="5%" />
     <thead>
         <tr>
             <th>Период</th>
             <th>Тариф</th>
-            <th>Добавлено</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($usagePackages as $package):?>
-            <tr>
-                <td nowrap="nowrap"><?= $package->actual_from . ($package->actual_to !== null ? ' - ' .$package->actual_to :  '') ?></td>
+        <?php foreach ($usagePackages as $package): ?>
+            <?php
+            $actualTo =
+                round(
+                    (
+                        (new DateTime($package->expire_dt))->getTimestamp() - $now->getTimestamp()
+                    ) / 365 / 24 / pow(60, 2)
+                ) > 20
+                    ? '&#8734' :
+                    $package->actual_to;
+
+            $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
+            ?>
+            <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">
+                <td nowrap="nowrap"><?= $package->actual_from . ' - ' . $actualTo; ?></td>
                 <td><?= $package->tariff->name; ?></td>
-                <td nowrap="nowrap"><?= $package->edit_time . ' / ' . $package->user->name; ?></td>
                 <td align="center">
                     <?php
                     if ($package->actual_from > $now->format('Y-m-d')) {
@@ -385,15 +395,14 @@ echo Html::activeHiddenInput($formModel, 'usage_voip_id');
 echo Form::widget([
     'model' => $formModel,
     'form' => $form,
-    'columns' => 4,
+    'columns' => 3,
     'attributes' => [
-        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
-        'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
         'tariff_id' => [
             'type' => Form::INPUT_DROPDOWN_LIST,
             'items' => TariffVoipPackage::dao()->getMainList(true, $model->clientAccount->country->code, $model->connection_point_id, $clientAccount->currency),
             'options' => ['class' => 'select2']
         ],
+        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
         'actions' => [
             'type' => Form::INPUT_RAW,
             'value' =>
@@ -414,4 +423,3 @@ ActiveForm::end();
 <br />
 <br />
 <br />
-

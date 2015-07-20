@@ -18,14 +18,6 @@ class TariffVoipPackage extends ActiveRecord
         return 'tarifs_voip_package';
     }
 
-    public function beforeSave($query)
-    {
-        $this->edit_user = \Yii::$app->user->id;
-        $this->edit_time = date('Y.m.d H:i:s');
-
-        return parent::beforeSave($query);
-    }
-
     public static function dao()
     {
         return TariffVoipPackageDao::me();

@@ -17,8 +17,6 @@ class m150716_145449_voip_package extends \app\classes\Migration
                 `periodical_fee` DECIMAL(10,2) NOT NULL DEFAULT '0.00',
                 `min_payment` INT(11) NOT NULL DEFAULT '0',
                 `minutes_count` SMALLINT(6) NOT NULL DEFAULT '0',
-                `edit_user` INT(11) NULL DEFAULT NULL,
-                `edit_time` DATETIME NULL DEFAULT NULL,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");

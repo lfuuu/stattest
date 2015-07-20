@@ -100,6 +100,7 @@ class VoipController extends BaseController
         $usagePackages =
             UsageVoipPackage::find()
                 ->where(['usage_voip_id' => $model->id])
+                ->orderBy('actual_from asc')
                 ->all();
 
         return $this->render('edit', [
