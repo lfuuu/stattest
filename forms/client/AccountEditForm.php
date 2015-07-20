@@ -24,7 +24,6 @@ class AccountEditForm extends Form
     public
         $client,
         $region = Region::MOSCOW,
-        $password,
         $status,
         $address_post,
         $address_post_real,
@@ -59,14 +58,14 @@ class AccountEditForm extends Form
         $rules = [
             [
                 [
-                    'client', 'password', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
+                    'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                 ],
                 'string'
             ],
             [
                 [
-                    'client', 'password', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
+                    'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                 ],
                 'default', 'value' => ''

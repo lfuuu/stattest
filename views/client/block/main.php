@@ -10,7 +10,7 @@ use \app\models\ClientContract;
             <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?=$account->id?>"><?= $client->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <a href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>">
+            <a href="<?= Yii::$app->params['LK_PATH'] ?>core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>">
                 Переход в ЛК
             </a>
         </div>

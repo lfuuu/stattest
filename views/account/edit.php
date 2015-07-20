@@ -61,7 +61,6 @@ use yii\helpers\Url;
                             ])
                             . '</div>'
                     ],
-                    'password' => [],
 
                     'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$nalTypes],
                     'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Currency::map()],

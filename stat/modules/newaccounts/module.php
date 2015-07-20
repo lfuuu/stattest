@@ -4876,12 +4876,12 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         require_once INCLUDE_PATH."clCards.php";
         require_once INCLUDE_PATH."1c_integration.php";
 
-        $cl_c = \clCards\getCard($db, $client_id);
+        $cl_c = ClientAccount::findOne($client_id);
 
         $bm = new \_1c\billMaker($db);
 
         //$pts = $bm->getPriceTypes($client_tid);
-        $pt = ClientCS::getPriceType($client_id);
+        $pt = $cl_c->price_type;
 
         $positions = array(
                 'bill_no' =>$bill_no,
@@ -5137,7 +5137,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
 
         $design->assign('show_adds',
-                (in_array($client_id,array('all4net','wellconnect')) || !$cl_c || $cl_c->getAtMask(\clCards\struct_cardDetails::type) <> 'org'));
+                (!$cl_c || in_array($cl_c->client,array('all4net','wellconnect')) || $cl_c->contract->contragent->legal_type != 'legal'));
         $design->assign('order_type',isset($_GET['tty'])?$_GET['tty']:false);
         $design->assign('is_rollback',isset($_GET['is_rollback'])?true:false);
         $positions["client_id"] = $client_id;
@@ -5218,7 +5218,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
 
             if (get_param_raw('priceType', 'NO') != 'NO')
             {
-                $priceType = ClientCS::getPriceType($fixclient);
+                $priceType =  ClientAccount::findOne($fixclient)->price_type;
             } else {
                 $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "'. $storeId.'"');
             }

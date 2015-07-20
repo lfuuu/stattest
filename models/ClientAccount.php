@@ -239,7 +239,6 @@ class ClientAccount extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'password' => 'Пароль',
             'comment' => 'Комментарий',
             'usd_rate_percent' => 'USD уровень в процентах',
             'address_post' => 'Почтовый адрес',
