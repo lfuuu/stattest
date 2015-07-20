@@ -2678,16 +2678,12 @@ class m_newaccounts extends IModule
                 $plus = isset($count["sum_plus"]) ? $count["sum_plus"] : 0;
                 $minus = isset($count["sum_minus"]) ? $count["sum_minus"] : 0;
 
-                $totalPlus += $plus;
-                $totalMinus += $minus;
 
                 $lines[] = "За ".mdate("d месяца Y", strtotime($day))." найдено платежей: ".$count["all"].
-                    ($skiped ? ", пропущено: ".$skiped : "").
-                    ($new ? ", новых: ".$new: "").
+                    //($skiped ? ", пропущено: ".$skiped : "").
+                    //($new ? ", новых: ".$new: "").
                     "&nbsp;&nbsp;&nbsp;&nbsp;+".number_format($plus,2, ".", "`")."/-".number_format($minus,2, ".", "`");
             }
-
-            trigger_error2("Всего платежей в выгрузке: +".number_format($totalPlus,2, ".", "`")."/-".number_format($totalMinus,2, ".", "`"));
 
         }
         $param = Param::findOne(["param" => "pi_list_last_info"]);
