@@ -180,7 +180,7 @@
                             <tr>
                                 <td>Новый ответственный:</td>
                                 <td>
-                                    {if isset($admin_order) && $admin_order && $order_editor != "stat"}11
+                                    {if isset($admin_order) && $admin_order && $order_editor != "stat"}
                                         {foreach from=$tt_users item=item}
                                             {if $tt_trouble.user_main==$item.user}
                                                 <input type=hidden name=user value={$item.user}>{$item.name} ({$item.user})
@@ -222,9 +222,8 @@
                                                 tuspd.style.display=(document.getElementById('state_3') && state_3.selected?'':'none');
                                         {if access('tt','rating')} onChangeSelectState(this); {/if}
                                                 ">
-                                            <option value="{$tt_trouble.state_id}" selected="selected">{$tt_trouble.state_name}</option>
                                             {foreach from=$tt_states item=item}
-                                                {if $tt_trouble.state_id != $item.id && (!isset($tt_restrict_states) || !($item.pk & $tt_restrict_states))}
+                                                {if !isset($tt_restrict_states) || !($item.pk & $tt_restrict_states)}
                                                     <option id='state_{$item.id}' data-id="{$item.id}" value='{$item.id}'{if $tt_trouble.state_id==$item.id} selected{/if}>{$item.name}</option>
                                                 {/if}
                                             {/foreach}
