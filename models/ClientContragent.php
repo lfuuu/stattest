@@ -12,6 +12,7 @@ class ClientContragent extends ActiveRecord
 
     public $cPerson = null;
     public $historyVersionDate = null;
+    public $hasChecked;
 
     public static $taxRegtimeTypes = [
         'full' => 'Полный (НДС 18%)',
