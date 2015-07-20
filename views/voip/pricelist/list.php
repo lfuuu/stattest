@@ -7,9 +7,9 @@ use app\models\billing\Pricelist;
         Прайлисты Клиентские Оригинация:
     <?php elseif ($type == Pricelist::TYPE_CLIENT && $orig == 0): ?>
         Прайлисты Клиентские Терминация:
-    <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
-        Прайлисты Операторские Оригинация:
     <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 1): ?>
+        Прайлисты Операторские Оригинация:
+    <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
         Прайлисты Операторские Терминация:
     <?php elseif ($type == Pricelist::TYPE_LOCAL && $orig == 0): ?>
         Прайлисты Местные Терминация:
