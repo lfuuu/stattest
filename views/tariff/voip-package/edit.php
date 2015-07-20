@@ -42,8 +42,12 @@ foreach ($priceLists as $priceList) {
 $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceLists, 'id', 'name');
 ?>
 
+<legend>
+    <?= Html::a('Тарифы IP Телефонии - Пакеты', '/tariff/voip-package'); ?> ->
+    <?= ($model->name ? Html::encode($model->name) : 'Новый тариф'); ?>
+</legend>
+
 <div class="well">
-    <legend>Тарифы IP Телефонии - Пакеты -> <?= ($model->name ? Html::encode($model->name) : 'Новый тариф'); ?></legend>
     <?php
 
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);

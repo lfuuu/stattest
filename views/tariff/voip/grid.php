@@ -2,7 +2,13 @@
 
 use kartik\grid\GridView;
 use app\classes\Html;
+?>
 
+<legend>
+    Тарифы IP Телефонии
+</legend>
+
+<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -127,7 +133,6 @@ echo GridView::widget([
     'hover' => true,
     'panel'=>[
         'type' => GridView::TYPE_DEFAULT,
-        'heading' => 'Тарифы IP Телефонии',
     ],
 ]);
 ?>

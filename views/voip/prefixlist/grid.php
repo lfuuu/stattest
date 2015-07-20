@@ -17,7 +17,13 @@ $recordBtns = [
         );
     },
 ];
+?>
 
+<legend>
+    Списки префиксов
+</legend>
+
+<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
@@ -60,7 +66,6 @@ echo GridView::widget([
     'hover' => true,
     'panel'=>[
         'type' => GridView::TYPE_DEFAULT,
-        'heading' => 'Списки префиксов',
     ],
 ]);
 ?>

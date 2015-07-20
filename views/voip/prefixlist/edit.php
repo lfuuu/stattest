@@ -39,8 +39,12 @@ $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
 $model->type_id = $creatingMode ? 1 : $model->type_id;
 ?>
 
+<legend>
+    <?= Html::a('Списки префиксов', '/voip/prefixlist'); ?> ->
+    <?= ($model->name ? Html::encode($model->name) : 'Новый список'); ?>
+</legend>
+
 <div class="well">
-    <legend>Список префиксов -> <?= ($model->name ? Html::encode($model->name) : 'Новый список'); ?></legend>
     <?php
 
     $form = ActiveForm::begin([

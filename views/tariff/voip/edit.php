@@ -10,7 +10,6 @@ use app\models\Country;
 use app\models\TariffVoip;
 use app\models\billing\Pricelist;
 
-
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
 $countries = Country::dao()->getList(true);
@@ -43,8 +42,12 @@ foreach ($priceLists as $priceList) {
 $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceLists, 'id', 'name');
 ?>
 
+<legend>
+    <?= Html::a('Тарифы IP Телефонии', '/tariff/voip'); ?> ->
+    <?= ($model->name ? Html::encode($model->name) : 'Новый тариф'); ?>
+</legend>
+
 <div class="well">
-    <legend>Тарифы IP Телефонии -> <?= ($model->name ? Html::encode($model->name) : 'Новый тариф'); ?></legend>
     <?php
 
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);

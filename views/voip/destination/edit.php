@@ -9,8 +9,12 @@ use app\models\voip\Prefixlist;
 $prefixes = ArrayHelper::map(Prefixlist::find()->all(), 'id', 'name');
 ?>
 
+<legend>
+    <?= Html::a('Направления', '/voip/destination'); ?> ->
+    <?= ($model->name ? Html::encode($model->name) : 'Новое направление'); ?>
+</legend>
+
 <div class="well">
-    <legend>Направления -> <?= ($model->name ? Html::encode($model->name) : 'Новое направление'); ?></legend>
     <?php
 
     $form = ActiveForm::begin([
