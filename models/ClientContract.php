@@ -12,6 +12,8 @@ use yii\db\ActiveRecord;
  */
 class ClientContract extends ActiveRecord
 {
+    const CONTRACT_TYPE_MULTY = 5;
+
     public $newClient = null;
     public $historyVersionDate = null;
 

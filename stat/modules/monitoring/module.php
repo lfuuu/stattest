@@ -506,9 +506,8 @@ class m_monitoring {
 			LEFT JOIN newbill_lines as L ON B.bill_no = L.bill_no
 		';
 		$options['conditions'] = array(
-			'C.region > 0 AND C.status = ? AND C.type IN (?) AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
+			'C.region > 0 AND C.status = ? AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
 			'work',
-			array('org', 'priv', 'ip'),
 			date('Y-m-d', $from),
 			date('Y-m-d', $to),
 			'RUB',

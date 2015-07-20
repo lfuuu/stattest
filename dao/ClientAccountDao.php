@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientContract;
 use app\models\ClientContractComment;
 use Yii;
 use app\classes\Assert;
@@ -80,7 +81,6 @@ class ClientAccountDao extends Singleton
                 'bill_vis_no' => 'saldo',
                 'payment_date' => $saldo['ts'],
                 'oper_date' => $saldo['ts'],
-                'type' => 'priv',
                 'comment' => '',
                 'add_date' => $saldo['ts'],
                 'add_user' => 0,
@@ -239,7 +239,7 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->type != "multi"){ // не магазин
+        if ($clientAccount->contract->contract_type_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {

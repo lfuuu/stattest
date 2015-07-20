@@ -154,9 +154,9 @@ class m_newaccounts extends IModule
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
-        global $design, $db, $user, $fixclient_data;
+        global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = $fixclient_data["type"] == "multi";
+        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -241,9 +241,9 @@ class m_newaccounts extends IModule
     }
     function newaccounts_bill_list_full($get_sum=false)
     {
-        global $design, $db, $user, $fixclient_data;
+        global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = $fixclient_data["type"] == "multi";
+        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -698,12 +698,13 @@ class m_newaccounts extends IModule
             $r["client_orig"] = $r["client"];
 
             if (access("clients", "read_multy"))
-                if ($r["type"] != "multi") {
+                $isMulty = ClientAccount::findOne($r['id'])->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+                if (!$isMulty) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($r["type"] == "multi" && isset($_GET["bill"])) {
+            if ($isMulty && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
@@ -4322,11 +4323,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     if ((!$date_from || $k>=$date_from) && (!$date_to || $k<=$date_to)) {
                         $A['bill']['company_full'] = $p['company_full'];
 
-                        if($p["type"] == "priv")
+                        if($p["type"] == "person")
                         {
                             $A['bill']['inn'] = "-----";
                             $A['bill']['kpp'] = "-----";
-                        }elseif($p["type"] == "office"){
+                        }elseif($p["type"] == "legal"){
                             $A['bill']['inn'] = "<span style=\"color: red;\"><b>??????? ".$p['inn']."</b></span>";
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
