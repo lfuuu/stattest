@@ -29,15 +29,18 @@ class InnKppValidator extends Validator
         $hasCheckedContracts = $model->hasChecked || $this->hasCheckedContract($model);
 
         if ($attributes) {
+            $has = false;
             foreach ($attributes as $attribute) {
                 if (
                     ($hasCheckedContracts || $model->$attribute)
                     && $this->when === null || call_user_func($this->when, $model, $attribute)
                 ) {
+                    $has = true;
                     self::createValidator($this->attrValidator[$attribute], $model, $attribute)->validateAttribute($model, $attribute);
                 }
             }
-            $this->checkUnique($model, $attributes);
+            if($has || $hasCheckedContracts)
+                $this->checkUnique($model, $attributes);
         }
 
     }

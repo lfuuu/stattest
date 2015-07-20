@@ -77,14 +77,14 @@ $defaultColumnsParams = [
                 ]
             ]);
         }
-    ],
+    ],/*
     'block_date' => [
         'attribute' => 'block_date',
         'format' => 'raw',
         'value' => function ($data) {
             return $data->block_date;
         }
-    ],
+    ],*/
     'service' => [
         'attribute' => 'service',
         'format' => 'raw',
@@ -415,7 +415,7 @@ return
                         'status',
                         'id',
                         'company',
-                        'block_date',
+                        //'block_date',
                         'currency',
                         'manager',
                         'region',
@@ -452,7 +452,7 @@ return
                         'id',
                         'company',
                         'currency',
-                        'block_date',
+                        //'block_date',
                         'manager',
                         'region',
                     ],
