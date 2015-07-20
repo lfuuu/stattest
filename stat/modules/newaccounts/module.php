@@ -4217,6 +4217,7 @@ class m_newaccounts extends IModule
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
                             if (
+                                $p["type"] == "ip" ||
                                 preg_match("/(И|и)ндивидуальный[ ]+(П|п)редприниматель/", $p["company_full"]) ||
                                 preg_match("/^ИП/", $p["company_full"])
                             )
