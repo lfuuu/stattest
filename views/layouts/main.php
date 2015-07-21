@@ -131,7 +131,7 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
     <div style="height: 100px;"></div>
 </div>
 
-<div class="layout_main col-sm-10 col-md-push-2">
+<div class="layout_main col-sm-10 col-md-push-2" style="padding-right: 0;">
     <div style="min-height: 70%">
 
         <?= $this->render('widgets/messages') ?>

@@ -32,7 +32,7 @@ use \app\models\ClientContract;
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
                             <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col-sm-5" style="  overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
                         <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>
                     </div>
                     <div class="col-sm-2">
@@ -59,13 +59,13 @@ use \app\models\ClientContract;
                                         </span>
                                     </a>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <?php $bps = $contract->businessProcessStatus; ?>
                                     <span><?= $contract->contractType ?></span>&nbsp;
-                                    /&nbsp;<?= $contract->businessProcess ?></span>&nbsp;
+                                    <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/?>
                                     /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <?php if ($contract->managerName) : ?>
                                         <span style="float:left;background: <?= $contract->managerColor ?>;">
                             М: <?= $contract->managerName ?>
