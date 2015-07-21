@@ -6,7 +6,7 @@ use yii\db\ActiveRecord;
 /**
  * @property
  */
-class ServerPBX extends ActiveRecord
+class ServerPbx extends ActiveRecord
 {
     public static function tableName()
     {
