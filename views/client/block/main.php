@@ -10,9 +10,11 @@ use \app\models\ClientContract;
             <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?=$account->id?>"><?= $client->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <a href="<?= Yii::$app->params['LK_PATH'] ?>core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
+            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER']):?>
+            <a href="https://<?= Yii::$app->params['CORE_SERVER'] ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
                 Переход в ЛК
             </a>
+            <?php endif; ?>
         </div>
         <div class="col-sm-2" class="c-blue-color">
             <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $client->id, 'childId' => $account->id]) ?>">

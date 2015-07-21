@@ -82,7 +82,7 @@ class DocumentController extends BaseController
         $email = $contact ? $contact->data : '';
 
         $p = data_encode($document->id . '-' . $account->id);
-        $adr = Yii::$app->params['LK_PATH'].'lk/docs/?code=' . str_replace('=', '%%3D', $p);
+        $adr = Yii::$app->params['LK_PATH'].'docs/?code=' . str_replace('=', '%%3D', $p);
         $body = "Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
         $body .= "<a href=\"" . $adr . "\">" . $adr . "</a><br><br>";
 

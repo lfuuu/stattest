@@ -84,7 +84,7 @@ function do_events()
                                  break;
             }
 
-            if (defined("CORE_SERVER") && CORE_SERVER)
+            if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'])
             {
                 switch($event->event)
                 {

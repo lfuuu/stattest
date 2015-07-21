@@ -1869,7 +1869,7 @@ class ApiLk
                     array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
                     );
 
-            $url = 'https://'.CORE_SERVER.'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
+            $url = 'https://'.\Yii::$app->params['CORE_SERVER'].'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
             $design->assign(array('url'=>$url));
             $message = $design->fetch('letters/notification/approve.tpl');
             $params = array(
