@@ -6,7 +6,7 @@ class m150720_142319_removePassFromClientsTrigger extends \app\classes\Migration
     {
         $this->execute("
 DROP TRIGGER `to_postgres_clients_after_upd_tr`;
-CREATE DEFINER=`latyntsev`@`localhost` TRIGGER `to_postgres_clients_after_upd_tr` AFTER UPDATE ON `clients` FOR EACH ROW BEGIN
+CREATE TRIGGER `to_postgres_clients_after_upd_tr` AFTER UPDATE ON `clients` FOR EACH ROW BEGIN
                 if NEW.voip_credit_limit <> OLD.voip_credit_limit
                     or
                    NEW.voip_credit_limit_day <> OLD.voip_credit_limit_day
