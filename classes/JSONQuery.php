@@ -12,7 +12,8 @@ class JSONQuery
 
         $defaults = array(
             CURLOPT_POST => 1,
-            CURLOPT_HEADER => ['Content-Type: application/json'],
+            CURLOPT_HEADER => 0,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
             CURLOPT_URL => $url,
             CURLOPT_FRESH_CONNECT => 1,
             CURLOPT_RETURNTRANSFER => 1,
