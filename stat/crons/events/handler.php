@@ -61,7 +61,7 @@ function do_events()
                 case 'client_set_status':
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
-                case 'usage_voip__delete':  ats2Numbers::check(); 
+                case 'usage_voip__delete':  //ats2Numbers::check();
                                             break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
