@@ -579,7 +579,7 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_view($fixclient){
         global $design, $db, $user, $fixclient_data;
-        
+
         
         //old all4net bills
         if(isset($_POST['bill_no']) && preg_match('/^\d{6}-\d{4}-\d+$/',$_POST['bill_no'])){
@@ -696,15 +696,14 @@ class m_newaccounts extends IModule
 
         if ($r) {
             $r["client_orig"] = $r["client"];
-
+            $contractTypeId = ClientAccount::findOne($r['id'])->contract->contract_type_id;
             if (access("clients", "read_multy"))
-                $isMulty = ClientAccount::findOne($r['id'])->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
-                if (!$isMulty) {
+                if ($contractTypeId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($isMulty && isset($_GET["bill"])) {
+            if ($contractTypeId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
