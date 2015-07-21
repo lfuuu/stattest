@@ -32,8 +32,6 @@ class Sync1CClient
         if (!$account)
             return false;
 
-        global $user;
-
         try {
             $params = array(
                 'contract' => array(
@@ -51,7 +49,7 @@ class Sync1CClient
                     'ВалютаРасчетов' => $account->currency,
                     'ВидЦен' => $account->price_type ? $account->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
                 ),
-                'Пользователь' => $user->Get("user")
+                'Пользователь' => Yii::$app->user->identity->user
             );
 
             $this->soap->utSaveClientContract($params);
@@ -66,12 +64,10 @@ class Sync1CClient
 
     public function saveGtd(array $data)
     {
-        global $user;
-
         try {
             $params = array(
                 'gtd' => $data,
-                'user' => $user->Get("user")
+                'user' => Yii::$app->user->identity->user
             );
 
             $result = $this->soap->utSaveGtd($params);
@@ -85,12 +81,10 @@ class Sync1CClient
 
     public function saveGoodsIncomeOrder(array $data)
     {
-        global $user;
-
         try {
             $params = array(
                 'order' => $data,
-                'user' => $user->Get("user")
+                'user' => Yii::$app->user->identity->user
             );
 
             $result = $this->soap->utSaveGoodsIncomeOrder($params);
@@ -104,12 +98,10 @@ class Sync1CClient
 
     public function saveGoodsIncomeDocument(array $data)
     {
-        global $user;
-
         try {
             $params = array(
                 'document' => $data,
-                'user' => $user->Get("user")
+                'user' => Yii::$app->user->identity->user
             );
 
             $result = $this->soap->utSaveGoodsIncomeDocument($params);

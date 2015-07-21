@@ -473,6 +473,13 @@ class ClientAccount extends ActiveRecord
 
     public function sync1C()
     {
+        if (!defined('PATH_TO_ROOT'))
+        {
+            define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
+        }
+
+        require_once PATH_TO_ROOT . 'conf.php';
+
         try {
             if (($Client = \Sync1C::getClient())!==false)
                 $Client->saveClientCards($this->id);
