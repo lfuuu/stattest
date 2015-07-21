@@ -234,6 +234,7 @@ class ClientAccount extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
     }
 

@@ -73,7 +73,7 @@ class SyncCoreHelper
         return $data;
     }
 
-    public static function getAccountStruct($cl)
+    public static function getAccountStruct(\app\models\ClientAccount $cl)
     {
         echo "\n" . __FUNCTION__;
 
