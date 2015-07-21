@@ -76,7 +76,7 @@ class ClientSearch extends ClientAccount
         $this->setAttributes($params);
 
         $query->innerJoin(ClientContract::tableName(), ClientContract::tableName() . '.id=' . ClientAccount::tableName() . '.contract_id');
-        $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientAccount::tableName() . '.contragent_id');
+        $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientContract::tableName() . '.contragent_id');
 
         $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
         $query->orFilterWhere(['like', 'name_full', $this->companyName]);
