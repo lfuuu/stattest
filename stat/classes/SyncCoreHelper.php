@@ -77,11 +77,10 @@ class SyncCoreHelper
     {
         echo "\n" . __FUNCTION__;
 
-        var_dump($cl->status);
         if (!in_array($cl->status, self::$allowClientStatusSQL)) return false;
 
         return array(
-            "contragent" => array("id" => $cl->contragent_id),
+            "contragent" => array("id" => $cl->contract->contragent_id),
             "accounts" => array(
                 array(
                     "id" => $cl->id,

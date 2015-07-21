@@ -751,7 +751,8 @@ class ClientCS {
         if (!isset(self::$flds[$property])) {
             if (!($fld = $db2->getRow('select * from com_property_type where name="'.$property.'"'))) $fld = false;
             self::$flds[$property] = $fld;
-        } else $fld = self::$flds[$property];
+        } else
+            $fld = isset(self::$flds[$property]) ? self::$flds[$property] : false;
         if ($fld) {
             $db2->Query('delete from com_property where parent_id='.$cid.' and property_type_id='.$fld['id'].' and up_id='.$up_id);
             if ($value !== null && !($typeIsStr && $value==="")) {

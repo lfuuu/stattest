@@ -6,7 +6,7 @@ use app\classes\documents\DocumentReport;
     define("PATH_TO_ROOT",'../stat/');
     include PATH_TO_ROOT."conf_yii.php";
     if (!($R=udata_decode_arr(get_param_raw('bill')))) return;
-    if($R["object"] != "receipt-2-RUB")
+    if(!isset($R["object"]) || $R["object"] != "receipt-2-RUB")
     {
         if (!$R['client'] || !$R['bill']) return;
         if (!$db->QuerySelectRow('newbills',array('bill_no'=>$R['bill'],'client_id'=>$R['client']))) return;
