@@ -86,7 +86,7 @@ class ContractEditForm extends Form
             ->andWhere(['<=', 'actual_from', $date])
             ->andWhere(['>=', 'actual_to', $date])
             ->all();
-        return ArrayHelper::map($organizations, 'id', 'name');
+        return ArrayHelper::map($organizations, 'organization_id', 'name');
     }
 
     public function getBusinessProcessesList()

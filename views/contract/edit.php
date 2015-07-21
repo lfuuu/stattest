@@ -4,7 +4,6 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
-use \app\models\ClientContract;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 

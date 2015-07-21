@@ -340,6 +340,7 @@ use app\models\Currency;
                             ])
                             . '</div>'
                     ],
+                    'empty25' => ['type' => Form::INPUT_RAW,],
 
                     'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$nalTypes],
                     'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Currency::map()],
