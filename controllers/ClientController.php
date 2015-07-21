@@ -99,6 +99,8 @@ class ClientController extends BaseController
                 unset($request['ContragentEditForm']['super_id']);
                 $contragent = new ContragentEditForm(['super_id' => $super->id]);
                 if ($contragent->load($request) && $contragent->validate() && $contragent->save()) {
+                    $super->name = $contragent->name;
+                    $super->save();
                     $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
                     if ($contract->load($request) && $contract->validate() && $contract->save()) {
                         $account = new AccountEditForm(['id' => $contract->newClient->id]);
