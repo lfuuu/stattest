@@ -60,8 +60,7 @@ class ClientDocumentDao extends Singleton
             $lastContract = BillContract::getLastContract($accountId, ($contractType == "blank" ? strtotime("01.01.2035") : (strtotime($contractDopDate) ?: time())));
 
             $contractNo = $lastContract["no"];
-            // Условие только для бланка заказа, забирать актуальные данные о клиенте
-            $contractDate = date("d.m.Y", ($contractType == "blank" ? time() : $lastContract["date"]));
+            $contractDate = date("d.m.Y", $lastContract["date"]);
         }
 
         list($d, $m, $y) = explode(".", $contractDate);
@@ -82,7 +81,7 @@ class ClientDocumentDao extends Singleton
             $userId
         );
 
-        $this->fix_contract($accountId, $contractId, $contractDate);
+        $this->fix_contract($accountId, $contractId, ($contractType == "blank" ? date('Y-m-d', time()) : $contractDate));
 
         return $contractId;
     }
@@ -219,8 +218,7 @@ class ClientDocumentDao extends Singleton
 			return;
         }
 
-        $r = ClientAccount::dao()->getAccountPropertyOnDate($clientId, $c["contract_date"]);
-		
+        $r = ClientAccount::dao()->getAccountPropertyOnDate($clientId, $contractDate);
         if (!$r) {
 			trigger_error2('Такого клиента не существует');
 			return;
