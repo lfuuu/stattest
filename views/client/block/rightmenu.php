@@ -38,15 +38,6 @@ use yii\helpers\Url;
             <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
         </li>
     </ul>
-
-    <ul>
-        <li>
-            <a href="/account/additional-inn-list?accountId=<?= $account->id ?>">Дополнительные ИНН</a>
-        </li>
-        <li>
-            <a href="/account/additional-pay-acc-list?accountId=<?= $account->id ?>">Дополнительные Р/С</a>
-        </li>
-    </ul>
 </div>
 
 <style>

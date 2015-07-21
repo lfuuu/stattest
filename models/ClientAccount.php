@@ -4,6 +4,7 @@ namespace app\models;
 use app\classes\Assert;
 use app\dao\ClientGridSettingsDao;
 use DateTimeZone;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
@@ -468,5 +469,23 @@ class ClientAccount extends ActiveRecord
         }
 
         return [$sum, $sum_without_tax, $sum_tax];
+    }
+
+    public function sync1C()
+    {
+        try {
+            if (($Client = \Sync1C::getClient())!==false)
+                $Client->saveClientCards($this->id);
+            else
+                throw new Exception('Ошибка синхронизации с 1С.');
+        } catch (\Sync1CException $e) {
+            $e->triggerError();
+        }
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        $this->sync1C();
+        parent::afterSave($insert, $changedAttributes);
     }
 }

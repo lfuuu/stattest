@@ -115,7 +115,9 @@ class AccountController extends BaseController
         }
 
         return $this->render("edit", [
-            'model' => $model
+            'model' => $model,
+            'addAccModel' => new ClientPayAcc(),
+            'addInnModel' => new ClientInn(),
         ]);
     }
 
@@ -188,17 +190,6 @@ class AccountController extends BaseController
         return $res;
     }
 
-    public function actionAdditionalInnList($accountId)
-    {
-        $account = ClientAccount::findOne($accountId);
-        if(!$account)
-            throw new Exception('Account does not exist');
-
-        $model = new ClientInn();
-
-        return $this->render('additional-inn-list', ['account' => $account, 'model' => $model]);
-    }
-
     public function actionAdditionalInnCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
@@ -210,7 +201,7 @@ class AccountController extends BaseController
         $model->client_id = $accountId;
         $model->save();
 
-        return $this->redirect(['account/additional-inn-list', 'accountId' => $accountId]);
+        return $this->redirect(['account/edit', 'id' => $accountId]);
     }
 
     public function actionAdditionalInnDelete($id)
@@ -221,18 +212,7 @@ class AccountController extends BaseController
         $model->is_active = 0;
         $model->save();
 
-        return $this->redirect(['account/additional-inn-list', 'accountId' => $model->client_id]);
-    }
-
-    public function actionAdditionalPayAccList($accountId)
-    {
-        $account = ClientAccount::findOne($accountId);
-        if(!$account)
-            throw new Exception('Account does not exist');
-
-        $model = new ClientPayAcc();
-
-        return $this->render('additional-pay-acc-list', ['account' => $account, 'model' => $model]);
+        return $this->redirect(['account/edit', 'id' => $model->client_id]);
     }
 
     public function actionAdditionalPayAccCreate($accountId)
@@ -246,7 +226,7 @@ class AccountController extends BaseController
         $model->client_id = $accountId;
         $model->save();
 
-        return $this->redirect(['account/additional-pay-acc-list', 'accountId' => $accountId]);
+        return $this->redirect(['account/edit', 'id' => $accountId]);
     }
 
     public function actionAdditionalPayAccDelete($id)
@@ -256,6 +236,6 @@ class AccountController extends BaseController
             throw new Exception('Pay does not exist');
         $model->delete();
 
-        return $this->redirect(['account/additional-pay-acc-list', 'accountId' => $model->client_id]);
+        return $this->redirect(['account/edit', 'id' => $model->client_id]);
     }
 }

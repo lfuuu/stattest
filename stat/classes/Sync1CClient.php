@@ -19,8 +19,8 @@ class Sync1CClient
 
     public function saveClientCards($cl_main_card)
     {
-        $account = \app\models\ClientAccount::findOne(['client' => $cl_main_card]);
-        if (!$this->saveClientCard($account->id)) {
+        $account_id = is_numeric($cl_main_card) ? $cl_main_card : \app\models\ClientAccount::findOne(['client' => $cl_main_card]);
+        if (!$this->saveClientCard($account_id)) {
             return false;
         }
         return true;

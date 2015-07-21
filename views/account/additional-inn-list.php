@@ -32,6 +32,6 @@ use \yii\helpers\Html;
             <?= Html::activeTextInput($model, 'comment', ['class' => 'form-control has-error']) ?>
         </div>
         <div class="col-sm-3"></div>
-        <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Добавить</button> </div>
+        <div class="col-sm-2"><button type="submit" class="btn btn-primary col-sm-12">Добавить</button> </div>
     </form>
 </div>

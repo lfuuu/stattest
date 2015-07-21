@@ -36,7 +36,7 @@
             <td><input class="col-sm-12 form-control" type=text name="name" placeholder="Название файла"></td>
             <td><input class="col-sm-12 form-control" type=text name="comment" placeholder="Комментарий"></td>
             <td><div class="file_upload form-control">Выбрать<input type="file" name="file" /></div></td>
-            <td colspan=2><button type="submit" class="btn btn-default col-sm-12">Загрузить</button></td>
+            <td colspan=2><button type="submit" class="btn btn-primary col-sm-12">Загрузить</button></td>
         </tr>
     </form>
     </tfoot>

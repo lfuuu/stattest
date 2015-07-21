@@ -207,6 +207,9 @@ class ClientContract extends ActiveRecord
             $this->number = (string)$client->id;
             $this->save();
         }
+
+        foreach($this->getAccounts() as $account)
+            $account->sync1C();
     }
 
     /**

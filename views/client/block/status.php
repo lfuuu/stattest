@@ -125,7 +125,7 @@ use \yii\helpers\Url;
 
         <div class="col-sm-12">
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Изменить', ['class' => 'btn btn-default', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
+                <?= Html::submitButton('Изменить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
 

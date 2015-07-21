@@ -37,7 +37,7 @@ use kartik\builder\Form;
 
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
             <?php ActiveForm::end(); ?>
         </div>

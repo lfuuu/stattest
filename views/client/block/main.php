@@ -65,15 +65,14 @@ use \app\models\ClientContract;
                                     /&nbsp;<?= $contract->businessProcess ?></span>&nbsp;
                                     /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>
-                                <div class="col-sm-3" style="text-align: right;">
+                                <div class="col-sm-3">
                                     <?php if ($contract->managerName) : ?>
-                                        <span style="background: <?= $contract->managerColor ?>;">
+                                        <span style="float:left;background: <?= $contract->managerColor ?>;">
                             М: <?= $contract->managerName ?>
                         </span>
                                     <?php endif; ?>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
                                     <?php if ($contract->accountManagerName) : ?>
-                                        <span style="background: <?= $contract->accountManagerColor ?>;">
+                                        <span style="float:right;background: <?= $contract->accountManagerColor ?>;">
                             Ак.М: <?= $contract->accountManagerName ?>
                         </span>
                                     <?php endif; ?>

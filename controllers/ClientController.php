@@ -64,12 +64,12 @@ class ClientController extends BaseController
             ->all();
 
         $services = [];
-        $services['voip'] = UsageVoip::find()->where(['client' => $account->client])->all();
-        $services['welltime'] = UsageWelltime::find()->where(['client' => $account->client])->all();
-        $services['extra'] = UsageExtra::find()->where(['client' => $account->client])->all();
-        $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $account->client])->all();
-        $services['sms'] = UsageSms::find()->where(['client' => $account->client])->all();
-        $services['ipport'] = UsageIpPorts::find()->where(['client' => $account->client])->all();
+        $services['voip'] = UsageVoip::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['welltime'] = UsageWelltime::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['extra'] = UsageExtra::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['sms'] = UsageSms::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['ipport'] = UsageIpPorts::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
 
         return
             $this->render(

@@ -34,7 +34,7 @@
                 <textarea name="message" class="form-control" id="news-form-message"></textarea>
             </div>
             <div class="col-sm-2">
-                <button type="submit" id="buttonSave" class="btn btn-default" name="save">Отправить</button>
+                <button type="submit" id="buttonSave" class="btn btn-primary" name="save">Отправить</button>
             </div>
         </div>
         </form>

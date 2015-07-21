@@ -142,7 +142,7 @@ use yii\helpers\Url;
                 </div>
             </div>
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
             <?php ActiveForm::end(); ?>
 
@@ -269,7 +269,7 @@ use yii\helpers\Url;
                     </div>
                     <div class="col-sm-2">
                         <button type="submit"
-                                class="btn btn-default col-sm-12"><?= $hasContract ? 'Обновить' : 'Зарегистрировать' ?></button>
+                                class="btn btn-primary col-sm-12"><?= $hasContract ? 'Обновить' : 'Зарегистрировать' ?></button>
                     </div>
                 </form>
             </div>
@@ -351,7 +351,7 @@ use yii\helpers\Url;
                             data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
+                    <button type="submit" class="btn btn-primary col-sm-12">Зарегистрировать</button>
                 </div>
             </form>
         </div>
@@ -410,7 +410,7 @@ use yii\helpers\Url;
                     <div class="file_upload form-control">Выбрать<input type="file" name="file"/></div>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-default col-sm-12">Загрузить</button>
+                    <button type="submit" class="btn btn-primary col-sm-12">Загрузить</button>
                 </div>
             </form>
         </div>

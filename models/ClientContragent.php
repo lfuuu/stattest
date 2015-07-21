@@ -98,6 +98,10 @@ class ClientContragent extends ActiveRecord
             $super->setAttribute('name', $this->name);
             $super->save();
         }
+
+        foreach($this->getContracts() as $contact)
+            foreach($contact->getAccounts() as $account)
+                $account->sync1C();
     }
 
     public function beforeSave($insert)

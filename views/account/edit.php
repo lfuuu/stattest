@@ -99,7 +99,7 @@ use yii\helpers\Url;
                     'empty5' => ['type' => Form::INPUT_RAW,],
 
                     'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'], 'options' => ['id' => 'with-consignee']],
-                    'consignee' => ['columnOptions' => ['colspan' => 3, 'style' => $model->is_with_consignee ? '' : 'display:none;', 'id' => 'consignee']],
+                    'consignee' => ['columnOptions' => ['colspan' => 3, 'id' => 'consignee']],
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
@@ -162,7 +162,7 @@ use yii\helpers\Url;
             </div>
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
             <?php ActiveForm::end(); ?>
 
@@ -179,9 +179,6 @@ use yii\helpers\Url;
         <script>
             $(function () {
                 $('#deferred-date-input').parent().parent().hide();
-                $('#with-consignee').on('click', function () {
-                    $('#consignee').toggle();
-                });
                 $('#credit').on('click', function () {
                     $('#credit-size').toggle();
                 });
@@ -203,6 +200,79 @@ use yii\helpers\Url;
                 }
             });
         </script>
+    </div>
+
+    <div class="col-sm-12">
+        <div class="row" style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
+            <div class="col-sm-12">Дополнительные ИНН</div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-2"><?= $addInnModel->getAttributeLabel('inn') ?></div>
+            <div class="col-sm-2"><?= $addInnModel->getAttributeLabel('comment') ?></div>
+            <div class="col-sm-2"><?= $addInnModel->getAttributeLabel('user_id') ?></div>
+            <div class="col-sm-2"><?= $addInnModel->getAttributeLabel('ts') ?></div>
+            <div class="col-sm-1"></div>
+        </div>
+        <?php foreach($model->getModel()->additionalInn as $inn) : ?>
+            <div class="row">
+                <div class="col-sm-2"><?= $inn->inn ?></div>
+                <div class="col-sm-2"><?= $inn->comment ?></div>
+                <div class="col-sm-2"><?= $inn->user->name ?></div>
+                <div class="col-sm-2"><?= $inn->ts ?></div>
+                <div class="col-sm-1">
+                    <a href="/account/additional-inn-delete?id=<?= $inn->id ?>">
+                        <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif" alt="Активность">
+                    </a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        <div class="row">
+            <form action="/account/additional-inn-create?accountId=<?= $model->id ?>" method="post">
+                <div class="col-sm-2">
+                    <?= Html::activeTextInput($addInnModel, 'inn', ['class' => 'form-control']) ?>
+                </div>
+                <div class="col-sm-2">
+                    <?= Html::activeTextInput($addInnModel, 'comment', ['class' => 'form-control has-error']) ?>
+                </div>
+                <div class="col-sm-3"></div>
+                <div class="col-sm-2"><button type="submit" class="btn btn-primary col-sm-12">Добавить</button> </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-sm-12">
+        <div class="row" style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
+            <div class="col-sm-12">Дополнительные Р/С</div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-2"><?= $addAccModel->getAttributeLabel('pay_acc') ?></div>
+            <div class="col-sm-2"><?= $addAccModel->getAttributeLabel('who') ?></div>
+            <div class="col-sm-2"><?= $addAccModel->getAttributeLabel('date') ?></div>
+            <div class="col-sm-1"></div>
+        </div>
+        <?php foreach($model->getModel()->additionalPayAcc as $payAcc) : ?>
+            <div class="row">
+                <div class="col-sm-2"><?= $payAcc->pay_acc ?></div>
+                <div class="col-sm-2"><?= $payAcc->user->name ?></div>
+                <div class="col-sm-2"><?= $payAcc->date ?></div>
+                <div class="col-sm-1">
+                    <a href="/account/additional-pay-acc-delete?id=<?= $payAcc->id ?>">
+                        <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif" alt="Активность">
+                    </a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        <div class="row">
+            <form action="/account/additional-pay-acc-create?accountId=<?= $model->id ?>" method="post">
+                <div class="col-sm-2">
+                    <?= Html::activeTextInput($addAccModel, 'pay_acc', ['class' => 'form-control']) ?>
+                </div>
+                <div class="col-sm-3"></div>
+                <div class="col-sm-2"><button type="submit" class="btn btn-primary col-sm-12">Добавить</button> </div>
+            </form>
+        </div>
     </div>
 
 
@@ -282,7 +352,7 @@ use yii\helpers\Url;
                             data-type="blank"></select>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
+                    <button type="submit" class="btn btn-primary col-sm-12">Зарегистрировать</button>
                 </div>
             </form>
         </div>

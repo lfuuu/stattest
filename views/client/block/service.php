@@ -61,11 +61,11 @@ if($has) :
                                         <img class=icon src='/images/icons/act.gif' alt='Отправить акт по почте'>
                                     </a>
                                 <? endif; ?>
-                                <?php if ($actual($service->actual_from, $service->actual_to)): ?>
+                                <?php /*if ($actual($service->actual_from, $service->actual_to)): ?>
                                     <a href="/?module=services&action=in_close&id=<?= $service->id ?>">
                                         <img class=icon src='/images/icons/delete.gif' alt="Отключить">
                                     </a>
-                                <?php endif; ?>
+                                <?php endif; */?>
                                 <a href="index.php?module=tt&clients_client=<?= $service->client ?>&service=usage_ip_ports&service_id=<?= $service->id ?>&action=view_type&type_pk=1&show_add_form=true">
                                     <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
                                 </a>
@@ -291,11 +291,11 @@ if($has) :
                                 <a href="index.php?module=tt&clients_client=<?= $service->client ?>&service=usage_extra&service_id=<?= $service->id ?>&action=view_type&type_pk=1&show_add_form=true">
                                     <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
                                 </a>&nbsp;
-                                <?php if ($actual($service->actual_from, $service->actual_to)): ?>
+                                <?php /*if ($actual($service->actual_from, $service->actual_to)): ?>
                                     <a href="index.php?module=services&action=ex_close&id=<?= $service->id ?>">
                                         <img class="icon" src="/images/icons/delete.gif" alt="Отключить">
                                     </a>
-                                <?php endif; ?>
+                                <?php endif;*/ ?>
                             </td>
                             <td><?= $service->currentTariff->description ?></td>
                             <td><?= $service->amount ?></td>

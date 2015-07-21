@@ -378,7 +378,7 @@ use app\models\Currency;
                     'empty5' => ['type' => Form::INPUT_RAW,],
 
                     'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'], 'options' => ['id' => 'with-consignee']],
-                    'consignee' => ['columnOptions' => ['colspan' => 3, 'style' => $account->is_with_consignee ? '' : 'display:none;', 'id' => 'consignee']],
+                    'consignee' => ['columnOptions' => ['colspan' => 3, 'id' => 'consignee']],
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
@@ -403,7 +403,7 @@ use app\models\Currency;
             ?>
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave', 'name' => 'save']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'name' => 'save']); ?>
             </div>
         </div>
 
@@ -422,9 +422,6 @@ use app\models\Currency;
                 $('.tab-pane').hide();
                 $($('#type-select .btn-primary').data('tab')).show();
 
-                $('#with-consignee').on('click', function () {
-                    $('#consignee').toggle();
-                });
                 $('#credit').on('click', function () {
                     $('#credit-size').toggle();
                 });

@@ -50,7 +50,7 @@ use \kartik\builder\Form;
 
 <div class="row">
     <div class="col-sm-2">
-        <button type="submit" class="btn btn-default col-sm-12">Сохранить</button>
+        <button type="submit" class="btn btn-primary col-sm-12">Сохранить</button>
     </div>
 </div>
 <?php ActiveForm::end(); ?>

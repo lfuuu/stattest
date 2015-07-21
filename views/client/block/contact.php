@@ -78,7 +78,7 @@ use \yii\helpers\Url;
                 <div class="row">
                     <div class="col-sm-2">
                         <input type="radio" name="admin-lk-id" value="0" <?= (0 == $account->admin_contact_id) ? 'checked' : '' ?>>
-                        <button type="submit" name="set-admin-lk" class="btn btn-default">Администратор ЛК</button>
+                        <button type="submit" name="set-admin-lk" class="btn btn-primary">Администратор ЛК</button>
                     </div>
                     <div class="col-sm-2">
                         <select name="type" class="form-control" style="font-size:10px">
@@ -100,7 +100,7 @@ use \yii\helpers\Url;
                         Официальный
                     </div>
                     <div class="col-sm-2">
-                        <button type="submit" class="btn btn-default col-sm-12">Добавить</button>
+                        <button type="submit" class="btn btn-primary col-sm-12">Добавить</button>
                     </div>
                 </div>
             </div>
