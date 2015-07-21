@@ -201,7 +201,7 @@ use yii\helpers\Url;
             });
         </script>
     </div>
-
+    <?php if(!$model->getIsNewRecord()): ?>
     <div class="col-sm-12">
         <div class="row" style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
             <div class="col-sm-12">Дополнительные ИНН</div>
@@ -357,6 +357,9 @@ use yii\helpers\Url;
             </form>
         </div>
     </div>
+
+    <?php endif; ?>
+
 
     <script>
         var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
