@@ -207,7 +207,7 @@
 </TR>
 {if isset($op.switch_to_mcn) &&  $op.switch_to_mcn}
 <tr>
-    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">Мсн Телеком</td>
+    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">{$op.switch_to_mcn}</td>
 </tr>
 {/if}
 

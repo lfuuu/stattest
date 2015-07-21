@@ -149,7 +149,34 @@ class m_newaccounts extends IModule
     {
         global $db;
 
-        return $db->GetValue("select min(if(apply_ts = '0000-00-00', cast(ts as date), apply_ts)) as switch_date from log_client l, log_client_fields f where client_id = '".$clientId."' and f.ver_id = l.id and l.type='fields' and field='firma' and value_to = 'mcn_telekom'");
+        $data = [];
+
+        foreach($db->AllRecords("
+            select 
+                min(switch_date) as switch_date, 
+                firm 
+            from (
+                select 
+                    if(apply_ts = '0000-00-00', cast(ts as date), apply_ts) as switch_date, 
+                    value_to firm
+                from 
+                    log_client l, 
+                    log_client_fields f 
+                where 
+                        client_id = '".$clientId."' 
+                    and f.ver_id = l.id 
+                    and l.type='fields' 
+                    and field='firma' 
+                    and value_to in ('mcn_telekom', 'mcm_telekom') 
+            )a
+            group by firm
+                ") as $r)
+        {
+            $data[$r["switch_date"]] = $r["firm"];
+        }
+
+        ksort($data);
+        return $data;
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
@@ -188,21 +215,28 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
+        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+
+        if($stDates)
         {
-            $ks = false;
-            foreach($sw as $bDate => $billNo)
+            foreach($stDates as $stDate => $stFirma)
             {
-                if($bDate >= $stDate)
+                $ks = false;
+                foreach($sw as $bDate => $billNo)
                 {
-                    $ks = $billNo;
-                    break;
+                    if($bDate >= $stDate)
+                    {
+                        $ks = $billNo;
+                        break;
+                    }
+                }
+
+                if($ks && isset($R[$ks]))
+                {
+                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
-
-            if($ks && isset($R[$ks]))
-                $R[$ks]["switch_to_mcn"] = 1;
-            
         }
 
         #krsort($R);
@@ -505,21 +539,28 @@ class m_newaccounts extends IModule
         ksort($buf);
         ksort($sw);
 
-        if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
+        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+
+        if($stDates)
         {
-            $ks = false;
-            foreach($sw as $bDate => $billNo)
+            foreach($stDates as $stDate => $stFirma)
             {
-                if($bDate >= $stDate)
+                $ks = false;
+                foreach($sw as $bDate => $billNo)
                 {
-                    $ks = $billNo;
-                    break;
+                    if($bDate >= $stDate)
+                    {
+                        $ks = $billNo;
+                        break;
+                    }
+                }
+
+                if($ks && isset($R[$ks]))
+                {
+                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
-
-            if($ks && isset($R[$ks]))
-                $R[$ks]["switch_to_mcn"] = 1;
-            
         }
 
         $qrs = array();
