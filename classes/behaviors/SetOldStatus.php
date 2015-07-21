@@ -21,7 +21,7 @@ class SetOldStatus extends Behavior
 
     public function update($event)
     {
-        if ($event->sender instanceof ClientContract && isset($event->changedAttributes["business_process_status_id"])) {
+        if ($event->sender instanceof ClientContract) {
             $bpStatus = ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($event->sender->business_process_status_id, false);
 
             if ($bpStatus && isset($bpStatus['oldstatus'])) {
