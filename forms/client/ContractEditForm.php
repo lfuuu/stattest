@@ -145,8 +145,9 @@ class ContractEditForm extends Form
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);
             $this->newClient = $contract->newClient;
-            if($this->newClient)
-                Event::go('client_set_status', $contract->newClient->id);
+
+            foreach($contract->getAccounts() as $account)
+                Event::go('client_set_status', $account->id);
 
             return true;
         } else
