@@ -257,7 +257,6 @@ class ClientAccount extends ActiveRecord
             'dealer_comment' => 'Комментарий для дилера',
             'form_type' => 'Формирование с/ф',
             'metro_id' => 'Станция метро',
-            'payment_comment' => 'Комментарии к платежу',
             'credit' => 'Разрешить кредит',
             'credit_size' => 'Размер кредита',
             'corr_acc' => 'К/С',

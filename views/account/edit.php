@@ -103,8 +103,8 @@ use yii\helpers\Url;
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
-                    'payment_comment' => ['columnOptions' => ['colspan' => 2],],
                     'mail_who' => ['columnOptions' => ['colspan' => 2],],
+                    'empty26' => ['type' => Form::INPUT_RAW,],
                     'empty9' => ['type' => Form::INPUT_RAW,],
                     'empty10' => ['type' => Form::INPUT_RAW,],
 

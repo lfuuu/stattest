@@ -3714,7 +3714,6 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
                             `courier_id`,
                             c.nal,
                             c.metro_id,
-                            c.payment_comment,
                             c.address_post as address,
                             newbills.nal as bill_nal,
                             c.client,

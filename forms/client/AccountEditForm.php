@@ -36,7 +36,6 @@ class AccountEditForm extends Form
         $sale_channel,
         $phone_connect,
         $form_type,
-        $payment_comment,
         $price_type,
         $voip_credit_limit,
         $voip_disabled,
@@ -59,14 +58,14 @@ class AccountEditForm extends Form
             [
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
-                    'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                 ],
                 'string'
             ],
             [
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
-                    'payment_comment', 'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                 ],
                 'default', 'value' => ''
             ],
@@ -94,6 +93,7 @@ class AccountEditForm extends Form
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
 
+            ['voip_credit_limit_day', 'default', 'value' => 1000],
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
         ];
         return $rules;

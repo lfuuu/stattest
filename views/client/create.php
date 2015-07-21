@@ -362,7 +362,7 @@ use app\models\Currency;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;']],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;', 'value' => 1000]],
                     'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 2, 'style' => 'margin-top: 20px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
@@ -382,8 +382,8 @@ use app\models\Currency;
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
-                    'payment_comment' => ['columnOptions' => ['colspan' => 2],],
                     'mail_who' => ['columnOptions' => ['colspan' => 2],],
+                    'empty26' => ['type' => Form::INPUT_RAW,],
                     'empty9' => ['type' => Form::INPUT_RAW,],
                     'empty10' => ['type' => Form::INPUT_RAW,],
 
