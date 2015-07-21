@@ -3,7 +3,7 @@
 class SyncCoreHelper
 {
 
-    private static $allowClientStatusSQL = array("negotiation", "work", "connecting", "testing", "debt", "operator");
+    private static $allowClientStatusSQL = array("negotiations", "work", "connecting", "testing", "debt", "operator");
 
     static function getFullClientStruct($superId) // only super client && conragent
     {
