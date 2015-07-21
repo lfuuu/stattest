@@ -2092,7 +2092,7 @@ class ApiLk
 
     public static function getPayPalToken($accountId, $sum)
     {
-        if (!defined("LK_PATH") || !LK_PATH)
+        if (Yii::$app->params['LK_PATH'] || !defined("LK_PATH") || !LK_PATH)
             throw new Exception("format_error");
 
         if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId))

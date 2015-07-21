@@ -130,7 +130,7 @@ order by newbill_send.state,newbill_send.last_send desc,newbill_send.client';
 			$bill = new Bill($r['bill_no']);
 			$R=array('obj'=>'bill','source'=>2,'bill'=>$r['bill_no']);
 			$R['client']=$bill->Get('client_id');
-			$body.=LK_PATH.'docs/?bill='.udata_encode_arr($R)."\n";
+			$body.=Yii::$app->params['LK_PATH'].'lk/docs/?bill='.udata_encode_arr($R)."\n";
 		}
 		$body.="\n оПНЯХЛ ЯБНЕБПЕЛЕММН ХУ НОКЮРХРЭ.\n\n";
 		

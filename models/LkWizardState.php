@@ -73,8 +73,8 @@ class LkWizardState extends ActiveRecord
     {
         $accounts = ClientAccount::findAll(['contract_id' => $this->contract_id]);
         foreach ($accounts as $clientAccount) {
+            $tax_rate = $clientAccount->getTaxRate();
             $sum = -100;
-
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
@@ -82,7 +82,6 @@ class LkWizardState extends ActiveRecord
             $bill->is_lk_show = 1;
             $bill->is_user_prepay = 0;
             $bill->is_approved = 1;
-            $bill->is_use_tax = $clientAccount->nds_zero > 0 ? 0 : 1;
             $bill->bill_date = date('Y-m-d');
             $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
             $bill->price_include_vat = $clientAccount->price_include_vat;

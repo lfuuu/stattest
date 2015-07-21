@@ -14,5 +14,4 @@ return [
     'SIGNATURE_DIR' => '/images/signature/',
     'STAMP_DIR' => '/images/stamp/',
     'ORGANIZATION_LOGO_DIR' => '/images/logo/',
-    'LK_PATH' => 'https://lk.mcn.ru/',
 ];
