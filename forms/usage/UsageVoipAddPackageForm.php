@@ -25,7 +25,6 @@ class UsageVoipAddPackageForm extends Form
             [['usage_voip_id','tariff_id',], 'integer'],
             [['actual_from',], 'string'],
             [['tariff_id','actual_from',], 'required'],
-            ['actual_from', 'required', 'whenClient' => 'function(a, b) { console.log(a); console.log(b); return false }'],
         ];
     }
 
