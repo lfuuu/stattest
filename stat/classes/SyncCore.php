@@ -126,7 +126,7 @@ class SyncCore
 
     public static function checkProductState($product, $param)
     {
-        if ($product == "phone" && !defined("PHONE_SERVER") || !PHONE_SERVER) return;
+        if ($product == "phone" && !isset(\Yii::$app->params['PHONE_SERVER']) || !\Yii::$app->params['PHONE_SERVER']) return;
 
         list($usageId, $client) = $param;
 
