@@ -1292,9 +1292,9 @@ class m_newaccounts extends IModule
 
 
                     $R['emailed'] = '1';
-                    $link[] = Yii::$app->params['LK_PATH'].'lk/docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
                     $R['emailed'] = '0';
-                    $link[] = Yii::$app->params['LK_PATH'].'lk/docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
                     foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
                 }
             }
@@ -1310,8 +1310,8 @@ class m_newaccounts extends IModule
                 'is_pdf'    => $is_pdf,
             ];
 
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'lk/docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'lk/docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
 
             foreach ($template as $pos => &$item) {
                 switch ($documentReports[$i]) {

@@ -58,8 +58,6 @@ return array(
 *    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
 */
     'SCAN_DOC_DIR'      => "/tmp/docs/",
-    "CORE_API_URL" => "http://demo.mcn.loc/core/api/", ///with end slash,
-    "LK_PATH" => "https://lk.mcn.ru/lk/",
     "AUTOCREATE_SIP_ACCOUNT" => 0, //автоматическое создание учеток при заведении номера
     "AUTOCREATE_VPBX" => 0, // автоматическое создание vpbx после включения услуги
 
