@@ -138,36 +138,51 @@
 {*if $line.okvd_code}{$line.okvd}{else}{if $line.type == "service"}-{else}шт.{/if}{/if*}</td>
         <td align="center">{$line.amount|round:4}</td>
         <td align="center">{$line.outprice|round:4}</td>
-        <td align="center">{$line.sum_without_tax}</td>
+        {if $bill.price_include_vat}
+            <td align="center">{$line.sum_with_tax}</td>
+        {else}
+            <td align="center">{$line.sum_without_tax}</td>
+        {/if}
       </tr>
 {/foreach}
 
-      <tr>
-        <td colspan=5 align="right"><b>Итого:</b></td>
-        <td align="right">{$bill.sum_without_tax|round:2}</td>
-      </tr>
       {if $bill.price_include_vat}
           <tr>
-            <td colspan=5 align="right"><b>Итого НДС:</b></td>
-            <td align="right">
-                {if $bill_client.nds_zero}без НДС{else}
-                    {$bill.sum_tax|round:2}
-                {/if}
-            </td>
-          </tr>
-          <tr>
-            <td colspan=5 align="right"><b>Всего (с учетом НДС):</b></td>
+            <td colspan=5 align="right"><b>Итого:</b></td>
             <td align="right">{$bill.sum|round:2}</td>
           </tr>
+          {if $bill.sum <> $bill.sum_without_tax}
+              <tr>
+                <td colspan=5 align="right"><b>В т.ч. НДС:</b></td>
+                <td align="right">
+                    {if $bill_client.nds_zero}без НДС{else}{$bill.sum_tax|round:2}{/if}
+                </td>
+              </tr>
+          {/if}
+      {else}
+          <tr>
+            <td colspan=5 align="right"><b>Итого:</b></td>
+            <td align="right">{$bill.sum_without_tax|round:2}</td>
+          </tr>
+          {if $bill.sum <> $bill.sum_without_tax}
+              <tr>
+                <td colspan=5 align="right"><b>Итого НДС:</b></td>
+                <td align="right">
+                    {if $bill_client.nds_zero}без НДС{else}{$bill.sum_tax|round:2}{/if}
+                </td>
+              </tr>
+              <tr>
+                <td colspan=5 align="right"><b>Всего (с учетом НДС):</b></td>
+                <td align="right">{$bill.sum|round:2}</td>
+              </tr>
+          {/if}
       {/if}
     </table>
     </center></div>
     <br>
     Всего оказано услуг на сумму: {$bill.sum|wordify:'RUB'}
-    {if $bill.price_include_vat && !$bill_client.nds_zero}<br />
+    {if $bill.sum_tax > 0}<br />
         В т.ч. НДС: {$bill.sum_tax|round:2|wordify:'RUB'}
-    {else}
-        (Без НДС)
     {/if}<br />
     <br>
     Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
