@@ -39,8 +39,8 @@ class UsageVoipForm extends Form
             [['type_id','did','connecting_date','tariff_change_date','address'], 'string'],
             [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
             [['tariff_main_status'], 'string'],
-            [['tariff_group_local_mob_price','tariff_group_russia','tariff_group_intern'], 'integer'],
-            [['tariff_group_local_mob','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'integer'],
+            [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
+            [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
         ];
     }
 

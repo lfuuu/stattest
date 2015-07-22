@@ -77,7 +77,7 @@ class PrefixlistForm extends Form
     {
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            DestinationPrefixes::deleteAll(['prefix_id' => $prefixlist->id]);
+            DestinationPrefixes::deleteAll(['prefixlist_id' => $prefixlist->id]);
 
             $prefixlist->delete();
 

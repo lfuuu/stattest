@@ -24,7 +24,7 @@ class Destination extends ActiveRecord
 
     public function getPrefixes()
     {
-        return $this->hasMany(Prefixlist::className(), ['id' => 'prefix_id'])->via('destinationPrefixes');
+        return $this->hasMany(Prefixlist::className(), ['id' => 'prefixlist_id'])->via('destinationPrefixes');
     }
 
 }

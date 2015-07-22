@@ -30,32 +30,26 @@ class DestinationForm extends Form
         ];
     }
 
-    public function save($destination = false)
+    public function save(Destination $destination = null)
     {
-        if (!($destination instanceof Destination))
+        if ($destination === null) {
             $destination = new Destination;
+        }
         $destination->setAttributes($this->getAttributes(), false);
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $destination->save();
 
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        $transaction = \Yii::$app->db->beginTransaction();
-        try {
             DestinationPrefixes::deleteAll(['destination_id' => $destination->id]);
 
-            foreach ($this->prefixes as $prefixId) {
+            foreach ($this->prefixes as $prefixlistId) {
                 $link = new DestinationPrefixes;
                 $link->destination_id = $destination->id;
-                $link->prefix_id = $prefixId;
+                $link->prefixlist_id = $prefixlistId;
                 $link->save();
             }
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();

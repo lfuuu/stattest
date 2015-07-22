@@ -114,7 +114,7 @@ class VoipBiller extends Biller
         $packages = $this->usage->usagePackages;
         foreach ($packages as $package) {
             $this->addPackage(
-                BillerPackageConnecting::create($this)
+                BillerPackagePeriodical::create($this)
                     ->setPrice($package->tariff->periodical_fee)
                     ->setTemplate('voip_package_fee')
                     ->setTemplateData([
@@ -204,32 +204,30 @@ class VoipBiller extends Biller
             }
 
             $this->addPackage(
-                $package =
-                    BillerPackageResource::create($this)
-                        ->setPrice($r['price'])
-                        ->setMinPayment($minPayment)
-                        ->setMinPaymentTemplate($minPaymentTemplate)
-                        ->setPeriodType(self::PERIOD_MONTH) // Need for localization
-                        ->setTemplate($template)
-                        ->setTemplateData($template_data)
+                BillerPackageResource::create($this)
+                    ->setPrice($r['price'])
+                    ->setMinPayment($minPayment)
+                    ->setMinPaymentTemplate($minPaymentTemplate)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
 
         $packages = $this->usage->usagePackages;
         foreach ($packages as $package) {
-            $biller =
-                BillerPackageConnecting::create($this)
-                    ->setTemplate('voip_package_payment')
-                    ->setTemplateData([
-                        'tariff' => $package->tariff->name,
-                        'service' => $this->usage->E164,
-                    ]);
             if ($package->tariff->pricelist_id) {
-                $biller->setMinPayment($package->tariff->min_payment);
-                $biller->setMinPaymentTemplate('voip_package_minpay');
+                $this->addPackage(
+                    BillerPackageResource::create($this)
+                        ->setTemplate('voip_package_payment')
+                        ->setTemplateData([
+                            'tariff' => $package->tariff->name,
+                            'service' => $this->usage->E164,
+                        ])
+                        ->setMinPayment($package->tariff->min_payment)
+                        ->setMinPaymentTemplate('voip_package_minpay')
+                );
             }
-
-            $this->addPackage($biller);
         }
     }
 

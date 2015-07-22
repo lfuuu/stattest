@@ -17,7 +17,9 @@ class m150716_145449_voip_package extends \app\classes\Migration
                 `periodical_fee` DECIMAL(10,2) NOT NULL DEFAULT '0.00',
                 `min_payment` INT(11) NOT NULL DEFAULT '0',
                 `minutes_count` SMALLINT(6) NOT NULL DEFAULT '0',
-                PRIMARY KEY (`id`)
+                PRIMARY KEY (`id`),
+                KEY `fk_tariff_voip_package__destination_id` (`destination_id`),
+                CONSTRAINT `fk_tariff_voip_package__destination_id` FOREIGN KEY (`destination_id`) REFERENCES `voip_destination` (`id`) ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
     }

@@ -80,6 +80,7 @@ class SyncCore
                         $accountSync->external_id = "*" . $cl->id;
                         $accountSync->save();
                     }
+
                 } catch(Exception $e)
                 {
 

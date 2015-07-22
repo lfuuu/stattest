@@ -79,10 +79,12 @@ class TariffVoipForm extends Form
         ];
     }
 
-    public function save($tariff = false)
+    public function save(TariffVoip $tariff = null)
     {
-        if (!($tariff instanceof TariffVoip))
+        if ($tariff  === null) {
             $tariff = new TariffVoip;
+        }
+
         $tariff->setAttributes($this->getAttributes(), false);
 
         $transaction = \Yii::$app->db->beginTransaction();

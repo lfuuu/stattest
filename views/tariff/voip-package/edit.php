@@ -111,19 +111,6 @@ $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceList
         ],
     ]);
 
-    /*
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            'is_virtual' => ['type' => Form::INPUT_CHECKBOX],
-            'is_testing' => ['type' => Form::INPUT_CHECKBOX],
-            'price_include_vat' => ['type' => Form::INPUT_CHECKBOX],
-        ],
-    ]);
-    */
-
     echo Form::widget([
         'model' => $model,
         'form' => $form,

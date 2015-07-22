@@ -57,4 +57,25 @@ class NavigationBlock
         $this->rights = $rights;
         return $this;
     }
+
+    public function addStatModuleItems($moduleName)
+    {
+        $statModule = StatModule::getHeadOrModule($moduleName);
+
+        list($title, $items) = $statModule->GetPanel(null);
+
+        if (!$title || !$items) {
+            return null;
+        }
+
+        foreach ($items as $item) {
+            $url =
+                substr($item[1], 0, 1) == '/'
+                    ? $item[1]
+                    : '?' . $item[1];
+            $this->addItem($item[0], $url);
+        }
+
+        return $this;
+    }
 }

@@ -69,7 +69,7 @@ class DestinationController extends BaseController
         Assert::isObject($destination);
 
         $model->setAttributes($destination->getAttributes(), false);
-        $model->prefixes = ArrayHelper::getColumn($destination->destinationPrefixes, 'prefix_id');
+        $model->prefixes = ArrayHelper::getColumn($destination->destinationPrefixes, 'prefixlist_id');
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($destination)) {
             $this->redirect(['edit', 'id' => $model->id]);

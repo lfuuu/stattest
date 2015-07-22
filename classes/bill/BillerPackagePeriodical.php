@@ -82,6 +82,10 @@ class BillerPackagePeriodical extends BillerPackage
 
         list($this->currentFrom, $this->currentTo) = $usagePeriod;
 
+        if ($this->currentFrom === null ||  $this->currentTo === null) {
+            return false;
+        }
+
         if ($this->isAlign) {
 
             $this->currentAlignFrom = clone $this->currentFrom;
@@ -96,7 +100,6 @@ class BillerPackagePeriodical extends BillerPackage
             }
 
         } else {
-
             $this->currentAlignFrom = clone $this->currentFrom;
             $this->currentAlignTo = clone $this->currentTo;
         }

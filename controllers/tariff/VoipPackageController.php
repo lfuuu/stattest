@@ -37,7 +37,7 @@ class VoipPackageController extends BaseController
     public function actionIndex()
     {
         $model = new TariffVoipPackageListForm;
-        $model->load(Yii::$app->request->getQueryParams());
+        $model->load(Yii::$app->request->queryParams);
 
         $dataProvider = $model->spawnDataProvider();
         $dataProvider->sort = false;
