@@ -4141,7 +4141,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $W[] = 'B.sum!=0';
         $W[] = 'P.currency="RUB" OR P.currency IS NULL';
 
-<<<<<<< HEAD
         if($payfilter=='1')     $W[] = 'B.is_payed=1';
         elseif($payfilter=='2') $W[] = 'B.is_payed IN (1,3)';
 
@@ -4150,9 +4149,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $firma = Organization::findOne(['firma' => $firma])->organization_id;
             $W[] = 'cr.organization_id="' . $firma . '"';
         }
-=======
-        if($firma)     $W[] = 'C.firma="'.$firma.'"';
->>>>>>> upstream/master
+
 
         $W[] = "cg.legal_type in ('ip', 'legal')";
 
@@ -4167,19 +4164,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             select * from (
                 select
                     B.*,
-<<<<<<< HEAD
                     cg.name_full AS company_full,
                     cg.inn,
                     cg.kpp,
                     cg.legal_type AS type,
-=======
-                    C.company_full,
-                    C.inn,
-                    C.kpp,
-                    C.type,
-                    (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
-                    (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
->>>>>>> upstream/master
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
@@ -4218,15 +4206,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 WHERE t.bill_no = B.bill_no 
                                     and t.id = s.trouble_id 
                                     and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
-<<<<<<< HEAD
                         cg.kpp,
                         cg.legal_type AS type,
-=======
-                        C.kpp,
-                        C.type,
-                        (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
-                        (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
->>>>>>> upstream/master
                         max(P.payment_date) as payment_date,
                         sum(P.sum) as `pay_sum`,
                         (
