@@ -139,7 +139,7 @@
         <td align="center">{$line.amount|round:4}</td>
         <td align="center">{$line.outprice|round:4}</td>
         {if $bill.price_include_vat}
-            <td align="center">{$line.sum_with_tax}</td>
+            <td align="center">{$line.sum}</td>
         {else}
             <td align="center">{$line.sum_without_tax}</td>
         {/if}
