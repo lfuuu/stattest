@@ -45,7 +45,7 @@ class AccountEditForm extends Form
         $mail_who,
         $head_company,
         $head_company_address_jur,
-        $bill_rename1,
+        $bill_rename1 = 'no',
         $is_agent,
         $is_with_consignee,
         $consignee,
