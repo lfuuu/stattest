@@ -88,6 +88,11 @@ use yii\helpers\Url;
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
 
+                    'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
+                    'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
+                    'empty9' => ['type' => Form::INPUT_RAW,],
+                    'empty10' => ['type' => Form::INPUT_RAW,],
+
                     'address_post' => ['columnOptions' => ['colspan' => 2],],
                     'head_company' => ['columnOptions' => ['colspan' => 2],],
                     'empty2' => ['type' => Form::INPUT_RAW,],
@@ -98,25 +103,17 @@ use yii\helpers\Url;
                     'empty4' => ['type' => Form::INPUT_RAW,],
                     'empty5' => ['type' => Form::INPUT_RAW,],
 
-                    'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'], 'options' => ['id' => 'with-consignee']],
-                    'consignee' => ['columnOptions' => ['colspan' => 3, 'id' => 'consignee']],
+                    'mail_who' => ['columnOptions' => ['colspan' => 2],],
+                    'consignee' => ['columnOptions' => ['colspan' => 2, 'id' => 'consignee']],
                     'empty7' => ['type' => Form::INPUT_RAW,],
                     'empty8' => ['type' => Form::INPUT_RAW,],
 
-                    'mail_who' => ['columnOptions' => ['colspan' => 2],],
-                    'empty26' => ['type' => Form::INPUT_RAW,],
-                    'empty9' => ['type' => Form::INPUT_RAW,],
-                    'empty10' => ['type' => Form::INPUT_RAW,],
-
+                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$formTypes],
                     'stamp' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'is_upd_without_sign' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
-                    'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
-                    'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$formTypes],
+                    'empty26' => ['type' => Form::INPUT_RAW,],
 
-                    'address_connect' => ['columnOptions' => ['colspan' => 2],],
-                    'phone_connect' => ['columnOptions' => ['colspan' => 2],],
-                    'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'], 'columnOptions' => ['colspan' => 2],],
-                    'is_agent' => ['type' => Form::INPUT_CHECKBOX],
+                    'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'],],
                 ],
             ]);
 

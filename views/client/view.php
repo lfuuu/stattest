@@ -1,6 +1,6 @@
-<div class="row" style="margin-right: 0;">
+<div class="row">
     <div class="col-sm-12">
-        <?= $this->render('block/main', ['client' => $client, 'account' => $account]); ?>
+        <?= $this->render('block/main', ['client' => $client, 'account' => $account, 'services' => $services]); ?>
         <div class="row">
             <div class="col-sm-10">
                 <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>

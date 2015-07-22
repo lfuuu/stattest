@@ -75,12 +75,13 @@ class ContragentEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contragent = ClientContragent::findOne($this->id)->loadVersionOnDate($this->deferredDate);;
+            $this->contragent = ClientContragent::findOne($this->id)->loadVersionOnDate($this->deferredDate);
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->deferredDate);
+            $this->person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id])->loadVersionOnDate($this->deferredDate);
+            //$this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->deferredDate);
             if ($this->person === null) {
                 $this->person = new ClientContragentPerson();
             }
@@ -149,10 +150,10 @@ class ContragentEditForm extends Form
                     $this->name_full = $this->name;
                 break;
             case ClientContragent::IP_TYPE:
-                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
                 break;
             case ClientContragent::PERSON_TYPE:
-                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
                 break;
         }
     }
@@ -169,7 +170,12 @@ class ContragentEditForm extends Form
         $contragent->kpp = $this->kpp;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;
-        $contragent->tax_regime = $this->tax_regime;
+
+        if ($contragent->legal_type == 'person')
+            $contragent->tax_regime = 'simplified';
+        else
+            $contragent->tax_regime = $this->tax_regime;
+
         $contragent->opf = $this->opf;
         $contragent->okpo = $this->okpo;
         $contragent->okvd = $this->okvd;

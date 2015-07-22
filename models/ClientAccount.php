@@ -271,7 +271,7 @@ class ClientAccount extends ActiveRecord
             'balance' => 'Баланс',
             'voip_is_day_calc' => 'Включить пересчет дневного лимита',
             'region' => 'Регион',
-            'mail_print' => 'Печать конвертов',
+            'mail_print' => 'Массовая печать конвертов',
             'mail_who' => '"Кому" письмо',
             'head_company' => 'Головная компания',
             'head_company_address_jur' => 'Юр. адрес головной компании',
@@ -472,7 +472,7 @@ class ClientAccount extends ActiveRecord
     }
 
     public function sync1C()
-    {
+    {return;
         if (!defined('PATH_TO_ROOT'))
         {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');

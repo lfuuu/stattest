@@ -50,7 +50,8 @@ class AccountEditForm extends Form
         $is_with_consignee,
         $consignee,
         $is_upd_without_sign,
-        $timezone_name = Region::TIMEZONE_MOSCOW;
+        $timezone_name = Region::TIMEZONE_MOSCOW,
+        $is_active;
 
     public function rules()
     {
@@ -137,6 +138,8 @@ class AccountEditForm extends Form
     {
         $client = $this->clientM;
 
+        if($this->getIsNewRecord())
+            $this->is_active = 0;
 
         if ($this->credit < 1)
             $this->credit = -1;
