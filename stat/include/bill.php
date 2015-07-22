@@ -507,7 +507,7 @@ class Bill {
 
             $r['outprice'] =
                 $this->bill['price_include_vat']
-                    ? round($r['sum'] / $r['amount'], 4)
+                    ? round($r['sum_without_tax'] / $r['amount'], 4)
                     : round($r['sum_without_tax'] / $r['amount'], 4);
 
 

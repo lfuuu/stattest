@@ -38,11 +38,6 @@ h3 {
 	<input type=hidden name=action value=balance_sell>
 От:	<input id=date_from type=text name=date_from value='{$date_from}' class=text>
 До:	<input id=date_to type=text name=date_to value='{$date_to}' class=text><br>
-Метод оплаты: <select name=paymethod>
-	<option value=beznal{if $paymethod=='beznal'} selected{/if}>beznal</option>
-	<option value=nal{if $paymethod=='nal'} selected{/if}>nal</option>
-	<option value=prov{if $paymethod=='prov'} selected{/if}>prov</option>
-	</select><br>
 Компания:<select class="text" name="firma">
         <option value="mcn_telekom"{if $firma == "mcn_telekom"} selected{/if}>ООО "МСН Телеком"</option>
         <option value="all4geo"{if $firma == "all4geo"} selected{/if}>ООО "Олфогео"</option>
@@ -56,9 +51,6 @@ h3 {
 
 Полный экран: <input type=checkbox name=fullscreen value='1'>&nbsp;
 в Excel (csv): <input type=checkbox name=csv value='1'><br>
-Счета: <select name=payfilter><option value='1'{if $payfilter=='1'} selected{/if}>полностью оплаченные</option>
-<option value='3'{if $payfilter=='3'} selected{/if}>полностью или частично оплаченные</option>
-<option value='0'{if $payfilter=='0'} selected{/if}>все</option></select>
 <input type=submit value='Показать' class=button name="do">
 </form>
 <h2>Книга продаж</h2>
@@ -69,6 +61,9 @@ h3 {
 	<td width=* rowspan=4>Наименование покупателя</td>
 	<td width=5% rowspan=4>ИНН покупателя</td>
 	<td width=5% rowspan=4>КПП покупателя</td>
+	<td width=5% rowspan=4>Тип ЛС</td>
+	<td width=5% rowspan=4>Тип договора</td>
+	<td width=5% rowspan=4>Статус</td>
 	<td width=5% rowspan=4 class=s>Дата оплаты счета-фактуры продавца</td>
 	<td width=5% rowspan=4>Всего продаж, включая НДС</td>
 	<td width=40% colspan=8>В том числе</td>
@@ -94,6 +89,9 @@ h3 {
 	<td class=s>{$r.company_full}&nbsp;</td>
     <td>{if $r.inn}{$r.inn}{else}&nbsp;{/if}</td>
     <td>{if $r.kpp}{$r.kpp}{else}&nbsp;{/if}</td>
+    <td>{$r.type}</td>
+    <td>{$r.contract}</td>
+    <td>{$r.contract_status}</td>
 	<td>{if $r.payment_date}{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
 	<td>{$r.sum|round:2|replace:".":","}</td>
 	<td>{$r.sum_without_tax|round:2|replace:".":","}</td>
@@ -107,7 +105,7 @@ h3 {
 </tr>
 {/foreach}
 <tr class={cycle values="even,odd"}>
-	<td colspan=5 align=right>Всего:</td>
+	<td colspan=8 align=right>Всего:</td>
 	<td>{$sum.sum|round:2|replace:".":","}</td>
 	<td>{$sum.sum_without_tax|round:2}</td>
 	<td>{$sum.sum_tax|round:2}</td>

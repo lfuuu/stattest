@@ -147,9 +147,10 @@ class m_newaccounts extends IModule
 
     function _getSwitchTelekomDate($clientId)
     {
-        global $db;
-
-        $res = \app\models\HistoryChanges::find()->andWhere(['like', 'data_json', '"organization":"mcn_telekom"'])->one();
+        $res = \app\models\HistoryChanges::find()
+            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'])
+            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"'])
+            ->one();
         return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
     }
 
@@ -189,21 +190,28 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
+        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+
+        if($stDates)
         {
-            $ks = false;
-            foreach($sw as $bDate => $billNo)
+            foreach($stDates as $stDate => $stFirma)
             {
-                if($bDate >= $stDate)
+                $ks = false;
+                foreach($sw as $bDate => $billNo)
                 {
-                    $ks = $billNo;
-                    break;
+                    if($bDate >= $stDate)
+                    {
+                        $ks = $billNo;
+                        break;
+                    }
+                }
+
+                if($ks && isset($R[$ks]))
+                {
+                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
-
-            if($ks && isset($R[$ks]))
-                $R[$ks]["switch_to_mcn"] = 1;
-            
         }
 
         #krsort($R);
@@ -506,21 +514,28 @@ class m_newaccounts extends IModule
         ksort($buf);
         ksort($sw);
 
-        if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
+        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+
+        if($stDates)
         {
-            $ks = false;
-            foreach($sw as $bDate => $billNo)
+            foreach($stDates as $stDate => $stFirma)
             {
-                if($bDate >= $stDate)
+                $ks = false;
+                foreach($sw as $bDate => $billNo)
                 {
-                    $ks = $billNo;
-                    break;
+                    if($bDate >= $stDate)
+                    {
+                        $ks = $billNo;
+                        break;
+                    }
+                }
+
+                if($ks && isset($R[$ks]))
+                {
+                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
-
-            if($ks && isset($R[$ks]))
-                $R[$ks]["switch_to_mcn"] = 1;
-            
         }
 
         $qrs = array();
@@ -2675,16 +2690,12 @@ class m_newaccounts extends IModule
                 $plus = isset($count["sum_plus"]) ? $count["sum_plus"] : 0;
                 $minus = isset($count["sum_minus"]) ? $count["sum_minus"] : 0;
 
-                $totalPlus += $plus;
-                $totalMinus += $minus;
 
                 $lines[] = "За ".mdate("d месяца Y", strtotime($day))." найдено платежей: ".$count["all"].
-                    ($skiped ? ", пропущено: ".$skiped : "").
-                    ($new ? ", новых: ".$new: "").
+                    //($skiped ? ", пропущено: ".$skiped : "").
+                    //($new ? ", новых: ".$new: "").
                     "&nbsp;&nbsp;&nbsp;&nbsp;+".number_format($plus,2, ".", "`")."/-".number_format($minus,2, ".", "`");
             }
-
-            trigger_error2("Всего платежей в выгрузке: +".number_format($totalPlus,2, ".", "`")."/-".number_format($totalMinus,2, ".", "`"));
 
         }
         $param = Param::findOne(["param" => "pi_list_last_info"]);
@@ -4113,8 +4124,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 	$date_to=$dateTo->getDay();
         $design->assign('date_from_val',$date_from_val=$dateFrom->getTimestamp());
         $design->assign('date_to_val',$date_to_val=$dateTo->getTimestamp());
-        $design->assign('paymethod',$paymethod = get_param_protected('paymethod','nal'));
-        $design->assign('payfilter',$payfilter = get_param_protected('payfilter','1'));
         $design->assign('firma',$firma = get_param_protected('firma','mcn_telekom'));
         set_time_limit(0);
         $R=array();
@@ -4132,6 +4141,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $W[] = 'B.sum!=0';
         $W[] = 'P.currency="RUB" OR P.currency IS NULL';
 
+<<<<<<< HEAD
         if($payfilter=='1')     $W[] = 'B.is_payed=1';
         elseif($payfilter=='2') $W[] = 'B.is_payed IN (1,3)';
 
@@ -4140,33 +4150,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $firma = Organization::findOne(['firma' => $firma])->organization_id;
             $W[] = 'cr.organization_id="' . $firma . '"';
         }
+=======
+        if($firma)     $W[] = 'C.firma="'.$firma.'"';
+>>>>>>> upstream/master
 
         $W[] = "cg.legal_type in ('ip', 'legal')";
 
         $W_gds = $W;
         
-        $payment_condition = '';
-        if ($paymethod == 'beznal') {
-            $payment_condition = '0, 1';
-        } elseif ($paymethod) {
-            $payment_condition = '1, 0';
-        }
-        if ($payment_condition)
-        {
-            $W_gds[] = 'IF (B.bill_no like "20____/____",
-                                IF ( (SELECT 
-                                    COUNT(*) 
-                                FROM 
-                                    newpayments_orders as NO 
-                                LEFT JOIN 
-                                    newpayments as NP ON NO.payment_id = NP.id 
-                                WHERE 
-                                        NO.bill_no = B.bill_no 
-                                    AND (NP.type = "prov" OR NP.type = "neprov")
-                                ) > 0, '.$payment_condition.'),
-                                C.nal="'.$paymethod.'"
-                        )'; 
-        }
 
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
@@ -4176,10 +4167,19 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             select * from (
                 select
                     B.*,
+<<<<<<< HEAD
                     cg.name_full AS company_full,
                     cg.inn,
                     cg.kpp,
                     cg.legal_type AS type,
+=======
+                    C.company_full,
+                    C.inn,
+                    C.kpp,
+                    C.type,
+                    (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
+                    (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
+>>>>>>> upstream/master
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
@@ -4218,8 +4218,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 WHERE t.bill_no = B.bill_no 
                                     and t.id = s.trouble_id 
                                     and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
+<<<<<<< HEAD
                         cg.kpp,
                         cg.legal_type AS type,
+=======
+                        C.kpp,
+                        C.type,
+                        (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
+                        (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
+>>>>>>> upstream/master
                         max(P.payment_date) as payment_date,
                         sum(P.sum) as `pay_sum`,
                         (
@@ -4301,6 +4308,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 if (is_array($A) && $A['bill']['sum']) {
 
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
+                    $A["bill"]["contract"] = $p["contract"];
+                    $A["bill"]["contract_status"] = $p["contract_status"];
 
 
                     $invDate = $A['bill']['shipment_ts'] ? 
@@ -4320,6 +4329,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                     if ((!$date_from || $k>=$date_from) && (!$date_to || $k<=$date_to)) {
                         $A['bill']['company_full'] = $p['company_full'];
+                        $A['bill']['type'] = $c['type'];
 
                         if($p["type"] == "person")
                         {
@@ -4330,6 +4340,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
                             if (
+                                $p["type"] == "ip" ||
                                 preg_match("/(И|и)ндивидуальный[ ]+(П|п)редприниматель/", $p["company_full"]) ||
                                 preg_match("/^ИП/", $p["company_full"])
                             )

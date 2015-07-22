@@ -36,7 +36,8 @@ class PricelistAddForm extends PricelistForm
         $pricelist->tariffication_by_minutes = $this->tariffication_by_minutes;
         $pricelist->tariffication_full_first_minute = $this->tariffication_full_first_minute;
         $pricelist->price_include_vat = $this->price_include_vat;
-        $pricelist->local_network_config_id = $this->local ? $this->local_network_config_id : null;
+        $pricelist->local_network_config_id = $this->type == Pricelist::TYPE_LOCAL ? $this->local_network_config_id : null;
+        $pricelist->local = $this->type == Pricelist::TYPE_LOCAL;
 
         $pricelist->save();
 

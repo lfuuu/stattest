@@ -159,6 +159,7 @@ class m_tarifs{
             $data['is_virtual'] = (get_param_integer('is_virtual', 0) > 0 ? 1 : 0);
             $data['edit_user'] = $user->Get('id');
             $data['edit_time'] = date('Y.m.d H:i:s');
+            $data['price_include_vat'] = get_param_integer('price_include_vat');
             $data['id'] = $id;
             if ($data['id']=='0'){
                 $data['region'] = (int)$_POST['region'];

@@ -18,13 +18,15 @@
 			<td>Цена за шт. с НДС</td>
 			<td>Сумма с НДС</td>
 		</tr>
-		{foreach from=$bill_lines item='l' key='k'}{assign var='k' value=$k+1}
+		{foreach from=$bill_lines item='l' key='k'}
+			{assign var='k' value=$k+1}
+			{math assign='price' equation="x / y" x=$l.sum y=$l.amount}
 		<tr>
 			<td align="center">{$k}</td>
 			<td align="left">{if isset($1c_lines[$k])}{$1c_lines[$k].articul}{/if}&nbsp;</td>
 			<td align="left">{$l.item}&nbsp;{if $serials && isset($serials[$l.code_1c])}<br>(с/н: {foreach from=$serials[$l.code_1c] item=s name=foreach_ss}{if $smarty.foreach.foreach_ss.iteration > 1},{/if} {$s}{/foreach}){/if}</td>
 			<td align="center">{$l.amount|round:0} шт.</td>
-			<td align="center">{$l.price*1.18|round:2} руб.</td>
+			<td align="center">{$price|round:4} руб.</td>
 			<td align="center">{$l.sum|round:2} руб.</td>
 		</tr>
 		{/foreach}

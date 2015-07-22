@@ -472,7 +472,7 @@ class ClientAccount extends ActiveRecord
     }
 
     public function sync1C()
-    {return;
+    {
         if (!defined('PATH_TO_ROOT'))
         {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
@@ -495,4 +495,10 @@ class ClientAccount extends ActiveRecord
         $this->sync1C();
         parent::afterSave($insert, $changedAttributes);
     }
+
+    public function getServerPbxId($region)
+    {
+        return self::dao()->getServerPbxId($this, $region);
+    }
+
 }

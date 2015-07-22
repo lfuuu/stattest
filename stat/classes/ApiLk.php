@@ -1,6 +1,7 @@
 <?php
 use app\models\BillDocument;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\Region;
 
 class ApiLk
@@ -372,7 +373,7 @@ class ApiLk
             $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
 
             $line["tarif_name"] = $usage->currentTariff->name;
-            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2);
+            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2, ".", " ");
 
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
             $line["vpbx"] = 0;
@@ -425,6 +426,8 @@ class ApiLk
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
+            $line["price"] = number_format($line["price"], 2, ".", " ");
+            $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
         }
 
@@ -594,14 +597,21 @@ class ApiLk
         return $ret;
     }
 
-    public static function getRegionList()
+    public static function getRegionList($clientId)
     {
-        $line['voip_prefix'] = array();
+        $account = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$account)
+            return [];
+
+        $ret = [];
         foreach(NewBill::find_by_sql("
             SELECT
                 *
             FROM
                 `regions`
+            WHERE 
+                country_id = '".$account->country_id."'
             ORDER BY
                 id>97 DESC, `name`
             ") as $service)
@@ -648,7 +658,22 @@ class ApiLk
         return $ret;
     }
 
-    public static function getVpbxTarifs($currency = 'RUB', $status = 'public')
+    public static function getVpbxTarifs($accountId = 0)
+    {
+        $currency = "RUB";
+        $status = "public";
+
+        $account = ClientAccount::findOne(["id" => $accountId]);
+        if ($account)
+        {
+            $currency = $account->currency;
+        }
+
+        return self::_getVpbxTarifs($currency, $status);
+
+    }
+
+    public static function _getVpbxTarifs($currency = 'RUB', $status = 'public')
     {
         $ret = array();
         foreach(NewBill::find_by_sql("
@@ -664,9 +689,21 @@ class ApiLk
             ", array($currency, $status)) as $service)
         {
             $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
+            $line["price"] = number_format($line["price"], 2, ".", "");
             $ret[] = $line;
         }
         return $ret;
+    }
+
+    public static function getVoipTarifsByClientId($clientId)
+    {
+
+        $account = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$account)
+            return [];
+
+        return self::getVoipTarifs($account->currency);
     }
 
     public static function getVoipTarifs($currency = 'RUB', $status = 'public', $dest = '4')
@@ -697,10 +734,23 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($region_id = 0, $isSimple = false)
+    public static function getFreeNumbers($client_id, $region_id = 0, $isSimple = false)
     {
-        $valid_regions = array('87', '88', '89', '94', '95', '93', '97', '98', '99');
+        //$valid_regions = array('87', '88', '89', '94', '95', '93', '97', '98', '99');
         $ret = array();
+
+        if (!$region_id)
+            return [];
+
+        $account = ClientAccount::findOne(["id" => $client_id]);
+
+        if (!$account)
+            return [];
+
+        $region = Region::findOne(["country_id" => $account->country_id, "id" => $region_id]);
+
+        if (!$region)
+            return [];
 
         $q = "SELECT 
                 a.number, a.region, a.price, a.beauty_level,
@@ -750,7 +800,7 @@ class ApiLk
                     ) AS date_reserved 
                 FROM 
                     voip_numbers v 
-                ".(($region_id > 0 && in_array($region_id, $valid_regions)) ? ' WHERE region=' . $region_id : '')."
+                WHERE region='" . $region->id . "'
                 )a 
             LEFT JOIN clients c ON (c.id = a.client_id) 
             WHERE 
@@ -758,48 +808,33 @@ class ApiLk
                 if(a.region = 99,
                     if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true),
                 true)
-
             
-            HAVING status IN ('free')";
-
-        foreach(NewBill::find_by_sql($q/*"
-          SELECT
-                a.*, (
-                    SELECT
-                        max(actual_to)
-                    FROM
-                        usage_voip
-                    WHERE
-                        e164 = a.number
-                        AND NOT (actual_from = '2029-01-01' AND actual_to='2029-01-01')
-                    ) date_to
-          FROM (
-            SELECT
-                number, beauty_level, price, voip_numbers.region
-            FROM
-                voip_numbers
-            LEFT JOIN usage_voip uv ON (uv.E164 = voip_numbers.number)
-            WHERE
-                uv.E164 IS NULL
-                AND client_id IS NULL
-                AND (
-                    (used_until_date IS NULL OR used_until_date < now() - interval 6 MONTH)
-                    OR
-                    (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < now()))
-                    OR
-                        site_publish = 'Y'
-                )
-              )a
-          HAVING date_to IS NULL OR date_to < now()
-          ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number
-          "*/) as $service)
+            HAVING status IN ('free')
+                limit 1000;
+                ";
+        
+        foreach(NewBill::find_by_sql($q) as $service)
         {
+            if ($region->country_id == Country::RUSSIA)
+            {
+                $skipFrom = 1;
+                $areaLen = 3;
+            } else {
+                $skipFrom = 0;
+                $areaLen = 2;
+            }
             $line = self::_exportModelRow(array("number", "beauty_level", "price", "region"), $service);
             $line['full_number'] = $line['number'];
-            $line['area_code'] = substr($line['number'],1,3);
+            $line['area_code'] = substr($line['number'],$skipFrom,$areaLen);
             $l = strlen($line['number']);
             $number = $line["number"];
-            $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
+            $aNumber = substr($number, $skipFrom+$areaLen);
+            if (preg_match("/(\d+)(\d{2})(\d{2})$/six", $aNumber, $a))
+            {
+                $line["number"] = $a[1]."-".$a[2]."-".$a[3];
+            } else {
+                $line["number"] = $aNumber;
+            }
             if ($line['price'] == '') $line['price_add'] = 'Договорная';
             else $line['price_add'] = 'руб.';
             $ret[] = $isSimple ? $number : $line;
@@ -828,7 +863,7 @@ class ApiLk
         global $db;
         //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
 
-        $freeNumbers = self::getFreeNumbers(0, true);
+        $freeNumbers = self::getFreeNumbers($client_id, $region_id, true);
         if (array_search($number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'voip_number_not_free');
 
@@ -869,11 +904,19 @@ class ApiLk
         $client_id = (int)$client_id;
         $region_id = (int)$region_id;
         $tarif_id = (int)$tarif_id;
+    
+        $account = ClientAccount::findOne(["id" => $client_id]);
+        if (!$region_id)
+        {
+            if ($account)
+            {
+                $region_id = $account->region;
+            }
+        }
 
-        $account = ClientAccount::findOne($client_id);
-        $region = Region::findOne($region_id);
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
-
+    
         if (!$account || !$region || !$tarif)
             throw new Exception("data_error");
 
@@ -888,7 +931,7 @@ class ApiLk
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
-                            "server_pbx_id" => 2 //vpbx-msk
+                            "server_pbx_id" => $account->getServerPbxId($region)
                             )
                         );
 
@@ -1398,7 +1441,7 @@ class ApiLk
             }
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
-                $phones[$r['region']] = $r['region_name'].' (все номера)';
+                $phones[$r['region']] = $r['region_name'];
                 $last_region = $r['region'];
             }
             $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
