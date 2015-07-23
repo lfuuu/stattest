@@ -2176,7 +2176,7 @@ class ApiLk
         if(!$c)
             throw new Exception("account_not_found");
 
-        if($c->currency != "RUB" && $c->currency != "HUF"))
+        if($c->currency != "RUB" && $c->currency != "HUF")
             throw new Exception("data_error");
 
         $paypal = new \PayPal();
