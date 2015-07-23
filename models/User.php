@@ -80,13 +80,19 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 
     public static function getAccountManagerList()
     {
-        $arr = self::find()->where(['usergroup' => 'account_managers', 'enabled' => 'yes'])->all();
+        $arr = self::find()
+            ->andWhere(['in', 'usergroup', ['account_managers', 'managers']])
+            ->andWhere(['enabled' => 'yes'])
+            ->all();
         return ArrayHelper::map($arr, 'user', 'name');
     }
 
     public static function getManagerList()
     {
-        $arr = self::find()->where(['usergroup' => ['manager', 'account_managers'], 'enabled' => 'yes'])->all();
+        $arr = self::find()
+            ->andWhere(['in', 'usergroup', ['account_managers', 'managers']])
+            ->andWhere(['enabled' => 'yes'])
+            ->all();
         return ArrayHelper::map($arr, 'user', 'name');
     }
 

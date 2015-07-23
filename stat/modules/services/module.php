@@ -2171,7 +2171,7 @@ class m_services extends IModule{
         global $design;
         if (!$this->fetch_client($fixclient)) {
             $items = WelltimeServiceDao::me()->getAll();
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             for ($i=0, $s=sizeof($items); $i<$s; $i++) {
                 $items[$i]["client_color"] = isset($statuses[ $items[$i]["client_status"] ])
                     ? $statuses[ $items[$i]["client_status"] ]["color"]

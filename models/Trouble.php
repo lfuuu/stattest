@@ -40,7 +40,7 @@ class Trouble extends ActiveRecord
 
     public $client_name = '';
 
-    public $typeLabels =[
+    public $typeLabels = [
         'connect' => 'Подключение',
         'incomegoods' => 'Заказ поставщику',
         'mounting_orders' => '',
@@ -51,7 +51,7 @@ class Trouble extends ActiveRecord
         'trouble' => 'Трабл',
     ];
 
-    public $subTypeLabels =[
+    public $subTypeLabels = [
         'connect' => 'Подключение',
         'incomegoods' => 'Заказ поставщику',
         'monitoring' => 'Мониторинг',
@@ -86,21 +86,29 @@ class Trouble extends ActiveRecord
 
     public function getStage()
     {
-       return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);
+        return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);
+    }
+
+    public function getLastNotEmptyComment()
+    {
+        $model = TroubleStage::find()
+            ->andWhere(['trouble_id' => $this->id])
+            ->andWhere(['!=', 'comment', ''])
+            ->orderBy(['stage_id' => SORT_DESC])
+            ->one();
+        return ($model) ? $model->comment : '';
     }
 
     public function getUsage()
     {
-        if($this->server_id){
+        if ($this->server_id) {
             $server = ServerPbx::findOne($this->server_id);
             return "Сервер: {$server->name},<br>Регион: {$server->datacenter->region->name}";
-        }
-        elseif($this->service) {
+        } elseif ($this->service) {
             if ($this->service != 'usage_voip')
                 return str_replace('usage_', '', $this->service) . '-' . $this->service_id;
             return (null !== $m = UsageVoip::findOne($this->service_id)) ? $m->E164 : '';
-        }
-        elseif($this->bill_no)
+        } elseif ($this->bill_no)
             return $this->bill_no;
 
         return '';

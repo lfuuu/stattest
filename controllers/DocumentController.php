@@ -81,7 +81,7 @@ class DocumentController extends BaseController
             ->one();
         $email = $contact ? $contact->data : '';
 
-        $p = data_encode($document->id . '-' . $account->id);
+        $p = $document->getLink();
         $adr = Yii::$app->params['LK_PATH'].'docs/?code=' . str_replace('=', '%%3D', $p);
         $body = "Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
         $body .= "<a href=\"" . $adr . "\">" . $adr . "</a><br><br>";
@@ -117,7 +117,7 @@ class DocumentController extends BaseController
         $model = ClientAccount::findOne($clientId);
         if (!$model)
             throw new Exception('ЛС не найден');
-        $this->layout = null;
+        $this->layout = false;
 
         return $this->render('envelope', ['account' => $model]);
     }

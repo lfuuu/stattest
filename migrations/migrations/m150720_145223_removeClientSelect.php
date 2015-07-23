@@ -5,7 +5,7 @@ class m150720_145223_removeClientSelect extends \app\classes\Migration
     public function up()
     {
         $this->execute("
-        DROP VIEW `clients_select`;
+            DROP VIEW IF EXISTS `clients_select`;
         ");
     }
 

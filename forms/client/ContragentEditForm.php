@@ -80,8 +80,12 @@ class ContragentEditForm extends Form
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id])->loadVersionOnDate($this->deferredDate);
-            //$this->person = HistoryVersion::getVersionOnDate('ClientContragentPerson', $this->id, $this->deferredDate);
+            $person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id]);
+            if($person)
+                $this->person = $person->loadVersionOnDate($this->deferredDate);
+            else
+                $this->person = new ClientContragentPerson();
+
             if ($this->person === null) {
                 $this->person = new ClientContragentPerson();
             }
@@ -94,8 +98,8 @@ class ContragentEditForm extends Form
 
     public function save()
     {
-        $this->fillContragent();
         $this->fillContragentNameByLegalType();
+        $this->fillContragent();
         $contragent = $this->contragent;
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);

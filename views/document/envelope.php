@@ -4,7 +4,6 @@
     <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=UTF-8">
     <TITLE>      </TITLE>
 
-    {literal}
     <STYLE>
         <!--
         @page { size: 27.94cm 12.07cm; margin-right: 1.27cm; margin-top: 0.64cm; margin-bottom: 1.27cm }
@@ -21,15 +20,14 @@
         .envelope_from {margin-left: 6cm}
         -->
     </STYLE>
-    {/literal}
 </HEAD>
 <BODY LANG="ru-RU" TEXT="#000000" LINK="#0000ff" DIR="LTR">
 
 <div class="envelope_to">
     <table border="0" style="font-size: 12pt" cellpadding="3">
-        <tr><td valign=top><b>Куда:</b></td><td style="font-size: 12pt"><?= $account->address_post_real ?></td></tr>
+        <tr><td valign=top><b>РљСѓРґР°:</b></td><td style="font-size: 12pt"><?= $account->address_post_real ?></td></tr>
         <tr>
-            <td valign=top><b> Кому:</b> </td><td style="font-size: 12pt">
+            <td valign=top><b> РљРѕРјСѓ:</b> </td><td style="font-size: 12pt">
                 <?= ($account->mail_who) ? $account->mail_who : $account->contract->contragent->name_full;?>
             </td>
         </tr>

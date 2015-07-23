@@ -56,7 +56,7 @@ window.setTimeout("javscript:refrfunc()",{/literal}{$refresh}{literal}000);
 {if $smarty.foreach.inner.iteration==1}
 	<TD rowspan='{count_rows_func start=0 arr=$send_client}'><a href='/client/view?id={$item.clientid}'>{$item.client}</a></TD>
 {/if}
-	<TD><a href='modules/accounts/view.php?bill_no={$item.bill_no}&client={$item.client}'>{$item.bill_no}</a></TD>
+	<TD><a href='/?module=newaccounts&action=bill_view&bill_no={$item.bill_no}&client={$item.client}'>{$item.bill_no}</a></TD>
 	<TD{if (isset($item.cur_sent)) && ($item.cur_sent==1)} style='color:red;font-weight:bold'{/if}>{$item.state}</TD>
 	<TD>{if $item.last_send!="0000-00-00 00:00:00"}{$item.last_send}{/if}</TD>
 	<TD style='font-size:80%'>{$item.message}</TD>

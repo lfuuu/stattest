@@ -3,8 +3,6 @@
 class m_monitoring {
 	var $actions=array(
 					'default'			=> array('monitoring','view'),
-					'edit'				=> array('monitoring','edit'),
-					'add'				=> array('monitoring','edit'),
 					'view'				=> array('monitoring','view'),
 					'top'				=> array('monitoring','top'),
 					'report_voip_graph' 		=> array('monitoring','graphs'),
@@ -12,7 +10,6 @@ class m_monitoring {
 					'report_move_numbers'           => array('services_voip','edit'),
 				);
 	var $menu=array(
-					array('VIP-клиенты',			'default'),
 					array('Отчет: Динамика звоноков',	'report_voip_graph'),
 					array('Отчет: Динамика счетов',	'report_bill_graph'),
 					array('Перемещаемые услуги',    'report_move_numbers'),
@@ -51,24 +48,7 @@ class m_monitoring {
 		$view = new DbViewMonitorClients();
 		$view->Display('module=monitoring','module=monitoring&action=edit');
 	}
-	function monitoring_edit($fixclient) {
-		include INCLUDE_PATH.'db_view.php';
-		$dbf = new DbFormMonitorClients();
-		if (($id=get_param_integer('id')) && !($dbf->Load($id))) return;
-		$result=$dbf->Process();
-                if ($result=='delete') {
-                        header('Location: ?module=monitoring');
-                    exit;
-                        $design->ProcessX('empty.tpl');
-		} else $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>$id),'Мониторинг',$id?'Редактирование':'Добавление');
-	}
-	function monitoring_add($fixclient) {
-		include INCLUDE_PATH.'db_view.php';
-		$dbf = new DbFormMonitorClients();
-		$dbf->SetDefault('client',$fixclient);
-		$dbf->Process();
-                $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>0),'Мониторинг','Добавление');
-	}
+
 	function monitoring_top($fixclient){
 		global $design,$db,$user;
 /*		$db->Query('select * from clients_vip where (num_unsucc>=3)');

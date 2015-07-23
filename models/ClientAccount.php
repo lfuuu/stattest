@@ -9,6 +9,7 @@ use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\models\ClientContact;
+use yii\helpers\ArrayHelper;
 
 
 /**
@@ -400,11 +401,11 @@ class ClientAccount extends ActiveRecord
     public function getOfficialContact()
     {
         $res = [];
-        $contacts = ClientContact::find()->andWhere(['client_id' => $this->id, 'is_official'=>1])->all();
-        foreach($contacts as $contact){
-            $res[$contact->type] = $contact;
-        }
-        return $res;
+        $contacts = ClientContact::find()
+            ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
+            ->groupBy(['type'])
+            ->all();
+        return ArrayHelper::map($contacts, 'type', 'data');
     }
 
     public function getBpStatuses()
@@ -479,6 +480,9 @@ class ClientAccount extends ActiveRecord
         }
 
         require_once PATH_TO_ROOT . 'conf.php';
+
+        if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
+            return;
 
         try {
             if (($Client = \Sync1C::getClient())!==false)

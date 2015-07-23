@@ -14,7 +14,7 @@ use yii\helpers\Url;
             <a href="/account/edit?id=<?= $account->id ?>">Редактировать ЛС</a>
         </li>
         <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
-            <a href="/document/envelope?clientId=<?= $account->id ?>" target="_blank">Напечатать конверт</a>
+            <a href="/document/print-envelope?clientId=<?= $account->id ?>" target="_blank">Напечатать конверт</a>
         </li>
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">Заказ на Установку/Монтаж</a>

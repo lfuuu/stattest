@@ -56,7 +56,7 @@ if ($troublesIsset):
                             <a href="/?module=newaccounts&action=bill_view&bill=<?= $trouble->usage ?>"><?= $trouble->usage ?></td>
                         <?php endif; ?>
                         </td>
-                        <td><?= $trouble->stage->comment ?></td>
+                        <td><?= $trouble->lastNotEmptyComment ?></td>
                     </tr>
                     <?php $i++ ?>
                 <?php endforeach; ?>

@@ -17,7 +17,7 @@
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 	<TD><input type=hidden value='{$item.client}' name='bill_client[{$smarty.foreach.outer.iteration}]'><a href='/client/view?id={$item.clientid}'>{$item.client}</a></TD>
 	<TD>{$item.manager}</TD>
-	<TD><input type=hidden value='{$item.bill_no}' name='bill_no[{$smarty.foreach.outer.iteration}]'><a href='modules/accounts/view.php?bill_no={$item.bill_no}&client={$item.client}'>{$item.bill_no}</a></TD>
+	<TD><input type=hidden value='{$item.bill_no}' name='bill_no[{$smarty.foreach.outer.iteration}]'><a href='/?module=newaccounts&action=bill_view&bill_no={$item.bill_no}'>{$item.bill_no}</a></TD>
 	<TD>{$item.bill_date}</TD>
 	<TD><input type=hidden value='{$item.email}' name='bill_email[{$smarty.foreach.outer.iteration}]'>{$item.email}</TD>
 	<TD><input type=checkbox {if $item.email!="" && $item.fday}checked {/if}value=1 name='bill_confirmed[{$smarty.foreach.outer.iteration}]' id='bill_confirmed_{$smarty.foreach.outer.iteration}'> <a href='{$LINK_START}module=clients&id={$item.client}&action=edit_pop&hl=email' target=_blank>редактировать</a></TD>
