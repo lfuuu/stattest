@@ -56,7 +56,7 @@ echo Form::widget([
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Точка подключения</label>
-                <input type="text" class="form-control" value="' . $usage->connectionPoint->id . '" readonly>
+                <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly>
             </div>
         '],
         ['type' => Form::INPUT_RAW, 'value' => '

@@ -44,6 +44,8 @@ class UsageVoipAddPackageForm extends Form
         $this->clientTimezone = $this->usage->clientAccount->timezone;
 
         $today = new DateTime('now', $this->clientTimezone);
+        $today->setTime(0, 0, 0);
+
         $actualFrom = new DateTime($this->actual_from, $this->clientTimezone);
 
         if ($actualFrom < $today) {
@@ -53,8 +55,8 @@ class UsageVoipAddPackageForm extends Form
         $usageVoipPackage = new UsageVoipPackage;
         $usageVoipPackage->setAttributes($this->getAttributes(), false);
 
-        $activation_dt = new \DateTime($this->actual_from, $this->clientTimezone);
-        $activation_dt->setTime(0, 0, 1);
+        $activation_dt = new DateTime($this->actual_from, $this->clientTimezone);
+        $activation_dt->setTime(0, 0, 0);
 
         $usageVoipPackage->activation_dt = $activation_dt->format('Y-m-d H:i:s');
         $usageVoipPackage->client = $this->usage->clientAccount->client;

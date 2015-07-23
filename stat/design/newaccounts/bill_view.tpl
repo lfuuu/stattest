@@ -172,7 +172,7 @@
         </td>
         <td>
             {if $item.service && $item.service != '1C'}
-                <a target=_blank href='{$PATH_TO_ROOT}pop_services.php?table={$item.service}&id={$item.id_service}'>
+                <a target="_blank" href="/usage/voip/edit?id={$item.id_service}">
                     {$item.item}
                 </a>
             {else}

@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
+use app\models\UsageVoipPackage;
 use Yii;
 
 class VoipBiller extends Biller
@@ -111,17 +112,18 @@ class VoipBiller extends Biller
             );
         }
 
-        $packages = $this->usage->usagePackages;
+        $packages =
+            $this->usage->getUsagePackages()
+                ->where(['>=', 'actual_to', $this->billerPeriodFrom->format('Y-m-d')])
+                ->all();
+
         foreach ($packages as $package) {
-            $this->addPackage(
-                BillerPackagePeriodical::create($this)
-                    ->setPrice($package->tariff->periodical_fee)
-                    ->setTemplate('voip_package_fee')
-                    ->setTemplateData([
-                        'tariff' => $package->tariff->name,
-                        'service' => $this->usage->E164,
-                    ])
-            );
+            $transactions =
+                $package->getBiller($this->billerDate, $this->clientAccount)
+                    ->process(false, false, true, false)
+                    ->getTransactions();
+
+            $this->transactions = array_merge($this->transactions, $transactions);
         }
     }
 
@@ -214,20 +216,18 @@ class VoipBiller extends Biller
             );
         }
 
-        $packages = $this->usage->usagePackages;
+        /** @var UsageVoipPackage[] $packages */
+        $packages =
+            $this->usage->getUsagePackages()
+                ->where(['>=', 'actual_to', $this->billerActualTo->format('Y-m-d')])
+                ->all();
+
         foreach ($packages as $package) {
-            if ($package->tariff->pricelist_id) {
-                $this->addPackage(
-                    BillerPackageResource::create($this)
-                        ->setTemplate('voip_package_payment')
-                        ->setTemplateData([
-                            'tariff' => $package->tariff->name,
-                            'service' => $this->usage->E164,
-                        ])
-                        ->setMinPayment($package->tariff->min_payment)
-                        ->setMinPaymentTemplate('voip_package_minpay')
-                );
-            }
+            $transactions =
+                $package->getBiller($this->billerDate, $this->clientAccount)
+                    ->process(false, false, false, true)
+                    ->getTransactions();
+            $this->transactions = array_merge($this->transactions, $transactions);
         }
     }
 

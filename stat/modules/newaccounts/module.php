@@ -1056,7 +1056,6 @@ class m_newaccounts extends IModule
                         ->createTransactions()
                         ->getTransactions();
 
-
                 foreach ($periodicalTransactions as $transaction) {
                     $year = substr($transaction->billing_period, 0, 4);
                     $month = substr($transaction->billing_period, 5, 2);

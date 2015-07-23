@@ -6,7 +6,7 @@ return [
     'serial_number' => '(серийный номер {value}',
     'pledge' => 'Залог за {value}',
     'date_once' => ', {0, date, dd}',
-    'date_range_full' => ' с{0, date, dd} по{1, date, dd MMM}',
+    'date_range_full' => ' с{0, date, dd MMM} по{1, date, dd MMM}',
     'date_range_with_year' => ' с{0, date, dd MMM YYYY} по{1, date, dd MMM YYYY}',
     'by_agreement' => ', согласно Договора {contract_no} от {contract_date, date,dd MMM YYYY}',
 
