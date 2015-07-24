@@ -18,7 +18,12 @@ jQuery(document).ready(function() {
         $('<div />')
             .css({'text-align': 'center'})
             .addClass('alert alert-success fade in')
-            .append($('<div />').css({'font-weight':'bold'}).text('Ваши данные успешно сохранены'))
+            .append(
+                $('<div />')
+                    .css({'font-weight':'bold', 'cursor':'pointer'})
+                    .text('Ваши данные успешно сохранены')
+                    .on('click', function() { $(this).alert('close') })
+            )
             .alert()
             .prependTo('div.layout_main');
     }
