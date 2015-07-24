@@ -70,7 +70,7 @@ class VoipStatus {
         if ($need_lock_limit_month)
             $warnings[] = 'Превышен месячный лимит: '.(-$this->amount_month_sum).' > '.$this->account->voip_credit_limit;
         if ($need_lock_credit)
-            $warnings[] = 'Превышен лимит кредита: '.$this->balance.' < -'.$this->credit;
+            $warnings[] = 'Превышен лимит кредита: '.$this->balance.' < -'.$this->account->credit;
 
         return $warnings;
     }
