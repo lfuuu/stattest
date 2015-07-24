@@ -89,6 +89,10 @@ class Trouble extends ActiveRecord
         return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);
     }
 
+    public function getAccount(){
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
     public function getLastNotEmptyComment()
     {
         $model = TroubleStage::find()

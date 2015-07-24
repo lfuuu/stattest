@@ -85,9 +85,6 @@ class ContragentEditForm extends Form
             else
                 $this->person = new ClientContragentPerson();
 
-            if ($this->person === null) {
-                $this->person = new ClientContragentPerson();
-            }
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
         } else {
             $this->contragent = new ClientContragent();

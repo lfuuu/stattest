@@ -34,7 +34,7 @@ class TroubleStage extends ActiveRecord
 
     public static function find()
     {
-        return parent::find()->select(['*', 'FROM_UNIXTIME(TIMESTAMPDIFF(SECOND, `'.self::tableName().'`.`date_start`, IF(`state_id`=2,`date_edit`,NOW())), "%H:%i") AS `dif_time`']);
+        return parent::find()->select(['*', 'FROM_UNIXTIME(TIMESTAMPDIFF(SECOND, `'.self::tableName().'`.`date_start`, IF(`state_id`=2,`date_edit`,NOW())), "%dd %H:%i") AS `dif_time`']);
     }
 
 }

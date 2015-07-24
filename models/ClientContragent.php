@@ -131,7 +131,14 @@ class ClientContragent extends ActiveRecord
      */
     public function getPerson()
     {
-        return ClientContragentPerson::findOne($this->contragent_id)->loadVersionOnDate($this->historyVersionDate);
+        $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
+        if($person)
+            $person = $person->loadVersionOnDate($this->deferredDate);
+        else {
+            $person = new ClientContragentPerson();
+            $person->contragent_id = $this->id;
+        }
+        return $person;
     }
 
     /**
