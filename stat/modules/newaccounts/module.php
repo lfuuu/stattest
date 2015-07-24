@@ -4121,7 +4121,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $V = array(
                     'name'=>str_replace(array('"'), "", $period_client_data["company_full"]).' Акт сверки (на '.$date_to.').pdf',
                     'ts'=>array('NOW()'),
-                    'client_id'=>$fixclient_data['id'],
+                    'contract_id'=>$fixclient_data['contract_id'],
                     'comment'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.')',
                     'user_id'=>$user->Get('id')
                 );
