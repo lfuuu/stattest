@@ -50,7 +50,13 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 
     public static function findByUsername($user)
     {
-        return static::findOne(['user' => $user, 'enabled' => 'yes']);
+        $user = static::findOne(['user' => $user]);
+
+        if ($user)
+            if ($user->enabled != 'yes')
+                $user->name = "(--".$user->name."--)";
+
+        return $user;
     }
 
     public static function findByPasswordResetToken($token)

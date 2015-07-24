@@ -389,7 +389,7 @@ if($has) :
 
 
         <?php if ($services['virtpbx']): ?>
-            <h3><a href="?module=services&action=welltime_view">WellTime</a></h3>
+            <h3><a href="?module=services&action=welltime_view">Виртуальная АТС</a></h3>
             <div id="virtpbx">
                 <table cellspacing="4" cellpadding="2" width="100%" border="0">
                     <thead>
@@ -416,9 +416,7 @@ if($has) :
 
                             </td>
                             <td><?= $service->currentTariff->description ?></td>
-                            <td><?= number_format(round($service->currentTariff->price * 1.8, 2), 2); ?>
-                                (<?= number_format($service->currentTariff->price, 2) ?>)
-                            </td>
+                            <td><?= $service->currentTariff->price ?></td>
                             <td><?= $service->serverPbx->name ?></td>
                         </tr>
                     <?php endforeach; ?>

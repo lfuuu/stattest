@@ -126,10 +126,10 @@ class AccountEditForm extends Form
         }
 
         if($this->credit == -1){
-            $this->credit = 1;
+            $this->credit = 0;
             $this->credit_size = 0;
         } elseif($this->credit == 0) {
-            $this->credit = 0;
+            $this->credit = 1;
             $this->credit_size = 0;
         }else{
             $this->credit_size = $this->credit;
@@ -151,9 +151,9 @@ class AccountEditForm extends Form
         if ($this->credit && $this->credit_size > 0) {
             $this->credit = $this->credit_size;
         } elseif ($this->credit) {
-            $this->credit = -1;
-        } else{
             $this->credit = 0;
+        } else{
+            $this->credit = -1;
         }
 
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
