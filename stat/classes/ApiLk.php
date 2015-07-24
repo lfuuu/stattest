@@ -2151,9 +2151,11 @@ class ApiLk
         if(!$account)
             throw new Exception("account_not_found");
 
+        if($c->currency != "RUB" && $c->currency != "HUF")
+            throw new Exception("data_error");
 
         $paypal = new \PayPal();
-        return $paypal->getPaymentToken($accountId, $sum);
+        return $paypal->getPaymentToken($accountId, $sum, $c->currency);
     }
 
     public static function paypalApply($token, $payerId)

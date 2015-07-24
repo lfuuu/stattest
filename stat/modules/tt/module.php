@@ -2578,8 +2578,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     "Заявка #".$tId." (клиент ".$p["client"].") назначен: ".$user.($userFrom ? " (был ".$userFrom.")" : "")."\n".
                     "Создатель: ".$p["user_author"]."\n".
                     "Проблема: ".$p["problem"]."\n\n".
-                    ($comment ? "Последний коментарий: ".$comment."\n\n" : "").
-                    "https://stat.mcn.ru/?search=".$tId
+                    ($comment ? "Последний коментарий: ".$comment."\n\n" : "")
                     );
         }
     }

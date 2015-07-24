@@ -14,11 +14,11 @@
 <a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("месяц","{$smarty.now|date_format:"%m"}")+"%";return false;'>Соглашение о передаче прав (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>Договор</a><br><br>
+<a href='#' onclick='form.body.value+="\n%SOGL_MCM_TELEKOM%";return false;'>Соглашение о передаче прав (МСММСМ  Телеком)</a><br><br>
 </TD></TR></FORM></TABLE>
 
 {if $template.job_id}

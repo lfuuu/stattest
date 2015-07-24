@@ -50,23 +50,23 @@ class PayPal {
        );
    }
 
-   private function _getOrderParams($sum)
+   private function _getOrderParams($sum, $currency)
    {
        return [
            'PAYMENTREQUEST_0_PAYMENTACTION' => 'SALE',
            'PAYMENTREQUEST_0_AMT' => $sum,
-           'PAYMENTREQUEST_0_CURRENCYCODE' => 'HUF'
+           'PAYMENTREQUEST_0_CURRENCYCODE' => $currency
            ];
    }
 
-   public function getPaymentToken($accountId, $sum)
+   public function getPaymentToken($accountId, $sum, $currency)
    {
        $response = $this -> request('SetExpressCheckout', 
            $this -> _requestParams + 
-           $this -> _getOrderParams($sum)
+           $this -> _getOrderParams($sum, $currency)
        );
 
-       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum.":: ".print_r($response, true));
+       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: ".print_r($response, true));
 
        if (
            $response && 

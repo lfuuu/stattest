@@ -413,13 +413,13 @@ class WizardController extends /*BaseController*/ApiController
         {
             return [
                 "manager_name" => "", 
-                "manager_phone" => "(495) 105-55-55"
+                "manager_phone" => "(495) 105-99-99"
                 ];
         }
 
         return [
             "manager_name" => $manager->name,
-            "manager_phone" => "(495) 105-55-55".($manager->phone_work ? " доп. ".$manager->phone_work : "")
+            "manager_phone" => "(495) 105-99-99".($manager->phone_work ? " доп. ".$manager->phone_work : "")
         ];
     }
 
