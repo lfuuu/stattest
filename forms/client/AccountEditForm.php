@@ -50,7 +50,14 @@ class AccountEditForm extends Form
         $consignee,
         $is_upd_without_sign,
         $timezone_name = Region::TIMEZONE_MOSCOW,
-        $is_active;
+        $is_active,
+        $bik,
+        $corr_acc,
+        $pay_acc,
+        $bank_name,
+        $custom_properties,
+        $bank_properties,
+        $bank_city;
 
     public function rules()
     {
@@ -59,6 +66,7 @@ class AccountEditForm extends Form
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties'
                 ],
                 'string'
             ],
@@ -66,6 +74,7 @@ class AccountEditForm extends Form
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties'
                 ],
                 'default', 'value' => ''
             ],
