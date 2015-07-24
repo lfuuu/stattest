@@ -18,7 +18,7 @@
     {if $tt_client}
         <tr>
             <td align="right">Клиент:</td>
-            <td><a href='/client/view?id={$tt_client.client}'>{$tt_client.name}</a> ({$tt_client.client})</td>
+            <td><a href='/client/view?id={$tt_client.id}'>{$tt_client.name}</a> ({$tt_client.client})</td>
         </tr>
     {/if}
     {if $tt_trouble.service}
@@ -154,8 +154,8 @@
                 {/foreach}
             </table>
 
-            {if $tt_write 
-            || ($tt_doComment && !$tt_isClosed) 
+            {if $tt_write
+            || ($tt_doComment && !$tt_isClosed)
             || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
                 <form action="index_lite.php" method="post" id="state_1c_form">
                     <input type="hidden" name="module" value="tt" />
