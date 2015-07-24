@@ -81,7 +81,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function getAccountManagerList()
     {
         $arr = self::find()
-            ->andWhere(['in', 'usergroup', ['account_managers', 'managers']])
+            ->andWhere(['in', 'usergroup1', ['account_managers', 'manager']])
             ->andWhere(['enabled' => 'yes'])
             ->all();
         return ArrayHelper::map($arr, 'user', 'name');
@@ -90,7 +90,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function getManagerList()
     {
         $arr = self::find()
-            ->andWhere(['in', 'usergroup', ['account_managers', 'managers']])
+            ->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
             ->andWhere(['enabled' => 'yes'])
             ->all();
         return ArrayHelper::map($arr, 'user', 'name');
