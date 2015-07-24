@@ -23,6 +23,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
     const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10;//Владимир Ан
+    const DEPART_SALES = 28;
 
     public static function tableName()
     {
@@ -81,7 +82,8 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function getAccountManagerList()
     {
         $arr = self::find()
-            ->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            //->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            ->andWhere(['depart_id' => self::DEPART_SALES])
             ->andWhere(['enabled' => 'yes'])
             ->all();
         return ArrayHelper::map($arr, 'user', 'name');
@@ -90,7 +92,8 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function getManagerList()
     {
         $arr = self::find()
-            ->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            //->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            ->andWhere(['depart_id' => self::DEPART_SALES])
             ->andWhere(['enabled' => 'yes'])
             ->all();
         return ArrayHelper::map($arr, 'user', 'name');
