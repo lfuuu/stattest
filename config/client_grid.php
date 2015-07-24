@@ -350,8 +350,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'cr.contract_type_id = 2',
-                                'cr.business_process_status_id = 9',
+                                ['cr.contract_type_id' => 2],
+                                ['cr.business_process_status_id' => 9],
                             ),
                     ],
                     'columns' => [
@@ -379,8 +379,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'cr.contract_type_id = 2',
-                                'cr.business_process_status_id = 10',
+                                ['cr.contract_type_id' => 2],
+                                ['cr.business_process_status_id' => 10],
                             ),
                     ],
                     'columns' => [
@@ -407,8 +407,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'c.is_blocked' => 1,
-                                'cr.business_process_status_id = 9',
+                                ['c.is_blocked' => 1],
+                                ['cr.business_process_status_id' => 9],
                             ),
                     ],
                     'columns' => [
@@ -434,8 +434,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'c.is_blocked' => 1,
-                                0 =>
+                                0 => ['c.is_blocked' => 1],
+                                1 =>
                                     array(
                                         'not in',
                                         'cr.business_process_status_id',
@@ -470,8 +470,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'cr.contract_type_id = 2',
-                                'cr.business_process_status_id = 22',
+                                ['cr.contract_type_id' => 2],
+                                ['cr.business_process_status_id' => 22],
                             ),
                     ],
                     'columns' => [
@@ -554,8 +554,8 @@ return
                     'queryParams' => [
                         'where' =>
                             array(
-                                'cr.contract_type_id = 2',
-                                'cr.business_process_status_id = 28',
+                                ['cr.contract_type_id' => 2],
+                                ['cr.business_process_status_id' => 28],
                             ),
                     ],
                     'columns' => [
