@@ -3948,6 +3948,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
        
         $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
 
+        //** Todo:  */
+        $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->director->getOldModeInfo());
+        $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
+        //** Todo:  */
+
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('saldo', $startsaldo=floatval(get_param_protected('saldo',0)));
         $design->assign('date_from_val',$date_from_val=strtotime($date_from));
