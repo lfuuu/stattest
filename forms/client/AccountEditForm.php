@@ -71,7 +71,7 @@ class AccountEditForm extends Form
             ],
             [
                 [
-                    'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'voip_credit_limit',
+                    'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'credit_size', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
                     'is_agent', 'mail_print'
                 ],
@@ -128,7 +128,7 @@ class AccountEditForm extends Form
         if($this->credit == -1){
             $this->credit = 1;
             $this->credit_size = 0;
-        } elseif($this->credit = 0) {
+        } elseif($this->credit == 0) {
             $this->credit = 0;
             $this->credit_size = 0;
         }else{
