@@ -111,7 +111,7 @@ class AccountController extends BaseController
         $model = new AccountEditForm(['id' => $id, 'deferredDate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['client/view', 'id' => $id]);
+            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1]);
         }
 
         return $this->render("edit", [

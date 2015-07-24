@@ -83,7 +83,7 @@ use yii\helpers\Url;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1], 'options' => ['value' => 1000]],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
                     'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
@@ -396,3 +396,5 @@ use yii\helpers\Url;
         });
     </script>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
