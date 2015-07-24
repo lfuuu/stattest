@@ -18,7 +18,7 @@ if ($troublesIsset):
                     <th>№</th>
                     <th>Дата создания</th>
                     <th>Этап</th>
-                    <th>Ответ</th>
+                    <th>Ответ.</th>
                     <th>Проблема</th>
                 </tr>
                 <tr style="background: #f7f7f7;">
@@ -33,7 +33,7 @@ if ($troublesIsset):
                 <?php $i=1; ?>
                 <?php foreach ($troubles as $k => $trouble) : ?>
                     <tr style="border-top: 2px solid black; background: <?= $i%2==0 ? '#f9f9f9' : 'white' ?>;">
-                        <td><a href="/index.php?module=tt&action=view&id=<?= $trouble->id ?>"><?= $trouble->id ?></a></td>
+                        <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id ?>"><?= $trouble->id ?></a></b></td>
                         <td><?= $trouble->date_creation ?></td>
                         <td><?= $trouble->stage->state->name ?></td>
                         <td><?= $trouble->stage->user_main ?></td>
@@ -41,8 +41,8 @@ if ($troublesIsset):
                     </tr>
                     <tr style=" background: <?= $i%2==0 ? '#f9f9f9' : 'white' ?>;">
                         <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype] ?></td>
-                        <td><?= $trouble->stage->dif_time ?></td>
-                        <td><?= $trouble->client ?> / <?= \app\models\User::findOne(['user' => $trouble->user_author])->name ?>(<?= $trouble->user_author ?>)</td>
+                        <td><?= $trouble->stage->dif_time ? $trouble->stage->dif_time : '0' ?></td>
+                        <td><a href="/client/view?id=<?= $trouble->account->id ?>"><?= $trouble->client ?></a> / <?= \app\models\User::findOne(['user' => $trouble->user_author])->name ?>(<?= $trouble->user_author ?>)</td>
                         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
                             <?php if($trouble->server_id) : ?>
                                 <a href='./?module=routers&action=server_pbx_apply&id={$r.server_id}'>
