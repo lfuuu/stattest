@@ -1,4 +1,4 @@
-<?php 
+<?php
 use app\models\BillDocument;
 use app\models\ClientAccount;
 use app\models\Country;
@@ -6,30 +6,38 @@ use app\models\Region;
 
 class ApiLk
 {
+    private static function getAccount($clientId)
+    {
+        return ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
+    }
+
     public static function getBalanceList($clientId)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("account_is_bad");
-    
-    
-        $c = ClientCard::find_by_id($clientId);
-        if(!$c)
+
+
+        $account = self::getAccount($clientId);
+        if(!$account)
         {
             throw new Exception("account_not_found");
         }
-    
-        $params = array("client_id" => $c->id, "client_currency" => $c->currency);
-    
+
+        $params = array("client_id" => $account->id, "client_currency" => $account->currency);
+
         list($R, $sum, ) = BalanceSimple::get($params);
 
-        $cutOffDate = self::_getCutOffDate($clientId);
-    
+        $cutOffDate = \app\models\HistoryVersion::find()
+            ->andWhere(['model' => ClientAccount::className(), 'model_id' => $clientId])
+            ->orderBy('date DESC')->one();
+        $cutOffDate = $cutOffDate->date;
+
         $bills = array();
         foreach ($R as $r)
         {
             if (strtotime($r["bill"]["bill_date"]) < $cutOffDate)
                 continue;
-    
+
             $b = $r["bill"];
             $bill = array(
                             "bill_no"   => $b["bill_no"],
@@ -38,12 +46,12 @@ class ApiLk
                             "type"      => $b["nal"],
                             "pays"      => array()
             );
-    
+
             foreach ($r["pays"] as $p)
             {
                 if (strtotime($p["payment_date"]) < $cutOffDate)
                     continue;
-    
+
                 $bill["pays"][] = array(
                                 "no"   => $p["payment_no"],
                                 "date" => $p["payment_date"],
@@ -54,22 +62,22 @@ class ApiLk
             if ($b["is_lk_show"] == '1')
                 $bills[] = $bill;
         }
-    
+
         $sum = $sum["RUB"];
-    
+
         $p = Payment::first(array(
                         "select" => "sum(`sum`) as sum",
-                        "conditions" => array("client_id" => $c->id)
+                        "conditions" => array("client_id" => $account->id)
         )
         );
-    
+
         $nSum = array(
                         "payments" => $p ? $p->sum : 0.00,
                         "bills" => $sum["bill"],
                         "saldo" => $sum["delta"],
                         "saldo_date" => $sum["ts"] ? date("Y-m-d", $sum["ts"]) : ""
         );
-    
+
         return array("bills" => $bills, "sums" => $nSum);
     }
 
@@ -77,17 +85,17 @@ class ApiLk
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("account_is_bad");
-    
+
         $sum = (float)$sum;
-    
+
         if(!$sum || $sum < 1 || $sum > 1000000)
             throw new Exception("data_error");
-    
-    
-        $c = ClientCard::find_by_id($clientId);
-        if(!$c)
+
+
+        $account = self::getAccount($clientId);
+        if(!$account)
             throw new Exception("account_not_found");
-    
+
         /* !!! проверка поличества созданных счетов */
 
 
@@ -99,10 +107,10 @@ class ApiLk
 
             $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
         }
-    
+
         if(!$bill)
             throw new Exception("account_error_create");
-    
+
         return $bill;
     }
 
@@ -123,42 +131,42 @@ class ApiLk
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("account_is_bad");
-    
+
         $sum = (float)$sum;
-    
+
         if(!$sum || $sum < 1 || $sum > 1000000)
             throw new Exception("data_error");
-    
-    
-        $c = ClientCard::find_by_id($clientId);
-        if(!$c)
+
+
+        $account = self::getAccount($clientId);
+        if(!$account)
             throw new Exception("account_not_found");
-    
-        $R = array("sum" => $sum, 'object'=>"receipt-2-RUB",'client'=>$c->id);
+
+        $R = array("sum" => $sum, 'object'=>"receipt-2-RUB",'client'=>$account->id);
         return API__print_bill_url.udata_encode_arr($R);
     }
 
     public static function getPropertyPaymentOnCard($clientId, $sum)
     {
         global $db;
-    
+
         if(!defined("UNITELLER_SHOP_ID") || !defined("UNITELLER_PASSWORD"))
             throw new Exception("Не заданы параметры для UNITELLER в конфиге");
-    
+
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("account_is_bad");
-    
+
         $sum = (float)$sum;
-    
+
         if(!$sum || $sum < 1 || $sum > 1000000)
             throw new Exception("data_error");
-    
-    
-        $c = ClientCard::find_by_id($clientId);
-        if(!$c)
+
+
+        $account = self::getAccount($clientId);
+        if(!$account)
             throw new Exception("account_not_found");
-    
-    
+
+
         $sum = number_format($sum, 2, '.', '');
         $orderId = $db->QueryInsert('payments_orders', array(
                         'type' => 'card',
@@ -166,9 +174,9 @@ class ApiLk
                         'sum' => $sum
         )
         );
-    
+
         $signature = strtoupper(md5(UNITELLER_SHOP_ID . $orderId . $sum . UNITELLER_PASSWORD));
-    
+
         return array("sum" => $sum, "order" => $orderId, "signature" => $signature);
     }
 
@@ -182,17 +190,17 @@ class ApiLk
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("account_is_bad");
-    
-        $c = ClientCard::find_by_id($clientId);
-        if(!$c)
+
+        $account = self::getAccount($clientId);
+        if(!$account)
             throw new Exception("account_not_found");
-    
+
         $b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo, "is_lk_show" => "1")));
         if(!$b)
             throw new Exception("bill_not_found");
-    
+
         $lines = array();
-    
+
         foreach($b->lines as $l)
         {
             $lines[] = array(
@@ -273,15 +281,15 @@ class ApiLk
         {
             $ret[] = self::_exportModelRow(array("id", "actual_from", "actual_to", "domain", "paid_till", "actual"), $d);
         }
-    
+
         return $ret;
     }
 
     public static function getEmailList($clientId)
     {
-    
+
         $ret = array();
-    
+
         foreach(NewBill::find_by_sql('
 				SELECT
 					`e`.`id`,
@@ -304,13 +312,13 @@ class ApiLk
 					`actual_from` DESC
 				', array($clientId)) as $e)
         {
-    
+
             $line = self::_exportModelRow(array("id", "actual_from", "actual_to", "local_part", "domain", "box_size", "box_quota", "status", "actual","spam_act"), $e);
             $line['email'] = $line['local_part'].'@'.$line['domain'];
             $ret[] = $line;
-    
+
         }
-    
+
         return $ret;
     }
 
@@ -318,10 +326,10 @@ class ApiLk
     {
         global $db, $db_ats;
         $ret = array();
-    
-        $card = ClientCard::first(array("id" => $clientId));
-    
-        if (!$card)
+
+        $account = self::getAccount($clientId);
+
+        if (!$account)
             return $ret;
 
         foreach(NewBill::find_by_sql(
@@ -358,7 +366,7 @@ class ApiLk
                      ORDER BY
                          `u`.`actual_from` DESC
     
-                ', array($card->client, $card->client)) as $v)
+                ', array($account->client, $account->client)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "region"), $v);
 
@@ -372,14 +380,14 @@ class ApiLk
 
             $ret[] = $isSimple ? $line["number"] : $line;
         }
-    
+
         return $ret;
     }
 
     public static function getVpbxList($clientId)
     {
         $ret = array();
-    
+
         foreach(NewBill::find_by_sql('
             SELECT 
                 a.*, 
@@ -422,7 +430,7 @@ class ApiLk
             $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
         }
-    
+
         return $ret;
     }
 
@@ -430,7 +438,7 @@ class ApiLk
     {
         return self::_getConnectionsByType($clientId);
     }
-    
+
     public static function getCollocationList($clientId)
     {
         return self::_getConnectionsByType($clientId, "C");
@@ -439,7 +447,7 @@ class ApiLk
     private static function _getConnectionsByType($clientId, $connectType = "I")
     {
         $ret = array();
-    
+
         foreach(NewBill::find_by_sql('
 				SELECT
 					a.*,
@@ -483,20 +491,20 @@ class ApiLk
 					', array($clientId, $connectType)) as $i)
         {
             $line = self::_exportModelRow(array("id", "address", "actual_from", "actual_to", "actual", "tarif", "port", "port_type", "status", "adsl_speed", "node"), $i);
-    
+
             $line["nets"] = self::_getInternet_nets($line["id"]);
             $line["cpe"] = self::_getInternet_cpe($line["id"]);
-    
+
             $ret[] = $line;
         }
-    
+
         return $ret;
     }
 
     private static function _getInternet_nets($portId)
     {
         $ret = array();
-    
+
         foreach(NewBill::find_by_sql('
 				SELECT
 					*,
@@ -540,14 +548,14 @@ class ApiLk
         {
             $ret[] = self::_exportModelRow(array("actual_from", "actual_to","ip",  "type", "vendor", "model", "actual", "numbers"), $cpe);
         }
-    
+
         return $ret;
     }
 
     public static function getExtraList($clientId)
     {
         $ret = array();
-    
+
         foreach(NewBill::find_by_sql("
 					SELECT
 						`u`.`id`,
@@ -575,17 +583,17 @@ class ApiLk
 				", array($clientId)) as $service)
         {
             $line = self::_exportModelRow(array("id", "actual_from", "actual_to", "amount", "description", "period", "price", "param_name", "param_value", "actual", "actual5d"), $service);
-    
+
             if ($line['param_name'])
             {
                 $line['description'] = str_replace('%', '<i>' . $line['param_value'] . '</i>', $line['description']);
             }
             $line['amount'] = (double)$line['amount'];
             $line['price'] = (double)$line['price'];
-    
+
             $ret[] = $line;
         }
-    
+
         return $ret;
     }
 
@@ -619,7 +627,7 @@ class ApiLk
     {
         return self::_getInternetTarifs("C");
     }
-    
+
     public static function getInternetTarifs()
     {
         return self::_getInternetTarifs("I");
@@ -838,7 +846,7 @@ class ApiLk
     {
         $order_str = 'Заказ услуги Интернет из Личного Кабинета. '.
                 'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
-    
+
         return array('status'=>'error','message'=>'order_error');
     }
 
@@ -846,7 +854,7 @@ class ApiLk
     {
         $order_str = 'Заказ услуги Collocation из Личного Кабинета. '.
                 'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
-    
+
         return array('status'=>'error','message'=>'order_error');
     }
 
@@ -858,42 +866,41 @@ class ApiLk
         $freeNumbers = self::getFreeNumbers($client_id, $region_id, true);
         if (array_search($number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'voip_number_not_free');
-    
+
         $clientNumbers = self::getVoipList($client_id, true);
         if (array_search($number, $clientNumbers) !== false)
             return array('status'=>'error','message'=>'voip_number_already_used');
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from>'3000-01-01' AND actual_to>'3000-01-01'");
+
+        $account = ClientAccount::findOne($client_id);
+        $region = Region::findOne($region_id);
+        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$account->client."' AND actual_from>'3000-01-01' AND actual_to>'3000-01-01'");
         if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'voip_number_max_reserv');
-    
-        $region = $db->GetRow("select name from regions where id='".$region_id."'");
-    
+
         $lines_cnt = (int)$lines_cnt;
         if ($lines_cnt > 10) $lines_cnt = 10;
         if ($lines_cnt < 1) $lines_cnt = 1;
 
         $reserNumber = VoipReservNumber::reserv($number, $client_id, $lines_cnt, $tarif_id);
-    
+
         $message = "Заказ услуги IP Телефония из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: ".$client_id.")\n";
-        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: ".$client_id.")\n";
+        $message .= 'Регион: ' . $region->name . "\n";
         $message .= 'Номер: ' . $number . "\n";
         $message .= 'Кол-во линий: ' . $lines_cnt . "\n";
         $message .= 'Тарифный план: ' . $reserNumber["tarif"]["name"];
-    
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager']), "usage_voip", $reserNumber["usage_id"]) > 0)
+
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager), "usage_voip", $reserNumber["usage_id"]) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
     {
         global $db;
-    
+
         $client_id = (int)$client_id;
         $region_id = (int)$region_id;
         $tarif_id = (int)$tarif_id;
@@ -912,10 +919,10 @@ class ApiLk
     
         if (!$account || !$region || !$tarif)
             throw new Exception("data_error");
-    
+
         $message = "Заказ услуги Виртуальная АТС из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $account->company . " (Id: $client_id)\n";
-        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
+        $message .= 'Регион: ' . $region->name . "\n";
         $message .= 'Тарифный план: ' . $tarif["name"];
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
@@ -939,8 +946,8 @@ class ApiLk
                             "date_activation" => date('Y-m-d')
                             )
                         );
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -949,43 +956,43 @@ class ApiLk
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetRow("select name from regions where id='".$region_id."'");
+
+        $account = ClientAccount::findOne($client_id);
+        $region = Region::findOne($region_id);
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
-    
+
         $message = "Заказ услуги Домен из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
-        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
+        $message .= 'Регион: ' . $region->namename . "\n";
         $message .= 'Тарифный план: ' . $tarif;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function orderEmail($client_id, $domain_id, $local_part, $password)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $domain = $db->GetValue("select domain from domains where id='".$domain_id."'");
         $email_id = $db->GetValue("
                 select id from emails where 
-                    client='".$client["client"]."' and 
-                    domain='".$domain."' and 
+                    client='".$account->client."' and
+                    domain='".$domain."' and
                     local_part='".$local_part."'
                 ");
         if ($email_id)
             return array('status'=>'error','message'=>'email_already_used');
 
-        $emailId = $db->QueryInsert("emails", array(
+        $db->QueryInsert("emails", array(
                         "local_part"        => $local_part,
                         "domain"        => $domain,
                         "password"          => $password,
-                        "client"   => $client["client"],
+                        "client"   => $account->client,
                         "box_size"   => "20",
                         "box_quota"     => "50000",
                         "status"        => "working",
@@ -999,83 +1006,83 @@ class ApiLk
     public static function changeInternetTarif($client_id, $service_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_internet where id='".$tarif_id."'");
-    
+
         $message = "Заказ изменения тарифного плана услуги Интернет из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function changeCollocationTarif($client_id, $service_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
-    
+
         $message = "Заказ изменения тарифного плана услуги Collocation из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function changeVoipTarif($client_id, $service_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
+
+        $account = ClientAccount::findOne($client_id);
+        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$account["client"]."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
-    
+
         $message = "Заказ изменения тарифного плана услуги IP Телефония из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Номер: ' . $voip['E164'] . "\n";
         $message .= 'Тарифный план: ' . $tarif;
-    
+
         if ($voip['actual_from'] > '3000-01-01') {
             $db->QueryUpdate("log_tarif", array("id_service", "service"), array("service" => "usage_voip", "id_service"=>$service_id, "id_tarif" => $tarif_id));
             $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function changeVpbxTarif($client_id, $service_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $tarif = $db->GetValue("select description as name from tarifs_virtpbx where id='".$tarif_id."'");
-    
-        if (!$client || !$tarif)
+
+        if (!$account || !$tarif)
             throw new Exception("data_error");
-    
+
         $message = "Заказ изменения тарифного плана услуги Виртуальная АТС из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Новый тарифный план: ' . $tarif;
-    
-        $vpbx = $db->GetRow($q = "select * from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
-    
+
+        $vpbx = $db->GetRow($q = "select * from usage_virtpbx where id=".$service_id." and client = '".$account["client"]."'");
+
         if ($vpbx)
         {
             $first_day_next_month = date('Y-m-d', mktime(0, 0, 0, date("m")+1, 1, date("Y")));
@@ -1091,45 +1098,45 @@ class ApiLk
 
             $message .= "\n\nтариф изменен из личного кабинета";
 
-            if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+            if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
                 return array('status'=>'ok','message'=>'order_ok');
         }
-    
-    
+
+
         return array('status'=>'error','message'=>'order_error');
     }
 
     public static function changeDomainTarif($client_id, $service_id, $tarif_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $domain = $db->GetValue("select domain from domains where id='".$service_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
-    
+
         $message = "Заказ на изменение услуги Домен из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Домен: ' . $domain . "\n";
         $message .= 'Тарифный план: ' . $tarif;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function changeEmail($client_id, $email_id, $password)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $email = $db->GetRow("select * from emails where client='".$client['client']."' and id=".$email_id);
+
+        $account = ClientAccount::findOne($client_id);
+        $email = $db->GetRow("select * from emails where client='".$account->client."' and id=".$email_id);
         if ($email) {
             $db->QueryUpdate(
-                    "emails", 
-                    array("id", "client"), 
-                    array("id" => $email_id, "client"=>$client['client'], "password" => $password)
+                    "emails",
+                    array("id", "client"),
+                    array("id" => $email_id, "client"=>$account->client, "password" => $password)
             );
 
             return array('status'=>'ok','message'=>'password_changed');
@@ -1139,12 +1146,12 @@ class ApiLk
     public static function changeEmailSpamAct($client_id, $email_id, $spam_act)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $cur_spam_act = $db->GetValue("select spam_act from emails where client='".$client['client']."' and id=".$email_id);
+
+        $account = ClientAccount::findOne($client_id);
+        $cur_spam_act = $db->GetValue("select spam_act from emails where client='".$account->client."' and id=".$email_id);
         if ($cur_spam_act) {
-            $db->QueryUpdate("emails", array("id", "client"), array("id" => $email_id, "client"=>$client['client'], "spam_act" => $spam_act));
-        } else 
+            $db->QueryUpdate("emails", array("id", "client"), array("id" => $email_id, "client"=>$account->client, "spam_act" => $spam_act));
+        } else
             return array('status'=>'error','message'=>'email_spam_filter_change_error');
 
         return array('status'=>'ok','message'=>'ok');
@@ -1156,11 +1163,11 @@ class ApiLk
 
         $res = array('add_email'=>0, 'domain_cnt'=>0);
         $clients = array(780,2339,2817,3680,3920,1378,447,1266,652,41,941,51,440,54,452,866,529);
-        
+
         /*если клиент не в заданном списке - вернем пустой массив*/
         if (in_array($client_id, $clients))
             $res['add_email'] = 1;
-        
+
         $res['domain_cnt'] = $db->GetValue("
                 SELECT 
                     COUNT(1)
@@ -1168,64 +1175,64 @@ class ApiLk
                     `domains` AS `d` 
                 INNER JOIN `clients` ON (`d`.`client` = `clients`.`client`) 
                 WHERE `clients`.`id`=".$client_id);
-        
+
         return $res;
     }
-    
+
     public static function disconnectInternet($client_id, $service_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
-    
+
         $message = "Заказ на отключение услуги Интернет из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function disconnectCollocation($client_id, $service_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
-    
+
         $message = "Заказ на отключение услуги Collocation из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function disconnectVoip($client_id, $service_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
-    
+
         $message = "Заказ на отключение услуги IP Телефония из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Номер: ' . $voip['E164'];
-    
+
         if ($voip['actual_from'] > '3000-01-01') {
             $db->QueryDelete('log_tarif', array("service" => "usage_voip", 'id_service'=>$service_id));
             $db->QueryDelete('usage_voip', array('id'=>$service_id));
             $message .= "\n\nномер удален, т.к. подключения не было";
         }
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1235,13 +1242,13 @@ class ApiLk
     {
         global $db;
 
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+        $account = ClientAccount::findOne($client_id);
 
         $message = "Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Услуга: ' . $service_id . " (Id: $service_id)\n";
 
-        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$service_id." and client = '".$account["client"]."'");
 
         if ($vpbx)
         {
@@ -1249,11 +1256,11 @@ class ApiLk
             {
                 $db->QueryDelete("log_tarif", array("service" => "usage_virtpbx", "id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
-    
+
                 $message .= "\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было";
             }
-    
-            if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+            if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
                 return array('status'=>'ok','message'=>'order_ok');
         }
 
@@ -1263,34 +1270,34 @@ class ApiLk
     public static function disconnectDomain($client_id, $service_id)
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        $account = ClientAccount::findOne($client_id);
         $domain = $db->GetRow("select domain from domains where id='".$service_id."'");
-    
+
         $message = "Заказ на отключение услуги Домен из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Домен: ' . $domain;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
-    
+
     }
 
     public static function disconnectEmail($client_id, $email_id, $action = 'disable')
     {
         global $db;
-    
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $email = $db->GetRow("select * from emails where client='".$client['client']."' and id=".$email_id);
+
+        $account = ClientAccount::findOne($client_id);
+        $email = $db->GetRow("select * from emails where client='".$account->client."' and id=".$email_id);
         if ($email) {
             $db->QueryUpdate(
-                    "emails", 
-                    array("id", "client"), 
+                    "emails",
+                    array("id", "client"),
                     array(
-                        "id" => $email_id, 
-                        "client"=>$client['client'], 
+                        "id" => $email_id,
+                        "client"=>$account->client,
                         "enabled" => (($action == 'disable') ? '0' : '1'),
                         "actual_to" => (($action == 'disable') ? array('NOW()') : '4000-01-01')
                     )
@@ -1303,14 +1310,32 @@ class ApiLk
      * Получение карточки клиента
      *
      */
-    public static function getClientData($client_id = '')
+    public static function getAccountData($client_id = '')
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
             throw new Exception("account_is_bad");
 
-        $ret = self::_exportModelRow(array('id','client','status','inn','kpp','address_jur','address_post','corr_acc',
-                        'pay_acc','bik','address_post_real','signer_name','signer_position','address_connect','phone_connect',
-                        'mail_who', 'company','company_full'), ClientCard::find_by_id($client_id));
+        $account = self::getAccount($client_id);
+        $ret = [
+            'id' => $account->id,
+            'client' => $account->client,
+            'status' => $account->status,
+            'inn' => $account->inn,
+            'kpp' => $account->kpp,
+            'address_post' => $account->address_post,
+            'address_post_real' => $account->address_post_real,
+            'corr_acc' => $account->corr_acc,
+            'pay_acc' => $account->pay_acc,
+            'bik' => $account->bik,
+            'mail_who' => $account->mail_who,
+            'address_connect' => $account->address_connect,
+            'phone_connect' => $account->phone_connect,
+            'address_jur' => $account->contract->contragent->address_jur,
+            'signer_name' => $account->contract->contragent->fio,
+            'signer_position' => $account->contract->contragent->position,
+            'company' => $account->contract->contragent->name,
+            'company_full' => $account->contract->contragent->name_full,
+        ];
 
         return $ret;
     }
@@ -1327,17 +1352,17 @@ class ApiLk
                         'inn','kpp','company_full','address_jur','address_post_real','pay_acc','bik',
                         'signer_name','signer_position','mail_who','address_connect','phone_connect'
         );
-    
+
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
             throw new Exception("account_is_bad");
-    
-        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
-        if (!$client)
+
+        $account = self::getAccount($client_id);
+        if (!$account)
             throw new Exception("account_is_bad");
-    
-        if (!in_array($client['status'], $status_arr))
+
+        if (!in_array($account['status'], $status_arr))
             throw new Exception("account_edit_ban");
-    
+
         $edit_data = array('id'=>$client_id);
         foreach ($edit_fields as $fld) {
             if (isset($data[$fld])) {
@@ -1345,9 +1370,9 @@ class ApiLk
                 $edit_data[$fld] = substr($v, 0, 250);
             }
         }
-    
+
         $res = $db->QueryUpdate('clients','id', self::_importModelRow($edit_data));
-    
+
         return $res;
     }
 
@@ -1359,27 +1384,26 @@ class ApiLk
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
             throw new Exception("account_is_bad");
-    
-        $ret = array();
-        $client = ClientCard::find_by_id($client_id);
-        if ($client) $ret = self::_exportModelRow(array('name'), $client->super);
-    
+
+        $ret = ['name' => self::getAccount($client_id)->superClient->name];
         return $ret;
     }
 
-    public static function getStatisticsVoipPhones($client = '')
+    public static function getStatisticsVoipPhones($client_id = '')
     {
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("account_is_bad");
         global $db;
-    
-        $client = $db->GetRow("select * from clients where '".addslashes($client)."' in (id, client)");
 
-        $timezones = [ $client['timezone_name'] ];
+        $account = self::getAccount($client_id);
+
+        $timezones = [ $account['timezone_name'] ];
 
         $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
-                                       where u.client='".addslashes($client['client'])."'
+                                       where u.client='".addslashes($account->client)."'
                                        order by u.region desc, u.id asc");
-    
+
         $regions = array();
         foreach ($usages as $u) {
             if (!isset($regions[$u['region']])) {
@@ -1392,16 +1416,16 @@ class ApiLk
 
         $timezones[] = 'UTC';
 
-    
+
         $regions_cnt = count($regions);
-    
+
         $phone = $last_region = '';
         $regions = $phones = array();
         if ($regions_cnt > 1) {
             $region = 'all';
             $phones['all'] = 'Все регионы';
         }
-    
+
         if ($phone == '' && count($usages) > 0) {
             $phone = $usages[0]['region'];
         }
@@ -1409,7 +1433,7 @@ class ApiLk
             $region = explode('_', $phone);
             $region = $region[0];
         }
-    
+
         foreach ($usages as $r) {
             if ($region == 'all') {
                 if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
@@ -1435,25 +1459,19 @@ class ApiLk
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
-    
+
         $destination = (!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3'))) ? 'all': $destination;
         $direction = (!in_array($direction,array('both','in','out'))) ? 'both' : $direction;
-    
-        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
-    
+
+        $account = self::getAccount($client_id);
+
         $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
                                        left join regions r on r.id=u.region
-                                       where u.client='".addslashes($client['client'])."'
+                                       where u.client='".$account->client."'
                                        order by u.region desc, u.id asc");
-    
+
         $regions = $phones_sel = array();
-    
-        $last_region = $region = '';
-        if ($phone != 'all') {
-            $region = explode('_', $phone);
-            $region = $region[0];
-        } else $region = 'all';
-    
+
         foreach ($usages as $r) {
             if ($phone == 'all') {
                 if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
@@ -1461,18 +1479,17 @@ class ApiLk
             }
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
         }
-    
+
         $stats = array();
         if ($phone == 'all') {
-    
+
             foreach ($regions as $region=>$phones_sel) {
                 $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array());
             }
-    
-            $ar = array();
-            $all_regions = $db->AllRecords('select id, name from regions');
-            foreach ($all_regions as $reg) $ar[$reg['id']] =  $reg['name'];
-            $stats = $module_stats->prepareStatArray($client['id'], $stats, $detality, $ar);
+
+            $ar = Region::getList();
+            $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
+
         } else {
             $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
         }
@@ -1490,11 +1507,11 @@ class ApiLk
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
-    
-        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
-    
-        list($routes_all,$routes_allB)=$module_stats->get_routes_list($client['client']);
-    
+
+        $account = self::getAccount($client_id);
+
+        list($routes_all,$routes_allB)=$module_stats->get_routes_list($account->client);
+
         return $routes_all;
     }
 
@@ -1503,14 +1520,14 @@ class ApiLk
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
-    
-        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
-    
-        list($routes_all,$routes_allB)=$module_stats->get_routes_list($client['client']);
-    
+
+        $account = self::getAccount($client_id);
+
+        list($routes_all,$routes_allB)=$module_stats->get_routes_list($account->client);
+
         $from = strtotime($from);
         $to = strtotime($to);
-    
+
         //если сеть не задана, выводим все подсети клиента.
         if($route){
             if(isset($routes_all[$route])){
@@ -1523,8 +1540,8 @@ class ApiLk
             foreach($routes_allB as $r)
                 $routes[] = $r;
         }
-    
-        $stats = $module_stats->GetStatsInternet($client['client'],$from,$to,$detality,$routes,$is_coll);
+
+        $stats = $module_stats->GetStatsInternet($account->client,$from,$to,$detality,$routes,$is_coll);
         foreach ($stats as $k=>$r) {
             $stats[$k]["tsf"] = $stats[$k]["tsf"];
             $stats[$k]["ts"] = $stats[$k]["ts"];
@@ -1552,7 +1569,7 @@ class ApiLk
     {
         if (!self::validateClient($client_id))
             throw new Exception("account_is_bad");
-    
+
         $ret = array();
         foreach(ClientContact::find_by_sql("
                 select c.id, c.type, c.data as info, n.min_balance, n.day_limit, n.add_pay_notif, n.status
@@ -1580,24 +1597,24 @@ class ApiLk
         if (!self::validateClient($client_id))
             return array('status'=>'error','message'=>'account_is_bad');
 
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        if (!$client)
+        $account = ClientAccount::findOne($client_id);
+        if (!$account)
             return array('status'=>'error','message'=>'account_not_found');
 
         $lk_user = $db->GetRow("select id, user from user_users where user='AutoLK'");
         if (!$lk_user)
             return array('status'=>'error','message'=>'contact_add_error');
-    
+
         $contact_cnt = $db->GetValue("SELECT COUNT(*) FROM client_contacts WHERE client_id='".$client_id."' AND user_id='".$lk_user["id"]."'");
-        if ($contact_cnt >= 5) 
+        if ($contact_cnt >= 5)
             return array('status'=>'error','message'=>'contact_max_length');
 
         if (!in_array($type, array('email', 'phone')))
             return array('status'=>'error','message'=>'contact_type_error');
-        
+
         if (!self::validateData($type, $data))
             return array('status'=>'error','message'=>'format_error');
-    
+
         $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."' AND user_id='".$lk_user["id"]."'");
         if (!$contact_id) {
             $contact_id = $db->QueryInsert("client_contacts", array(
@@ -1618,7 +1635,7 @@ class ApiLk
                             "client_id"         => $client_id
                             )
                         );
-        } else 
+        } else
             return array('status'=>'error','message'=>'contact_add_error');
 
         self::sendApproveMessage($client_id, $type, $data, $contact_id);
@@ -1630,7 +1647,7 @@ class ApiLk
     {
         switch ($t) {
             case 'email':
-                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/", $d)) 
+                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/", $d))
                     return false;
             break;
             case 'phone':
@@ -1654,8 +1671,6 @@ class ApiLk
         global $db;
         if (!self::validateClient($client_id))
             return array('status'=>'error','message'=>'account_is_bad');
-
-        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
         if (!self::validateContact($client_id, $contact_id))
             return array('status'=>'error','message'=>'contact_id_error');
@@ -1707,10 +1722,10 @@ class ApiLk
             return array('status'=>'error','message'=>'account_is_bad');
         if (!self::validateContact($client_id, $contact_id))
             return array('status'=>'error','message'=>'contact_id_error');
-    
+
         $db->QueryDelete('lk_notice_settings', array('client_contact_id'=>$contact_id));
         $db->QueryDelete('client_contacts', array('id'=>$contact_id, 'client_id'=>$client_id));
-    
+
         return array('status'=>'ok','message'=>'contact_del_ok');
     }
 
@@ -1730,15 +1745,15 @@ class ApiLk
             return array('status'=>'error','message'=>'contact_id_error');
         if ($code == '')
             return array('status'=>'error','message'=>'contact_activation_code_empty');
-        
+
         $etalon_code = $db->GetValue("select activate_code from lk_notice_settings where client_id='".$client_id."' AND client_contact_id='".$contact_id."'");
         if ($etalon_code != $code)
             return array('status'=>'error','message'=>'contact_activation_code_bad');
-        
+
         $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
         if ($res)
             return array('status'=>'ok','message'=>'contact_activation_ok');
-        else 
+        else
             return array('status'=>'error','message'=>'contact_activation_error');
     }
 
@@ -1778,17 +1793,17 @@ class ApiLk
         global $db;
         if (!self::validateClient($client_id))
             return array('status'=>'error','message'=>'account_is_bad');
-    
+
         $res = array();
-        foreach ($data as $name) 
+        foreach ($data as $name)
         {
             $tmp = explode('__', $name);
 
-            if(!isset($res[$tmp[1]])) 
+            if(!isset($res[$tmp[1]]))
                 $res[$tmp[1]] = array(
                         'client_contact_id'=>$tmp[1],
-                        'min_balance'=>0, 
-                        'day_limit'=>0, 
+                        'min_balance'=>0,
+                        'day_limit'=>0,
                         'add_pay_notif'=>0);
 
             $res[$tmp[1]][$tmp[0]] = 1;
@@ -1799,7 +1814,7 @@ class ApiLk
                 FROM `client_contacts` 
                 WHERE `client_id` = '".$db->escape($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
 
-        foreach ($res as $contact_id=>$d) 
+        foreach ($res as $contact_id=>$d)
         {
             if (!isset($allSavedContacts[$contact_id]))
                 continue;
@@ -1843,7 +1858,7 @@ class ApiLk
                 'min_balance'=>$min_balance,
                 'day_limit'=>$day_limit
                 );
-        if ($clientSettings) 
+        if ($clientSettings)
         {
             if ($clientSettings["is_min_balance_sent"] && $clientSettings["min_balance"] < $data["min_balance"])
             {
@@ -1859,7 +1874,7 @@ class ApiLk
         } else {
             $db->QueryInsert('lk_client_settings',$data);
         }
-        
+
         return array('status'=>'ok','message'=>'save_ok');
     }
 
@@ -1872,7 +1887,7 @@ class ApiLk
     {
         if (!self::validateClient($client_id))
             throw new Exception("account_is_bad");
-    
+
         $ret = array();
         foreach(ClientContact::find_by_sql("
                 select *
@@ -1897,7 +1912,7 @@ class ApiLk
                     array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
                     );
 
-            $url = 'https://'.CORE_SERVER.'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
+            $url = 'https://'.\Yii::$app->params['CORE_SERVER'].'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
             $design->assign(array('url'=>$url));
             $message = $design->fetch('letters/notification/approve.tpl');
             $params = array(
@@ -1930,26 +1945,26 @@ class ApiLk
     }
 
 
-    public static function validateClient($id) 
+    public static function validateClient($id)
     {
         if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
             return false;
 
-        $c = ClientCard::find_by_id($id);
+        $c = self::getAccount($id);
         if(!$c)
             return false;
 
         return true;
     }
 
-    public static function validateContact($clientId, $id) 
+    public static function validateContact($clientId, $id)
     {
         global $db;
 
         if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
             return false;
 
-        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$db->escape($clientId)."' AND id = '".$db->escape($id)."'");
+        $contactId = \app\models\ClientContact::findOne(['client_id' => $clientId, 'id' => $id]);
         if (!$contactId)
             return false;
 
@@ -1974,36 +1989,8 @@ class ApiLk
                 break;
         	default: $v = "Банк";
         }
-    
-        return $v;
-    }
 
-    private static function _getCutOffDate($clientId)
-    {
-        global $db;
-    
-        $dateStart = $db->GetValue(
-                "
-                SELECT
-                    UNIX_TIMESTAMP(if(apply_ts = '0000-00-00', cast(l.ts as date), apply_ts)) as ts
-                FROM
-                    `clients` c,
-                    `log_client` l,
-                    log_client_fields f
-                WHERE
-                        c.id = l.client_id
-                    AND f.ver_id = l.id
-                    AND ts >= '2012-04-01 00:00:00'
-                    AND field = 'inn'
-                    AND value_from != ''
-                    AND c.id = '".$clientId."'
-                ORDER BY ts DESC
-                LIMIT 1");
-    
-        if(!$dateStart)
-            $dateStart = strtotime("2012-04-01");
-    
-        return $dateStart;
+        return $v;
     }
 
     private static function _getUserBillOnSum_fromDB($clientId, $sum)
@@ -2027,7 +2014,7 @@ class ApiLk
                         FROM 
                             newbills b, newbill_lines l 
                         WHERE 
-                                b.client_id = '".$clientId."' 
+                                b.client_id = '".$clientId."'
                             AND l.bill_no = b.bill_no 
                             AND is_user_prepay 
                         GROUP BY 
@@ -2092,7 +2079,7 @@ class ApiLk
     {
         include_once PATH_TO_ROOT . "modules/tt/module.php";
         $tt = new m_tt();
-    
+
         $R = array(
                         'trouble_type' => 'task',
                         'trouble_subtype' => 'task',
@@ -2111,14 +2098,14 @@ class ApiLk
         if ($user == "ava") {
             mail("ava@mcn.ru", "[lk] Заказ услуги", $message);
         }
-    
+
         return $tt->createTrouble($R, $user);
     }
 
     private static function _getUserForTrounble($manager)
     {
         $default_manager = "ava";
-    
+
         if (defined("API__USER_FOR_TROUBLE")) return API__USER_FOR_TROUBLE;
         else if (strlen($manager)) return $manager;
         else return $default_manager;
@@ -2136,31 +2123,19 @@ class ApiLk
 
     public static function checkVoipNumber($number)
     {
-        global $db;
-        $options = array();
-
-        try{
             if (strpos($number, '7800') === 0)
             {
-                $options['conditions'] = array('E164 = ? AND CAST(NOW() as DATE) BETWEEN actual_from AND actual_to', $number);
-                $check = UsageVoip::first($options);
+                $check = \app\models\UsageVoip::find()->where("CAST(NOW() as DATE) BETWEEN actual_from AND actual_to")->andWhere(["E164" => $number])->one();
             } else {
-                $check = VoipNumbers::first($number);
-            }
-        }catch(ActiveRecord\RecordNotFound $r)
-            {
-                return false;
-            }catch(Exception $e)
-            {
-                throw $e;
+                $check = \app\models\VoipNumber::findOne(["number" => $number]);
             }
 
-        return true;
+            return (bool)$check;
     }
 
     public static function getPayPalToken($accountId, $sum)
     {
-        if (!defined("LK_PATH") || !LK_PATH)
+        if (!isset(Yii::$app->params['LK_PATH']) || !Yii::$app->params['LK_PATH'])
             throw new Exception("format_error");
 
         if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId))
@@ -2172,8 +2147,8 @@ class ApiLk
             throw new Exception("data_error");
 
 
-        $c = ClientCard::find_by_id($accountId);
-        if(!$c)
+        $account = self::getAccount($accountId);
+        if(!$account)
             throw new Exception("account_not_found");
 
         if($c->currency != "RUB" && $c->currency != "HUF")

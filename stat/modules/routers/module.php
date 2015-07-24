@@ -1,6 +1,7 @@
 <?php
 
-use app\models\Organization;
+use \app\models\ClientAccount;
+use \app\models\Organization;
 
 class m_routers {
     var $actions=array(
@@ -66,10 +67,9 @@ class m_routers {
 
     function load_routers($fixclient){
         global $db,$design;
+
         if (is_array($this->routers)) return;
-        $add=$fixclient?' where (usage_ip_ports.client="'.$fixclient.'")':'';
-//TODO9
-//        $db->Query('select * from tech_routers left join usage_ip_ports on usage_ip_ports.node=tech_routers.router'.$add.' group by tech_routers.router order by phone');
+
         $db->Query('select * from tech_routers');
         $this->routers=array();
         while ($r=$db->NextRecord()) $this->routers[$r['router']]=$r;
@@ -78,7 +78,8 @@ class m_routers {
     function load_devices($fixclient,$search='',$hide_linked = 0, $snmp_only = 0, $limit=0, $offset=0){
         global $db,$design;
         if (is_array($this->devices)) return;
-        $add=$fixclient?' where (tech_cpe.client="'.$fixclient.'")':'';
+
+        $add=$fixclient?' where (tech_cpe.client="'.ClientAccount::findOne($fixclient)->client.'")':'';
         $addJ=''; $selJ = '';
         if ($search){
             if ($add) $add.=' and '; else $add=' where ';
@@ -99,8 +100,10 @@ class m_routers {
             $lim = ' limit '.$offset.', '.$limit;
         else
             $lim = '';
+
+        $addJ.=' LEFT JOIN clients ON clients.client=tech_cpe.client';
         $db->Query($q='select sql_calc_found_rows tech_cpe.*,tech_cpe_models.vendor,'.$selJ.
-                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual'.
+                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual, clients.id as clientid'.
                         ' from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model '.
                         $addJ.$add.
                         ' order by actual desc,tech_cpe.id asc'.$lim);
@@ -350,12 +353,17 @@ class m_routers {
             default: $order='client '.$order; break;    //=1
         }
 
-        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,clients.company as client_company from usage_ip_ports '.
-                        'left join clients on usage_ip_ports.client=clients.client '.
+        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,cc.name as client_company, c.id as clientid from usage_ip_ports '.
+                        'left join clients c on usage_ip_ports.client=c.client '.
+            "
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = c.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
+            ".
                         'left join tech_ports on tech_ports.id=usage_ip_ports.port_id '.
-                        'where (tech_ports.node="'.$id.'")'.($fixclient?' and (usage_ip_ports.client="'.$fixclient.'")':'').' order by '.$order);
+                        'where (tech_ports.node="'.$id.'")'.($fixclient?' and (usage_ip_ports.client="'.ClientAccount::findOne($fixclient)->client.'")':'').' order by '.$order);
         $i=0;
         $R=array(); while ($r=$db->NextRecord()) $R[$r['id']]=$r;
+
         foreach ($R as $i=>$v){
             $R[$i]['ip_ppp']=$this->GetIP_PPP($i);
             $R[$i]['ip_routes']=$this->GetIP_Router($i);
@@ -366,7 +374,13 @@ class m_routers {
         $design->assign('router_clients',$R);
 
         $R = array();
-        $db->Query('select R.net,P.client,P.id,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active from usage_ip_routes as R inner join usage_ip_ports as P ON P.id=R.port_id INNER JOIN tech_ports as TP ON TP.id=P.port_id WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
+        $db->Query('
+select R.net,P.client,P.id, c.id AS clientid,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active
+from usage_ip_routes as R
+inner join usage_ip_ports as P ON P.id=R.port_id
+INNER JOIN clients c ON c.client = P.client
+INNER JOIN tech_ports as TP ON TP.id=P.port_id
+WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         while ($r=$db->NextRecord()) {
             $b=1;
             if ($b && isset($R[$r['net']])) $b=0;
@@ -426,23 +440,20 @@ class m_routers {
     }
     function routers_d_add($fixclient){
         global $design,$db;
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormTechCPE();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',ClientAccount::findOne($fixclient)->client);
         $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Новое устройство');
     }
     function routers_d_edit($fixclient){
-        global $design,$db;
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
+        global $design;
         $id=get_param_integer('id','');
         $dbf = new DbFormTechCPE();
         if ($id) $dbf->Load($id);
-        $dbf->SetDefault('client',$fixclient);
-        $design->assign('client',$r);
+        $dbf->SetDefault('client',ClientAccount::findOne($fixclient)->client);
+        $design->assign('client',ClientAccount::findOne($fixclient));
         $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Редактирование');
     }
     function routers_d_apply($fixclient){
-        global $design,$db;
         $dbf = new DbFormTechCPE();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -501,9 +512,9 @@ class m_routers {
         if (!($id=get_param_integer('id'))) return;
         $cpe = $db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
         if (!$cpe) return;
-        $client = $db->GetRow('select * from clients where client="'.$cpe['client'].'"');
+        $client = \app\models\ClientAccount::find()->where(['client' => $cpe['client']])->one();
         if (!$client) return;
-        if ($client['currency']=='USD') {
+        if ($client->currency == 'USD') {
             $currency=$db->GetRow('select * from bill_currency_rate where date="'.$cpe['actual_from'].'" and currency="USD"');
             $cpe['deposit_rub']=round($cpe['deposit_sumUSD']*$currency['rate'],2);
         } else {
@@ -513,19 +524,12 @@ class m_routers {
         $design->assign('cpe',$cpe);
         $design->assign('client',$client);
 
-        $t = new ClientCS($client['id']);
-        $t = $t->GetContracts();
-        $design->assign('contract',$t[count($t)-1]);
+        $t = $client->contract->document;
+        $design->assign('contract',$t);
 
-        //** Выпилить */
-        //Company::setResidents($db->GetValue("select firma from clients where client = '".$cpe["client"]."'"));
-
-        $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
-
+        $organization = Organization::find()->byId($client->contract->organization_id)->actual()->one();
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
-        //** /Выпилить */
 
         $act=get_param_integer('act');
         if ($act=='1') {
@@ -543,13 +547,10 @@ class m_routers {
         $design->AddMain('routers/main_models.tpl');
     }
     function routers_m_add($fixclient){
-        global $design,$db;
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormTechCPEModels();
         $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'Модели клиентских устройств','Новое устройство');
     }
     function routers_m_apply($fixclient){
-        global $design,$db;
         $dbf = new DbFormTechCPEModels();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -679,7 +680,6 @@ class m_routers {
     function routers_server_pbx_add($fixclient){
         global $design, $db;
 
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormServerPbx();
         $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Сервера АТС','Добавление');
     }

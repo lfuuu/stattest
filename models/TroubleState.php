@@ -11,7 +11,7 @@ class TroubleState extends ActiveRecord
 
     public static function tableName()
     {
-        return 'tt_stages';
+        return 'tt_states';
     }
 }
 

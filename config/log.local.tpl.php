@@ -1,7 +1,7 @@
 <?php
 
 $debugLogging = false;
-$graylogHost = 'graylog.mcn.ru';
+$graylogHost = '85.94.32.204';
 $source = 'developer_stat';
 
 if ($debugLogging) {

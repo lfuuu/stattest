@@ -12,6 +12,17 @@ class ClientFile extends ActiveRecord
         return 'client_files';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'filename' => 'Файл',
+            'companyName' => 'Компания',
+            'user' => 'Кто загрузил',
+            'comment' => 'Комментарий',
+            'ts' => 'Дата загрузки',
+        ];
+    }
+
     public function getUser()
     {
         return $this->hasOne(User::className(), ["id" => "user_id"]);
@@ -19,11 +30,16 @@ class ClientFile extends ActiveRecord
 
     public function getContent()
     {
-        return FileManager::create($this->client_id)->getContent($this);
+        return FileManager::create($this->contract_id)->getContent($this);
     }
 
     public function getMime()
     {
-        return FileManager::create($this->client_id)->getMime($this);
+        return FileManager::create($this->contract_id)->getMime($this);
+    }
+
+    public function getContract()
+    {
+        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
     }
 }

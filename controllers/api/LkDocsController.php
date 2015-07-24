@@ -38,7 +38,8 @@ class LkDocsController extends ApiController
 
         $data = [["type" => "client_card", "id" => 0]];
 
-        $contract = ClientDocument::find()->account($this->accountId)->active()->contract()->last();
+        $contractId = ClientAccount::findOne($this->accountId)->contract_id;
+        $contract = ClientDocument::find()->contractId($contractId)->active()->contract()->last();
 
         if ($contract)
         {
@@ -191,8 +192,9 @@ class LkDocsController extends ApiController
             return $this->getProperty();
         }
 
+        $contractId = ClientAccount::findOne($this->accountId)->contract_id;
         $document = ClientDocument::find()
-            ->account($this->accountId)
+            ->contractId($contractId)
             ->active()
             ->andWhere(["id" => $form->id])
             ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date", "client_id"])

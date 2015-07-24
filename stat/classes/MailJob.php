@@ -91,9 +91,8 @@ class MailJob {
 		}
 		$k = self::get_object_key($r);
 		//return WEB_ADDRESS.WEB_PATH.'mail.php?o='.$r['object_id'].'&k='.$k;
-        return LK_PATH.'docs/?o='.$r['object_id'].'&k='.$k;
-    }
-
+        return Yii::$app->params['LK_PATH'].'docs/?o='.$r['object_id'].'&k='.$k;
+	}
 
     public function _get_assignments($match)
     {

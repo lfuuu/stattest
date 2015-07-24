@@ -1,111 +1,146 @@
 <?php
-use \yii\helpers\Html;
+use yii\helpers\Url;
 
-extract($this->context->getSearchData());
+kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView());
+$request = Yii::$app->request->get();
 ?>
-
-<div style="display: inline-block;">
-    <?php if ($module == 'clients' && !$clients_my && !$currentFilter): ?>
-        <a href='?module=clients&action=all&letter=&region=any' style='color:red;font-weight:bold'>Все клиенты</a> |
-    <?php else: ?>
-        <a href='?module=clients&action=all&letter=&region=any'>Все клиенты</a> |
-    <?php endif; ?>
-</div>
-
-<div style="display: inline-block;">
-    <ul id="filter_menu" STYLE="width: 240px;">
-        <li>Фильтр:
-            <?php if (isset($filter[$currentFilter])): ?>
-                <?= $filter[$currentFilter] ?>
-            <?php else: ?>
-                <span style="color: gray"> нет</span>
-            <?php endif; ?>
-
-            <ul>
-                <?php foreach ($filter as $key => $caption): ?>
-                    <li><a href='?module=clients&action=all&region=<?=Html::encode($currentRegion)?>&letter=<?=Html::encode($key)?>' <?= $currentFilter == $key ? ' style="color:red;font-weight:bold"' : ''?> ><?=Html::encode($caption)?></a></li>
-                <?php endforeach; ?>
-            </ul>
-        </li>
-    </ul>
-</div>
-
-<div style="display: inline-block;">
-    <ul id="search_menu" STYLE="width: 180px;">
-        <li>Регион:
-            <?php if (isset($regions[$currentRegion]) && $currentRegion != 'any'): ?>
-                <?=$regions[$currentRegion]?>
-            <?php else: ?>
-                <span style="color: gray"> ***Любой***</span>
-            <?php endif; ?>
-
-            <ul>
-                <?php foreach ($regions as $key => $caption): ?>
-                    <li><a href='?module=clients&action=all&region=<?=Html::encode($key)?>&letter=<?=Html::encode($currentFilter)?>' <?= $currentRegion == $key ? ' style="color:red;font-weight:bold"' : ''?> ><?=Html::encode($caption)?></a></li>
-                <?php endforeach; ?>
-            </ul>
-        </li>
-    </ul>
-</div>
-
-<div style="display: inline-block;">
-    <?php if ($module == 'clients' && $clients_my): ?>
-        | <a href='?module=clients&subj=<?=Html::encode($client_subj)?>&action=my' style='color:red;font-weight:bold'>Мои клиенты</a>
-    <?php else: ?>
-        | <a href='?module=clients&subj=<?=Html::encode($client_subj)?>&action=my'>Мои клиенты</a>
-    <?php endif; ?>
-</div>
-
-<form action="?module=clients&action=all" method=get id=searchform name=searchform style="margin-top: 5px">
-    Поиск:
-    <input type=hidden name=module value=clients><input type=hidden name=action value=all><input type=hidden name=smode value=1>
-    <input type=text name=search class=text id=searchfield onblur='doHide()' onkeyup="doLoadUp(700)" value=''>
-
-    <div id="searchform-buttons-extended" style="display: none">
-        <input type=submit class=button value='Искать' onclick='document.getElementById("searchform").smode.value=5; return true;'>
-        <input type=submit class=button value='по телефону' onclick='document.getElementById("searchform").smode.value=2; return true;'>
-        <input type=submit class=button value='по voip' onclick='document.getElementById("searchform").smode.value=7; return true;'>
-        <input type=submit class=button value='IP-адресу' onclick='document.getElementById("searchform").smode.value=3; return true;'>
-        <input type=submit class=button value='по адресу' onclick='document.getElementById("searchform").smode.value=4; return true;'>
-        <input type=submit class=button value='по email' onclick='document.getElementById("searchform").smode.value=6; return true;'>
-        <input type=submit class=button value='по домену' onclick='document.getElementById("searchform").smode.value=8;return true;'>
-        <input type=submit class=button value='ИНН' onclick='document.getElementById("searchform").smode.value=9; return true;'>
-        <input type=submit class=button value='Счёт/Заявка' onclick='document.getElementById("searchform").module.value="newaccounts"; document.getElementById("searchform").action.value="search"; return true;'>
-        <span style="border: 1px solid #ededed; color: #cdcdcd; padding: 2px 2px 2px 2px; cursor: pointer" onclick="setSearchFormSimpleMode()">&lt;&lt;</span>
-    </div>
-
-    <div id="searchform-buttons-simple" style="display: none">
-        <input type=submit class=button value='Искать'>
-        <span style="border: 1px solid #ededed; color: #cdcdcd; padding: 2px 2px 2px 2px; cursor: pointer" onclick="setSearchFormExtendedMode()">&gt;&gt;</span>
-    </div>
-
-</form>
-<div class=text onclick='clearTimeout(timeout2)' style='display: none;position:absolute; margin-left:46px; floating:true; padding:5 5 5 5; width:600px; height:200px' id='variants'></div>
-
-<script>
-    $( "#filter_menu" ).menu({ position: { my: "left top", at: "right-201 top+15" } });
-    $( "#search_menu" ).menu({ position: { my: "left top", at: "right-130 top+15" } });
-
-    onSearchFormShow();
-
-    function setSearchFormExtendedMode(){
-        localStorage.setItem('search-form-simple-mode', 'false');
-        onSearchFormShow();
+<style>
+    .tt-dropdown-menu{
+        max-width: 700px;
+        width: auto;
     }
+</style>
+<div>
+    <form action="<?= Url::toRoute(['search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
+          id="search-form">
+        <input type="hidden" name="searchType" value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
+               id="search-type">
 
-    function setSearchFormSimpleMode(){
-        localStorage.setItem('search-form-simple-mode', 'true');
-        onSearchFormShow();
-    }
+        <div class="col-sm-4">
+            <div class="input-group">
+                <input id="search" type="text" class="form-control" placeholder="Search ..." name="search"
+                       value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
+            <span class="input-group-btn" title="Submit">
+                <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+            </span>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="btn-group" id="btn-options">
+                <button type="submit" class="btn btn-link">Искать по</button>
+                <button type="submit" class="btn btn-primary" style="display: none;" data-search="clients"
+                        data-placeholder="№ ЛС или Названию">Клиентам
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="contractNo"
+                        data-placeholder="Номеру договора">Договору
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="inn"
+                        data-placeholder="ИНН">ИНН
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="voip"
+                        data-placeholder="номеру">Voip
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="email"
+                        data-placeholder="email">Email
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="troubles"
+                        data-placeholder="№ заявки">Заявкам
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="bills"
+                        data-placeholder="№ счёта">Счетам
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="ip"
+                        data-placeholder="IP адресу">IP
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="address"
+                        data-placeholder="адресу">Адресу
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="domain"
+                        data-placeholder="домену">Домену
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="adsl"
+                        data-placeholder="ADSL">ADSL
+                </button>
+            </div>
+        </div>
+    </form>
+    <script>
+        var setInput = function () {
+            el = $('#btn-options .btn-primary');
+            $('#search').attr('placeholder', 'Поиск по ' + el.data('placeholder'));
+            $('#search-type').val(el.data('search'));
+        };
 
-    function onSearchFormShow(){
-        if ('true' === localStorage.getItem('search-form-simple-mode')) {
-            document.getElementById('searchform-buttons-extended').style.display = 'none';
-            document.getElementById('searchform-buttons-simple').style.display = 'inline';
-        } else {
-            document.getElementById('searchform-buttons-simple').style.display = 'none';
-            document.getElementById('searchform-buttons-extended').style.display = 'inline';
-        }
-    }
-</script>
+        $(function () {
+            if ($('#search-type').val()) {
+                $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
+                $('.btn[data-search="' + $('#search-type').val() + '"]').removeClass('btn-default').addClass('btn-primary');
+                $('#btn-options .btn-link').click();
+            }
+            setInput();
 
+            var substringMatcher = function () {
+                return function findMatches(q, cb) {
+                        $.getJSON('search/index', {
+                            search: $("#search").val(),
+                            searchType: $("#search-type").val()
+                        }, function (matches) {
+                            searchs = true;
+                            cb(matches);
+                            //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
+                        });
+                };
+            };
+
+            $('#search').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 3,
+                    async: true,
+                },
+                {
+                    name: 'states',
+                    source: substringMatcher(),
+                    templates: {
+                        suggestion: function(obj){
+                            if(obj['type'] == 'bill'){
+                                return '<div>'
+                                    + '<a href="' + obj['url'] + '">'
+                                    + ' Счет № ' + obj['value']
+                                    + '</a></div>';
+                            }
+                            else {
+                                return '<div>'
+                                    + '<a href="' + obj['url'] + '">'
+                                    + '<div style="background:' + obj['color'] + '; width: 16px;height: 16px;display: inline-block;"></div>'
+                                    + ' ЛС № ' + obj['id']
+                                    + ' ' + obj['value']
+                                    + '</a></div>';
+                            }
+                        }
+                    }
+                });
+        });
+
+        $('#btn-options .btn-link').on('click', function (e) {
+            e.preventDefault();
+            $(this).parent().children(':not(.btn-link)').toggle();
+            $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
+        });
+
+        $('#btn-options .btn:not(.btn-link)').on('click', function (e) {
+            e.preventDefault();
+            $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
+            $(this).addClass('btn-primary');
+            setInput();
+        });
+
+        $('#search-form').on('submit', function (e) {
+            if ($('#search').val() == '') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    </script>
+</div>

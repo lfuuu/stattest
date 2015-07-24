@@ -14,7 +14,7 @@ $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($
 ?>
 
 <legend>
-    <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
+    <?= Html::a($clientAccount->company, '/client/view?id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония Транки', '/?module=services&action=trunk_view') ?> ->
     Добавление Транка
 </legend>

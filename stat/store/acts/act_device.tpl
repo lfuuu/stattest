@@ -13,7 +13,7 @@
 <br>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Мы, нижеподписавшиеся, {$firm_director.position} {$firm_director.name} {$firma.name}
-	 и представитель <b>{$client.company_full}</b>, в&nbsp;лице <b>{$client.signer_positionV} {$client.signer_nameV}</b>, произвели акт приема-передачи во временное пользование следующего оборудования: 
+	 и представитель <b>{$client.contract.contragent.name_full}</b>, в&nbsp;лице <b>{$client.contract.contragent.positionV} {$client.contract.contragent.fioV}</b>, произвели акт приема-передачи во временное пользование следующего оборудования:
 </p>
 		<ul> <li>{$cpe.type|upper}-модем {$cpe.vendor} {$cpe.model}, серийный номер {$cpe.serial|upper}, 1 шт.</li></ul><br>
 	 Получен залог в сумме {$cpe.deposit_rub*1.18|round:2} рублей</p>
@@ -25,11 +25,11 @@
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY><TR><TD>
 	Оператор: {$firma.name}
 </td><td>
-	Абонент: <b>{$client.company_full}</b>
+	Абонент: <b>{$client.contract.contragent.name_full}</b>
 </td></tr><tr><td>
 	<br><br><p>
 {$firm_director.position}  ___________ /{$firm_director.name}/ 
 </td><td>
-	<br><br><p>{$client.signer_position}_____________/{$client.signer_name}/</p>
+	<br><br><p>{$client.contract.contragent.position}_____________/{$client.contract.contragent.fio}/</p>
 </td></TR></TBODY></TABLE>
 </body></html>

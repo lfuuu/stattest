@@ -69,6 +69,16 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return $tariff;
     }
 
+    public function getRegionName()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    public function getServerPbx()
+    {
+        return $this->hasOne(ServerPbx::className(), ['id' => 'server_pbx_id']);
+    }
+
     public function getTransferHelper()
     {
         return new VirtpbxServiceTransfer($this);
@@ -86,7 +96,7 @@ class UsageVirtpbx extends ActiveRecord implements Usage
 
     public function getServer()
     {
-        return $this->hasOne(ServerPBX::className(), ["id" => "server_pbx_id"]);
+        return $this->hasOne(ServerPbx::className(), ["id" => "server_pbx_id"]);
     }
 
 }

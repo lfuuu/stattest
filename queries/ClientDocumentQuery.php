@@ -1,14 +1,20 @@
 <?php
 namespace app\queries;
 
+use app\models\ClientAccount;
 use yii\db\ActiveQuery;
 use app\models\ClientDocument;
 
 class ClientDocumentQuery extends ActiveQuery
 {
-    public function account($accountId)
+    public function accountId($id)
     {
-        return $this->andWhere(["client_id" => $accountId]);
+        return $this->andWhere(['account_id' => $id]);
+    }
+
+    public function contractId($id)
+    {
+        return $this->andWhere(['contract_id' => $id]);
     }
 
     public function active()

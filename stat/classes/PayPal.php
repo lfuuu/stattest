@@ -45,8 +45,8 @@ class PayPal {
        $this -> _credentials["SIGNATURE"] = paypal_signature;
 
        $this -> _requestParams = array(
-           'RETURNURL' => LK_PATH.'app?#accounts/add_pay/paypal?',
-           'CANCELURL' => LK_PATH.'app?#accounts/add_pay/failed',
+           'RETURNURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/paypal?',
+           'CANCELURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/failed',
        );
    }
 

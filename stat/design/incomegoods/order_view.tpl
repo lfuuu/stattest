@@ -28,7 +28,7 @@
 	</tr>
 	<tr>
 		<th>Поставщик</th>
-		<td><a href="./?module=clients&id={$order->client_card->id}">{$order->client_card->company}</a></td>
+		<td><a href="/client/view?id={$order->client_card->id}">{$order->client_card->company}</a></td>
 	</tr>
 	<tr>
 		<th>По данным поставщика</th>

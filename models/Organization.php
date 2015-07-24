@@ -43,6 +43,7 @@ use app\dao\OrganizationDao;
 class Organization extends ActiveRecord
 {
     const MCN_TELEKOM = 1;
+    const MCM_TELEKOM = 11;
 
     public static function tableName()
     {

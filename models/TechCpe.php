@@ -13,4 +13,9 @@ class TechCpe extends ActiveRecord
     {
         return 'tech_cpe';
     }
+
+    public function getModel()
+    {
+        return $this->hasOne(TechCpeModel::className(), ['id' => 'id_model']);
+    }
 }

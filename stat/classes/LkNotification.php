@@ -39,8 +39,8 @@ class LkNotification {
 
     public function __construct($clientId, $contactId, $type, $value, $balance)
     {
-        $this->Client = ClientCard::find_by_id($clientId);
-        $this->Contact = ClientContact::find_by_id($contactId);
+        $this->Client = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);;
+        $this->Contact = \app\models\ClientContact::findOne($contactId);
         $this->design = new \MySmarty();
 
         $this->type = $type;

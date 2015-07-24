@@ -1,7 +1,7 @@
 <table border=0 width=100%>
     <tr>
         <td width="33%">
-            <a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
+            <a href="/client/view?id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
             <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
                 {$bill_client.client}
@@ -360,7 +360,7 @@ function doFormSend()
 
 <br/>
 
-<button class="showhistorybutton" onclick="showHistory('Bill',{$bill.id})">Открыть историю изменений</button>
+<button class="showhistorybutton" onclick="showHistory({literal}{Bill:{/literal}{$bill.id}{literal}}{/literal})">Открыть историю изменений</button>
 
 <h3>События счета:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}

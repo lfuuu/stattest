@@ -15,7 +15,7 @@
     {foreach from=$data item="s" name=outer key="k"}
         <tr bgcolor="{if $s->status == "working"}#fffff5{else}#ffe0e0{/if}">
             <td>
-                <a href="./?module=clients&id={$s->client}">{$s->client}</a>
+                <a href="/client/view?id={$s->client}">{$s->client}</a>
             </td>
             <td style="font-weight: bold;">
                 <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_voip&id={$s->id}">{$s->number}</a>

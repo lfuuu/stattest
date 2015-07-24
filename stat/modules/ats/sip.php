@@ -16,7 +16,7 @@ class sip
                     $db->AllRecords($q =
                         "select *,s.id as s_id 
                         from v_sip s
-                        where s.".sqlClient()." 
+                        where s.client_id = {$_SESSION['clients_client']} 
                         and atype ='".$view."'".
                         " and parent_id = '".$parentId."'".
                         " order by s.number, atype"));
@@ -38,7 +38,7 @@ class sip
                             left join v_number n on (s.number = n.id)
                             left join v_number_settings ns on (ns.sip_id = s.id) 
                             left join r_schema rs on (rs.id = ns.schema_id) 
-                        where s.".sqlClient()." 
+                        where s.client_id = {$_SESSION['clients_client']} 
                         and atype in ('number', 'link') ".
                         " order by enabled, s.number, atype") as $l)
                     {
@@ -121,9 +121,9 @@ class sip
         if(!$data && $id)
         {
             $data = vSip::get($id, false);
-            if($data &&  $fixClient != self::getClientById(self::resolveClientId($data["client_id"])))
+            if($data &&  $fixClient != $data["client_id"])
             {
-                $_SESSION["clients_client"] = $fixClient = self::getClientById($data["client_id"]);
+                $_SESSION["clients_client"] = $fixClient = $data["client_id"];
             }
         }
 
@@ -168,7 +168,7 @@ class sip
                 $formConstr->make($gData);
             }else{
 
-                $gData["client_id"] = getClientId();
+                $gData["client_id"] = $_SESSION["clients_client"] ? $_SESSION["clients_client"] : 0;
 
                 if(isset($gData["password"]))
                 {
@@ -344,9 +344,9 @@ class sip
 
         if($superId)
         {
-            if($db->GetValue("select `lines` from v_sip where id = '".$superId."' and ".sqlClient()) == 0)
+            if($db->GetValue("select `lines` from v_sip where id = '".$superId."' and client_id = {$_SESSION['clients_client']}") == 0)
             {
-                $db->Query("delete FROM `v_sip` where id ='".$superId."' and ".sqlClient());
+                $db->Query("delete FROM `v_sip` where id ='".$superId."' and client_id = {$_SESSION['clients_client']}");
                 $db->QueryDelete("v_number_settings", array("sip_id" => $superId));
                 $superId = 0;
             }
@@ -494,7 +494,7 @@ class sip
 
         $trunks = array();
         foreach($db->AllRecords("select s.id, n.number from v_sip s, v_number n 
-                                where s.".sqlClient()." and s.number=n.id 
+                                where s.client_id = {$_SESSION['clients_client']} and s.number=n.id 
                                 and s.type='trunk' and s.atype='number' 
                                 order by number") as $l)
         {
@@ -552,7 +552,7 @@ class sip
                     "mask" => "number",
                     "type" => "number_lines_select",
                     "condition" => array("nq", "type" , "link"),
-                    "data" => array(array("type" => "sql", "sql" => "select id, number, `call_count`  from v_number where ".sqlClient()."
+                    "data" => array(array("type" => "sql", "sql" => "select id, number, `call_count`  from v_number where client_id = {$_SESSION['clients_client']}
                             and id in ('".implode("','", array_keys(vNumber::getFree()))."')
                             "))
                     );
@@ -847,7 +847,7 @@ class sip
                     "type" => "multitrunk_numbers",
                     "data_all" => array(array("type" => "query", "query" => "
                             select id, concat(number,'x', `call_count`) as l from `v_number` 
-                            where ".sqlClient()." and id in ('".implode("','", array_keys(vNumber::getFree($id)))."') order by number"))
+                            where client_id = {$_SESSION['clients_client']} and id in ('".implode("','", array_keys(vNumber::getFree($id)))."') order by number"))
                     );
 
             if($id == 0){
@@ -865,12 +865,12 @@ class sip
     public static function getInfo($id, $fixclient)
     {
         global $db;
-        $data = $db->GetRow("select * from v_sip where id ='".$id."' and ".sqlClient());
+        $data = $db->GetRow("select * from v_sip where id ='".$id."' and client_id = $fixclient");
         $d = array("id" => $id, "atype" => $data["atype"], "all" => array());
 
         if($data["atype"] == "line")
         {
-            $data = $db->GetRow("select * from v_sip where ".sqlClient()." and id='".$data["parent_id"]."' and atype='number'");
+            $data = $db->GetRow("select * from v_sip where client_id = {$_SESSION['clients_client']} and id='".$data["parent_id"]."' and atype='number'");
         }
 
         if($data["atype"] == "number")
@@ -879,7 +879,7 @@ class sip
             $d["all"][] = $data["id"];
             $d["lines"] = array();
 
-            foreach($db->AllRecords("select id, number from v_sip where ".sqlClient()."
+            foreach($db->AllRecords("select id, number from v_sip where  client_id = $fixclient
                         and parent_id='".$data["id"]."' and atype = 'line'") as $l)
             {
                 $d["lines"][] = $l["id"];
@@ -921,7 +921,7 @@ class sip
                     from log_password l
                     left join ".SQL_DB.".user_users u on (u.id = l.user_id)                    
                     left join v_sip s on (s.id = l.sip_id)
-                    where l.".sqlClient()." order by id desc limit ".($isFull ? 100 : 4));
+                    where l.client_id = {$_SESSION['clients_client']} order by id desc limit ".($isFull ? 100 : 4));
         
         if($isFull)
         {
@@ -965,17 +965,5 @@ class sip
     {
         list($id, $salt, $md5) = explode(":", $str."::::");
         return self::cryptId($id, $salt) == $str ? $id : false;
-    }
-
-    private static function resolveClientId($fixclient)
-    {
-        global $db;
-        return $db->GetValue("select id from ".SQL_DB.".clients where id = '".$fixclient."' or client = '".$fixclient."'");
-    }
-
-    private static function getClientById($id)
-    {
-        global $db;
-        return $db->GetValue("select client from ".SQL_DB.".clients where id = '".$id."'");
     }
 }

@@ -181,7 +181,7 @@ class LkNotificationContact
         if ($Contacts) {
             foreach ($Contacts as $C) {
 
-                $client = ClientCard::find($C->client_id);
+                $client = \app\models\ClientAccount::findOne([is_numeric($C->client_id) ? 'id' : 'client' => $C->client_id]);
 
                 if ($client->credit > -1) {
                     if (!isset(self::$billingCounters[$C->client_id]))

@@ -50,8 +50,7 @@ abstract class DocumentReport extends Object
     public function getPayer()
     {
         return
-            $this->bill->clientAccount->dao()->getAccountPropertyOnDate(
-                $this->bill->clientAccount->id,
+            $this->bill->clientAccount->loadVersionOnDate(
                 $this->bill->bill_date
             );
     }

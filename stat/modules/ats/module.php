@@ -21,38 +21,6 @@
         return $c[$client];
     }
 
-    function getClientById($id)
-    {
-        global $db;
-        static $c = array();
-        if(!isset($c[$id]))
-            $c[$id] = $db->GetValue("select client from ".SQL_DB.".clients where id = '".$id."'");
-
-        return $c[$id];
-    }
-
-    function getClientRegion($client)
-    {
-        global $db;
-
-        return $db->GetValue("select region from ".SQL_DB.".clients where client='".$client."'");
-        
-    }
-
-    
-    function isHaveRegion99($client)
-    {
-        global $db;
-
-        return $db->GetValue("select count(1) as c from ".SQL_DB.".usage_voip where region = 99 and client = '".$client."'");
-    }
-
-
-    function sqlClient($client = null)
-    {
-        return "client_id='".getClientId($client)."'";
-    }
-
 class m_ats extends IModule
 {
 
@@ -66,9 +34,8 @@ class m_ats extends IModule
         if(!$fixclient && isset($_GET["id"]))
         {
             $d = vSip::get($_GET["id"], false);
-            $_SESSION["clients_client"] = $d["client_id"];
             global $fixclient;
-            $fixclient = $db->GetValue("select client from ".SQL_DB.".clients where id = '".$d["client_id"]."'");
+            $fixclient = $_SESSION["clients_client"] = $d["client_id"];
         }
 
         if(substr($action,0,3) == "sip" || in_array($action, array("default", "view_pass", "log_view")))
@@ -88,20 +55,15 @@ class m_ats extends IModule
 	public function ats_sip_users($fixClient)
     {
 
-        $region = getClientRegion($fixClient);
+        $region = \app\models\ClientAccount::findOne($fixClient)->region;
 
-        if($fixClient && $region && ($region == 99 || isHaveRegion99($fixClient)))
+        if($fixClient && $region == 99)
         {
             //nothing
         }else
         {
             trigger_error2("Настройки учетных записей SIP для данного региона недоступны");
             return;
-        }
-
-        if(($subaction = get_param_raw("subaction", "")) == "numsettings")
-        {
-            $this->numSettings($fixClient);
         }
         $this->sip_users($fixClient);
         //$this->numbers($fixClient);
@@ -199,10 +161,10 @@ class m_ats extends IModule
                 //del
                 @unlink($filePath.$id.".mp3");
                 @unlink($filePath.$id.".alaw");
-                $db->Query("DELETE FROM anonses WHERE ".sqlClient()." and id = '".$id."' ");
+                $db->Query("DELETE FROM anonses WHERE client_id = $fixclient and id = '".$id."' ");
             }
 
-            $design->assign("anonses_list", $db->AllRecords("SELECT id, name FROM anonses where ".sqlClient()." ORDER BY name"));
+            $design->assign("anonses_list", $db->AllRecords("SELECT id, name FROM anonses where client_id = $fixclient ORDER BY name"));
             $design->AddMain("ats/anonses_list.htm");
         }
     }

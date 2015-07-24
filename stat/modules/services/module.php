@@ -14,8 +14,7 @@ class m_services extends IModule{
         $act = $this->actions[$action];
         if(!access($act[0],$act[1]))
             return;
-
-        call_user_func(array($this,'services_'.$action),$fixclient);        
+        call_user_func(array($this,'services_'.$action),$fixclient);
     }
     function services_default($fixclient){
         if (access_action('services','vo_view')) {$this->services_vo_view($fixclient); return;}
@@ -83,7 +82,7 @@ class m_services extends IModule{
         if($port_type && count($port_type))
             $fil .= " AND `tp`.`port_type` in ('".join("','",$port_type)."')";
         if($manager)
-            $fil .= ' AND `cl`.`manager` = "'.$manager.'"';
+            $fil .= ' AND `cr`.`manager` = "'.$manager.'"';
         if($hide_off)
             $fil .= ' AND `uip`.`actual_to` >= FROM_UNIXTIME('.strtotime("+1 day", $to).')';
         if($hide_slow){
@@ -111,7 +110,8 @@ class m_services extends IModule{
                 `uip`.`speed_mgts`,
                 `uip`.`id`,
                 `uip`.`client`,
-                `cl`.`manager`,
+                `cr`.`manager`,
+                `cl`.`id` AS `clientid`,
                 `tp`.`port_type`,
                 `tp`.`port_name` `port`,
                 `tp`.`node`,
@@ -136,6 +136,7 @@ class m_services extends IModule{
                 `cl`.`client` = `uip`.`client`
             AND
                 `cl`.`status` not in ('deny','tech_deny')
+            LEFT JOIN client_contract cr ON cr.id = cl.contract_id
             LEFT JOIN
                 `log_tarif` `lt`
             ON
@@ -352,10 +353,9 @@ class m_services extends IModule{
             return;
         }
 
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+        $r=$fixclient = ClientAccount::findOne($fixclient);
         $dbf = new DbFormUsageIpPorts();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$r->client);
         $dbf->SetDefault('address',$r['address_connect']);
 
         $dbf->Display(
@@ -368,7 +368,6 @@ class m_services extends IModule{
         );
     }
     function services_in_apply($fixclient,$suffix='internet',$suffix2='in'){
-        global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageIpPorts();
         $id=get_param_integer('id','');
@@ -407,7 +406,6 @@ class m_services extends IModule{
     }
 
     function services_in_apply2($fixclient,$suffix='internet',$suffix2='in'){
-        global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageIpRoutes();
         $id=get_param_integer('id','');
@@ -458,7 +456,7 @@ class m_services extends IModule{
         $sendmail = get_param_raw('sendmail',0);
         if($sendmail){
             $msg = $design->fetch('../store/acts/'.$suffix.'_act.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`='.$fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -510,7 +508,7 @@ class m_services extends IModule{
         $sendmail = get_param_raw('sendmail',0);
         if($sendmail){
             $msg = $design->fetch('../store/acts/'.$suffix.'_act_pon.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`='.$fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -571,7 +569,6 @@ class m_services extends IModule{
         } else {
             $connections=array();
             $ports=$this->get_ports($fixclient,1);
-
             foreach ($ports as $id_port=>$port) {
                 $connections[$id_port]['nets']=$this->get_nets($id_port);
                 $connections[$id_port]['data']=$port;
@@ -585,32 +582,26 @@ class m_services extends IModule{
     }
     
     function services_co_add($fixclient){
-        global $design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $this->services_in_add($fixclient,'collocation','C');
     }
     function services_co_add2($fixclient,$id=''){
-        global $db,$design;
         $this->services_in_add2($fixclient,$id,'collocation');
     }
     
     function services_co_act($fixclient){
-        global $design,$db;
         $this->services_in_act($fixclient,'collocation');
     }    
     
     function services_co_close($fixclient){
-        global $design,$db;
         $this->services_in_close($fixclient,'collocation');
     }
     
     function services_co_apply($fixclient){
-        global $design,$db;
         $this->services_in_apply($fixclient,'collocation','co');
     }
 
     function services_co_apply2($fixclient){
-        global $design,$db;
         $this->services_in_apply2($fixclient,'collocation','co');
     }
 
@@ -648,6 +639,7 @@ class m_services extends IModule{
                     IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual
                 from
                     usage_voip
+                    INNER JOIN clients c ON c.client = usage_voip.client
                     ".($where ? "where (".implode(") and (", $where).")" : "")."
                 order by
                     actual desc,
@@ -669,6 +661,9 @@ class m_services extends IModule{
 
             global $db_ats;
 
+            $clientNick = ClientAccount::findOne($fixclient)->client;
+            $isDbAtsInited = $db_ats && $db != $db_ats;
+
             $db->Query($q='
                 select
                     usage_voip.*,
@@ -677,7 +672,7 @@ class m_services extends IModule{
                 from
                     usage_voip
                 where
-                    client="'.$fixclient.'"
+                    client="'.$clientNick.'"
                 order by
                     actual
                 desc,
@@ -713,7 +708,7 @@ class m_services extends IModule{
             }
 
             $notAcos = array();
-            foreach($db->AllRecords("select * from voip_permit where client = '".$fixclient."'") as $p) {
+            foreach($db->AllRecords("select * from voip_permit where client = '$clientNick'") as $p) {
                 foreach($R as &$r)
                 {
                     if($r["E164"] == $p["callerid"]){
@@ -734,7 +729,7 @@ class m_services extends IModule{
             $design->assign('voip_conn_permit',$notAcos);
             $design->assign('is_vo_view', get_param_raw("action", "") == "vo_view");
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
-            $design->assign('cur_region', $db->GetValue('select region from clients where client="'.$fixclient.'"') );
+            $design->assign('cur_region', $db->GetValue('select region from clients where id="'.$fixclient.'"') );
             $design->AddMain('services/voip.tpl'); 
 
             if(get_param_raw("action", "") == "vo_view")
@@ -747,8 +742,7 @@ class m_services extends IModule{
     function services_trunk_view($fixclient){
         global $db,$design;
 
-        $client = ClientAccount::findOne(['client' => $fixclient]);
-
+        $client = ClientAccount::findOne($fixclient);
         if ($client) {
             global $db_ats;
 
@@ -793,7 +787,7 @@ class m_services extends IModule{
         if(!access("services_voip", "view_reg")) return;
         if(!function_exists("pg_connect")) return;
 
-        $c = ClientCS::FetchClient($fixclient);
+        $c = ClientAccount::findOne((is_numeric($fixclient)) ? $fixclient : ['client' => $fixclient]);
         if(!$c) return ;
 
         $phone = get_param_protected("phone", "");
@@ -1110,54 +1104,50 @@ class m_services extends IModule{
     {
         global $db, $user;
 
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+
         $id = get_param_protected("id", 0);
 
         $sendError = false;
 
         if($id)
         {
-            $u=$db->GetValue($q = "select id from usage_voip where id = '".$id."' and client='".$fixclient."'");
+            $u=$db->GetValue($q = "select id from usage_voip where id = '".$id."' and client='$clientNick'");
             if($u)
             {
-                $db->Query("delete from usage_voip where id = '".$id."' and client='".$fixclient."'");
+                $db->Query("delete from usage_voip where id = '".$id."' and client='$clientNick'");
             }else{
                 trigger_error2("unknown error");
             }
         }
 
-        header("Location: ./?module=clients&id=".$fixclient);
+        header("Location: /client/view?id=".$fixclient);
         exit();
     }
 
 
     function services_vo_settings_send($fixclient)
     {
-        $c = ClientCS::FetchClient($fixclient);
-        if(!$c) return ;
-
-
-        $phone = get_param_protected("phone", "");
-        $id = $fixclient;
-
         global $design, $db, $db_ats, $user;
+        $clientNick = ClientAccount::findOne($fixclient)->client;
 
         $isSent = false;
         $error = false;
         $emails = array();
 
-        $design->assign("log", $db->AllRecords("select * from log_send_voip_settings where client='".$fixclient."' order by id desc limit 30"));
+        $design->assign("log", $db->AllRecords("select * from log_send_voip_settings where client='".$clientNick."' order by id desc limit 30"));
         $e164s = array();
 
         //$e164s = voipRegion::getClientE164s($c["client"]);
 
-        foreach($db_ats->AllRecords("select number from a_number where client_id = '".$c["id"]."' and enabled='yes'") as $l)
+        foreach($db_ats->AllRecords("select number from a_number where client_id = $fixclient and enabled='yes'") as $l)
         {
             $e164s[$l["number"]] = $l["number"];
         }
 
         foreach($db->AllRecords("SELECT data as email 
                     FROM `client_contacts` cc, clients c 
-                    where c.client = '".$fixclient."' and client_id = c.id and cc.type = 'email' 
+                    where c.id = $fixclient and client_id = c.id and cc.type = 'email'
                     and cc.is_active 
                     order by data") as $l)
             $emails[$l["email"]] = $l["email"];
@@ -1180,12 +1170,12 @@ class m_services extends IModule{
                     if(!isset($emails[$_email]))
                         throw new Exception("Не выбраны номера или email'ы");
 
-                $msg = voipRegion::getEmailMsg($c["id"], $_e164s);
+                $msg = voipRegion::getEmailMsg($fixclient, $_e164s);
 
                 if(!$msg)
                 {
-                    voipRegion::getClientE164s($c); //для заполнения массива номер=>регион (voipRegion::$e164Region)
-                    $msg = voipRegion::_getEmailMsg($c, $_e164s);
+                    voipRegion::getClientE164s(['id' => $fixclient, 'client' => $clientNick]); //для заполнения массива номер=>регион (voipRegion::$e164Region)
+                    $msg = voipRegion::_getEmailMsg(['id' => $fixclient], $_e164s);
                 }
 
                 if(!$msg)
@@ -1200,7 +1190,7 @@ class m_services extends IModule{
             foreach($_emails as $_email)
             {
                 $db->QueryInsert("log_send_voip_settings", array(
-                            "client" => $c["client"],
+                            "client" => $clientNick,
                             "date" => array("NOW()"),
                             "user" => $user->Get("user"),
                             "email" => $_email,
@@ -1224,7 +1214,8 @@ class m_services extends IModule{
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
 
-        $id=get_param_integer('id','');
+        $account = ClientAccount::findOne($fixclient);
+        $clientNick = $account->client;
 
         $rr = ["7499"];
         foreach($db->AllRecords("select code from regions order by length(code)") as $r)
@@ -1232,7 +1223,7 @@ class m_services extends IModule{
             $rr[] = $r["code"];
         }
 
-        $db->Query('select * from usage_voip where (client="'.$fixclient.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from, E164');
+        $db->Query('select * from usage_voip where (client="'.$clientNick.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from, E164');
         $R=array(); 
         while ($r=$db->NextRecord()) 
         {
@@ -1256,7 +1247,7 @@ class m_services extends IModule{
         }
         $design->assign('voip_connections',$R);
                 
-        $db->Query('select tech_cpe.*,usage_ip_ports.address from tech_cpe left join usage_ip_ports on usage_ip_ports.id=tech_cpe.id_service and tech_cpe.service="usage_ip_ports" where (tech_cpe.client="'.$fixclient.'") and (tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW())');
+        $db->Query('select tech_cpe.*,usage_ip_ports.address from tech_cpe left join usage_ip_ports on usage_ip_ports.id=tech_cpe.id_service and tech_cpe.service="usage_ip_ports" where (tech_cpe.client="'.$clientNick.'") and (tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW())');
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
@@ -1275,7 +1266,7 @@ class m_services extends IModule{
         $sendmail = get_param_raw('sendmail',0);
         if($sendmail){
             $msg = $design->fetch('../store/acts/voip_act.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`='.$fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -1294,8 +1285,6 @@ class m_services extends IModule{
     function services_vo_act_trunk($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-    
-        $id=get_param_integer('id','');
     
         ClientCS::Fetch($fixclient);
         ClientCS::FetchMain($fixclient);
@@ -1357,18 +1346,19 @@ class m_services extends IModule{
     function services_vo_add($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
+        $account = ClientAccount::findOne($fixclient);
+        $region = $account->region;
         $dbf = new DbFormUsageVoip();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$account->client);
         if (isset($_GET['region'])){
             $dbf->SetDefault('region',intval($_GET['region']));
         }else{
-            $dbf->SetDefault('region',$r['region']);
+            $dbf->SetDefault('region',$region);
         }
         $dbf->Display(array('module'=>'services','action'=>'vo_apply'),'Услуги','Новое VoIP-подключение');
     }
     function services_vo_apply($fixclient){
-        global $design,$db;
+        global $design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageVoip();
         $id=get_param_integer('id','');
@@ -1412,6 +1402,7 @@ class m_services extends IModule{
     function services_dn_view($fixclient){
         global $db,$design;
         $this->fetch_client($fixclient);
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $R=array();
 
         $so = get_param_integer ('so', 1);
@@ -1426,9 +1417,7 @@ class m_services extends IModule{
         $design->assign('sort',$sort);
         $design->assign('so',$so);
 
-        $db->Query('select domains.*,
-            IF(cast(NOW() as date) between actual_from and actual_to,1,0) as actual 
-                from domains'.($fixclient?' where client="'.$fixclient.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
+        $db->Query('select domains.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from domains'.($clientNick?' where client="'.$clientNick.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
         while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('domains',$R);
         $design->AddMain('services/domains.tpl'); 
@@ -1436,9 +1425,8 @@ class m_services extends IModule{
     function services_dn_add($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormDomains();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',ClientAccount::findOne(['id' => $fixclient])->client);
         $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'Услуги','Новое доменное имя');
     }
     function services_dn_apply($fixclient){
@@ -1475,8 +1463,8 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
-
-        $items = EmailsServiceDao::me()->getAllForClient($fixclient);
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $items = EmailsServiceDao::me()->getAllForClient($clientNick);
 
         $design->assign('mails', $items);
         $res = $items ? true : false;
@@ -1498,9 +1486,10 @@ class m_services extends IModule{
         global $db,$design;
         $M=array(/*0=>'Доставлять всё',*/1=>'Добавлять в тему письма метку ---SPAM---',2=>'Уничтожать');
         $design->assign('em_options',$M);
-        
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+
         if ($filter){
-            $db->Query('select * from emails where (client="'.$fixclient.'") and (id='.$filter.')');
+            $db->Query('select * from emails where (client="'.$clientNick.'") and (id='.$filter.')');
             if (!($r=$db->NextRecord())) return;
             $filter_domain=$r['domain'];
             $filter_mail=$r['local_part'];
@@ -1514,12 +1503,12 @@ class m_services extends IModule{
             $design->assign('em_filter','');
         }
 
-        $domains=array(); $db->Query('select domain from domains where (client="'.$fixclient.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_domain_q);
+        $domains=array(); $db->Query('select domain from domains where (client="'.$clientNick.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_domain_q);
         while ($r=$db->NextRecord()) $domains[]=$r['domain'];
         $design->assign('domains',$domains);
         
         $MCN=array();
-        $db->Query('select emails.* from emails where (client="'.$fixclient.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_mail_q);
+        $db->Query('select emails.* from emails where (client="'.$clientNick.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_mail_q);
         $mails=array(); while ($r=$db->NextRecord()) {
             $mails[$r['id']]=$r;
             if (($r['domain']=="mcn.ru") && (!$filter_domain || ($filter_domain=="mcn.ru"))) $MCN[]=$r['local_part'];
@@ -1541,10 +1530,11 @@ class m_services extends IModule{
     function services_em_whitelist_toggle($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne($fixclient)->client;
         $id=get_param_integer("id",0);
         $mode=get_param_integer("mode",0);
         if (!$id) return;
-        $db->Query('select emails.* from emails where (client="'.$fixclient.'") and (id='.$id.')');
+        $db->Query('select emails.* from emails where (client="'.$clientNick.'") and (id='.$id.')');
         if (!($r=$db->NextRecord())) return;
 
         if ($mode==2) $mode='discard';
@@ -1553,7 +1543,7 @@ class m_services extends IModule{
 
         if ($r['spam_act']==$mode) return $this->services_em_view($fixclient);
         if ($mode=='pass'){
-            $db->Query('update emails set spam_act="pass" where (client="'.$fixclient.'") and (id='.$id.')');
+            $db->Query('update emails set spam_act="pass" where (client="'.$clientNick.'") and (id='.$id.')');
             $db->Query('insert into email_whitelist (local_part,domain,sender_address,sender_address_domain) values ("'.$r['local_part'].'","'.$r['domain'].'","","")');
         } else {
             if ($r['spam_act']=='pass'){
@@ -1563,10 +1553,10 @@ class m_services extends IModule{
                     trigger_error2("На, домене, которому принадлежит этот e-mail, отключена фильрация спама. Сначала включите её вручную.");
                 } else {
                     $db->Query('delete from email_whitelist where (local_part="'.$r['local_part'].'") and (domain="'.$r['domain'].'") AND (email_whitelist.sender_address="") AND (email_whitelist.sender_address_domain="")');
-                    $db->Query('update emails set spam_act="mark" where (client="'.$fixclient.'") and (id='.$id.')');
+                    $db->Query('update emails set spam_act="mark" where (client="'.$clientNick.'") and (id='.$id.')');
                 }
             } else {
-                $db->Query('update emails set spam_act="'.$mode.'" where (client="'.$fixclient.'") and (id='.$id.')');
+                $db->Query('update emails set spam_act="'.$mode.'" where (client="'.$clientNick.'") and (id='.$id.')');
             }
         }
         $this->services_em_view($fixclient);
@@ -1575,7 +1565,7 @@ class m_services extends IModule{
     function services_em_whitelist($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        
+
         $filter=get_param_integer("filter","");
         $domains=array();
         $mails=array();
@@ -1589,7 +1579,7 @@ class m_services extends IModule{
     function services_em_whitelist_delete($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        
+
         $id=get_param_integer("id",0);
         if (!$id) return;
             
@@ -1684,14 +1674,14 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         if($user->Get('user')=='client'){
             $dbf = new DbFormEmailsSimple();    
         }else{
             $dbf = new DbFormEmails();
         }
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
         $dbf->Display(
             array(
                 'module'=>'services',
@@ -1741,13 +1731,14 @@ class m_services extends IModule{
     function services_em_chreal($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error2('Клиенты не совпадают'); return; }
+        if ($r['client']!=$clientNick) {trigger_error2('Клиенты не совпадают'); return; }
         if ($pass1!=$pass2) {
             trigger_error2('Пароли не совпадают');
             $this->services_em_chpass($fixclient);
@@ -1808,7 +1799,8 @@ class m_services extends IModule{
     function services_ex_view($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $items = ExtraServiceDao::me()->getAllForClient($fixclient);
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $items = ExtraServiceDao::me()->getAllForClient($clientNick);
 
         for ($i=0, $s=sizeof($items); $i<$s; $i++) {
             if ($items[$i]['param_name'])
@@ -1827,6 +1819,7 @@ class m_services extends IModule{
     function services_ex_act($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne($fixclient)->client;
         $id=get_param_integer('id',0);
         $db->Query('select S.*,
             IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) AS actual,
@@ -1842,8 +1835,9 @@ class m_services extends IModule{
     function services_ex_add($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne($fixclient)->client;
         $dbf = new DbFormUsageExtra();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
 
         $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая дополнительная услуга');
     }
@@ -1892,6 +1886,7 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $R=array();
         $db->Query('
             select
@@ -1908,7 +1903,7 @@ class m_services extends IModule{
             and
                 T.status in ("itpark")
             where
-                S.client="'.$fixclient.'"'
+                S.client="'.$clientNick.'"'
         );
         while($r=$db->NextRecord()){
             if($r['param_name'])
@@ -1930,10 +1925,9 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormUsageITPark();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
         $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая услуга ITPark');
     }
 
@@ -1961,7 +1955,7 @@ class m_services extends IModule{
             );
 
             $R = array();
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             foreach($vpbxs as $r){
                 $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
@@ -1980,6 +1974,7 @@ class m_services extends IModule{
         }
 
 
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $R=array();
         $vpbxs = $db->AllRecords($q='
             SELECT
@@ -1992,7 +1987,7 @@ class m_services extends IModule{
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
             
-            WHERE S.client="'.$fixclient.'"'
+            WHERE S.client="'.$clientNick.'"'
         );
 
         $isViewAkt = false;
@@ -2019,10 +2014,9 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormUsageVirtpbx();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
         $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Новая услуга Виртальная АТС');
     }
     function services_virtpbx_apply($fixclient){
@@ -2043,12 +2037,14 @@ class m_services extends IModule{
     function services_virtpbx_act($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $account = ClientAccount::findOne(['id' => $fixclient]);
+        $clientNick = $account->client;
 
         $id=get_param_integer('id',0);
 
         if(!$id) {trigger_error2('Ошибка в данных'); return;}
 
-        $r = $db->GetRow('select * from usage_virtpbx where (client="'.$fixclient.'") and id ="'.$id.'"');
+        $r = $db->GetRow('select * from usage_virtpbx where (client="'.$clientNick.'") and id ="'.$id.'"');
 
         $r["login"] = "______________";
         $r["password"] = "______________";
@@ -2097,9 +2093,10 @@ class m_services extends IModule{
     {
         global $db, $user;
 
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $id = get_param_protected("id", 0);
 
-        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$id." and client = '".$fixclient."'");
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$id." and client = '".$clientNick."'");
 
         if ($vpbx)
         {
@@ -2112,13 +2109,12 @@ class m_services extends IModule{
     }
 
 // =========================================================================================================================================
-    function services_sms_view($fixclient){
+    function services_sms_view($fixclient)
+    {
         global $design;
-
         if (!$this->fetch_client($fixclient)) {
             $items = SmsServiceDao::me()->getAll();
-            $statuses = ClientCS::$statuses;
-
+            $statuses = ClientAccount::$statuses;
             for ($i=0, $s=sizeof($items); $i<$s; $i++) {
                 $items[$i]["client_color"] = isset($statuses[ $items[$i]["client_status"] ])
                     ? $statuses[ $items[$i]["client_status"] ]["color"]
@@ -2126,42 +2122,36 @@ class m_services extends IModule{
                 if ($items[$i]['period'] == 'month')
                     $items[$i]['period_rus'] = 'ежемесячно';
             }
-
             $manager = array();
             StatModule::users()->d_users_get($manager, 'manager');
-
             $design->assign('f_manager', $manager);
             $design->assign('services_sms', $items);
             $design->AddMain('services/sms.tpl');
-
             return $items;
         }
-
-        $items = SmsServiceDao::me()->getAllForClient($fixclient);
-
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $items = SmsServiceDao::me()->getAllForClient($clientNick);
         $isViewAkt = false;
         for ($i=0, $s=sizeof($items); $i<$s; $i++) {
             if ($items[$i]['period'] == 'month')
                 $items[$i]['period_rus'] = 'ежемесячно';
         }
-
         $design->assign('services_sms', $items);
         $design->AddMain('services/sms.tpl');
-
         return $items;
     }
+
     function services_sms_add($fixclient){
-        global $design,$db;
         if(!$this->fetch_client($fixclient)){
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+        $clientNick = ClientAccount::findOne($fixclient)->client;
         $dbf = new DbFormUsageSms();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
         $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Новая услуга CMC');
     }
+
     function services_sms_apply($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
@@ -2177,34 +2167,27 @@ class m_services extends IModule{
         $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Редактировать услугу CMC');
     }
 
-// =========================================================================================================================================
     function services_welltime_view($fixclient){
         global $design;
-
         if (!$this->fetch_client($fixclient)) {
             $items = WelltimeServiceDao::me()->getAll();
-
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             for ($i=0, $s=sizeof($items); $i<$s; $i++) {
                 $items[$i]["client_color"] = isset($statuses[ $items[$i]["client_status"] ])
                     ? $statuses[ $items[$i]["client_status"] ]["color"]
                     : false;
-
                 if ($items[$i]['period'] == 'month')
                     $items[$i]['period_rus'] = 'ежемесячно';
                 else if($items[$i]['period'] == 'year')
                     $items[$i]['period_rus'] = 'ежегодно';
             }
-
             $design->assign('services_welltime', $items);
             $design->AddMain('services/welltime_all.tpl');
-
             //trigger_error2('Не выбран клиент');
             return $items;
         }
-
-        $items = WelltimeServiceDao::me()->getAllForClient($fixclient);
-
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $items = WelltimeServiceDao::me()->getAllForClient($clientNick);
         $isViewAkt = false;
         for ($i=0, $s=sizeof($items); $i<$s; $i++) {
             if ($items[$i]['period'] == 'month')
@@ -2212,11 +2195,49 @@ class m_services extends IModule{
             else if($items[$i]['period'] == 'year')
                 $items[$i]['period_rus'] = 'ежегодно';
         }
-
         $design->assign('services_welltime', $items);
         $design->AddMain('services/welltime.tpl');
-
         return $items;
+    }
+
+    function services_wellsystem_view($fixclient){
+        global $db,$design;
+        if(!$this->fetch_client($fixclient)){
+            trigger_error2('Не выбран клиент');
+            return;
+        }
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
+
+        $R=array();
+        $db->Query($q='
+        select
+            T.*,
+            S.*,
+            IF(CAST(NOW() AS DATE) BETWEEN actual_from and actual_to,1,0) as actual,
+            IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+        from
+            usage_extra as S
+        inner join
+            tarifs_extra as T
+        on
+            T.id=S.tarif_id
+        and
+            T.code in ("wellsystem")
+        where
+            S.client="'.$clientNick.'"'
+        );
+        while($r=$db->NextRecord()){
+            if($r['param_name'])
+                $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
+            if($r['period']=='month')
+                $r['period_rus']='ежемесячно';
+            elseif($r['period']=='year')
+                $r['period_rus']='ежегодно';
+            $R[]=$r;
+        }
+        $design->assign('services_wellsystem',$R);
+        $design->AddMain('services/wellsystem.tpl');
+        return $R;
     }
 
     function services_welltime_add($fixclient){
@@ -2225,10 +2246,8 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
         $dbf = new DbFormUsageWelltime();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',ClientAccount::findOne($fixclient)->client);
         $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'Услуги','Новая услуга Welltime');
     }
     function services_welltime_apply($fixclient){
@@ -2246,55 +2265,18 @@ class m_services extends IModule{
         $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'Услуги','Редактировать дополнительную услугу');
     }
 // =========================================================================================================================================
-    function services_wellsystem_view($fixclient){
-        global $db,$design;
-        if(!$this->fetch_client($fixclient)){
-            trigger_error2('Не выбран клиент');
-            return;
-        }
-        $R=array();
-        $db->Query($q='
-            select
-                T.*,
-                S.*,
-                IF(CAST(NOW() AS DATE) BETWEEN actual_from and actual_to,1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            from
-                usage_extra as S
-            inner join
-                tarifs_extra as T
-            on
-                T.id=S.tarif_id
-            and
-                T.code in ("wellsystem")
-            where
-                S.client="'.$fixclient.'"'
-        );
 
-        while($r=$db->NextRecord()){
-            if($r['param_name'])
-                $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
-            if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
-            elseif($r['period']=='year')
-                $r['period_rus']='ежегодно';
-            $R[]=$r;
-        }
 
-        $design->assign('services_wellsystem',$R);
-        $design->AddMain('services/wellsystem.tpl');
-        return $R;
-    }
+
     function services_wellsystem_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
             trigger_error2('Не выбран клиент');
             return;
         }
-        $db->Query('select * from clients where client="'.$fixclient.'"');
-        $r=$db->NextRecord();
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormUsageWellSystem();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',$clientNick);
         $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая услуга WellSystem');
     }
 // =========================================================================================================================================
@@ -2304,6 +2286,7 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
+        $clientNick = ClientAccount::findOne($fixclient)->client;
         $R = array();
         $db->Query('
             select
@@ -2316,7 +2299,7 @@ class m_services extends IModule{
             from
                 usage_ip_ppp
             where
-                client = "'.$fixclient.'"
+                client = "'.$clientNick.'"
         ');
         while($r=$db->NextRecord())
             $R[]=$r;
@@ -2327,13 +2310,11 @@ class m_services extends IModule{
     function services_ppp_add($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageExtra();
-        $dbf->SetDefault('client',$fixclient);
+        $dbf->SetDefault('client',ClientAccount::findOne($fixclient)->client);
         $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'Услуги','Новый ppp-логин');
     }
     function services_ppp_apply($fixclient){
-        global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageExtra();
         $id=get_param_integer('id','');
@@ -2352,14 +2333,15 @@ class m_services extends IModule{
             trigger_error2('Не выбран клиент');
             return;
         }
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $ass = array(); //бгг
-        $client = addcslashes($fixclient, "\\'");
+
         if(isset($_POST['append_ppp_ok'])){
             $query_ins = "
                 INSERT INTO
                     `usage_ip_ppp`
                 SET
-                    `client` = '".$client."',
+                    `client` = '".$clientNick."',
                     `login` = '".addcslashes($_POST['pppoe_login'], "\\'")."',
                     `password` = '".addcslashes($_POST['pppoe_pass'], "\\'")."',
                     `ip` = '".preg_replace('/^[^0-9\.]+$/','',$_POST['ip_address'])."',
@@ -2379,7 +2361,7 @@ class m_services extends IModule{
             from
                 `usage_ip_ppp`
             where
-                `client`='".$client."'
+                `client`='".$clientNick."'
             order by
                 `id`";
         $db->Query($query);
@@ -2399,10 +2381,10 @@ class m_services extends IModule{
             $sip[3] = '000';
 
         $aff = count($ppps)+1;
-        $ass['login'] = $client.$aff;
-        $ass['client'] = $fixclient;
+        $ass['login'] = $clientNick.$aff;
+        $ass['client'] = $clientNick;
         $ass['ip'] = implode('.',$sip);
-        $ass['password'] = substr(md5($client.$ass['login'].microtime().rand()),0,8);
+        $ass['password'] = substr(md5($clientNick.$ass['login'].microtime().rand()),0,8);
         $ass['nat_2_ip'] = $ppp_last['nat_to_ip'];
         $design->assign('ass',$ass);
         $design->AddMain('services/append_ppp.tpl');
@@ -2461,13 +2443,14 @@ class m_services extends IModule{
     function services_ppp_chreal($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from usage_ip_ppp where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error2('Клиенты не совпадают'); return; }
+        if ($r['client']!=$clientNick) {trigger_error2('Клиенты не совпадают'); return; }
         if ($pass1!=$pass2) {
             trigger_error2('Пароли не совпадают');
             $this->services_ppp_chpass($fixclient);
@@ -2480,9 +2463,10 @@ class m_services extends IModule{
     function services_ppp_activate($fixclient){
         global $design,$db;    
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $id=get_param_integer('id','');
         if (!$id) return;
-        $db->Query('select * from usage_ip_ppp where (id='.$id.') and (client="'.$fixclient.'")');
+        $db->Query('select * from usage_ip_ppp where (id='.$id.') and (client="'.$clientNick.'")');
         if (!($r=$db->NextRecord())) return;
         
         if ($r['enabled']) {
@@ -2496,11 +2480,12 @@ class m_services extends IModule{
     function services_ppp_activateall($fixclient){
         global $design,$db;    
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         $value=get_param_integer('value',0); if ($value) $value=1;
         if ($value==0){
-            $db->Query('update usage_ip_ppp set enabled=0 where (client="'.$fixclient.'")');
+            $db->Query('update usage_ip_ppp set enabled=0 where (client="'.$clientNick.'")');
         } else {
-            $db->Query('update usage_ip_ppp set enabled=1 where (client="'.$fixclient.'") and (actual_from<=NOW()) and (actual_to>NOW())');            
+            $db->Query('update usage_ip_ppp set enabled=1 where (client="'.ClientAccount::findOne($fixclient)->client.'") and (actual_from<=NOW()) and (actual_to>NOW())');
         }
         $this->services_ppp_view($fixclient);
     }
@@ -2517,6 +2502,7 @@ class m_services extends IModule{
     }
     function get_ports($client,$C,$wh='',$select = '',$join = '',$order = 'usage_ip_ports.id ASC'){
         global $db;
+        $cidT = is_numeric($client) ? 'c.id':'c.client';
         $db->Query($q='
             SELECT
                 usage_ip_ports.*,
@@ -2524,9 +2510,11 @@ class m_services extends IModule{
                 tech_ports.port_name as port,
                 tech_ports.node,
                 tech_ports.port_type,
+                c.id AS clientid,
                 IF(usage_ip_ports.actual_from<=(NOW()+INTERVAL 5 DAY),1,0) as actual5d '.$select.'
             FROM
                 usage_ip_ports
+            LEFT JOIN clients c ON c.client = usage_ip_ports.client
             LEFT JOIN
                 tech_ports
             ON
@@ -2537,7 +2525,7 @@ class m_services extends IModule{
                 (usage_ip_ports.id=usage_ip_routes.port_id)
             '.$join.'
             WHERE
-                '.($wh?$wh:'(usage_ip_ports.client="'.$client.'")').'
+                '.($wh?$wh:'('.$cidT.'="'.$client.'")').'
             GROUP BY
                 usage_ip_ports.id
             ORDER BY '.$order
@@ -2594,8 +2582,8 @@ class m_services extends IModule{
         if (isset($this->fetched_client)) return 1;
         if ($design->var_is_array('client')) return 1;
         if (!$fixclient) return 0;
-        $db->Query('select * from clients where (client="'.$fixclient.'")');
-        if (!($r=$db->NextRecord())) return 0;
+        $r = ClientAccount::findOne($fixclient);
+        if (!$r) return 0;
         $design->assign('client',$r);
         $this->fetched_client=$r;
         return 1;
@@ -2800,7 +2788,7 @@ class m_services extends IModule{
                 select
                     `vn`.*,
                     `cl`.`client`,
-                    `cl`.`company_full`,
+                    `cg`.name_full AS `company_full`,
                     `vn`.`nullcalls_last_2_days` `count_calls`
                 from
                     `voip_numbers` `vn`
@@ -2808,6 +2796,8 @@ class m_services extends IModule{
                     `clients` `cl`
                 on
                     `cl`.`id` = `vn`.`client_id`
+                LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+                LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
                 where
                     `vn`.`number` = '".$e164."'";
 
@@ -2854,8 +2844,8 @@ class m_services extends IModule{
         $design->assign('client_id',$n['client_id']);
         $design->assign('company',$n['company_full']);
         $design->assign('count_calls',$n['count_calls']);
-        $design->assign('current_client',$fixclient);
-        $design->assign('current_client_id',$db->GetValue("select * from clients where '".$fixclient."' in (client, id)"));
+        $design->assign('current_client',ClientAccount::findOne($fixclient)->client);
+        $design->assign('current_client_id', $fixclient);
         $design->assign('logs',$log);
         $design->AddMain('services/voip_e164_edit.tpl');
     }
@@ -2864,8 +2854,8 @@ class m_services extends IModule{
         global $db;
         $region = get_param_protected('region','');
         $Res = array();
-        $C = $db->GetRow('select * from clients where client="'.$fixclient.'"');
-        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency="'.$C['currency'].'" and region="'.$region.'" and status != "archive"'.
+        $account = ClientAccount::findOne($fixclient);
+        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency="'.$account['currency'].'" and region="'.$region.'" and status != "archive"'.
                 'order by status, month_line, month_min_payment', 'id');
         foreach ($R as $r) {
             $Res[$r['id']] = array(

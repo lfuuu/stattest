@@ -26,7 +26,7 @@ class MT
                     select id,atype, number, client_id, parent_id, call_count, is_pool 
                     from v_sip where type='multitrunk' order by number") as $l)
         {
-            $l["client"] = getClientById($l["client_id"]);
+            $l["client"] = \app\models\ClientAccount::findOne($l["client_id"])->client;
             $m[$l["id"]] = $l;
             if(!isset($p[$l["parent_id"]])) $p[$l["parent_id"]] = array();
             $p[$l["parent_id"]][] = $l["id"];
@@ -96,7 +96,7 @@ class MT
             $data = array(
                     "id" => 0,
                     "number" => "",
-                    "client" => $fixclient,
+                    "client" => \app\models\ClientAccount::findOne($fixclient)->client,
                     "password" => "",
                     "host_type" => "dynamic",
                     "host_static" => "",
@@ -108,7 +108,7 @@ class MT
                     );
         }else{
             $data = $db->GetRow("select * from v_sip where id ='".$id."' and type='multitrunk' and atype='multitrunk'");
-            $data["client"] = getClientById($data["client_id"]);
+            $data["client"] = \app\models\ClientAccount::findOne($data["client_id"])->client;
             unset($data["client_id"]);
         }
 

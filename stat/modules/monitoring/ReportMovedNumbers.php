@@ -12,12 +12,15 @@ class ReportMovedNumbers
                                 b.id as to_id,
                                 UNIX_TIMESTAMP(b.actual_from) as to_actual_from,
                                 UNIX_TIMESTAMP(b.actual_to) as to_actual_to,
-                                a.client as from_client,
-                                b.client as to_client,
+                                cl.id as from_client,
+                                clb.id as to_client,
                                 b.is_moved,
                                 b.is_moved_with_pbx';
         $options['from'] = 'usage_voip as a';
-        $options['joins'] = 'LEFT JOIN usage_voip as b ON (b.E164 = a.E164)';
+        $options['joins'] = 'LEFT JOIN usage_voip as b ON (b.E164 = a.E164)
+                            LEFT JOIN clients as cl ON (a.client = cl.client)
+                            LEFT JOIN clients as clb ON (b.client = clb.client)
+                            ';
         $options['conditions'] = array(
                 '   a.id <> b.id 
                 AND CAST(NOW() as DATE) <= a.actual_to 
@@ -35,14 +38,15 @@ class ReportMovedNumbers
                                 b.id as to_id,
                                 UNIX_TIMESTAMP(b.actual_from) as to_actual_from,
                                 UNIX_TIMESTAMP(b.actual_to) as to_actual_to,
-                                a.client as from_client,
-                                b.client as to_client,
+                                c.id as from_client,
+                                cb.id as to_client,
                                 b.is_moved,
                                 b.moved_from';
         $options['from'] = 'usage_virtpbx as a';
         $options['joins'] = 
                     'LEFT JOIN usage_virtpbx as b ON (a.actual_to = DATE_SUB(b.actual_from, INTERVAL 1 DAY))'
-                .   'LEFT JOIN clients as c ON (c.client = a.client)';
+                .   'LEFT JOIN clients as c ON (c.client = a.client) '
+                .   'LEFT JOIN clients as cb ON (cb.client = b.client) ';
         $options['conditions'] = array(
                 '   a.id <> b.id 
                 AND a.actual_to < "3000-01-01"
@@ -60,11 +64,12 @@ class ReportMovedNumbers
                                 b.id as to_id,
                                 UNIX_TIMESTAMP(b.actual_from) as to_actual_from,
                                 UNIX_TIMESTAMP(b.actual_to) as to_actual_to,
-                                a.client as from_client,
-                                b.client as to_client';
+                                cl.id as from_client,
+                                clb.id as to_client';
         $options['from'] = 'usage_virtpbx as a';
         $options['joins'] = '   LEFT JOIN usage_virtpbx as b ON (a.actual_to = DATE_SUB(b.actual_from, INTERVAL 1 DAY)) 
                                 LEFT JOIN clients as cl ON (a.client = cl.client) 
+                                LEFT JOIN clients as clb ON (b.client = clb.client)
                                 LEFT JOIN usage_virtpbx as c ON (cl.id = c.moved_from)
         ';
         $options['conditions'] = array(

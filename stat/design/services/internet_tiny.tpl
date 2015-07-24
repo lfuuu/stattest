@@ -29,7 +29,7 @@
 <TR bgcolor="{if $conn.data.status=='working'}{if $conn.data.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
 	<TD>{$smarty.foreach.outer.iteration}</TD>
 {if isset($show_client)}
-	<TD><a href='{$LINK_START}module=clients&id={$conn.data.client}'>{$conn.data.client}</a></td>
+	<TD><a href='/client/view?id={$conn.data.clientid}'>{$conn.data.client}</a></td>
 {/if}
 	<TD>&#8470;{$conn.data.id}</td>
 	<td style='font-size:85%'>{$conn.data.address}</td>

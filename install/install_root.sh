@@ -39,9 +39,11 @@ echo "create database if not exists ats" | mysql
 echo "create database if not exists ats2" | mysql
 
 echo "create user 'vagrant'@'%'" | mysql
+echo "create user 'stat_operator'@'localhost'" | mysql
 echo "set password for 'vagrant'@'%' = password('vagrant')" | mysql
 echo "grant all privileges on * . * TO 'latyntsev'@'localhost'" | mysql
 echo "grant all privileges on * . * TO 'vagrant'@'%'" | mysql
+echo "grant all privileges on * . * TO 'stat_operator'@'localhost'" | mysql
 echo "flush privileges" | mysql
 
 echo "CREATE DATABASE voipdb " | su -c psql postgres

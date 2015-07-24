@@ -2,12 +2,19 @@
 
 namespace app\controllers;
 
+use app\dao\ClientGridSettingsDao;
+use app\forms\client\AccountEditForm;
+use app\forms\client\ClientEditForm;
+use app\models\ClientBP;
+use app\models\ClientInn;
+use app\models\ClientPayAcc;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Assert;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
-use app\models\ClientDocument;
+use yii\web\Response;
 use app\models\ClientAccount;
 
 
@@ -21,8 +28,18 @@ class AccountController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
-                    ]
+                        'roles' => ['clients.edit'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'roles' => ['clients.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['set-block', 'set-voip-disable'],
+                        'roles' => ['clients.restatus'],
+                    ],
                 ],
             ],
         ];
@@ -34,18 +51,16 @@ class AccountController extends BaseController
 
         $account = ClientAccount::findOne($accountId);
 
-        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+        if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id))
             throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
 
-        $wizard = LkWizardState::findOne($accountId);
+        $wizard = LkWizardState::findOne($account->contract->id);
 
-        if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next']))
-        {
+        if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
-            if ($state == "on" && !$wizard)
-            {
+            if ($state == "on" && !$wizard) {
                 $wizard = new LkWizardState;
-                $wizard->account_id = $accountId;
+                $wizard->contract_id = $account->contract->id;
                 $wizard->step = 1;
                 $wizard->state = "process";
                 $wizard->save();
@@ -53,82 +68,174 @@ class AccountController extends BaseController
 
                 Assert::isObject($wizard);
 
-                if ($state == "off")
-                {
+                if ($state == "off") {
                     $wizard->delete();
                 } else {
-                    if ($state == "first" || $state == "next")
-                    {
-                        $wizard->step = ($state == "first" ? 1 : ($wizard->step < 4 ? $wizard->step+1 : 4));
-                        if ($wizard->step == 4)
-                        {
+                    if ($state == "first" || $state == "next") {
+                        $wizard->step = ($state == "first" ? 1 : ($wizard->step < 4 ? $wizard->step + 1 : 4));
+                        if ($wizard->step == 4) {
                             $state = "review";
                         } else {
                             $state = "process";
                         }
                     }
 
-                    $wizard->state = $state; 
+                    $wizard->state = $state;
                     $wizard->save();
 
-                    if ($state == "approve")
-                    {
+                    if ($state == "approve") {
                         $wizard->add100Rub();
                     }
                 }
             }
         }
 
-        return $this->redirect('/?module=clients&id='.$accountId);
+        return $this->redirect(['client/view', 'id' => $id]);
     }
 
-    public function actionChangeWizardType($id, $type)
+    public function actionCreate($parentId)
     {
-        $accountId = $id;
+        $model = new AccountEditForm(['contract_id' => $parentId]);
 
-        $account = ClientAccount::findOne($accountId);
-
-        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
-            throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
-
-        $wizard = LkWizardState::findOne($accountId);
-
-        if (in_array($type, ['t2t', 'mcn']))
-        {
-            $wizard->type = $type;
-            $wizard->save();
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            return $this->redirect(['client/view', 'id' => $model->id]);
         }
 
-        return $this->redirect('/?module=clients&id='.$accountId);
+        return $this->render("edit", [
+            'model' => $model
+        ]);
     }
 
-
-    public function actionDocumentCreate($id)
+    public function actionEdit($id, $date = null)
     {
-        $content = Yii::$app->request->post('contract_content');
-        $contractType = Yii::$app->request->post('contract_type');
-        $contractGroup = Yii::$app->request->post('contract_template_group');
-        $contractTemplate = Yii::$app->request->post('contract_template');
-        $contractDate = Yii::$app->request->post('contract_date');
-        $contractNo = Yii::$app->request->post('contract_no');
-        $comment =  Yii::$app->request->post('comment');
+        $model = new AccountEditForm(['id' => $id, 'deferredDate' => $date]);
 
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            return $this->redirect(['client/view', 'id' => $id]);
+        }
 
-        $contractId = ClientDocument::dao()->addContract(
-            $id,
-
-            $contractType,
-            $contractGroup,
-            $contractTemplate,
-
-			$contractNo,
-            $contractDate,
-
-            $content,
-            $comment
-		);
-
-        $this->redirect("/?module=clients&id=".$id."&contract_open=true");
+        return $this->render("edit", [
+            'model' => $model,
+            'addAccModel' => new ClientPayAcc(),
+            'addInnModel' => new ClientInn(),
+        ]);
     }
 
+    public function actionSuperClientEdit($id, $childId)
+    {
+        $model = new ClientEditForm(['id' => $id]);
+
+        if($childId===null) {
+            parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
+            $params = Yii::$app->request->getQueryParams();
+            $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
+            Yii::$app->request->setQueryParams($params);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            return $this->redirect(['client/view', 'id' => $childId]);
+        }
+
+        return $this->render("superClientEdit", [
+            'model' => $model
+        ]);
+    }
+
+    public function actionUnfix()
+    {
+        //Для старого стата, для старых модулей
+        Yii::$app->session->set('clients_client', 0);
+        Yii::$app->user->identity->restriction_client_id = 0;
+        return $this->redirect(Yii::$app->request->referrer);
+        //return $this->goHome();
+    }
+
+    public function actionSetBlock($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->is_blocked = !$model->is_blocked;
+        $model->save();
+        return $this->redirect(['client/view', 'id' => $id]);
+    }
+
+    public function actionSetVoipDisable($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->voip_disabled = !$model->voip_disabled;
+        $model->save();
+        return $this->redirect(['client/view', 'id' => $id]);
+    }
+
+    public function actionLoadBpStatuses()
+    {
+        $processes = [];
+        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+
+        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
+        }
+
+        $res = ["processes" => $processes, "statuses" => $statuses];
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $res;
+    }
+
+    public function actionAdditionalInnCreate($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientInn();
+        $model->load(Yii::$app->request->post());
+        $model->client_id = $accountId;
+        $model->save();
+
+        return $this->redirect(['account/edit', 'id' => $accountId]);
+    }
+
+    public function actionAdditionalInnDelete($id)
+    {
+        $model = ClientInn::findOne($id);
+        if(!$model)
+            throw new Exception('Inn does not exist');
+        $model->is_active = 0;
+        $model->save();
+
+        return $this->redirect(['account/edit', 'id' => $model->client_id]);
+    }
+
+    public function actionAdditionalPayAccCreate($accountId)
+    {
+        $account = ClientAccount::findOne($accountId);
+        if(!$account)
+            throw new Exception('Account does not exist');
+
+        $model = new ClientPayAcc();
+        $model->load(Yii::$app->request->post());
+        $model->client_id = $accountId;
+        $model->save();
+
+        return $this->redirect(['account/edit', 'id' => $accountId]);
+    }
+
+    public function actionAdditionalPayAccDelete($id)
+    {
+        $model = ClientPayAcc::findOne($id);
+        if(!$model)
+            throw new Exception('Pay does not exist');
+        $model->delete();
+
+        return $this->redirect(['account/edit', 'id' => $model->client_id]);
+    }
 }

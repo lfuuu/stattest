@@ -8,7 +8,7 @@ use yii\db\Query;
  * @property int $id
  * @property
  */
-class ClientBPStatuses extends ActiveRecord
+class ClientBPStatuses// extends ActiveRecord
 {
     const TELEKOM__SALE__INCOME = 31; //Телеком - Продажи - Входящие
 
@@ -18,9 +18,9 @@ class ClientBPStatuses extends ActiveRecord
 
     const INTERNAL_OFFICE = 34; //Внутренний офис -> Внутренний офис -> Внутренний офис
 
-
+/*
     public static function tableName()
     {
         return 'client_grid_statuses';
-    }
+    }*/
 }

@@ -42,7 +42,7 @@ class m_newaccounts extends IModule
         $saldo = get_param_protected('saldo');
         $date = get_param_protected('date');
         $db->Query('update newsaldo set is_history=1 where client_id='.$fixclient_data['id']);
-        $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].','.$saldo.',"'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
+        $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].',"'.$saldo.'","'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
         ClientAccount::dao()->updateBalance($fixclient_data['id']);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
@@ -147,42 +147,17 @@ class m_newaccounts extends IModule
 
     function _getSwitchTelekomDate($clientId)
     {
-        global $db;
-
-        $data = [];
-
-        foreach($db->AllRecords("
-            select 
-                min(switch_date) as switch_date, 
-                firm 
-            from (
-                select 
-                    if(apply_ts = '0000-00-00', cast(ts as date), apply_ts) as switch_date, 
-                    value_to firm
-                from 
-                    log_client l, 
-                    log_client_fields f 
-                where 
-                        client_id = '".$clientId."' 
-                    and f.ver_id = l.id 
-                    and l.type='fields' 
-                    and field='firma' 
-                    and value_to in ('mcn_telekom', 'mcm_telekom') 
-            )a
-            group by firm
-                ") as $r)
-        {
-            $data[$r["switch_date"]] = $r["firm"];
-        }
-
-        ksort($data);
-        return $data;
+        $res = \app\models\HistoryChanges::find()
+            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'])
+            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"'])
+            ->one();
+        return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
-        global $design, $db, $user, $fixclient_data;
+        global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = $fixclient_data["type"] == "multi";
+        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -274,9 +249,9 @@ class m_newaccounts extends IModule
     }
     function newaccounts_bill_list_full($get_sum=false)
     {
-        global $design, $db, $user, $fixclient_data;
+        global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = $fixclient_data["type"] == "multi";
+        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -619,7 +594,7 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_view($fixclient){
         global $design, $db, $user, $fixclient_data;
-        
+
         
         //old all4net bills
         if(isset($_POST['bill_no']) && preg_match('/^\d{6}-\d{4}-\d+$/',$_POST['bill_no'])){
@@ -736,14 +711,14 @@ class m_newaccounts extends IModule
 
         if ($r) {
             $r["client_orig"] = $r["client"];
-
+            $contractTypeId = ClientAccount::findOne($r['id'])->contract->contract_type_id;
             if (access("clients", "read_multy"))
-                if ($r["type"] != "multi") {
+                if ($contractTypeId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($r["type"] == "multi" && isset($_GET["bill"])) {
+            if ($contractTypeId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
@@ -865,7 +840,7 @@ class m_newaccounts extends IModule
             exit();
         }
         $_SESSION['clients_client'] = $bill->Get("client_id");
-        $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
+        $fixclient_data = ClientAccount::findOne($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
 
@@ -1175,7 +1150,7 @@ class m_newaccounts extends IModule
 
                     foreach ($clientAccounts as $clientAccount) {
                         $offset++;
-                        echo "$offset. Лицевой счет: <a target='_blank' href='/?module=clients&id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/client/view?id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
 
                         try {
 
@@ -1339,9 +1314,9 @@ class m_newaccounts extends IModule
 
 
                     $R['emailed'] = '1';
-                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
                     $R['emailed'] = '0';
-                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
                     foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
                 }
             }
@@ -1357,8 +1332,8 @@ class m_newaccounts extends IModule
                 'is_pdf'    => $is_pdf,
             ];
 
-            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
-            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
 
             foreach ($template as $pos => &$item) {
                 switch ($documentReports[$i]) {
@@ -1372,8 +1347,8 @@ class m_newaccounts extends IModule
 
         $design->ProcessEx();
 
-        $cs=new ClientCS($bill->Client('id'));
-        $contact = $cs->GetContact();
+        $c= ClientAccount::findOne($bill->Client('id'));
+        $contact = $c->officialContact;
         $this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
         $this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
         echo "<hr><br>Шаблон с печатью <br><br>";
@@ -2476,7 +2451,7 @@ class m_newaccounts extends IModule
         $bdata['sum_tax'] = 0;
 
 
-        $r = $bill->Client();
+        $account = $bill->Client();
 
         foreach ($L as &$li) {
 
@@ -2489,13 +2464,13 @@ class m_newaccounts extends IModule
                 if ($li['service']=='tech_cpe') {
                     $id = $li['id_service'];
                 } elseif ($li['service']=='usage_ip_ports') {
-                    $r = $db->GetRow('select id_service from tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
-                    if ($r) $id = $r['id_service'];
+                    $account = $db->GetRow('select id_service from tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
+                    if ($account) $id = $account['id_service'];
                 }
                 if ($id) {
-                    $r=$db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
-                    $r['amount'] = floatval($li['amount']);
-                    $cpe[]=$r;
+                    $account=$db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
+                    $account['amount'] = floatval($li['amount']);
+                    $cpe[]=$account;
                 } else {
                     $cpe[]=array('type'=>'','vendor'=>'','model'=>$li['item'],'serial'=>'','amount'=>floatval($li['amount']), "actual_from" => $li["date_from"]);
                 }
@@ -2528,14 +2503,10 @@ class m_newaccounts extends IModule
             $design->assign('total_amount',$total_amount);
 
             $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
-            ClientCS::Fetch($r);
 
-            //** Выпилить */
-            //Company::setResidents($r["firma"], $docDate);
-            //$design->assign("firm", Company::getProperty($r["firma"], $docDate));
 
-            $client = $design->get_template_vars('client');
-            $organization = Organization::find()->byId($client['organization_id'])->actual($docDate)->one();
+            $clientAccount = ClientAccount::findOne($account['id'])->loadVersionOnDate($bill->Get('bill_date')); /** @var ClientAccount $clientAccount */
+            $organization = $clientAccount->contract->organization;
 
             $organization_info = $organization->getOldModeInfo();
 
@@ -2545,8 +2516,8 @@ class m_newaccounts extends IModule
             $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
             //** /Выпилить */
 
-            $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
-            $design->assign('bill_client',$r);
+            ClientCS::Fetch($account['id']);
+            $design->assign('bill_client',$account);
             return true;
         } else {
             if (in_array($obj, array('invoice','akt','upd'))) {
@@ -2806,13 +2777,27 @@ class m_newaccounts extends IModule
 
         $v = array();
 
+        $date = date('Y-m-d');
+        $organizations = Organization::find()
+            ->andWhere(['>', 'actual_from', $date])
+            ->andWhere(['<', 'actual_to', $date])
+            ->andWhere(['firma' => $firms])
+            ->all();
+        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
+
         if($inn){
             $q = $fromAdd ?
-                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
+                "select client_id as id from client_inn p, clients c
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
                 :
-                "select id from clients where inn = '".$inn."'";
+                "select c.id from clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where cg.inn = '".$inn."'";
 
-            foreach($db->AllRecords($qq = $q." and firma in ('".implode("','", $firms)."')") as $c)
+            foreach($db->AllRecords($qq = $q." and cr.organization_id in ('".implode("','", $organizations)."')") as $c)
                 $v[] = $c["id"];
 
         }
@@ -3057,8 +3042,11 @@ class m_newaccounts extends IModule
         $v = array();
 
         foreach($db->AllRecords(
-                    "select id,client, company as name, company_full as full_name, manager, currency
-                    from clients where id in ('".implode("','", $clientIds)."')") as $c)
+                    "select c.id,c.client, cg.name, cg.name_full as full_name, cr.manager, c.currency
+                    from clients c
+                     INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                    where c.id in ('".implode("','", $clientIds)."')") as $c)
             $v[] = $c;
 
         return $v;
@@ -3123,12 +3111,26 @@ class m_newaccounts extends IModule
         $v = array();
 
         if($acc){
-            $q = $fromAdd ?
-                "select client_id as id from client_pay_acc p, clients c where p.pay_acc = '".$acc."' and p.client_id = c.id"
-                :
-                "select id from clients where pay_acc = '".$acc."'";
+            $date = date('Y-m-d');
+            $organizations = Organization::find()
+                ->andWhere(['>', 'actual_from', $date])
+                ->andWhere(['<', 'actual_to', $date])
+                ->andWhere(['firma' => $firms])
+                ->all();
+            $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
 
-            foreach($db->AllRecords($qq = $q." and firma in ('".implode("','", $firms)."')") as $c)
+            $q = $fromAdd ?
+                "select client_id as id from client_pay_acc p, clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where p.pay_acc = '".$acc."' and p.client_id = c.id"
+                :
+                "select c.id from clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where c.pay_acc = '".$acc."'";
+
+            foreach($db->AllRecords($qq = $q." and cr.organization_id in ('".implode("','", $organizations)."')") as $c)
                 $v[] = $c["id"];
 
         }
@@ -3140,7 +3142,17 @@ class m_newaccounts extends IModule
     {
         global $db;
 
-        $r = $db->GetRow("select client_id from newbills b, clients c where b.bill_no = '".$billNo."' and c.id = b.client_id and firma in ('".implode("','", $firms)."')");
+        $date = date('Y-m-d');
+        $organizations = Organization::find()
+            ->andWhere(['>', 'actual_from', $date])
+            ->andWhere(['<', 'actual_to', $date])
+            ->andWhere(['firma' => $firms])
+            ->all();
+        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
+
+        $r = $db->GetRow("select client_id from newbills b, clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+where b.bill_no = '".$billNo."' and c.id = b.client_id and cr.organization_id in ('".implode("','", $organizations)."')");
         return $r ? array($r["client_id"]) : false;
 
     }
@@ -3251,7 +3263,17 @@ class m_newaccounts extends IModule
         $SUM_minus = 0;
         $SUM_already = 0;
         $payid = 0;
-        $firmaSql = ' and firma in ("'.implode('","', $firms).'")';
+
+
+        $date = date('Y-m-d');
+        $organizations = Organization::find()
+            ->andWhere(['>', 'actual_from', $date])
+            ->andWhere(['<', 'actual_to', $date])
+            ->andWhere(['firma' => $firms])
+            ->all();
+        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
+
+        $firmaSql = ' and cr.organization_id in ("'.implode('","', $organizations).'")';
         foreach($payments as $p){
 
             $p['id'] = $payid;
@@ -3267,8 +3289,18 @@ class m_newaccounts extends IModule
 
             $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($p['date']).'" and currency="USD"');
             if(!isset($clients[$p['inn']])){
-                $clients[$p['inn']] = $db->AllRecords('select clients.*,0 as is_ext from clients where (inn="'.addslashes($p['inn']).'") and (inn!="")'.$firmaSql);
-                $clients[$p['inn']] = array_merge($clients[$p['inn']],$db->AllRecords('select clients.*,1 as is_ext,client_inn.comment from clients inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where (client_inn.inn="'.addslashes($p['inn']).'") and (client_inn.inn!="")'.$firmaSql));
+                $clients[$p['inn']] = $db->AllRecords('
+select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type,
+cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type,
+0 as is_ext from clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where (cg.inn="'.addslashes($p['inn']).'") and (inn!="")'.$firmaSql);
+                $clients[$p['inn']] = array_merge($clients[$p['inn']],$db->AllRecords('select
+cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type,
+cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type,
+1 as is_ext,client_inn.comment from clients c
+inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where (client_inn.inn="'.addslashes($p['inn']).'") and (client_inn.inn!="")'.$firmaSql));
             }
 
             if(count($clients[$p['inn']])>=1){
@@ -3475,12 +3507,12 @@ class m_newaccounts extends IModule
         $sql = '
             select
             newbills.*,
-            clients.nal,
-            clients.client,
-            clients.company,
-            clients.firma,
-            if(clients.currency = newbills.currency, 1,0) as f_currency,
-                    clients.manager as client_manager,
+            c.nal,
+            c.client,
+            cg.name AS company,
+            cr.organization_id AS firma,
+            if(c.currency = newbills.currency, 1,0) as f_currency,
+                    cr.manager as client_manager,
                     (select user from user_users where id=nbo.owner_id) as bill_manager'.($b_show_bonus ? ',
 
                     (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) ORDER BY bl.`code_1c` separator "|\n")  FROM newbill_lines bl
@@ -3499,23 +3531,25 @@ class m_newaccounts extends IModule
 
                         left join newbill_owner nbo on (nbo.bill_no = newbills.bill_no)
                         '.$newpayments_join.'
-                        LEFT JOIN clients ON clients.id = newbills.client_id
-                        LEFT JOIN newsaldo ON newsaldo.client_id = clients.id
+                        LEFT JOIN clients c ON c.id = newbills.client_id
+                         LEFT JOIN `client_contract` cr ON cr.id=c.contract_id
+                         LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                        LEFT JOIN newsaldo ON newsaldo.client_id = c.id
                         and newsaldo.is_history = 0
-                        and newsaldo.currency = clients.currency
+                        and newsaldo.currency = c.currency
                         where '.MySQLDatabase::Generate($W1).'
 
                         ';
 
         if($userType == "manager") {
-            $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'"', $sql);
+            $sql = str_replace("~~where_owner~~", 'cr.manager="'.$manager.'"', $sql);
         }else{
 
             if($userType == "creator")
             {
                 $sql = str_replace("~~where_owner~~", 'nbo.owner_id="'.$managerInfo["id"].'"', $sql);
             }else{
-                $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'" or nbo.owner_id="'.$managerInfo["id"].'"', $sql);
+                $sql = str_replace("~~where_owner~~", 'cr.manager="'.$manager.'" or nbo.owner_id="'.$managerInfo["id"].'"', $sql);
             }
         }
 
@@ -3526,8 +3560,17 @@ class m_newaccounts extends IModule
         $totalAmount = [];
         $totalBonus = [];
 
+        $date = date('Y-m-d');
+        $organizations = Organization::find()
+            ->andWhere(['>', 'actual_from', $date])
+            ->andWhere(['<', 'actual_to', $date])
+            ->all();
+        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
+
         $clients = array();
         foreach($R as &$r){
+            $r['firma'] = $organizations[$r['firma']];
+
             $clients[$r['client_id']] =1;
             if ($r['sum']) {
                 if (!isset($totalAmount[$r['currency']])) {
@@ -3564,7 +3607,7 @@ class m_newaccounts extends IModule
 
         global $user,$db;
 
-        $fixclient_data = ClientCS::FetchClient($clientId);
+        $fixclient_data = ClientAccount::findOne($clientId);
 
         // saldo
         $sum = array('USD'=>array('delta'=>0,'bill'=>0,'ts'=>''),'RUB'=>array('delta'=>0,'bill'=>0,'ts'=>''));
@@ -3599,7 +3642,7 @@ class m_newaccounts extends IModule
     global $design,$db;
 
         $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Courier::dao()->getList(false));
-        $design->assign("l_metro", array("all" => "--- Все ---") + ClientCS::GetMetroList());
+        $design->assign("l_metro", array("all" => "--- Все ---") + \app\models\Metro::getList());
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
         $design->assign('manager',$manager=get_param_protected('manager'));
@@ -3668,7 +3711,7 @@ class m_newaccounts extends IModule
 
             $W1 = array("and");
             if ($manager != "all"){
-                $W1[] = 'clients.manager="'.$manager.'"';
+                $W1[] = 'cr.manager="'.$manager.'"';
             }
             if ($courier != "all") {
                 if($courier=='checked') {
@@ -3705,23 +3748,24 @@ class m_newaccounts extends IModule
                             `is_payed`,
                             `inv2to1`,
                             `courier_id`,
-                            clients.nal,
-                            clients.metro_id,
-                            clients.payment_comment,
-                            clients.address_post as address,
+                            c.nal,
+                            c.metro_id,
+                            c.address_post as address,
                             newbills.nal as bill_nal,
-                            clients.client,
-                            clients.company,
-                            clients.manager
+                            c.client,
+                            cg.name AS company,
+                            cr.manager
                         from newbills
-                        LEFT JOIN clients ON clients.id=newbills.client_id
-                        LEFT JOIN newsaldo ON newsaldo.client_id=clients.id
-                            AND newsaldo.is_history=0 AND newsaldo.currency=clients.currency
+                        LEFT JOIN clients c ON c.id=newbills.client_id
+                         LEFT JOIN `client_contract` cr ON cr.id=c.contract_id
+                         LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                        LEFT JOIN newsaldo ON newsaldo.client_id=c.id
+                            AND newsaldo.is_history=0 AND newsaldo.currency=c.currency
                         WHERE
                             '.MySQLDatabase::Generate($W1).'
-                            and clients.status not in ("tech_deny","deny")
+                            and c.status not in ("tech_deny","deny")
                         ORDER BY
-                            '.($isPrint ? "clients.company, " : "" ).'client,
+                            '.($isPrint ? "cg.name, " : "" ).'client,
                             bill_no
                     ) a
                 LEFT JOIN log_newbills_static ls USING (bill_no)
@@ -3735,7 +3779,7 @@ class m_newaccounts extends IModule
 
             foreach ($R as &$r) {
                 if ($isPrint) {
-                    $r["metro"] = ClientCS::GetMetroName($r["metro_id"]);
+                    $r["metro"] = \app\models\Metro::getList()[$r["metro_id"]];
                 }
                 $r["debt"] = $this->GetDebt($r["client_id"]);
                 $r["courier"] = Courier::dao()->getNameById($r["courier_id"]);
@@ -3787,16 +3831,20 @@ class m_newaccounts extends IModule
         if ($search) {
 
             $R=$db->AllRecords(
-                    'select newbills.*,clients.nal,clients.client,clients.company
+                    'select newbills.*,clients.nal,clients.client,cg.name AS company
                     FROM newbills
-                    INNER JOIN clients ON (clients.id=newbills.client_id)
+                    INNER JOIN clients c ON (clients.id=newbills.client_id)
+                     INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     WHERE bill_no LIKE "'.$search.'%" OR bill_no_ext LIKE "'.$search.'%" ORDER BY client,bill_no LIMIT 1000');
 
             if(!$R)
             {
                 $R=$db->AllRecords(
-                        $q = 'select b.*,c.nal,c.client,c.company
+                        $q = 'select b.*,c.nal,c.client,cg.name AS company
                         FROM newbills b, newbills_add_info i, clients c
+                         INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+                         INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                         WHERE c.id=b.client_id
                         and b.bill_no = i.bill_no and i.req_no = "'.$search.'"
                         ORDER BY c.client, b.bill_no LIMIT 1000');
@@ -3823,7 +3871,7 @@ class m_newaccounts extends IModule
         if ($manager) {
             $W0 = array('AND');
             if (!$cl_off) $W0[]='clients.status="work"';
-            if ($manager!='()') $W0[]='clients.manager="'.$manager.'"';
+            if ($manager!='()') $W0[]='cr.manager="'.$manager.'"';
 
             $W1 = array('AND','newbills.client_id=clients.id');
             $W1[]=array('AND','newbills.currency=clients.currency','saldo_ts IS NULL OR newbills.bill_date>=saldo_ts');
@@ -3850,8 +3898,9 @@ class m_newaccounts extends IModule
             if (!isset($S[$sort])) $sort=0;
             $sortK=$S[$sort];
 
-            $balance=$db->AllRecords('select'.
-                                ' clients.*'.
+            $balances=$db->AllRecords('select'.
+                                ' cr.*, cg.*, clients.*, clients.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization_id AS firma,
+cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type '.
                                 ', (select ts from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_ts'.
                                 ', (select saldo from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_sum'.
                                 ', (select sum(`sum`) from newbills where '.MySQLDatabase::Generate($W1).') as sum_bills'.
@@ -3859,13 +3908,27 @@ class m_newaccounts extends IModule
                                 ', (select bill_date from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_date'.
                                 ', (select bill_no from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_no'.
                                 ', (select round(`sum`) from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_sum'.
-                            ' from clients'.
+                            ' from clients '.
+                "  INNER JOIN `client_contract` cr ON cr.id=clients.contract_id".
+                "  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id".
                             ' WHERE '.MySQLDatabase::Generate($W0).' HAVING lastbill_date IS NOT NULL ORDER by '.$sortK);
             if ($sort==1) {
-                usort($balance,create_function('$a,$b','$p=$a["saldo_sum"]+$a["sum_bills"]-$a["sum_payments"]; $q=$b["saldo_sum"]+$b["sum_bills"]-$b["sum_payments"];
+                usort($balances,create_function('$a,$b','$p=$a["saldo_sum"]+$a["sum_bills"]-$a["sum_payments"]; $q=$b["saldo_sum"]+$b["sum_bills"]-$b["sum_payments"];
                                                         if ($p==$q) return 0; else if ($p>$q) return 1; else return -1;'));
             }
-            $design->assign('balance',$balance);
+
+            $date = date('Y-m-d');
+            $organizations = Organization::find()
+                ->andWhere(['>', 'actual_from', $date])
+                ->andWhere(['<', 'actual_to', $date])
+                ->all();
+            $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
+
+            foreach($balances as &$balance){
+                $balance['firma'] = $organizations[$balance['firma']];
+            }
+
+            $design->assign('balance',$balances);
         }
         $R=array(); StatModule::users()->d_users_get($R,'manager');
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
@@ -3883,17 +3946,7 @@ class m_newaccounts extends IModule
         $date_from=$dateFrom->getDay();
         $date_to=$dateTo->getDay();
        
-        $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-
-        //** Выпилить */
-        //Company::setResidents($c["firma"], $date_to);
-
-        $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
-
-        $design->assign('firma', $organization->getOldModeInfo());
-        $design->assign('firm_director', $organization->director->getOldModeInfo());
-        $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
-        //** /Выпилить */
+        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('saldo', $startsaldo=floatval(get_param_protected('saldo',0)));
@@ -4023,10 +4076,12 @@ class m_newaccounts extends IModule
         $ressaldo = array('type'=>'saldo','date'=>$date_to_val,'sum_income'=>$S>0?0:-$S,'sum_outcome'=>$S>0?$S:0);
 
 
-        $period_client_data = ClientCS::getOnDate($fixclient_data['id'], $date_from);
+        $period_client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
         $design->assign("company_full", $period_client_data["company_full"]);
         $design->assign("client_id", $fixclient_data['id']);
-        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_from_val));
+
+        $contractId = ClientAccount::findOne($fixclient_data['id'])->contract_id;
+        $design->assign("last_contract", BillContract::getLastContract($contractId, $date_from_val));
         $design->assign('data',$R);
         $design->assign('zalog',$zalog);
         $design->assign('sum_bill',$S_b);
@@ -4111,9 +4166,17 @@ class m_newaccounts extends IModule
         $W[] = 'B.sum!=0';
         $W[] = 'P.currency="RUB" OR P.currency IS NULL';
 
-        if($firma)     $W[] = 'C.firma="'.$firma.'"';
+        if($payfilter=='1')     $W[] = 'B.is_payed=1';
+        elseif($payfilter=='2') $W[] = 'B.is_payed IN (1,3)';
 
-        $W[] = "C.type in ('org', 'priv', 'ip')";
+        if($paymethod) $W[] = 'C.nal="'.$paymethod.'"';
+        if($firma) {
+            $firma = Organization::findOne(['firma' => $firma])->organization_id;
+            $W[] = 'cr.organization_id="' . $firma . '"';
+        }
+
+
+        $W[] = "cg.legal_type in ('ip', 'legal')";
 
         $W_gds = $W;
         
@@ -4126,12 +4189,10 @@ class m_newaccounts extends IModule
             select * from (
                 select
                     B.*,
-                    C.company_full,
-                    C.inn,
-                    C.kpp,
-                    C.type,
-                    (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
-                    (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
+                    cg.name_full AS company_full,
+                    cg.inn,
+                    cg.kpp,
+                    cg.legal_type AS type,
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
@@ -4141,12 +4202,14 @@ class m_newaccounts extends IModule
                     newbills B
                 LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
                 INNER JOIN clients as C ON (C.id = B.client_id)
+                 INNER JOIN `client_contract` cr ON cr.id=C.contract_id
+                 INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
         WHERE
                 '.MySQLDatabase::Generate($W).'
             and B.bill_no like "20____-____"
-            and if(B.sum < 0, C.contract_type_id =2, true) ### only telekom clients with negative sum
-            and C.contract_type_id != 6 ## internal office
-            and C.business_process_status_id != 22 ## trash
+            and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
+            and cr.contract_type_id != 6 ## internal office
+            and cr.business_process_status_id != 22 ## trash
         GROUP BY
             B.bill_no
         order by
@@ -4158,8 +4221,8 @@ class m_newaccounts extends IModule
             select *, unix_timestamp(shipment_date) as shipment_ts from (
                     select
                         B.*,
-                        C.company_full,
-                        C.inn,
+                        cg.name_full AS company_full,
+                        cg.inn,
                         if(doc_date != '0000-00-00', 
                             doc_date, 
                             (
@@ -4168,10 +4231,8 @@ class m_newaccounts extends IModule
                                 WHERE t.bill_no = B.bill_no 
                                     and t.id = s.trouble_id 
                                     and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
-                        C.kpp,
-                        C.type,
-                        (SELECT name FROM client_contract_type where id = C.contract_type_id) as contract,
-                        (SELECT name FROM grid_settings where id = C.business_process_status_id) as contract_status,
+                        cg.kpp,
+                        cg.legal_type AS type,
                         max(P.payment_date) as payment_date,
                         sum(P.sum) as `pay_sum`,
                         (
@@ -4200,6 +4261,8 @@ class m_newaccounts extends IModule
                         newbills B
                     LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
                     INNER JOIN clients as C ON (C.id = B.client_id)
+                     INNER JOIN `client_contract` cr ON cr.id=C.contract_id
+                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     where
                         t.bill_no = B.bill_no and
                         B.bill_no like '20____/____' and  #только счета с товарами (выставленные через 1С)
@@ -4260,7 +4323,7 @@ class m_newaccounts extends IModule
                         $A['inv_date'];
 
                     // get property from history
-                    $c = ClientCS::getOnDate($p['client_id'], date("Y-m-d", $invDate));
+                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date("Y-m-d", $invDate));
                     $p["company_full"] = trim($c["company_full"]);
                     $p["inn"] = $c["inn"];
                     $p["kpp"] = $c["kpp"];
@@ -4274,11 +4337,11 @@ class m_newaccounts extends IModule
                         $A['bill']['company_full'] = $p['company_full'];
                         $A['bill']['type'] = $c['type'];
 
-                        if($p["type"] == "priv")
+                        if($p["type"] == "person")
                         {
                             $A['bill']['inn'] = "-----";
                             $A['bill']['kpp'] = "-----";
-                        }elseif($p["type"] == "office"){
+                        }elseif($p["type"] == "legal"){
                             $A['bill']['inn'] = "<span style=\"color: red;\"><b>??????? ".$p['inn']."</b></span>";
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
@@ -4491,12 +4554,14 @@ class m_newaccounts extends IModule
 
             $query1 = $db->AllRecords("
                     SELECT
-                        client_id, client, company, sum, payment_date, site_req_no
+                        newpayments.client_id, c.client, c.id AS clientid, cg.name AS company, newpayments.`sum`, newpayments.payment_date, c.site_req_no, cr.organization_id
                     FROM
-                        `newpayments`, `clients`
+                        `newpayments`, `clients` c
+                         INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+                         INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     WHERE
                         payment_date between '".$from."' and '".$to."'
-                        and clients.id=newpayments.client_id
+                        and c.id=newpayments.client_id
                     ORDER BY
                         client,payment_date
                     ");
@@ -4511,14 +4576,18 @@ class m_newaccounts extends IModule
                 if($query2[0]['count'] == 0) {
                     $row['telemark'] = "Телемаркетинг";
                     $row['channel'] = "Канал #1";
-                    $row['organisation'] = $row['company'];
+                    $row['organization'] = $row['company'];
                     $row['first_pay_data'] = $row['payment_date'];
                     $sortedArray[$client] = $row;
                 }
             }
 
             foreach($sortedArray as $client => $clientData){
-                $clientData = $db->AllRecords("SELECT manager, sale_channel FROM clients where client='".$client."'");
+                $clientData = $db->AllRecords("
+SELECT cr.manager, c.sale_channel FROM clients c
+ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+ where client='".$client."'");
 
                 $sortedArray[$client]['manager'] = isset($usersData[$clientData[0]['manager']])?$usersData[$clientData[0]['manager']]:$clientData[0]['manager'];
                 $sortedArray[$client]['channel'] =isset($channels[$clientData[0]['sale_channel']])?$channels[$clientData[0]['sale_channel']]:$clientData[0]['sale_channel'];
@@ -4641,8 +4710,10 @@ class m_newaccounts extends IModule
 
         $filter .= " and (".$filterBank.($filterEcash ? " OR ".$filterEcash : "").")";
 
-        if (!$types) $R = array(); else $R = $db->AllRecords($q='select P.*,C.manager,C.client,C.company,B.bill_date,U.user from newpayments as P
+        if (!$types) $R = array(); else $R = $db->AllRecords($q='select P.*,cr.manager,C.client,cg.name AS company,B.bill_date,U.user from newpayments as P
                          INNER JOIN clients as C ON C.id=P.client_id
+                         INNER JOIN `client_contract` cr ON cr.id=C.contract_id
+                         INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                          LEFT JOIN user_users as U ON U.id=P.add_user
                          LEFT JOIN newbills as B ON B.bill_no=P.bill_no
                          WHERE '.$type.'>=FROM_UNIXTIME('.$from.') AND '.$type.'<FROM_UNIXTIME('.$to.')
@@ -4682,7 +4753,10 @@ class m_newaccounts extends IModule
         $dateFrom = new DatePickerValues('date_from', 'today');
         $from=$dateFrom->getTimestamp();
         $ord = 0;
-        $R = $db->AllRecords('select B.*,C.company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
+        $R = $db->AllRecords('select B.*,cg.name AS company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id
+ INNER JOIN `client_contract` cr ON cr.id=C.contract_id
+ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         foreach ($R as &$r) {
             $r['ord'] = ++$ord;
             if (!preg_match('|^([^,]+),([^,]+),(.+)$|',$r['address_post_real'],$m)) $m = array('','','Москва',$r['address_post_real']);
@@ -4792,12 +4866,18 @@ class m_newaccounts extends IModule
             }
         }
 
-        ClientCS::getClientClient($client_id);
-        $_SESSION['clients_client'] = $client_id;
+        $account = ClientAccount::find()->where('id = :id or client = :id', [':id' => $client_id])->one();
+        $_SESSION['clients_client'] = $account->id;
 
         // инициализация
-        $lMetro = ClientCS::GetList("metro","std");
-        $lLogistic = ClientCS::GetList("logistic");
+        $lMetro = \app\models\Metro::getList();
+        $lLogistic = array(
+            "none" => "--- Не установленно ---",
+            "selfdeliv" => "Самовывоз",
+            "courier" => "Доставка курьером",
+            "auto" => "Доставка авто",
+            "tk" => "Доставка ТК",
+        );
         $design->assign("l_metro", $lMetro);
         $design->assign("l_logistic", $lLogistic);
 
@@ -4812,16 +4892,13 @@ class m_newaccounts extends IModule
         require_once INCLUDE_PATH."clCards.php";
         require_once INCLUDE_PATH."1c_integration.php";
 
-        $cl_c = \clCards\getCard($db, $client_id);
-
         $bm = new \_1c\billMaker($db);
 
-        //$pts = $bm->getPriceTypes($client_tid);
-        $pt = ClientCS::getPriceType($client_id);
+        $pt = $account->price_type;
 
         $positions = array(
                 'bill_no' =>$bill_no,
-                'client_id'=>$client_id,
+                'client_id'=>$account->id,
                 'list'=>array(),
                 'sum'=>0,
                 'number'=>'',
@@ -4888,7 +4965,7 @@ class m_newaccounts extends IModule
 
         // расчет
         if($isToRecalc && !$isRollback) {
-            $positions = $bm->calcOrder($client_id, $positions, $pt);
+            $positions = $bm->calcOrder($account->client, $positions, $pt);
         }elseif($isRollback){
             $bm->calcGetedOrder($positions, true);
         }else{
@@ -4991,7 +5068,7 @@ class m_newaccounts extends IModule
             $this->compareForChanges($positions, $bm->getStatOrder($positions['bill_no']));
 
             $a = array(
-                'client_tid'=>$client_id,
+                'client_tid'=>$account->client,
                 'order_number'=>$positions['bill_no'],
                 'items_list'=>(isset($positions['list']) ? $positions['list'] : false),
                 //'items_list'=> $positions['list'] ,
@@ -5073,7 +5150,7 @@ class m_newaccounts extends IModule
         $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
 
         $design->assign('show_adds',
-                (in_array($client_id,array('all4net','wellconnect')) || !$cl_c || $cl_c->getAtMask(\clCards\struct_cardDetails::type) <> 'org'));
+                (in_array($account->client,array('all4net','wellconnect')) || $account->contract->contragent->legal_type != 'legal'));
         $design->assign('order_type',isset($_GET['tty'])?$_GET['tty']:false);
         $design->assign('is_rollback',isset($_GET['is_rollback'])?true:false);
         $positions["client_id"] = $client_id;
@@ -5154,7 +5231,7 @@ class m_newaccounts extends IModule
 
             if (get_param_raw('priceType', 'NO') != 'NO')
             {
-                $priceType = ClientCS::getPriceType($fixclient);
+                $priceType =  ClientAccount::findOne($fixclient)->price_type;
             } else {
                 $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "'. $storeId.'"');
             }

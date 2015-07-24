@@ -279,8 +279,7 @@
 					$condition . 
 					' AND c.region = ' . $region . ' AND 
 					b.sum > 0 AND 
-					c.status IN ("testing", "conecting", "work") AND 
-					c.type IN ("org", "priv", "ip") 
+					c.status IN ("testing", "conecting", "work")
 				order by 
 					b.client_id, b.bill_date'
 			);
@@ -295,8 +294,8 @@
 					$condition . 
 					' AND c.region = ' . $region . ' AND 
 					b.sum > 0 AND 
-					c.status IN ("testing", "conecting", "work") AND 
-					c.type IN ("org", "priv", "ip") ');
+					c.status IN ("testing", "conecting", "work")
+					 ');
 			$design->assign('total', $total);
 			$design->assign('region', $region);
 			$region_name = $db->GetValue("SELECT name FROM regions WHERE id = " . $region);

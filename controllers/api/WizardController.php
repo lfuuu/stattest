@@ -17,7 +17,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
-use app\forms\contragent\ContragentEditForm;
+use app\forms\client\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
 
@@ -67,9 +67,9 @@ class WizardController extends /*BaseController*/ApiController
 
     private function _checkClean($account)
     {
-        if ($account->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
+        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
         {
-            $wizard = LkWizardState::findOne($account->id);
+            $wizard = LkWizardState::findOne($account->contract->id);
             if ($wizard)
             {
                 if ($wizard->step < 4 || ($wizard->step == 4 && $wizard->state == "review"))
@@ -175,20 +175,18 @@ class WizardController extends /*BaseController*/ApiController
 
         if (!$contract)
         {
-            $contractId = ClientDocument::dao()->addContract(
-                $this->accountId,
 
-                "contract",
-                "MCN",
-                "Dog_UslugiSvayzi",
+            $clientDocument = new ClientDocument();
+            $clientDocument->client_id = $this->accountId;
+            $clientDocument->type = 'contract';
+            $clientDocument->contract_no = $this->accountId."-".date("y");
+            $clientDocument->contract_date = date("Y-m-d");
+            $clientDocument->comment = 'ЛК - wizard';
+            $clientDocument->user_id = User::CLIENT_USER_ID;
+            $clientDocument->group = 'MCN';
+            $clientDocument->template = 'Dog_UslugiSvayzi';
+            $clientDocument->save();
 
-                $this->accountId."-".date("y"),
-                date("d.m.Y"),
-
-                "",
-                "ЛК - wizard",
-                User::CLIENT_USER_ID
-            );
 
             $contract = ClientDocument::findOne([
                 "client_id" => $this->accountId, 
@@ -202,20 +200,17 @@ class WizardController extends /*BaseController*/ApiController
                 ||  UsageVirtpbx::find()->client($this->account->client)->count()
             )
             {
-                $contractId = ClientDocument::dao()->addContract(
-                    $this->accountId,
 
-                    "agreement",
-                    "MCN",
-                    "Zakaz_Uslug",
-
-                    "1",
-                    date("d.m.Y"),
-
-                    "",
-                    "ЛК - wizard",
-                    User::CLIENT_USER_ID
-                );
+                $clientDocument = new ClientDocument();
+                $clientDocument->client_id = $this->accountId;
+                $clientDocument->type = 'agreement';
+                $clientDocument->contract_no = 1;
+                $clientDocument->contract_date = date("Y-m-d");
+                $clientDocument->comment = 'ЛК - wizard';
+                $clientDocument->user_id = User::CLIENT_USER_ID;
+                $clientDocument->group = 'MCN';
+                $clientDocument->template = 'Zakaz_Uslug';
+                $clientDocument->save();
 
                 $agreement = ClientDocument::findOne([
                     "client_id" => $this->accountId, 
@@ -258,7 +253,7 @@ class WizardController extends /*BaseController*/ApiController
         if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["name"])
             throw new \Exception("data_error");
 
-        $file = $this->account->fileManager->addFileFromParam(
+        $file = $this->account->contract->fileManager->addFileFromParam(
             $data["file"]["name"], 
             base64_decode($data["file"]["content"]), 
             "ЛК - wizard", 
@@ -325,7 +320,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function getOrganizationInformation()
     {
-        $c = $this->account->contragent;
+        $c = $this->account->contract->contragent;
         $d = [
             "name" =>  $c->name,
             "legal_type" =>  $c->legal_type,
@@ -465,7 +460,7 @@ class WizardController extends /*BaseController*/ApiController
             }
             return ["errors" => $errors];
         } else {
-            return $form->saveInContragent($this->account->contragent);
+            return $form->saveInContragent($this->account->contract->contragent);
         }
     }
 

@@ -1,7 +1,7 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr>
 	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">АТС</td>
-	{if !$client_id}
+	{if !$fixclient}
 		<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Клиент</td>
 	{/if}
 	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Работатет с</td>
@@ -30,9 +30,9 @@
 				<td style="text-align: center;">
 					<a href="?module=stats&action=report_vpbx_stat_space&usage_id={$s->usage_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
 				</td>
-				{if !$client_id}
+				{if !$fixclient}
 					<td style="text-align: center;">
-						<a href="?module=clients&id={$s->client_id}">{$s->client_id}</a>
+						<a href="/client/view?id={$s->client}">{$s->client}</a>
 					</td>
 				{/if}
 				<td style="text-align: center;">{$s->actual|mdate:"j месяца Y"}</td>

@@ -2,10 +2,11 @@
 
 namespace app\classes\behaviors;
 
+use app\dao\ClientGridSettingsDao;
+use app\models\ClientAccount;
+use app\models\ClientContract;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use app\models\ClientStatuses;
-use app\models\ClientGridSettings;
 
 
 class SetOldStatus extends Behavior
@@ -13,63 +14,43 @@ class SetOldStatus extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_UPDATE => "afterUpdate"
+            ActiveRecord::EVENT_AFTER_UPDATE => "update",
+            ActiveRecord::EVENT_AFTER_INSERT => "update"
         ];
     }
 
-    public function afterUpdate($event)
+    public function update($event)
     {
-        if ($event->changedAttributes)
-        {
-            if (isset($event->changedAttributes["business_process_status_id"]))
-            {
-                $bpStatus = ClientGridSettings::findOne($event->sender->business_process_status_id);
+        if ($event->sender instanceof ClientContract) {
+            $bpStatus = ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($event->sender->business_process_status_id, false);
 
-                if ($bpStatus && $bpStatus->oldstatus && $bpStatus->oldstatus != $event->sender->status)
-                {
-                    $event->sender->status = $bpStatus->oldstatus;
-                    $event->sender->save();
-
-                    $cs = new ClientStatuses();
-
-                    $cs->ts = date("Y-m-d H:i:s");
-                    $cs->id_client = $event->sender->id;
-                    $cs->user = \Yii::$app->user->getIdentity()->user;
-                    $cs->status = $bpStatus->oldstatus;
-                    $cs->comment = "";
-
-                    $cs->save();
-                }
+            if ($bpStatus && isset($bpStatus['oldstatus'])) {
+                $this->setStatusForChildAccounts($event->sender, $bpStatus['oldstatus']);
             }
+        }
 
-            if (isset($event->changedAttributes["is_blocked"]))
-            {
-                if ($event->changedAttributes["is_blocked"] != $event->sender->is_blocked)
-                { 
-                    $newStatus = "debt";
+        if ($event->sender instanceof ClientAccount && isset($event->changedAttributes["is_blocked"])) {
+            if ($event->changedAttributes["is_blocked"] != $event->sender->is_blocked) {
+                $newStatus = "debt";
 
-                    if (!$event->sender->is_blocked)
-                    {
-                        $newStatus = "work";
-                        $bpStatus = ClientGridSettings::findOne($event->sender->business_process_status_id);
-                        if ($bpStatus->oldstatus)
-                            $newStatus = $bpStatus->oldstatus;
-                    }
-
-                    $event->sender->status = $newStatus;
-                    $event->sender->save();
-
-                    $cs = new ClientStatuses();
-
-                    $cs->ts = date("Y-m-d H:i:s");
-                    $cs->id_client = $event->sender->id;
-                    $cs->user = \Yii::$app->user->getIdentity()->user;
-                    $cs->status = $newStatus;
-                    $cs->comment = "Лицевой счет ".($newStatus == "debt" ? "заблокирован" : "разблокирован");
-
-                    $cs->save();
+                if (!$event->sender->is_blocked) {
+                    $newStatus = "work";
+                    $bpStatus = ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($event->sender->business_process_status_id, false);
+                    if (isset($bpStatus['oldstatus']) && $bpStatus['oldstatus'])
+                        $newStatus = $bpStatus['oldstatus'];
                 }
+
+                $event->sender->status = $newStatus;
+                $event->sender->save();
             }
+        }
+    }
+
+    private function setStatusForChildAccounts($model, $status)
+    {
+        foreach ($model->getAccounts() as $account) {
+            $account->status = $status;
+            $account->save();
         }
     }
 }

@@ -39,8 +39,6 @@ class m_tarifs_head extends IModuleHead{
             array('СМС',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
             ['', ''],
-            array('Каналы продаж',          function(){ return 'module=clients&action=sc';}),
-            ['', ''],
             //            array('Старые доп.услуги',        'view','&m=add'),
             array('Договора',            'contracts',''),
             array('Договор-Прайс-Телефония',            'price_tel',''),

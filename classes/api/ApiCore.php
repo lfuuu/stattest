@@ -9,11 +9,11 @@ class ApiCore
     const ERROR_PRODUCT_NOT_EXSISTS = 538;//"Приложения 'vpbx' для лицевого счёта '####' не существует";
 
     public static function isAvailable() {
-        return defined('CORE_SERVER') && CORE_SERVER;
+        return isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'];
     }
 
     public static function getApiUrl() {
-        return self::isAvailable() ? 'https://' . CORE_SERVER . '/core/api/' : false;
+        return self::isAvailable() ? 'https://' . \Yii::$app->params['CORE_SERVER'] . '/core/api/' : false;
     }
 
     public static function exec($action, $data) {

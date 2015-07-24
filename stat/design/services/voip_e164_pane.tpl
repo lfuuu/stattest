@@ -65,7 +65,7 @@
             {if $num.client_id != '' and $num.client_id != '764' and $num.usage_id == ''}
             <tr><td>
                 <a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
-                (клиент: <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='?module=clients&id={$num.client_id}'>{$num.client_id}</a>
+                (клиент: <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='/client/view?id={$num.client_id}'>{$num.client_id}</a>
                 резерв: {$num.reserved_free_date|substr:0:10})
             </td></tr>
             {/if}
