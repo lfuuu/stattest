@@ -173,7 +173,7 @@ class ClientAccount extends ActiveRecord
 
     public function getNds_zero()
     {
-        return $this->contract->contragent->tax_regime == 'full' ? 0: 1;
+        return !$this->contract->contragent->tax_regime;
     }
 
     public function getOgrn()
