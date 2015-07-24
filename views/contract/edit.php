@@ -260,11 +260,11 @@ use yii\helpers\Url;
                     </div>
 
                     <div class="col-sm-2">
-                        <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]"
+                        <select class="form-control tmpl-group" name="ClientDocument[group]"
                                 data-type="contract"></select>
                     </div>
                     <div class="col-sm-2">
-                        <select class="form-control tmpl" name="ClientDocument[contract_template]" data-type="contract">
+                        <select class="form-control tmpl" name="ClientDocument[template]" data-type="contract">
                         </select>
                     </div>
                     <div class="col-sm-2">
@@ -343,11 +343,11 @@ use yii\helpers\Url;
                 </div>
                 <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl-group" name="ClientDocument[contract_template_group]"
+                    <select class="form-control tmpl-group" name="ClientDocument[group]"
                             data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl" name="ClientDocument[contract_template]"
+                    <select class="form-control tmpl" name="ClientDocument[template]"
                             data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
