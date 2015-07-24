@@ -133,7 +133,7 @@ use yii\helpers\Url;
                     'empty35' => ['type' => Form::INPUT_RAW,],
                     'empty36' => ['type' => Form::INPUT_RAW,],
 
-                    'bank_properties' => ['columnOptions' => ['colspan' => 4], 'options' => ['disabled' => 'disabled']],
+                    'bank_properties' => ['type' => Form::INPUT_TEXTAREA,'columnOptions' => ['colspan' => 4], 'options' => ['disabled' => 'disabled']],
                     'empty36' => ['type' => Form::INPUT_RAW,],
                     'empty36' => ['type' => Form::INPUT_RAW,],
                     'empty36' => ['type' => Form::INPUT_RAW,],
@@ -415,7 +415,7 @@ use yii\helpers\Url;
                 var ca = $('#accounteditform-corr_acc').val();
                 var bn = $('#accounteditform-bank_name').val();
                 var bc = $('#accounteditform-bank_city').val();
-                var v = 'р/с '+ pa +' ' + bn + ' ' + bc + (ca ? (ca + ' , к/с 30101810100000000832') : '');
+                var v = 'р/с '+ pa + "\n" + bn + ' ' + bc + (ca ? ("\n" +'к/с '+ ca) : '');
                 $('#accounteditform-bank_properties').val(v);
             }
 

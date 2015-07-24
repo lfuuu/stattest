@@ -114,6 +114,7 @@ class ClientDocumentDao extends Singleton
         $account = $document->getAccount();
         $design = \app\classes\Smarty::init();
 
+        $account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
         $design->assign('client', $account);
         $design->assign('contract', $document);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
