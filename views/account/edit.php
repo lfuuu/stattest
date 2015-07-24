@@ -341,17 +341,17 @@ use yii\helpers\Url;
                         ]
                     ); ?>
                 </div>
-                <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
+                <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl-group" name="ClientDocument[group]"
+                    <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
                             data-type="blank"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl" name="ClientDocument[template]"
+                    <select class="form-control input-sm tmpl" name="ClientDocument[template]"
                             data-type="blank"></select>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary col-sm-12">Зарегистрировать</button>
+                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
                 </div>
             </form>
         </div>

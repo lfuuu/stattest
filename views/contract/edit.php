@@ -130,6 +130,7 @@ use yii\helpers\Url;
                                 'name' => 'kartik-date-3',
                                 'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date('Y-m-d', time()),
                                 'removeButton' => false,
+                                'options' => ['class' => 'form-control input-sm'],
                                 'pluginOptions' => [
                                     'autoclose' => true,
                                     'format' => 'yyyy-mm-dd',
@@ -239,7 +240,7 @@ use yii\helpers\Url;
                     <div class="col-sm-2">
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                         <input type="hidden" name="ClientDocument[type]" value="contract">
-                        <input class="form-control" type="text" name="ClientDocument[contract_no]"
+                        <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
                                value="<?= $model->id ?>">
                     </div>
                     <div class="col-sm-2">
@@ -248,6 +249,7 @@ use yii\helpers\Url;
                                 'name' => 'ClientDocument[contract_date]',
                                 'value' => date('Y-m-d'),
                                 'removeButton' => false,
+                                'options' => ['class' => 'form-control input-sm'],
                                 'pluginOptions' => [
                                     'autoclose' => true,
                                     'format' => 'yyyy-mm-dd',
@@ -256,20 +258,20 @@ use yii\helpers\Url;
                         ); ?>
                     </div>
                     <div class="col-sm-2">
-                        <input class="form-control" type="text" name="ClientDocument[comment]">
+                        <input class="form-control input-sm" type="text" name="ClientDocument[comment]">
                     </div>
 
                     <div class="col-sm-2">
-                        <select class="form-control tmpl-group" name="ClientDocument[group]"
+                        <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
                                 data-type="contract"></select>
                     </div>
                     <div class="col-sm-2">
-                        <select class="form-control tmpl" name="ClientDocument[template]" data-type="contract">
+                        <select class="form-control input-sm tmpl" name="ClientDocument[template]" data-type="contract">
                         </select>
                     </div>
                     <div class="col-sm-2">
                         <button type="submit"
-                                class="btn btn-primary col-sm-12"><?= $hasContract ? 'Обновить' : 'Зарегистрировать' ?></button>
+                                class="btn btn-primary btn-sm col-sm-12"><?= $hasContract ? 'Обновить' : 'Зарегистрировать' ?></button>
                     </div>
                 </form>
             </div>
@@ -326,7 +328,7 @@ use yii\helpers\Url;
                 <div class="col-sm-2">
                     <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                     <input type="hidden" name="ClientDocument[type]" value="agreement">
-                    <input class="form-control" type="text" name="ClientDocument[contract_no]"
+                    <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
                            value="<?= isset($armnt) && $armnt > 1 ? $armnt + 1 : 1 ?>"></div>
                 <div class="col-sm-2">
                     <?= DatePicker::widget(
@@ -334,6 +336,7 @@ use yii\helpers\Url;
                             'name' => 'ClientDocument[contract_date]',
                             'value' => date('Y-m-d'),
                             'removeButton' => false,
+                            'options' => ['class' => 'form-control input-sm'],
                             'pluginOptions' => [
                                 'autoclose' => true,
                                 'format' => 'yyyy-mm-dd',
@@ -341,17 +344,17 @@ use yii\helpers\Url;
                         ]
                     ); ?>
                 </div>
-                <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
+                <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl-group" name="ClientDocument[group]"
+                    <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
                             data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl" name="ClientDocument[template]"
+                    <select class="form-control input-sm tmpl" name="ClientDocument[template]"
                             data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary col-sm-12">Зарегистрировать</button>
+                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
                 </div>
             </form>
         </div>
@@ -401,16 +404,16 @@ use yii\helpers\Url;
             <form action="/file/upload?contractId=<?= $model->model->id ?>" method="post"
                   enctype="multipart/form-data">
                 <div class="col-sm-4">
-                    <input class="form-control" type=text name="name" placeholder="Название файла">
+                    <input class="form-control input-sm" type=text name="name" placeholder="Название файла">
                 </div>
                 <div class="col-sm-4">
-                    <input class="form-control" type=text name="comment" placeholder="Комментарий">
+                    <input class="form-control input-sm" type=text name="comment" placeholder="Комментарий">
                 </div>
                 <div class="col-sm-2">
-                    <div class="file_upload form-control">Выбрать<input type="file" name="file"/></div>
+                    <div class="file_upload form-control input-sm">Выбрать<input type="file" name="file"/></div>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary col-sm-12">Загрузить</button>
+                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Загрузить</button>
                 </div>
             </form>
         </div>
