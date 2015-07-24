@@ -218,7 +218,7 @@ if($has) :
 
         <?php if ($services['voip']) : ?>
             <div id="voip">
-                <h3><a href="?module=services&action=vo_view">IP-телефония</a></h3>
+                <h3><a href="?module=services&action=vo_view">IP-телефония</a> <a href="?module=services&action=vo_view">(актуальное состояние)</a></h3>
                 <a href="index.php?module=services&action=vo_act" target="_blank">
                     <img class="icon" src="/images/icons/act.gif">Выписать акт
                 </a>
@@ -251,20 +251,7 @@ if($has) :
                                    target="_blank"><?= $service->actual_from ?>
                                     &nbsp;-&nbsp;<?= $service->actual_to ?></a>
                             </td>
-                            <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?>&nbsp;
-                                <a href="?module=services&action=vo_view&phone=<?= $service->E164 ?>"
-                                   title="Посмотреть регистрацию">»</a>
-                            </td>
-                            <td>
-                                <?php
-                                /* Идет подключение к pg через старый стат для проверки. Если не попросят, не делаем пока.
-                                {if isset($ats_schema[$item.E164]) && $ats_schema[$item.E164]}
-                                    {if $ats_schema[$item.E164] == "new"}<span style="color: green;" title="Новая схема">Новая</span>
-                                    {elseif $ats_schema[$item.E164] == "old"}<span style="color: gray;" title="Старая схема">Старая</span>
-                                {/if}
-                            {/if}*/
-                                ?>
-                            </td>
+                            <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
                             <td style="font-size: 8pt;"><?= $service->currentTariff->name ?>
                                 (<?= $service->currentTariff->month_line ?>-<?= $service->currentTariff->month_number ?>
                                 )
@@ -296,7 +283,6 @@ if($has) :
 
                                 ?>
                             </td>
-                            <td style="font-size: 8pt;"><?= \app\models\UsageVoip::$allowedDirection[$service->allowed_direction] ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

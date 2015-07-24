@@ -123,7 +123,7 @@ use \app\models\ClientContract;
                                             if ($account && $account->id == $contractAccount->id && $voipWarnings = $account->getVoipWarnings()): ?>
                                                 <div class="col-sm-12">
                                                     <?php foreach($voipWarnings as $warning): ?>
-                                                        <div><span class="label label-warning"><?=$warning?></span></div>
+                                                        <span class="label label-danger"><?=$warning?></span>
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>

@@ -1943,6 +1943,7 @@ class m_services extends IModule{
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
+                c.id as client_id,
                 IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
