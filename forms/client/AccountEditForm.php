@@ -50,7 +50,9 @@ class AccountEditForm extends Form
         $consignee,
         $is_upd_without_sign,
         $timezone_name = Region::TIMEZONE_MOSCOW,
-        $is_active;
+        $is_active,
+        $admin_contact_id = 0,
+        $admin_is_active = 0;
 
     public function rules()
     {
@@ -73,7 +75,7 @@ class AccountEditForm extends Form
                 [
                     'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'credit_size', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'mail_print'
+                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
                 ],
                 'integer'
             ],
