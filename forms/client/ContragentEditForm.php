@@ -26,7 +26,7 @@ class ContragentEditForm extends Form
         $kpp,
         $position,
         $fio,
-        $tax_regime,
+        $tax_regime = 1,
         $opf,
         $okpo,
         $okvd,
@@ -57,11 +57,10 @@ class ContragentEditForm extends Form
             [['first_name', 'last_name', 'middle_name', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
-            ['tax_regime', 'default', 'value' => 'full'],
+            ['tax_regime', 'default', 'value' => '0'],
 
             ['legal_type', 'in', 'range' => array_keys(ClientContragent::$legalTypes)],
-            ['tax_regime', 'in', 'range' => array_keys(ClientContragent::$taxRegtimeTypes)],
-            [['super_id', 'country_id'], 'integer'],
+            [['super_id', 'country_id', 'tax_regime'], 'integer'],
 
         ];
         return $rules;

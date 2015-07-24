@@ -113,7 +113,7 @@ class AccountEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->clientM =  ClientAccount::findOne($this->id)->loadVersionOnDate($this->deferredDate);
+            $this->clientM = ClientAccount::findOne($this->id)->loadVersionOnDate($this->deferredDate);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
@@ -123,13 +123,22 @@ class AccountEditForm extends Form
             $this->clientM->contract_id = $this->contract_id;
             $this->contragent_id = $this->clientM->contragent_id = !$this->contragent_id ? ClientContract::findOne($this->contract_id)->contragent_id : $this->contragent_id;
             $this->super_id = $this->clientM->super_id = !$this->super_id ? ClientContract::findOne($this->contract_id)->super_id : $this->super_id;
-        } else{
+        } else {
             $this->clientM = new ClientAccount();
         }
 
-        $this->credit_size = ($this->credit < 1) ? 0 : $this->credit;
+        if($this->credit == -1){
+            $this->credit = 1;
+            $this->credit_size = 0;
+        } elseif($this->credit = 0) {
+            $this->credit = 0;
+            $this->credit_size = 0;
+        }else{
+            $this->credit_size = $this->credit;
+            $this->credit = 1;
+        }
+
         $this->sale_channel = (!is_numeric($this->sale_channel)) ? 0 : $this->sale_channel;
-        $this->credit = ($this->credit < 1) ? 0 : 1;
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
     }
@@ -138,11 +147,16 @@ class AccountEditForm extends Form
     {
         $client = $this->clientM;
 
-        if($this->getIsNewRecord())
+        if ($this->getIsNewRecord())
             $this->is_active = 0;
 
-        if ($this->credit < 1)
+        if ($this->credit && $this->credit_size > 0) {
+            $this->credit = $this->credit_size;
+        } elseif ($this->credit) {
             $this->credit = -1;
+        } else{
+            $this->credit = 0;
+        }
 
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
@@ -156,8 +170,7 @@ class AccountEditForm extends Form
             }
             $this->setAttributes($client->getAttributes(), false);
             return true;
-        }
-        else
+        } else
             $this->addErrors($client->getErrors());
 
         return false;

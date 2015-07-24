@@ -68,9 +68,8 @@ use \app\models\ClientContragent;
                     ],
                     'attributes' => [
                         'tax_regime' => [
-                            'type' => Form::INPUT_DROPDOWN_LIST,
-                            'items' => ClientContragent::$taxRegtimeTypes,
-                            'container' => ['style' => 'width:50%;']
+                            'type' => Form::INPUT_CHECKBOX,
+                            'container' => ['style' => 'margin-top:30px; padding-bottom:6px;']
                         ],
                         'position' => [],
                         'fio' => [],
@@ -118,7 +117,10 @@ use \app\models\ClientContragent;
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
-                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContragent::$taxRegtimeTypes, 'container' => ['style' => 'width:50%;']],
+                        'tax_regime' => [
+                            'type' => Form::INPUT_CHECKBOX,
+                            'container' => ['style' => 'margin-top:30px; padding-bottom:6px;']
+                        ],
                     ],
                 ]);
 

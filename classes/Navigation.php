@@ -19,6 +19,11 @@ class Navigation
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
                 ->addItem('Новый клиент',Url::toRoute(['client/create']), 'clients.read')
+                ->addItem('Мои клиенты',Url::toRoute([
+                    'client/search',
+                    'manager' => Yii::$app->user->identity->user,
+                    'account_manager' => Yii::$app->user->identity->user
+                ]), 'clients.read')
                 ->addItem('Каналы продаж', '/sale-channel/index', 'clients.edit')
                 ->addItem('Отчет по файлам', '/file/report', 'clients.edit')
         );

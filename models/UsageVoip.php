@@ -18,6 +18,14 @@ use app\models\Datacenter;
 class UsageVoip extends ActiveRecord implements Usage
 {
 
+    public static $allowedDirection = [
+        'full' => 'Все',
+        'russia' => 'Россия',
+        'localmob' => 'Внутр. мобил.',
+        'blocked' => 'Заблокированы',
+        'local' => 'Внутр.',
+    ];
+
     public static function tableName()
     {
         return 'usage_voip';

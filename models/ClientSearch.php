@@ -3,7 +3,6 @@
 namespace app\models;
 
 
-
 use app\dao\ClientGridSettingsDao;
 use yii\data\ActiveDataProvider;
 
@@ -21,7 +20,7 @@ class ClientSearch extends ClientAccount
     {
         return [
             [['id', 'sale_channel', 'regionId'], 'integer'],
-            [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip' ,'domain', 'address', 'adsl',
+            [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip', 'domain', 'address', 'adsl',
                 'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
         ];
     }
@@ -71,6 +70,11 @@ class ClientSearch extends ClientAccount
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC
+                ]
+            ]
         ]);
 
         $this->setAttributes($params);
@@ -79,42 +83,44 @@ class ClientSearch extends ClientAccount
         $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientContract::tableName() . '.contragent_id');
 
         $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
+        $query->orFilterWhere([ClientContract::tableName() . '.manager' => $this->manager]);
+        $query->orFilterWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
         $query->orFilterWhere(['like', 'name_full', $this->companyName]);
         $query->orFilterWhere(['like', 'inn', $this->inn]);
         $query->orFilterWhere(['like', 'address_connect', $this->address]);
 
-        if($this->contractNo) {
+        if ($this->contractNo) {
             $query->orFilterWhere(['number' => $this->contractNo]);
-            if(!$dataProvider->getTotalCount())
+            if (!$dataProvider->getTotalCount())
                 $query->orFilterWhere(['like', 'number', $this->contractNo]);
         }
 
-        if($this->email){
+        if ($this->email) {
             $query->leftJoin(ClientContact::tableName(), ClientContact::tableName() . '.client_id=' . ClientAccount::tableName() . '.id');
-            $query->andFilterWhere(['like', ClientContact::tableName().'.data', $this->email]);
-            $query->andFilterWhere([ClientContact::tableName().'.type' => 'email']);
+            $query->andFilterWhere(['like', ClientContact::tableName() . '.data', $this->email]);
+            $query->andFilterWhere([ClientContact::tableName() . '.type' => 'email']);
         }
 
-        if($this->voip){
+        if ($this->voip) {
             $query->leftJoin(UsageVoip::tableName(), UsageVoip::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', UsageVoip::tableName().'.e164', $this->voip]);
+            $query->andFilterWhere(['like', UsageVoip::tableName() . '.e164', $this->voip]);
         }
 
-        if($this->ip){
+        if ($this->ip) {
             $query->leftJoin(UsageIpPorts::tableName(), UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
             $query->leftJoin(UsageIpRoutes::tableName(), UsageIpRoutes::tableName() . '.port_id=' . UsageIpPorts::tableName() . '.id');
-            $query->andFilterWhere(['like', UsageIpRoutes::tableName().'.net', $this->ip]);
+            $query->andFilterWhere(['like', UsageIpRoutes::tableName() . '.net', $this->ip]);
         }
 
-        if($this->domain){
+        if ($this->domain) {
             $query->leftJoin(Domain::tableName(), Domain::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', Domain::tableName().'.domain', $this->domain]);
+            $query->andFilterWhere(['like', Domain::tableName() . '.domain', $this->domain]);
         }
 
-        if($this->adsl){
+        if ($this->adsl) {
             $query->leftJoin(UsageIpPorts::tableName(), UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
             $query->leftJoin(TechPort::tableName(), UsageIpPorts::tableName() . '.port_id=' . TechPort::tableName() . '.id');
-            $query->andFilterWhere(['like', TechPort::tableName().'.node', $this->adsl]);
+            $query->andFilterWhere(['like', TechPort::tableName() . '.node', $this->adsl]);
         }
 
         return $dataProvider;
@@ -128,7 +134,7 @@ class ClientSearch extends ClientAccount
         $params = $gridSettings['queryParams'];
         $orderBy = $params['orderBy'];
         unset($params['orderBy']);
-        foreach($params as $paramKey => $param){
+        foreach ($params as $paramKey => $param) {
             $query->$paramKey = $param;
         }
 
@@ -147,22 +153,22 @@ class ClientSearch extends ClientAccount
         $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
 
-        if($this->currency)
+        if ($this->currency)
             $query->andFilterWhere(['c.currency' => $this->currency]);
 
-        if($this->bill_date) {
+        if ($this->bill_date) {
             $billDates = explode('+-+', $this->bill_date);
             $query->andFilterWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
-        if($this->createdDate) {
+        if ($this->createdDate) {
             $createdDates = explode('+-+', $this->createdDate);
             $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
-        if($query->params) {
+        if ($query->params) {
             $params = [];
-            foreach($query->params as $paramKey => $paramValue)
+            foreach ($query->params as $paramKey => $paramValue)
                 $params[':' . $paramKey] = $this->$paramKey ? $this->$paramKey : $paramValue;
             $query->addParams($params);
         }
@@ -170,19 +176,19 @@ class ClientSearch extends ClientAccount
         return $dataProvider;
     }
 
-    public function getGridSetting($bp = null, $grid = null){
-        if(!$bp && !$grid && $this->gridSetting)
+    public function getGridSetting($bp = null, $grid = null)
+    {
+        if (!$bp && !$grid && $this->gridSetting)
             return $this->gridSetting;
 
         $grid_id = ($grid) ? $grid : $this->grid;
         $gridSettings = ClientGridSettingsDao::me()->setAttributeLabels($this->attributeLabels());
 
-        if($grid_id) {
+        if ($grid_id) {
             $gridSettings = $gridSettings->getGridByBusinessProcessStatusId($grid_id);
             $this->grid = $gridSettings['id'];
             $this->bp = $gridSettings['grid_business_process_id'];
-        }
-        else {
+        } else {
             $bp_id = ($bp) ? $bp : $this->bp;
             $gridSettings = $gridSettings->getGridByBusinessProcessId($bp_id);
 

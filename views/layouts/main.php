@@ -112,7 +112,10 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
                                     max-width: 90%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
                             " class="c-blue-color"
                                 title="<?=$str?>">
-                                <a href="/client/view?id=<?= $activeClient->id ?>"><?=$str?></a>
+                                <a href="/client/view?id=<?= $activeClient->id ?>">
+                                    <?= $activeClient->contract->contragent->name_full .' / Договор № '
+                                    . $activeClient->contract->number .' / ЛС № ' . "<b style=\"font-size:120%;\">{$activeClient->id}</b>" ?>
+                                </a>
                             </h2>
                             <a href="/account/unfix" title="Снять" style="vertical-align: text-bottom;"><i class="uncheck"></i> </a>
                         </div>
