@@ -244,11 +244,11 @@ if ($action=='add_client') {
         $comment .= $r['number'].' - '.$r['price']."<br/>\n";
     }
 
-    $comment = new ClientContractComment();
-    $comment->contract_id = ClientAccount::findOne($client_id)->contract_id;
-    $comment->user = 'auto';
-    $comment->comment = $comment;
-    $comment->save();
+    $c = new ClientContractComment();
+    $c->contract_id = ClientAccount::findOne($client_id)->contract_id;
+    $c->user = 'auto';
+    $c->comment = $comment;
+    $c->save();
 
     $isOk = true;
     foreach($_numbers as $number)
