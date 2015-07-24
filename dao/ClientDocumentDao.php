@@ -2,9 +2,9 @@
 namespace app\dao;
 
 use app\models\ClientDocument;
+use app\models\Organization;
 use Yii;
 use app\classes\Singleton;
-use app\classes\Company;
 use app\models\Contract;
 use yii\base\Exception;
 
@@ -132,8 +132,10 @@ class ClientDocumentDao extends Singleton
         $design = \app\classes\Smarty::init();
         $design->assign('client', $account);
         $design->assign('contract', $document);
-        $design->assign('firm_detail', Company::getDetail($account->contract->organization->firma, $contractDate));
-        $design->assign('firm', Company::getProperty($account->contract->organization->firma, $contractDate));
+        $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->director->getOldModeInfo());
+        //Выпилить
 
         $content = $this->contract_fix_static_parts_of_template($design, file_get_contents($file));
 		if (strpos($content, "{*#blank_zakaz#*}") !== false)
