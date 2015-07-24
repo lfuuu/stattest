@@ -287,6 +287,7 @@ class ClientAccount extends ActiveRecord
             'manager' => 'Менеджер',
             'currency' => 'Валюта',
             'account_manager' => 'Ак. менеджер',
+            'custom_properties' => 'Ввести данные вручную',
         ];
     }
 

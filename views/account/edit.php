@@ -114,6 +114,29 @@ use yii\helpers\Url;
                     'empty26' => ['type' => Form::INPUT_RAW,],
 
                     'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'],],
+                    'empty27' => ['type' => Form::INPUT_RAW,],
+                    'empty28' => ['type' => Form::INPUT_RAW,],
+                    'empty29' => ['type' => Form::INPUT_RAW,],
+
+                    'bik' => ['columnOptions' => ['colspan' => 2],],
+                    'corr_acc' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty30' => ['type' => Form::INPUT_RAW,],
+                    'empty31' => ['type' => Form::INPUT_RAW,],
+
+                    'pay_acc' => ['columnOptions' => ['colspan' => 2],],
+                    'bank_name' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty32' => ['type' => Form::INPUT_RAW,],
+                    'empty33' => ['type' => Form::INPUT_RAW,],
+
+                    'custom_properties' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
+                    'bank_city' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty35' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+
+                    'bank_properties' => ['type' => Form::INPUT_TEXTAREA,'columnOptions' => ['colspan' => 4], 'options' => ['disabled' => 'disabled']],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
                 ],
             ]);
 
@@ -327,7 +350,8 @@ use yii\helpers\Url;
                     <input type="hidden" name="ClientDocument[account_id]" value="<?= $model->id ?>">
                     <input type="hidden" name="ClientDocument[type]" value="blank">
                     <input class="form-control" type="text" name="ClientDocument[contract_no]"
-                           value="<?= isset($blnk) ? $blnk + 1 : 1 ?>"></div>
+                           value="<?= isset($blnk) ? $blnk + 1 : 1 ?>">
+                </div>
                 <div class="col-sm-2">
                     <?= DatePicker::widget(
                         [
@@ -359,6 +383,63 @@ use yii\helpers\Url;
 
     <?php endif; ?>
 
+
+    <script>
+        $(function(){
+            $('#accounteditform-custom_properties').on('click', function(e){
+                var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
+                f.prop('disabled',  !f.prop('disabled'));
+            });
+            $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-pay_acc').on('blur', function(){
+                genBankProp();
+            });
+
+            $(' #accounteditform-pay_acc').closest('form').on('submit', function(){
+                var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
+                f.prop('disabled',  false);
+            })
+
+            var substringMatcher = function () {
+                return function findMatches(q, cb) {
+                    $.getJSON('search/bank', {
+                        search: $("#accounteditform-bik").val()
+                    }, function (matches) {
+                        cb(matches);
+                    });
+                };
+            };
+
+            function genBankProp()
+            {
+                var pa = $('#accounteditform-pay_acc').val();
+                var ca = $('#accounteditform-corr_acc').val();
+                var bn = $('#accounteditform-bank_name').val();
+                var bc = $('#accounteditform-bank_city').val();
+                var v = 'р/с '+ pa + "\n" + bn + ' ' + bc + (ca ? ("\n" +'к/с '+ ca) : '');
+                $('#accounteditform-bank_properties').val(v);
+            }
+
+            $('#accounteditform-bik').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 3,
+                    async: true,
+                },
+                {
+                    name: 'accounteditform-bik',
+                    source: substringMatcher(),
+                    templates: {
+                        suggestion: function(obj){ return obj['value']; }
+                    }
+                })
+                .on('typeahead:selected', function($e, data) {
+                    $('#accounteditform-bank_name').val(data['bank_name']);
+                    $('#accounteditform-corr_acc').val(data['corr_acc']);
+                    $('#accounteditform-bank_city').val(data['bank_city']);
+                    genBankProp();
+                });
+        });
+    </script>
 
     <script>
         var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;

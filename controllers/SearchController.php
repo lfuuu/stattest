@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\models\Bank;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Trouble;
@@ -89,5 +90,20 @@ class SearchController extends BaseController
         }
         else
             return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + ['search' => $search, 'searchType' => $searchType]));
+    }
+
+    public function actionBank($search)
+    {
+        $models = Bank::find()->andWhere(['like', 'CAST(bik as CHAR)', $search])->all();
+        $res = [];
+        foreach ($models as $model)
+            $res[] = [
+                'value' => $model->bik,
+                'bank_name' => $model->bank_name,
+                'bank_city' => $model->bank_city,
+                'corr_acc' => $model->corr_acc,
+            ];
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $res;
     }
 }
