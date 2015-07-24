@@ -42,14 +42,16 @@ class VoipStatus {
 
     public function getWarnings()
     {
-        $warnings = [];
-
         $this->loadCounters();
+
+        if ($this->error) {
+            return ['Сервер статистики недоступен. Данные о балансе и счетчиках могут быть не верными'];
+        }
+
         $this->loadLocks();
 
         if ($this->error) {
-            $warnings[] = "Сервер статистики недоступен. Данные о балансе и счетчиках могут быть не верными";
-            return $warnings;
+            return ['Сервер статистики недоступен. Данные о балансе и счетчиках могут быть не верными'];
         }
 
         $need_lock_limit_day = ($this->account->voip_credit_limit_day != 0 && - $this->amount_day_sum > $this->account->voip_credit_limit_day);
@@ -57,6 +59,7 @@ class VoipStatus {
         $need_lock_credit = ($this->account->credit >= 0 && $this->balance + $this->account->credit < 0);
         $need_lock_flag = ($this->account->voip_disabled > 0);
 
+        $warnings = [];
 
         if ($this->auto_disabled_local)
             $warnings[] = "ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Местная связь)";
