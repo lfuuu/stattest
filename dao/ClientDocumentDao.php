@@ -14,11 +14,6 @@ use yii\base\Exception;
  */
 class ClientDocumentDao extends Singleton
 {
-    /**
-     * @var ClientDocument
-     */
-    protected $model = null;
-
     public static $folders = [
         'mcn' => 'MCN',
 
@@ -33,15 +28,6 @@ class ClientDocumentDao extends Singleton
         'welltime' => 'WellTime',
         'arhiv' => 'Arhiv',
     ];
-
-    protected function __construct($config)
-    {
-        foreach ($config as $key => $value) {
-            $this->$key = $value;
-        }
-        if($this->model === null)
-            new Exception('Parent document does not exist');
-    }
 
     public static function templateList($isWithType = false)
     {
@@ -84,30 +70,32 @@ class ClientDocumentDao extends Singleton
         return $R;
     }
 
-    public function delete()
+    public function deleteFile(ClientDocument $document)
     {
-        return $this->deleteFile();
+        $file = $this->getFilePath($document);
+
+        if (file_exists($file)) {
+            return unlink($file);
+        }
+        return true;
     }
 
-    public function create()
+
+    public function generateFile(ClientDocument $document, $contractGroup, $contractTemplate)
     {
-        $contractGroup = $this->model->group;
-        $contractTemplate = $this->model->template;
-        $group = static::$folders[$contractGroup];
-        $content = $this->getTemplate('template_' . $group . "_" . $contractTemplate);
-        $this->addContract($content);
-        return $this->generateDefault();
+        $content = $this->getTemplate('template_' . $contractGroup . "_" . $contractTemplate);
+        file_put_contents($this->getFilePath($document), $content);
+        return $this->generateDefault($document);
     }
 
-    public function setContent()
+    public function updateFile(ClientDocument $document)
     {
-        $content = $this->model->content;
-        return $this->addContract($content);
+        return file_put_contents($this->getFilePath($document), $document->content);
     }
 
-    public function getContent()
+    public function getFileContent(ClientDocument $document)
     {
-        $file = $this->getFilePath();
+        $file = $this->getFilePath($document);
 
         if (file_exists($file)) {
             return file_get_contents($file);
@@ -116,17 +104,11 @@ class ClientDocumentDao extends Singleton
         return '';
     }
 
-    private function addContract($content)
+    private function generateDefault(ClientDocument $document)
     {
-        return file_put_contents($this->getFilePath(), $content);
-    }
+        $contractDate = $document->contract_date;
+        $file = $this->getFilePath($document);
 
-    private function generateDefault()
-    {
-        $contractDate = $this->model->contract_date;
-        $file = $this->getFilePath();
-
-        $document = $this->model;
         $account = $document->getAccount();
 
         $design = \app\classes\Smarty::init();
@@ -140,21 +122,11 @@ class ClientDocumentDao extends Singleton
         $content = $this->contract_fix_static_parts_of_template($design, file_get_contents($file));
 		if (strpos($content, "{*#blank_zakaz#*}") !== false)
         {
-            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($design), $content);
+            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($document, $design), $content);
         }
         file_put_contents($file, $content);
         $newDocument = $design->fetch($file);
         return file_put_contents($file, $newDocument);
-    }
-
-    private function deleteFile()
-    {
-        $file = $this->getFilePath();
-
-        if (file_exists($file)) {
-            return unlink($file);
-        }
-        return true;
     }
 
     private function getTemplate($name)
@@ -172,11 +144,10 @@ class ClientDocumentDao extends Singleton
         return $data;
     }
 
-    private function getFilePath()
+    private function getFilePath(ClientDocument $document)
     {
-        $contractId = $this->model->account_id ? $this->model->account_id : $this->model->contract_id;
-        $documentId = $this->model->id;
-        return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $documentId . '.html';
+        $contractId = $document->account_id ? $document->account_id : $document->contract_id;
+        return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $document->id . '.html';
     }
 
     private function fix_style(&$content)
@@ -186,10 +157,10 @@ class ClientDocumentDao extends Singleton
         }
     }
 
-    private function makeBlankZakaz(&$design)
+    private function makeBlankZakaz(ClientDocument $document, &$design)
     {
         /** @var ClientAccount $clientAccount */
-        $clientAccount = $this->model->contract->accounts[0];
+        $clientAccount = $document->contract->accounts[0];
         $client = $clientAccount->client;
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];

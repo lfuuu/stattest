@@ -11,9 +11,9 @@ class ClientDocument extends ActiveRecord
 {
     const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
 
-    public $content = null,
-        $group = '',
-        $template = '';
+    public $content;
+    public $group;
+    public $template;
 
     public static $types = [
         'contract' => 'Контракт',
@@ -68,17 +68,17 @@ class ClientDocument extends ActiveRecord
      */
     public function dao()
     {
-        return ClientDocumentDao::me(['model' => $this]);
+        return ClientDocumentDao::me();
     }
 
     public function getFileContent()
     {
-        return self::dao()->getContent();
+        return self::dao()->getFileContent($this);
     }
 
     public function erase()
     {
-        self::dao()->delete();
+        self::dao()->deleteFile($this);
         return $this->delete();
     }
 
@@ -145,16 +145,15 @@ class ClientDocument extends ActiveRecord
                 $lastContract = BillContract::getLastContract($this->contract_id, $utime);
 
                 $this->contract_no = $this->contract_no ? $this->contract_no : ($lastContract ? $lastContract['no'] : 1);
-                $this->contract_date = $this->contract_date ? $this->contract_date :date('Y-m-d', $lastContract ? $lastContract['date'] : time());
+                $this->contract_date = $this->contract_date ? $this->contract_date : date('Y-m-d', $lastContract ? $lastContract['date'] : time());
                 $this->contract_dop_no = $this->contract_no;
                 $this->contract_dop_date = ($this->type == 'agreement') ? $this->contract_date : date('Y-m-d');
             }
 
-            if($this->type == 'contract')
-            {
+            if ($this->type == 'contract') {
                 $oldContracts = self::findAll(['contract_id' => $this->contract_id]);
-                if($oldContracts)
-                    foreach($oldContracts as $oldContract)
+                if ($oldContracts)
+                    foreach ($oldContracts as $oldContract)
                         $oldContract->erase();
             }
         }
@@ -164,9 +163,9 @@ class ClientDocument extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && $this->group && $this->template) {
-            $this->dao()->create();
+            $this->dao()->generateFile($this, $this->group, $this->template);
         } elseif ($this->content !== null) {
-            $this->dao()->setContent();
+            $this->dao()->updateFile($this);
         }
         parent::afterSave($insert, $changedAttributes);
     }
