@@ -21,6 +21,9 @@ class UsageIpPorts extends ActiveRecord implements Usage
         return 'usage_ip_ports';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         $query = new UsageQuery(get_called_class());

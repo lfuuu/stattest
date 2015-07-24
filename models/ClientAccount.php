@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\voip\VoipStatus;
 use app\dao\ClientGridSettingsDao;
 use app\classes\BillContract;
 use DateTimeZone;
@@ -510,4 +511,13 @@ class ClientAccount extends ActiveRecord
         return self::dao()->getServerPbxId($this, $region);
     }
 
+    public function getRealtimeBalance()
+    {
+        return VoipStatus::create($this)->getRealtimeBalance();
+    }
+
+    public function getVoipWarnings()
+    {
+        return VoipStatus::create($this)->getWarnings();
+    }
 }

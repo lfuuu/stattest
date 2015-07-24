@@ -88,25 +88,28 @@ use \app\models\ClientContract;
                                 </div>
                                 <div class="col-sm-12">
                                     <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
+                                        <?php
+                                        $realtimeBalance = $contractAccount->getRealtimeBalance();
+                                        ?>
                                         <div
                                             style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
                                             class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? 'active-client' : ''; ?>">
-                        <span class="col-sm-2"
-                              style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
-                            ЛС № <?= $contractAccount->id ?>
-                        </span>
-                        <span class="col-sm-2" style="font-weight: bold; color:red;">
-                            <?= $contractAccount->is_blocked ? 'Заблокирован' : '' ?>
-                        </span>
+                                            <span class="col-sm-2"
+                                                  style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
+                                                ЛС № <?= $contractAccount->id ?>
+                                            </span>
+                                            <span class="col-sm-2" style="font-weight: bold; color:red;">
+                                                <?= $contractAccount->is_blocked ? 'Заблокирован' : '' ?>
+                                            </span>
                                             <span class="col-sm-2" style="text-align: right;">
                                                 <?= $contractAccount->regionName ?>
                                             </span>
-                        <span class="col-sm-2"
-                              style="text-align: right;color:<?= ($contractAccount->balance < 0) ? 'red' : 'green'; ?>;">
-                            <?= $contractAccount->balance ?>
-                            RUB
-                        </span>
+                                            <span class="col-sm-2"
+                                                  style="text-align: right;color:<?= ($realtimeBalance < 0) ? 'red' : 'green'; ?>;">
+                                                <?= $realtimeBalance ?>
+                                                RUB
+                                            </span>
                                             <span class="col-sm-2">
                                                 (Кредит: <?= $contractAccount->credit > 0 ? $contractAccount->credit : '0' ?>)
                                             </span>
@@ -116,6 +119,14 @@ use \app\models\ClientContract;
                                                     data-id="<?= $contractAccount->id ?>">
                                                 <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                             </button>
+                                            <?php
+                                            if ($account && $account->id == $contractAccount->id && $voipWarnings = $account->getVoipWarnings()): ?>
+                                                <div class="col-sm-12">
+                                                    <?php foreach($voipWarnings as $warning): ?>
+                                                        <div><span class="label label-warning"><?=$warning?></span></div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>

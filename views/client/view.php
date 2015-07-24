@@ -1,10 +1,3 @@
-<?php
-/** @var array $warnings */
-?>
-<?php foreach($warnings as $warning): ?>
-    <div style="margin-bottom: 5px"><span class="label label-warning"><?=$warning?></span></div>
-<?php endforeach; ?>
-
 <div class="row">
     <div class="col-sm-12">
         <?= $this->render('block/main', ['client' => $client, 'account' => $account, 'services' => $services]); ?>

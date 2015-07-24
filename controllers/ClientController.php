@@ -74,8 +74,6 @@ class ClientController extends BaseController
         $services['sms'] = UsageSms::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
         $services['ipport'] = UsageIpPorts::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
 
-        $voipStatus = new VoipStatus($account);
-        $voipStatus->loadVoipCounters();
         return
             $this->render(
                 'view',
@@ -85,7 +83,6 @@ class ClientController extends BaseController
                     'contractForm' => $contractForm,
                     'troubles' => $troubles,
                     'services' => $services,
-                    'warnings' => $voipStatus->getWarnings(),
                 ]
             );
     }
