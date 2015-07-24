@@ -38,7 +38,7 @@ class AccountEditForm extends Form
         $price_type,
         $voip_credit_limit,
         $voip_disabled,
-        $voip_credit_limit_day,
+        $voip_credit_limit_day = 1000,
         $voip_is_day_calc,
         $mail_print,
         $mail_who,
