@@ -83,7 +83,7 @@ class ClientAccount extends ActiveRecord
 /*For old stat*/
     public function getType()
     {
-        return $this->contract->contragent->legal_type;
+        return ($this->contract->contragent->legal_type !='person') ? 'org' : 'person';
     }
 
     public function getFirma()

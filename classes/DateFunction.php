@@ -17,6 +17,9 @@ class DateFunction
     }
 
     public static function mdate($ts, $format){
+        if(!is_int($ts))
+            $ts = strtotime($ts);
+
         if ($ts) $s=date($format,$ts); else $s=date($format);
         if ($ts) $d=getdate($ts); else $d=getdate();
 
