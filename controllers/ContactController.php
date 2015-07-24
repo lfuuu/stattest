@@ -30,8 +30,8 @@ class ContactController extends BaseController
     {
         $data = Yii::$app->request->post();
 
+        $client = ClientAccount::findOne($clientId);
         if (isset($data['admin-lk-id']) && isset($data['set-admin-lk'])) {
-            $client = ClientAccount::findOne($clientId);
             if ($data['admin-lk-id'] != $client->admin_contact_id) {
                 $client->admin_contact_id = $data['admin-lk-id'];
                 $client->save();
@@ -42,6 +42,10 @@ class ContactController extends BaseController
             $model->client_id = $clientId;
             $model->is_active = 1;
             $model->save();
+            if(isset($data['admin-lk-id']) && $model->type == 'email') {
+                $client->admin_contact_id = $model->id;
+                $client->save();
+            }
         }
 
         $this->redirect(Yii::$app->request->referrer);
