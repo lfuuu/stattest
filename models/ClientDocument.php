@@ -11,14 +11,9 @@ class ClientDocument extends ActiveRecord
 {
     const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
 
-    public $content = null,
-        $group = '',
-        $template = '';
-
-    /**
-     * @var ClientDocumentDao
-     */
-    private $dao;
+    public $content;
+    public $group;
+    public $template;
 
     public static $types = [
         'contract' => 'Контракт',
@@ -71,25 +66,19 @@ class ClientDocument extends ActiveRecord
     /**
      * @return ClientDocumentDao
      */
-    public function dao($new = false)
+    public function dao()
     {
-        if ($new || $this->dao === null)
-            return new ClientDocumentDao([
-                'model' => $this,
-                'template' => $this->template,
-                'group' => $this->group,
-            ]);
-        return $this->dao;
+        return ClientDocumentDao::me();
     }
 
     public function getFileContent()
     {
-        return self::dao(true)->getContent();
+        return self::dao()->getFileContent($this);
     }
 
     public function erase()
     {
-        self::dao()->delete();
+        self::dao()->deleteFile($this);
         return $this->delete();
     }
 
@@ -174,9 +163,9 @@ class ClientDocument extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && $this->group && $this->template) {
-            $this->dao(true)->create();
+            $this->dao()->generateFile($this, $this->group, $this->template);
         } elseif ($this->content !== null) {
-            $this->dao(true)->setContent();
+            $this->dao()->updateFile($this);
         }
         parent::afterSave($insert, $changedAttributes);
     }
