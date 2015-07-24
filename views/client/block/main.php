@@ -111,7 +111,7 @@ use \app\models\ClientContract;
                                                 RUB
                                             </span>
                                             <span class="col-sm-2">
-                                                (Кредит: <?= $contractAccount->credit > 0 ? $contractAccount->credit : '0' ?>)
+                                                <?= $contractAccount->credit >= 0 ? '(Кредит: ' . $contractAccount->credit . ')': '' ?>
                                             </span>
                                             <button type="button" class="btn btn-sm set-block
                                             <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
