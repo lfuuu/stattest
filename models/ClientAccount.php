@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\Assert;
 use app\dao\ClientGridSettingsDao;
+use app\classes\BillContract;
 use DateTimeZone;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
@@ -326,6 +327,11 @@ class ClientAccount extends ActiveRecord
     public function getUserManager()
     {
         return User::findOne(['user' => $this->contract->manager]);
+    }
+
+    public function getLastContract($date = null)
+    {
+        return BillContract::getLastContract($this->id, $date);
     }
 
     public function getUserAccountManager()
