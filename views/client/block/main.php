@@ -30,7 +30,7 @@ use \app\models\ClientContract;
                      style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
-                            <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
+                            <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ? $contragent->name_full : '...' ?></span></a>
                     </div>
                     <div class="col-sm-5" style="  overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
                         <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>

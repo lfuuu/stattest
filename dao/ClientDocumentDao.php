@@ -7,6 +7,7 @@ use Yii;
 use app\classes\Singleton;
 use app\models\Contract;
 use yii\base\Exception;
+use yii\db\ActiveRecord;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -108,20 +109,21 @@ class ClientDocumentDao extends Singleton
     {
         $contractDate = $document->contract_date;
         $file = $this->getFilePath($document);
+        $content = file_get_contents($file);
 
         $account = $document->getAccount();
-
         $design = \app\classes\Smarty::init();
+
         $design->assign('client', $account);
         $design->assign('contract', $document);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
-        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm', $organization->getOldModeInfo());
+        $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()));
         $design->assign('firm_director', $organization->director->getOldModeInfo());
         //Выпилить
 
-        $content = $this->contract_fix_static_parts_of_template($design, file_get_contents($file));
-		if (strpos($content, "{*#blank_zakaz#*}") !== false)
-        {
+        $content = $this->contract_fix_static_parts_of_template($design, $content);
+        if (strpos($content, "{*#blank_zakaz#*}") !== false) {
             $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($document, $design), $content);
         }
         file_put_contents($file, $content);
@@ -167,8 +169,7 @@ class ClientDocumentDao extends Singleton
 
         $taxRate = $clientAccount->getTaxRate();
 
-        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
-        {
+        foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
             $data['voip'][] = [
@@ -185,16 +186,19 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->pay_month, $taxRate);
 
-            switch($usage->currentTariff->type)
-            {
-                case 'C': $block = 'colocation'; break;
-                case 'V': $block = 'vpn';break;
-                case 'I': 
-                default: $block = 'ip'; 
+            switch ($usage->currentTariff->type) {
+                case 'C':
+                    $block = 'colocation';
+                    break;
+                case 'V':
+                    $block = 'vpn';
+                    break;
+                case 'I':
+                default:
+                    $block = 'ip';
             }
 
             $data[$block][] = [
@@ -202,20 +206,19 @@ class ClientDocumentDao extends Singleton
                 'id' => $usage->id,
                 'tarif_name' => $usage->currentTariff->name,
                 'pay_once' => $usage->currentTariff->pay_once,
-                'gb_month' => $usage->currentTariff->mb_month/1024,
+                'gb_month' => $usage->currentTariff->mb_month / 1024,
                 'pay_mb' => $usage->currentTariff->pay_mb,
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
-        {
+        foreach (\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price, $taxRate);
 
             $data['vats'][] = [
                 'from' => strtotime($usage->actual_from),
-                'description' => "ВАТС ".$usage->id,
+                'description' => "ВАТС " . $usage->id,
                 'tarif_name' => $usage->currentTariff->description,
                 'space' => $usage->currentTariff->space,
                 'over_space_per_gb' => $usage->currentTariff->overrun_per_gb,
@@ -241,8 +244,7 @@ class ClientDocumentDao extends Singleton
         }
         */
 
-        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach (\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price * $usage->amount, $taxRate);
 
             $data['extra'][] = [
@@ -289,4 +291,13 @@ class ClientDocumentDao extends Singleton
 
         return $content;
     }
+
+    private function generateFirmDetail($f)
+    {
+        $d = $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
+            (isset($f["post_address"]) ? "<br /> Почтовый адрес: " . $f["post_address"] : "") .
+            "<br /> ИНН " . $f["inn"] . ", КПП " . $f["kpp"] . "<br /> Банковские реквизиты:<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank"] . "<br /> к/с:&nbsp;" . $f["kor_acc"] . "<br /> БИК:&nbsp;" . $f["bik"] . "<br /> телефон: " . $f["phone"] . (isset($f["fax"]) && $f["fax"] ? "<br /> факс: " . $f["fax"] : "") . "<br /> е-mail: " . $f["email"];
+        return $d;
+    }
 }
+

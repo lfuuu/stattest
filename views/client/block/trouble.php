@@ -24,7 +24,7 @@ if ($troublesIsset):
                 <tr style="background: #f7f7f7;">
                     <th>Тип заявки</th>
                     <th>В работе</th>
-                    <th>Клиент / Кто создал</th>
+                    <th>Кто создал</th>
                     <th>Услуга</th>
                     <th>Последний коментарий</th>
                 </tr>
@@ -39,10 +39,10 @@ if ($troublesIsset):
                         <td><?= $trouble->stage->user_main ?></td>
                         <td><?= $trouble->problem ?></td>
                     </tr>
-                    <tr style=" background: <?= $i%2==0 ? '#f9f9f9' : 'white' ?>;">
+                    <tr style=" background: <?= $trouble->is_important ? '#f4c0c0' : ($i%2==0 ? '#f9f9f9' : 'white') ?>;">
                         <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype] ?></td>
                         <td><?= $trouble->stage->dif_time ? $trouble->stage->dif_time : '0' ?></td>
-                        <td><a href="/client/view?id=<?= $trouble->account->id ?>"><?= $trouble->client ?></a> / <?= \app\models\User::findOne(['user' => $trouble->user_author])->name ?>(<?= $trouble->user_author ?>)</td>
+                        <td><?= \app\models\User::findOne(['user' => $trouble->user_author])->name ?>(<?= $trouble->user_author ?>)</td>
                         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
                             <?php if($trouble->server_id) : ?>
                                 <a href='./?module=routers&action=server_pbx_apply&id={$r.server_id}'>
