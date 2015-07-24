@@ -11,7 +11,7 @@ class ClientSearch extends ClientAccount
     public $grid, $bp;
     private $gridSetting;
 
-    public $bill_date, $sale_channel, $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl,
+    public $bill_date, $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl,
         $service, $abon, $over, $total, $abon1, $over1, $abondiff, $overdiff, $date_from, $date_to, $sum, $createdDate, $regionId;
 
     protected $companyName, $inn, $contractNo;
@@ -19,7 +19,7 @@ class ClientSearch extends ClientAccount
     public function rules()
     {
         return [
-            [['id', 'sale_channel', 'regionId'], 'integer'],
+            [['id', 'regionId'], 'integer'],
             [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip', 'domain', 'address', 'adsl',
                 'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
         ];
@@ -88,6 +88,7 @@ class ClientSearch extends ClientAccount
         $query->orFilterWhere(['like', 'name_full', $this->companyName]);
         $query->orFilterWhere(['like', 'inn', $this->inn]);
         $query->orFilterWhere(['like', 'address_connect', $this->address]);
+
 
         if ($this->contractNo) {
             $query->orFilterWhere(['number' => $this->contractNo]);
