@@ -1,8 +1,21 @@
 <?php
 use \yii\helpers\Url;
 
+$contacts = $account->allContacts;
+$contactsArr = [];
+foreach($contacts as $contact){
+    if($contact->data && $contact->is_active)
+        $contactsArr[$contact->type][] = $contact;
+}
+
+$translate = [
+    'email' => 'Email',
+    'phone' => 'Телефоны',
+    'fax' => 'Факсы',
+    'sms' => 'СМС',
+];
+
 ?>
-<?php $contacts = $account->allContacts; ?>
 
 <div class="data-block row data-contacts">
     <form action="<?= Url::toRoute(['contact/create', 'clientId' => $account->id]) ?>" method="post">
@@ -11,27 +24,24 @@ use \yii\helpers\Url;
                 <a><img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"></a>Контакты
             </div>
             <div class="col-sm-10">
+                <?php foreach($contactsArr as $contactType => $contactsInType): ?>
                 <div class="row">
-                    <div class="col-sm-1">Телефоны</div>
+                    <div class="col-sm-1"><?= $translate[$k] ?></div>
                     <div class="col-sm-11">
-                        <?php foreach ($contacts as $contact)
-                            if (($contact->type == 'phone' || $contact->type == 'sms' || $contact->type == 'fax') && $contact->is_active): ?>
-                                <?= $contact->data ?>(<?= $contact->type ?>);&nbsp;
-                            <?php endif; ?>
+                        <?php foreach ($contactsInType as $contact){
+                                if ($contactType == 'email'){
+                                    echo "<a style=\"font-weight:bold\" target=\"_blank\"
+                                       href=\"http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to={$contact->data}\">
+                                       {$contact->data}
+                                       </a>
+                        <a style=\"font-weight:bold\" href=\"mailto:{$contact->data}\">(@)</a>; &nbsp;";
+                                } else {
+                                    echo $contact->data .";&nbsp";
+                                }
+                        } ?>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-1">Email</div>
-                    <div class="col-sm-11">
-                        <?php foreach ($contacts as $contact)
-                            if ($contact->type == 'email' && $contact->is_active): ?>
-                                <a style="font-weight:bold" target="_blank"
-                                   href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to=<?= $contact->data ?>"
-                                   title=""><?= $contact->data ?></a>
-                                <a style="font-weight:bold" href="mailto:<?= $contact->data ?>">(@)</a>; &nbsp;
-                            <?php endif; ?>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
             <div class="col-sm-12 fullTable" style="display: none;">
                 <div class="row head3">
