@@ -147,7 +147,7 @@ if($has) :
                                     <?php endif;
                                     $j = false; ?>
                                     <td colspan=2>
-                                        <a href="/?pop_services.php?table=usage_ip_routes&id=<?= $net->id ?>"
+                                        <a href="/pop_services.php?table=usage_ip_routes&id=<?= $net->id ?>"
                                            target="_blank">
                                             <?= $net->net ?><?= $net->nat_net ? '<br>' . $net->nat_net : '' ?>
                                         </a> (id=<?= $net->id ?>)
@@ -306,7 +306,7 @@ if($has) :
 
         <?php
         foreach ($services['extra'] as $k => $service)
-            if ($service->currentTariff->code == 'welltime')
+            if ($service->currentTariff->code == 'extra')
                 unset($services['extra'][$k]);
         if ($services['extra']):
             ?>
@@ -327,7 +327,7 @@ if($has) :
                     <?php foreach ($services['extra'] as $service): ?>
                         <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                             <td>
-                                <a href="/pop_services.php?table=usage_welltime&id=<?= $service->id ?>" target="_blank">
+                                <a href="/pop_services.php?table=usage_extra&id=<?= $service->id ?>" target="_blank">
                                     <?= $service->actual_from ?>-<?= $service->actual_to ?>
                                 </a>&nbsp;
                                 <a href="index.php?module=tt&clients_client=<?= $service->client ?>&service=usage_extra&service_id=<?= $service->id ?>&action=view_type&type_pk=1&show_add_form=true">
@@ -389,7 +389,7 @@ if($has) :
 
 
         <?php if ($services['virtpbx']): ?>
-            <h3><a href="?module=services&action=welltime_view">Виртуальная АТС</a></h3>
+            <h3><a href="?module=services&action=virtpbx_view">Виртуальная АТС</a></h3>
             <div id="virtpbx">
                 <table cellspacing="4" cellpadding="2" width="100%" border="0">
                     <thead>
