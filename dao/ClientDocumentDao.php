@@ -12,12 +12,14 @@ use yii\base\Exception;
  * @method static ClientDocumentDao me($args = null)
  * @property
  */
-class ClientDocumentDao extends Singleton
+class ClientDocumentDao
 {
     /**
      * @var ClientDocument
      */
     protected $model = null;
+    protected $group = '';
+    protected $tempalte = '';
 
     public static $folders = [
         'mcn' => 'MCN',
@@ -34,7 +36,7 @@ class ClientDocumentDao extends Singleton
         'arhiv' => 'Arhiv',
     ];
 
-    protected function __construct($config)
+    public function __construct($config)
     {
         foreach ($config as $key => $value) {
             $this->$key = $value;
@@ -91,11 +93,11 @@ class ClientDocumentDao extends Singleton
 
     public function create()
     {
-        $contractGroup = $this->model->group;
-        $contractTemplate = $this->model->template;
-        $group = static::$folders[$contractGroup];
-        $content = $this->getTemplate('template_' . $group . "_" . $contractTemplate);
+        $contractGroup = $this->group;
+        $contractTemplate = $this->template;
+        $content = $this->getTemplate('template_' . $contractGroup . "_" . $contractTemplate);
         $this->addContract($content);
+        $this->generateDefault();
         return $this->generateDefault();
     }
 

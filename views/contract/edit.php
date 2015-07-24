@@ -518,8 +518,8 @@ use yii\helpers\Url;
             if (!selected)
                 selected = $('.tmpl-group[data-type="' + type + '"]').val();
             var tmpl = $('.tmpl[data-type="' + type + '"]');
+            tmpl.empty();
             if (typeof folders[type] !== 'undefined' && typeof folders[type][selected] !== 'undefined') {
-                tmpl.empty();
                 $.each(folders[type][selected], function (k, v) {
                     tmpl.append('<option value="' + v + '">' + v + '</option>');
                 });
@@ -532,11 +532,12 @@ use yii\helpers\Url;
                 var t = $(this);
                 var first = false;
                 $.each(folders[type], function (k, v) {
-                    t.append('<option value="' + k + '" ' + (first ? 'selected=selected' : '') + ' >' + folderTranslates[k] + '</option>');
+                    t.append('<option value="' + k + '">' + folderTranslates[k] + '</option>');
                     if (first == false) {
                         first = k;
                     }
                 });
+                $('.tmpl-group[data-type="' + type + '"]').val(first);
                 generateTmplList(type, first);
             });
 
