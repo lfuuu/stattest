@@ -125,12 +125,12 @@ class LkDocsController extends ApiController
                 ];
         }
 
-        if ($a->contacts)
+        if ($a->allContacts)
         {
             $allEmail = [];
             $officialEmails = [];
 
-            foreach($a->contacts as $contact)
+            foreach($a->allContacts as $contact)
             {
                 if (!$contact->is_active)
                     continue;
