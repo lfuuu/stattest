@@ -24,7 +24,11 @@ use \kartik\grid\GridView;
                     },
                     'contentOptions' => function($data){ return ['style' => 'background:' . $data->contract->getBusinessProcessStatus()['color']];}
                 ],
-                'companyName',
+                'companyName' => [
+                    'label' => (new $dataProvider->query->modelClass)->attributeLabels()['companyName'],
+                    'format' => 'html',
+                    'value' => 'companyName'
+                ],
                 'inn',
                 'managerName',
                 'channelName',

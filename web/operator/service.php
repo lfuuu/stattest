@@ -72,9 +72,9 @@ if ($action=='add_client') {
     $ca->status = "income";
 
 	if($P["phone_connect"])
-        $cr->phone_connect = $P["phone_connect"];
+        $ca->phone_connect = $P["phone_connect"];
 
-	if ($cr->save()) {
+	if ($ca->save()) {
         $contactId = 0;
 		if($P['contact']){
             $c = new \app\models\ClientContact();
@@ -136,7 +136,7 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($ca->contract->id, $troubleId);
+        LkWizardState::create($ca->id, $troubleId);
 
 		echo 'ok:'.$ca->id;
 	} else {
