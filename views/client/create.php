@@ -74,9 +74,8 @@ use app\models\Currency;
                 ],
                 'attributes' => [
                     'tax_regime' => [
-                        'type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => ClientContragent::$taxRegtimeTypes,
-                        'container' => ['style' => 'width:50%;']
+                        'type' => Form::INPUT_CHECKBOX,
+                        'container' => ['style' => 'margin-top:30px; padding-bottom:6px;']
                     ],
                     'position' => [],
                     'fio' => [],
@@ -124,7 +123,10 @@ use app\models\Currency;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContragent::$taxRegtimeTypes, 'container' => ['style' => 'width:50%;']],
+                    'tax_regime' => [
+                        'type' => Form::INPUT_CHECKBOX,
+                        'container' => ['style' => 'margin-top:30px; padding-bottom:6px;']
+                    ],
                 ],
             ]);
 
@@ -362,8 +364,8 @@ use app\models\Currency;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;', 'value' => 1000]],
-                    'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 2, 'style' => 'margin-top: 20px;'],],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1], 'options' => ['value' => 1000]],
+                    'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
 

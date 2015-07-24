@@ -7,6 +7,7 @@ use app\forms\client\ContragentEditForm;
 use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
+use app\models\TechCpe;
 use app\models\Trouble;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
@@ -65,6 +66,7 @@ class ClientController extends BaseController
 
         $services = [];
         $services['voip'] = UsageVoip::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+        $services['device'] = TechCpe::find()->where(['client' => $account->client])->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
         $services['welltime'] = UsageWelltime::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
         $services['extra'] = UsageExtra::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
         $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();

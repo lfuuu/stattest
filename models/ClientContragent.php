@@ -44,7 +44,7 @@ class ClientContragent extends ActiveRecord
             "fio" => "ФИО Исполнительного органа",
             "positionV" => "Должность Исполнительного органа",
             "fioV" => "ФИО Исполнительного органа",
-            "tax_regime" => "Налоговый режим",
+            "tax_regime" => "Резидент",
             "ogrn" => "Код ОГРН",
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",

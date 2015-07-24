@@ -83,8 +83,8 @@ use yii\helpers\Url;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;']],
-                    'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 2, 'style' => 'margin-top: 20px;'],],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1], 'options' => ['value' => 1000]],
+                    'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
 
