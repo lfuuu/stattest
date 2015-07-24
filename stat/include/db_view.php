@@ -181,6 +181,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['i'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'Ежемесячно' => [
                 'pay_month' => 'сумма',
@@ -192,6 +193,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['v'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'Ежемесячно' => [
                 'pay_month' => 'сумма',
@@ -203,6 +205,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['c'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'pay_month' => 'Аб. плата',
             'Мб в месяц' => [
@@ -294,6 +297,7 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
             'description' => 'Описание',
             'code' => 'Код',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price'=> 'Стоимость',
             'period' => 'Период',
         ];
@@ -350,6 +354,7 @@ class DbViewTarifsITPark extends DbView{
         $this->FieldSets['z'] = [
             'description' =>'Описание',
             'price_include_vat' =>'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         ];
@@ -374,6 +379,7 @@ class DbViewTarifsWelltime extends DbView{
         $this->FieldSets['z']=array(
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         );
@@ -411,6 +417,7 @@ class DbViewTarifsVirtpbx extends DbView{
         $this->FieldSets['z']=array(
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         );
@@ -439,6 +446,7 @@ class DbViewTarifsSms extends DbView{
         $this->FieldSets['z'] = [
             'description'=>'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'per_month_price' => 'Абонентская плата, руб.',
             'per_sms_price' => 'за 1 СМС, руб.',
         ];
@@ -465,6 +473,7 @@ class DbViewTarifsWellSystem extends DbView{
         $this->FieldSets['z'] = [
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         ];
