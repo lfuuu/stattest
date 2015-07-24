@@ -148,8 +148,13 @@ class m_newaccounts extends IModule
     function _getSwitchTelekomDate($clientId)
     {
         $res = \app\models\HistoryChanges::find()
-            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'])
-            ->orWhere(['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"'])
+            ->andWhere(
+                ['or', 
+                    ['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'], 
+                    ['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"']
+                ]
+            )
+            ->andWhere(["model" => 'ClientAccount', 'model_id' => $clientId])
             ->one();
         return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
     }
@@ -2771,19 +2776,11 @@ class m_newaccounts extends IModule
         return $firms;
     }
 
-    function getCompanyByInn($inn, $firms, $fromAdd = false)
+    function getCompanyByInn($inn, $organizations, $fromAdd = false)
     {
         global $db;
 
         $v = array();
-
-        $date = date('Y-m-d');
-        $organizations = Organization::find()
-            ->andWhere(['>', 'actual_from', $date])
-            ->andWhere(['<', 'actual_to', $date])
-            ->andWhere(['firma' => $firms])
-            ->all();
-        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
 
         if($inn){
             $q = $fromAdd ?
@@ -2848,6 +2845,9 @@ where cg.inn = '".$inn."'";
         $firms = $this->getFirmByPayAccs($payAccs);
         $date_formats = array('d.m.Y', 'd.m.y', 'd-m-Y', 'd-m-y');
 
+        $organizations = Organization::find()->andWhere(['organization.firma' => $firms])->actual()->all();
+        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
+
         foreach($pays as $pay)
         {
             //if(abs($pay["sum"]) != 7080   ) continue;
@@ -2857,17 +2857,17 @@ where cg.inn = '".$inn."'";
             $billNo = $this->GetBillNoFromComment(@$pay["description"]);
 
             if($billNo){
-                $clientId = $this->getCompanyByBillNo($billNo, $firms);
+                $clientId = $this->getCompanyByBillNo($billNo, $organizations);
             }
 
-            $clientId2 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $firms);
-            $clientId3 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $firms, true);
+            $clientId2 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $organizations);
+            $clientId3 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $organizations, true);
 
             $clientId4 = $clientId5 = array();
             if(isset($pay["inn"]))
             {
-                $clientId4 = $this->getCompanyByInn(@$pay["inn"], $firms);
-                $clientId5 = $this->getCompanyByInn(@$pay["inn"], $firms, true);
+                $clientId4 = $this->getCompanyByInn(@$pay["inn"], $organizations);
+                $clientId5 = $this->getCompanyByInn(@$pay["inn"], $organizations, true);
             }
 
             if($clientId && !$clientId2 && !$clientId3 && !$clientId4 && !$clientId5) { $pay["to_check_bill_only"]=1;}
@@ -3104,20 +3104,13 @@ where cg.inn = '".$inn."'";
         return $v;
     }
 
-    function getCompanyByPayAcc($acc, $firms, $fromAdd = false)
+    function getCompanyByPayAcc($acc, $organizations, $fromAdd = false)
     {
         global $db;
 
         $v = array();
 
         if($acc){
-            $date = date('Y-m-d');
-            $organizations = Organization::find()
-                ->andWhere(['>', 'actual_from', $date])
-                ->andWhere(['<', 'actual_to', $date])
-                ->andWhere(['firma' => $firms])
-                ->all();
-            $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
 
             $q = $fromAdd ?
                 "select client_id as id from client_pay_acc p, clients c
@@ -3138,17 +3131,9 @@ where c.pay_acc = '".$acc."'";
         return $v;
     }
 
-    function getCompanyByBillNo($billNo, $firms)
+    function getCompanyByBillNo($billNo, $organizations)
     {
         global $db;
-
-        $date = date('Y-m-d');
-        $organizations = Organization::find()
-            ->andWhere(['>', 'actual_from', $date])
-            ->andWhere(['<', 'actual_to', $date])
-            ->andWhere(['firma' => $firms])
-            ->all();
-        $organizations = \yii\helpers\ArrayHelper::map($organizations, 'firma', 'organization_id');
 
         $r = $db->GetRow("select client_id from newbills b, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
@@ -3561,10 +3546,7 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
         $totalBonus = [];
 
         $date = date('Y-m-d');
-        $organizations = Organization::find()
-            ->andWhere(['>', 'actual_from', $date])
-            ->andWhere(['<', 'actual_to', $date])
-            ->all();
+        $organizations = Organization::find()->actual()->all();
         $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
 
         $clients = array();
@@ -3918,10 +3900,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             }
 
             $date = date('Y-m-d');
-            $organizations = Organization::find()
-                ->andWhere(['>', 'actual_from', $date])
-                ->andWhere(['<', 'actual_to', $date])
-                ->all();
+            $organizations = Organization::find()->actual()->all();
             $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
 
             foreach($balances as &$balance){
