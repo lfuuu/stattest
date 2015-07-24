@@ -26,7 +26,7 @@ $translate = [
             <div class="col-sm-10">
                 <?php foreach($contactsArr as $contactType => $contactsInType): ?>
                 <div class="row">
-                    <div class="col-sm-1"><?= $translate[$k] ?></div>
+                    <div class="col-sm-1"><?= $translate[$contactType] ?></div>
                     <div class="col-sm-11">
                         <?php foreach ($contactsInType as $contact){
                                 if ($contactType == 'email'){
