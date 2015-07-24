@@ -337,7 +337,7 @@ class WizardController extends /*BaseController*/ApiController
             "passport_number" => ($c->person ? $c->person->passport_number : ""),
             "passport_date_issued" => ($c->person ? $c->person->passport_date_issued : ""),
             "passport_issued" => ($c->person ? $c->person->passport_issued : ""),
-            "address" => ($c->person ? $c->person->address : "")
+            "address" => ($c->person ? $c->person->registration_address : "")
         ];
         return $d;
     }
