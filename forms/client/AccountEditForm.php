@@ -18,7 +18,6 @@ class AccountEditForm extends Form
 
     public $id,
         $super_id,
-        $contragent_id,
         $contract_id;
 
     public
@@ -72,7 +71,7 @@ class AccountEditForm extends Form
             ],
             [
                 [
-                    'id', 'super_id', 'contragent_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'voip_credit_limit',
+                    'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
                     'is_agent', 'mail_print'
                 ],
@@ -121,7 +120,6 @@ class AccountEditForm extends Form
         } elseif ($this->contract_id) {
             $this->clientM = new ClientAccount();
             $this->clientM->contract_id = $this->contract_id;
-            $this->contragent_id = $this->clientM->contragent_id = !$this->contragent_id ? ClientContract::findOne($this->contract_id)->contragent_id : $this->contragent_id;
             $this->super_id = $this->clientM->super_id = !$this->super_id ? ClientContract::findOne($this->contract_id)->super_id : $this->super_id;
         } else {
             $this->clientM = new ClientAccount();
