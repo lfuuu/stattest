@@ -205,6 +205,8 @@ class ClientContract extends ActiveRecord
             $client->is_active = 0;
             $client->validate();
             $client->save();
+            $client->client = 'id' . $client->id;
+            $client->save();
             $this->newClient = $client;
             $this->number = (string)$client->id;
             $this->save();
