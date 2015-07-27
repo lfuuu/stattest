@@ -65,7 +65,7 @@ class LkWizardState extends ActiveRecord
     public static function isBPStatusAllow($bpsId, $contractId = 0)
     {
         return in_array($bpsId, [
-            ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES
+            ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
         ]) || $contractId == 9130;
     }
 
