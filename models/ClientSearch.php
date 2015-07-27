@@ -5,6 +5,7 @@ namespace app\models;
 
 use app\dao\ClientGridSettingsDao;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 
 class ClientSearch extends ClientAccount
 {
@@ -36,6 +37,7 @@ class ClientSearch extends ClientAccount
             'channelName' => 'Канал продаж',
             'contractNo' => '№ договора',
             'status' => 'Статус',
+            'lastComment' => 'Комментарий',
         ];
     }
 
@@ -62,6 +64,16 @@ class ClientSearch extends ClientAccount
     public function getChannelName()
     {
         return $this->sale_channel ? SaleChannel::getList()[$this->sale_channel] : '';
+    }
+
+    public function getLastComment()
+    {
+        $lastComment =
+            $this->contract->getComments()
+                ->andWhere(['is_publish' => 1])
+                ->orderBy('ts desc')
+                ->one();
+        return isset($lastComment) ? $lastComment->comment : '';
     }
 
     public function search($params)
