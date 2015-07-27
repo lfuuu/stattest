@@ -15,12 +15,12 @@ class AccountPriceIncludeVat extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => "update",
-            ActiveRecord::EVENT_BEFORE_UPDATE => "update"
+            ActiveRecord::EVENT_BEFORE_INSERT => "updatePriceIncludeVat",
+            ActiveRecord::EVENT_BEFORE_UPDATE => "updatePriceIncludeVat"
         ];
     }
 
-    public function update($event)
+    public function updatePriceIncludeVat($event)
     {
         /** @var ClientAccount $account */
         $account = $event->sender;

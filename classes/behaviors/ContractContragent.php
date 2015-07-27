@@ -17,11 +17,11 @@ class ContractContragent extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_UPDATE => "afterUpdate"
+            ActiveRecord::EVENT_BEFORE_UPDATE => "beforeUpdate"
         ];
     }
 
-    public function afterUpdate($event)
+    public function beforeUpdate($event)
     {
         /** @var ClientContract $contract */
         $contract = $event->sender;
