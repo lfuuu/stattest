@@ -14,8 +14,11 @@ class ClientContractType extends ActiveRecord
 {
     const TELEKOM = 2;
     const OPERATOR = 3;
-    const SHOP = 5;
+    const PROVIDER = 4;
+    const INTERNET_SHOP = 5;
     const INTERNAL_OFFICE = 6;
+    const PARTNER = 7;
+    const WELLTIME = 8;
 
     public static function tableName()
     {

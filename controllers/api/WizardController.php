@@ -67,7 +67,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function _checkClean($account)
     {
-        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
+        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
         {
             $wizard = LkWizardState::findOne($account->contract->id);
             if ($wizard)

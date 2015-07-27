@@ -63,7 +63,7 @@ if ($action=='add_client') {
     $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
     $cr->contract_type_id = ClientContractType::TELEKOM;
     $cr->business_process_id = ClientBP::TELEKOM__SUPPORT;
-    $cr->business_process_status_id = ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES;
+    $cr->business_process_status_id = ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->save();
 
     $ca = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
