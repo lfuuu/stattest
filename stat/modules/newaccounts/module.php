@@ -1293,14 +1293,15 @@ class m_newaccounts extends IModule
                     'Приказ о назначении: ' => array("order"),
                     'Уведомление о назначении: ' => array("notice"),
                     'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
-                    'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
+                    'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
+                    'Уведомление о передачи прав: ' => array('notice_mcm_telekom')
         );
 
         foreach ($D as $k=>$rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r == "sogl_mcm_telekom")
+                    if ($r == "sogl_mcm_telekom" || $r == "notice_mcm_telekom")
                     {
                         $is_pdf = 1;
                     }
@@ -1414,7 +1415,7 @@ class m_newaccounts extends IModule
         $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'sogl_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'sogl_mcm_telekom', 'notice_mcm_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1751,7 +1752,7 @@ class m_newaccounts extends IModule
         {
             $this->_print_receipt();
             exit();
-        } elseif ($obj == "sogl_mcm_telekom")
+        } elseif ($obj == "sogl_mcm_telekom" || $obj == 'notice_mcm_telekom')
         {
             $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
 
