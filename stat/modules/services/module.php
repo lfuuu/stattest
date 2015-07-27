@@ -6,6 +6,7 @@ use app\dao\services\WelltimeServiceDao;
 use app\dao\services\EmailsServiceDao;
 use app\dao\services\ExtraServiceDao;
 use app\models\Organization;
+use app\classes\Assert;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -1258,6 +1259,7 @@ class m_services extends IModule{
 
         $client = $design->get_template_vars('client');
         $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        Assert::isObject($organization, 'Организация с id #' . $client['organization_id'] . ' на найдена');
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());

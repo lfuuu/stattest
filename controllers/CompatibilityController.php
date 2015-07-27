@@ -58,7 +58,7 @@ class CompatibilityController extends BaseController
         }
         $fixclient_data = array();
 
-        if ($module != 'clients' && $fixclient) {
+        if ($fixclient) {
             $this->applyFixClient($fixclient);
         }
 

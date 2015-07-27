@@ -397,7 +397,7 @@ class WizardController extends /*BaseController*/ApiController
     private function getClientFiles()
     {
         $files = [];
-        foreach(ClientFile::findAll(["client_id" => $this->account->id, "user_id" => User::CLIENT_USER_ID]) as $file)
+        foreach(ClientFile::findAll(["contract_id" => $this->account->contract_id, "user_id" => User::CLIENT_USER_ID]) as $file)
         {
             $files[] = $file->name;
         }

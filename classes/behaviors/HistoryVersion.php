@@ -2,6 +2,7 @@
 
 namespace app\classes\behaviors;
 
+use app\classes\WebApplication;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -19,10 +20,16 @@ class HistoryVersion extends Behavior
 
     public function addVersion()
     {
+        if (Yii::$app instanceof WebApplication) {
+            $date = Yii::$app->request->post('deferred-date') ? Yii::$app->request->post('deferred-date') : date('Y-m-d');
+        } else {
+            $date = date('Y-m-d');
+        }
+
         $queryData = [
             'model' => substr(get_class($this->owner), 11),
             'model_id' => $this->owner->primaryKey,
-            'date' => Yii::$app->request->post('deferred-date') ? Yii::$app->request->post('deferred-date') : date('Y-m-d'),
+            'date' => $date,
             'data_json' => json_encode($this->owner->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
         ];
 
