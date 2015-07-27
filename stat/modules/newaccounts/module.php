@@ -3065,13 +3065,13 @@ where cg.inn = '".$inn."'";
             }
 
             foreach($db->AllRecords($q = '
-                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills n2
+                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills n2
                          where n2.client_id="'.$clientId.'" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "'.$clientId.'")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and is_payed!="1")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id='.$clientId.' and is_payed!="1")
                         '
                         ) as $b){
                 $v[] = $b;
@@ -3091,10 +3091,10 @@ where cg.inn = '".$inn."'";
 
         // все неоплаченные, и последний оплаченный
         foreach($db->AllRecords("
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
             from newbills b where ".$where." having is_payed1 = 0)
         union
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
             from newbills b where ".$where." having is_payed1 = 1 order by bill_no desc limit 1)
         ") as $p)
         {
