@@ -115,6 +115,9 @@ class MailJob {
         }elseif($match[1] == "SOGL_MCM") {
             $T = "Соглашение о передаче прав и обязанностей по договору №".BillContract::getString($this->client["id"], time()).": " . 
                 $this->get_object_link('sogl_mcm_telekom', $this->client["id"]);
+        }elseif($match[1] == "NOTICE_MCM") {
+            $T = "Уведомление о передаче прав и обязанностей по договору №".BillContract::getString($this->client["id"], time()).": " . 
+                $this->get_object_link('notice_mcm_telekom', $this->client["id"]);
         }
 
         return $T;
@@ -222,6 +225,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(DOGOVOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
+		$text = preg_replace_callback('/%(NOTICE_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}
