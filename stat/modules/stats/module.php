@@ -213,6 +213,8 @@ class m_stats extends IModule{
             return;
         }
 
+        session_write_close();
+
         /** @var ClientAccount $account */
         $account = ClientAccount::findOne($fixclient);
 
