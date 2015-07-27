@@ -114,11 +114,12 @@ class ClientDocumentDao extends Singleton
         $account = $document->getAccount();
         $design = \app\classes\Smarty::init();
 
+        $account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
         $design->assign('client', $account);
         $design->assign('contract', $document);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
         $design->assign('firm', $organization->getOldModeInfo());
-        $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()));
+        $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));
         $design->assign('firm_director', $organization->director->getOldModeInfo());
         //Выпилить
 
@@ -292,11 +293,20 @@ class ClientDocumentDao extends Singleton
         return $content;
     }
 
-    private function generateFirmDetail($f)
+    private function generateFirmDetail($f, $b = true)
     {
         $d = $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
-            (isset($f["post_address"]) ? "<br /> Почтовый адрес: " . $f["post_address"] : "") .
-            "<br /> ИНН " . $f["inn"] . ", КПП " . $f["kpp"] . "<br /> Банковские реквизиты:<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank"] . "<br /> к/с:&nbsp;" . $f["kor_acc"] . "<br /> БИК:&nbsp;" . $f["bik"] . "<br /> телефон: " . $f["phone"] . (isset($f["fax"]) && $f["fax"] ? "<br /> факс: " . $f["fax"] : "") . "<br /> е-mail: " . $f["email"];
+            (isset($f["post_address"]) ? "<br /> Почтовый адрес: " . $f["post_address"] : "")
+            . "<br /> ИНН " . $f["inn"] . ", КПП " . $f["kpp"]
+            . ($b ?
+                "<br /> Банковские реквизиты:"
+                . "<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank_name"]
+                . "<br /> к/с:&nbsp;" . $f["kor_acc"]
+                . "<br /> БИК:&nbsp;" . $f["bik"]
+                : '')
+            . "<br /> телефон: " . $f["phone"]
+            . (isset($f["fax"]) && $f["fax"] ? "<br /> факс: " . $f["fax"] : "")
+            . "<br /> е-mail: " . $f["email"];
         return $d;
     }
 }

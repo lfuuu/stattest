@@ -10,7 +10,7 @@ foreach($contacts as $contact){
 
 $translate = [
     'email' => 'Email',
-    'phone' => 'Телефоны',
+    'phone' => 'Тел.',
     'fax' => 'Факсы',
     'sms' => 'СМС',
 ];
@@ -30,13 +30,13 @@ $translate = [
                     <div class="col-sm-11">
                         <?php foreach ($contactsInType as $contact){
                                 if ($contactType == 'email'){
-                                    echo "<a style=\"font-weight:bold\" target=\"_blank\"
+                                    echo "<a style=\"".($contact->is_official?'font-weight:bold':'')."\" target=\"_blank\"
                                        href=\"http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to={$contact->data}\">
                                        {$contact->data}
                                        </a>
-                        <a style=\"font-weight:bold\" href=\"mailto:{$contact->data}\">(@)</a>; &nbsp;";
+                                        <a style=\"".($contact->is_official?'font-weight:bold':'')."\" href=\"mailto:{$contact->data}\">(@)</a>".($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '')."; &nbsp;";
                                 } else {
-                                    echo $contact->data .";&nbsp";
+                                    echo $contact->data . ($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '') .";&nbsp";
                                 }
                         } ?>
                     </div>

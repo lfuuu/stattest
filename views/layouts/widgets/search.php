@@ -99,7 +99,7 @@ $request = Yii::$app->request->get();
                     async: true,
                 },
                 {
-                    name: 'states',
+                    name: 'search',
                     source: substringMatcher(),
                     templates: {
                         suggestion: function(obj){
