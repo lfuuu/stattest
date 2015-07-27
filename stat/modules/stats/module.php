@@ -212,14 +212,15 @@ class m_stats extends IModule{
             trigger_error2('Клиент не выбран');
             return;
         }
-        $client = ClientAccount::findOne($fixclient);
 
-        $timezones = [ $client['timezone_name'] ];
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne($fixclient);
 
-        $client_id = $client['id'];
+        $timezones = [ $account->timezone_name ];
+
         $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
-                                       where u.client='".addslashes($client['client'])."'
+                                       where u.client='".addslashes($account->client)."'
                                        order by u.region desc, u.id asc");
         if (!$usages) {
             trigger_error2("У клиента нет подключенных телефонных номеров!");
@@ -289,29 +290,27 @@ class m_stats extends IModule{
         if(!in_array($direction,array('both','in','out')))
             $direction = 'both';
 
-        /** @var ClientAccount $client */
-        $client = ClientAccount::findOne($client_id);
 
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
         $design->assign('detality',$detality=get_param_protected('detality','day'));
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
-        $design->assign('timezone',$timezone=get_param_raw('timezone', $client->timezone_name));
+        $design->assign('timezone',$timezone=get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', $timezones);
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
-            $stats = $this->prepareStatArray($client_id, $stats, $detality);
+            $stats = $this->prepareStatArray($account, $stats, $detality);
         } else {
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
             }
         }
 
         $design->assign('stats',$stats);
-        $design->assign('price_include_vat', $client->price_include_vat);
+        $design->assign('price_include_vat', $account->price_include_vat);
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
 	}
@@ -319,15 +318,13 @@ class m_stats extends IModule{
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
-    function prepareStatArray($client_id, $data = array(), $detality = '', $all_regions = array()) {
+    function prepareStatArray(ClientAccount $account, $data = array(), $detality = '', $all_regions = array()) {
 
         if (!count($data)) return $data;
         $Res = array();
         $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
 
-        $clientAccount = ClientAccount::findOne($client_id);
-        Assert::isObject($clientAccount, 'Клиент с id #' . $client_id . ' не найден');
-        $tax_rate = $clientAccount->getTaxRate();
+        $tax_rate = $account->getTaxRate();
 
         switch ($detality) {
             case 'dest':
@@ -354,7 +351,7 @@ class m_stats extends IModule{
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
@@ -388,7 +385,7 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
@@ -435,7 +432,7 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
