@@ -48,6 +48,7 @@ class ClientContract extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
