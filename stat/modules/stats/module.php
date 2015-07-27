@@ -1,6 +1,7 @@
 <?php
 use app\classes\StatModule;
 use \app\models\ClientAccount;
+use app\classes\Assert;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -325,6 +326,7 @@ class m_stats extends IModule{
         $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
 
         $clientAccount = ClientAccount::findOne($client_id);
+        Assert::isObject($clientAccount, 'Клиент с id #' . $client_id . ' не найден');
         $tax_rate = $clientAccount->getTaxRate();
 
         switch ($detality) {
