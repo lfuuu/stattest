@@ -1372,7 +1372,7 @@ class DbFormUsageVirtpbx extends DbForm{
         if(!isset($fixclient_data))
             $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
-        $client_price_include_vat = ClientAccount::find()
+        $account = ClientAccount::find()
             ->select('price_include_vat')
             ->where(['client' => $fixclient_data['client']])
             ->asArray()
@@ -1389,7 +1389,7 @@ class DbFormUsageVirtpbx extends DbForm{
             select id, description, price, currency, status
             from tarifs_virtpbx
             where
-                price_include_vat = "' . $client_price_include_vat . '"
+                price_include_vat = "' . $account->price_include_vat . '" and currency="'.$account->currency.'"
         '));
 
         DbForm::Display($form_params,$h2,$h3);
