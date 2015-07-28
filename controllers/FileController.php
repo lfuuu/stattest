@@ -66,7 +66,7 @@ class FileController extends BaseController
         if ($childId)
             return $this->redirect(['client/view', 'id' => $childId]);
         else
-            return $this->redirect(['file/list', 'contractId' => $childId]);
+            return $this->redirect(['file/list', 'contractId' => $contractId]);
     }
 
     public function actionDelete($id)

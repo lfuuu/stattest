@@ -26,12 +26,15 @@ class HistoryController extends BaseController
     {
         $models = [];
         $getRequest = Yii::$app->request->get();
+        $getOptions = $getRequest['options'];
         if(!$getRequest)
             throw new Exception('Models does not exists');
 
         $changes = HistoryChanges::find()
             ->joinWith('user');
         foreach ($getRequest as $modelName => $modelId) {
+            if ($modelName == 'options')
+                continue;
             $className = 'app\\models\\' . $modelName;
             if (!class_exists($className)) {
                 throw new Exception('Bad model type');
@@ -41,7 +44,10 @@ class HistoryController extends BaseController
             $models[$modelName] = new $className();
         }
 
-        $changes = $changes->orderBy('created_at desc')->all();
+        $changes = $changes->orderBy('created_at desc');
+        if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges']))
+            $changes = $changes->limit(isset($getOptions['howMany']) ? (int) $getOptions['howMany'] : 1);
+        $changes = $changes->all();
 
         foreach($changes as &$change){
             if(false !== strpos($change->data_json, 'contragent_id')){
@@ -60,4 +66,5 @@ class HistoryController extends BaseController
             ? $this->renderPartial('show', ['changes' => $changes, 'models' => $models])
             : $this->render('show', ['changes' => $changes, 'models' => $models]);
     }
+
 }

@@ -18,47 +18,47 @@ $request = Yii::$app->request->get();
 
         <div class="col-sm-4">
             <div class="input-group">
-                <input id="search" type="text" class="form-control" placeholder="Search ..." name="search"
+                <input id="search" type="text" class="form-control input-sm" placeholder="Search ..." name="search"
                        value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
             <span class="input-group-btn" title="Submit">
-                <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+                <button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-search"></i></button>
             </span>
             </div>
         </div>
         <div class="col-sm-8">
             <div class="btn-group" id="btn-options">
-                <button type="submit" class="btn btn-link">Искать по</button>
-                <button type="submit" class="btn btn-primary" style="display: none;" data-search="clients"
+                <button type="submit" class="btn btn-link btn-xs">Искать по</button>
+                <button type="submit" class="btn btn-primary btn-xs" style="display: none;" data-search="clients"
                         data-placeholder="№ ЛС или Названию">Клиентам
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="contractNo"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="contractNo"
                         data-placeholder="Номеру договора">Договору
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="inn"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="inn"
                         data-placeholder="ИНН">ИНН
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="voip"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="voip"
                         data-placeholder="номеру">Voip
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="email"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="email"
                         data-placeholder="email">Email
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="troubles"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="troubles"
                         data-placeholder="№ заявки">Заявкам
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="bills"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="bills"
                         data-placeholder="№ счёта">Счетам
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="ip"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="ip"
                         data-placeholder="IP адресу">IP
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="address"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="address"
                         data-placeholder="адресу">Адресу
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="domain"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="domain"
                         data-placeholder="домену">Домену
                 </button>
-                <button type="submit" class="btn btn-default" style="display: none;" data-search="adsl"
+                <button type="submit" class="btn btn-default btn-xs" style="display: none;" data-search="adsl"
                         data-placeholder="ADSL">ADSL
                 </button>
             </div>
@@ -133,6 +133,7 @@ $request = Yii::$app->request->get();
             $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
             $(this).addClass('btn-primary');
             setInput();
+            $(this).parents('form').trigger('submit');
         });
 
         $('#search-form').on('submit', function (e) {

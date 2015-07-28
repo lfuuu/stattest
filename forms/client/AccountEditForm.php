@@ -3,6 +3,7 @@ namespace app\forms\client;
 
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\HistoryVersion;
 use app\models\PriceType;
@@ -38,7 +39,7 @@ class AccountEditForm extends Form
         $price_type,
         $voip_credit_limit,
         $voip_disabled,
-        $voip_credit_limit_day,
+        $voip_credit_limit_day = 1000,
         $voip_is_day_calc,
         $mail_print,
         $mail_who,
@@ -51,6 +52,8 @@ class AccountEditForm extends Form
         $is_upd_without_sign,
         $timezone_name = Region::TIMEZONE_MOSCOW,
         $is_active,
+        $admin_contact_id = 0,
+        $admin_is_active = 0,
         $bik,
         $corr_acc,
         $pay_acc,
@@ -82,7 +85,7 @@ class AccountEditForm extends Form
                 [
                     'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'credit_size', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'mail_print'
+                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
                 ],
                 'integer'
             ],
@@ -127,9 +130,21 @@ class AccountEditForm extends Form
             }
             $this->setAttributes($this->clientM->getAttributes(), false);
         } elseif ($this->contract_id) {
+            $contract = ClientContract::findOne($this->contract_id);
+            $contragent = ClientContragent::findOne($contract->contragent_id);
+            if (!$this->super_id) {
+                $this->super_id = $contract->super_id;
+            }
             $this->clientM = new ClientAccount();
             $this->clientM->contract_id = $this->contract_id;
-            $this->super_id = $this->clientM->super_id = !$this->super_id ? ClientContract::findOne($this->contract_id)->super_id : $this->super_id;
+            $this->clientM->super_id = $this->super_id;
+            $this->clientM->country_id = $contragent->country_id;
+            $this->clientM->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
+            $this->setAttributes($this->clientM->getAttributes(), false);
+            $this->admin_contact_id = 0;
+            $this->admin_is_active = 0;
+            $this->voip_credit_limit_day = 1000;
+            $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();
         }
@@ -169,6 +184,10 @@ class AccountEditForm extends Form
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
         $client->setAttributes($this->getAttributes(null, ['deferredDate', 'id']), false);
+
+        $contract = ClientContract::findOne($client->contract_id);
+        $contragent = ClientContragent::findOne($contract->contragent_id);
+        $client->country_id = $contragent->country_id;
 
         if ($client->save()) {
             if (!$client->client) {

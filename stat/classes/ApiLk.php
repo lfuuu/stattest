@@ -1484,14 +1484,14 @@ class ApiLk
         if ($phone == 'all') {
 
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array());
+                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$account->id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array());
             }
 
             $ar = Region::getList();
-            $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
+            $stats = $module_stats->prepareStatArray($account, $stats, $detality, $ar);
 
         } else {
-            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
+            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$account->id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
         }
         foreach ($stats as $k=>$r) {
             $stats[$k]["ts1"] = $stats[$k]["ts1"];

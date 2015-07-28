@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\voip\VoipStatus;
 use app\dao\ClientGridSettingsDao;
 use app\classes\BillContract;
 use DateTimeZone;
@@ -234,6 +235,7 @@ class ClientAccount extends ActiveRecord
     public function behaviors()
     {
         return [
+            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
@@ -389,6 +391,9 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
+    /**
+     * @return Organization
+     */
     public function getOrganization()
     {
         return $this->contract->getOrganization();
@@ -406,12 +411,19 @@ class ClientAccount extends ActiveRecord
 
     public function getOfficialContact()
     {
-        $res = [];
         $contacts = ClientContact::find()
+            ->select(['type', 'data'])
             ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
-            ->groupBy(['type'])
+            ->groupBy(['type', 'data'])
+            ->asArray()
             ->all();
-        return ArrayHelper::map($contacts, 'type', 'data');
+
+        $result = ['fax'=>[],'phone'=>[],'email'=>[]];
+        foreach ($contacts as $contact) {
+            $result[$contact['type']][] = $contact['data'];
+        }
+
+        return $result;
     }
 
     public function getBpStatuses()
@@ -511,4 +523,13 @@ class ClientAccount extends ActiveRecord
         return self::dao()->getServerPbxId($this, $region);
     }
 
+    public function getRealtimeBalance()
+    {
+        return VoipStatus::create($this)->getRealtimeBalance();
+    }
+
+    public function getVoipWarnings()
+    {
+        return VoipStatus::create($this)->getWarnings();
+    }
 }

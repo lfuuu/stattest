@@ -67,7 +67,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function _checkClean($account)
     {
-        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
+        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
         {
             $wizard = LkWizardState::findOne($account->contract->id);
             if ($wizard)
@@ -397,7 +397,7 @@ class WizardController extends /*BaseController*/ApiController
     private function getClientFiles()
     {
         $files = [];
-        foreach(ClientFile::findAll(["client_id" => $this->account->id, "user_id" => User::CLIENT_USER_ID]) as $file)
+        foreach(ClientFile::findAll(["contract_id" => $this->account->contract_id, "user_id" => User::CLIENT_USER_ID]) as $file)
         {
             $files[] = $file->name;
         }

@@ -147,7 +147,7 @@ if($has) :
                                     <?php endif;
                                     $j = false; ?>
                                     <td colspan=2>
-                                        <a href="/?pop_services.php?table=usage_ip_routes&id=<?= $net->id ?>"
+                                        <a href="/pop_services.php?table=usage_ip_routes&id=<?= $net->id ?>"
                                            target="_blank">
                                             <?= $net->net ?><?= $net->nat_net ? '<br>' . $net->nat_net : '' ?>
                                         </a> (id=<?= $net->id ?>)
@@ -174,51 +174,9 @@ if($has) :
         <?php endif; ?>
 
 
-        <?php if ($services['device']) : ?>
-            <div id="device">
-                <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
-                <table cellspacing="4" cellpadding="2" width="100%" border="0">
-                    <thead>
-                    <tr  bgcolor="#FFFFD8">
-                        <th width="5%">id</th>
-                        <th width="15%">Устройство</th>
-                        <th width="15%">Серийный номер</th>
-                        <th width="20%">Дата-время</th>
-                        <th width="20%">IP адрес / IP_nat</th>
-                        <th width="15%">номера</th>
-                        <th width="10%">&nbsp;</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach($services['device'] as $device): ?>
-                    <tr bgcolor="<?=$actual($device->actual_from, $device->actual_to) ? '#EEDCA9' : '#fffff5'?>">
-                        <td>
-                            <a href='/?module=routers&action=d_edit&id=<?=$device->id?>'><?=$device->client?></a>
-                            <a href='/?module=routers&action=d_act&id=<?=$device->id?>' title='Бухгалтерский'><img src='/images/icons/act.gif' border=0></a>
-                            <a href='/?module=routers&action=d_act&act=2&id=<?=$device->id?>' title='Технический'><img src='/images/icons/act.gif' border=0></a>
-                            <a href='/?module=routers&action=d_act&act=3&id=<?=$device->id?>' title='Возврат'><img src='/images/icons/act.gif' border=0></a>
-                        </td>
-                        <td>
-                            <b><?=$device->model->vendor?> <?=$device->model->model?></b><br>MAC:<?=$device->mac?>
-                        </td>
-                        <td><?=$device->serial?></td>
-                        <td><?=$device->actual_from?> - <?=$device->actual_to?></td>
-                        <td><?=$device->ip ?> / <?=$device->ip_nat ?></td>
-                        <td><?=$device->numbers?></td>
-                        <td>
-                            <a href='/?module=routers&action=d_apply&dbform_action=delete&dbform[id]=<?=$device->id?>'><img class=icon src='/images/icons/delete.gif'>удалить</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-
-
         <?php if ($services['voip']) : ?>
             <div id="voip">
-                <h3><a href="?module=services&action=vo_view">IP-телефония</a></h3>
+                <h3><a href="?module=services&action=vo_view">IP-телефония</a> <a href="?module=services&action=vo_view">(актуальное состояние)</a></h3>
                 <a href="index.php?module=services&action=vo_act" target="_blank">
                     <img class="icon" src="/images/icons/act.gif">Выписать акт
                 </a>
@@ -251,20 +209,7 @@ if($has) :
                                    target="_blank"><?= $service->actual_from ?>
                                     &nbsp;-&nbsp;<?= $service->actual_to ?></a>
                             </td>
-                            <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?>&nbsp;
-                                <a href="?module=services&action=vo_view&phone=<?= $service->E164 ?>"
-                                   title="Посмотреть регистрацию">»</a>
-                            </td>
-                            <td>
-                                <?php
-                                /* Идет подключение к pg через старый стат для проверки. Если не попросят, не делаем пока.
-                                {if isset($ats_schema[$item.E164]) && $ats_schema[$item.E164]}
-                                    {if $ats_schema[$item.E164] == "new"}<span style="color: green;" title="Новая схема">Новая</span>
-                                    {elseif $ats_schema[$item.E164] == "old"}<span style="color: gray;" title="Старая схема">Старая</span>
-                                {/if}
-                            {/if}*/
-                                ?>
-                            </td>
+                            <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
                             <td style="font-size: 8pt;"><?= $service->currentTariff->name ?>
                                 (<?= $service->currentTariff->month_line ?>-<?= $service->currentTariff->month_number ?>
                                 )
@@ -296,7 +241,6 @@ if($has) :
 
                                 ?>
                             </td>
-                            <td style="font-size: 8pt;"><?= \app\models\UsageVoip::$allowedDirection[$service->allowed_direction] ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -304,9 +248,50 @@ if($has) :
             </div>
         <?php endif; ?>
 
+        <?php if ($services['device']) : ?>
+            <div id="device">
+                <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
+                <table cellspacing="4" cellpadding="2" width="100%" border="0">
+                    <thead>
+                    <tr  bgcolor="#FFFFD8">
+                        <th width="5%">id</th>
+                        <th width="15%">Устройство</th>
+                        <th width="15%">Серийный номер</th>
+                        <th width="20%">Дата-время</th>
+                        <th width="20%">IP адрес / IP_nat</th>
+                        <th width="15%">номера</th>
+                        <th width="10%">&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach($services['device'] as $device): ?>
+                        <tr bgcolor="<?=$actual($device->actual_from, $device->actual_to) ? '#EEDCA9' : '#fffff5'?>">
+                            <td>
+                                <a href='/?module=routers&action=d_edit&id=<?=$device->id?>'><?=$device->client?></a>
+                                <a href='/?module=routers&action=d_act&id=<?=$device->id?>' title='Бухгалтерский'><img src='/images/icons/act.gif' border=0></a>
+                                <a href='/?module=routers&action=d_act&act=2&id=<?=$device->id?>' title='Технический'><img src='/images/icons/act.gif' border=0></a>
+                                <a href='/?module=routers&action=d_act&act=3&id=<?=$device->id?>' title='Возврат'><img src='/images/icons/act.gif' border=0></a>
+                            </td>
+                            <td>
+                                <b><?=$device->model->vendor?> <?=$device->model->model?></b><br>MAC:<?=$device->mac?>
+                            </td>
+                            <td><?=$device->serial?></td>
+                            <td><?=$device->actual_from?> - <?=$device->actual_to?></td>
+                            <td><?=$device->ip ?> / <?=$device->ip_nat ?></td>
+                            <td><?=$device->numbers?></td>
+                            <td>
+                                <a href='/?module=routers&action=d_apply&dbform_action=delete&dbform[id]=<?=$device->id?>'><img class=icon src='/images/icons/delete.gif'>удалить</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+        
         <?php
         foreach ($services['extra'] as $k => $service)
-            if ($service->currentTariff->code == 'welltime')
+            if ($service->currentTariff->code == 'extra')
                 unset($services['extra'][$k]);
         if ($services['extra']):
             ?>
@@ -327,7 +312,7 @@ if($has) :
                     <?php foreach ($services['extra'] as $service): ?>
                         <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                             <td>
-                                <a href="/pop_services.php?table=usage_welltime&id=<?= $service->id ?>" target="_blank">
+                                <a href="/pop_services.php?table=usage_extra&id=<?= $service->id ?>" target="_blank">
                                     <?= $service->actual_from ?>-<?= $service->actual_to ?>
                                 </a>&nbsp;
                                 <a href="index.php?module=tt&clients_client=<?= $service->client ?>&service=usage_extra&service_id=<?= $service->id ?>&action=view_type&type_pk=1&show_add_form=true">
@@ -389,7 +374,7 @@ if($has) :
 
 
         <?php if ($services['virtpbx']): ?>
-            <h3><a href="?module=services&action=welltime_view">Виртуальная АТС</a></h3>
+            <h3><a href="?module=services&action=virtpbx_view">Виртуальная АТС</a></h3>
             <div id="virtpbx">
                 <table cellspacing="4" cellpadding="2" width="100%" border="0">
                     <thead>

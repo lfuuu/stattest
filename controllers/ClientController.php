@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -65,13 +66,49 @@ class ClientController extends BaseController
             ->all();
 
         $services = [];
-        $services['voip'] = UsageVoip::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['device'] = TechCpe::find()->where(['client' => $account->client])->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['welltime'] = UsageWelltime::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['extra'] = UsageExtra::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['virtpbx'] = UsageVirtpbx::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['sms'] = UsageSms::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
-        $services['ipport'] = UsageIpPorts::find()->where(['client' => $account->client])->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])->all();
+
+        $services['voip'] =
+            UsageVoip::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['device'] =
+            TechCpe::find()
+                ->where(['client' => $account->client])
+                ->hideNotLinked()
+                ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['welltime'] =
+            UsageWelltime::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['extra'] =
+            UsageExtra::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['virtpbx'] =
+            UsageVirtpbx::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['sms'] =
+            UsageSms::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['ipport'] =
+            UsageIpPorts::find()
+                ->where(['client' => $account->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
 
         return
             $this->render(

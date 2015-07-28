@@ -9,14 +9,11 @@
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($model->contract->allFiles as $file): ?>
+    <?php foreach ($model->allFiles as $file): ?>
         <tr>
             <td>
                 <a href="/file/download?id=<?= $file->id ?>" target="_blank">
                     <?= $file->name ?>
-                </a>
-                <a href="#" data-id="<?= $file->id ?>" class="fileSend">
-                    <img border=0 src='images/icons/envelope.gif'>
                 </a>
             </td>
             <td><?= $file->comment ?></td>
@@ -42,27 +39,6 @@
     </tfoot>
 </table>
 
-<div id="dialog-form" title="Отправить файл">
-    <div class="col-sm-12">
-        <div class="form-group">
-            <form method="post" id="send-file-form" target="_blank"
-                action="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5">
-                <label for="client-email">Email</label>
-                <select id="client-email" class="form-control" name="to">
-                    <?php foreach ($model->allContacts as $contact)
-                        if ($contact->is_active && $contact->type == 'email'):?>
-                            <option value="<?= $contact->data ?>"><?= $contact->data ?></option>
-                        <?php endif; ?>
-                </select>
-                <input type="hidden" name="file_content" id="file_content">
-                <input type="hidden" name="file_name" id="file_name">
-                <input type="hidden" name="file_mime" id="file_mime">
-                <input type="hidden" name="msg_session" id="msg_session">
-                <input type="hidden" name="send_from_stat" value="1">
-            </form>
-        </div>
-    </div>
-</div>
 
 
 <script>
@@ -86,16 +62,6 @@
         });
     });
 
-    $('.fileSend').on('click', function (e) {
-        e.preventDefault();
-        $.get('/file/send', {id: $(this).data('id')}, function (data) {
-            $('#file_content').val(data['file_content']);
-            $('#file_name').val(data['file_name']);
-            $('#file_mime').val(data['file_mime']);
-            $('#msg_session').val(data['msg_session']);
-            dialog.dialog("open");
-        }, 'json');
-    });
 
     $('.deleteFile').on('click',function(e){
         e.preventDefault();

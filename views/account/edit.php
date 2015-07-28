@@ -83,7 +83,7 @@ use yii\helpers\Url;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1], 'options' => ['value' => 1000]],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
                     'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
@@ -113,7 +113,7 @@ use yii\helpers\Url;
                     'is_upd_without_sign' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;'],],
                     'empty26' => ['type' => Form::INPUT_RAW,],
 
-                    'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'],],
+                    'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Оказанные услуги по Договору', 'no' => 'Абонентская плата по Договору'],],
                     'empty27' => ['type' => Form::INPUT_RAW,],
                     'empty28' => ['type' => Form::INPUT_RAW,],
                     'empty29' => ['type' => Form::INPUT_RAW,],
@@ -365,17 +365,17 @@ use yii\helpers\Url;
                         ]
                     ); ?>
                 </div>
-                <div class="col-sm-2"><input class="form-control" type="text" name="ClientDocument[comment]"></div>
+                <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl-group" name="ClientDocument[group]"
+                    <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
                             data-type="blank"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control tmpl" name="ClientDocument[template]"
+                    <select class="form-control input-sm tmpl" name="ClientDocument[template]"
                             data-type="blank"></select>
                 </div>
                 <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary col-sm-12">Зарегистрировать</button>
+                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
                 </div>
             </form>
         </div>
@@ -477,3 +477,5 @@ use yii\helpers\Url;
         });
     </script>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>

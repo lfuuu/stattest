@@ -1369,14 +1369,13 @@ class DbFormUsageVirtpbx extends DbForm{
          global $db,$design, $fixclient_data;
 
         $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
-        if(!isset($fixclient_data))
-            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
-        $client_price_include_vat = ClientAccount::find()
-            ->select('price_include_vat')
-            ->where(['client' => $fixclient_data['client']])
-            ->asArray()
-            ->one()['price_include_vat'];
+        if(!isset($fixclient_data)) {
+            $account = ClientAccount::findOne(['client' => $this->data['client']]);
+            $fixclient_data = $account->toArray();
+        } else {
+            $account = ClientAccount::findOne($fixclient_data['id']);
+        }
 
         if ($this->isData('id')) {
             $this->prepareMovedFieldsForDispaly();
@@ -1389,7 +1388,7 @@ class DbFormUsageVirtpbx extends DbForm{
             select id, description, price, currency, status
             from tarifs_virtpbx
             where
-                price_include_vat = "' . $client_price_include_vat . '"
+                price_include_vat = "' . $account->price_include_vat . '" and currency="'.$account->currency.'"
         '));
 
         DbForm::Display($form_params,$h2,$h3);

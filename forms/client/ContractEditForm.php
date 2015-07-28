@@ -46,7 +46,7 @@ class ContractEditForm extends Form
         $rules = [
             [['number', 'date', 'manager', 'account_manager', 'comment'], 'string'],
             [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id'], 'integer'],
-            ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original']],
+            ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original', 'external']],
             ['business_process_id', 'default', 'value' => 1],
             ['business_process_status_id', 'default', 'value' => 19],
             [['public_comment'], 'safe'],
@@ -183,13 +183,14 @@ class ContractEditForm extends Form
                 $contragent->hasChecked = true;
             if (!$contragent->validate()) {
                 if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
-                    $this->addError('state', 'Введите корректныйе ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                    $this->addError('state', 'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
                 elseif (isset($contragent->errors['inn']))
                     $this->addError('state', 'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
                 elseif (isset($contragent->errors['kpp']))
                     $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
             }
         }
+
         return parent::validate($attributeNames, $clearErrors);
     }
 
