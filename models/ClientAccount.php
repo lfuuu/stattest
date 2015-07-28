@@ -411,12 +411,19 @@ class ClientAccount extends ActiveRecord
 
     public function getOfficialContact()
     {
-        $res = [];
         $contacts = ClientContact::find()
+            ->select(['type', 'data'])
             ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
-            ->groupBy(['type'])
+            ->groupBy(['type', 'data'])
+            ->asArray()
             ->all();
-        return ArrayHelper::map($contacts, 'type', 'data');
+
+        $result = ['fax'=>[],'phone'=>[],'email'=>[]];
+        foreach ($contacts as $contact) {
+            $result[$contact['type']][] = $contact['data'];
+        }
+
+        return $result;
     }
 
     public function getBpStatuses()
