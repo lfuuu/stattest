@@ -108,7 +108,7 @@ use \app\models\ClientContract;
                                             <span class="col-sm-2"
                                                   style="text-align: right;color:<?= ($realtimeBalance < 0) ? 'red' : 'green'; ?>;">
                                                 <?= $realtimeBalance ?>
-                                                RUB
+                                                <?= $contractAccount->currency ?>
                                             </span>
                                             <span class="col-sm-2">
                                                 <?= $contractAccount->credit >= 0 ? '(Кредит: ' . $contractAccount->credit . ')': '' ?>

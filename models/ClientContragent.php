@@ -86,6 +86,7 @@ class ClientContragent extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'ContragentCountry' => \app\classes\behaviors\ContragentCountry::className(),
         ];
     }
 

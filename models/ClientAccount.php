@@ -235,6 +235,7 @@ class ClientAccount extends ActiveRecord
     public function behaviors()
     {
         return [
+            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
@@ -390,6 +391,9 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
+    /**
+     * @return Organization
+     */
     public function getOrganization()
     {
         return $this->contract->getOrganization();

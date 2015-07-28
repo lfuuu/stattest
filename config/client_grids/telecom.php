@@ -142,7 +142,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['c.is_blocked' => 1],
+                ['c.is_blocked' => 0],
                 [
                     'not in',
                     'cr.business_process_status_id',

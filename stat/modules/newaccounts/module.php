@@ -1293,14 +1293,15 @@ class m_newaccounts extends IModule
                     'Приказ о назначении: ' => array("order"),
                     'Уведомление о назначении: ' => array("notice"),
                     'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
-                    'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
+                    'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
+                    'Уведомление о передачи прав: ' => array('notice_mcm_telekom')
         );
 
         foreach ($D as $k=>$rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r == "sogl_mcm_telekom")
+                    if ($r == "sogl_mcm_telekom" || $r == "notice_mcm_telekom")
                     {
                         $is_pdf = 1;
                     }
@@ -1414,7 +1415,7 @@ class m_newaccounts extends IModule
         $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'sogl_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'sogl_mcm_telekom', 'notice_mcm_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1751,7 +1752,7 @@ class m_newaccounts extends IModule
         {
             $this->_print_receipt();
             exit();
-        } elseif ($obj == "sogl_mcm_telekom")
+        } elseif ($obj == "sogl_mcm_telekom" || $obj == 'notice_mcm_telekom')
         {
             $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
 
@@ -3065,13 +3066,13 @@ where cg.inn = '".$inn."'";
             }
 
             foreach($db->AllRecords($q = '
-                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills n2
+                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills n2
                          where n2.client_id="'.$clientId.'" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "'.$clientId.'")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and is_payed!="1")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id='.$clientId.' and is_payed!="1")
                         '
                         ) as $b){
                 $v[] = $b;
@@ -3091,10 +3092,10 @@ where cg.inn = '".$inn."'";
 
         // все неоплаченные, и последний оплаченный
         foreach($db->AllRecords("
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
             from newbills b where ".$where." having is_payed1 = 0)
         union
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
             from newbills b where ".$where." having is_payed1 = 1 order by bill_no desc limit 1)
         ") as $p)
         {

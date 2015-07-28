@@ -4,11 +4,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use yii\db\Query;
 
-/**
- * @property int $id
- * @property
- */
-class ClientBPStatuses// extends ActiveRecord
+class ClientBPStatuses
 {
     // Общие
     const STATE_NEGOTIATIONS = 11; // Переговоры
@@ -81,8 +77,6 @@ class ClientBPStatuses// extends ActiveRecord
     const OPERATOR_FORMAL_BLOCKED = 83; // Формальные - Фрод блокировка
     const OPERATOR_FORMAL_TECH_FAILURE = 84; // Формальные - Техотказ
 
-    /*public static function tableName()
-    {
-        return 'client_grid_statuses';
-    }*/
+
+    const FOLDER_TELECOM_AUTOBLOCK = 21;
 }

@@ -100,8 +100,6 @@ class UsageIpPorts extends ActiveRecord implements Usage
     {
         return UsageIpRoutes::find()
             ->where(['port_id' => $this->id])
-            ->andWhere('actual_from <= NOW()')
-            ->andWhere('actual_to >= NOW()')
             ->all();
     }
 

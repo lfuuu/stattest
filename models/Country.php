@@ -29,7 +29,7 @@ class Country extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::find()->all();
+        $arr = self::findAll(['in_use' => 1]);
         return ArrayHelper::map($arr, 'code', 'name');
     }
 

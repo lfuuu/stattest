@@ -48,6 +48,7 @@ class ClientContract extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
@@ -199,9 +200,12 @@ class ClientContract extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
         if ($insert) {
+            $contragent = ClientContragent::findOne($this->contragent_id);
             $client = new ClientAccount();
             $client->contract_id = $this->id;
             $client->super_id = $this->super_id;
+            $client->country_id = $contragent->country_id;
+            $client->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
             $client->is_active = 0;
             $client->validate();
             $client->save();

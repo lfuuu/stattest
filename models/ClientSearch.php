@@ -2,10 +2,9 @@
 
 namespace app\models;
 
-
 use app\dao\ClientGridSettingsDao;
 use yii\data\ActiveDataProvider;
-use yii\helpers\ArrayHelper;
+use yii\db\Query;
 
 class ClientSearch extends ClientAccount
 {
@@ -178,6 +177,17 @@ class ClientSearch extends ClientAccount
         if ($this->createdDate) {
             $createdDates = explode('+-+', $this->createdDate);
             $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+        }
+
+        if ($this->grid == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
+            $pg_query = new Query();
+
+            $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
+
+            $ids = $pg_query->column(\Yii::$app->dbPg);
+            if (!empty($ids)) {
+                $query->andFilterWhere(['in', 'c.id', $ids]);
+            }
         }
 
         if ($query->params) {
