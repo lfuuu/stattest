@@ -42,7 +42,7 @@ class ContactController extends BaseController
             $model->client_id = $clientId;
             $model->is_active = 1;
             $model->save();
-            if(isset($data['admin-lk-id']) && $model->type == 'email') {
+            if($data['admin-lk-id'] == 1 && $model->type == 'email') {
                 $client->admin_contact_id = $model->id;
                 $client->save();
             }
