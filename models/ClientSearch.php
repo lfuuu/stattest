@@ -72,6 +72,7 @@ class ClientSearch extends ClientAccount
             $this->contract->getComments()
                 ->andWhere(['is_publish' => 1])
                 ->orderBy('ts desc')
+                ->limit(1)
                 ->one();
         return isset($lastComment) ? $lastComment->comment : '';
     }
