@@ -133,6 +133,7 @@ $request = Yii::$app->request->get();
             $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
             $(this).addClass('btn-primary');
             setInput();
+            $(this).parents('form').trigger('submit');
         });
 
         $('#search-form').on('submit', function (e) {

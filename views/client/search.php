@@ -1,5 +1,6 @@
 <?php
 use \kartik\grid\GridView;
+use app\classes\Html;
 ?>
 
 <div class="row">
@@ -32,7 +33,21 @@ use \kartik\grid\GridView;
                 'inn',
                 'managerName',
                 'channelName',
+                'lastComment',
             ],
+            'panelTemplate' =>
+                Html::beginTag('div') .
+                    Html::tag('div', '{summary}', ['class' => 'pull-left']) .
+                    Html::tag('div', '{toolbar}', ['class' => 'pull-right', 'style' => 'margin-bottom: 10px;']) .
+                    Html::tag('div', '', ['class' => 'clearfix']) .
+                    '{items}{pager}' .
+                Html::endTag('div'),
+            'panel' => [
+                'type' => GridView::TYPE_DEFAULT,
+            ],
+            'toolbar'=> [
+                '{toggleData}',
+            ]
         ]);
         ?>
 
