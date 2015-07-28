@@ -21,6 +21,7 @@ class ClientContract extends ActiveRecord
         'unchecked' => 'Не проверено',
         'checked_original' => 'Оригинал',
         'checked_copy' => 'Копия',
+        'external' => 'Внешний',
     ];
 
     public static function tableName()
@@ -213,6 +214,11 @@ class ClientContract extends ActiveRecord
             $client->save();
             $this->newClient = $client;
             $this->number = (string)$client->id;
+            $this->save();
+        }
+
+        if ($this->contract_type_id != 3 && $this->state != 'external' && $this->number != $this->id) {
+            $this->number = $this->id;
             $this->save();
         }
 

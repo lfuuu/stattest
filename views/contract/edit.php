@@ -65,9 +65,12 @@ use yii\helpers\Url;
                             return $res;
                         },
                     ],
-                    'empty2' => [
+                    'number' => [
                         'type' => Form::INPUT_RAW,
-                        'value' => ''
+                        'value' =>
+                            Html::beginTag('div', ['class' => 'col-sm-12 field-parent', 'style' => 'display: none;']) .
+                                $f->field($model, 'number') .
+                            Html::endTag('div')
                     ],
                     'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
                     'manager' => [
@@ -103,8 +106,6 @@ use yii\helpers\Url;
 
             echo '</div>';
             ?>
-
-
             <div class="row">
                 <div class="col-sm-4">
                     <div class="col-sm-12" type="textInput">
@@ -184,7 +185,7 @@ use yii\helpers\Url;
 
     <?php $docs = $model->model->allDocuments; ?>
 
-    <div class="col-sm-12">
+    <div class="col-sm-12" data-not-external="1">
         <div class="row"
              style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
             <div class="col-sm-12">Договор</div>
@@ -279,7 +280,7 @@ use yii\helpers\Url;
     </div>
 
 
-    <div class="col-sm-12">
+    <div class="col-sm-12" data-not-external="1">
         <div class="row"
              style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
             <div class="col-sm-12">Доп. соглашения</div>
@@ -512,7 +513,6 @@ use yii\helpers\Url;
         }
     </style>
 
-
     <script>
         var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
         var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
@@ -550,3 +550,5 @@ use yii\helpers\Url;
         });
     </script>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/contract-number.js"></script>
