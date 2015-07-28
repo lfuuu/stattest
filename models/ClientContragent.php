@@ -133,7 +133,7 @@ class ClientContragent extends ActiveRecord
     {
         $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
         if($person)
-            $person = $person->loadVersionOnDate($this->deferredDate);
+            $person = $person->loadVersionOnDate($this->historyVersionDate);
         else {
             $person = new ClientContragentPerson();
             $person->contragent_id = $this->id;

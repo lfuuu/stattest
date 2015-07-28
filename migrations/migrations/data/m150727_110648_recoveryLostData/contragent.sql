@@ -1,57 +1,5 @@
-ALTER TABLE `client_contragent`
-CHANGE COLUMN `tax_regime` `tax_regime` ENUM('simplified','full') NOT NULL DEFAULT 'full' AFTER `fio`;
-ALTER TABLE `client_contragent` DROP COLUMN `address_post`;
-ALTER TABLE `client_contragent`
-  ADD COLUMN `positionV` VARCHAR(128) NOT NULL DEFAULT '' AFTER `fio`,
-  ADD COLUMN `fioV` VARCHAR(128) NOT NULL DEFAULT '' AFTER `positionV`;
-
-  ALTER TABLE `client_contragent_person`
-  CHANGE COLUMN `address` `registration_address` VARCHAR(255) NOT NULL AFTER `passport_issued`;
-
-  ALTER TABLE `client_contragent_person`
-      CHANGE COLUMN `last_name` `last_name` VARCHAR(64) NULL DEFAULT '' AFTER `contragent_id`,
-      CHANGE COLUMN `first_name` `first_name` VARCHAR(64) NULL DEFAULT '' AFTER `last_name`,
-      CHANGE COLUMN `middle_name` `middle_name` VARCHAR(64) NULL DEFAULT '' AFTER `first_name`,
-      CHANGE COLUMN `passport_date_issued` `passport_date_issued` DATE NULL DEFAULT '1970-01-01' AFTER `middle_name`,
-      CHANGE COLUMN `passport_serial` `passport_serial` VARCHAR(6) NULL DEFAULT '' AFTER `passport_date_issued`,
-      CHANGE COLUMN `passport_number` `passport_number` VARCHAR(10) NULL DEFAULT '' AFTER `passport_serial`,
-      CHANGE COLUMN `passport_issued` `passport_issued` VARCHAR(255) NULL DEFAULT '' AFTER `passport_number`,
-      CHANGE COLUMN `registration_address` `registration_address` VARCHAR(255) NULL DEFAULT '' AFTER `passport_issued`,
-      ADD UNIQUE INDEX `contragent_id` (`contragent_id`);
-
-
-TRUNCATE `client_contragent`;
-REPLACE INTO client_contragent
-  (SELECT
-      `contragent_id`,
-      `super_id`,
-      `country_id`,
-      `company`,
-      IF(`company_full` REGEXP '(^([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?))|(([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?)$)',
-          'ip',
-          IF(`type` = 'priv'
-                  AND `company_full` NOT REGEXP '(^([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?))|(([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?)$)',
-              'person', 'legal')
-          ) AS `legal_type`,
-      `company_full`,
-      IF(ISNULL(`address_jur`), '', `address_jur`) AS `address_jur`,
-      IF(ISNULL(`inn`), '', `inn`) AS `inn`,
-      '' AS `inn_euro` ,
-      IF(ISNULL(`kpp`), '', `kpp`) AS `kpp`,
-      IF(ISNULL(`signer_position`), '', `signer_position`) AS `signer_position`,
-      IF(ISNULL(`signer_name`), '', `signer_name`) AS `signer_name`,
-      IF(ISNULL(`signer_position`), '', `signer_position`) AS `signer_positionV`,
-      IF(ISNULL(`signer_name`), '', `signer_name`) AS `signer_nameV`,
-      IF(`nds_zero` = 1, 'simplified', 'full') AS `signer_nameV`,
-      '' AS `opf`,
-      IF(ISNULL(`okpo`), '', `okpo`) AS `okpo`,
-      '' AS `okvd`,
-      '' AS `ogrn`
-		FROM clients)
-;
-
 SET GLOBAL group_concat_max_len=4294967295;
-INSERT INTO history_changes
+INSERT INTO nispd.history_changes
     (`model`, `model_id`, `user_id`, `created_at`, `action`, `data_json`, `prev_data_json`)
     SELECT
         `model`,
@@ -104,10 +52,11 @@ INSERT INTO history_changes
                         SELECT
                             lc.`id`,
                             'ClientContragent' AS `model`,
-                            c.`contragent_id` AS `model_id`,
+                            cg.`id` AS `model_id`,
                             lc.`user_id`,
-                            IF(lc.`apply_ts` > '2006-01-01', CONCAT(lc.`apply_ts`, ' 00:00:00'), lc.`ts`) AS `create_at`,
+                            '2006-01-01 00:00:00' AS `create_at`,
                             'update' AS `action`,
+                            '' AS `value_from`,
                             CASE
                                      WHEN lcf.`field` = "signer_name" THEN REPLACE(lcf.`value_from`, '"', '\\"')
                                      WHEN lcf.`field` = "signer_position" THEN REPLACE(lcf.`value_from`, '"', '\\"')
@@ -119,22 +68,8 @@ INSERT INTO history_changes
                                      WHEN lcf.`field` = "inn" THEN REPLACE(lcf.`value_from`, '"', '\\"')
                                      WHEN lcf.`field` = "kpp" THEN REPLACE(lcf.`value_from`, '"', '\\"')
                                      WHEN lcf.`field` = "okpo" THEN REPLACE(lcf.`value_from`, '"', '\\"')
-                                        WHEN lcf.`field` = "nds_zero" THEN IF(lcf.`value_from` = 1, 'simplified', 'full')
-                                        WHEN lcf.`field` = "type" THEN lcf.`value_to`
-                                  END AS `value_from`,
-                            CASE
-                                     WHEN lcf.`field` = "signer_name" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "signer_position" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "signer_nameV" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "signer_positionV" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "company" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "company_full" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "address_jur" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "inn" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "kpp" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                     WHEN lcf.`field` = "okpo" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-                                        WHEN lcf.`field` = "nds_zero" THEN IF(lcf.`value_to` = 1, 'simplified', 'full')
-                                        WHEN lcf.`field` = "type" THEN lcf.`value_to`
+                                        WHEN lcf.`field` = "nds_zero" THEN IF(lcf.`value_from` = 1, '0', '1')
+                                        WHEN lcf.`field` = "type" THEN lcf.`value_from`
                                   END AS `value_to`,
                             CASE
                                      WHEN lcf.`field` = "signer_name" THEN "fio"
@@ -150,83 +85,68 @@ INSERT INTO history_changes
                                         WHEN lcf.`field` = "type" THEN "legal_type"
                                         WHEN lcf.`field` = "nds_zero" THEN "tax_regime"
                                   END AS `field`
-                            FROM
-                            log_client lc
-                            LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
-                            LEFT JOIN clients c ON c.`id` = lc.`client_id`
-
-                            WHERE lc.`type` = 'fields' AND lc.`comment` != 'client'
-                              AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
-                              AND NOT ISNULL(c.`contragent_id`)
-
-
+                            FROM q.log_client lc, q.log_client_fields lcf, nispd.clients c, nispd.client_contract cr, nispd.client_contragent cg
+                            WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
+                            AND lcf.value_from != '' AND lc.`comment` != 'client' AND lc.`type` = 'fields'
+                            AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+                            GROUP BY lc.client_id, lcf.field
                     ) n
                     GROUP BY `id`
         ) m
         WHERE NOT ISNULL(`data_json`)
 ;
 
+
+
 REPLACE INTO history_version (
     SELECT
             'ClientContragent' AS `model`,
-            `contragent_id` AS `model_id`,
-            IF(ISNULL(lc.`ts`), IF(ISNULL(c.`created`), '2006-01-01', DATE_FORMAT(c.`created`, '%Y-%m-%d')),  DATE(lc.`ts`)) AS `date`,
+            `id` AS `model_id`,
+            '2006-01-01' AS `date`,
             CONCAT(
                 '{',
-                    '"id":[-contragent_id-]', c.`contragent_id`, '[-/contragent_id-],',
-                    '"super_id":[-super_id-]', c.`super_id`, '[-/super_id-],',
-                    '"legal_type":[-legal_type-]',
-                        IF(`company_full` REGEXP '(^([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?))|(([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?)$)',
-                           'ip',
-                           IF(c.`type` = 'priv'
-                                   AND `company_full` NOT REGEXP '(^([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?))|(([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?)$)',
-                               'person', 'legal')
-                           ),
-                    '[-/legal_type-],',
-                    '"name":[-name-]', REPLACE(`company`, '"', '\\"'), '[-/name-],',
-                    '"name_full":[-name_full-]', REPLACE(`company_full`, '"', '\\"'), '[-/name_full-],',
+                    '"id":[-id-]', `id`, '[-/id-],',
+                    '"super_id":[-super_id-]', `super_id`, '[-/super_id-],',
+                    '"legal_type":[-legal_type-]', legal_type ,'[-/legal_type-],',
+                    '"name":[-name-]', REPLACE(`name`, '"', '\\"'), '[-/name-],',
+                    '"name_full":[-name_full-]', REPLACE(`name_full`, '"', '\\"'), '[-/name_full-],',
                     '"address_jur":[-address_jur-]', IF(ISNULL(`address_jur`), '',  REPLACE(`address_jur`, '"', '\\"')), '[-/address_jur-],',
                     '"inn":[-inn-]', IF(ISNULL(`inn`), '', REPLACE(`inn`, '"', '\\"')), '[-/inn-],',
                     '"kpp":[-kpp-]', IF(ISNULL(`kpp`), '', REPLACE(`kpp`, '"', '\\"')), '[-/kpp-],',
-                    '"position":[-position-]', IF(ISNULL(`signer_position`), '', REPLACE(`signer_position`, '"', '\\"')), '[-/position-],',
-                    '"fio":[-fio-]', IF(ISNULL(`signer_name`), '', REPLACE(`signer_name`, '"', '\\"')), '[-/fio-],',
-                    '"positionV":[-positionV-]', IF(ISNULL(`signer_positionV`), '', REPLACE(`signer_positionV`, '"', '\\"')), '[-/positionV-],',
-                    '"fio":[-fioV-]', IF(ISNULL(`signer_nameV`), '', REPLACE(`signer_nameV`, '"', '\\"')), '[-/fioV-],',
-                    '"ogrn":[-ogrn-][-/ogrn-],',
-                    '"okvd":[-okvd-][-/okvd-],',
-                    '"opf":[-opf-][-/opf-],',
+                    '"position":[-position-]', IF(ISNULL(`position`), '', REPLACE(`position`, '"', '\\"')), '[-/position-],',
+                    '"fio":[-fio-]', IF(ISNULL(`fio`), '', REPLACE(`fio`, '"', '\\"')), '[-/fio-],',
+                    '"positionV":[-positionV-]', IF(ISNULL(`positionV`), '', REPLACE(`positionV`, '"', '\\"')), '[-/positionV-],',
+                    '"fio":[-fioV-]', IF(ISNULL(`fioV`), '', REPLACE(`fioV`, '"', '\\"')), '[-/fioV-],',
+                    '"ogrn":[-ogrn-]',REPLACE(`ogrn`, '"', '\\"'),'[-/ogrn-],',
+                    '"okvd":[-okvd-]',REPLACE(`okvd`, '"', '\\"'),'[-/okvd-],',
+                    '"opf":[-opf-]',REPLACE(`opf`, '"', '\\"'),'[-/opf-],',
                     '"okpo":[-okpo-]', IF(ISNULL(`okpo`), '', REPLACE(`okpo`, '"', '\\"')), '[-/okpo-]',
                 '}'
             ) AS `json_date`
-            FROM clients c
-            LEFT JOIN log_client lc ON lc.`client_id` = c.`id`
-            LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
-							WHERE lc.`type` = 'fields'
-							  AND lcf.`field` IN ('okpo','signer_name', 'signer_position','signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+            FROM client_contragent
 )
 ;
 
-
-INSERT INTO history_version
-  SELECT hv.`model`, hv.`model_id`, hv.`date`, '' FROM history_version hv
-    INNER JOIN clients c ON c.contragent_id = hv.model_id
+INSERT INTO nispd.history_version
+  SELECT hv.`model`, hv.`model_id`, hv.`date`, ''
+  FROM nispd.history_version hv
     INNER JOIN (
         SELECT * FROM (
             SELECT
-            DATE(IF(lc.`apply_ts` > lc.`ts`, lc.`apply_ts`, lc.`ts`)) AS `date_c`,
+            '2006-01-01' AS `date_c`,
             CASE
-              WHEN lcf.`field` = "signer_name" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "signer_position" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "signer_nameV" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "signer_positionV" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "company" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "company_full" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "address_jur" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "inn" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "kpp" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "okpo" THEN REPLACE(lcf.`value_to`, '"', '\\"')
-              WHEN lcf.`field` = "nds_zero" THEN IF(lcf.`value_to` = 1, 'simplified', 'full')
-              WHEN lcf.`field` = "type" THEN lcf.`value_to`
+              WHEN lcf.`field` = "signer_name" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_position" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_nameV" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_positionV" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "company" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "company_full" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "address_jur" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "inn" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "kpp" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "okpo" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "nds_zero" THEN IF(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`) = 1, '0', '1')
+              WHEN lcf.`field` = "type" THEN IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`)
             END AS `value_to`,
             CASE
               WHEN lcf.`field` = "signer_name" THEN "fio"
@@ -242,20 +162,173 @@ INSERT INTO history_version
               WHEN lcf.`field` = "nds_zero" THEN "tax_regime"
               WHEN lcf.`field` = "type" THEN "legal_type"
             END AS `field_name`,
-            lc.client_id
-            FROM log_client lc
-            LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
+            cg.id as `contragent_id`
+            FROM q.log_client lc, q.log_client_fields lcf, nispd.clients c, nispd.client_contract cr, nispd.client_contragent cg
+				WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
+				AND lcf.value_from != '' AND lc.`comment` != 'client' AND lc.`type` = 'fields'
+				AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+				GROUP BY lc.client_id, lcf.field
 
-            WHERE lc.`type` = 'fields'
-              AND lcf.`field` IN ('okpo','signer_name', 'signer_position','signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
-                 ORDER BY date_c DESC
           ) d
-          GROUP BY `field_name`, `date_c`, `client_id`
-          ORDER BY `date_c` DESC
-    ) l ON l.`client_id` = c.`id` AND l.`date_c` <= hv.`date`
+          GROUP BY `field_name`, `contragent_id`
+    ) l ON l.`contragent_id` = hv.`model_id`
 
-		WHERE hv.`model` = 'ClientContragent'
-		ORDER BY hv.`date` DESC
+		WHERE hv.`model` = 'ClientContragent' AND hv.`date` = '2006-01-01'
+ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`data_json`,
+	                    SUBSTRING(history_version.`data_json`,
+	                      LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`),
+	                      (LOCATE(CONCAT('[-/', l.`field_name` ,'-]'), history_version.`data_json`) + LENGTH(CONCAT('[-/', l.`field_name` ,'-]')) - LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`))
+	                    ),
+	                    CONCAT(CONCAT('[-', l.`field_name` ,'-]'),
+	                        IF(
+	                            l.`field_name` = 'legal_type',
+	                            IF(history_version.`data_json` REGEXP '(^([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?))|(([( "\']?)(ИП|Индивидуальный предприниматель)([) "\']?)$)',
+	                              'ip',
+	                              IF(LOCATE('[-legal_type-]priv[-/legal_type-]', history_version.`data_json`) > 0
+	                                      AND history_version.`data_json` NOT REGEXP '(^([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?))|(([( "\']?)(ООО|ЗАО|ОАО|OOO|OAO)([) "\']?)$)',
+	                                  'person', 'legal')
+	                              ),
+	                           l.`value_to`
+	                        ),
+	                        CONCAT('[-/', l.`field_name` ,'-]')
+	                    )
+	        )
+;
+
+DELETE hv1 FROM nispd.history_version hv1
+    LEFT JOIN
+    (
+      SELECT DATE(lc.ts) AS `date`, cg.id AS `model_id`, 'ClientContragent' AS `model`
+      FROM q.log_client lc, q.log_client_fields lcf, nispd.clients c, nispd.client_contract cr, nispd.client_contragent cg
+      WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
+      AND lc.`comment` != 'client' AND lc.`type` = 'fields'
+      AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+    ) hv2 ON hv1.model = hv2.model AND hv1.model_id = hv2.model_id AND hv1.`date` = hv2.`date`
+    WHERE hv1.`date` != '2006-01-01' AND ISNULL(hv2.model)
+;
+
+
+
+REPLACE INTO history_version (
+    SELECT
+            'ClientContragent' AS `model`,
+            `id` AS `model_id`,
+            hv.date,
+            CONCAT(
+                '{',
+                    '"id":[-id-]', `id`, '[-/id-],',
+                    '"super_id":[-super_id-]', `super_id`, '[-/super_id-],',
+                    '"legal_type":[-legal_type-]', legal_type ,'[-/legal_type-],',
+                    '"name":[-name-]', REPLACE(`name`, '"', '\\"'), '[-/name-],',
+                    '"name_full":[-name_full-]', REPLACE(`name_full`, '"', '\\"'), '[-/name_full-],',
+                    '"address_jur":[-address_jur-]', IF(ISNULL(`address_jur`), '',  REPLACE(`address_jur`, '"', '\\"')), '[-/address_jur-],',
+                    '"inn":[-inn-]', IF(ISNULL(`inn`), '', REPLACE(`inn`, '"', '\\"')), '[-/inn-],',
+                    '"kpp":[-kpp-]', IF(ISNULL(`kpp`), '', REPLACE(`kpp`, '"', '\\"')), '[-/kpp-],',
+                    '"position":[-position-]', IF(ISNULL(`position`), '', REPLACE(`position`, '"', '\\"')), '[-/position-],',
+                    '"fio":[-fio-]', IF(ISNULL(`fio`), '', REPLACE(`fio`, '"', '\\"')), '[-/fio-],',
+                    '"positionV":[-positionV-]', IF(ISNULL(`positionV`), '', REPLACE(`positionV`, '"', '\\"')), '[-/positionV-],',
+                    '"fioV":[-fioV-]', IF(ISNULL(`fioV`), '', REPLACE(`fioV`, '"', '\\"')), '[-/fioV-],',
+                    '"ogrn":[-ogrn-]',REPLACE(`ogrn`, '"', '\\"'),'[-/ogrn-],',
+                    '"okvd":[-okvd-]',REPLACE(`okvd`, '"', '\\"'),'[-/okvd-],',
+                    '"opf":[-opf-]',REPLACE(`opf`, '"', '\\"'),'[-/opf-],',
+                    '"okpo":[-okpo-]', IF(ISNULL(`okpo`), '', REPLACE(`okpo`, '"', '\\"')), '[-/okpo-]',
+                '}'
+            ) AS `json_date`
+            FROM client_contragent cg
+            INNER JOIN nispd.history_version hv ON hv.model = 'ClientContragent' AND cg.id = hv.model_id
+)
+;
+
+
+INSERT INTO nispd.history_version
+  SELECT hv.`model`, hv.`model_id`, hv.`date`, l.value_to
+  FROM nispd.history_version hv
+    INNER JOIN (
+        SELECT * FROM (
+            SELECT
+            DATE(lc.ts) AS `date_c`,
+            if(DATE(lc.ts) > lc.apply_ts, DATE(lc.ts), lc.apply_ts) AS `date_r`,
+            CASE
+              WHEN lcf.`field` = "signer_name" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "signer_position" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "signer_nameV" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "signer_positionV" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "company" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "company_full" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "address_jur" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "inn" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "kpp" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "okpo" THEN REPLACE(lcf.value_to, '"', '\\"')
+              WHEN lcf.`field` = "nds_zero" THEN IF(lcf.value_to = 1, '0', '1')
+              WHEN lcf.`field` = "type" THEN lcf.value_to
+            END AS `value_to`,
+            CASE
+              WHEN lcf.`field` = "signer_name" THEN "fio"
+              WHEN lcf.`field` = "signer_position" THEN "position"
+              WHEN lcf.`field` = "signer_nameV" THEN "fioV"
+              WHEN lcf.`field` = "signer_positionV" THEN "positionV"
+              WHEN lcf.`field` = "company" THEN "name"
+              WHEN lcf.`field` = "company_full" THEN "name_full"
+              WHEN lcf.`field` = "address_jur" THEN "address_jur"
+              WHEN lcf.`field` = "inn" THEN "inn"
+              WHEN lcf.`field` = "kpp" THEN "kpp"
+              WHEN lcf.`field` = "okpo" THEN "okpo"
+              WHEN lcf.`field` = "nds_zero" THEN "tax_regime"
+              WHEN lcf.`field` = "type" THEN "legal_type"
+            END AS `field_name`,
+            cg.id as `contragent_id`
+            FROM q.log_client lc, q.log_client_fields lcf, nispd.clients c, nispd.client_contract cr, nispd.client_contragent cg
+				WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
+				AND lcf.value_from != '' AND lc.`comment` != 'client' AND lc.`type` = 'fields'
+				AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+
+				UNION
+
+				SELECT * FROM (
+            SELECT
+            '2006-01-01' AS `date_c`,
+            '2006-01-01' AS `date_r`,
+            CASE
+              WHEN lcf.`field` = "signer_name" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_position" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_nameV" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "signer_positionV" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "company" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "company_full" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "address_jur" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "inn" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "kpp" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "okpo" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
+              WHEN lcf.`field` = "nds_zero" THEN IF(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`) = 1, '0', '1')
+              WHEN lcf.`field` = "type" THEN IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`)
+            END AS `value_to`,
+            CASE
+              WHEN lcf.`field` = "signer_name" THEN "fio"
+              WHEN lcf.`field` = "signer_position" THEN "position"
+              WHEN lcf.`field` = "signer_nameV" THEN "fioV"
+              WHEN lcf.`field` = "signer_positionV" THEN "positionV"
+              WHEN lcf.`field` = "company" THEN "name"
+              WHEN lcf.`field` = "company_full" THEN "name_full"
+              WHEN lcf.`field` = "address_jur" THEN "address_jur"
+              WHEN lcf.`field` = "inn" THEN "inn"
+              WHEN lcf.`field` = "kpp" THEN "kpp"
+              WHEN lcf.`field` = "okpo" THEN "okpo"
+              WHEN lcf.`field` = "nds_zero" THEN "tax_regime"
+              WHEN lcf.`field` = "type" THEN "legal_type"
+            END AS `field_name`,
+            cg.id as `contragent_id`
+            FROM q.log_client lc, q.log_client_fields lcf, nispd.clients c, nispd.client_contract cr, nispd.client_contragent cg
+				WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
+				AND lcf.value_from != '' AND lc.`comment` != 'client' AND lc.`type` = 'fields'
+				AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
+				GROUP BY lc.client_id, lcf.field
+
+          ) d
+
+				) d
+        GROUP BY d.contragent_id, d.field_name, d.date_c, d.date_r
+    ) l ON l.`contragent_id` = hv.`model_id` AND l.date_c <= hv.date AND hv.`model` = 'ClientContragent'
+    ORDER BY hv.date DESC, l.date_c
 ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`data_json`,
 	                    SUBSTRING(history_version.`data_json`,
 	                      LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`),
@@ -278,7 +351,11 @@ ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`d
 ;
 
 
-UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+
+
+
+
+UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
 UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
@@ -295,7 +372,7 @@ UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okvd-]
 UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okpo-]','"'),'[-okpo-]','"') WHERE `model` = 'ClientContragent';
 UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/opf-]','"'),'[-opf-]','"') WHERE `model` = 'ClientContragent';
 
-UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
@@ -312,7 +389,7 @@ UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okvd-]
 UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okpo-]','"'),'[-okpo-]','"') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/opf-]','"'),'[-opf-]','"') WHERE `model` = 'ClientContragent';
 
-UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
 UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
