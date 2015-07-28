@@ -59,7 +59,7 @@ REPLACE INTO history_version (
             SELECT
                 'ClientAccount' AS `model`,
                 c.`id` AS `model_id`,
-                '2006-01-01' AS `date`,
+                '2004-01-01' AS `date`,
                 CONCAT(
                    '{',
                             '"id":[-id-]', REPLACE(c.`id`, '"', '\\"'), '[-/id-],',
@@ -147,7 +147,7 @@ INSERT INTO nispd.history_version
     INNER JOIN (
         SELECT * FROM (
           SELECT
-          '2006-01-01' AS `date_c`,
+          '2004-01-01' AS `date_c`,
           REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"') AS `value_to`,
                  IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`,
           lc.client_id
@@ -159,7 +159,7 @@ INSERT INTO nispd.history_version
         GROUP BY `field_name`, `client_id`
     ) l ON l.`client_id` = hv.`model_id`
 
-		WHERE hv.`model` = 'ClientAccount' AND hv.`date` = '2006-01-01'
+		WHERE hv.`model` = 'ClientAccount' AND hv.`date` = '2004-01-01'
 ON DUPLICATE KEY UPDATE nispd.history_version.`data_json` = REPLACE(nispd.history_version.`data_json`,
   SUBSTRING(nispd.history_version.`data_json`,
     LOCATE(CONCAT('[-', l.`field_name` ,'-]'), nispd.history_version.`data_json`),
@@ -177,7 +177,7 @@ DELETE hv1 FROM nispd.history_version hv1
       WHERE lc.client_id = c.id AND c.contract_id = cr.id AND cr.contragent_id = cg.id AND lcf.ver_id = lc.id
       AND lc.`comment` != 'client' AND lc.`type` = 'fields'
     ) hv2 ON hv1.model = hv2.model AND hv1.model_id = hv2.model_id AND hv1.`date` = hv2.`date`
-    WHERE hv1.`date` != '2006-01-01' AND hv1.model = 'ClientAccount' AND ISNULL(hv2.model)
+    WHERE hv1.`date` != '2004-01-01' AND hv1.`date` < '2015-07-24' AND hv1.model = 'ClientAccount' AND ISNULL(hv2.model)
 ;
 
 
@@ -297,8 +297,8 @@ INSERT INTO nispd.history_version
 				SELECT * FROM (
             SELECT * FROM (
           SELECT
-          '2006-01-01' AS `date_c`,
-          '2006-01-01' AS `date_r`,
+          '2004-01-01' AS `date_c`,
+          '2004-01-01' AS `date_r`,
           REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"') AS `value_from`,
           lcf.`field` AS `field_name`,
           lc.client_id

@@ -102,7 +102,7 @@ REPLACE INTO history_version (
     SELECT
             'ClientContragent' AS `model`,
             `id` AS `model_id`,
-            '2006-01-01' AS `date`,
+            '2004-01-01' AS `date`,
             CONCAT(
                 '{',
                     '"id":[-id-]', `id`, '[-/id-],',
@@ -133,7 +133,7 @@ INSERT INTO nispd.history_version
     INNER JOIN (
         SELECT * FROM (
             SELECT
-            '2006-01-01' AS `date_c`,
+            '2004-01-01' AS `date_c`,
             CASE
               WHEN lcf.`field` = "signer_name" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
               WHEN lcf.`field` = "signer_position" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
@@ -173,7 +173,7 @@ INSERT INTO nispd.history_version
           GROUP BY `field_name`, `contragent_id`
     ) l ON l.`contragent_id` = hv.`model_id`
 
-		WHERE hv.`model` = 'ClientContragent' AND hv.`date` = '2006-01-01'
+		WHERE hv.`model` = 'ClientContragent' AND hv.`date` = '2004-01-01'
 ON DUPLICATE KEY UPDATE history_version.`data_json` = REPLACE(history_version.`data_json`,
 	                    SUBSTRING(history_version.`data_json`,
 	                      LOCATE(CONCAT('[-', l.`field_name` ,'-]'), history_version.`data_json`),
@@ -204,7 +204,7 @@ DELETE hv1 FROM nispd.history_version hv1
       AND lc.`comment` != 'client' AND lc.`type` = 'fields'
       AND lcf.`field` IN ('okpo','signer_name', 'signer_position', 'signer_nameV', 'signer_positionV', 'kpp', 'inn', 'address_jur', 'company_full', 'company', 'type', 'nds_zero')
     ) hv2 ON hv1.model = hv2.model AND hv1.model_id = hv2.model_id AND hv1.`date` = hv2.`date`
-    WHERE hv1.`date` != '2006-01-01' AND ISNULL(hv2.model) AND hv1.model = 'ClientContragent'
+    WHERE hv1.`date` != '2004-01-01'AND hv1.`date` < '2015-07-24' AND ISNULL(hv2.model) AND hv1.model = 'ClientContragent'
 ;
 
 
@@ -286,8 +286,8 @@ INSERT INTO nispd.history_version
 
 				SELECT * FROM (
             SELECT
-            '2006-01-01' AS `date_c`,
-            '2006-01-01' AS `date_r`,
+            '2004-01-01' AS `date_c`,
+            '2004-01-01' AS `date_r`,
             CASE
               WHEN lcf.`field` = "signer_name" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')
               WHEN lcf.`field` = "signer_position" THEN REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"')

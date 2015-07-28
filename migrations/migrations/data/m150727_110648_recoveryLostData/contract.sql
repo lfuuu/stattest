@@ -26,7 +26,7 @@ INSERT INTO nispd.history_changes
                             'ClientContract' AS `model`,
                             c.`contract_id` AS `model_id`,
                             lc.`user_id`,
-                            IF(lc.`apply_ts` > '2006-01-01', CONCAT(lc.`apply_ts`, ' 00:00:00'), lc.`ts`) AS `create_at`,
+                            IF(lc.`apply_ts` > '2004-01-01', CONCAT(lc.`apply_ts`, ' 00:00:00'), lc.`ts`) AS `create_at`,
                             'update' AS `action`,
                             REPLACE(lcf.`value_from`, '"', '\\"') AS `value_from`,
                             REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
@@ -95,7 +95,7 @@ REPLACE INTO history_version (
         SELECT
             'ClientContract' AS `model`,
             cc.`id` AS `model_id`,
-            '2006-01-01' AS `date`,
+            '2004-01-01' AS `date`,
             CONCAT(
                '{',
                     '"super_id":[-super_id-]', cc.`super_id`, '[-/super_id-],',
@@ -121,7 +121,7 @@ INSERT INTO nispd.history_version
     INNER JOIN (
         SELECT * FROM (
           SELECT
-          '2006-01-01' AS `date_c`,
+          '2004-01-01' AS `date_c`,
           REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"') AS `value_from`,
           IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`,
           lc.client_id
@@ -135,7 +135,7 @@ INSERT INTO nispd.history_version
         ORDER BY `date_c`
     ) l ON l.`client_id` = c.`id`
 
-		WHERE hv.`model` = 'ClientContract' AND hv.`date` = '2006-01-01'
+		WHERE hv.`model` = 'ClientContract' AND hv.`date` = '2004-01-01'
 ON DUPLICATE KEY UPDATE nispd.history_version.`data_json` = REPLACE(nispd.history_version.`data_json`,
   SUBSTRING(nispd.history_version.`data_json`,
     LOCATE(CONCAT('[-', l.`field_name` ,'-]'), nispd.history_version.`data_json`),
@@ -156,7 +156,7 @@ DELETE hv1 FROM nispd.history_version hv1
       AND lc.`comment` != 'client' AND lc.`type` = 'fields'
       AND lcf.`field` IN ('firma','manager','account_manager','business_process_id','business_process_status_id','contract_type_id')
     ) hv2 ON hv1.model = hv2.model AND hv1.model_id = hv2.model_id AND hv1.`date` = hv2.`date`
-    WHERE hv1.`date` != '2006-01-01' AND ISNULL(hv2.model) AND hv1.model = 'ClientContract'
+    WHERE hv1.`date` != '2004-01-01' AND hv1.`date` < '2015-07-24' AND ISNULL(hv2.model) AND hv1.model = 'ClientContract'
 ;
 
 
@@ -210,8 +210,8 @@ INSERT INTO nispd.history_version
 				SELECT * FROM (
             SELECT * FROM (
           SELECT
-          '2006-01-01' AS `date_c`,
-          '2006-01-01' AS `date_r`,
+          '2004-01-01' AS `date_c`,
+          '2004-01-01' AS `date_r`,
           REPLACE(IF(lcf.`value_from` = '', lcf.`value_to`, lcf.`value_from`), '"', '\\"') AS `value_from`,
           IF(lcf.`field` = 'firma', 'organization', lcf.`field`) AS `field_name`,
           lc.client_id
