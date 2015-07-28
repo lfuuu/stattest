@@ -60,7 +60,7 @@ $translate = [
                             <?php if ($contact->type == 'email' && $contact->is_active) : ?>
                                 Администратор ЛК
                                 <input type="radio" name="admin-lk-id"
-                                       value="<?= $contact->id ?>" <?= ($contact->id == $account->admin_contact_id) ? 'checked' : '' ?>>
+                                       value="<?= $contact->id ?>" <?= ($contact->id == $account->admin_contact_id) ? 'checked' : '' ?> />
                             <?php endif ?>
                         </div>
                         <div class="col-sm-1"><?= $contact->type ?></div>
@@ -87,7 +87,7 @@ $translate = [
                 <?php endforeach; ?>
                 <div class="row">
                     <div class="col-sm-2">
-                        <input type="radio" name="admin-lk-id" value="0" <?= (0 == $account->admin_contact_id) ? 'checked' : '' ?>>
+                        <input type="radio" name="admin-lk-id" value="1" <?= (0 == $account->admin_contact_id) ? 'checked' : '' ?> />
                         <button type="submit" name="set-admin-lk" class="btn btn-primary">Администратор ЛК</button>
                     </div>
                     <div class="col-sm-2">
@@ -106,7 +106,7 @@ $translate = [
                     </div>
                     <input type="hidden" name="user_id" value="<?=Yii::$app->user->id?>">
                     <div class="col-sm-2">
-                        <input type="checkbox" name="is_official" title="официальный?">
+                        <input type="checkbox" name="is_official" value="1" title="официальный?" />
                         Официальный
                     </div>
                     <div class="col-sm-2">
