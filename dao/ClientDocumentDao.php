@@ -114,9 +114,29 @@ class ClientDocumentDao extends Singleton
         $account = $document->getAccount();
         $design = \app\classes\Smarty::init();
 
+        if ($document->type == 'contract') {
+            $lastContract = [
+                'contract_no' => $document->contract_no,
+                'contract_date' => $document->contract_date,
+            ];
+        } else {
+            $contractDocument =
+                ClientDocument::find()
+                    ->andWhere(['type' => 'contract'])
+                    ->andWhere('contract_date <= :date', [':date' => $document->contract_dop_date ? $document->contract_dop_date : date('Y-m-d')])
+                    ->orderBy('is_active desc, contract_date desc, id desc')
+                    ->one();
+            $lastContract = [
+                'contract_no' => $contractDocument->contract_no,
+                'contract_date' => $contractDocument->contract_date,
+                'contract_dop_no' => $document->contract_no,
+                'contract_dop_date' => $document->contract_date,
+            ];
+        }
+
         $account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
         $design->assign('client', $account);
-        $design->assign('contract', $document);
+        $design->assign('contract', $lastContract);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
         $design->assign('firm', $organization->getOldModeInfo());
         $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));

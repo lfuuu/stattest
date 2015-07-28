@@ -143,7 +143,7 @@ class AccountEditForm extends Form
             $this->setAttributes($this->clientM->getAttributes(), false);
             $this->admin_contact_id = 0;
             $this->admin_is_active = 0;
-            $this->voip_credit_limit_day = 0;
+            $this->voip_credit_limit_day = 1000;
             $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();
