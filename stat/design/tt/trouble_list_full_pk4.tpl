@@ -48,7 +48,7 @@
                 {/if}
         </td>
         <td>
-            <a href='/client/view?id={$r.clientid}'>{$r.clientid}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a>
+            <a href='/client/view?id={$r.clientid}'>{$r.company}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a>
             {if $r.add_info.fio}, {$r.add_info.fio}{/if}
             {if $r.add_info.phone}, Телефон: {$r.add_info.phone}{/if}
             {if $r.add_info.email}, E-mail: {$r.add_info.email}{/if}
