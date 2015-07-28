@@ -54,7 +54,7 @@ INSERT INTO nispd.history_changes
                             'ClientContragent' AS `model`,
                             cg.`id` AS `model_id`,
                             lc.`user_id`,
-                            '2006-01-01 00:00:00' AS `create_at`,
+                            '2004-01-01 00:00:00' AS `create_at`,
                             'update' AS `action`,
                             '' AS `value_from`,
                             CASE

@@ -39,7 +39,7 @@ INSERT INTO nispd.history_changes
                                     'ClientAccount' AS `model`,
                                     lc.`client_id` AS `model_id`,
                                     lc.`user_id`,
-                                    '2006-01-01 00:00:00' AS `create_at`,
+                                    '2004-01-01 00:00:00' AS `create_at`,
                                     'update' AS `action`,
                                     'null' AS `value_from`,
                                     IF(ISNULL(lcf.`value_from`), 'null', REPLACE(lcf.`value_from`, '"', '\\"')) AS `value_to`,
