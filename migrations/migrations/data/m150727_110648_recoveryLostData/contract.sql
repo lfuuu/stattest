@@ -156,7 +156,7 @@ DELETE hv1 FROM nispd.history_version hv1
       AND lc.`comment` != 'client' AND lc.`type` = 'fields'
       AND lcf.`field` IN ('firma','manager','account_manager','business_process_id','business_process_status_id','contract_type_id')
     ) hv2 ON hv1.model = hv2.model AND hv1.model_id = hv2.model_id AND hv1.`date` = hv2.`date`
-    WHERE hv1.`date` != '2006-01-01' AND ISNULL(hv2.model)
+    WHERE hv1.`date` != '2006-01-01' AND ISNULL(hv2.model) AND hv1.model = 'ClientContract'
 ;
 
 
