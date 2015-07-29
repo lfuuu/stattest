@@ -11,6 +11,7 @@ use \app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientAccount;
 use app\models\Currency;
+use yii\web\JsExpression;
 
 ?>
 <div class="row">
@@ -276,10 +277,12 @@ use app\models\Currency;
                             . Select2::widget([
                                 'model' => $contract,
                                 'attribute' => 'manager',
-                                'data' => \app\models\User::getManagerList(),
-                                'options' => ['placeholder' => 'Начните вводить фамилию'],
+                                'data' => [],
+                                'options' => [
+                                    'placeholder' => 'Начните вводить фамилию',
+                                ],
                                 'pluginOptions' => [
-                                    'allowClear' => true
+                                    'allowClear' => true,
                                 ],
                             ])
                             . '</div>'
@@ -290,8 +293,10 @@ use app\models\Currency;
                             . Select2::widget([
                                 'model' => $contract,
                                 'attribute' => 'account_manager',
-                                'data' => \app\models\User::getAccountManagerList(),
-                                'options' => ['placeholder' => 'Начните вводить фамилию'],
+                                'data' => [],
+                                'options' => [
+                                    'placeholder' => 'Начните вводить фамилию',
+                                ],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
@@ -471,3 +476,5 @@ use app\models\Currency;
         </script>
     </div>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>

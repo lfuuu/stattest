@@ -3,6 +3,21 @@
 use app\models\ClientContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
+use app\models\User;
+
+$internet_shop_manager_column = [
+    'filter' => function () {
+        return \kartik\widgets\Select2::widget([
+            'name' => 'manager',
+            'data' => User::getUserListByDepart(User::DEPART_PURCHASE, ['enabled' => 'yes', 'primary' => 'user']),
+            'value' => \Yii::$app->request->get('manager'),
+            'options' => ['placeholder' => 'Начните вводить фамилию'],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]);
+    },
+];
 
 return [
 
@@ -23,7 +38,7 @@ return [
             'created',
             'currency',
             'sale_channel',
-            'manager',
+            'manager' => $internet_shop_manager_column,
             'region',
         ],
         'default' => false,
@@ -49,13 +64,13 @@ return [
             'created',
             'currency',
             'sale_channel',
-            'manager',
+            'manager' => $internet_shop_manager_column,
             'region',
         ],
         'default' => false,
         'show_as_status' => false,
         'is_close_status' => false,
-        'oldstatus' => NULL,
+        'oldstatus' => null,
         'color' => '',
     ],
 
