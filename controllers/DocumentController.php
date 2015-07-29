@@ -37,7 +37,8 @@ class DocumentController extends BaseController
         if (!$model)
             throw new Exception('Document not found');
 
-        $model->is_active = !$model->is_active;
+        $isActive = !$model->is_active;
+        $model->is_active = $isActive ? 1 : 0;
         $model->save();
         $this->redirect(Yii::$app->request->referrer);
     }
