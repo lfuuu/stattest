@@ -223,8 +223,7 @@ statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_ite
 		var my_tooltip = $("#tt_"+id);
 
 		$(this).removeAttr("title").mouseover(function(){
-			my_tooltip
-				.css({opacity:0.8, display:"none", left:$(this).position().left+36, top:$(this).position().top-4});
+			my_tooltip.css({opacity:0.8, display:"none", left:$(this).offset().left-20, top:$(this).offset().top});
 			clearTimeout(timeout);
 			timeout = setTimeout( '$("#tt_'+id+'").fadeIn(400);',1000 );
 		}).mouseout(function(){
