@@ -23,7 +23,9 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
     const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10;//Владимир Ан
+
     const DEPART_SALES = 28;
+    const DEPART_PURCHASE = 29;
 
     public static function tableName()
     {
@@ -92,7 +94,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             ->andWhere(['depart_id' => self::DEPART_SALES])
             ->andWhere(['enabled' => 'yes'])
             ->all();
-        return ArrayHelper::map($arr, 'user', 'name');
+        return ArrayHelper::map($arr, 'user', 'name', 'depart_id');
     }
 
     public static function getManagerList()
@@ -105,9 +107,22 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return ArrayHelper::map($arr, 'user', 'name');
     }
 
-    public static function getUserListByDepart($id)
+    /**
+     * @param $id - Department ID
+     * @param array $options - Extends options
+     *                       - "primary": primary column for array
+     *                       - "enabled": extends selection on column "enabled = yes"
+     * @return array
+     */
+    public static function getUserListByDepart($id, $options = [])
     {
-        $models = self::find()->andWhere(['depart_id' => $id])->all();
-        return ArrayHelper::map($models, 'id', 'name');
+        $models = self::find()->andWhere(['depart_id' => $id]);
+
+        if (isset($options['enabled']))
+            $models->andWhere(['enabled' => 'yes']);
+
+        $primary = isset($options['primary']) ? $options['primary'] : 'id';
+
+        return ArrayHelper::map($models->all(), $primary, 'name');
     }
 }

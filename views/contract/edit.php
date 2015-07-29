@@ -79,8 +79,11 @@ use yii\helpers\Url;
                             . Select2::widget([
                                 'model' => $model,
                                 'attribute' => 'manager',
-                                'data' => \app\models\User::getManagerList(),
-                                'options' => ['placeholder' => 'Начните вводить фамилию'],
+                                'data' => [],
+                                'options' => [
+                                    'placeholder' => 'Начните вводить фамилию',
+                                    'data-current-value' => $model->manager ?: 0,
+                                ],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
@@ -93,8 +96,11 @@ use yii\helpers\Url;
                             . Select2::widget([
                                 'model' => $model,
                                 'attribute' => 'account_manager',
-                                'data' => \app\models\User::getAccountManagerList(),
-                                'options' => ['placeholder' => 'Начните вводить фамилию'],
+                                'data' => [],
+                                'options' => [
+                                    'placeholder' => 'Начните вводить фамилию',
+                                    'data-current-value' => $model->account_manager ?: 0,
+                                ],
                                 'pluginOptions' => [
                                     'allowClear' => true
                                 ],
@@ -551,4 +557,4 @@ use yii\helpers\Url;
     </script>
 </div>
 
-<script type="text/javascript" src="/js/behaviors/contract-number.js"></script>
+<script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
