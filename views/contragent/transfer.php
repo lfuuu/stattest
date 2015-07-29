@@ -26,7 +26,7 @@ $form = ActiveForm::begin([
             <tr>
                 <td valign="middle">
 
-                    <div class="row" style="overflow: auto; height: 150px; max-height: 150px;">
+                    <div style="overflow-y: scroll; height: 230px; max-height: 230px; background-color: #F0F0F0;">
                         <div class="col-sm-12">
 
                             <div class="row contragent-wrap" style="padding-top: 10px; padding-bottom: 10px;">
@@ -35,7 +35,7 @@ $form = ActiveForm::begin([
                                     $contracts = $contragent->contracts;
                                     foreach ($contracts as $contract): ?>
                                         <div class="row" style="margin-left: 0px;">
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-6">
                                                 <input type="hidden" name="<?= $model->formName(); ?>[contracts][]" value="<?= $contract->id; ?>" />
                                                 <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>" target="_blank">
                                                     <span class="c-blue-color">
@@ -78,11 +78,7 @@ $form = ActiveForm::begin([
                         </div>
                     </div>
 
-                    <div style="text-align: center;">
-                        <img src="/images/icons/move_down_72x72.png" width="72" height="72" border="0" /><br />
-                        <b>Переместить к</b>
-                    </div>
-
+                    <br />
                     <?php
                     echo $form->field($model, 'targetClientAccount')->widget(Select2::className(), [
                         'options' => [
@@ -98,7 +94,7 @@ $form = ActiveForm::begin([
                                 'results' => new JsExpression('function (data) { console.log(data); return {results: data}; }'),
                             ],
                         ],
-                    ])->label('');
+                    ])->label('Переместить к');
 
                     echo $form->field($model, 'sourceClientAccount')->hiddenInput(['value' => $contragent->id])->label('');
                     ?>
