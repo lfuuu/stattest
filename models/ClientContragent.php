@@ -15,8 +15,9 @@ class ClientContragent extends ActiveRecord
     public $hasChecked;
 
     public static $taxRegtimeTypes = [
-        'full' => 'Полный (НДС 18%)',
-        'simplified' => 'без НДС'
+        '0' => 'Не определен',
+        '1' => 'Полный (НДС 18%)',
+        '2' => 'Без НДС',
     ];
 
     public static $legalTypes = [
@@ -44,7 +45,7 @@ class ClientContragent extends ActiveRecord
             "fio" => "ФИО Исполнительного органа",
             "positionV" => "Должность Исполнительного органа",
             "fioV" => "ФИО Исполнительного органа",
-            "tax_regime" => "Резидент",
+            "tax_regime" => "Налоговый режим",
             "ogrn" => "Код ОГРН",
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",
