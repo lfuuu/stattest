@@ -45,6 +45,10 @@ if ($action=='add_client') {
     }
     $c = \app\models\ClientContact::findOne(['data' => $P['email'], 'type' => 'email']);
 
+    Yii::info("Start add_client");
+    Yii::info($P);
+    Yii::info($c);
+
 	if($c)
 	{
 		die("ok:".$c->client_id);
@@ -54,17 +58,23 @@ if ($action=='add_client') {
     $s->name = $P['company'];
     $s->save();
 
+    Yii::info($s);
+
     $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
     $cg->name = $cg->name_full = $P['company'];
     $cg->address_jur = $P['address'];
     $cg->legal_type = 'legal';
     $cg->save();
 
+    Yii::info($cg);
+
     $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
     $cr->contract_type_id = ClientContractType::TELEKOM;
     $cr->business_process_id = ClientBP::TELEKOM__SUPPORT;
     $cr->business_process_status_id = ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->save();
+
+    Yii::info($cr);
 
     $ca = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
     $ca->address_post = $P['address'];
@@ -76,7 +86,8 @@ if ($action=='add_client') {
 	if($P["phone_connect"])
         $ca->phone_connect = $P["phone_connect"];
 
-	if ($ca->save()) {
+    if ($ca->save()) {
+        Yii::info($ca);
         $contactId = 0;
 		if($P['contact']){
             $c = new \app\models\ClientContact();
