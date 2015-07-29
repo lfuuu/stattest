@@ -651,7 +651,7 @@ class ClientCS {
                         "address_post_real,bik,bank_properties," .
                         "usd_rate_percent,login,form_type,stamp,nal,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
-                        "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
+                        "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,voip_is_day_calc,mail_print,mail_who,".
                         "head_company,head_company_address_jur,region,okpo,bill_rename1,is_bill_only_contract,is_bill_with_refund,".
                         "is_with_consignee,consignee,is_agent,is_upd_without_sign,timezone_name,country_id";
                 $t=explode(",",$L);

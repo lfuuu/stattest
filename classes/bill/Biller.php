@@ -214,11 +214,11 @@ abstract class Biller
                 from
                     client_document
                 where
-                        client_id = :clientAccountId
+                        contract_id = :contractId
                         and contract_date <= FROM_UNIXTIME(:dateTs)
                 order by is_active desc, contract_date desc, id desc
                 limit 1 ',
-                [':clientAccountId' => $this->clientAccount->id, ':dateTs' => $dateTs]
+                [':contractId' => $this->clientAccount->contract->id, ':dateTs' => $dateTs]
             )
                 ->queryOne();
 

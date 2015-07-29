@@ -640,7 +640,7 @@ class Bill {
         $time_from = strtotime('first day of next month 00:00:00');
         $time_to = strtotime('last day of next month 23:59:59');
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
-        $nds = $client_data['nds_zero'] > 0 ? 1 : (1 + $tax_rate/100);
+        $nds = 1 + $tax_rate/100;
         $R = 0;
         foreach ($services as $service){
             if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))

@@ -75,7 +75,8 @@ class ContractEditForm extends Form
         } elseif ($this->contragent_id) {
             $this->contract = new ClientContract();
             $this->contract->contragent_id = $this->contragent_id;
-            $this->super_id = $this->contract->super_id = !$this->super_id ? ClientContragent::findOne($this->contragent_id)->super_id : $this->super_id;
+            $this->super_id = $this->super_id ? $this->super_id  : ClientContragent::findOne($this->contragent_id)->super_id;
+            $this->contract->super_id = $this->super_id;
         } else{
             $this->contract = new ClientContract();
         }

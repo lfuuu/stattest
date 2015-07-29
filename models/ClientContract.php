@@ -217,11 +217,6 @@ class ClientContract extends ActiveRecord
             $this->save();
         }
 
-        if ($this->contract_type_id != 3 && $this->state != 'external' && $this->number != $this->id) {
-            $this->number = $this->id;
-            $this->save();
-        }
-
         foreach($this->getAccounts() as $account)
             $account->sync1C();
     }

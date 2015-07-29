@@ -20,7 +20,6 @@ use yii\helpers\ArrayHelper;
  * @property string $client
  * @property string $currency
  * @property string $nal
- * @property int $nds_zero
  * @property int $contract_type_id
  * @property int $price_include_vat
 
@@ -74,11 +73,6 @@ class ClientAccount extends ActiveRecord
         'beznal' => 'безнал',
         'nal' => 'нал',
         'prov' => 'пров'
-    ];
-
-    public static $contractTypes = [
-        'full' => 'Полный (НДС 18%)',
-        'simplified' => 'без НДС'
     ];
 
     private $_lastComment = false;
@@ -171,11 +165,6 @@ class ClientAccount extends ActiveRecord
     public function getSigner_nameV()
     {
         return $this->contract->contragent->fioV;
-    }
-
-    public function getNds_zero()
-    {
-        return !$this->contract->contragent->tax_regime;
     }
 
     public function getOgrn()
@@ -400,11 +389,6 @@ class ClientAccount extends ActiveRecord
         return $this->contract->getOrganization();
     }
 
-    public function getDefaultTaxId()
-    {
-        return $this->nds_zero ? 0 : $this->contract->getOrganization()->vat_rate;
-    }
-
     public function getAllContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
@@ -462,10 +446,6 @@ class ClientAccount extends ActiveRecord
 
     public function getTaxRate()
     {
-        if ($this->nds_zero) {
-            return 0;
-        }
-
         $organization = $this->getOrganization();
         Assert::isObject($organization, 'Organization not found');
 

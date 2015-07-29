@@ -116,8 +116,14 @@ class ClientGridSettingsDao extends Singleton
 
             $columns[$columnName]['label'] = $this->spawnColumnLabel($column, $columnName);
 
-            if ($genFilters && $columns[$columnName]['filter'] instanceof \Closure) {
-                $columns[$columnName]['filter'] = $columns[$columnName]['filter']();
+            if ($genFilters && $columns[$columnName]['filter']) {
+                $callback =
+                    !is_array($columns[$columnName]['filter'])
+                        ? $columns[$columnName]['filter']
+                        : array_pop($columns[$columnName]['filter']);
+
+                if ($callback  instanceof \Closure)
+                    $columns[$columnName]['filter'] = $callback();
             }
         }
         //var_dump($columns); die;

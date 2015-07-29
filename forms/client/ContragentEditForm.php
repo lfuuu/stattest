@@ -26,7 +26,7 @@ class ContragentEditForm extends Form
         $kpp = "",
         $position = "",
         $fio = "",
-        $tax_regime = 1,
+        $tax_regime = 0,
         $opf = "",
         $okpo = "",
         $okvd = "",
@@ -172,7 +172,7 @@ class ContragentEditForm extends Form
         $contragent->fio = $this->fio;
 
         if ($contragent->legal_type == 'person')
-            $contragent->tax_regime = 'simplified';
+            $contragent->tax_regime = 0;
         else
             $contragent->tax_regime = $this->tax_regime;
 

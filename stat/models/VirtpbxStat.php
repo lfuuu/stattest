@@ -116,7 +116,7 @@ class VirtpbxStat extends ActiveRecord\Model
 		);
 		$stat_detailed = self::find('all', $options);
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
-		$nds = (ClientAccount::findOne($client_id)->nds_zero) ? 1 : (1 + $tax_rate/100);
+		$nds = 1 + $tax_rate/100;
 		foreach ($stat_detailed as $k => &$v) 
 		{
 			$tarif_info = TarifVirtpbx::getTarifByClient($client_id, $v->mdate);

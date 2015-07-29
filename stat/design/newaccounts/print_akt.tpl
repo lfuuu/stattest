@@ -147,11 +147,11 @@
         <td align="right">{$bill.sum_without_tax|round:2}</td>
       </tr>
 
-      {if $bill.sum <> $bill.sum_without_tax || $bill_client.nds_zero}
+      {if $bill.sum <> $bill.sum_without_tax}
           <tr>
              <td colspan=5 align="right"><b>Итого НДС:</b></td>
              <td align="right">
-                {if $bill_client.nds_zero}без НДС{else}{$bill.sum_tax|round:2}{/if}
+                {$bill.sum_tax|round:2}
              </td>
           </tr>
           <tr>
