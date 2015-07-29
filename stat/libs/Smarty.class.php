@@ -40,28 +40,28 @@ if(!defined('DIR_SEP')) {
 }
 
 /**
- * set SMARTY_DIR to absolute path to Smarty library files.
- * if not defined, include_path will be used. Sets SMARTY_DIR only if user
+ * set SMARTY_STAT_DIR to absolute path to Smarty library files.
+ * if not defined, include_path will be used. Sets SMARTY_STAT_DIR only if user
  * application has not already defined it.
  */
 
-if (!defined('SMARTY_DIR')) {
-    define('SMARTY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+if (!defined('SMARTY_STAT_DIR')) {
+    define('SMARTY_STAT_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 }
 
-if (!defined('SMARTY_CORE_DIR')) {
-    define('SMARTY_CORE_DIR', SMARTY_DIR . 'internals' . DIRECTORY_SEPARATOR);
+if (!defined('SMARTY_STAT_CORE_DIR')) {
+    define('SMARTY_STAT_CORE_DIR', SMARTY_STAT_DIR . 'internals' . DIRECTORY_SEPARATOR);
 }
 
-define('SMARTY_PHP_PASSTHRU',   0);
-define('SMARTY_PHP_QUOTE',      1);
-define('SMARTY_PHP_REMOVE',     2);
-define('SMARTY_PHP_ALLOW',      3);
+define('SMARTY_STAT_PHP_PASSTHRU',   0);
+define('SMARTY_STAT_PHP_QUOTE',      1);
+define('SMARTY_STAT_PHP_REMOVE',     2);
+define('SMARTY_STAT_PHP_ALLOW',      3);
 
 /**
  * @package Smarty
  */
-class Smarty
+class SmartyStat
 {
     /**#@+
      * Smarty Configuration Section
@@ -123,9 +123,9 @@ class Smarty
      * This determines if debugging is enable-able from the browser.
      * <ul>
      *  <li>NONE => no debugging control allowed</li>
-     *  <li>URL => enable debugging when SMARTY_DEBUG is found in the URL.</li>
+     *  <li>URL => enable debugging when SMARTY_STAT_DEBUG is found in the URL.</li>
      * </ul>
-     * @link http://www.foo.dom/index.php?SMARTY_DEBUG
+     * @link http://www.foo.dom/index.php?SMARTY_STAT_DEBUG
      * @var string
      */
     var $debugging_ctrl  =  'NONE';
@@ -191,15 +191,15 @@ class Smarty
      * This determines how Smarty handles "<?php ... ? >" tags in templates.
      * possible values:
      * <ul>
-     *  <li>SMARTY_PHP_PASSTHRU -> print tags as plain text</li>
-     *  <li>SMARTY_PHP_QUOTE    -> escape tags as entities</li>
-     *  <li>SMARTY_PHP_REMOVE   -> remove php tags</li>
-     *  <li>SMARTY_PHP_ALLOW    -> execute php tags</li>
+     *  <li>SMARTY_STAT_PHP_PASSTHRU -> print tags as plain text</li>
+     *  <li>SMARTY_STAT_PHP_QUOTE    -> escape tags as entities</li>
+     *  <li>SMARTY_STAT_PHP_REMOVE   -> remove php tags</li>
+     *  <li>SMARTY_STAT_PHP_ALLOW    -> execute php tags</li>
      * </ul>
      *
      * @var integer
      */
-    var $php_handling    =  SMARTY_PHP_PASSTHRU;
+    var $php_handling    =  SMARTY_STAT_PHP_PASSTHRU;
 
     /**
      * This enables template security. When enabled, many things are restricted
@@ -485,7 +485,7 @@ class Smarty
      *
      * @var string
      */
-    var $_smarty_debug_id      = 'SMARTY_DEBUG';
+    var $_smarty_debug_id      = 'SMARTY_STAT_DEBUG';
 
     /**
      * debugging information for debug console
@@ -933,7 +933,7 @@ class Smarty
         switch ($type) {
             case 'output':
                 $_params = array('plugins' => array(array($type . 'filter', $name, null, null, false)));
-                require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
+                require_once(SMARTY_STAT_CORE_DIR . 'core.load_plugins.php');
                 smarty_core_load_plugins($_params, $this);
                 break;
 
@@ -973,7 +973,7 @@ class Smarty
                             'auto_source' => $tpl_file,
                             'auto_id' => $_auto_id,
                             'exp_time' => $exp_time);
-            require_once(SMARTY_CORE_DIR . 'core.rm_auto.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.rm_auto.php');
             return smarty_core_rm_auto($_params, $this);
         }
 
@@ -1013,7 +1013,7 @@ class Smarty
             'cache_id' => $cache_id,
             'compile_id' => $compile_id
         );
-        require_once(SMARTY_CORE_DIR . 'core.read_cache_file.php');
+        require_once(SMARTY_STAT_CORE_DIR . 'core.read_cache_file.php');
         return smarty_core_read_cache_file($_params, $this);
     }
 
@@ -1047,7 +1047,7 @@ class Smarty
                         'auto_id' => $compile_id,
                         'exp_time' => $exp_time,
                         'extensions' => array('.inc', '.php'));
-        require_once(SMARTY_CORE_DIR . 'core.rm_auto.php');
+        require_once(SMARTY_STAT_CORE_DIR . 'core.rm_auto.php');
         return smarty_core_rm_auto($_params, $this);
     }
 
@@ -1140,25 +1140,25 @@ class Smarty
             if (@strstr($_query_string, $this->_smarty_debug_id)) {
                 if (@strstr($_query_string, $this->_smarty_debug_id . '=on')) {
                     // enable debugging for this browser session
-                    @setcookie('SMARTY_DEBUG', true);
+                    @setcookie('SMARTY_STAT_DEBUG', true);
                     $this->debugging = true;
                 } elseif (@strstr($_query_string, $this->_smarty_debug_id . '=off')) {
                     // disable debugging for this browser session
-                    @setcookie('SMARTY_DEBUG', false);
+                    @setcookie('SMARTY_STAT_DEBUG', false);
                     $this->debugging = false;
                 } else {
                     // enable debugging for this page
                     $this->debugging = true;
                 }
             } else {
-                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_DEBUG'] : @$GLOBALS['HTTP_COOKIE_VARS']['SMARTY_DEBUG']);
+                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_STAT_DEBUG'] : @$GLOBALS['HTTP_COOKIE_VARS']['SMARTY_STAT_DEBUG']);
             }
         }
 
         if ($this->debugging) {
             // capture time for debugging info
             $_params = array();
-            require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.get_microtime.php');
             $_debug_start_time = smarty_core_get_microtime($_params, $this);
             $this->_smarty_debug_info[] = array('type'      => 'template',
                                                 'filename'  => $resource_name,
@@ -1183,20 +1183,20 @@ class Smarty
                 'compile_id' => $compile_id,
                 'results' => null
             );
-            require_once(SMARTY_CORE_DIR . 'core.read_cache_file.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.read_cache_file.php');
             if (smarty_core_read_cache_file($_params, $this)) {
                 $_smarty_results = $_params['results'];
                 if (!empty($this->_cache_info['insert_tags'])) {
                     $_params = array('plugins' => $this->_cache_info['insert_tags']);
-                    require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
+                    require_once(SMARTY_STAT_CORE_DIR . 'core.load_plugins.php');
                     smarty_core_load_plugins($_params, $this);
                     $_params = array('results' => $_smarty_results);
-                    require_once(SMARTY_CORE_DIR . 'core.process_cached_inserts.php');
+                    require_once(SMARTY_STAT_CORE_DIR . 'core.process_cached_inserts.php');
                     $_smarty_results = smarty_core_process_cached_inserts($_params, $this);
                 }
                 if (!empty($this->_cache_info['cache_serials'])) {
                     $_params = array('results' => $_smarty_results);
-                    require_once(SMARTY_CORE_DIR . 'core.process_compiled_include.php');
+                    require_once(SMARTY_STAT_CORE_DIR . 'core.process_compiled_include.php');
                     $_smarty_results = smarty_core_process_compiled_include($_params, $this);
                 }
 
@@ -1206,9 +1206,9 @@ class Smarty
                     {
                         // capture time for debugging info
                         $_params = array();
-                        require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+                        require_once(SMARTY_STAT_CORE_DIR . 'core.get_microtime.php');
                         $this->_smarty_debug_info[$_included_tpls_idx]['exec_time'] = smarty_core_get_microtime($_params, $this) - $_debug_start_time;
-                        require_once(SMARTY_CORE_DIR . 'core.display_debug_console.php');
+                        require_once(SMARTY_STAT_CORE_DIR . 'core.display_debug_console.php');
                         $_smarty_results .= smarty_core_display_debug_console($_params, $this);
                     }
                     if ($this->cache_modified_check) {
@@ -1289,9 +1289,9 @@ class Smarty
                         'cache_id' => $cache_id,
                         'compile_id' => $compile_id,
                         'results' => $_smarty_results);
-            require_once(SMARTY_CORE_DIR . 'core.write_cache_file.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.write_cache_file.php');
             smarty_core_write_cache_file($_params, $this);
-            require_once(SMARTY_CORE_DIR . 'core.process_cached_inserts.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.process_cached_inserts.php');
             $_smarty_results = smarty_core_process_cached_inserts($_params, $this);
 
             if ($this->_cache_serials) {
@@ -1310,9 +1310,9 @@ class Smarty
             if ($this->debugging) {
                 // capture time for debugging info
                 $_params = array();
-                require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+                require_once(SMARTY_STAT_CORE_DIR . 'core.get_microtime.php');
                 $this->_smarty_debug_info[$_included_tpls_idx]['exec_time'] = (smarty_core_get_microtime($_params, $this) - $_debug_start_time);
-                require_once(SMARTY_CORE_DIR . 'core.display_debug_console.php');
+                require_once(SMARTY_STAT_CORE_DIR . 'core.display_debug_console.php');
                 echo smarty_core_display_debug_console($_params, $this);
             }
             error_reporting($_smarty_old_error_level);
@@ -1378,7 +1378,7 @@ class Smarty
     function _get_plugin_filepath($type, $name)
     {
         $_params = array('type' => $type, 'name' => $name);
-        require_once(SMARTY_CORE_DIR . 'core.assemble_plugin_filepath.php');
+        require_once(SMARTY_STAT_CORE_DIR . 'core.assemble_plugin_filepath.php');
         return smarty_core_assemble_plugin_filepath($_params, $this);
     }
 
@@ -1436,12 +1436,12 @@ class Smarty
         if ($this->_compile_source($resource_name, $_source_content, $_compiled_content, $_cache_include)) {
             // if a _cache_serial was set, we also have to write an include-file:
             if ($this->_cache_include_info) {
-                require_once(SMARTY_CORE_DIR . 'core.write_compiled_include.php');
+                require_once(SMARTY_STAT_CORE_DIR . 'core.write_compiled_include.php');
                 smarty_core_write_compiled_include(array_merge($this->_cache_include_info, array('compiled_content'=>$_compiled_content, 'resource_name'=>$resource_name)),  $this);
             }
 
             $_params = array('compile_path'=>$compile_path, 'compiled_content' => $_compiled_content);
-            require_once(SMARTY_CORE_DIR . 'core.write_compiled_resource.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.write_compiled_resource.php');
             smarty_core_write_compiled_resource($_params, $this);
 
             return true;
@@ -1461,8 +1461,8 @@ class Smarty
      */
     function _compile_source($resource_name, &$source_content, &$compiled_content, $cache_include_path=null)
     {
-        if (file_exists(SMARTY_DIR . $this->compiler_file)) {
-            require_once(SMARTY_DIR . $this->compiler_file);
+        if (file_exists(SMARTY_STAT_DIR . $this->compiler_file)) {
+            require_once(SMARTY_STAT_DIR . $this->compiler_file);
         } else {
             // use include_path
             require_once($this->compiler_file);
@@ -1603,7 +1603,7 @@ class Smarty
                 $this->trigger_error('unable to read resource: "' . $params['resource_name'] . '"');
             }
         } else if ($_return && $this->security) {
-            require_once(SMARTY_CORE_DIR . 'core.is_secure.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.is_secure.php');
             if (!smarty_core_is_secure($_params, $this)) {
                 if (!$params['quiet'])
                     $this->trigger_error('(secure mode) accessing "' . $params['resource_name'] . '" is not allowed');
@@ -1659,7 +1659,7 @@ class Smarty
                     }
                     // didn't find the file, try include_path
                     $_params = array('file_path' => $_fullpath);
-                    require_once(SMARTY_CORE_DIR . 'core.get_include_path.php');
+                    require_once(SMARTY_STAT_CORE_DIR . 'core.get_include_path.php');
                     if(smarty_core_get_include_path($_params, $this)) {
                         $params['resource_name'] = $_params['new_file_path'];
                         return true;
@@ -1672,7 +1672,7 @@ class Smarty
             }
         } elseif (empty($this->_plugins['resource'][$params['resource_type']])) {
             $_params = array('type' => $params['resource_type']);
-            require_once(SMARTY_CORE_DIR . 'core.load_resource_plugin.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.load_resource_plugin.php');
             smarty_core_load_resource_plugin($_params, $this);
         }
 
@@ -1857,7 +1857,7 @@ class Smarty
     {
         if ($this->debugging) {
             $_params = array();
-            require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.get_microtime.php');
             $debug_start_time = smarty_core_get_microtime($_params, $this);
             $this->_smarty_debug_info[] = array('type'      => 'template',
                                                   'filename'  => $params['smarty_include_tpl_file'],
@@ -1888,7 +1888,7 @@ class Smarty
         if ($this->debugging) {
             // capture time for debugging info
             $_params = array();
-            require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+            require_once(SMARTY_STAT_CORE_DIR . 'core.get_microtime.php');
             $this->_smarty_debug_info[$included_tpls_idx]['exec_time'] = smarty_core_get_microtime($_params, $this) - $debug_start_time;
         }
 

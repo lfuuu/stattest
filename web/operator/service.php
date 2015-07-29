@@ -10,6 +10,7 @@ use app\models\ClientContractComment;
 use app\models\ClientAccount;
 use app\models\TariffVirtpbx;
 use app\models\User;
+use app\models\Organization;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -72,6 +73,9 @@ if ($action=='add_client') {
     $cr->contract_type_id = ClientContractType::TELEKOM;
     $cr->business_process_id = ClientBP::TELEKOM__SUPPORT;
     $cr->business_process_status_id = ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+    $cr->organization_id = Organization::MCN_TELEKOM;
+
+
     $cr->save();
 
     Yii::info($cr);
@@ -95,6 +99,7 @@ if ($action=='add_client') {
             $c->type = 'phone';
             $c->data = $P['contact'];
             $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
             $c->is_active = 1;
             $c->is_official = 0;
             $c->save();
@@ -105,6 +110,7 @@ if ($action=='add_client') {
             $c->type = 'phone';
             $c->data = $P['phone'];
             $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
             $c->is_active = 1;
             $c->is_official = 1;
             $c->save();
@@ -115,6 +121,7 @@ if ($action=='add_client') {
             $c->type = 'fax';
             $c->data = $P['fax'];
             $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
             $c->is_active = 1;
             $c->is_official = 1;
             $c->save();
@@ -125,6 +132,7 @@ if ($action=='add_client') {
             $c->type = 'email';
             $c->data = $P['email'];
             $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
             $c->is_active = 1;
             $c->is_official = 1;
             $c->save();
@@ -149,7 +157,7 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        //LkWizardState::create($ca->id, $troubleId);
+        LkWizardState::create($ca->id, $troubleId);
 
 
         if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
@@ -289,8 +297,13 @@ if ($action=='add_client') {
         $comment .= $r['number'].' - '.$r['price']."<br/>\n";
     }
 
+    $account = ClientAccount::findOne($client_id);
+    if (!$account)
+        return 0;
+
+
     $c = new ClientContractComment();
-    $c->contract_id = ClientAccount::findOne($client_id)->contract_id;
+    $c->contract_id = $account->contract_id;
     $c->user = 'auto';
     $c->comment = $comment;
     $c->save();
@@ -304,9 +317,9 @@ if ($action=='add_client') {
             if ($reservInfo)
             {
                 $trouble = Trouble::findOne([
-                    "client" => "id".$client_id,
+                    "client" => $account->client,
                     "trouble_type" => "connect",
-                    "service" => "",
+                    "service" => ""
                     ]
                 );
 

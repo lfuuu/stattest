@@ -38,11 +38,11 @@ class ClientDocument extends ActiveRecord
     public function rules()
     {
         return [
-            ['contract_id', 'required'],
+            [['contract_id','contract_no'], 'required'],
             [['contract_id', 'is_active', 'account_id'], 'integer'],
-            [['contract_no', 'contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
+            [['contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
-            ['ts', 'default', 'value' => date('Y-m-d H-i-s')],
+            ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
             ['is_active', 'default', 'value' => 1],
             ['user_id', 'default', 'value' => Yii::$app->user->id],
         ];
@@ -167,6 +167,6 @@ class ClientDocument extends ActiveRecord
         } elseif ($this->content !== null) {
             $this->dao()->updateFile($this);
         }
-        parent::afterSave($insert, $changedAttributes);
+        return parent::afterSave($insert, $changedAttributes);
     }
 }

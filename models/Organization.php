@@ -135,6 +135,7 @@ class Organization extends ActiveRecord
             'kpp'               => $this->tax_registration_reason,
             'acc'               => $this->bank_account,
             'bank'              => $this->bank_name,
+            'bank_name'         => $this->bank_name,
             'kor_acc'           => $this->bank_correspondent_account,
             'bik'               => $this->bank_bik,
             'phone'             => $this->contact_phone,

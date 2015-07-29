@@ -17,7 +17,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
-use app\forms\client\ContragentEditForm;
+use app\forms\lk_wizard\WizardContragentForm;
 use app\forms\lk_wizard\ContactForm;
 
 
@@ -167,7 +167,7 @@ class WizardController extends /*BaseController*/ApiController
         $this->loadAndCheck();
 
         $contract = ClientDocument::findOne([
-            "client_id" => $this->accountId, 
+            "contract_id" => $this->account->contract->id, 
             "user_id" => User::CLIENT_USER_ID
         ]);
         
@@ -177,19 +177,19 @@ class WizardController extends /*BaseController*/ApiController
         {
 
             $clientDocument = new ClientDocument();
-            $clientDocument->client_id = $this->accountId;
+            $clientDocument->contract_id = $this->account->contract->id;
             $clientDocument->type = 'contract';
-            $clientDocument->contract_no = $this->accountId."-".date("y");
+            $clientDocument->contract_no = $this->accountId;
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->group = 'MCN';
+            $clientDocument->group = 'mcn';
             $clientDocument->template = 'Dog_UslugiSvayzi';
             $clientDocument->save();
 
 
             $contract = ClientDocument::findOne([
-                "client_id" => $this->accountId, 
+                "contract_id" => $this->account->contract->id,
                 "user_id" => User::CLIENT_USER_ID,
                 "type" => "contract"
                 ]);
@@ -202,18 +202,18 @@ class WizardController extends /*BaseController*/ApiController
             {
 
                 $clientDocument = new ClientDocument();
-                $clientDocument->client_id = $this->accountId;
+                $clientDocument->contract_id = $this->account->contract->id;
                 $clientDocument->type = 'agreement';
                 $clientDocument->contract_no = 1;
                 $clientDocument->contract_date = date("Y-m-d");
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
-                $clientDocument->group = 'MCN';
+                $clientDocument->group = 'mcn';
                 $clientDocument->template = 'Zakaz_Uslug';
                 $clientDocument->save();
 
                 $agreement = ClientDocument::findOne([
-                    "client_id" => $this->accountId, 
+                    "contract_id" => $this->account->contract->id,
                     "user_id" => User::CLIENT_USER_ID,
                     "type" => "agreement"
                     ]);
@@ -228,21 +228,24 @@ class WizardController extends /*BaseController*/ApiController
 
         $content = "";
 
-        if (!$contract || !$contract->content)
+        if (!$contract || !$contract->fileContent)
         {
             $content = "Ошибка в данных";
         } else {
-            $content = $contract->content;
+            $content = $contract->fileContent;
 
             if ($agreement && $agreement->content)
             {
                 $content .= "<p style=\"page-break-after: always;\"></p>";
-                $content .= $agreement->content;
+                $content .= $agreement->fileContent;
             }
 
         }
 
-        return base64_encode($this->getPDFfromHTML("<html><head><meta charset=\"UTF-8\"/></head><body>".$content."</body></html>"));
+        $content = "<html><head><meta charset=\"UTF-8\"/></head><body>".$content."</body></html>";
+        //return $content;
+
+        return base64_encode($this->getPDFfromHTML($content));
     }
 
 
@@ -325,6 +328,7 @@ class WizardController extends /*BaseController*/ApiController
             "name" =>  $c->name,
             "legal_type" =>  $c->legal_type,
             "address_jur" =>  $c->address_jur,
+            "address_post" => $this->account->address_post,
             "inn" =>  $c->inn,
             "kpp" =>  $c->kpp,
             "position" =>  $c->position,
@@ -350,7 +354,7 @@ class WizardController extends /*BaseController*/ApiController
     private function eraseContract()
     {
         $contracts = ClientDocument::findAll([
-            "client_id" => $this->accountId, 
+            "contract_id" => $this->account->contract->id, 
             "user_id" => User::CLIENT_USER_ID
         ]);
 
@@ -447,8 +451,9 @@ class WizardController extends /*BaseController*/ApiController
 
     private function _saveStep1($stepData)
     {
-        $form = new ContragentEditForm();
+        $form = new WizardContragentForm();
 
+        $form->setScenario('mcn');
         $form->load($stepData, "");
 
         if (!$form->validate())
@@ -460,7 +465,7 @@ class WizardController extends /*BaseController*/ApiController
             }
             return ["errors" => $errors];
         } else {
-            return $form->saveInContragent($this->account->contract->contragent);
+            return $form->saveInContragent($this->account);
         }
     }
 
