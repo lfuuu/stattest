@@ -84,6 +84,8 @@ class ClientDocumentDao extends Singleton
 
     public function generateFile(ClientDocument $document, $contractGroup, $contractTemplate)
     {
+        Yii::info("generateFile");
+        Yii::info('template_' . $contractGroup . "_" . $contractTemplate);
         $content = $this->getTemplate('template_' . $contractGroup . "_" . $contractTemplate);
         file_put_contents($this->getFilePath($document), $content);
         return $this->generateDefault($document);
@@ -118,6 +120,12 @@ class ClientDocumentDao extends Singleton
         $design->assign('client', $account);
         $design->assign('contract', $document);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
+
+        Yii::info('generateDefault');
+        Yii::info($account);
+        Yii::info($account->contract);
+        Yii::info($organization);
+
         $design->assign('firm', $organization->getOldModeInfo());
         $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));
         $design->assign('firm_director', $organization->director->getOldModeInfo());

@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\Event;
 use app\classes\voip\VoipStatus;
 use app\dao\ClientGridSettingsDao;
 use app\classes\BillContract;

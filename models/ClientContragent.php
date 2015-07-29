@@ -64,11 +64,11 @@ class ClientContragent extends ActiveRecord
     public function save($runValidation = true, $attributeNames = null)
     {
         if ($this->isNewRecord) {
-            return parent::save($runValidation = true, $attributeNames = null);
+            return parent::save($runValidation, $attributeNames);
         }
         else {
             if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation = true, $attributeNames = null);
+                return parent::save($runValidation, $attributeNames);
             } else {
                 $behaviors = $this->behaviors;
                 unset($behaviors['HistoryVersion']);

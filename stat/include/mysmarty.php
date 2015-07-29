@@ -328,7 +328,7 @@ function smarty_modifier_rus_plural($value, $s1, $s2, $s3) {
     return Utils::rus_plural($value, $s1, $s2, $s3);
 }
 
-class MySmarty extends Smarty {
+class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
 	var $ignore=0;
