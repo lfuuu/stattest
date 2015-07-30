@@ -78,7 +78,7 @@ if ($action=='add_client') {
 
     Yii::info($cr);
 
-    $ca = new \app\forms\client\AccountEditForm(["id' => $cr->newClient->id]);
+    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
     $ca->address_post = $P['address'];
     $ca->address_post_real = $P['address'];
     $ca->address_connect = $P['address'];
