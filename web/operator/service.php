@@ -17,8 +17,6 @@ define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
 include PATH_TO_ROOT."conf_yii.php";
 
-$db->Connect();
-
 class UserService
 {
 	function Get($field)

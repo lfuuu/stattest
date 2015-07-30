@@ -41,7 +41,7 @@ class VirtPbx3Checker
     private function load($type, $usageId = 0)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
-        global $db, $db_ats;
+        global $db;
 
         switch($type)
         {

@@ -1,11 +1,10 @@
 <?php
-
+die('Отключено\n');
     echo date("r")."\n";
 	define('NO_WEB',1);
 	define('NUM',20);
 	define('PATH_TO_ROOT','./');
 	define('INCLUDE_PATH',			PATH_TO_ROOT.'include/');
-    define('DEBUG_LEVEL', 0);
     require_once('./include/sql.php');
     require_once('./include/util.php');
     include "./include/1c_integration.php";
@@ -169,8 +168,6 @@ function saveTo1C($dd)
         $bill_no = $ret->Номер;
 
         echo "\n".date("r").": ".$bill_no;
-
-        //define("print_sql", 1);
 
         $sh = new \_1c\SoapHandler();
         $sh->statSaveOrder($cl, $bill_no, $c1error);

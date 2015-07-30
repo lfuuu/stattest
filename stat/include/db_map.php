@@ -147,20 +147,7 @@ class Db_map {
 		}
 		$db->Query('update '.$table.' set '.$list.' where '.$this->GetWhere($table,$old));
 	}
-	
-	function _GenQuery($table,$stradd){
-		global $db;
-		$j=''; $s='';
-		if (isset($this->linksF[$table])) foreach ($this->linksF[$table] as $f=>$vals) foreach ($vals as $v) {
-			$j.=' LEFT JOIN '.$v[0].' as '.$stradd.$f.'_ ON '.$stradd.$f.'_.'.$v[1].'='.$table.'.'.$f;
-			$L=$db->ListFields($v[0]);
-			foreach($L as $fld){
-				$s.=','.$stradd.$f.'_.'.$fld.' as '.$stradd.$f.'_'.$fld;
-			}
-		}
-		return array($s,$j);		
-	}
-	
+
 	function NextRow(){
 		global $db;
 		return $db->NextRecord();

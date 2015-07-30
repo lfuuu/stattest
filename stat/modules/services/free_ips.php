@@ -4,7 +4,6 @@
 function get_free_nets($type,$node){
  
  global $db;
- $db->Connect();
  $IPs=array();
  
  

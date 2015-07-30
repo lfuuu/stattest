@@ -4,7 +4,6 @@ echo date("r")."\n";
 	define('NO_WEB',1);
 	define('NUM',20);
 	define('PATH_TO_ROOT','./');
-    define('DEBUG_LEVEL', 0);
     require_once(PATH_TO_ROOT.'include/runChecker.php');
     if(runChecker::isRun())
         die("already run\n");

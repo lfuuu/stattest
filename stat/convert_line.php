@@ -4,7 +4,6 @@
 define("PATH_TO_ROOT", "./");
 define("NO_WEB", 1);
 
-define("print_sql", 1);
 
 
 //$_SERVER['SERVER_NAME'] = "89.235.136.20";
@@ -12,8 +11,7 @@ define("print_sql", 1);
 include PATH_TO_ROOT."conf_yii.php";
 
 
-$db->SwitchDB("ats");
-
+die("Временно отключено\n");
 
 
 foreach($db->AllRecords("select * from v_sip where type='line' and atype='number'") as $l)
