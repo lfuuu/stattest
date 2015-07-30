@@ -2,6 +2,7 @@
 namespace app\forms\client;
 
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Currency;
@@ -11,6 +12,7 @@ use app\models\Region;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 
 class AccountEditForm extends Form
 {
@@ -60,7 +62,8 @@ class AccountEditForm extends Form
         $bank_name,
         $custom_properties,
         $bank_properties,
-        $bank_city;
+        $bank_city,
+        $admin_email;
 
     public function rules()
     {
@@ -69,7 +72,8 @@ class AccountEditForm extends Form
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
-                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties'
+                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties',
+                    'admin_email'
                 ],
                 'string'
             ],
@@ -113,7 +117,12 @@ class AccountEditForm extends Form
 
     public function attributeLabels()
     {
-        return (new ClientAccount())->attributeLabels();
+        return ArrayHelper::merge(
+            (new ClientAccount())->attributeLabels(),
+            [
+                'admin_email' => 'Email администратора'
+            ]
+        );
     }
 
     public function getModel()
@@ -192,6 +201,20 @@ class AccountEditForm extends Form
         if ($client->save()) {
             if (!$client->client) {
                 $client->client = 'id' . $client->id;
+                $client->save();
+            }
+            if($this->admin_email){
+                $contact = new ClientContact();
+                $contact->type = 'email';
+                $contact->user_id = Yii::$app->user->id;
+                $contact->client_id = $client->id;
+                $contact->data = $this->admin_email;
+                $contact->ts = date('Y-m-d H-i-s');
+                $contact->is_active = 1;
+                $contact->is_official = 1;
+                $contact->save();
+
+                $client->admin_contact_id = $contact->id;
                 $client->save();
             }
             $this->setAttributes($client->getAttributes(), false);
