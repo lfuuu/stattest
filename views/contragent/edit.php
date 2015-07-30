@@ -104,7 +104,7 @@ use \app\models\ClientContragent;
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
-                        'registration_address' => [],
+                        'address_jur' => [],
                     ],
                 ]);
 

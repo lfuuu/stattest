@@ -111,7 +111,7 @@ use yii\web\JsExpression;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'registration_address' => [],
+                    'address_jur' => [],
                 ],
             ]);
 
@@ -375,6 +375,11 @@ use yii\web\JsExpression;
                     'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
+
+                    'admin_email' => ['columnOptions' => ['colspan' => 1],],
+                    'empty27' => ['type' => Form::INPUT_RAW,],
+                    'empty28' => ['type' => Form::INPUT_RAW,],
+                    'empty29' => ['type' => Form::INPUT_RAW,],
 
                     'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
                     'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
