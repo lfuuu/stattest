@@ -11,7 +11,9 @@ use \kartik\grid\GridView;
                 <li class="<?= $model->grid == $item['id'] ? 'active' : '' ?>">
                     <a href="<?= \yii\helpers\Url::toRoute($urlParams) ?>">
                         <?= $item['name'] ?>
-                        <?php /*<span class="badge">699</span>*/ ?>
+                        <?php if (isset($item['count'])): ?>
+                            <span class="badge"><?= $item['count'] ?></span>
+                        <?php endif; ?>
                     </a>
                 </li>
             <?php endforeach; ?>
