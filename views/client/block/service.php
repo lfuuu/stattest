@@ -1,4 +1,6 @@
 <?php
+use app\models\TechCpe;
+
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
 };
@@ -20,9 +22,17 @@ $ipstat = function ($data) {
         $R = array("{$m[1]}.{$m[2]}.{$m[3]}." . ($m[4] + 1), "{$m[1]}.{$m[2]}.{$m[3]}." . ($m[4] + 2));
         $ip = "{$m[1]}.{$m[2]}.{$m[3]}.{$m[4]}";
     }
-    return '<table cellspacing=0 cellpadding=0 border=0><tr><td valign=middle><div class=ping style="background-color:#ff0000">&nbsp;</div></td><td valign=middle' . $c . '>' .
-    '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
-    (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') . ' </td></tr></table>';
+
+    return
+        '<table cellspacing="0" cellpadding="0" border="0">' .
+            '<tr>' .
+                '<td valign=middle>' . TechCpe::dao()->getCpeIpStat($R) . '</td>' .
+                '<td valign=middle' . $c . '>' .
+                    '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
+                    (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') .
+                '</td>' .
+            '</tr>' .
+        '</table>';
 };
 
 $has = false;
@@ -117,7 +127,9 @@ if($has) :
                                         (<?= $cpe->model->type ?>, id=<?= $cpe->id ?>)
                                     </td>
                                     <td><?= $cpe->actual_from ?>&nbsp;-&nbsp;<?= $cpe->actual_to ?></td>
-                                    <td><?= $cpe->ip ? $ipstat($cpe->ip) : 'ip не задан' ?><?= $cpe->ip_nat ? $ipstat($cpe->ip_nat) : '' ?></td>
+                                    <td>
+                                        <?= $cpe->ip ? $ipstat($cpe->ip) : 'ip не задан' ?><?= $cpe->ip_nat ? $ipstat($cpe->ip_nat) : '' ?>
+                                    </td>
                                     <td><?= $cpe->numbers ?></td>
                                 </TR>
                             <?php endforeach; ?>

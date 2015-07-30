@@ -17,8 +17,6 @@ define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
 include PATH_TO_ROOT."conf_yii.php";
 
-$db->Connect();
-
 class UserService
 {
 	function Get($field)
@@ -80,7 +78,7 @@ if ($action=='add_client') {
 
     Yii::info($cr);
 
-    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
+    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
     $ca->address_post = $P['address'];
     $ca->address_post_real = $P['address'];
     $ca->address_connect = $P['address'];

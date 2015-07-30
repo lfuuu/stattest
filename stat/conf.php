@@ -14,13 +14,6 @@ $config = array(
     'R_CALLS_PASS'        =>    '',
     'R_CALLS_DB'        =>    '',
 
-// welltime db
-    'EXT_SQL_HOST'        =>  '',
-    'EXT_SQL_USER'        =>  '',
-    'EXT_SQL_PASS'        =>  '',
-    'EXT_SQL_DB'        =>  '',
-    'EXT_GROUP_ID'        =>  6,
-
 // sync with lk
     'MONGO_HOST' => '',
     'MONGO_USER' => '',
@@ -36,7 +29,6 @@ $config = array(
 
     'SERVER'            =>    'tiberis',
     'PLATFORM'            =>    'unix',
-    'DEBUG_LEVEL'        =>    1,
     'SMTP_SERVER'        =>     'smtp.mcn.ru',
     'MAIL_TEST_ONLY'    =>    0,
     
@@ -112,10 +104,6 @@ if(!defined("NO_WEB")) {
     header("X-XSS-Protection: 0");
 }
 
-if(isset($_GET["savesql"])) {
-    define("save_sql", 1);
-}
-
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=="on") {
     define('PROTOCOL_STRING','https://');
 } else {
@@ -154,11 +142,9 @@ define('WEB_SOUND_PATH',        WEB_PATH . 'sound/');
 define('SUM_ADVANCE',100);
 define('SUM_PHONE_ADVANCE',79.67);
 
-if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
-
 require_once(CLASSES_PATH . 'Autoload.php');
 
-global $db, $pg_db, $db_ats;
+global $db, $pg_db;
 
 if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'util.php');
@@ -166,12 +152,6 @@ if (!defined('NO_INCLUDE')){
 
     require_once(INCLUDE_PATH.'sql.php');
     $db        = new MySQLDatabase();
-
-    if (defined("SQL_ATS2_DB") && SQL_ATS2_DB) {
-        $db_ats = new MySQLDatabase(SQL_HOST, SQL_USER, SQL_PASS, SQL_ATS2_DB);
-    } else {
-        $db_ats = &$db;
-    }
 
     require_once(INCLUDE_PATH.'pgsql.php');
     $pg_db    = new PgSQLDatabase();

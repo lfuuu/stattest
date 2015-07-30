@@ -1,17 +1,4 @@
-<?
-################################################################################
-#                                                                              #
-#   PhpSiteLib. ���������� ��� ������� ���������� ������                       #
-#                                                                              #
-#   Copyright (�) 2005, shepik (shepik@yandex.ru) - ������ �������             #
-#   Copyright (�) 2002, Ilya Blagorodov (blagorodov.ru)                        #
-#                                                                              #
-#   psl_mysql.inc.php                                                          #
-#   ����� PslMySQL: ������������ ������� � �� MySQL.                           #
-#   ������������ ���� � ����� ���� ���������� ���������� PHPLIB:               #
-#   PHPLIB Copyright (c) 1998-2000 NetUSE AG Boris Erdmann, Kristian Koehntopp #
-#                                                                              #
-################################################################################
+<?php
 class PgSQLDatabase {
     var $mRecord = array();
 
@@ -20,7 +7,6 @@ class PgSQLDatabase {
 
     var $_LinkId  = 0;
     var $_QueryId = 0;
-    var $_Query   = '';
 
 	var $host,$user,$pass,$db;
 
@@ -29,14 +15,6 @@ class PgSQLDatabase {
     	$this->user = $user?$user:PGSQL_USER;
     	$this->pass = $pass?$pass:PGSQL_PASS;
     	$this->db = $db?$db:PGSQL_DB;
-    }
-
-    function GetLinkId() {
-        return $this->_LinkId;
-    }
-
-    function GetQueryId() {
-        return $this->_QueryId;
     }
 
     function Connect() {
@@ -59,36 +37,16 @@ class PgSQLDatabase {
         @pg_free_result($this->_QueryId);
         $this->_QueryId = 0;
     }
-    function QueryX($query) {
-    	trigger_error2(htmlspecialchars_($query));
-    	$this->Query($query);
-    }
 
     function Query($query, $saveDefault = 1) {
-        //echo "<br>".$query."<br>";
-        /*
-        $pFile = fopen("/tmp/sqldump", "a+");
-        fwrite($pFile, "\n".$query);
-        fclose($pFile);
-        */
-
-        if(defined("print_sql") || (isset($_GET["show_sql"]) && $_GET["show_sql"] == 1))
-        {
-            echo "\n<br>";
-            printdbg($query);
-        }
 
         if ($query == '') return 0;
-		if (DEBUG_LEVEL>=2) trigger_error2(htmlspecialchars_($query));
 
 		if (!$this->Connect()) return 0;
         if ($saveDefault) {
-        	$this->_Query = $query;
         	if ($this->_QueryId) $this->Free();
         }
-		if (DEBUG_LEVEL>=3) time_start("sql");
         $req = pg_query($this->_LinkId, $query);
-		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
 
 
       $this->mErrno = 0;
@@ -155,29 +113,6 @@ class PgSQLDatabase {
         return $this->mRecord;
     }
 
-    function Lock($table, $mode = 'write') {
-        $this->Connect();
-        
-        $query = "lock table ";
-		$query .= $table . ' ' . $mode;
-        $res = @pg_query($this->_LinkId, $query);
-        if (!$res) {
-            $this->_Halt("lock($table, $mode) failed.");
-            return 0;
-        }
-        return $res;
-    }
-
-    function Unlock() {
-        $this->connect();
-    
-        $res = @pg_query($this->_LinkId, "unlock tables");
-        if (!$res) {
-            $this->_Halt("unlock() failed.");
-            return 0;
-        }
-        return $res;
-    }
     function Begin() {
         $this->Connect();
         
@@ -245,11 +180,8 @@ class PgSQLDatabase {
         $this->mErrno = 1;
         $this->mError = @pg_last_error($this->_LinkId);
         $this->mErrno = ($this->mError ? 1 : 0);
-        if(defined("exception_sql")){
-            throw new Exception($this->mError);
-        }
-		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
-		trigger_error2('PgSQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
+		trigger_error2('Database error: ' . $msg);
+		trigger_error2('PgSQL Error: ' . $this->mError);
     }
 
     function QueryInsert($table,$data, $getid=true) {
@@ -279,18 +211,6 @@ class PgSQLDatabase {
    			$str = ''; $c = 0;
    		}
     }
-    function QuerySelect($table,$data,$x = 0) {
-    	$V=array();
-    	foreach ($data as $k=>$v) if (is_array($v)) $V[]=$k.'='.addslashes($v[0]); else $V[]=$k.'="'.addslashes($v).'"';
-    	if (!$x) return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
-    		else return $this->QueryX('select * from '.$table.' where ('.implode(') AND (',$V).')');
-    }
-    function QuerySelectAll($table, $data, $x=0){
-        $r = array();
-        $rs = $this->QuerySelect($table, $data, $x);
-        while($l = $this->NextRecord(PGSQL_ASSOC)) $r[] =$l;
-        return $r;
-    }
     function QueryDelete($table,$data) {
     	$V=array();
     	foreach ($data as $k=>$v) if (is_array($v)) $V[]=$k.'='.addslashes($v[0]); else $V[]=$k.'=\''.addslashes($v).'\'';
@@ -313,22 +233,7 @@ class PgSQLDatabase {
         }
         return $this->Query('update '.$table.' SET '.implode(',',$V1).' WHERE ('.implode(') AND (',$V2).')');
     }
-    function QuerySelectRow($table,$data,$x = 0) {
-    	$this->QuerySelect($table,$data,$x);
-    	return $this->NextRecord(PGSQL_ASSOC);
-    }
-    public static function Generate($where,$can_null = 0) {
-    	if (is_array($where)) {
-    		if (count($where)<=1) return ($can_null?"":"1");
-    		if (count($where)==2) return PgSQLDatabase::Generate($where[1], $can_null);
-    		$s='('.PgSQLDatabase::Generate($where[1],0);
-    		for ($i=2;$i<count($where);$i++) $s.=' '.$where[0].' '.PgSQLDatabase::Generate($where[$i],0);
-    		$s.=')';
-    		return $s;
-    	} else {
-    		return '('.$where.')';
-    	}
-    }
+
     function escape($str) {
         return pg_escape_string($str);
     }

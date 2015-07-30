@@ -1,9 +1,8 @@
-<?
+<?php
+die('Отключено\n');
 	//этот файл может использоваться для аяксовых вызовов. и всё.
 	define("PATH_TO_ROOT",'./');
 	define('NO_WEB',1);
-
-    define("DEBUG_LEVEL", 1);
 
 	define('INCLUDE_PATH',			PATH_TO_ROOT.'include/');
 		require_once(INCLUDE_PATH.'sql.php');

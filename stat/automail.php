@@ -1,6 +1,5 @@
 <?
 
-define("print_sql", 1);
 	define('NO_WEB',1);
 	define('NUM',35);
 	define('PATH_TO_ROOT','./');

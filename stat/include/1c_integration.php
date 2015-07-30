@@ -714,11 +714,6 @@ class SoapHandler{
 
     public function statSaveOrder($data,&$bill_no=null,&$error=null, $saveIds = array(), $addLines = true)
     {
-        /*
-        if(!defined("save_sql"))
-            define("save_sql", 1);
-            */
-
         global $db;
 
         //file_put_contents("/tmp/statSaveOrder_".date("Y-m-d_H_i_s"), serialize($data));
@@ -1333,11 +1328,6 @@ class SoapHandler{
     public function statSaveStoreBalance($data)
     {
         global $db;
-
-        /*
-        if(!defined("save_sql"))
-            define("save_sql",1);
-            */
 
         file_put_contents("/tmp/statSaveStoreBalance", var_export($data, true));
 

@@ -113,8 +113,8 @@ $payer_company = $document->getPayer();
 
                 <?php if ($organization->isNotSimpleTaxSystem()): ?>
                     <?php if ($document->bill->price_include_vat): ?>
-                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                         <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php else: ?>
                         <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                         <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
@@ -150,8 +150,8 @@ $payer_company = $document->getPayer();
 
                     <?php if($organization->isNotSimpleTaxSystem()): ?>
                         <?php if ($document->bill->price_include_vat): ?>
-                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                             <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                         <?php else: ?>
                             <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                             <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
@@ -173,8 +173,8 @@ $payer_company = $document->getPayer();
 
                 <?php if($organization->isNotSimpleTaxSystem()): ?>
                     <?php if ($document->bill->price_include_vat): ?>
-                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                         <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                     <?php else: ?>
                         <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                         <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>

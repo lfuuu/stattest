@@ -1098,9 +1098,6 @@ class m_newaccounts extends IModule
                     $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
 
-                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-                $b->dao()->recalcBill($b);
-
             } else {
                 trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
             }

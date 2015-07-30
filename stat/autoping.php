@@ -31,8 +31,6 @@ function try_register(){
 	}
 }
 
-	if(!$db->Connect())
-		exit;
 
 	if(!isset($argv[1])){ // если не fork
 		echo "BEGIN;#######################".date("Y-m-d H:i:s")."#######################\n";
@@ -274,7 +272,9 @@ function try_register(){
 		}
 		$cnt_total++;
 	}
-	@$db->Lock('monitor_5min_ins');
+
+	$db->Query('lock table monitor_5min_ins write');
+
 	$db->Query( // удаляем текущий форк из таблицы - этим разрешаем форкать скрипт, с текущим порядковым номером, в будущем
 		'delete from
 			monitor_5min_ins

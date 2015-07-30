@@ -136,7 +136,7 @@
         <th>Наименование</th>
         <th>Период</th>
         <th>Количество{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
-        <th style="text-align: right">Цена</th>
+        <th style="text-align: right">Цена ({if $bill.price_include_vat > 0}вкл. НДС{else}без НДС{/if})</th>
         {if $discount != 0}
             <th style="text-align: right">Скидка</th>
         {/if}
