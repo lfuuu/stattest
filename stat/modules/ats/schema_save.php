@@ -58,6 +58,11 @@ foreach($x->section as $section)
     $s[] = $_sec;
 }
 
+//printdbg($x);
+//printdbg($s);
+
+//$schemaId = $db->GetInsertId();
+
 $db->Query("delete from r_timeblock where schema_id = '".$schemaId."'");
 $db->Query("delete from r_time where schema_id = '".$schemaId."'");
 $db->Query("delete from r_action where schema_id = '".$schemaId."'");

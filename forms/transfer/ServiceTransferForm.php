@@ -5,6 +5,7 @@ namespace app\forms\transfer;
 use app\classes\Assert;
 use app\classes\Form;
 use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\models\Emails;
 use app\models\Usage;
 use app\models\UsageExtra;
@@ -130,7 +131,7 @@ class ServiceTransferForm extends Form
             ClientAccount::find()
                 ->andWhere(['super_id' => $client->super_id])
                 ->andWhere('id != :id', [':id' => $client->id])
-                ->orderBy('contragent_id ASC, id ASC')
+                ->orderBy('contract_id ASC, id ASC')
                 ->all();
     }
 

@@ -21,6 +21,14 @@ return array(
 */
 
 
+/* welltime db
+    'EXT_SQL_HOST'        =>  '',
+    'EXT_SQL_USER'        =>  '',
+    'EXT_SQL_PASS'        =>  '',
+    'EXT_SQL_DB'        =>  '',
+    'EXT_GROUP_ID'        =>  6,
+*/
+
 /* sync with lk
     'MONGO_HOST' => '',
     'MONGO_USER' => '',

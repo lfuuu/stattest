@@ -1,5 +1,7 @@
 <?php
-die('Отключено\n');
+
+//define("print_sql", 1);
+
 //if($_SERVER["argv"][1] != "go") exit();
 
 echo date("r")."\n";
@@ -7,6 +9,7 @@ echo date("r")."\n";
 	define('NUM',20);
 	define('PATH_TO_ROOT','./');
 	define('INCLUDE_PATH',			PATH_TO_ROOT.'include/');
+    define('DEBUG_LEVEL', 0);
     require_once('./include/sql.php');
     require_once('./include/util.php');
     include "./include/1c_integration.php";

@@ -733,8 +733,8 @@ class ClientCS {
 
     private static $db2 = null;
     public static function get_db2() {
-        return null;
-        if (!self::$db2) self::$db2 = new MySQLDatabase(/* tiamis db */);
+        if (!defined("EXT_SQL_HOST") || !EXT_SQL_HOST) return null;
+        if (!self::$db2) self::$db2 = new MySQLDatabase(EXT_SQL_HOST,EXT_SQL_USER,EXT_SQL_PASS,EXT_SQL_DB);
         return self::$db2;
     }
     public static function findClient($up_id) {
@@ -778,10 +778,8 @@ class ClientCS {
         if (!$cid) return false;
 
         $db2 = self::get_db2();
-        if($db2) {
-            $EXT_GROUP_ID = 6;
-            $db2->QueryUpdate('com_client', 'id', array('id' => $cid, 'name' => $this->company, 'group_id' => $EXT_GROUP_ID));
-        }
+        if($db2)
+            $db2->QueryUpdate('com_client','id',array('id'=>$cid,'name'=>$this->company,'group_id'=>EXT_GROUP_ID));
         self::updateProperty($cid,'address',$this->address_post,-$this->id);
         self::updateProperty($cid,'name',$this->company,-$this->id);
 
@@ -966,7 +964,7 @@ class IPList{
             AND `tech_ports`.`port_type` IN ('adsl','adsl_connect','adsl_cards','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1', 'GPON')
             order by
                 `R`.`actual_to` ASC, actual_from
-        ");
+        ");//.MySQLDatabase::Generate($Cond));
 
         while($r = $db->NextRecord())
         {

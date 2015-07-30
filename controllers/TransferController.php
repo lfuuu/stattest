@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ClientContragent;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -74,7 +75,6 @@ class TransferController extends BaseController
             WHERE
                 c.`id` != " . (int) $client_id . " AND
                 c.`client` LIKE '%" . $term . "%' OR
-                c.`company` LIKE '%" . $term . "%' OR
                 c.`id` = " . (int) $term . " OR
                 cc.`name` LIKE '%" . $term . "%'
             ORDER BY cc.`name` DESC, c.`id` DESC

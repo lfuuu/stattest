@@ -85,7 +85,7 @@ class MailJob {
 		$ins = false;
 		while(!($r = $db->QuerySelectRow('mail_object',$v))){
 			if($ins)
-				throw new Exception("Can't create object ".print_r($v,true));
+				throw new Exception("Can't create object ".print_r($object,true));
 			$ins = true;
 			$v['object_id'] = $db->QueryInsert('mail_object',$v);
 		}
