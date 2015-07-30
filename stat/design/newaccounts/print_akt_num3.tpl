@@ -27,7 +27,7 @@
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 {if $to_client == "true"}
-    <b>Обращаем Ваше Вниманиние!</b> <br>Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес:<br>115162 г.Москва,а/я 21 ООО "ЭмСиЭн"{/if}
+    <b>Обращаем Ваше Вниманиние!</b> <br>Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес:<br>{$organization.post_address}, {$organization.name}{/if}
 	 <p>&nbsp;</p>
 
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY><TR><TD>
