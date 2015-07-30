@@ -9,9 +9,6 @@ class BillContract
 {
     public static function getBillItemString($clientId, $date = null)
     {
-        if ( $date === null)
-            $date = time();
-
         $contract = self::getString($clientId, $date);
 
         if($contract)
@@ -32,6 +29,9 @@ class BillContract
 
     public static function getLastContract($contractId, $dateTs)
     {
+        if (!$dateTs)
+            $dateTs = time();
+
         return ClientDocument::getDb()->createCommand("
             select 
                 contract_no as no, 

@@ -5,7 +5,7 @@ use app\helpers\MediaFileHelper;
 use app\classes\Html;
 use app\models\Organization;
 
-$contract = BillContract::getString($document->bill->clientAccount->id, time());
+$contract = BillContract::getString($document->bill->clientAccount->id);
 
 $organizationMCNTelekom = Organization::find()->byId(1)->actual()->one(); //mcn_telekom
 $organizationMCMTelekom = Organization::find()->byId(11)->actual()->one(); //mcm_telekom

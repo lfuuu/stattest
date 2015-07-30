@@ -756,7 +756,7 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
-        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill);
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, 'bill');
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
@@ -1770,15 +1770,25 @@ class m_newaccounts extends IModule
         }
 
 
+        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
+        if ($to_client)
+        {
+            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
+            if ($bill)
+            {
+                $organization = $bill->clientAccount->contract->organization;
+                $design->assign("organization", $organization);
+            }
+        }
+        $design->assign("to_client", $to_client);
+
 
         $bill = new Bill($bill_no);
         $bb = $bill->GetBill();
 
         $design->assign('without_date_date', $bill->getShipmentDate());
-
-        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
-        $design->assign("to_client", $to_client);
         $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));
+         
 
         if(get_param_raw("emailed", "0") != "0")
             $design->assign("emailed", get_param_raw("emailed", "0"));
