@@ -2,6 +2,7 @@
 namespace app\classes\validators;
 
 use app\models\ClientContract;
+use app\models\ClientContractType;
 use yii\validators\Validator;
 
 class InnKppValidator extends Validator
@@ -26,7 +27,8 @@ class InnKppValidator extends Validator
         if ($model->legal_type == 'legal')
             $attributes[] = 'kpp';
 
-        $hasCheckedContracts = $model->hasChecked || $this->hasCheckedContract($model);
+        $contracts = $this->hasCheckedContract($model);
+        $hasCheckedContracts = $model->hasChecked || $contracts;
 
         if ($attributes) {
             $has = false;
@@ -39,7 +41,7 @@ class InnKppValidator extends Validator
                     self::createValidator($this->attrValidator[$attribute], $model, $attribute)->validateAttribute($model, $attribute);
                 }
             }
-            if($has || $hasCheckedContracts)
+            if(!$contracts && ($has || $hasCheckedContracts))
                 $this->checkUnique($model, $attributes);
         }
 
@@ -50,6 +52,7 @@ class InnKppValidator extends Validator
         return ClientContract::find()
             ->andWhere(['contragent_id' => $model->id])
             ->andWhere(['!=', 'state', 'unchecked'])
+            ->andWhere(['=', 'contract_type_id', ClientContractType::OPERATOR])
             ->count() ? true : false;
     }
 
