@@ -2,6 +2,8 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\models\ClientBPStatuses;
+use yii\db\ActiveQuery;
 use yii\db\Query;
 
 class ClientGridSettingsDao extends Singleton
@@ -64,9 +66,32 @@ class ClientGridSettingsDao extends Singleton
         return $this;
     }
 
-    public function getTabList($bpId)
+    public function getTabList($bpId, $getCount = true)
     {
-        return $this->getAllByParams(['grid_business_process_id' => $bpId]);
+        $rows = $this->getAllByParams(['grid_business_process_id' => $bpId]);
+        if($getCount){
+            foreach($rows as &$row){
+                if(!(isset($row['hideCount']) && $row['hideCount'])) {
+                    $query = new Query();
+                    $params = $row['queryParams'];
+                    unset($params['orderBy']);
+                    foreach ($params as $paramKey => $param) {
+                        $query->$paramKey = $param;
+                    }
+                    if ($row['id'] == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
+                        $pg_query = new Query();
+                        $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
+
+                        $ids = $pg_query->column(\Yii::$app->dbPg);
+                        if (!empty($ids)) {
+                            $query->andFilterWhere(['in', 'c.id', $ids]);
+                        }
+                    }
+                    $row['count'] = $query->count();
+                }
+            }
+        }
+        return $rows;
     }
 
     public static function menuAsArray()
