@@ -44,9 +44,11 @@ class BillDao extends Singleton
     {
         $dbTransaction = Bill::getDb()->beginTransaction();
         try {
-            $this->calculateBillSum($bill, $bill->lines);
+            $lines = $bill->getLines()->all();
 
-            $this->updateTransactions($bill, $bill->lines);
+            $this->calculateBillSum($bill, $lines);
+
+            $this->updateTransactions($bill, $lines);
 
             $bill->save();
 
