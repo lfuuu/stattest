@@ -12,7 +12,7 @@ use \kartik\grid\GridView;
                     <a href="<?= \yii\helpers\Url::toRoute($urlParams) ?>">
                         <?= $item['name'] ?>
                         <?php if (isset($item['count'])): ?>
-                            <span class="badge"><?= $item['count'] ?></span>
+                            (<?= $item['count'] ?>)
                         <?php endif; ?>
                     </a>
                 </li>

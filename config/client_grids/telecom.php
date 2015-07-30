@@ -83,6 +83,7 @@ return [
         'show_as_status' => true,
         'is_close_status' => false,
         'oldstatus' => 'work',
+        'hideCount' => true,
         'color' => '',
     ],
     10 => [
@@ -109,6 +110,7 @@ return [
         'show_as_status' => true,
         'is_close_status' => true,
         'oldstatus' => 'closed',
+        'hideCount' => true,
         'color' => '#FFFFCC',
     ],
     11 => [
@@ -192,6 +194,7 @@ return [
         'show_as_status' => true,
         'is_close_status' => true,
         'oldstatus' => 'trash',
+        'hideCount' => true,
         'color' => '#a5e934',
     ],
     23 => [
@@ -244,6 +247,7 @@ return [
         'show_as_status' => true,
         'is_close_status' => true,
         'oldstatus' => 'tech_deny',
+        'hideCount' => true,
         'color' => '#996666',
     ],
     28 => [
@@ -270,6 +274,7 @@ return [
         'show_as_status' => true,
         'is_close_status' => true,
         'oldstatus' => 'deny',
+        'hideCount' => true,
         'color' => '#A0A0A0',
     ],
     29 => [
@@ -445,6 +450,7 @@ return [
         'show_as_status' => false,
         'is_close_status' => true,
         'oldstatus' => 'tech_deny',
+        'hideCount' => true,
         'color' => '#996666',
     ],
     6 => [
@@ -471,6 +477,7 @@ return [
         'show_as_status' => false,
         'is_close_status' => true,
         'oldstatus' => 'deny',
+        'hideCount' => true,
         'color' => '#A0A0A0',
     ],
     7 => [
@@ -497,6 +504,7 @@ return [
         'show_as_status' => false,
         'is_close_status' => true,
         'oldstatus' => 'trash',
+        'hideCount' => true,
         'color' => '#a5e934',
     ],
     101 => [
@@ -561,6 +569,7 @@ return [
         'show_as_status' => false,
         'is_close_status' => false,
         'oldstatus' => null,
+        'hideCount' => true,
         'color' => '',
     ],
     102 => [
@@ -808,6 +817,7 @@ return [
         'show_as_status' => false,
         'is_close_status' => false,
         'oldstatus' => null,
+        'hideCount' => true,
         'color' => '',
     ],
 
