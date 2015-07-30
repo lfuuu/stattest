@@ -25,9 +25,9 @@ class FileManager
             return false;
 
         if (!$name) {
-            $name = basename($_FILES['file']['name']);
+            $name = $_FILES['file']['name'];
         } else {
-            if (!preg_match('/\.([^.]{2,5})$/',$name) && preg_match('/\.([^.]{2,5})$/',$_FILES['file']['name'],$m)) {
+            if (!preg_match('/\.([^\.]{2,5})$/',$name) && preg_match('/\.([^\.]{2,5})$/',$_FILES['file']['name'],$m)) {
                 $name.= $m[0];
             }
         }
