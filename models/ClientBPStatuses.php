@@ -52,6 +52,7 @@ class ClientBPStatuses
     const OPERATOR_OPERATORS_BLOCKED = 43; // Операторы - Фрод блокировка
     const OPERATOR_OPERATORS_TECH_FAILURE = 44; // Операторы - Техотказ
     const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // Операторы - Автоблокировка
+    const OPERATOR_OPERATORS_TRASH = 121; // Операторы - Мусор
     const OPERATOR_CLIENTS_INCOMMING = 47; // Клиенты - Входящий
     const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Клиенты - Переговоры
     const OPERATOR_CLIENTS_TESTING = 49; // Клиенты - Тестирование
@@ -60,6 +61,7 @@ class ClientBPStatuses
     const OPERATOR_CLIENTS_TERMINATED = 52; // Клиенты - Расторгнут
     const OPERATOR_CLIENTS_BLOCKED = 53; // Клиенты - Фрод блокировка
     const OPERATOR_CLIENTS_TECH_FAILURE = 54; // Клиенты - Техотказ
+    const OPERATOR_CLIENTS_TRASH = 122; // Клиенты - Мусор
     const OPERATOR_INFRASTRUCTURE_INCOMMING = 62; // Инфраструктура - Входящий
     const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // Инфраструктура - Переговоры
     const OPERATOR_INFRASTRUCTURE_TESTING = 64; // Инфраструктура - Тестирование
@@ -68,6 +70,7 @@ class ClientBPStatuses
     const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // Инфраструктура - Расторгнут
     const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Инфраструктура - Фрод блокировка
     const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Инфраструктура - Техотказ
+    const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Инфраструктура - Мусор
     const OPERATOR_FORMAL_INCOMMING = 77; // Формальные - Входящий
     const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Формальные - Переговоры
     const OPERATOR_FORMAL_TESTING = 79; // Формальные - Тестирование
@@ -76,6 +79,8 @@ class ClientBPStatuses
     const OPERATOR_FORMAL_TERMINATED = 82; // Формальные - Расторгнут
     const OPERATOR_FORMAL_BLOCKED = 83; // Формальные - Фрод блокировка
     const OPERATOR_FORMAL_TECH_FAILURE = 84; // Формальные - Техотказ
+    const OPERATOR_FORMAL_TRASH = 124; // Формальные - Мусор
+
 
 
     const FOLDER_TELECOM_AUTOBLOCK = 21;
