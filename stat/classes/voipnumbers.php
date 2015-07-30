@@ -5,11 +5,14 @@ class voipNumbersChecker
     public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
+        global $db;
 
         $actual = self::load("actual");
 
         if($diff = self::diff(self::load("number"), $actual))
             voipDiff::apply($diff);
+
+        $db->SwitchDB(SQL_DB);
     }
 
     private static $sqlActual = "select client_id, e164, no_of_lines, no_of_callfwd from (
@@ -37,10 +40,12 @@ class voipNumbersChecker
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db;
 
+        $sql = "";
+
         switch($type)
         {
-            case 'actual': $sql = self::$sqlActual; break;
-            case 'number': $sql = self::$sqlNumber; break;
+            case 'actual': $sql = self::$sqlActual; $db->SwitchDB(SQL_DB); break;
+            case 'number': $sql = self::$sqlNumber; $db->SwitchDB(SQL_ATS_DB); break;
             default: throw new Exception("Unknown type");
         }
 
@@ -92,6 +97,18 @@ class voipNumbersChecker
                 return $d;
 
         return false;
+    }
+
+    private static function save(&$actual)
+    {
+        l::ll(__CLASS__,__FUNCTION__,"..."/*, $actual*/);
+        global $db;
+
+        $db->SwitchDB(SQL_DB);
+        $db->Begin();
+        $db->Query("truncate ".SQL_ATS_DB.".v_usage_save");
+        $db->Query("insert into ".SQL_ATS_DB.".v_usage_save ".self::$sqlActual);
+        $db->Commit();
     }
 }
 
@@ -327,6 +344,8 @@ class voipDiff
     {
         global $db;
         l::ll(__CLASS__,__FUNCTION__,$diff);
+
+        $db->SwitchDB(SQL_ATS_DB);
 
         if($diff["added"])
             self::add($diff["added"]);

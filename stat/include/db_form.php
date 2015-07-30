@@ -1904,8 +1904,6 @@ class DbFormServerPbx extends DbForm{
 
         DbForm::__construct('server_pbx');
 
-        trigger_error2("Временно отключено");
-
         $this->fields['name'] = array();
         $this->fields['ip'] = array();
 

@@ -831,7 +831,7 @@ class m_stats extends IModule{
 			'out_f'=>0,
             'is_total' => 0
 		);
-
+		//define("print_sql",1);
 		if(count($P)>1){
 			$W=array('AND',$P,'router="rubicon"','time>=FROM_UNIXTIME('.$from.')');
 			if($to < strtotime("3000-01-01"))
@@ -897,6 +897,7 @@ class m_stats extends IModule{
 				");
 			}
 
+			//printdbg($db->NumRows(), $q);
 			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);

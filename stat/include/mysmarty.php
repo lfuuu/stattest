@@ -333,13 +333,15 @@ class MySmarty extends SmartyStat {
 	var $LINK_START;
 	var $ignore=0;
 	function MySmarty(){
+		global $G;
         $this->Smarty();
 		$this->template_dir = DESIGN_PATH;
 	   	$this->compile_dir  = DESIGNC_PATH;
 		$this->compile_check = true;
-		$this->debugging = false;
+		$this->debugging = (DEBUG_LEVEL>=3 ? true : false);
 		$this->assign('_smarty_debug_output','html');
 		$this->register_prefilter("__dbmap_prefilter");
+//		if (DEBUG_LEVEL==0) $this->register_prefilter("__my_prefilter");
 		$this->register_function('implode','__implode');
 		$this->register_function('access','access');
 		$this->register_function('access_action','access_action');

@@ -1,5 +1,17 @@
-<?php
-
+<?
+################################################################################
+#                                                                              #
+#   PhpSiteLib. ���������� ��� ������� ���������� ������                       #
+#                                                                              #
+#   Copyright (�) 2005, shepik (shepik@yandex.ru) - ������ �������             #
+#   Copyright (�) 2002, Ilya Blagorodov (blagorodov.ru)                        #
+#                                                                              #
+#   psl_mysql.inc.php                                                          #
+#   ����� PslMySQL: ������������ ������� � �� MySQL.                           #
+#   ������������ ���� � ����� ���� ���������� ���������� PHPLIB:               #
+#   PHPLIB Copyright (c) 1998-2000 NetUSE AG Boris Erdmann, Kristian Koehntopp #
+#                                                                              #
+################################################################################
 class MySQLDatabase {
     var $mRecord = array();
     var $mRow;
@@ -9,61 +21,129 @@ class MySQLDatabase {
 
     var $_LinkId  = 0;
     var $_QueryId = 0;
+    var $_Query   = '';
 
-    var $host,$user,$pass,$db;
+	var $host,$user,$pass,$db;
 
 
-    function MySQLDatabase() {
-        $this->host = SQL_HOST;
-        $this->user = SQL_USER;
-        $this->pass = SQL_PASS;
-        $this->db = SQL_DB;
+    function MySQLDatabase($host = null,$user = null,$pass = null,$db = null) {
+    	$this->host = $host !== null ? $host : SQL_HOST;
+    	$this->user = $user !== null ? $user : SQL_USER;
+    	$this->pass = $pass !== null ? $pass : SQL_PASS;
+    	$this->db = $db?$db:SQL_DB;
+    }
+
+    function GetLinkId() {
+        return $this->_LinkId;
+    }
+
+    function GetQueryId() {
+        return $this->_QueryId;
     }
 
     function Connect() {
         if ($this->_LinkId == 0) {
-            $this->_LinkId = @mysql_connect(SQL_HOST, SQL_USER, SQL_PASS, true);
-            if (!$this->_LinkId){
+            $this->_LinkId = @mysql_connect($this->host, $this->user, $this->pass, true);
+            if (!$this->_LinkId && $this->host !== 'thiamis.mcn.ru'){
                 $this->_Halt("connect failed.");
                 echo "can't connect mysql ".$this->host; exit;
                 return 0;
             }
 
-            if (!@mysql_select_db(SQL_DB, $this->_LinkId)){
-                $this->_Halt("cannot use database " . SQL_DB);
+            if (!@mysql_select_db($this->db, $this->_LinkId) && $this->host !== 'thiamis.mcn.ru'){
+                $this->_Halt("cannot use database " . $this->db);
                 echo "can't use database"; exit;
                 return 0;
             }
             $this->Query("set names utf8");
             $this->Query("SET @@session.time_zone = '+00:00'");
 
-        }
+		}
         return $this->_LinkId;
     }
+
+    function SwitchDB($db)
+    {
+        if($this->db == $db) return;
+
+        $this->Query("use ".$db);
+        $this->db = $db;
+    }
+        
 
     function Free() {
         if(!$this->_QueryId) return;
         @mysql_free_result($this->_QueryId);
         $this->_QueryId = 0;
     }
+    function QueryX($query) {
+    	trigger_error2(htmlspecialchars_($query));
+    	$this->Query($query);
+    }
 
     function Query($query, $saveDefault = 1) {
 
-        if ($query == '') return 0;
+        global $user;
 
+        if(defined("print_sql") || (isset($_GET["show_sql"]) && $_GET["show_sql"] == 1))
+        {
+            echo "\n<br>";
+            printdbg($query);
+        }
+
+        if(defined("save_sql"))
+        {
+            $logFile = '/tmp/log.save';
+            if (is_writeable($logFile)) {
+                $pFile = fopen($logFile, "a+");
+                fwrite($pFile, "\n------------------------------------\n" . date("r") . ": " . $query);
+                fclose($pFile);
+            }
+        }
+
+        if(stripos($query, "usage_ip_") !== false && stripos($query, "select") === false)
+        {
+            $logFile = '/var/log/nispd/log.usage_ip';
+            if (is_writeable($logFile)) {
+                $pFile = fopen($logFile, "a+");
+                fwrite($pFile, "\n------------------------------------\n" . date("r") . ": " . $query . "\n" . str_replace(array("\r", "\n"), "", print_r($_SESSION, true)));
+                fclose($pFile);
+            }
+        }
+
+        if ($query == '') return 0;
+		if (DEBUG_LEVEL>=2) trigger_error2(htmlspecialchars_($query));
+        
         if (!$this->Connect()) return 0;
         if ($saveDefault) {
+        	$this->_Query = $query;
         	if ($this->_QueryId) $this->Free();
         }
+		if (DEBUG_LEVEL>=3) time_start("sql");
         $req = @mysql_query($query, $this->_LinkId);
+		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
+
+        /*
+		if(mysql_errno()>0){
+            if(strpos($query, "monitor_5min_ins") === false)
+            {
+                if(!class_exists('Logger'))
+                    require_once(dirname(__FILE__)."/Logger.php");
+                try{
+                    throw new Exception('mysql_error');
+                }catch(Exception $e){
+                    $trace = $e->getTrace();
+                    $pack = "MySQL error! file:'".$trace[1]['file']."', line:'".$trace[1]['line']."', query= ".$query.", \t error:".mysql_error()." \t REQUEST:".var_export(array_merge($_GET, $_POST), true);
+                    Logger::put($pack, 'mysql_error','dga@mcn.ru');
+                }
+            }
+		}*/
 
         $this->mRow   = 0;
         $this->mErrno = mysql_errno();
         $this->mError = mysql_error();
        	if (!$req) $this->_Halt("Invalid SQL: " . htmlspecialchars_($query));
-        if ($saveDefault && is_resource($req)) {
-            $this->_QueryId = $req;
-        }
+        if ($saveDefault && is_resource($req)) $this->_QueryId = $req;
        	return $req;
     }
     function GetInsertId() {
@@ -71,42 +151,31 @@ class MySQLDatabase {
     }
 
   	function AllRecords($query='',$by_id='', $return_type=MYSQL_ASSOC) {
-        try {
-            $result = Yii::$app->db->createCommand($query)->queryAll();
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return 0;
-        }
+  		if ($query) $this->Query($query);
+        if (!$this->_QueryId) return 0;
+  		$R=array();
 
-        if ($by_id) {
-            $newResult = [];
-            foreach ($result as $row) {
-                if (isset($row[$by_id])) {
-                    $newResult[$row[$by_id]]=$row;
-                } else {
-                    $newResult[]=$row;
-                }
-            }
-            return $newResult;
-        } else {
-            return $result;
-        }
+       	$this->mErrno  = mysql_errno();
+       	$this->mError  = mysql_error();
+		while ($r= @mysql_fetch_array($this->_QueryId,$return_type)){
+        	$this->mRow++;
+        	if ($by_id && isset($r[$by_id])) $R[$r[$by_id]]=$r; else $R[]=$r;
+		}
+      	$this->Free();
+  		return $R;
   	}
   	function GetRow($query) {
-        try {
-            return Yii::$app->db->createCommand($query)->queryOne();
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return 0;
-        }
+  		$this->Query($query);
+  		return $this->NextRecord(MYSQL_ASSOC);
   	}
     function GetValue($query){
-        try {
-            return Yii::$app->db->createCommand($query)->queryScalar();
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return false;
+        $r = $this->GetRow($query);
+        if($r)
+        {
+            $k = array_keys($r);
+            return $r[$k[0]];
         }
+        return false;
     }
 
     function AllRecordsAssoc($sql, $key = false, $value = false)
@@ -148,6 +217,31 @@ class MySQLDatabase {
         return $this->mRecord;
     }
 
+    function Lock($table, $mode = 'write') {
+        $this->Connect();
+        
+        $query = "lock table ";
+		$query .= $table . ' ' . $mode;
+        $res = @mysql_query($query, $this->_LinkId);
+        if (!$res) {
+            $this->_Halt("lock($table, $mode) failed.");
+            return 0;
+        }
+        return $res;
+    }
+
+    function Unlock() {
+        $this->connect();
+    
+        $res = @mysql_query("unlock tables", $this->_LinkId);
+        if (!$res) {
+            $this->_Halt("unlock() failed.");
+            return 0;
+        }
+        return $res;
+    }
+
+
     function AffectedRows() {
         return @mysql_affected_rows($this->_LinkId);
     }
@@ -178,25 +272,11 @@ class MySQLDatabase {
     function _Halt($msg) {
         $this->mError = @mysql_error($this->_LinkId);
         $this->mErrno = @mysql_errno($this->_LinkId);
-		trigger_error2('Database error: ' . $msg);
-		trigger_error2('MySQL Error: ' . $this->mError);
-    }
-
-    function _HaltEx($msg, Exception $e) {
-        $this->mError = $e->getMessage();
-        $this->mErrno = $e->getCode();
-        trigger_error2('Database error: ' . $msg);
-        trigger_error2('MySQL Error:' . $this->mError);
-    }
-
-    function ExecuteQuery($query) {
-        try {
-            Yii::$app->db->createCommand($query)->execute();
-            return true;
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return false;
+        if(defined("exception_sql")){
+            throw new Exception($this->mError);
         }
+		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
+		trigger_error2('MySQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
     }
 
     function QueryInsert($table,$data, $get_new_id=true) {
@@ -209,112 +289,88 @@ class MySQLDatabase {
           if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
           $V[]=$v;
         }
-
-        $query = 'insert into '.$table.' (`'.implode('`,`',array_keys($data)).'`) '.
-            'values ('.implode(',',$V).')';
-
-        if ($this->ExecuteQuery($query) && $get_new_id) {
-            return Yii::$app->db->lastInsertID;
-        } else {
-            return false;
-        }
+    	$res = $this->Query('insert into '.$table.' (`'.implode('`,`',array_keys($data)).'`) '.
+    				'values ('.implode(',',$V).')',0);
+      if ($get_new_id)
+		    return $this->GetInsertId();
+      else
+        return $res;
     }
     function QueryInsertEx($table,$fields,$datas) {
-        $str0 = 'insert into '.$table.' ('.implode(',',$fields).') values ';
-        $str = ''; $c = 0;
-        foreach ($datas as $data) {
-            if ($str) $s = ',('; else $s = '(';
-            foreach ($data as $k=>$v)
-            {
-                if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
-                $s.=($k?',':'').$v;
-            }
-            $str.=$s.')';
-            $c++;
-
-            if ($c>100) {
-                $this->ExecuteQuery($str0.$str);
-                $str = ''; $c = 0;
-            }
+    	$str0 = 'insert into '.$table.' ('.implode(',',$fields).') values ';
+    	$str = ''; $c = 0;
+    	foreach ($datas as $data) {
+	    	if ($str) $s = ',('; else $s = '(';
+	    	foreach ($data as $k=>$v)
+        {
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
+          $s.=($k?',':'').$v;
         }
-        if ($c>0) {
-            $this->ExecuteQuery($str0.$str);
-        }
+    		$str.=$s.')';
+    		$c++;
+    		
+    		if ($c>100) {
+    			$this->Query($str0.$str,0);
+    			$str = ''; $c = 0;
+    		}
+    	}
+   		if ($c>0) {
+   			$this->Query($str0.$str,0);
+   			$str = ''; $c = 0;
+   		}
     }
-
-    function QuerySelectAll($table, $data){
-
-        $V=array();
-        foreach ($data as $k=>$v)
-            if (is_array($v))
-                $V[]=$k.'='.addslashes($v[0]);
-            else
-            {
-                if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
-                $V[]=$k.'='.$v;
-            }
-
-        $query = 'select * from '.$table.' where ('.implode(') AND (',$V).')';
-        try {
-            return Yii::$app->db->createCommand($query)->queryAll();
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return false;
+    function QuerySelect($table,$data,$x = 0) {
+    	$V=array();
+    	foreach ($data as $k=>$v)
+        if (is_array($v))
+          $V[]=$k.'='.addslashes($v[0]);
+        else
+        {
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
+          $V[]=$k.'='.$v;
         }
 
+    	if (!$x) return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
+    		else return $this->QueryX('select * from '.$table.' where ('.implode(') AND (',$V).')');
+    }
+    function QuerySelectAll($table, $data, $x=0){
+        $r = array();
+        $rs = $this->QuerySelect($table, $data, $x);
+        while($l = $this->NextRecord(MYSQL_ASSOC)) $r[] =$l;
+        return $r;
     }
     function QueryDelete($table,$data) {
-        $V=array();
-        foreach ($data as $k=>$v) {
-            if (is_array($v)) {
-                $V[] = $k . '=' . addslashes($v[0]);
-            } else {
-                if (gettype($v) != 'integer') $v = '\'' . $this->escape($v) . '\'';
-                $V[] = $k . '=' . $v;
-            }
+    	$V=array();
+    	foreach ($data as $k=>$v)
+        if (is_array($v))
+          $V[]=$k.'='.addslashes($v[0]);
+        else
+        {
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
+          $V[]=$k.'='.$v;
         }
-
-        return $this->ExecuteQuery('delete from '.$table.' where ('.implode(') AND (',$V).')');
+    	return $this->Query('delete from '.$table.' where ('.implode(') AND (',$V).')');
     }
     function QueryUpdate($table,$keys,$data) {
-        $V1=array(); $V2=array();
-        if (!is_array($keys)) $keys=array($keys);
-        foreach ($data as $k=>$v)
-            if (in_array($k,$keys))
-            {
-                if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
-                $V2[]='`'.$k.'`='.$v;
-            }
-            elseif (!is_array($v))
-            {
-                if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
-                $V1[]='`'.$k.'`='.$v;
-            }
-            else $V1[]='`'.$k.'`='.$v[0];
-
-        return $this->ExecuteQuery('update '.$table.' SET '.implode(',',$V1).' WHERE ('.implode(') AND (',$V2).')');
-
-    }
-    function QuerySelectRow($table,$data) {
-
-        $V=array();
-        foreach ($data as $k=>$v)
-            if (is_array($v))
-                $V[]=$k.'='.addslashes($v[0]);
-            else
-            {
-                if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
-                $V[]=$k.'='.$v;
-            }
-
-        $query = 'select * from '.$table.' where ('.implode(') AND (',$V).')';
-        try {
-            return Yii::$app->db->createCommand($query)->queryOne();
-        } catch (\yii\db\Exception $e) {
-            $this->_HaltEx("Invalid SQL: " . htmlspecialchars_($query), $e);
-            return false;
+    	$V1=array(); $V2=array();
+    	if (!is_array($keys)) $keys=array($keys);
+    	foreach ($data as $k=>$v)
+    		if (in_array($k,$keys))
+        {
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
+    			$V2[]='`'.$k.'`='.$v;
         }
-
+    		elseif (!is_array($v))
+        {
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
+    			$V1[]='`'.$k.'`='.$v;
+        }
+    		else $V1[]='`'.$k.'`='.$v[0];
+    	return $this->Query('update '.$table.' SET '.implode(',',$V1).' WHERE ('.implode(') AND (',$V2).')');
+    }
+    function QuerySelectRow($table,$data,$x = 0) {
+    	$this->QuerySelect($table,$data,$x);
+    	return $this->NextRecord(MYSQL_ASSOC);
     }
 
     public function Begin()
@@ -350,6 +406,7 @@ class MySQLDatabase {
 
         return mysql_real_escape_string($str);
     }
+
 
 }
 ?>
