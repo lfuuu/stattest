@@ -42,7 +42,7 @@ class AccountEditForm extends Form
         $voip_credit_limit,
         $voip_disabled,
         $voip_credit_limit_day = 1000,
-        $voip_is_day_calc,
+        $voip_is_day_calc = 1,
         $mail_print,
         $mail_who,
         $head_company,
