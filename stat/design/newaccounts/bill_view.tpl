@@ -272,7 +272,7 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/documents/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
+        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/document/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
     {/foreach}
 {/if}
 
