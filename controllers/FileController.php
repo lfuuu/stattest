@@ -9,6 +9,7 @@ use app\classes\BaseController;
 use yii\base\Exception;
 use yii\web\Response;
 use yii\filters\AccessControl;
+use app\models\media\TroubleFiles;
 
 class FileController extends BaseController
 {
@@ -51,6 +52,18 @@ class FileController extends BaseController
         header("Content-Length: " . strlen($model->content));
         echo $model->content;
         die;
+    }
+
+    public function actionShowImage($model, $id)
+    {
+        switch ($model) {
+            case 'troubles':
+                //$model = TroubleFiles::findOne($id);
+                //$file = TroubleMedia
+                break;
+        }
+
+        print_r($model);
     }
 
     public function actionUpload($contractId, $childId = null)

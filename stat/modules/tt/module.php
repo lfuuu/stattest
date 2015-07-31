@@ -687,10 +687,14 @@ where c.client="'.$trouble['client_orig'].'"')
             }
         }
 
-
-
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
+
+        $trouble = \app\models\Trouble::findOne($trouble['id']);
+        if ($trouble) {
+            $mediaManager = $trouble->mediaManager;
+            $design->assign('tt_media', $mediaManager->getFiles());
+        }
 
         $bill = false;
 
@@ -1376,7 +1380,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     // 3 = открытые, активные, автор - я.
     // 4 = открытые, менеджер клиента - я.
 
-    function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null, $server_ids = null){
+    function    showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null, $server_ids = null){
 
         if($this->dont_again)
             return 0;
@@ -1640,6 +1644,18 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if(isset($R['bill_no']) && $R['bill_no']=='null')
             unset($R['bill_no']);
         $id = $db->QueryInsert('tt_troubles',$R);
+
+        $trouble = \app\models\Trouble::findOne($id);
+        if ($trouble && isset($_FILES['tt_files']) && is_array($_FILES['tt_files'])) {
+            $files = $_FILES['tt_files'];
+            for ($i=0, $s=sizeof($files['name']); $i<$s; $i++) {
+                $trouble->mediaManager->addFile([
+                    'name' => $files['name'][$i],
+                    'path' => $files['tmp_name'][$i],
+                ]);
+            }
+        }
+
         $R2['user_main'] = $user_main;
 /*
     insert into tt_stages (date_start,state_id,date_finish_desired,user_main,trouble_id) values (NOW(),"1",NOW() + INTERVAL 1 HOUR,"nick","49583")

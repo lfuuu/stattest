@@ -67,6 +67,19 @@
             {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"}
         </td>
     </tr>
+
+    {if count($tt_media)}
+        <tr>
+            <td colspan="2">
+                <div class="media-list">
+                    {foreach from=$tt_media item=file}
+                        <div data-ext="{$file.ext}" data-mime-type="{$file.mimeType}">{$file.name}</div>
+                    {/foreach}
+                </div>
+            </td>
+        </tr>
+    {/if}
+
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td align="right">Добавить времени (часов)</td>
@@ -304,3 +317,6 @@
         </td>
     </tr>
 </table>
+
+<script type="text/javascript" src="/js/behaviors/media.js"></script>
+<script type="text/javascript" src="/js/jquery.nailthumb.min.js"></script>

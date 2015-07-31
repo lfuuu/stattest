@@ -4,6 +4,7 @@ namespace app\models;
 use app\dao\TroubleDao;
 use yii\db\ActiveRecord;
 use app\models\TroubleStage;
+use app\classes\media\TroubleMedia as MediaManager;
 
 /**
  * @property int $id
@@ -64,6 +65,8 @@ class Trouble extends ActiveRecord
         'consultation' => 'Консультация',
     ];
 
+    public $tt_files = [];
+
     public static function tableName()
     {
         return 'tt_troubles';
@@ -89,7 +92,8 @@ class Trouble extends ActiveRecord
         return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);
     }
 
-    public function getAccount(){
+    public function getAccount()
+    {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
@@ -117,4 +121,10 @@ class Trouble extends ActiveRecord
 
         return '';
     }
+
+    public function getMediaManager()
+    {
+        return new MediaManager($this->id);
+    }
+
 }
