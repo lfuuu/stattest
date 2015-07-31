@@ -16,7 +16,7 @@ $contract = BillContract::getString($document->bill->clientAccount->id, time());
 <style>
     p {
         margin: 10px 0;
-        font-size: 14pt;
+        font-size: 12pt;
         color: black;
         text-align: justify; 
         text-indent: 35.0pt;
