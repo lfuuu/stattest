@@ -186,7 +186,7 @@ class ClientController extends BaseController
             foreach ($dataProvider->models as $model)
                 $res[] = [
                     'url' => Url::toRoute(['client/view', 'id' => $model->id]),
-                    'value' => $model->contract->contragent->name_full,
+                    'value' => $model->contract->contragent->name ? $model->contract->contragent->name : $model->contract->contragent->name_full,
                     'color' => $model->contract->getBusinessProcessStatus()['color'],
                     'id' => $model->id,
                 ];

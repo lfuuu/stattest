@@ -248,7 +248,7 @@ use yii\helpers\Url;
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                         <input type="hidden" name="ClientDocument[type]" value="contract">
                         <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
-                               value="<?= $model->id ?>">
+                               value="<?= $model->number ?>">
                     </div>
                     <div class="col-sm-2">
                         <?= DatePicker::widget(

@@ -1,8 +1,8 @@
 <h1>Отчет по звонкам:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
-	<input type="hidden" name="module" value="voipreports" />
-	<input type="hidden" name="action" value="calls_report" />
+	<input type="hidden" name="module" value="voipreports" class="hptodel" />
+	<input type="hidden" name="action" value="calls_report" class="hptodel" />
     <select class="select2" name="f_instance_id" style="width: 180px">
         <option value="0" {if $f_instance_id eq 0} selected{/if}>Все регионы</option>
         {foreach from=$regions item='r'}
@@ -69,6 +69,8 @@
     <input name="offset" type="hidden" value="0" id="calls_report_offset"/>
 
     <input type=submit name="make" id="make_report" value="Сформировать"/>
+
+    <input type=submit name="makeFile" value="Сгенерировать и загрузить файл"/>
 
     {if $item_from > 0}
         <div style="height: 5px"></div>
