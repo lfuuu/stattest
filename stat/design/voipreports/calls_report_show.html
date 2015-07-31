@@ -70,7 +70,7 @@
 
     <input type=submit name="make" id="make_report" value="Сформировать"/>
 
-    <input type=submit name="makeFile" id="make_report_in_file" value="Сгенерировать и загрузить файл"/>
+    <input type=submit name="makeFile" value="Сгенерировать и загрузить файл"/>
 
     {if $item_from > 0}
         <div style="height: 5px"></div>
@@ -128,17 +128,3 @@
 </tbody>
 
 </table>
-{literal}
-<script>
-    $(function(){
-        $('#make_report_in_file').on('click', function(){
-            var f = $(this).closest('form');
-            f.find('.hptodel').remove();
-            f.attr('action', '/report/calls-to-file');
-            f.attr('method', 'POST');
-            f.submit();
-            return false;
-        })
-    })
-</script>
-{/literal}
