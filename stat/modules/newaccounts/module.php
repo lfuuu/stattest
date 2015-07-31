@@ -1748,17 +1748,22 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUB');
         }
 
+        $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
+        if ($billModel)
+        {
+            $organization = $billModel->clientAccount->contract->organization;
+            $design->assign("organization", $organization);
+        }
+
         if($obj == "receipt")
         {
             $this->_print_receipt();
             exit();
         } elseif ($obj == "sogl_mcm_telekom" || $obj == 'notice_mcm_telekom')
         {
-            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
-
-            if ($bill)
+            if ($billModel)
             {
-                $report = DocumentReportFactory::me()->getReport($bill, $obj);
+                $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                 if ($is_pdf)
                 {
                     echo $report->renderAsPDF();
@@ -1771,16 +1776,8 @@ class m_newaccounts extends IModule
 
 
         $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
-        if ($to_client)
-        {
-            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
-            if ($bill)
-            {
-                $organization = $bill->clientAccount->contract->organization;
-                $design->assign("organization", $organization);
-            }
-        }
         $design->assign("to_client", $to_client);
+
 
 
         $bill = new Bill($bill_no);
