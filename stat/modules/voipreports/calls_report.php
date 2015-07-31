@@ -71,10 +71,6 @@ class m_voipreports_calls_report
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
 
-            if ($f_server_id != '0')
-                $where .= " and r.server_id='{$f_server_id}' ";
-
-
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
                     $where .= " and r.destination_id < 0 ";
