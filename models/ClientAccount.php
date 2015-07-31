@@ -419,7 +419,7 @@ class ClientAccount extends ActiveRecord
         }
 
         $statuses = [];
-        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
+        foreach (ClientGridSettingsDao::me()->getAllByParams() as $s) {
             $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
         }
 

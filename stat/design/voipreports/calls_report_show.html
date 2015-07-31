@@ -1,8 +1,8 @@
 <h1>Отчет по звонкам:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
-	<input type="hidden" name="module" value="voipreports" />
-	<input type="hidden" name="action" value="calls_report" />
+	<input type="hidden" name="module" value="voipreports" class="hptodel" />
+	<input type="hidden" name="action" value="calls_report" class="hptodel" />
     <select class="select2" name="f_instance_id" style="width: 180px">
         <option value="0" {if $f_instance_id eq 0} selected{/if}>Все регионы</option>
         {foreach from=$regions item='r'}
@@ -70,6 +70,8 @@
 
     <input type=submit name="make" id="make_report" value="Сформировать"/>
 
+    <input type=submit name="makeFile" id="make_report_in_file" value="Сгенерировать и загрузить файл"/>
+
     {if $item_from > 0}
         <div style="height: 5px"></div>
         звонки {$item_from} - {$item_to}
@@ -126,3 +128,17 @@
 </tbody>
 
 </table>
+{literal}
+<script>
+    $(function(){
+        $('#make_report_in_file').on('click', function(){
+            var f = $(this).closest('form');
+            f.find('.hptodel').remove();
+            f.attr('action', '/report/calls-to-file');
+            f.attr('method', 'POST');
+            f.submit();
+            return false;
+        })
+    })
+</script>
+{/literal}
