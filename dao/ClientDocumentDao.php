@@ -135,8 +135,8 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        //$account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
         $account->payment_info = $this->prepareContragentPaymentInfo($account);
+        $account->bank_properties = nl2br($account->bank_properties);
 
         $design->assign('client', $account);
         $design->assign('contract', $lastContract);
