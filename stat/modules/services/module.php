@@ -660,7 +660,10 @@ class m_services extends IModule{
             return $R;
         } else {
 
+            global $db_ats;
+
             $clientNick = ClientAccount::findOne($fixclient)->client;
+            $isDbAtsInited = $db_ats && $db != $db_ats;
 
             $db->Query($q='
                 select
@@ -742,6 +745,10 @@ class m_services extends IModule{
 
         $client = ClientAccount::findOne($fixclient);
         if ($client) {
+            global $db_ats;
+
+            $isDbAtsInited = $db_ats && $db != $db_ats;
+
             $now = (new DateTime('now', $client->timezone))->format('Y-m-d');
 
             $db->Query($q="
@@ -1123,9 +1130,6 @@ class m_services extends IModule{
     function services_vo_settings_send($fixclient)
     {
         global $design, $db, $db_ats, $user;
-
-        trigger_error2("Временно отключено");
-
         $clientNick = ClientAccount::findOne($fixclient)->client;
 
         $isSent = false;
@@ -1254,8 +1258,8 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
-        Assert::isObject($organization, 'Организация с id #' . $client['organization_id'] . ' на найдена');
+        $organization = $account->organization;
+        Assert::isObject($organization, 'Организация у ЛС #' . $client['id'] . ' на найдена');
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
@@ -3232,8 +3236,6 @@ class voipRegion
     static private function getMsg($clientId, $number)
     {
         global $db_ats;
-
-        trigger_error2("Временно отключено");
 
         $pbx = array(
                 "99" => "sip.mcn.ru",

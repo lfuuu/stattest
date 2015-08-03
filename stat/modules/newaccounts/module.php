@@ -756,7 +756,7 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
-        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill);
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, 'bill');
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
@@ -1097,6 +1097,9 @@ class m_newaccounts extends IModule
 
                     $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
+
+                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b->dao()->recalcBill($b);
 
             } else {
                 trigger_error2('Параметр "Цена включает НДС" счета отличается от лицевого счета');
@@ -1745,17 +1748,22 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUB');
         }
 
+        $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
+        if ($billModel)
+        {
+            $organization = $billModel->clientAccount->contract->organization;
+            $design->assign("organization", $organization);
+        }
+
         if($obj == "receipt")
         {
             $this->_print_receipt();
             exit();
         } elseif ($obj == "sogl_mcm_telekom" || $obj == 'notice_mcm_telekom')
         {
-            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
-
-            if ($bill)
+            if ($billModel)
             {
-                $report = DocumentReportFactory::me()->getReport($bill, $obj);
+                $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                 if ($is_pdf)
                 {
                     echo $report->renderAsPDF();
@@ -1767,15 +1775,17 @@ class m_newaccounts extends IModule
         }
 
 
+        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
+        $design->assign("to_client", $to_client);
+
+
 
         $bill = new Bill($bill_no);
         $bb = $bill->GetBill();
 
         $design->assign('without_date_date', $bill->getShipmentDate());
-
-        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
-        $design->assign("to_client", $to_client);
         $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));
+         
 
         if(get_param_raw("emailed", "0") != "0")
             $design->assign("emailed", get_param_raw("emailed", "0"));

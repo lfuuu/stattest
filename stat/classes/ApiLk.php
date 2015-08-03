@@ -324,6 +324,7 @@ class ApiLk
 
     public static function getVoipList($clientId, $isSimple = false)
     {
+        global $db, $db_ats;
         $ret = array();
 
         $account = self::getAccount($clientId);

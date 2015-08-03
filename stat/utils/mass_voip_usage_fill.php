@@ -1,5 +1,6 @@
 <?php
 
+define("print_sql", 1);
 define('NO_WEB',1);
 define('PATH_TO_ROOT','../');
 include PATH_TO_ROOT."conf_yii.php";

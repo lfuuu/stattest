@@ -12,6 +12,6 @@ class UsageQuery extends ActiveQuery
 
     public function client($client)
     {
-        return $this->andWhere("client = :client", ["client" => $client]);
+        return $this->andWhere("client = :client", [":client" => $client]);
     }
 }

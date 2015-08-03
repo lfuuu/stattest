@@ -905,14 +905,15 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</div>
 	{/if}
 {/if}
-{if $to_client == "true" && $bill_client.firma == 'mcn_telekom'}
+
+{if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom' || $bill_client.firma == 'mcm_telekom')}
 <table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
 	<tr>
 		<td colspan="6" width=50%>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td colspan="6" width=50%>
-			<p ><table class=to_client><tr><td valign=top><br><b>Обращаем Ваше Вниманиние!</b></td><td>Этот экземпляр УПД, просьба с подписью и печатью<br> направить в наш адрес: 115162 г.Москва,а/я 21 ООО &laquo;МСН Телеком&raquo;</td></tr></table></div></p>
+			<p ><table class=to_client><tr><td valign=top><br><b>Обращаем Ваше Вниманиние!</b></td><td>Этот экземпляр УПД, просьба с подписью и печатью<br> направить в наш адрес: {$organization.post_address}, {$organization.name}</td></tr></table></div></p>
 		</td>
 	</tr>
 </table>

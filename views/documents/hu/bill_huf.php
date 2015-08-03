@@ -34,7 +34,8 @@ $payer_company = $document->getPayer();
                 <td>
                     <?php
                     echo Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
-                        'document' => $document
+                        'organization' => $organization,
+                        'payer_company' => $payer_company,
                     ]);
                     ?>
                 </td>

@@ -38,6 +38,12 @@ use yii\helpers\Url;
             <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
         </li>
     </ul>
+
+    <ul>
+        <li>
+            <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг</a>
+        </li>
+    </ul>
 </div>
 
 <style>

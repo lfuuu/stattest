@@ -384,9 +384,9 @@ class ClientAccount extends ActiveRecord
     /**
      * @return Organization
      */
-    public function getOrganization()
+    public function getOrganization($date = '')
     {
-        return $this->contract->getOrganization();
+        return $this->contract->getOrganization($date);
     }
 
     public function getAllContacts()

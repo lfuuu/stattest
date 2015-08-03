@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\dao\TechCpeDao;
 use yii\db\ActiveRecord;
 use app\queries\TechCpeQuery;
 
@@ -27,6 +28,14 @@ class TechCpe extends ActiveRecord
     public function getModel()
     {
         return $this->hasOne(TechCpeModel::className(), ['id' => 'id_model']);
+    }
+
+    /**
+     * @return TechCpeDao
+     */
+    public function dao()
+    {
+        return TechCpeDao::me();
     }
 
 }

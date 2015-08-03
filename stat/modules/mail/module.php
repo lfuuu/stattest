@@ -311,9 +311,16 @@ class m_mail{
 									LIMIT 0,1
 									)";
 						}
-						break;
+                        break;
+
+                    case 'organization': 
+                        if (!empty($p)) {
+                            $J[] = "INNER JOIN client_contract CC ON (CC.id = C.contract_id)";
+                            $W[] = "CC.organization_id = '".$p[0]."'";
+                        }
+                    break;
 				}
-		$design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
+        $design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
 
@@ -323,7 +330,10 @@ class m_mail{
 		$design->assign(
 			'f_manager',
 			$m
-		);
+        );
+
+
+        $design->assign('f_organization', \app\models\Organization::find()->actual()->all());
 
 		$design->assign('f_status', \app\models\ClientAccount::$statuses);
 		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
@@ -387,7 +397,8 @@ class m_mail{
 					C.id
 				ORDER BY
 					C.client
-			');
+                    ');
+
 			foreach($R as $r){
 				if(!isset($C[$r['id']]))
 					$C[$r['id']] = $r;

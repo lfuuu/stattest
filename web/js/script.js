@@ -390,6 +390,49 @@ function showVersion(obj, popup) {
     return false;
 }
 
+function showIframePopup(element) {
+    var width = (
+            $(element).data('width') > 0
+                ? $(element).data('width')
+                : Math.max($(window).width(), window.innerWidth) / 2 - 100
+        ),
+        height = (
+            $(element).data('height') > 0
+                ? $(element).data('height')
+                : Math.max($(window).height(), window.innerHeight) - 100
+        ),
+        loader = createLoader();
+
+    $dialog = $('<iframe scrolling="no" width="100%" height="' + height + '" src="' + $(element).attr('href') + '" />')
+        .css('overflow', 'hidden');
+
+    $dialog
+        .dialog({
+            width: width,
+            height: height,
+            modal: true,
+            resizable: false,
+            draggable: false,
+            closeOnEscape: true,
+            open: function() {
+                $dialog.dialog('widget')
+                    .find('.ui-dialog-titlebar')
+                    .replaceWith(loader);
+
+                $dialog.css('width', '100%').load(function() {
+                    $dialog.dialog('widget')
+                        .find('.dialog-loader')
+                        .remove();
+                });
+            },
+            close: function() {
+                $dialog.remove();
+            }
+        });
+
+    return false;
+}
+
 function createLoader() {
     return $('<div />')
         .addClass('dialog-loader')
