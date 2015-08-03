@@ -22,6 +22,11 @@ class TroubleMedia extends MediaManager
         return $this->folder;
     }
 
+    public function setLinkField($field)
+    {
+        return parent::setLinkField($field);
+    }
+
     public function getLinkField()
     {
         return $this->link_field;

@@ -1,3 +1,5 @@
+<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
+
 <h2>
     {if !$tt_trouble.bill_no}
         <a href='{$LINK_START}module=tt&action=list&mode=1&clients_client={$tt_client.client}'>Заявки</a>
@@ -67,18 +69,6 @@
             {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"}
         </td>
     </tr>
-
-    {if count($tt_media)}
-        <tr>
-            <td colspan="2">
-                <div class="media-list">
-                    {foreach from=$tt_media item=file}
-                        <div data-ext="{$file.ext}" data-mime-type="{$file.mimeType}">{$file.name}</div>
-                    {/foreach}
-                </div>
-            </td>
-        </tr>
-    {/if}
 
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
@@ -167,6 +157,16 @@
                 {/foreach}
             </table>
 
+            {if count($tt_media)}
+                <h2>Документы</h2>
+                <div class="media-list">
+                    {foreach from=$tt_media item=file}
+                        <div data-model="troubles" data-file-id="{$file.id}" data-mime-type="{$file.mimeType}">{$file.name}</div>
+                    {/foreach}
+                </div>
+                <div style="clear: both;"></div>
+            {/if}
+
             {if $tt_write
             || ($tt_doComment && !$tt_isClosed)
             || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
@@ -184,6 +184,10 @@
                     <input type=hidden name=module value=tt>
                     <input type=hidden name=id value='{$tt_trouble.id}'>
                     <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
+                        <colgroup>
+                            <col width="30%" />
+                            <col width="70%" />
+                        </colgroup>
                         <tr>
                             <td>Комментарий:</td>
                             <td><textarea name=comment class=textarea>{if isset($stage.comment)}{$stage.comment}{/if}</textarea></td>
@@ -288,6 +292,17 @@
                                     </td>
                                 </tr>
                             {/if}
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <div class="file_upload form-control input-sm">
+                                        Выбрать файл<input class="media-manager" type="file" name="tt_files[]" />
+                                    </div>
+                                    <div class="media-manager-block"></div>
+                                </td>
+                            </tr>
+
                         {/if}
                         <tr><td colspan="2">&nbsp</td></tr>
                     </table>
@@ -318,5 +333,6 @@
     </tr>
 </table>
 
-<script type="text/javascript" src="/js/behaviors/media.js"></script>
 <script type="text/javascript" src="/js/jquery.nailthumb.min.js"></script>
+<script type="text/javascript" src="/js/jquery.multifile.min.js"></script>
+<script type="text/javascript" src="/js/behaviors/media-manager.js"></script>

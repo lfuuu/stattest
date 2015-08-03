@@ -1,10 +1,12 @@
+<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
+
 {if $fixclient}
     <div id="trouble_to_add"{if $tt_show_add} style="display: none;"{/if}>
         <div onClick="$('#trouble_to_add').toggle();$('#trouble_add').toggle();" style="cursor: pointer;">
             <img border="0" src="./images/icons/add.gif"><u>Добавить заявку</u>
         </div>
     </div>
-    <div id="trouble_add"{if !$tt_show_add} style="display: block;"{/if}>
+    <div id="trouble_add"{if !$tt_show_add} style="display: none;"{/if}>
         <div onClick="$('#trouble_add').toggle();$('#trouble_to_add').toggle();" style="cursor: pointer;">
             <img border="0" src="./images/icons/add.gif"><u>Добавить заявку (спрятать)</u>
         </div>
@@ -126,9 +128,9 @@
                         <div class="row" style="padding-left: 50px;">
                             <b>Прикрепить документы к заявке</b><br /><br />
                             <div class="file_upload form-control input-sm">
-                                Выбрать файл<input id="tt_files" type="file" name="tt_files[]" />
+                                Выбрать файл<input class="media-manager" type="file" name="tt_files[]" />
                             </div>
-                            <div class="tt_files_block"></div>
+                            <div class="media-manager-block"></div>
                         </div>
                     </td>
                 </tr>
@@ -141,21 +143,8 @@
         </form>
     </div>
 
-    <script type="text/javascript" src="/js/jquery.multifile.min.js"></script>
     <script language="javascript">
     {literal}
-        jQuery(document).ready(function() {
-            $('#tt_files').MultiFile({
-                list: 'div.tt_files_block',
-                max: 5,
-                STRING: {
-                    remove: '<i class="uncheck" />',
-                    toomany: 'Достигнуто максимальнное кол-во файлов',
-                    duplicate: 'Файл "$file" уже добавлен'
-                }
-            });
-        });
-
         function tt_trouble(){
             dt_C1.style.display="none";		//дата начала			date_start
             dt_A1.style.display="";			//время на устранение	date_finish_desired
@@ -209,22 +198,5 @@
     </script>
 {/if}
 
-<style type="text/css">
-{literal}
-    .file_upload {
-        position: relative;
-        overflow: hidden;
-        text-align: center;
-        width: 200px;
-    }
-
-    .file_upload input[type=file] {
-        position: absolute;
-        top: 0;
-        right: 0;
-        opacity: 0;
-        filter: alpha(opacity=0);
-        cursor: pointer;
-    }
-{/literal}
-</style>
+<script type="text/javascript" src="/js/jquery.multifile.min.js"></script>
+<script type="text/javascript" src="/js/behaviors/media-manager.js"></script>

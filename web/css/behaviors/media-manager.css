@@ -1,0 +1,15 @@
+.file_upload {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    width: 200px;
+}
+
+.file_upload input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    cursor: pointer;
+}

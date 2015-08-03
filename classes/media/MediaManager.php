@@ -4,7 +4,6 @@ namespace app\classes\media;
 
 use Yii;
 
-//UploadedFile::getInstances($model, 'field name')
 class MediaManager
 {
 
@@ -28,9 +27,17 @@ class MediaManager
         'ppt'  => 'application/vnd.ms-powerpoint',
     ];
 
+    public $downloadable = [
+        'doc', 'docx', 'pdf', 'zip', 'rar', 'xls', 'xlsx', 'ppt',
+    ];
+
     protected
         $model,
         $record_id = 0;
+
+    private
+        $folder = '',
+        $link_field = '';
 
     public function addFile(array $file, $comment = '', $name = '')
     {
@@ -93,9 +100,10 @@ class MediaManager
     public function getFile($file)
     {
         return [
+            'id' => $file->id,
             'ext' => $this->getMime($file)[0],
             'mimeType' => $this->getMime($file)[1],
-            'size' => $this->getSize(),
+            'size' => $this->getSize($file),
             'name' => $file->name,
             'comment' => $file->comment,
             'author' => $file->user_id,
@@ -108,11 +116,21 @@ class MediaManager
         $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $file->id]);
 
         if (file_exists($filePath)) {
-            return file_get_contents($filePath);
+            $fileData = $this->getFile($file);
+
+            if (in_array($fileData['ext'], $this->downloadable)) {
+                Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
+                Yii::$app->end();
+            }
+            else {
+                Header('Content-Type: ' . $fileData['mimeType']);
+                echo file_get_contents($filePath);
+                Yii::$app->end();
+            }
         }
     }
 
-    public function getSize($file)
+    protected function getSize($file)
     {
         $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $file->id]);
 
@@ -121,7 +139,7 @@ class MediaManager
         }
     }
 
-    public function getMime($file)
+    protected function getMime($file)
     {
         $name = strtolower($file->name);
 
@@ -134,6 +152,22 @@ class MediaManager
         $ext = $info['extension'];
 
         return [$ext, isset($this->mimesTypes[$ext]) ? $this->mimesTypes[$ext] : $mime];
+    }
+
+    protected function getFolder()
+    {
+        return $this->folder;
+    }
+
+    protected function setLinkField($field)
+    {
+        $this->link_field = $field;
+        return $this;
+    }
+
+    protected function getLinkField()
+    {
+        return $this->link_field;
     }
 
 }

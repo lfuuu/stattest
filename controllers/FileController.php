@@ -54,16 +54,14 @@ class FileController extends BaseController
         die;
     }
 
-    public function actionShowImage($model, $id)
+    public function actionGetFile($model, $id)
     {
         switch ($model) {
             case 'troubles':
-                //$model = TroubleFiles::findOne($id);
-                //$file = TroubleMedia
+                $file = TroubleFiles::findOne($id);
                 break;
         }
-
-        print_r($model);
+        $file->mediaManager->getContent($file);
     }
 
     public function actionUpload($contractId, $childId = null)
