@@ -282,7 +282,7 @@ use \app\models\ClientContragent;
     <?php if (!$model->isNewRecord): ?>
         <div class="col-sm-12 form-group">
             <a href="#" onclick="return showVersion({ClientContragent:<?= $model->id ?>}, true);">Версии</a><br/>
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
+            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->getPersonId() . '})']); ?>
             <span>История изменений</span>
         </div>
     <?php endif; ?>

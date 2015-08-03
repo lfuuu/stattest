@@ -140,6 +140,14 @@ class ContragentEditForm extends Form
         return $this->id ? false : true;
     }
 
+    public function getPersonId()
+    {
+        if($this->person){
+            return $this->person->id;
+        }
+        return false;
+    }
+
     private function fillContragentNameByLegalType()
     {
         switch ($this->legal_type) {
