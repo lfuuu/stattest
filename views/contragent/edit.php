@@ -245,6 +245,7 @@ use \app\models\ClientContragent;
                                     [
                                         date('Y-m-d', time()) => 'Текущую дату',
                                         date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
+                                        date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
                                         date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
                                         '' => 'Выбраную дату'
                                     ],
