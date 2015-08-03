@@ -118,14 +118,10 @@ class ClientContract extends ActiveRecord
     /**
      * @return Organization
      */
-    public function getOrganization()
+    public function getOrganization($date = '')
     {
-        $date = $this->historyVersionDate ? $this->historyVersionDate : date('Y-m-d');
-        $organization = Organization::find()
-            ->andWhere(['organization_id' => $this->organization_id])
-            ->andWhere(['<=', 'actual_from', $date])
-            ->andWhere(['>=', 'actual_to', $date])
-            ->one();
+        $date = $this->historyVersionDate ? $this->historyVersionDate : ($date ?: date('Y-m-d'));
+        $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }
 
