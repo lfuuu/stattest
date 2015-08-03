@@ -396,6 +396,32 @@ return [
         'oldstatus' => 'work',
         'color' => '',
     ],
+    56 => [
+        'id' => 56,
+        'name' => \Yii::t('app', 'JiraSoft'),
+        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'queryParams' => [
+            'where' => [
+                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_JIRASOFT],
+                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+            ],
+        ],
+        'columns' => [
+            'status',
+            'id',
+            'company',
+            'created',
+            'currency',
+            'sale_channel',
+            'manager',
+            'region',
+        ],
+        'default' => false,
+        'show_as_status' => true,
+        'is_close_status' => false,
+        'oldstatus' => 'work',
+        'color' => '',
+    ],
     51 => [
         'id' => 51,
         'name' => \Yii::t('app', 'Приостановлен'),
