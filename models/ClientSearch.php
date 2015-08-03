@@ -160,7 +160,7 @@ class ClientSearch extends ClientAccount
         ]);
 
         $query->andFilterWhere(['c.id' => $this->id]);
-        $query->andFilterWhere(['cg.name_full' => $this->companyName]);
+        $query->andFilterWhere(['or', ['cg.name' => $this->companyName],['cg.name_full' => $this->companyName]]);
         $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);

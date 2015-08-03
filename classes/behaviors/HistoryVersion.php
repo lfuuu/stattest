@@ -39,8 +39,10 @@ class HistoryVersion extends Behavior
                     'date' => $queryData['date'],
         ]);
 
+        /*
         if ($this->checkDiff($queryData) === false)
             return;
+        */
 
         if ($model === null)
             $model = new \app\models\HistoryVersion($queryData);

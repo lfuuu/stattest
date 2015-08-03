@@ -210,11 +210,10 @@ class ClientAccount extends ActiveRecord
     public function save($runValidation = true, $attributeNames = null)
     {
         if ($this->isNewRecord) {
-            return parent::save($runValidation = true, $attributeNames = null);
-        }
-        else {
+            return parent::save($runValidation, $attributeNames);
+        } else {
             if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation = true, $attributeNames = null);
+                return parent::save($runValidation, $attributeNames);
             } else {
                 $behaviors = $this->behaviors;
                 unset($behaviors['HistoryVersion']);
@@ -222,8 +221,21 @@ class ClientAccount extends ActiveRecord
                 foreach ($behaviors as $behavior)
                     $this->detachBehavior($behavior);
                 $this->beforeSave(false);
+
+                $date = \Yii::$app->request->post('deferred-date');
+                if (
+                    $date
+                    && strtotime($date) < time()
+                    && HistoryVersion::find()
+                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
+                        ->andWhere(['<=', 'date', date('Y-m-d')])
+                        ->andWhere(['>', 'date', $date])
+                        ->count() == 0
+                )
+                    return parent::save($runValidation, $attributeNames);
+
+                return true;
             }
-            return true;
         }
     }
 
