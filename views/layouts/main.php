@@ -10,7 +10,11 @@ global $fixclient_data;
 AppAsset::register($this);
 $user = Yii::$app->user->identity;
 $myTroublesCount = $this->context->getMyTroublesCount();
-$activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
+if (isset($fixclient_data['id'])) {
+    $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
+} else {
+    $activeClient = null;
+}
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
