@@ -341,10 +341,10 @@ class ClientDocumentDao extends Singleton
                 return nl2br($account->bank_properties);
 
             return
-                'Паспорт серия ' . $contragent->passport_serial .
-                ' номер ' . $contragent->passport_number .
-                ';<br />Выдан: ' . $contragent->passport_issued .
-                ';<br />Дата выдачи: ' . $contragent->passport_date_issued . ' г.';
+                'Паспорт серия ' . $contragent->person->passport_serial .
+                ' номер ' . $contragent->person->passport_number .
+                '<br />Выдан: ' . $contragent->person->passport_issued .
+                '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
         }
         else {
             return
