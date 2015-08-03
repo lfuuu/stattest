@@ -139,20 +139,6 @@ if ($has) :
                                         <td><?= $cpe->numbers ?></td>
                                     </TR>
                                 <?php endforeach; ?>
-                            <?php else : ?>
-                                <tr bgcolor="#DCEEA9">
-                                    <td>
-                                        <a href='/?module=routers&action=d_add'>
-                                            <img class=icon src='/images/icons/add.gif'>
-                                        </a>Создать устройство
-                                    </td>
-                                    <td><?= $cpe->actual_from ?>&nbsp;-&nbsp;<?= $cpe->actual_to ?></td>
-                                    <td>
-                                        <?= $cpe->ip ? $ipstat($cpe->ip) : 'ip не задан' ?><?= $cpe->ip_nat ? $ipstat($cpe->ip_nat) : '' ?>
-                                    </td>
-                                    <td><?= $cpe->numbers ?></td>
-                                </TR>
-                            <?php endforeach; ?>
                         <?php else : ?>
                             <tr bgcolor="#DCEEA9">
                                 <td>

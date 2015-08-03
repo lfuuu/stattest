@@ -126,6 +126,7 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
 
         <div class="col-sm-12">
             <div class="col-sm-12 form-group">
+                <?= Html::hiddenInput('ContractEditForm[save_comment_stage]', true); ?>
                 <?= Html::submitButton('Изменить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
