@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientAccount;
 use app\models\ClientDocument;
 use app\models\Organization;
 use Yii;
@@ -134,14 +135,15 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        $account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
+        //$account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
+        $account->payment_info = $this->prepareContragentPaymentInfo($account);
+
         $design->assign('client', $account);
         $design->assign('contract', $lastContract);
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
         $design->assign('firm', $organization->getOldModeInfo());
         $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));
         $design->assign('firm_director', $organization->director->getOldModeInfo());
-        //Выпилить
 
         $content = $this->contract_fix_static_parts_of_template($design, $content);
         if (strpos($content, "{*#blank_zakaz#*}") !== false) {
@@ -329,5 +331,30 @@ class ClientDocumentDao extends Singleton
             . "<br /> е-mail: " . $f["email"];
         return $d;
     }
+
+    private function prepareContragentPaymentInfo(ClientAccount $account)
+    {
+        $contragent = $account->contract->contragent;
+
+        if ($contragent->legal_type == 'person') {
+            if (!empty($account->bank_properties))
+                return nl2br($account->bank_properties);
+
+            return
+                'Паспорт серия ' . $contragent->passport_serial .
+                ' номер ' . $contragent->passport_number .
+                ';<br />Выдан: ' . $contragent->passport_issued .
+                ';<br />Дата выдачи: ' . $contragent->passport_date_issued . ' г.';
+        }
+        else {
+            return
+                'Банковские реквизиты: ' . $account->bank_properties .
+                ', БИК ' . $account->bik .
+                ', ИНН ' . $contragent->inn .
+                ', КПП ' . $contragent->kpp .
+                '<br />Почтовый адрес: ' . $account->address_post_real;
+        }
+    }
+
 }
 
