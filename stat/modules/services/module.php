@@ -446,7 +446,8 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $account = ClientAccount::findOne(["id" => $client["id"]]);
+        $organization = Organization::find()->byId($account->contract->organization_id)->actual()->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
@@ -498,7 +499,8 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $account = ClientAccount::findOne(["id" => $client["id"]]);
+        $organization = Organization::find()->byId($account->contract->organization_id)->actual()->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
@@ -1294,7 +1296,8 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $account = ClientAccount::findOne(['id' => $client['id']]);
+        $organization = Organization::find()->byId($account->contract->organization_id)->actual()->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
@@ -2066,7 +2069,7 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $organization = Organization::find()->byId($account->contract->organization_id)->actual()->one();
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
