@@ -23,7 +23,7 @@
 <strong>{$organization.name}</strong><br>
 <strong>ИНН/КПП {$organization.tax_registration_id}/{$organization.tax_registration_reason}</strong><br>
 
-{if $bill_client.organization_id == 7} {*all4geo*}
+{if $organization.id == 7} {*all4geo*}
     <br>
 {else if isset($organization.contact_phone)}
     Телефон: <strong>{$organization.contact_phone}</strong><br>

@@ -1258,8 +1258,8 @@ class m_services extends IModule{
         //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $client = $design->get_template_vars('client');
-        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
-        Assert::isObject($organization, 'Организация с id #' . $client['organization_id'] . ' на найдена');
+        $organization = $account->organization;
+        Assert::isObject($organization, 'Организация у ЛС #' . $client['id'] . ' на найдена');
 
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
