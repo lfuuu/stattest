@@ -145,24 +145,35 @@ class m_newaccounts extends IModule
         }
     }
 
-    function _getSwitchTelekomDate($clientId)
+    function _getSwitchTelekomDate($contractId)
     {
-        $res = \app\models\HistoryChanges::find()
+        $data = [];
+        $lastOrgId = 0;
+
+        foreach(\app\models\HistoryVersion::find()
             ->andWhere(
-                ['or', 
-                    ['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'], 
-                    ['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"']
-                ]
+                ['regexp', 'data_json', '"organization_id":"?[0-9]+"?,']
             )
-            ->andWhere(["model" => 'ClientAccount', 'model_id' => $clientId])
-            ->one();
-        return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
+            ->andWhere(["model" => 'ClientContract', 'model_id' => $contractId])
+            ->orderBy("date")
+            ->all() as $l)
+        {
+            $v = json_decode($l->data_json, true);
+            if ($lastOrgId != $v["organization_id"])
+            {
+                $data[$l->date] = $v["organization_id"];
+                $lastOrgId = $v["organization_id"];
+            }
+        }
+
+        return $data;
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $account = ClientAccount::findOne($fixclient);
+        $isMulty = $account->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -195,11 +206,11 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+        $stDates = $this->_getSwitchTelekomDate($account->contract->id);
 
         if($stDates)
         {
-            foreach($stDates as $stDate => $stFirma)
+            foreach($stDates as $stDate => $stOrgId)
             {
                 $ks = false;
                 foreach($sw as $bDate => $billNo)
@@ -213,7 +224,7 @@ class m_newaccounts extends IModule
 
                 if($ks && isset($R[$ks]))
                 {
-                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $organization = Organization::find()->byId($stOrgId)->one();
                     $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
@@ -523,7 +534,7 @@ class m_newaccounts extends IModule
 
         if($stDates)
         {
-            foreach($stDates as $stDate => $stFirma)
+            foreach($stDates as $stDate => $stOrgId)
             {
                 $ks = false;
                 foreach($sw as $bDate => $billNo)
@@ -537,7 +548,7 @@ class m_newaccounts extends IModule
 
                 if($ks && isset($R[$ks]))
                 {
-                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $organization = Organization::find()->byId($stOrgId)->one();
                     $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
