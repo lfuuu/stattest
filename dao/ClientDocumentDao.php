@@ -361,7 +361,7 @@ class ClientDocumentDao extends Singleton
                 ', БИК ' . $account->bik .
                 ', ИНН ' . $contragent->inn .
                 ', КПП ' . $contragent->kpp .
-                '<br />Почтовый адрес: ' . $account->address_post_real;
+                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
         }
     }
 
