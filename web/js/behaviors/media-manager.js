@@ -9,14 +9,38 @@ jQuery(document).ready(function() {
             toomany: 'Достигнуто максимальнное кол-во файлов',
             duplicate: 'Файл "$file" уже добавлен'
         },
+        customAddedElement: function(element, value) {
+            console.log(element);
+        },
         afterFileSelect: function(element, value, master_element) {
-            console.log(master_element);
-            /*
-            master_element.list.find('div.MultiFile-label:last').append(
+            var $block = master_element.list.find('div.MultiFile-label:last'),
+                $remove = $block.find('.MultiFile-remove'),
+                $edit =
+                    $('<div />')
+                        .addClass('file_name_edit')
+                        .attr('title', 'Редактировать прикрепленный файл')
+                        .on('click', function() {
+                            $edit_field.show();
+                            $edit_field.next('span').hide();
+                        }),
+                $edit_field =
+                    $('<input />')
+                        .attr('type', 'text')
+                        .attr('name', 'custom_name_' + $(element).attr('name'))
+                        .val(value.replace(/\.[^\.]+$/, ''))
+                        .addClass('file_name_edit_field'),
+                $edit_save_btn =
+                    $('<input />')
+                        .attr('type', 'button')
+                        .addClass('file_name_edit_btn');
+
+            $remove.replaceWith($edit);
+            $edit_field.insertAfter($edit);
+            /*master_element.list.find('div.MultiFile-label:last').append(
                 $('<input />')
                     .css({
-                        'width':'80%',
-                        'display':'none'
+                        'width':'80%'
+                        //'display':'none'
                     })
                     .attr('name', 'custom_name_' + $(element).attr('name'))
                     .attr('type', 'text')
@@ -29,8 +53,7 @@ jQuery(document).ready(function() {
                         $(this).hide();
                         element.show().text(elementText.replace(/.*?(\.[^\.]+)$/, filename + '$1'));
                     })
-            );
-            */
+            );*/
         }
     });
 

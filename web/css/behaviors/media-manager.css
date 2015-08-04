@@ -13,3 +13,21 @@
     filter: alpha(opacity=0);
     cursor: pointer;
 }
+
+.file_name_edit {
+    display: inline-block;
+    background: url("/images/icons/edit.gif") no-repeat 50% 50%;
+    width: 16px;
+    height: 16px;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.file_name_edit_field {
+    width: 60%;
+    display: none;
+}
+
+.file_name_edit_btn {
+
+}
