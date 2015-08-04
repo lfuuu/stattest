@@ -59,7 +59,7 @@ class HistoryVersion extends ActiveRecord
 
         $currentModel->setAttributes(json_decode($this->data_json, true), false);
         $currentModel->detachBehavior('HistoryVersion');
-        return $currentModel->save();
+        return $currentModel->save(false);
     }
 
     public static function getVersionOnDate($modelName, $modelId, $date = null)
