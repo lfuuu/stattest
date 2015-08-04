@@ -725,8 +725,6 @@ class m_services extends IModule{
                 $notAcos[] = $p;
             }
 
-            $design->assign('ats_schema', $this->whereNumber($actualNumbers));
-
             $design->assign('allowed_direction', UsageVoip::$allowedDirection);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
@@ -832,37 +830,6 @@ class m_services extends IModule{
         $design->assign('voip_permit',$regs);
         $design->assign('voip_permit_filtred',$phone);
         $design->AddMain('services/voip_permit.tpl'); 
-    }
-
-    private function whereNumber($numbers)
-    {
-        $outNumbers = array();
-        if ($numbers && !is_array($numbers))
-        {
-            $numbers = array($numbers);
-        }
-
-        if (!$numbers)
-            return array();
-
-        foreach($numbers as $number)
-        {
-            $outNumbers[$number] = null;
-        }
-
-        $checkNumbers = $outNumbers;
-        try{
-            foreach($this->getInOldSchema($numbers) as $number)
-            {
-                $outNumbers[$number] = "old";
-                unset($checkNumbers[$number]);
-            }
-        } catch(Exception $e) {
-            trigger_error2($e->getMessage());
-        }
-
-        return $outNumbers;
-
     }
 
     private function getInOldSchema($numbers)
