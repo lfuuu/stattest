@@ -9,6 +9,7 @@ use Yii;
 use app\classes\BaseController;
 use yii\helpers\Url;
 use yii\web\Response;
+use app\models\GoodsIncomeOrder;
 
 class SearchController extends BaseController
 {
@@ -66,7 +67,25 @@ class SearchController extends BaseController
                     }
                     else
                         return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
-                } else {
+                }
+                else if (
+                    null !== (
+                        $model =
+                            GoodsIncomeOrder::find()
+                                ->where(['number'=>$search])
+                                ->orderBy('date desc')
+                                ->limit(1)
+                                ->one()
+                    )
+                ) {
+                    if(Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => 'index.php?module=incomegoods&action=order_view&id=' . $model->id, 'value' => $model->id]];
+                    }
+                    else
+                        return $this->redirect('/index.php?module=incomegoods&action=order_view&id=' . $model->id);
+                }
+                else {
                     return $this->render('result', ['message' => 'Заявка № '.$search.' не найдена']);
                 }
             case 'ip':

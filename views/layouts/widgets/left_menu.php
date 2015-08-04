@@ -5,8 +5,9 @@ global $module;
 $blocks = $this->context->getNavigationBlocks();
 ?>
 
-<div>
-    <a href="#" onclick="openAllNavigationBlocks(); return false;">Открыть все блоки</a>
+<div style="text-align: right">
+    <a href="#" onclick="openAllNavigationBlocks(); $('.btn-toogle-nav-blocks').toggle(); return false;" class="btn-toogle-nav-blocks" style="display: block">Открыть все блоки</a>
+    <a href="#" onclick="closeAllNavigationBlocks(); $('.btn-toogle-nav-blocks').toggle(); return false;" class="btn-toogle-nav-blocks" style="display: none">Закрыть все блоки</a>
 </div>
 
 <?php foreach ($blocks as $block): ?>

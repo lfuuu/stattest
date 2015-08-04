@@ -16,6 +16,10 @@ use yii\helpers\ArrayHelper;
 
 class AccountEditForm extends Form
 {
+    const DEFAULT_ACCOUNT_REGION = Region::MOSCOW;
+    const DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY = 1000;
+    const DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC = 1;
+
     protected $clientM = null;
     public $deferredDate = null;
 
@@ -25,7 +29,7 @@ class AccountEditForm extends Form
 
     public
         $client,
-        $region = Region::MOSCOW,
+        $region = self::DEFAULT_ACCOUNT_REGION,
         $status,
         $address_post,
         $address_post_real,
@@ -41,8 +45,8 @@ class AccountEditForm extends Form
         $price_type,
         $voip_credit_limit,
         $voip_disabled,
-        $voip_credit_limit_day = 1000,
-        $voip_is_day_calc = 1,
+        $voip_credit_limit_day = self::DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY,
+        $voip_is_day_calc = self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC,
         $mail_print,
         $mail_who,
         $head_company,
@@ -96,10 +100,11 @@ class AccountEditForm extends Form
             [
                 [
                     'stamp', 'sale_channel', 'credit', 'voip_credit_limit', 'is_agent', 'mail_print',
-                    'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
+                    'voip_disabled', 'voip_credit_limit_day', 'is_with_consignee', 'is_upd_without_sign',
                 ],
                 'default', 'value' => 0
             ],
+            [['voip_is_day_calc'], 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
@@ -109,7 +114,6 @@ class AccountEditForm extends Form
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
 
-            ['voip_credit_limit_day', 'default', 'value' => 1000],
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
         ];
         return $rules;
@@ -152,7 +156,8 @@ class AccountEditForm extends Form
             $this->setAttributes($this->clientM->getAttributes(), false);
             $this->admin_contact_id = 0;
             $this->admin_is_active = 0;
-            $this->voip_credit_limit_day = 1000;
+            $this->voip_credit_limit_day = self::DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY;
+            $this->voip_is_day_calc = self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC;
             $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();

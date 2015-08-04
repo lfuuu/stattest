@@ -75,8 +75,13 @@ class ClientAccount extends ActiveRecord
         'prov' => 'пров'
     ];
 
+    /** Virtual variables */
+    public $payment_info;
+    /** /Virtual variables */
+
     private $_lastComment = false;
 /*For old stat*/
+
     public function getType()
     {
         return ($this->contract->contragent->legal_type !='person') ? 'org' : 'person';

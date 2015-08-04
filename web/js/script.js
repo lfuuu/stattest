@@ -62,6 +62,13 @@ function openAllNavigationBlocks()
     });
 }
 
+function closeAllNavigationBlocks()
+{
+    $('.layout_left .menupanel').each(function(){
+        closeNavigationBlock($(this).attr('id'));
+    });
+}
+
 function toggleNavigationBlock(id){
     if ($('#' + id).hasClass('opened')) {
         closeNavigationBlock(id);

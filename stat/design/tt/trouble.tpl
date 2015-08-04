@@ -41,7 +41,11 @@
     {/if}
     <tr>
         <td align="right">Трабл создал:</td>
-        <td>{$tt_trouble.user_author_name} ({$tt_trouble.user_author}), <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span></td>
+        <td>
+            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
+                <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name} ({$tt_trouble.user_author})</abbr>
+            </a>, <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span>
+        </td>
     </tr>
     <tr>
         <td align="right">Текущие сроки:</td>
@@ -124,9 +128,17 @@
                 {foreach from=$tt_trouble.stages item=item name=outer}
                     <tr>
                         <td>{$item.state_name}</td>
-                        <td>{$item.user_main}</td>
+                        <td>
+                            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$item.user_main}">
+                                <abbr title="Установить в качестве ответственного">{$item.user_main}</abbr>
+                            </a>
+                        </td>
                         <td>{$item.date_start|udate:'m-d H:i'}<br>{$item.date_finish_desired|udate:'m-d H:i'}</td>
-                        <td>{$item.user_edit}</td>
+                        <td>
+                            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$item.user_edit}">
+                                <abbr title="Установить в качестве ответственного">{$item.user_edit}</abbr>
+                            </a>
+                        </td>
                         <td>
                             {if count($item.doers)>0}
                             <table border='0' width='100%'>
@@ -187,16 +199,15 @@
                                             {/if}
                                         {/foreach}
                                     {else}
-                                        <select class="select2" style="width: 250px" name=user>
+                                        <select class="select2 tt_users_list" style="width: 250px" name="user">
                                             {foreach from=$tt_users item=item}
-                                            {if $item.user}
-                                            <option value='{$item.user}'{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
-                                            {else}
-                                            </optgroup>
-                                            <optgroup label="{$item.name}">
-
+                                                {if $item.user}
+                                                    <option value="{$item.user}"{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
+                                                {else}
+                                                    </optgroup>
+                                                    <optgroup label="{$item.name}">
                                                 {/if}
-                                                {/foreach}
+                                            {/foreach}
                                             </optgroup>
                                         </select>
                                     {/if} {*admin_order:end*}
@@ -304,3 +315,5 @@
         </td>
     </tr>
 </table>
+
+<script type="text/javascript" src="/js/behaviors/troubles-set-userlist-value.js"></script>

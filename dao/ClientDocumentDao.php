@@ -298,6 +298,38 @@ class ClientDocumentDao extends Singleton
         return $d;
     }
 
+    private function prepareContragentPaymentInfo(ClientAccount $account)
+    {
+        $contragent = $account->contract->contragent;
+
+        $result = 'Адрес: ' . (
+                $contragent->legal_type == 'person'
+                    ? $contragent->person->registration_address
+                    : $account->address_jur
+            ) . '<br />';
+
+        if ($contragent->legal_type == 'person') {
+            if (!empty($account->bank_properties))
+                return $result . nl2br($account->bank_properties);
+
+            return
+                $result .
+                'Паспорт серия ' . $contragent->person->passport_serial .
+                ' номер ' . $contragent->person->passport_number .
+                '<br />Выдан: ' . $contragent->person->passport_issued .
+                '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
+        }
+        else {
+            return
+                $result .
+                'Банковские реквизиты: ' . $account->bank_properties .
+                ', БИК ' . $account->bik .
+                ', ИНН ' . $contragent->inn .
+                ', КПП ' . $contragent->kpp .
+                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
+        }
+    }
+
     private function spawnDocumentData(ClientDocument $document)
     {
         $account = $document->getAccount();
@@ -352,9 +384,9 @@ class ClientDocumentDao extends Singleton
             'contract_dop_no' => $lastContract['contract_dop_no'],
 
             'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
-            'emails' => $officialContacts['email'],
-            'phones' => $officialContacts['phone'],
-            'faxes' => $officialContacts['fax'],
+            'emails' => implode('; ', $officialContacts['email']),
+            'phones' => implode('; ', $officialContacts['phone']),
+            'faxes' => implode('; ', $officialContacts['fax']),
 
             'organization_firma' => $firm->firma,
             'organization_director_post' => $firm->director_post,
@@ -371,6 +403,7 @@ class ClientDocumentDao extends Singleton
             'organization_pay_acc' => $firm->acc,
 
             'firm_detail_block' => $this->generateFirmDetail($firm, ($account->bik && $account->bank_properties)),
+            'payment_info' => $this->prepareContragentPaymentInfo($account),
         ];
     }
 }
