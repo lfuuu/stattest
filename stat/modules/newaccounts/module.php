@@ -4336,19 +4336,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['inn'] = "-----";
                             $A['bill']['kpp'] = "-----";
                         }elseif($p["type"] == "legal"){
-                            $A['bill']['inn'] = "<span style=\"color: red;\"><b>??????? ".$p['inn']."</b></span>";
-                            $A['bill']['kpp'] = $p['kpp'];
-                        }else{
-                            if (
-                                $p["type"] == "ip" ||
-                                preg_match("/(И|и)ндивидуальный[ ]+(П|п)редприниматель/", $p["company_full"]) ||
-                                preg_match("/^ИП/", $p["company_full"])
-                            )
-                            {
-                                $p["kpp"] = "-----";
-                            }
                             $A['bill']['inn'] = $p['inn'];
                             $A['bill']['kpp'] = $p['kpp'];
+                        }else{
+                            $A['bill']['inn'] = $p['inn'];
+                            $A['bill']['kpp'] = "-----";
                         }
 
                         $A['bill']['payment_date'] = $p['payment_date'];
@@ -4388,7 +4380,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         if(get_param_raw("csv", "0") == "1")
         {
             header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="'.iconv("utf-8", "windows-1251", "Книга продаж").'.csv"');
+            header('Content-Disposition: attachment; filename="Книга продаж.csv"');
 
             ob_start();
 
@@ -4399,11 +4391,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             foreach($R as $r)
             {
+                $companyName = html_entity_decode($r["company_full"]);
+                $companyName = str_replace(['«','»'], '"', $companyName);
+                $companyName = str_replace('"', '""', $companyName);
+
                 echo $r["inv_no"].";";
                 echo date("d.m.Y",$r["inv_date"]).";";
-                echo html_entity_decode(str_replace(["&#171;","&#187;"], "\"", $r["company_full"])).";";
-                echo $r["inn"].";";
-                echo $r["kpp"].";";
+                echo '"' . $companyName . '";';
+                echo '"' . $r["inn"] . '";';
+                echo '"' . $r["kpp"] . '";';
                 echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
