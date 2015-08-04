@@ -117,7 +117,7 @@ if (isset($fixclient_data['id'])) {
                             " class="c-blue-color"
                                 title="<?=$str?>">
                                 <a href="/client/view?id=<?= $activeClient->id ?>">
-                                    <?= $activeClient->contract->contragent->name_full .' / Договор № '
+                                    <?= $activeClient->contract->contragent->name .' / Договор № '
                                     . $activeClient->contract->number .' / ЛС № ' . "<b style=\"font-size:120%;\">{$activeClient->id}</b>" ?>
                                 </a>
                             </h2>
