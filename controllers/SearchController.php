@@ -66,7 +66,25 @@ class SearchController extends BaseController
                     }
                     else
                         return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
-                } else {
+                }
+                else if (
+                    null !== (
+                        $model =
+                            \app\models\GoodsIncomeOrder::find()
+                                ->where(['number'=>$search])
+                                ->orderBy('date desc')
+                                ->limit(1)
+                                ->one()
+                    )
+                ) {
+                    if(Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => 'index.php?module=incomegoods&action=order_view&id=' . $model->id, 'value' => $model->id]];
+                    }
+                    else
+                        return $this->redirect('/index.php?module=incomegoods&action=order_view&id=' . $model->id);
+                }
+                else {
                     return $this->render('result', ['message' => 'Заявка № '.$search.' не найдена']);
                 }
             case 'ip':
