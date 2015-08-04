@@ -693,22 +693,23 @@ class m_services extends IModule{
                     $actualNumbers[] = $r["E164"];
             }
 
-            if (defined("use_ats3")) {
-                $numberTypes = count($R) > 0 ? VirtPbx3::getNumberTypes($this->fetched_client["id"]) : [];
-            } else {
-                $numberTypes = [];
+            $numberTypes = count($R) > 0 ? VirtPbx3::getNumberTypes($this->fetched_client["id"]) : [];
+
+            try{
+                foreach($this->getInOldSchema($actualNumbers) as $number) {
+                    $numberTypes[$number] = 'old';
+                }
+            } catch(Exception $e) {
+                trigger_error2($e->getMessage());
             }
 
             foreach ($R as &$r) {
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
                 $r['cpe']=get_cpe_history('usage_voip',$r['id']);
-
-                if (defined("use_ats3")) {
-                    $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
-                } else {
-                    $r["vpbx"] = 'number'; //(virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]) ? "vpbx": "number" );
-                }
+                $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
             }
+
+
 
             $notAcos = array();
             foreach($db->AllRecords("select * from voip_permit where client = '$clientNick'") as $p) {
@@ -860,17 +861,6 @@ class m_services extends IModule{
             trigger_error2($e->getMessage());
         }
 
-        try{
-            if ($checkNumbers)
-                foreach($this->getInNewSchema(array_keys($checkNumbers)) as $number)
-                {
-                    $outNumbers[$number] = "new";
-                    unset($checkNumbers[$number]);
-                }
-        } catch(Exception $e) {
-            trigger_error2($e->getMessage());
-        }
-
         return $outNumbers;
 
     }
@@ -898,35 +888,6 @@ class m_services extends IModule{
             $number = $l["exten"];
             $resultNumbers[] = $number;
         } 
-
-        return $resultNumbers;
-    }
-
-    private function getInNewSchema($numbers)
-    {
-        $schema = "astschema";
-        $dbHost = "eridanus.mcn.ru";
-        $dbname = "voipdb";
-
-        $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
-
-        if (!$conn) 
-        {
-            mail(ADMIN_EMAIL, "[pg connect]", "services/getInNewSchema");
-            throw new Exception("Connection error (PG HOST: ".$dbHost.")...");
-        }
-
-        $res = @pg_query("SELECT number FROM ".$schema.".numbers WHERE number in ('".implode("', '", $numbers)."') AND enabled = 't'");
-
-        if (!$res) 
-            throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
-
-        $resultNumbers = array();
-
-        while ( $l = pg_fetch_assoc($res) )
-        {
-            $resultNumbers[] = $l["number"];
-        }
 
         return $resultNumbers;
     }
