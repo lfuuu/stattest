@@ -5,8 +5,6 @@ jQuery(document).ready(function() {
 
     $userLnk
         .on('click', function () {
-            console.log($(this).data('user'));
-
             $usersList.find('option[value="' + $(this).data('user') + '"]')
                 .prop('selected', true)
                 .trigger('change');
