@@ -45,20 +45,28 @@ class m_voipreports_calls_report
             if ($f_server_id != '0')
                 $where .= " and r.server_id='{$f_server_id}' ";
 
+            $pg_db->Query('BEGIN');
+
             $pg_db->Query("
+                DECLARE curs CURSOR FOR
                 SELECT r.connect_time, r.src_number, r.dst_number, r.billed_time
                 FROM calls_raw.calls_raw r
                 WHERE billed_time > 0 $where
             ");
-            
+
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="'.iconv("utf-8", "windows-1251", "Отчет по звонкам").'.csv"');
 
-            ob_start();
-            while($row = $pg_db->NextRecord(PGSQL_NUM)){
+            $pg_db->Query('FETCH 1000 FROM curs');
+            while($row = $pg_db->NextRecord(PGSQL_NUM) || (
+                    $pg_db->Query('FETCH 1000 FROM curs')
+                    && $row = $pg_db->NextRecord(PGSQL_NUM)
+                )
+            ){
                 echo implode(';', $row)."\n";
             }
-            echo iconv('utf-8', 'windows-1251', ob_get_clean());
+
+            $pg_db->Query('END');
             exit();
         }
 
