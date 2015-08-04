@@ -119,7 +119,7 @@ class LkDocsController extends ApiController
                 'middle_name' => $c->person->middle_name,
                 'passport_serial' => $passportSerial,
                 'passport_number' => $passportNumber,
-                'passport_date_issued' => ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued)),
+                'passport_date_issued' => date("Y-m-d", ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued))),
                 'passport_issued' => $c->person->passport_issued ? "***" : "",
                 'address' => $c->person->registration_address,
                 ];
