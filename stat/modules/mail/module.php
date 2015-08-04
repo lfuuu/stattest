@@ -218,7 +218,8 @@ class m_mail{
 			$filter['bill'][1] = $dateFrom->getDay();
 			$filter['bill'][2] = $dateTo->getDay();
 		}
-		
+		$J[] = "INNER JOIN client_contract CC ON (CC.id = C.contract_id)";
+
 		foreach($filter as $type=>$p)
 			if($p[0]!='NO')
 				switch($type){
@@ -226,7 +227,7 @@ class m_mail{
 						$W[] = 'C.status="'.addslashes($p[0]).'"';
 						break;
 					case 'manager':
-						$W[] = 'C.manager="'.addslashes($p[0]).'"';
+						$W[] = 'CC.manager="'.addslashes($p[0]).'"';
 						break;
 					case 'node':
 						$J[] = 'INNER JOIN usage_ip_ports AS uipp ON C.client=uipp.client';
@@ -315,7 +316,6 @@ class m_mail{
 
                     case 'organization': 
                         if (!empty($p)) {
-                            $J[] = "INNER JOIN client_contract CC ON (CC.id = C.contract_id)";
                             $W[] = "CC.organization_id = '".$p[0]."'";
                         }
                     break;
