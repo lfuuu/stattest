@@ -9,6 +9,7 @@ use Yii;
 use app\classes\BaseController;
 use yii\helpers\Url;
 use yii\web\Response;
+use app\models\GoodsIncomeOrder;
 
 class SearchController extends BaseController
 {
@@ -70,7 +71,7 @@ class SearchController extends BaseController
                 else if (
                     null !== (
                         $model =
-                            \app\models\GoodsIncomeOrder::find()
+                            GoodsIncomeOrder::find()
                                 ->where(['number'=>$search])
                                 ->orderBy('date desc')
                                 ->limit(1)
