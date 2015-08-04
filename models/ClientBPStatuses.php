@@ -57,6 +57,7 @@ class ClientBPStatuses
     const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Клиенты - Переговоры
     const OPERATOR_CLIENTS_TESTING = 49; // Клиенты - Тестирование
     const OPERATOR_CLIENTS_ACTING = 50; // Клиенты - Действующий
+    const OPERATOR_CLIENTS_JIRASOFT = 56; // Клиенты - JiraSoft
     const OPERATOR_CLIENTS_SUSPENDED = 51; // Клиенты - Приостановлен
     const OPERATOR_CLIENTS_TERMINATED = 52; // Клиенты - Расторгнут
     const OPERATOR_CLIENTS_BLOCKED = 53; // Клиенты - Фрод блокировка
