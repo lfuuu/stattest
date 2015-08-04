@@ -859,7 +859,7 @@ var optools = {
             valObj.val(valObj.val().replace(",","."));
             var val = valObj.val();
 
-            if (val == "" || !parseFloat(val))
+            if (val == "" || isNaN(parseFloat(val)))
             {
                 alert("Сальдо установлено неверно");
                 valObj.focus();
