@@ -13,6 +13,13 @@ use \app\models\ClientContragent;
 
         <?php $f = ActiveForm::begin(); ?>
 
+        <div class="row" style="width: 1100px;">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-6">
+                <?= $f->field($model, 'country_id')->dropDownList(\app\models\Country::getList()); ?>
+            </div>
+        </div>
+
         <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
             <div class="btn-group" id="type-select">
                 <button type="button" class="btn btn-default" data-tab="#legal">Юр. лицо</button>
@@ -202,30 +209,6 @@ use \app\models\ClientContragent;
                         ],
                         'passport_issued' => [],
                         'registration_address' => [],
-                    ],
-                ]);
-
-                echo '</div>';
-
-                echo '<div class="col-sm-12">';
-                echo Form::widget([
-                    'model' => $model,
-                    'form' => $f,
-                    'columns' => 1,
-                    'columnOptions' => ['class' => 'col-sm-12'],
-                    'options' => ['style' => 'width:50%; padding-right: 15px;'],
-                    'attributeDefaults' => [
-                        'type' => Form::INPUT_TEXT
-                    ],
-                    'attributes' => [
-                        'country_id' => [
-                            'type' => Form::INPUT_DROPDOWN_LIST,
-                            'widgetClass' => '\kartik\widgets\Select2',
-                            'container' => [
-                                'style' => 'width:50%; padding-right: 15px;'
-                            ],
-                            'items' => \app\models\Country::getList()
-                        ],
                     ],
                 ]);
 
