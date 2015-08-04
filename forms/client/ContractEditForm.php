@@ -163,8 +163,7 @@ class ContractEditForm extends Form
     public function getContragentListBySuperId()
     {
         $superId = $this->super_id;
-        $models = ClientContragent::find()->andWhere(['super_id' => $superId])->all();
-        return ArrayHelper::map($models, 'id', 'name');
+        return ClientContragent::find()->andWhere(['super_id' => $superId])->all();
     }
 
     public function validate($attributeNames = null, $clearErrors = false)

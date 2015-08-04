@@ -6,7 +6,17 @@ use kartik\widgets\Select2;
 use kartik\builder\Form;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
 
+$contragents = $model->getContragentListBySuperId();
+$contragentsOptions = [];
+
+foreach ($contragents as $contragent) {
+    $contragentsOptions[ $contragent->id ] = [
+        'data-legal-type' => $contragent->legal_type,
+    ];
+}
+$contragents = ArrayHelper::map($contragents, 'id', 'name');
 ?>
 
 <div class="row">
@@ -28,7 +38,13 @@ use yii\helpers\Url;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'contragent_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->getContragentListBySuperId()],
+                    'contragent_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => $contragents,
+                        'options' => [
+                            'options' => $contragentsOptions,
+                        ],
+                    ],
                 ],
             ]);
             echo Form::widget([
@@ -559,3 +575,4 @@ use yii\helpers\Url;
 </div>
 
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
+<script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>
