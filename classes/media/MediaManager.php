@@ -39,6 +39,27 @@ class MediaManager
         $folder = '',
         $link_field = 'id';
 
+    public function addFiles($files = '', $names = '') {
+        if (isset($_FILES[$files])) {
+            $files = (array) $_FILES[$files];
+            $names = get_param_raw($names, false);
+            for ($i=0, $s=sizeof($files['name']); $i<$s; $i++) {
+                if (!$files['size'][$i]) {
+                    continue;
+                }
+
+                $this->addFile(
+                    [
+                        'path' => $files['tmp_name'][$i],
+                        'name' => $files['name'][$i],
+                    ],
+                    '',
+                    (isset($names[$i]) ? $names[$i] : '')
+                );
+            }
+        }
+    }
+
     public function addFile(array $file, $comment = '', $name = '')
     {
         if (!file_exists($file['path']) || !is_file($file['path']))
@@ -48,7 +69,7 @@ class MediaManager
             $name = $file['name'];
         } else {
             if (!preg_match('/\.([^\.]{2,5})$/', $name) && preg_match('/\.([^\.]{2,5})$/', $file['name'], $m)) {
-                $name.= $m[0];
+                $name .= $m[0];
             }
         }
 

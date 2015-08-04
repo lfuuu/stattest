@@ -2,7 +2,7 @@ jQuery(document).ready(function() {
 
     $('.media-manager').MultiFile({
         list: 'div.media-manager-block',
-        max: 2,
+        max: 5,
         STRING: {
             remove: '<i class="uncheck" />',
             selected: 'Выбран файл: $file',
@@ -10,6 +10,8 @@ jQuery(document).ready(function() {
             duplicate: 'Файл "$file" уже добавлен'
         },
         afterFileSelect: function(element, value, master_element) {
+            console.log(master_element);
+            /*
             master_element.list.find('div.MultiFile-label:last').append(
                 $('<input />')
                     .css({
@@ -28,9 +30,11 @@ jQuery(document).ready(function() {
                         element.show().text(elementText.replace(/.*?(\.[^\.]+)$/, filename + '$1'));
                     })
             );
-        },
+            */
+        }
     });
 
+    /*
     $(document)
         .on('click', 'span.MultiFile-title', function() {
             $(this).hide();
@@ -97,5 +101,6 @@ jQuery(document).ready(function() {
             );
         $(this).detach();
     });
+    */
 
 });

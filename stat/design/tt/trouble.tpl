@@ -179,7 +179,7 @@
                 </form>
 
                 <h2>Этап</h2>
-                <form action="./?" method=post id=form name=form>
+                <form action="./?" method="post" id="form" name="form" enctype="multipart/form-data">
                     <input type=hidden name=action value=move>
                     <input type=hidden name=module value=tt>
                     <input type=hidden name=id value='{$tt_trouble.id}'>

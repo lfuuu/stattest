@@ -358,6 +358,9 @@ class m_tt extends IModule{
             }
         }
 
+        $troubleRecord = \app\models\Trouble::findOne($trouble['id']);
+        $troubleRecord->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
+
         if($trouble['bill_no'] && $trouble["trouble_type"] == "shop_orders")
         {
             header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
@@ -1646,15 +1649,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $id = $db->QueryInsert('tt_troubles',$R);
 
         $trouble = \app\models\Trouble::findOne($id);
-        if ($trouble && isset($_FILES['tt_files']) && is_array($_FILES['tt_files'])) {
-            $files = $_FILES['tt_files'];
-            for ($i=0, $s=sizeof($files['name']); $i<$s; $i++) {
-                $trouble->mediaManager->addFile([
-                    'name' => $files['name'][$i],
-                    'path' => $files['tmp_name'][$i],
-                ]);
-            }
-        }
+        $trouble->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
 
         $R2['user_main'] = $user_main;
 /*
