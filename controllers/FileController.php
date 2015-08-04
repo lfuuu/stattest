@@ -1,15 +1,16 @@
 <?php
 namespace app\controllers;
 
-use yii\data\ActiveDataProvider;
-use app\models\ClientContract;
-use app\models\ClientFile;
+use app\classes\Assert;
 use Yii;
+use yii\data\ActiveDataProvider;
 use app\classes\BaseController;
 use yii\base\Exception;
 use yii\web\Response;
 use yii\filters\AccessControl;
+use app\models\media\ClientFiles;
 use app\models\media\TroubleFiles;
+use app\models\ClientContract;
 
 class FileController extends BaseController
 {
@@ -37,9 +38,10 @@ class FileController extends BaseController
         return $this->render('list', ['model' => $model]);
     }
 
+    /*
     public function actionDownload($id)
     {
-        $model = ClientFile::findOne($id);
+        $model = ClientFiles::findOne($id);
 
         if (null === $model)
             throw new Exception('Файл не найден');
@@ -53,14 +55,21 @@ class FileController extends BaseController
         echo $model->content;
         die;
     }
+    */
 
     public function actionGetFile($model, $id)
     {
         switch ($model) {
+            case 'clients':
+                $file = ClientFiles::findOne($id);
+                break;
             case 'troubles':
                 $file = TroubleFiles::findOne($id);
                 break;
         }
+
+        Assert::isObject($file);
+
         $file->mediaManager->getContent($file);
     }
 
@@ -72,7 +81,7 @@ class FileController extends BaseController
             throw new Exception("Договор не найден");
 
         $request = Yii::$app->request->post();
-        $model->fileManager->addFile($request['comment'], $request['name']);
+        $model->mediaManager->addFile($request['comment'], $request['name']);
 
         if ($childId)
             return $this->redirect(['client/view', 'id' => $childId]);
@@ -82,12 +91,12 @@ class FileController extends BaseController
 
     public function actionDelete($id)
     {
-        $model = ClientFile::findOne($id);
+        $model = ClientFiles::findOne($id);
 
         if (null === $model)
             throw new Exception('Файл не найден');
 
-        $model->contract->fileManager->removeFile($id);
+        $model->contract->mediaManager->removeFile($id);
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return ['status' => 'ok'];
@@ -95,7 +104,7 @@ class FileController extends BaseController
 
     public function actionSend($id)
     {
-        $model = ClientFile::findOne($id);
+        $model = ClientFiles::findOne($id);
 
         if (null === $model)
             throw new Exception('Файл не найден');
@@ -114,7 +123,7 @@ class FileController extends BaseController
     public function actionReport()
     {
         $request = Yii::$app->request->post();
-        $query = ClientFile::find()->orderBy(['ts' => SORT_DESC]);
+        $query = ClientFiles::find()->orderBy(['ts' => SORT_DESC]);
 
         if($request['user_id'])
             $query->andWhere(['user_id' => $request['user_id']]);

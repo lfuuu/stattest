@@ -1,11 +1,12 @@
 <?php
-namespace app\models;
+namespace app\models\media;
 
 use yii\db\ActiveRecord;
 use app\models\User;
-use app\classes\FileManager;
+use app\models\ClientContract;
+use app\classes\media\ClientMedia as MediaManager;
 
-class ClientFile extends ActiveRecord
+class ClientFiles extends ActiveRecord
 {
     public static function tableName()
     {
@@ -28,6 +29,7 @@ class ClientFile extends ActiveRecord
         return $this->hasOne(User::className(), ["id" => "user_id"]);
     }
 
+    /*
     public function getContent()
     {
         return FileManager::create($this->contract_id)->getContent($this);
@@ -37,9 +39,16 @@ class ClientFile extends ActiveRecord
     {
         return FileManager::create($this->contract_id)->getMime($this);
     }
+    */
 
     public function getContract()
     {
         return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
     }
+
+    public function getMediaManager()
+    {
+        return new MediaManager($this->id);
+    }
+
 }

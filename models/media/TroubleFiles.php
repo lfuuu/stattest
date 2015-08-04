@@ -15,7 +15,7 @@ class TroubleFiles extends ActiveRecord
 
     public function getMediaManager()
     {
-        return (new MediaManager($this->id))->setLinkField('id');
+        return new MediaManager($this->id);
     }
 
 }

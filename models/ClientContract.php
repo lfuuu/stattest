@@ -1,10 +1,11 @@
 <?php
 namespace app\models;
 
-use app\classes\FileManager;
-use app\dao\ClientGridSettingsDao;
-use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
+use app\forms\client\AccountEditForm;
+use app\dao\ClientGridSettingsDao;
+use app\models\media\ClientFiles;
+use app\classes\media\ClientMedia as MediaManager;
 
 /**
  * @property Organization $organization
@@ -167,19 +168,19 @@ class ClientContract extends ActiveRecord
     }
 
     /**
-     * @return array|ClientFile[]
+     * @return array|ClientFiles[]
      */
     public function getAllFiles()
     {
-        return $this->hasMany(ClientFile::className(), ['contract_id' => 'id']);
+        return $this->hasMany(ClientFiles::className(), ['contract_id' => 'id']);
     }
 
     /**
-     * @return FileManager
+     * @return MediaManager
      */
-    public function getFileManager()
+    public function getMediaManager()
     {
-        return FileManager::create($this->id);
+        return new MediaManager($this->id);
     }
 
     public function getAllDocuments()

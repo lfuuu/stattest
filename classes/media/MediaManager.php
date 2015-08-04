@@ -37,7 +37,7 @@ class MediaManager
 
     private
         $folder = '',
-        $link_field = '';
+        $link_field = 'id';
 
     public function addFile(array $file, $comment = '', $name = '')
     {
@@ -128,6 +128,8 @@ class MediaManager
                 Yii::$app->end();
             }
         }
+
+        throw new \yii\web\HttpException(404, 'Файл не найден');
     }
 
     protected function getSize($file)
@@ -157,12 +159,6 @@ class MediaManager
     protected function getFolder()
     {
         return $this->folder;
-    }
-
-    protected function setLinkField($field)
-    {
-        $this->link_field = $field;
-        return $this;
     }
 
     protected function getLinkField()
