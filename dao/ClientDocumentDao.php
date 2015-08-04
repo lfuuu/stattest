@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientDocument;
 use Yii;
@@ -362,6 +363,7 @@ class ClientDocumentDao extends Singleton
             'position' => $document->getContract()->getContragent()->position,
             'fio' => $document->getContract()->getContragent()->fio,
             'name' => $document->getContract()->getContragent()->name,
+            'name_full' => $document->getContract()->getContragent()->name_full,
             'address_jur' => $document->getContract()->getContragent()->address_jur,
             'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
             'bik' => $account->bik,
@@ -373,6 +375,7 @@ class ClientDocumentDao extends Singleton
             'kpp' => $document->getContract()->getContragent()->kpp,
             'stamp' => $account->stamp,
             'legal_type' => $account->getContract()->getContragent()->legal_type,
+            'old_legal_type' => $account->getContract()->getContragent()->legal_type !='person' ? 'org' : 'person',
             'address_connect' => $account->address_connect,
             'account_id' => $account->id,
             'bank_name' => $account->bank_name,

@@ -12,7 +12,7 @@ replace '$client.inn' '$inn' -- ./*
 replace '$client.kpp' '$kpp' -- ./*
 replace '$client.contact' '$contact' -- ./*
 replace '$client.stamp' '$stamp' -- ./*
-replace '$client.type' '$legal_type' -- ./*
+replace '$client.type' '$old_legal_type' -- ./*
 replace '$client.address_connect' '$address_connect' -- ./*
 replace '$client.id' '$account_id' -- ./*
 replace '$client.bank_name' '$bank_name' -- ./*
