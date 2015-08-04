@@ -41,7 +41,7 @@ class SyncCore
         if (!$account)
             throw new Exception("Клиент не найден");
 
-        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "id" => $account->super_id]);
+        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "external_id" => '*' . $account->super_id]);
         if (!$superClientSync)
         {
             //event::go("add_super_client", $cl->super_id);
