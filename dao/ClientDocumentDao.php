@@ -345,8 +345,7 @@ class ClientDocumentDao extends Singleton
         } else {
             $contractDocument =
                 ClientDocument::find()
-                    ->andWhere(['type' => 'contract'])
-                    ->andWhere('contract_date <= :date', [':date' => $document->contract_dop_date ? $document->contract_dop_date : date('Y-m-d')])
+                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
                     ->orderBy('is_active desc, contract_date desc, id desc')
                     ->one();
             $lastContract = [
