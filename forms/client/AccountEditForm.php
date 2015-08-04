@@ -104,7 +104,7 @@ class AccountEditForm extends Form
                 ],
                 'default', 'value' => 0
             ],
-            [['voip_is_day_calc'], 'default', 'value' => 1],
+            [['voip_is_day_calc'], 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
