@@ -109,7 +109,7 @@ if (isset($fixclient_data['id'])) {
                     <?php if ($activeClient): ?>
                         <div class="col-sm-12">
                             <?php
-                            $str = htmlspecialchars($activeClient->contract->contragent->name_full .' / Договор
+                            $str = htmlspecialchars($activeClient->contract->contragent->name .' / Договор
                             № '. $activeClient->contract->number .' / ЛС № '. $activeClient->id);
                             ?>
                             <h2 style="display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;
@@ -117,7 +117,7 @@ if (isset($fixclient_data['id'])) {
                             " class="c-blue-color"
                                 title="<?=$str?>">
                                 <a href="/client/view?id=<?= $activeClient->id ?>">
-                                    <?= $activeClient->contract->contragent->name_full .' / Договор № '
+                                    <?= $activeClient->contract->contragent->name .' / Договор № '
                                     . $activeClient->contract->number .' / ЛС № ' . "<b style=\"font-size:120%;\">{$activeClient->id}</b>" ?>
                                 </a>
                             </h2>

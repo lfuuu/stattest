@@ -158,7 +158,9 @@ class ContragentEditForm extends Form
                     $this->name_full = $this->name;
                 break;
             case ClientContragent::IP_TYPE:
-                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
+                $name = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
+                $this->name = 'ИП ' . $name;
+                $this->name_full = 'ИП ' . $name;
                 break;
             case ClientContragent::PERSON_TYPE:
                 $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
