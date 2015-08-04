@@ -130,6 +130,9 @@ class ClientDocument extends ActiveRecord
         return ClientAccount::findOne($params)->loadVersionOnDate($this->contract_date);
     }
 
+    /**
+     * @return ClientContract
+     */
     public function getContract()
     {
         return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->contract_date);
