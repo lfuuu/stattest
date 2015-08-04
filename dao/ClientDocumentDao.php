@@ -140,6 +140,7 @@ class ClientDocumentDao extends Singleton
 
         $design->assign('client', $account);
         $design->assign('contract', $lastContract);
+        $design->assign('contact', $this->prepareContragentContacts($account));
         $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
         $design->assign('firm', $organization->getOldModeInfo());
         $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));
@@ -336,11 +337,18 @@ class ClientDocumentDao extends Singleton
     {
         $contragent = $account->contract->contragent;
 
+        $result = 'Адрес: ' . (
+                $contragent->legal_type == 'person'
+                    ? $contragent->person->registration_address
+                    : $account->address_jur
+            ) . '<br />';
+
         if ($contragent->legal_type == 'person') {
             if (!empty($account->bank_properties))
-                return nl2br($account->bank_properties);
+                return $result . nl2br($account->bank_properties);
 
             return
+                $result .
                 'Паспорт серия ' . $contragent->person->passport_serial .
                 ' номер ' . $contragent->person->passport_number .
                 '<br />Выдан: ' . $contragent->person->passport_issued .
@@ -348,12 +356,25 @@ class ClientDocumentDao extends Singleton
         }
         else {
             return
+                $result .
                 'Банковские реквизиты: ' . $account->bank_properties .
                 ', БИК ' . $account->bik .
                 ', ИНН ' . $contragent->inn .
                 ', КПП ' . $contragent->kpp .
                 '<br />Почтовый адрес: ' . $account->address_post_real;
         }
+    }
+
+    public function prepareContragentContacts(ClientAccount $account)
+    {
+        $result = ['fax'=>[], 'phone'=>[], 'email'=>[]];
+        foreach ($account->allContacts as $contact) {
+            $result[$contact->type][] = $contact['data'];
+        }
+        foreach ($result as $type => $items) {
+            $result[$type] = implode('; ', $items);
+        }
+        return $result;
     }
 
 }
