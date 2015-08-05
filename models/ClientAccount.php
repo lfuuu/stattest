@@ -75,8 +75,13 @@ class ClientAccount extends ActiveRecord
         'prov' => 'пров'
     ];
 
+    /** Virtual variables */
+    public $payment_info;
+    /** /Virtual variables */
+
     private $_lastComment = false;
 /*For old stat*/
+
     public function getType()
     {
         return ($this->contract->contragent->legal_type !='person') ? 'org' : 'person';
@@ -205,11 +210,10 @@ class ClientAccount extends ActiveRecord
     public function save($runValidation = true, $attributeNames = null)
     {
         if ($this->isNewRecord) {
-            return parent::save($runValidation = true, $attributeNames = null);
-        }
-        else {
+            return parent::save($runValidation, $attributeNames);
+        } else {
             if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation = true, $attributeNames = null);
+                return parent::save($runValidation, $attributeNames);
             } else {
                 $behaviors = $this->behaviors;
                 unset($behaviors['HistoryVersion']);
@@ -217,8 +221,21 @@ class ClientAccount extends ActiveRecord
                 foreach ($behaviors as $behavior)
                     $this->detachBehavior($behavior);
                 $this->beforeSave(false);
+
+                $date = \Yii::$app->request->post('deferred-date');
+                if (
+                    $date
+                    && strtotime($date) < time()
+                    && HistoryVersion::find()
+                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
+                        ->andWhere(['<=', 'date', date('Y-m-d')])
+                        ->andWhere(['>', 'date', $date])
+                        ->count() == 0
+                )
+                    return parent::save($runValidation, $attributeNames);
+
+                return true;
             }
-            return true;
         }
     }
 
@@ -276,7 +293,6 @@ class ClientAccount extends ActiveRecord
             'is_blocked' => 'Блокировка',
             'timezone_name' => 'Часовой пояс',
             'manager' => 'Менеджер',
-            'currency' => 'Валюта',
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
         ];
@@ -384,9 +400,9 @@ class ClientAccount extends ActiveRecord
     /**
      * @return Organization
      */
-    public function getOrganization()
+    public function getOrganization($date = '')
     {
-        return $this->contract->getOrganization();
+        return $this->contract->getOrganization($date);
     }
 
     public function getAllContacts()
@@ -419,7 +435,7 @@ class ClientAccount extends ActiveRecord
         }
 
         $statuses = [];
-        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
+        foreach (ClientGridSettingsDao::me()->getAllByParams() as $s) {
             $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
         }
 

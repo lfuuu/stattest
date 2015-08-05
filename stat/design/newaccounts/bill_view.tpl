@@ -272,7 +272,7 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/documents/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
+        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/document/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
     {/foreach}
 {/if}
 
@@ -317,7 +317,7 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 <input type=checkbox value=1 name="nbn_modem" id=wm10><label for='wm10'>NetByNet: акт модем</label><br>
 <input type=checkbox value=1 name="nbn_gds" id=wm11><label for='wm11'>NetByNet: заказ</label><br>
 {/if}
-{if  ($bill_client.type == 'ip' || $bill_client.type == 'person') && $bill_client.firma == 'mcm_telekom'}
+{if $bill_client.firma == 'mcm_telekom'}
 <input type=checkbox value=1 name="sogl_mcm_telekom" id=wm9><label for='wm9'>Соглашение (МСМ Телеком)</label><br>
 <input type=checkbox value=1 name="notice_mcm_telekom" id=wm10><label for='wm10'>Уведомление (МСМ Телеком)</label><br>
 {/if}

@@ -57,7 +57,7 @@ class ClientContragent extends ActiveRecord
     public function rules()
     {
         $rules = [
-            [['inn', 'kpp'],  ['class' => InnKppValidator::className()]],
+            [['inn', 'kpp'], ['class' => InnKppValidator::className()]],
         ];
         return $rules;
     }
@@ -66,8 +66,7 @@ class ClientContragent extends ActiveRecord
     {
         if ($this->isNewRecord) {
             return parent::save($runValidation, $attributeNames);
-        }
-        else {
+        } else {
             if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation, $attributeNames);
             } else {
@@ -77,8 +76,21 @@ class ClientContragent extends ActiveRecord
                 foreach ($behaviors as $behavior)
                     $this->detachBehavior($behavior);
                 $this->beforeSave(false);
+
+                $date = \Yii::$app->request->post('deferred-date');
+                if (
+                    $date
+                    && strtotime($date) < time()
+                    && HistoryVersion::find()
+                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
+                        ->andWhere(['<=', 'date', date('Y-m-d')])
+                        ->andWhere(['>', 'date', $date])
+                        ->count() == 0
+                )
+                    return parent::save($runValidation, $attributeNames);
+
+                return true;
             }
-            return true;
         }
     }
 
@@ -96,22 +108,22 @@ class ClientContragent extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         $super = ClientSuper::findOne($this->super_id);
-        if($this->getOldAttribute('name') == $super->name) {
+        if ($this->getOldAttribute('name') == $super->name) {
             $super->setAttribute('name', $this->name);
             $super->save();
         }
 
-        foreach($this->getContracts() as $contact)
-            foreach($contact->getAccounts() as $account)
+        foreach ($this->getContracts() as $contact)
+            foreach ($contact->getAccounts() as $account)
                 $account->sync1C();
     }
 
     public function beforeSave($insert)
     {
-        if(!parent::beforeSave($insert))
+        if (!parent::beforeSave($insert))
             return false;
 
-        if(!$this->name && !$this->name_full)
+        if (!$this->name && !$this->name_full)
             $this->name = $this->name_full = 'Новый контрагент ';
         return true;
     }
@@ -122,8 +134,8 @@ class ClientContragent extends ActiveRecord
     public function getAccounts()
     {
         $result = [];
-        foreach($this->getContracts() as $contract){
-            $result[] = array_merge($result,$contract->getAccounts());
+        foreach ($this->getContracts() as $contract) {
+            $result[] = array_merge($result, $contract->getAccounts());
         }
         return $result;
     }
@@ -134,7 +146,7 @@ class ClientContragent extends ActiveRecord
     public function getPerson()
     {
         $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
-        if($person)
+        if ($person)
             $person = $person->loadVersionOnDate($this->historyVersionDate);
         else {
             $person = new ClientContragentPerson();
@@ -149,7 +161,7 @@ class ClientContragent extends ActiveRecord
     public function getContracts()
     {
         $models = ClientContract::findAll(['contragent_id' => $this->id]);
-        foreach($models as &$model){
+        foreach ($models as &$model) {
             $model = $model->loadVersionOnDate($this->historyVersionDate);
         }
         return $models;

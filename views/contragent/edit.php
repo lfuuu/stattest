@@ -13,6 +13,13 @@ use \app\models\ClientContragent;
 
         <?php $f = ActiveForm::begin(); ?>
 
+        <div class="row" style="width: 1100px;">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-6">
+                <?= $f->field($model, 'country_id')->dropDownList(\app\models\Country::getList()); ?>
+            </div>
+        </div>
+
         <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
             <div class="btn-group" id="type-select">
                 <button type="button" class="btn btn-default" data-tab="#legal">Юр. лицо</button>
@@ -206,30 +213,6 @@ use \app\models\ClientContragent;
                 ]);
 
                 echo '</div>';
-
-                echo '<div class="col-sm-12">';
-                echo Form::widget([
-                    'model' => $model,
-                    'form' => $f,
-                    'columns' => 1,
-                    'columnOptions' => ['class' => 'col-sm-12'],
-                    'options' => ['style' => 'width:50%; padding-right: 15px;'],
-                    'attributeDefaults' => [
-                        'type' => Form::INPUT_TEXT
-                    ],
-                    'attributes' => [
-                        'country_id' => [
-                            'type' => Form::INPUT_DROPDOWN_LIST,
-                            'widgetClass' => '\kartik\widgets\Select2',
-                            'container' => [
-                                'style' => 'width:50%; padding-right: 15px;'
-                            ],
-                            'items' => \app\models\Country::getList()
-                        ],
-                    ],
-                ]);
-
-                echo '</div>';
                 ?>
 
 
@@ -245,6 +228,7 @@ use \app\models\ClientContragent;
                                     [
                                         date('Y-m-d', time()) => 'Текущую дату',
                                         date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
+                                        date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
                                         date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
                                         '' => 'Выбраную дату'
                                     ],
@@ -282,7 +266,7 @@ use \app\models\ClientContragent;
     <?php if (!$model->isNewRecord): ?>
         <div class="col-sm-12 form-group">
             <a href="#" onclick="return showVersion({ClientContragent:<?= $model->id ?>}, true);">Версии</a><br/>
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
+            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->getPersonId() . '})']); ?>
             <span>История изменений</span>
         </div>
     <?php endif; ?>

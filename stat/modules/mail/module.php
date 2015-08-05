@@ -218,7 +218,8 @@ class m_mail{
 			$filter['bill'][1] = $dateFrom->getDay();
 			$filter['bill'][2] = $dateTo->getDay();
 		}
-		
+		$J[] = "INNER JOIN client_contract CC ON (CC.id = C.contract_id)";
+
 		foreach($filter as $type=>$p)
 			if($p[0]!='NO')
 				switch($type){
@@ -226,7 +227,7 @@ class m_mail{
 						$W[] = 'C.status="'.addslashes($p[0]).'"';
 						break;
 					case 'manager':
-						$W[] = 'C.manager="'.addslashes($p[0]).'"';
+						$W[] = 'CC.manager="'.addslashes($p[0]).'"';
 						break;
 					case 'node':
 						$J[] = 'INNER JOIN usage_ip_ports AS uipp ON C.client=uipp.client';
@@ -311,9 +312,15 @@ class m_mail{
 									LIMIT 0,1
 									)";
 						}
-						break;
+                        break;
+
+                    case 'organization': 
+                        if (!empty($p)) {
+                            $W[] = "CC.organization_id = '".$p[0]."'";
+                        }
+                    break;
 				}
-		$design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
+        $design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
 
@@ -323,7 +330,10 @@ class m_mail{
 		$design->assign(
 			'f_manager',
 			$m
-		);
+        );
+
+
+        $design->assign('f_organization', \app\models\Organization::find()->actual()->all());
 
 		$design->assign('f_status', \app\models\ClientAccount::$statuses);
 		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
@@ -387,7 +397,8 @@ class m_mail{
 					C.id
 				ORDER BY
 					C.client
-			');
+                    ');
+
 			foreach($R as $r){
 				if(!isset($C[$r['id']]))
 					$C[$r['id']] = $r;

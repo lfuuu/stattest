@@ -67,6 +67,15 @@ function check_all2(){ldelim}
 <input type=hidden name=module value=mail>
 <input type=hidden name=ack value=1>
 <tbody>
+<TR><TD>Организация</TD><TD>
+<select name='filter[organization][0]'><option value='NO'>(не фильтровать по этому полю)</option>
+    {foreach from=$f_organization item=r}
+        <option value={$r.organization_id} {if $mail_filter.organization.0 == $r.organization_id}selected="selected"{/if}>
+            {$r.name}
+        </option>
+    {/foreach}
+</select>
+</td></tr>
 <TR><TD>Статус клиента</TD><TD>
 <select name='filter[status][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_status item=r key=k}<option value={$k} {if $mail_filter.status.0 == $k}selected="selected"{/if}>{$r.name}</option>{/foreach}</select>
 </td></tr>
@@ -84,7 +93,7 @@ function check_all2(){ldelim}
 с <input type=text name='date_from' id="date_from" value='{$date_from}'>
 по <input type=text name='date_to' id="date_to" value='{$date_to}'>
 </td></tr>
-<tr><td>Услуга: 8800</TD><TD>
+<tr><td>Услуга 8800:</TD><TD>
 <select name='filter[s8800][0]'><option value='NO'>(не фильтровать по этому полю)</option>
 <option value='with'{if $mail_filter.s8800.0 == 'with'} selected{/if}>с услугой</option>
 <option value='without'{if $mail_filter.s8800.0 == 'without'} selected{/if}>без услуги</option>

@@ -21,6 +21,7 @@ class m_voipreports_calls_report
         $f_dest_group = get_param_protected('f_dest_group', '');
         $f_direction_out = get_param_protected('f_direction_out', 't');
         $f_mob = get_param_protected('f_mob', '0');
+        $f_server_id = get_param_protected('f_server_id', '0');
         $f_prefix_op = get_param_protected('f_prefix_op', '');
         $f_without_prefix_op = get_param_protected('f_without_prefix_op', '0');
         $limit = 100;
@@ -30,6 +31,45 @@ class m_voipreports_calls_report
         if ($f_operator_id == 'all') $f_operator_id = '0';
 
         $report = array();
+
+
+        if (isset($_GET['makeFile'])) {
+
+            $where = " and r.connect_time >= '{$date_from}'";
+            $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
+            $where .= $f_direction_out == 'f' ?  " and r.orig=true " : " and r.orig=false ";
+
+            if ($f_operator_id != '0')
+                $where .= " and r.operator_id='{$f_operator_id}' ";
+
+            if ($f_server_id != '0')
+                $where .= " and r.server_id='{$f_server_id}' ";
+
+            $pg_db->Query('BEGIN');
+
+            $pg_db->Query("
+                DECLARE curs CURSOR FOR
+                SELECT r.connect_time, r.src_number, r.dst_number, r.billed_time
+                FROM calls_raw.calls_raw r
+                WHERE billed_time > 0 $where
+            ");
+
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="'.iconv("utf-8", "windows-1251", "Отчет по звонкам").'.csv"');
+
+            $pg_db->Query('FETCH 1000 FROM curs');
+            while($row = $pg_db->NextRecord(PGSQL_NUM) || (
+                    $pg_db->Query('FETCH 1000 FROM curs')
+                    && $row = $pg_db->NextRecord(PGSQL_NUM)
+                )
+            ){
+                echo implode(';', $row)."\n";
+            }
+
+            $pg_db->Query('END');
+            exit();
+        }
+
         if (isset($_GET['make'])) {
 
             $where = " and r.connect_time >= '{$date_from}'";
@@ -38,6 +78,7 @@ class m_voipreports_calls_report
 
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
+
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
                     $where .= " and r.destination_id < 0 ";

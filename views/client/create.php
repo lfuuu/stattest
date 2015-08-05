@@ -20,6 +20,15 @@ use yii\web\JsExpression;
 
         <?php $f = ActiveForm::begin(); ?>
 
+        <div class="row" style="width: 1100px;">
+            <div class="col-sm-6">
+                <?= $f->field($account, 'admin_email', ['options' => ['style' => 'width: 100%']]); ?>
+            </div>
+            <div class="col-sm-6">
+                <?= $f->field($contragent, 'country_id')->dropDownList(\app\models\Country::getList()); ?>
+            </div>
+        </div>
+
         <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
             <div class="btn-group" id="type-select">
                 <button type="button" class="btn btn-default" data-tab="#legal">Юр. лицо</button>
@@ -28,6 +37,7 @@ use yii\web\JsExpression;
                 <button type="button" class="btn btn-default" data-tab="#person">Физ. лицо</button>
             </div>
         </div>
+
         <?= Html::activeHiddenInput($contragent, 'super_id') ?>
         <div id="fs-tabs" class="row" style="width: 1100px;">
             <?php
@@ -213,30 +223,6 @@ use yii\web\JsExpression;
             ]);
 
             echo '</div>';
-
-            echo '<div class="col-sm-12">';
-            echo Form::widget([
-                'model' => $contragent,
-                'form' => $f,
-                'columns' => 1,
-                'columnOptions' => ['class' => 'col-sm-12'],
-                'options' => ['style' => 'width:50%; padding-right: 15px;'],
-                'attributeDefaults' => [
-                    'type' => Form::INPUT_TEXT
-                ],
-                'attributes' => [
-                    'country_id' => [
-                        'type' => Form::INPUT_DROPDOWN_LIST,
-                        'widgetClass' => '\kartik\widgets\Select2',
-                        'container' => [
-                            'style' => 'width:50%; padding-right: 15px;'
-                        ],
-                        'items' => \app\models\Country::getList()
-                    ],
-                ],
-            ]);
-
-            echo '</div>';
             ?>
         </div>
 
@@ -371,15 +357,10 @@ use yii\web\JsExpression;
                     'empty19' => ['type' => Form::INPUT_RAW,],
                     'empty20' => ['type' => Form::INPUT_RAW,],
 
-                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1], 'options' => ['value' => 1000]],
+                    'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
                     'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
                     'empty21' => ['type' => Form::INPUT_RAW,],
                     'empty22' => ['type' => Form::INPUT_RAW,],
-
-                    'admin_email' => ['columnOptions' => ['colspan' => 1],],
-                    'empty27' => ['type' => Form::INPUT_RAW,],
-                    'empty28' => ['type' => Form::INPUT_RAW,],
-                    'empty29' => ['type' => Form::INPUT_RAW,],
 
                     'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
                     'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
@@ -485,3 +466,4 @@ use yii\web\JsExpression;
 </div>
 
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
+<script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>

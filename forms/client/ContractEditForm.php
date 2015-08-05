@@ -35,6 +35,7 @@ class ContractEditForm extends Form
         $contract_type_id,
         $state,
 
+        $save_comment_stage = false,
         $public_comment = [];
 
     protected $contract = null;
@@ -49,7 +50,7 @@ class ContractEditForm extends Form
             ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original', 'external']],
             ['business_process_id', 'default', 'value' => 1],
             ['business_process_status_id', 'default', 'value' => 19],
-            [['public_comment'], 'safe'],
+            [['public_comment', 'save_comment_stage'], 'safe'],
         ];
         return $rules;
     }
@@ -111,23 +112,25 @@ class ContractEditForm extends Form
 
     public function save()
     {
-        $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
-        foreach ($comments as $comment) {
-            if (in_array($comment->id, array_keys($this->public_comment)))
-                $comment->is_publish = 1;
-            else
-                $comment->is_publish = 0;
-            $comment->save();
-        }
+        if($this->save_comment_stage) {
+            $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
+            foreach ($comments as $comment) {
+                if (in_array($comment->id, array_keys($this->public_comment)))
+                    $comment->is_publish = 1;
+                else
+                    $comment->is_publish = 0;
+                $comment->save();
+            }
 
-        if ($this->comment) {
-            $comment = new ClientContractComment();
-            $comment->comment = $this->comment;
-            $comment->user = Yii::$app->user->identity->user;
-            $comment->ts = date('Y-m-d H:i:s');
-            $comment->is_publish = 0;
-            $comment->contract_id = $this->id;
-            $comment->save();
+            if ($this->comment) {
+                $comment = new ClientContractComment();
+                $comment->comment = $this->comment;
+                $comment->user = Yii::$app->user->identity->user;
+                $comment->ts = date('Y-m-d H:i:s');
+                $comment->is_publish = 0;
+                $comment->contract_id = $this->id;
+                $comment->save();
+            }
         }
 
         $contract = $this->contract;
@@ -160,8 +163,7 @@ class ContractEditForm extends Form
     public function getContragentListBySuperId()
     {
         $superId = $this->super_id;
-        $models = ClientContragent::find()->andWhere(['super_id' => $superId])->all();
-        return ArrayHelper::map($models, 'id', 'name');
+        return ClientContragent::find()->andWhere(['super_id' => $superId])->all();
     }
 
     public function validate($attributeNames = null, $clearErrors = false)

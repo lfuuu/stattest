@@ -98,6 +98,7 @@ class ClientSearch extends ClientAccount
         $query->orFilterWhere([ClientContract::tableName() . '.manager' => $this->manager]);
         $query->orFilterWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
         $query->orFilterWhere(['like', 'name_full', $this->companyName]);
+        $query->orFilterWhere(['like', 'name', $this->companyName]);
         $query->orFilterWhere(['like', 'inn', $this->inn]);
         $query->orFilterWhere(['like', 'address_connect', $this->address]);
 
@@ -159,7 +160,7 @@ class ClientSearch extends ClientAccount
         ]);
 
         $query->andFilterWhere(['c.id' => $this->id]);
-        $query->andFilterWhere(['cg.name_full' => $this->companyName]);
+        $query->andFilterWhere(['or', ['cg.name' => $this->companyName],['cg.name_full' => $this->companyName]]);
         $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);

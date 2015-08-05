@@ -1,13 +1,12 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientDocument;
-use app\models\Organization;
 use Yii;
 use app\classes\Singleton;
 use app\models\Contract;
-use yii\base\Exception;
-use yii\db\ActiveRecord;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -107,41 +106,11 @@ class ClientDocumentDao extends Singleton
 
     private function generateDefault(ClientDocument $document)
     {
-        $contractDate = $document->contract_date;
         $file = $this->getFilePath($document);
         $content = file_get_contents($file);
 
-        $account = $document->getAccount();
         $design = \app\classes\Smarty::init();
-
-        if ($document->type == 'contract') {
-            $lastContract = [
-                'contract_no' => $document->contract_no,
-                'contract_date' => $document->contract_date,
-            ];
-        } else {
-            $contractDocument =
-                ClientDocument::find()
-                    ->andWhere(['type' => 'contract'])
-                    ->andWhere('contract_date <= :date', [':date' => $document->contract_dop_date ? $document->contract_dop_date : date('Y-m-d')])
-                    ->orderBy('is_active desc, contract_date desc, id desc')
-                    ->one();
-            $lastContract = [
-                'contract_no' => $contractDocument->contract_no,
-                'contract_date' => $contractDocument->contract_date,
-                'contract_dop_no' => $document->contract_no,
-                'contract_dop_date' => $document->contract_date,
-            ];
-        }
-
-        $account->bank_properties = str_replace("\n", '<br/>', $account->bank_properties);
-        $design->assign('client', $account);
-        $design->assign('contract', $lastContract);
-        $organization = Organization::find()->byId($account->contract->organization_id)->actual($contractDate)->one();
-        $design->assign('firm', $organization->getOldModeInfo());
-        $design->assign('firm_detail', $this->generateFirmDetail($organization->getOldModeInfo()), ($account->bik && $account->bank_properties));
-        $design->assign('firm_director', $organization->director->getOldModeInfo());
-        //Выпилить
+        $design->assign($this->spawnDocumentData($document));
 
         $content = $this->contract_fix_static_parts_of_template($design, $content);
         if (strpos($content, "{*#blank_zakaz#*}") !== false) {
@@ -329,5 +298,118 @@ class ClientDocumentDao extends Singleton
             . "<br /> е-mail: " . $f["email"];
         return $d;
     }
-}
 
+    private function prepareContragentPaymentInfo(ClientAccount $account)
+    {
+        $contragent = $account->contract->contragent;
+
+        $result = 'Адрес: ' . (
+                $contragent->legal_type == 'person'
+                    ? $contragent->person->registration_address
+                    : $account->address_jur
+            ) . '<br />';
+
+        if ($contragent->legal_type == 'person') {
+            if (!empty($account->bank_properties))
+                return $result . nl2br($account->bank_properties);
+
+            return
+                $result .
+                'Паспорт серия ' . $contragent->person->passport_serial .
+                ' номер ' . $contragent->person->passport_number .
+                '<br />Выдан: ' . $contragent->person->passport_issued .
+                '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
+        }
+        else {
+            return
+                $result .
+                'Банковские реквизиты: ' . $account->bank_properties .
+                ', БИК ' . $account->bik .
+                ', ИНН ' . $contragent->inn .
+                ', КПП ' . $contragent->kpp .
+                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
+        }
+    }
+
+    private function spawnDocumentData(ClientDocument $document)
+    {
+        $account = $document->getAccount();
+        $contractDate = $document->contract_date;
+        $officialContacts = $account->getOfficialContact();
+
+        if ($document->type == 'contract') {
+            $lastContract = [
+                'contract_no' => $document->contract_no,
+                'contract_date' => $document->contract_date,
+            ];
+        } else {
+            $contractDocument =
+                ClientDocument::find()
+                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
+                    ->orderBy('is_active desc, contract_date desc, id desc')
+                    ->one();
+            $lastContract = [
+                'contract_no' => $contractDocument->contract_no,
+                'contract_date' => $contractDocument->contract_date,
+                'contract_dop_no' => $document->contract_no,
+                'contract_dop_date' => $document->contract_date,
+            ];
+        }
+
+        $organization = $document->getContract()->getOrganization($contractDate);
+        $firm = $organization->getOldModeInfo();
+        return [
+            'position' => $document->getContract()->getContragent() == 'legal'
+                ? $document->getContract()->getContragent()->position
+                : '',
+            'fio' => $document->getContract()->getContragent() == 'legal'
+                ? $document->getContract()->getContragent()->fio
+                : $document->getContract()->getContragent()->name_full,
+            'name' => $document->getContract()->getContragent()->name,
+            'name_full' => $document->getContract()->getContragent()->name_full,
+            'address_jur' => $document->getContract()->getContragent()->address_jur,
+            'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
+            'bik' => $account->bik,
+            'address_post_real' => $account->address_post_real,
+            'address_post' => $account->address_post,
+            'corr_acc' => $account->corr_acc,
+            'pay_acc' => $account->pay_acc,
+            'inn' => $document->getContract()->getContragent()->inn,
+            'kpp' => $document->getContract()->getContragent()->kpp,
+            'stamp' => $account->stamp,
+            'legal_type' => $account->getContract()->getContragent()->legal_type,
+            'old_legal_type' => $account->getContract()->getContragent()->legal_type !='person' ? 'org' : 'person',
+            'address_connect' => $account->address_connect,
+            'account_id' => $account->id,
+            'bank_name' => $account->bank_name,
+            'credit' => $account->credit,
+
+            'contract_no' => $lastContract['contract_no'],
+            'contract_date' => $lastContract['contract_date'],
+            'contract_dop_date' => $lastContract['contract_dop_date'],
+            'contract_dop_no' => $lastContract['contract_dop_no'],
+
+            'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
+            'emails' => implode('; ', $officialContacts['email']),
+            'phones' => implode('; ', $officialContacts['phone']),
+                'faxes' => implode('; ', $officialContacts['fax']),
+
+            'organization_firma' => $firm->firma,
+            'organization_director_post' => $firm->director_post,
+            'organization_director' => $firm->director,
+                'organization_name' => $firm->name,
+            'organization_address' => $firm->address,
+            'organization_inn' => $firm->inn,
+            'organization_kpp' => $firm->kpp,
+            'organization_corr_acc' => $firm->kor_acc,
+            'organization_bik' => $firm->bik,
+            'organization_bank' => $firm->bank,
+            'organization_phone' => $firm->phone,
+            'organization_email' => $firm->email,
+            'organization_pay_acc' => $firm->acc,
+
+            'firm_detail_block' => $this->generateFirmDetail($firm, ($account->bik && $account->bank_properties)),
+            'payment_info' => $this->prepareContragentPaymentInfo($account),
+        ];
+    }
+}

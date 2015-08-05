@@ -8,6 +8,9 @@ use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
 use yii\filters\AccessControl;
+use app\models\Bill;
+use app\classes\documents\DocumentReportFactory;
+use app\classes\Assert;
 
 class DocumentController extends BaseController
 {
@@ -99,6 +102,14 @@ class DocumentController extends BaseController
 
         echo $document->getFileContent();
         die;
+    }
+
+    public function actionGetMhtml($bill_no, $doc_type = 'bill')
+    {
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+        Assert::isObject($bill);
+        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail = 0);
+        $report->renderAsMhtml();
     }
 
     public function actionPrintByCode($code)

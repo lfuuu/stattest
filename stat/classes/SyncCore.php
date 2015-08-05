@@ -41,13 +41,13 @@ class SyncCore
         if (!$account)
             throw new Exception("Клиент не найден");
 
-        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "id" => $account->super_id]);
+        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "external_id" => '*' . $account->super_id]);
         if (!$superClientSync)
         {
             //event::go("add_super_client", $cl->super_id);
             //event::go("add_account", $cl->id, true);
             //return;
-            SyncCore::AddSuperClient($account->super_id);
+            SyncCore::addSuperClient($account->super_id);
         }
 
 
@@ -84,14 +84,12 @@ class SyncCore
 
                     if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
                     {
-                        event::go("add_super_client", $account->super_id);
-                        event::go("add_account", $account->id, true);
+                        //event::go("add_account", $account->id, true);
                     }
 
                     if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                     {
-                        event::go("add_super_client", $account->super_id);
-                        event::go("add_account", $account->id, true);
+                        //event::go("add_account", $account->id, true);
                     }
 
                     if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует

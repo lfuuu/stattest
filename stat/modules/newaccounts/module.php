@@ -145,24 +145,35 @@ class m_newaccounts extends IModule
         }
     }
 
-    function _getSwitchTelekomDate($clientId)
+    function _getSwitchTelekomDate($contractId)
     {
-        $res = \app\models\HistoryChanges::find()
+        $data = [];
+        $lastOrgId = 0;
+
+        foreach(\app\models\HistoryVersion::find()
             ->andWhere(
-                ['or', 
-                    ['like', 'data_json', '"organization_id":"' . Organization::MCN_TELEKOM . '"'], 
-                    ['like', 'data_json', '"organization_id":"' . Organization::MCM_TELEKOM . '"']
-                ]
+                ['regexp', 'data_json', '"organization_id":"?[0-9]+"?,']
             )
-            ->andWhere(["model" => 'ClientAccount', 'model_id' => $clientId])
-            ->one();
-        return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
+            ->andWhere(["model" => 'ClientContract', 'model_id' => $contractId])
+            ->orderBy("date")
+            ->all() as $l)
+        {
+            $v = json_decode($l->data_json, true);
+            if ($lastOrgId != $v["organization_id"])
+            {
+                $data[$l->date] = $v["organization_id"];
+                $lastOrgId = $v["organization_id"];
+            }
+        }
+
+        return $data;
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $account = ClientAccount::findOne($fixclient);
+        $isMulty = $account->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -195,11 +206,11 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+        $stDates = $this->_getSwitchTelekomDate($account->contract->id);
 
         if($stDates)
         {
-            foreach($stDates as $stDate => $stFirma)
+            foreach($stDates as $stDate => $stOrgId)
             {
                 $ks = false;
                 foreach($sw as $bDate => $billNo)
@@ -213,7 +224,7 @@ class m_newaccounts extends IModule
 
                 if($ks && isset($R[$ks]))
                 {
-                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $organization = Organization::find()->byId($stOrgId)->one();
                     $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
@@ -523,7 +534,7 @@ class m_newaccounts extends IModule
 
         if($stDates)
         {
-            foreach($stDates as $stDate => $stFirma)
+            foreach($stDates as $stDate => $stOrgId)
             {
                 $ks = false;
                 foreach($sw as $bDate => $billNo)
@@ -537,7 +548,7 @@ class m_newaccounts extends IModule
 
                 if($ks && isset($R[$ks]))
                 {
-                    $organization = Organization::findOne(["firma" => $stFirma]);
+                    $organization = Organization::find()->byId($stOrgId)->one();
                     $R[$ks]["switch_to_mcn"] = $organization->name;
                 }
             }
@@ -1748,17 +1759,22 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUB');
         }
 
+        $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
+        if ($billModel)
+        {
+            $organization = $billModel->clientAccount->contract->organization;
+            $design->assign("organization", $organization);
+        }
+
         if($obj == "receipt")
         {
             $this->_print_receipt();
             exit();
         } elseif ($obj == "sogl_mcm_telekom" || $obj == 'notice_mcm_telekom')
         {
-            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
-
-            if ($bill)
+            if ($billModel)
             {
-                $report = DocumentReportFactory::me()->getReport($bill, $obj);
+                $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                 if ($is_pdf)
                 {
                     echo $report->renderAsPDF();
@@ -1771,16 +1787,8 @@ class m_newaccounts extends IModule
 
 
         $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
-        if ($to_client)
-        {
-            $bill = app\models\Bill::findOne(['bill_no' => $bill_no]);
-            if ($bill)
-            {
-                $organization = $bill->clientAccount->contract->organization;
-                $design->assign("organization", $organization);
-            }
-        }
         $design->assign("to_client", $to_client);
+
 
 
         $bill = new Bill($bill_no);
@@ -3939,7 +3947,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
 
         //** Todo:  */
-        $organization = Organization::find()->byId($c['organization_id'])->actual($date_to)->one();
+        $organization = Organization::find()->byId($c->contract->organization_id)->actual($date_to)->one();
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
         $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
@@ -4339,19 +4347,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['inn'] = "-----";
                             $A['bill']['kpp'] = "-----";
                         }elseif($p["type"] == "legal"){
-                            $A['bill']['inn'] = "<span style=\"color: red;\"><b>??????? ".$p['inn']."</b></span>";
-                            $A['bill']['kpp'] = $p['kpp'];
-                        }else{
-                            if (
-                                $p["type"] == "ip" ||
-                                preg_match("/(И|и)ндивидуальный[ ]+(П|п)редприниматель/", $p["company_full"]) ||
-                                preg_match("/^ИП/", $p["company_full"])
-                            )
-                            {
-                                $p["kpp"] = "-----";
-                            }
                             $A['bill']['inn'] = $p['inn'];
                             $A['bill']['kpp'] = $p['kpp'];
+                        }else{
+                            $A['bill']['inn'] = $p['inn'];
+                            $A['bill']['kpp'] = "-----";
                         }
 
                         $A['bill']['payment_date'] = $p['payment_date'];
@@ -4391,7 +4391,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         if(get_param_raw("csv", "0") == "1")
         {
             header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="'.iconv("utf-8", "windows-1251", "Книга продаж").'.csv"');
+            header('Content-Disposition: attachment; filename="Книга продаж.csv"');
 
             ob_start();
 
@@ -4402,11 +4402,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             foreach($R as $r)
             {
+                $companyName = html_entity_decode($r["company_full"]);
+                $companyName = str_replace(['«','»'], '"', $companyName);
+                $companyName = str_replace('"', '""', $companyName);
+
                 echo $r["inv_no"].";";
                 echo date("d.m.Y",$r["inv_date"]).";";
-                echo html_entity_decode(str_replace(["&#171;","&#187;"], "\"", $r["company_full"])).";";
-                echo $r["inn"].";";
-                echo $r["kpp"].";";
+                echo '"' . $companyName . '";';
+                echo '"' . $r["inn"] . '";';
+                echo '"' . $r["kpp"] . '";';
                 echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";

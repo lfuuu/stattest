@@ -88,10 +88,10 @@ function do_events()
             {
                 switch($event->event)
                 {
-                    case 'add_super_client': SyncCore::AddSuperClient($param); break;
+                    case 'add_super_client': SyncCore::addSuperClient($param); break;
 
-                    case 'add_account':       SyncCore::AddAccount($param, true);  break;
-                    case 'client_set_status': SyncCore::AddAccount($param, false); break;
+                    case 'add_account':       SyncCore::addAccount($param, true);  break;
+                    case 'client_set_status': SyncCore::addAccount($param, false); break;
 
                     case 'admin_changed': SyncCore::adminChanged($param); break;
 
@@ -109,8 +109,8 @@ function do_events()
                     case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
                 }
 
-                if (defined("use_ats3"))
-                {
+//                if (defined("use_ats3"))
+//                {
                     $number = false;
                     switch($event->event)
                     {
@@ -125,7 +125,7 @@ function do_events()
 
                         case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
                     }
-                }
+//                }
             }
 
         } catch (Exception $e)

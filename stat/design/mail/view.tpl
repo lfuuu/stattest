@@ -75,7 +75,7 @@
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}{if $r.letter_state=='sent'} style='color:gray'{/if}>
 	<TD>{$smarty.foreach.outer.iteration}</TD>
 	<TD><a href='{$LINK_START}module=mail&action=preview&id={$template.job_id}&client={$r.client}'>pre</a></TD>
-	<TD><a href='/client/view?id={$r.client}'>{$r.id}</a></TD>
+	<TD><a href="/client/view?id={$r.client_id}" target="_blank">{$r.client_id}</a></TD>
 	<TD>{if isset($r.objects) && count($r.objects)}
 		<table cellspacing=2 cellpadding=1 border=0 class=mform>
 		{foreach from=$r.objects item=obj name=inner}
