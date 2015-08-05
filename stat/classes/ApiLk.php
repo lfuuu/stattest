@@ -817,8 +817,8 @@ class ApiLk
         {
             if ($region->country_id == Country::RUSSIA)
             {
-                $skipFrom = 1;
-                $areaLen = 3;
+                $skipFrom = 0;
+                $areaLen = 4;
             } else {
                 $skipFrom = 0;
                 $areaLen = 2;
