@@ -4,7 +4,7 @@ namespace app\models\media;
 use yii\db\ActiveRecord;
 use app\models\User;
 use app\models\ClientContract;
-use app\classes\media\ClientMedia as MediaManager;
+use app\classes\media\ClientMedia;
 
 class ClientFiles extends ActiveRecord
 {
@@ -29,18 +29,6 @@ class ClientFiles extends ActiveRecord
         return $this->hasOne(User::className(), ["id" => "user_id"]);
     }
 
-    /*
-    public function getContent()
-    {
-        return FileManager::create($this->contract_id)->getContent($this);
-    }
-
-    public function getMime()
-    {
-        return FileManager::create($this->contract_id)->getMime($this);
-    }
-    */
-
     public function getContract()
     {
         return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
@@ -48,7 +36,8 @@ class ClientFiles extends ActiveRecord
 
     public function getMediaManager()
     {
-        return new MediaManager($this->id);
+        $contract = ClientContract::findOne(['id' => $this->contract_id]);
+        return new ClientMedia($contract);
     }
 
 }

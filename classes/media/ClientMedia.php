@@ -2,29 +2,56 @@
 
 namespace app\classes\media;
 
+use app\models\ClientContract;
+use Yii;
+use DateTime;
 use app\models\media\ClientFiles;
 
 class ClientMedia extends MediaManager
 {
+    /** @var ClientContract */
+    private $contract;
 
-    private
-        $folder = '',
-        $link_field = 'contract_id';
-
-    public function __construct($contract_id = 0)
+    public function __construct(ClientContract $contract)
     {
-        $this->model = new ClientFiles;
-        $this->record_id = $contract_id;
+        $this->contract = $contract;
     }
 
     public function getFolder()
     {
-        return $this->folder;
+        return 'files';
     }
 
-    public function getLinkField()
+    /**
+     * @return ClientFiles
+     */
+    protected function createFileModel($name, $comment)
     {
-        return $this->link_field;
+        $model = new ClientFiles();
+        $model->contract_id = $this->contract->id;
+        $model->ts = (new DateTime())->format(DateTime::ATOM);
+
+        $model->name = $name;
+        $model->comment = $comment;
+        $model->user_id = Yii::$app->user->getId();
+
+        $model->save();
+
+        return $model;
+    }
+
+    protected function deleteFileModel($fileId)
+    {
+        /** @var ClientFiles $model */
+        $model = ClientFiles::findOne(['contract_id' => $this->contract->id, 'id' => $fileId]);
+        if ($model) {
+            $model->delete();
+        }
+    }
+
+    protected function getFileModels()
+    {
+        return ClientFiles::findAll(['contract_id' => $this->contract->id]);
     }
 
 

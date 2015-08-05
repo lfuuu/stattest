@@ -3,10 +3,10 @@
 namespace app\classes\media;
 
 use Yii;
+use yii\db\ActiveRecord;
 
-class MediaManager
+abstract class MediaManager
 {
-
     public $mimesTypes = [
         'doc'  => 'application/msword',
         'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -31,17 +31,20 @@ class MediaManager
         'doc', 'docx', 'pdf', 'zip', 'rar', 'xls', 'xlsx', 'ppt', 'txt',
     ];
 
-    protected
-        $model,
-        $record_id = 0;
+    /**
+     * @return ActiveRecord
+     */
+    protected abstract function createFileModel($name, $comment);
 
-    private
-        $folder = '',
-        $link_field = 'id';
+    protected abstract function deleteFileModel($fileId);
 
-    public function addFiles($files = '', $names = '') {
-        if (isset($_FILES[$files])) {
-            $files = (array) $_FILES[$files];
+    protected abstract function getFileModels();
+
+    protected abstract function getFolder();
+
+    public function addFiles($fileField = '', $names = '') {
+        if (isset($_FILES[$fileField])) {
+            $files = (array) $_FILES[$fileField];
             $names = get_param_raw($names, false);
             for ($i=0, $s=sizeof($files['name']); $i<$s; $i++) {
                 if (!$files['size'][$i]) {
@@ -50,7 +53,7 @@ class MediaManager
 
                 $this->addFile(
                     [
-                        'path' => $files['tmp_name'][$i],
+                        'tmp_name' => $files['tmp_name'][$i],
                         'name' => $files['name'][$i],
                     ],
                     '',
@@ -62,13 +65,7 @@ class MediaManager
 
     public function addFile(array $file, $comment = '', $name = '')
     {
-        if (isset($file['tmp_name']))
-            $file = [
-                'path' => $file['tmp_name'],
-                'name' => $file['name'],
-            ];
-
-        if (!file_exists($file['path']) || !is_file($file['path']))
+        if (!file_exists($file['tmp_name']) || !is_file($file['tmp_name']))
             return false;
 
         if (!$name) {
@@ -79,42 +76,27 @@ class MediaManager
             }
         }
 
-        $mediaLinkField = static::getLinkField();
+        $model = $this->createFileModel($name, $comment);
 
-        $record = new $this->model;
-        $record->$mediaLinkField = $this->record_id;
-        $record->ts = (new \DateTime())->format(\DateTime::ATOM);
+        $filePath = $this->getFilePath($model->id);
 
-        $record->name = $name;
-        $record->comment = $comment;
-        $record->user_id = Yii::$app->user->getId();
-
-        $record->save();
-
-        $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $record->id]);
-        move_uploaded_file($file['path'], $filePath);
+        move_uploaded_file($file['tmp_name'], $filePath);
     }
 
-    public function removeFile($id)
+    public function removeFile(ActiveRecord $fileModel)
     {
-        $model = $this->model->findOne([static::getLinkField() => $this->record_id, 'id' => $id]);
-        if ($model) {
-            $model->delete();
+        $this->deleteFileModel($fileModel);
 
-            $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $model->id]);
-            if (file_exists($filePath)) {
-                @unlink($filePath);
-            }
+        $filePath = $this->getFilePath($fileModel);
+
+        if (file_exists($filePath)) {
+            @unlink($filePath);
         }
     }
 
     public function getFiles()
     {
-        $files =
-            $this->model
-                ->find()
-                    ->where([static::getLinkField() => $this->record_id])
-                    ->all();
+        $files = $this->getFileModels();
 
         $result = [];
         foreach ($files as $file) {
@@ -140,7 +122,7 @@ class MediaManager
 
     public function getContent($file)
     {
-        $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $file->id]);
+        $filePath = $this->getFilePath($file->id);
 
         if (file_exists($filePath)) {
             $fileData = $this->getFile($file);
@@ -161,7 +143,7 @@ class MediaManager
 
     protected function getSize($file)
     {
-        $filePath = implode('/', [Yii::$app->params['STORE_PATH'], 'files', static::getFolder(), $file->id]);
+        $filePath = $this->getFilePath($file->id);
 
         if (file_exists($filePath)) {
             return filesize($filePath);
@@ -183,14 +165,8 @@ class MediaManager
         return [$ext, isset($this->mimesTypes[$ext]) ? $this->mimesTypes[$ext] : $mime];
     }
 
-    protected function getFolder()
+    private function getFilePath(ActiveRecord $fileModel)
     {
-        return $this->folder;
+        return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), $fileModel->id]);
     }
-
-    protected function getLinkField()
-    {
-        return $this->link_field;
-    }
-
 }

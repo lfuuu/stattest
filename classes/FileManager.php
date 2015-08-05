@@ -3,7 +3,8 @@
 namespace app\classes;
 
 use Yii;
-use app\models\ClientFile;
+use app\models\media\ClientFiles;
+use yii\base\Exception;
 
 class FileManager
 {
@@ -32,7 +33,7 @@ class FileManager
             }
         }
 
-        $file = new ClientFile;
+        $file = new ClientFiles;
         $file->contract_id = $this->contractId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
@@ -56,7 +57,7 @@ class FileManager
         }
 
 
-        $file = new ClientFile;
+        $file = new ClientFiles();
         $file->contract_id = $this->contractId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
@@ -76,7 +77,7 @@ class FileManager
 
     public function removeFile($id)
     {
-        $f = ClientFile::findOne(["contract_id" => $this->contractId, "id" => $id]);
+        $f = ClientFiles::findOne(["contract_id" => $this->contractId, "id" => $id]);
         if ($f)
         {
             $f->delete();
@@ -89,7 +90,7 @@ class FileManager
         }
     }
 
-    public function getContent(ClientFile $file)
+    public function getContent(ClientFiles $file)
     {
         $filePath = Yii::$app->params['STORE_PATH'].'files/'.$file->id;
         if (file_exists($filePath))
@@ -98,7 +99,7 @@ class FileManager
         }
     }
 
-    public function getMime(ClientFile $file)
+    public function getMime(ClientFiles $file)
     {
         $name = strtolower($file->name);
 

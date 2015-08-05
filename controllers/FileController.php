@@ -74,12 +74,12 @@ class FileController extends BaseController
 
     public function actionDeleteClientFile($id)
     {
-        $model = ClientFiles::findOne($id);
+        $fileModel = ClientFiles::findOne($id);
 
-        if (null === $model)
+        if (null === $fileModel)
             throw new Exception('Файл не найден');
 
-        $model->contract->mediaManager->removeFile($id);
+        $fileModel->contract->mediaManager->removeFile($fileModel);
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return ['status' => 'ok'];

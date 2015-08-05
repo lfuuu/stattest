@@ -1,10 +1,9 @@
 <?php
 namespace app\models;
 
+use app\classes\media\TroubleMedia;
 use app\dao\TroubleDao;
 use yii\db\ActiveRecord;
-use app\models\TroubleStage;
-use app\classes\media\TroubleMedia as MediaManager;
 
 /**
  * @property int $id
@@ -124,7 +123,7 @@ class Trouble extends ActiveRecord
 
     public function getMediaManager()
     {
-        return new MediaManager($this->id);
+        return new TroubleMedia($this);
     }
 
 }

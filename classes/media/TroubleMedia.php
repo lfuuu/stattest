@@ -2,29 +2,55 @@
 
 namespace app\classes\media;
 
+use app\models\Trouble;
+use DateTime;
+use Yii;
 use app\models\media\TroubleFiles;
 
 class TroubleMedia extends MediaManager
 {
+    /** @var Trouble */
+    private $trouble;
 
-    private
-        $folder = 'troubles',
-        $link_field = 'trouble_id';
-
-    public function __construct($trouble_id = 0)
+    public function __construct(Trouble $trouble)
     {
-        $this->model = new TroubleFiles;
-        $this->record_id = $trouble_id;
+        $this->trouble = $trouble;
     }
 
     public function getFolder()
     {
-        return $this->folder;
+        return 'files/troubles';
     }
 
-    public function getLinkField()
+    /**
+     * @return TroubleFiles
+     */
+    protected function createFileModel($name, $comment)
     {
-        return $this->link_field;
+        $model = new TroubleFiles();
+        $model->trouble_id = $this->trouble->id;
+        $model->ts = (new DateTime())->format(DateTime::ATOM);
+
+        $model->name = $name;
+        $model->comment = $comment;
+        $model->user_id = Yii::$app->user->getId();
+
+        $model->save();
+
+        return $model;
     }
 
+    protected function deleteFileModel($fileId)
+    {
+        /** @var TroubleFiles $model */
+        $model = TroubleFiles::findOne(['trouble_id' => $this->trouble->id, 'id' => $fileId]);
+        if ($model) {
+            $model->delete();
+        }
+    }
+
+    protected function getFileModels()
+    {
+        return TroubleFiles::findAll(['trouble_id' => $this->trouble->id]);
+    }
 }

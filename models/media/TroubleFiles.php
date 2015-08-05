@@ -2,8 +2,9 @@
 
 namespace app\models\media;
 
+use app\models\Trouble;
 use yii\db\ActiveRecord;
-use app\classes\media\TroubleMedia as MediaManager;
+use app\classes\media\TroubleMedia;
 
 class TroubleFiles extends ActiveRecord
 {
@@ -15,7 +16,8 @@ class TroubleFiles extends ActiveRecord
 
     public function getMediaManager()
     {
-        return new MediaManager($this->id);
+        $trouble = Trouble::findOne(['id' => $this->trouble_id]);
+        return new TroubleMedia($trouble);
     }
 
 }
