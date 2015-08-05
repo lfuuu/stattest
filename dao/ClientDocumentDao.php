@@ -359,9 +359,6 @@ class ClientDocumentDao extends Singleton
         $organization = $document->getContract()->getOrganization($contractDate);
         $firm = $organization->getOldModeInfo();
 
-        //print_r($firm);
-        //exit;
-
         return [
             'position' => $document->getContract()->getContragent()->legal_type == 'legal'
                 ? $document->getContract()->getContragent()->position
