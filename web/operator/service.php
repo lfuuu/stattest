@@ -157,7 +157,7 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        //LkWizardState::create($ca->id, $troubleId);
+        LkWizardState::create($cr->id, $troubleId);
 
 
         if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС

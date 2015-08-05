@@ -41,7 +41,7 @@ class WizardController extends /*BaseController*/ApiController
 
         $this->account = $this->_checkAndGetAccount($this->accountId);
 
-        $this->wizard = LkWizardState::findOne($this->account->id);
+        $this->wizard = LkWizardState::findOne(["contract_id" => $this->account->contract->id, "is_on" => 1]);
 
         if ($isCheckWizard)
             if (!$this->wizard)
@@ -74,7 +74,8 @@ class WizardController extends /*BaseController*/ApiController
             {
                 if ($wizard->step < 4 || ($wizard->step == 4 && $wizard->state == "review"))
                 {
-                    $wizard->delete();
+                    $wizard->is_on = 0;
+                    $wizard->save();
                 } else {
                     if (
                         !$wizard->trouble 
@@ -85,7 +86,8 @@ class WizardController extends /*BaseController*/ApiController
                         ])
                     )
                     {
-                        $wizard->delete();
+                        $wizard->is_on = 0;
+                        $wizard->save();
                     }
                 }
             }
@@ -108,7 +110,8 @@ class WizardController extends /*BaseController*/ApiController
 
         if ($this->wizard->step == 4 && $this->wizard->state != "review") //удаляем wizard после просмотра последнего шага, с участием менеджера
         {
-            $this->wizard->delete();
+            $this->wizard->is_on = 0;
+            $this->wizard->save();
         }
 
         return $fullWizard;
@@ -339,7 +342,7 @@ class WizardController extends /*BaseController*/ApiController
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
             "passport_serial" => ($c->person ? $c->person->passport_serial : ""),
             "passport_number" => ($c->person ? $c->person->passport_number : ""),
-            "passport_date_issued" => ($c->person ? $c->person->passport_date_issued : ""),
+            "passport_date_issued" => (($c->person ? $c->person->passport_date_issued : "") ?: "2000-01-01"),
             "passport_issued" => ($c->person ? $c->person->passport_issued : ""),
             "address" => ($c->person ? $c->person->registration_address : "")
         ];
