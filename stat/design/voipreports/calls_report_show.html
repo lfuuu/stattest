@@ -30,18 +30,6 @@
 	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
 	</select>
-	<select class="select2" name="f_country_id" style="width: 250px">
-	<option value="0">-- Все страны --</option>
-	{foreach from=$geo_countries item='g'}
-	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
-	{/foreach}
-	</select>
-	<select class="select2" name="f_region_id" style="width: 300px">
-	<option value="0">-- Все регионы --</option>
-	{foreach from=$geo_regions item='g'}
-	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
-	{/foreach}
-	</select>
 
     <select name="f_mob">
         <option value="0">-- Моб/Стац --</option>
@@ -50,8 +38,8 @@
     </select>
 
     <select name="f_direction_out">
-        <option value="t" {if $f_direction_out eq 't'} selected{/if}>Исходящие</option>
-        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>Входящие</option>
+        <option value="t" {if $f_direction_out eq 't'} selected{/if}>Оригинация</option>
+        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>Терминация</option>
     </select>
 
     <div style="height: 5px"></div>
@@ -93,12 +81,11 @@
     <td class=header>Id</td>
     <td class=header style="min-width: 100px;">Дата (UTC)</td>
     <td class=header>Исходящий номер</td>
-    <td class=header>Направление</td>
+    <td class=header>Оригинация</td>
     <td class=header>Входящий номер</td>
     <td class=header>Длительность</td>
     <td class=header>Стоимость</td>
     <td class=header>Префикс</td>
-    <td class=header colspan="2">Направление</td>
     <td class=header>Регион</td>
     <td class=header>Оператор</td>
 </tr>
@@ -109,18 +96,11 @@
     <td style="color: #AAA">{$rd.id}</td>
 	<td>{$rd.connect_time}</td>
     <td>{$rd.src_number}</td>
-    <td style="color: {if $rd.orig=='t'}blue;">&darr;&nbsp;входящий{elseif $rd.orig=='f'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <td style="color: {if $rd.orig=='t'}blue;">&darr;&nbsp;Оригинация{elseif $rd.orig=='f'}green">&uarr;&nbsp;Терминация{else}">{/if}</td>
     <td>{$rd.dst_number}</td>
     <td>{$rd.billed_time}</td>
     <td>{$rd.cost}</td>
     <td>{$rd.prefix}</td>
-    <td>{if $rd.destination_id == '-1'}Местные
-        {elseif $rd.destination_id == '0'}Зона
-        {elseif $rd.destination_id == '1'}Россия
-        {elseif $rd.destination_id == '2'}Международка
-        {/if}
-    </td>
-    <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
     <td>{$regions[$rd.server_id]->name} ({$regions[$rd.srv_region_id]->id})</td>
     <td>{$operators[$rd.operator_id]} ({$rd.operator_id})</td>
 </tr>
