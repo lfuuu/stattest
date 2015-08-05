@@ -40,11 +40,13 @@ class HistoryVersion extends ActiveRecord
                 foreach ($oldKeys as $key)
                     $diffs[$key] = [$versions[$k - 1]['data_json'][$key], ''];
 
-                foreach ($versions[$k]['data_json'] as $key => $val)
-                    if (!isset($versions[$k - 1]['data_json'][$key]))
-                        $diffs[$key] = ['', $val];
-                    elseif ($versions[$k - 1]['data_json'][$key] != $val)
-                        $diffs[$key] = [$versions[$k - 1]['data_json'][$key], $val];
+                foreach ($versions[$k]['data_json'] as $key => $val) {
+                    $oldVal = isset($versions[$k - 1]['data_json'][$key]) ? $versions[$k - 1]['data_json'][$key] : '';
+
+                    if ($oldVal != $val) {
+                        $diffs[$key] = [$oldVal, $val];
+                    }
+                }
             }
 
             $versions[$k]['diffs'] = $diffs;
@@ -59,7 +61,7 @@ class HistoryVersion extends ActiveRecord
 
         $currentModel->setAttributes(json_decode($this->data_json, true), false);
         $currentModel->detachBehavior('HistoryVersion');
-        return $currentModel->save(false);
+        return $currentModel->save(fa);
     }
 
     public static function getVersionOnDate($modelName, $modelId, $date = null)

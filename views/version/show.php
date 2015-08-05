@@ -22,10 +22,10 @@ $links = [
                         Название аттрибута
                     </div>
                     <div class="col-sm-4">
-                        Старое значение
+                        Новое значение
                     </div>
                     <div class="col-sm-4">
-                        Новое значение
+                        Старое значение
                     </div>
                 </div>
         </div>
@@ -48,10 +48,10 @@ $links = [
                     <?= $models[$version->model]->getAttributeLabel($filed) ?>
                 </div>
                 <div class="col-sm-4">
-                    <?= $values[0] ?>
+                    <?= $values[1] ?>
                 </div>
                 <div class="col-sm-4">
-                    <?= $values[1] ?>
+                    <?= $values[0] ?>
                 </div>
             </div>
             <?php $i++; ?>

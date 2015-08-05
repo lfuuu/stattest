@@ -206,14 +206,14 @@ use yii\helpers\Url;
             });
 
             $('#buttonSave').on('click', function (e) {
-                if ($("#deferred-date option:selected").is('option:last'))
-                    $('#deferred-date option:last').val($('#deferred-date-input').val()).select();
+                if ($("#deferred-date option:selected").val() == '')
+                    $('#deferred-date option:selected').val($('#deferred-date-input').val()).select();
                 return true;
             });
 
             $('#deferred-date').on('change', function () {
                 var datepicker = $('#deferred-date-input');
-                if ($("option:selected", this).is('option:last')) {
+                if ($("option:selected", this).val() == '') {
                     datepicker.parent().parent().show();
                 }
                 else {

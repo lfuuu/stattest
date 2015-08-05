@@ -189,17 +189,20 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 $('#type-select .btn').not('.btn-primary').each(function () {
                     $($(this).data('tab')).remove();
                 });
-                if ($("#deferred-date option:selected").is('option:last'))
-                    $('#deferred-date option:last').val($('#deferred-date-input').val()).select();
+                if ($("#deferred-date option:selected").val() == '')
+                    $('#deferred-date option:selected').val($('#deferred-date-input').val()).select();
                 return true;
             });
 
             $('#deferred-date').on('change', function () {
+                console.log(this);
                 var datepicker = $('#deferred-date-input');
-                if ($("option:selected", this).is('option:last')) {
+                if ($("option:selected", this).val() == '') {
+                    console.log('picker show');
                     datepicker.parent().parent().show();
                 }
                 else {
+                    console.log('picker hide');
                     datepicker.parent().parent().hide();
                 }
             });
