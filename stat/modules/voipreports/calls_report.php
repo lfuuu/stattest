@@ -31,26 +31,17 @@ class m_voipreports_calls_report
         if ($f_operator_id == 'all') $f_operator_id = '0';
 
         $report = array();
-        $regions = Region::getListAssoc();
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
-        }
 
-        if(isset($_GET['makeFile']) || isset($_GET['make'])){
-            $where = " billed_time > 0";
+        if (isset($_GET['makeFile']) || isset($_GET['make'])) {
+            $where = " billed_time>0";
+            if ($f_instance_id != '0')
+                $where .= " and server_id = {$f_instance_id} ";
             $where .= " and r.connect_time >= '{$date_from}'";
             $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
             $where .= $f_direction_out == 'f' ?  " and r.orig=true " : " and r.orig=false ";
 
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
-
-            if ($f_instance_id != '0')
-                $where .= " and r.server_id='{$f_instance_id}' ";
 
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
@@ -59,16 +50,64 @@ class m_voipreports_calls_report
                     $where .= " and r.destination_id='{$f_dest_group}' ";
                 }
             }
+            if ($f_country_id != '0')
+                $where .= " and g.country='{$f_country_id}' ";
+            if ($f_region_id != '0')
+                $where .= " and g.region='{$f_region_id}' ";
             if ($f_mob == 't')
                 $where .= " and r.mob=true ";
             if ($f_mob == 'f')
                 $where .= " and r.mob=false ";
+            if ($f_region_id != '0')
+                $where .= " and g.region='{$f_region_id}' ";
             if ($f_prefix_op)
                 $where .= " and r.prefix = '{$f_prefix_op}'";
             if ($f_without_prefix_op > 0)
                 $where .= " and r.prefix is null ";
 
-            $query = "select
+        }
+
+
+        if (isset($_GET['makeFile'])) {
+            $pg_db->Query('BEGIN');
+
+            $pg_db->Query("
+                DECLARE curs CURSOR FOR
+                SELECT r.connect_time, r.src_number, r.dst_number, r.billed_time
+                from calls_raw.calls_raw r
+                        left join voip_destinations d on d.ndef=r.geo_id
+                        left join geo.geo g on g.id=d.geo_id
+                        where {$where}
+                        order by connect_time
+            ");
+
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="'."Отчет по звонкам({$date_from} - {$date_to})".'.csv"');
+
+            $pg_db->Query('FETCH 1000 FROM curs');
+            while(ob_get_level()){
+                ob_end_flush();
+            }
+
+            while(true) {
+                $row = $pg_db->NextRecord(PGSQL_NUM);
+                if (0 === $row) {
+                    $pg_db->Query('FETCH 1000 FROM curs');
+                    $row = $pg_db->NextRecord(PGSQL_NUM);
+                    if (0 === $row)
+                        break;
+                }
+                echo implode(';', $row)."\n";
+            }
+
+            $pg_db->Query('END');
+            exit();
+        }
+
+        if (isset($_GET['make'])) {
+
+            $report = $pg_db->AllRecords("
+                        select
                               r.id,
                               r.connect_time,
                               r.operator_id,
@@ -80,52 +119,25 @@ class m_voipreports_calls_report
                               r.cost,
                               r.operator_id,
                               r.destination_id,
+                              g.name as destination,
                               r.server_id,
                               r.prefix
                         from calls_raw.calls_raw r
+                        left join voip_destinations d on d.ndef=r.geo_id
+                        left join geo.geo g on g.id=d.geo_id
                         where {$where}
-                        order by connect_time";
+                        order by connect_time
+                        limit 100 offset {$offset}
+                                     ");
+
         }
 
-        if (isset($_GET['makeFile'])) {
-            $pg_db->Query('BEGIN');
-
-            $pg_db->Query("
-                DECLARE curs CURSOR FOR
-                $query
-            ");
-
-            header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="'."Отчет по звонкам({$date_from} - {$date_to})".'.csv"');
-
-            $pg_db->Query('FETCH 1000 FROM curs');
-            while(ob_get_level()){
-                ob_end_flush();
+        $operators = array();
+        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
+        {
+            if (!isset($operators[$op->id])) {
+                $operators[$op->id] = $op->short_name;
             }
-
-            echo 'Id;Дата (UTC);Исходящий номер;Оригинация;Входящий номер;Длительность;Стоимость;Префикс;Регион;Оператор'."\n";
-            while(true){
-                $row = $pg_db->NextRecord(PGSQL_ASSOC);
-                if(0===$row){
-                    $pg_db->Query('FETCH 1000 FROM curs');
-                    $row = $pg_db->NextRecord(PGSQL_ASSOC);
-                    if(0===$row)
-                        break;
-                }
-                echo "{$row['id']};{$row['connect_time']};{$row['src_number']};";
-                echo ($row['orig'] == 't' ? "Оригинация" : "Терминация").';';
-                echo "{$row['dst_number']};{$row['billed_time']};{$row['cost']};{$row['prefix']};";
-                echo $regions[$row['server_id']]->name .' ('. $regions[$row['srv_region_id']]->id.');';
-                echo $operators[$row['operator_id']] .' ('. $row['operator_id'].')';
-                echo "\n";
-            }
-
-            $pg_db->Query('END');
-            Yii::$app->end();
-        }
-
-        if (isset($_GET['make'])) {
-            $report = $pg_db->AllRecords(" $query limit 100 offset {$offset}");
         }
 
         $design->assign('report', $report);
@@ -146,7 +158,9 @@ class m_voipreports_calls_report
         $design->assign('f_without_prefix_op', $f_without_prefix_op);
         $design->assign('f_dest_group', $f_dest_group);
         $design->assign('operators', $operators);
-        $design->assign('regions', $regions);
+        $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
+        $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
+        $design->assign('regions', Region::getListAssoc());
         $design->assign(
             'pricelists',
             $pg_db->AllRecords("    select p.id, p.name, o.short_name as operator from voip.pricelist p
