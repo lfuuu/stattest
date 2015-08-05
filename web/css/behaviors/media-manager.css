@@ -16,18 +16,36 @@
 
 .file_name_edit {
     display: inline-block;
-    background: url("/images/icons/edit.gif") no-repeat 50% 50%;
+    background: url('/images/icons/edit.gif') no-repeat 50% 50%;
     width: 16px;
     height: 16px;
     padding: 10px;
     margin-top: 5px;
 }
 
-.file_name_edit_field {
-    width: 60%;
+.file_name_edit_block {
     display: none;
+    padding-top: 5px;
 }
+    .file_name_edit_block .edit_input {
+        width: 60%;
+    }
+    .file_name_edit_block .edit_button {
+        margin-left: 5px;
+    }
 
-.file_name_edit_btn {
-
+.media_manager_image {
+    float: left;
+    width:  130;
+    height: 130;
+    border: 1px solid black;
+    margin: 5px;
+    text-align: center;
 }
+    .media_manager_image .center {
+        overflow: hidden;
+        margin: 5px auto;
+        position: relative;
+        vertical-align: bottom;
+        text-align: center;
+    }

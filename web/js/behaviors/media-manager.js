@@ -4,126 +4,192 @@ jQuery(document).ready(function() {
         list: 'div.media-manager-block',
         max: 5,
         STRING: {
-            remove: '<i class="uncheck" />',
+            remove: '',
             selected: 'Выбран файл: $file',
             toomany: 'Достигнуто максимальнное кол-во файлов',
             duplicate: 'Файл "$file" уже добавлен'
         },
-        customAddedElement: function(element, value) {
-            console.log(element);
-        },
         afterFileSelect: function(element, value, master_element) {
-            var $block = master_element.list.find('div.MultiFile-label:last'),
-                $remove = $block.find('.MultiFile-remove'),
-                $edit =
-                    $('<div />')
-                        .addClass('file_name_edit')
-                        .attr('title', 'Редактировать прикрепленный файл')
-                        .on('click', function() {
-                            $edit_field.show();
-                            $edit_field.next('span').hide();
-                        }),
-                $edit_field =
-                    $('<input />')
-                        .attr('type', 'text')
-                        .attr('name', 'custom_name_' + $(element).attr('name'))
-                        .val(value.replace(/\.[^\.]+$/, ''))
-                        .addClass('file_name_edit_field'),
-                $edit_save_btn =
-                    $('<input />')
-                        .attr('type', 'button')
-                        .addClass('file_name_edit_btn');
+            var $block = master_element.list.find('div.MultiFile-label:last');
 
-            $remove.replaceWith($edit);
-            $edit_field.insertAfter($edit);
-            /*master_element.list.find('div.MultiFile-label:last').append(
-                $('<input />')
-                    .css({
-                        'width':'80%'
-                        //'display':'none'
-                    })
-                    .attr('name', 'custom_name_' + $(element).attr('name'))
-                    .attr('type', 'text')
-                    .val(value.replace(/\.[^\.]+$/, ''))
-                    .on('blur', function() {
-                        var filename = $(this).val(),
-                            element = $('div.MultiFile-label').find('span:hidden'),
-                            elementText = element.text();
+            $block
+                .find('.MultiFile-remove')
+                    .EditFileName({
+                        'element': {
+                            'name': $(element).attr('name'),
+                            'value': value
+                        }
+                    });
 
-                        $(this).hide();
-                        element.show().text(elementText.replace(/.*?(\.[^\.]+)$/, filename + '$1'));
-                    })
-            );*/
+            $block
+                .find('.MultiFile-label')
+                    .each(function() {
+                        var
+                            originalRemove = $(this).parents('div').find('a.MultiFile-remove');
+                            remove =
+                                $('<a />')
+                                    .attr('href', 'javascript:void(0)')
+                                    .text('Открепить')
+                                    .on('click', function(e) {
+                                        e.preventDefault();
+                                        originalRemove.trigger('click');
+                                    });
+
+                        $(this)
+                            .append(
+                                $('<div />')
+                                    .css({'margin-left':'25px'})
+                                    .append(remove)
+                            )
+                    });
         }
     });
 
-    /*
-    $(document)
-        .on('click', 'span.MultiFile-title', function() {
-            $(this).hide();
-            $(this).parents('div.MultiFile-label').find('input').show();
-        });
-
-    var $container = $('div.media-list'),
-        $container_documents = $('<ul class="media-list-documents" />'),
-        $container_image = $('<div class="media-list-images" />');
-
-    $container
-        .append($container_documents)
-        .append($container_image)
-    $container.find('div[data-model][data-mime-type^="image/"]').each(function() {
-        var $element = $('<div />')
-            .css({
-                'float':'left',
-                'width': '130',
-                'height':'130',
-                'border':'1px solid black',
-                'margin':'5px',
-                'text-align':'center'
-            })
-            .text($(this).text())
-            .append(
-                $('<a />')
-                    .attr('href', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
-                    .attr('target', '_blank')
-                    .append(
-                        $('<div />')
-                            .css({
-                                'overflow':'hidden',
-                                'margin':'5px auto',
-                                'position':'relative',
-                                'vertical-align':'bottom',
-                                'text-align':'center'
-                            })
-                            .append(
-                                $('<img />')
-                                    .attr('src', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
-                                    .nailthumb({
-                                        width: 100,
-                                        height: 100,
-                                        fitDirection: 'center',
-                                        nostyle: true
-                                    })
-                            )
-                    )
-            );
-
-        $container_image.append($element);
-        $(this).detach();
+    $('div.media-list').MediaManager({
+        'preview': {
+            'width': 100,
+            'height': 100
+        }
     });
-    $container.find('div[data-model]').each(function() {
-        $container_documents
-            .append(
-                $('<li />')
-                    .append(
-                        $('<a />')
-                            .attr('href', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
-                            .attr('target', '_blank')
-                            .text($(this).text())
-                    )
-            );
-        $(this).detach();
-    });
-    */
-
 });
+
+if (window.jQuery)(function ($) {
+
+    $.fn.MediaManager = function(options) {
+        var $settings = $.extend({
+            'preview': {
+                'width': 150,
+                'height': 150
+            }
+        }, options)
+
+        return this.each(function() {
+            var $container = $(this),
+                $container_documents = $('<ul class="media-list-documents" />'),
+                $container_image = $('<div class="media-list-images" />');
+
+            $container
+                .append($container_documents)
+                .append($container_image);
+
+            $container.find('div[data-model][data-mime-type^="image/"]').each(function() {
+                var $element =
+                    $('<div />')
+                        .addClass('media_manager_image')
+                        .text($(this).text())
+                        .append(
+                            $('<a />')
+                                .attr('href', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
+                                .attr('target', '_blank')
+                                .append(
+                                    $('<div />')
+                                        .addClass('center')
+                                        .append(
+                                            $('<img />')
+                                                .attr('src', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
+                                                .nailthumb({
+                                                    width: $settings.preview['width'],
+                                                    height: $settings.preview['height'],
+                                                    fitDirection: 'center',
+                                                    nostyle: true
+                                                })
+                                    )
+                            )
+                );
+
+                $container_image.append($element);
+                $(this).detach();
+            });
+
+            $container.find('div[data-model]').each(function() {
+                $container_documents
+                    .append(
+                        $('<li />')
+                            .append(
+                                $('<a />')
+                                    .attr('href', '/file/get-file/?model=' + $(this).data('model') + '&id=' + $(this).data('file-id'))
+                                    .attr('target', '_blank')
+                                    .text($(this).text())
+                            )
+                );
+                $(this).detach();
+            });
+
+        });
+    };
+
+    $.fn.EditFileName = function(options) {
+
+        var
+            $settings = $.extend({
+                'element': {
+                    'name': '',
+                    'value': ''
+                },
+                'editBlock': {
+                    'class': 'file_name_edit_block'
+                },
+                'editLink': {
+                    'class': 'file_name_edit',
+                    'title': 'Редактировать прикрепленный файл'
+                },
+                'editField': {
+                    'namePrefix': 'custom_name',
+                    'class': 'edit_input'
+                },
+                'editButton': {
+                    'title': 'Ок',
+                    'class': 'edit_button'
+                }
+            }, options),
+            $elements = {
+                'block':
+                    $('<div />')
+                        .addClass($settings.editBlock['class']),
+                'link':
+                    $('<div />')
+                        .addClass($settings.editLink['class'])
+                        .attr('title', $settings.editLink['class'])
+                        .on('click', function() {
+                            $(this)
+                                .hide()
+                                    .next('div')
+                                        .show()
+                                            .next('span')
+                                                .hide();
+                        }),
+                'field':
+                    $('<input />')
+                        .attr('type', 'text')
+                        .attr('name', $settings.editField['namePrefix'] + $settings.element.name)
+                        .val($settings.element.value.replace(/\.[^\.]+$/, ''))
+                        .addClass($settings.editField['class']),
+                'button':
+                    $('<button>')
+                        .addClass($settings.editButton['class'])
+                        .attr('type', 'button')
+                        .text($settings.editButton['title'])
+                        .on('click', function() {
+                            var parent = $(this).parent('div'),
+                                fileElement = parent.next('span').find('span.MultiFile-title'),
+                                newFileName = $(this).prev('input').val(),
+                                fileName = fileElement.text();
+
+                            parent.hide().prev('div').show();
+                            parent.next('span')
+                                .show()
+                                .find('span.MultiFile-title')
+                                    .text(fileName.replace(/.*?(\.[^\.]+$)/, newFileName + '$1'));
+                        })
+            };
+
+        return this.each(function() {
+            $elements.link.insertAfter($(this).hide());
+            $elements.block
+                .append($elements.field)
+                .append($elements.button)
+                .insertAfter($elements.link);
+        });
+    }
+
+})(jQuery);
