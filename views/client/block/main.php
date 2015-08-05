@@ -94,7 +94,7 @@ use \app\models\ClientContract;
                                         <div
                                             style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
-                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? 'active-client' : ''; ?>">
+                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
                                             <span class="col-sm-2"
                                                   style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
                                                 ЛС № <?= $contractAccount->id ?>
@@ -143,6 +143,7 @@ use \app\models\ClientContract;
     $(function () {
 
         $('.active-client').closest('.contragent-wrap').addClass('active-contragent');
+        $('.active-client-mcm').closest('.contragent-wrap').addClass('active-contragent-mcm');
 
         $('.set-block').click(function (e) {
             e.stopPropagation();
