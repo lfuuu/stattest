@@ -53,7 +53,7 @@ jQuery(document).ready(function() {
     });
 });
 
-if (window.jQuery)(function ($) {
+if (window.jQuery)(function($) {
 
     $.fn.MediaManager = function(options) {
         var $settings = $.extend({
@@ -161,7 +161,7 @@ if (window.jQuery)(function ($) {
                 'field':
                     $('<input />')
                         .attr('type', 'text')
-                        .attr('name', $settings.editField['namePrefix'] + $settings.element.name)
+                        .attr('name', $settings.editField['namePrefix'] + '_' + $settings.element.name)
                         .val($settings.element.value.replace(/\.[^\.]+$/, ''))
                         .addClass($settings.editField['class']),
                 'button':

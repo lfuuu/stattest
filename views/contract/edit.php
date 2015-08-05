@@ -407,7 +407,7 @@ use yii\helpers\Url;
         <?php endforeach; ?>
 
         <div class="row" style="padding: 5px 0;">
-            <form action="/file/append-file?model=clients&contractId=<?= $model->model->id ?>" method="post"
+            <form action="/file/upload-client-file?model=clients&contractId=<?= $model->model->id ?>" method="post"
                   enctype="multipart/form-data">
                 <div class="col-sm-4">
                     <input class="form-control input-sm" type=text name="name" placeholder="Название файла">
@@ -472,7 +472,7 @@ use yii\helpers\Url;
 
         $('.fileSend').on('click', function (e) {
             e.preventDefault();
-            $.getJSON('/file/send', {id: $(this).data('id')}, function (data) {
+            $.getJSON('/file/send-client-file', {id: $(this).data('id')}, function (data) {
                 $('#file_content').val(data['file_content']);
                 $('#file_name').val(data['file_name']);
                 $('#file_mime').val(data['file_mime']);
@@ -486,7 +486,7 @@ use yii\helpers\Url;
             var fid = $(this).data('id');
             var row = $(this).closest('.row');
             if (confirm('Вы уверены, что хотите удалить файл?')) {
-                $.getJSON('/file/delete', {id: fid}, function (data) {
+                $.getJSON('/file/delete-client-file', {id: fid}, function (data) {
                     console.log(data);
                     console.log(data['status'] == 'ok');
                     if (data['status'] == 'ok')

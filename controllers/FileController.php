@@ -29,34 +29,6 @@ class FileController extends BaseController
         ];
     }
 
-    public function actionList($contractId)
-    {
-        $model = ClientContract::findOne($contractId);
-        if (null === $model)
-            throw new Exception('Договор не найден');
-
-        return $this->render('list', ['model' => $model]);
-    }
-
-    /*
-    public function actionDownload($id)
-    {
-        $model = ClientFiles::findOne($id);
-
-        if (null === $model)
-            throw new Exception('Файл не найден');
-
-        header("Content-Type: " . $model->mime);
-        header("Pragma: ");
-        header("Cache-Control: ");
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Disposition: attachment; filename="' . iconv("UTF-8", "CP1251", $model->name) . '"');
-        header("Content-Length: " . strlen($model->content));
-        echo $model->content;
-        die;
-    }
-    */
-
     public function actionGetFile($model, $id)
     {
         switch ($model) {
@@ -73,7 +45,16 @@ class FileController extends BaseController
         $file->mediaManager->getContent($file);
     }
 
-    public function actionUpload($contractId, $childId = null)
+    public function actionList($contractId)
+    {
+        $model = ClientContract::findOne($contractId);
+        if (null === $model)
+            throw new Exception('Договор не найден');
+
+        return $this->render('list', ['model' => $model]);
+    }
+
+    public function actionUploadClientFile($contractId, $childId = null)
     {
         $model = ClientContract::findOne($contractId);
 
@@ -81,7 +62,9 @@ class FileController extends BaseController
             throw new Exception("Договор не найден");
 
         $request = Yii::$app->request->post();
-        $model->mediaManager->addFile($request['comment'], $request['name']);
+        if (isset($_FILES['file'])) {
+            $model->mediaManager->addFile($_FILES['file'], $request['comment'], $request['name']);
+        }
 
         if ($childId)
             return $this->redirect(['client/view', 'id' => $childId]);
@@ -89,7 +72,7 @@ class FileController extends BaseController
             return $this->redirect(['file/list', 'contractId' => $contractId]);
     }
 
-    public function actionDelete($id)
+    public function actionDeleteClientFile($id)
     {
         $model = ClientFiles::findOne($id);
 
@@ -102,7 +85,7 @@ class FileController extends BaseController
         return ['status' => 'ok'];
     }
 
-    public function actionSend($id)
+    public function actionSendClientFile($id)
     {
         $model = ClientFiles::findOne($id);
 

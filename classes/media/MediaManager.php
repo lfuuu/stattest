@@ -28,7 +28,7 @@ class MediaManager
     ];
 
     public $downloadable = [
-        'doc', 'docx', 'pdf', 'zip', 'rar', 'xls', 'xlsx', 'ppt',
+        'doc', 'docx', 'pdf', 'zip', 'rar', 'xls', 'xlsx', 'ppt', 'txt',
     ];
 
     protected
@@ -62,6 +62,12 @@ class MediaManager
 
     public function addFile(array $file, $comment = '', $name = '')
     {
+        if (isset($file['tmp_name']))
+            $file = [
+                'path' => $file['tmp_name'],
+                'name' => $file['name'],
+            ];
+
         if (!file_exists($file['path']) || !is_file($file['path']))
             return false;
 
