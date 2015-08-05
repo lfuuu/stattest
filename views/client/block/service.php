@@ -304,7 +304,7 @@ if ($has) :
                                 </td>
                                 <td><?= $device->serial ?></td>
                                 <td><?= $renderDate($device->actual_from, $device->actual_to); ?></td>
-                                <td><?= $device->ip ?> / <?= $device->ip_nat ?></td>
+                                <td><?= $ipstat($device->ip) ?><?= $device->ip_nat ? '&nbsp;/&nbsp;'.$ipstat($device->ip_nat) : '' ?></td>
                                 <td><?= $device->numbers ?></td>
                                 <td>
                                     <a href='/?module=routers&action=d_apply&dbform_action=delete&dbform[id]=<?= $device->id ?>'><img
