@@ -12,7 +12,7 @@
     <?php foreach ($model->allFiles as $file): ?>
         <tr>
             <td>
-                <a href="/file/download?id=<?= $file->id ?>" target="_blank">
+                <a href="/file/get-file?model=clients&id=<?= $file->id ?>" target="_blank">
                     <?= $file->name ?>
                 </a>
             </td>
@@ -28,7 +28,7 @@
     <?php endforeach; ?>
     </tbody>
     <tfoot>
-    <form action="/file/upload?contractId=<?= $model->id ?>" method=post enctype="multipart/form-data">
+    <form action="/file/upload-client-file?contractId=<?= $model->id ?>" method=post enctype="multipart/form-data">
         <tr>
             <td><input class="col-sm-12 form-control" type=text name="name" placeholder="Название файла"></td>
             <td><input class="col-sm-12 form-control" type=text name="comment" placeholder="Комментарий"></td>
@@ -68,7 +68,7 @@
         var fid = $(this).data('id');
         var row = $(this).closest('tr');
         if(confirm('Вы уверены, что хотите удалить файл?')) {
-            $.get('/file/delete', {id: fid}, function(data){
+            $.get('/file/delete-client-file', {id: fid}, function(data){
                 if(data['status'] == 'ok')
                 row.remove();
             }, 'json');

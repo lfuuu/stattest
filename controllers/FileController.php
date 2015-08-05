@@ -1,14 +1,16 @@
 <?php
 namespace app\controllers;
 
-use yii\data\ActiveDataProvider;
-use app\models\ClientContract;
-use app\models\ClientFile;
+use app\classes\Assert;
 use Yii;
+use yii\data\ActiveDataProvider;
 use app\classes\BaseController;
 use yii\base\Exception;
 use yii\web\Response;
 use yii\filters\AccessControl;
+use app\models\media\ClientFiles;
+use app\models\media\TroubleFiles;
+use app\models\ClientContract;
 
 class FileController extends BaseController
 {
@@ -27,6 +29,22 @@ class FileController extends BaseController
         ];
     }
 
+    public function actionGetFile($model, $id)
+    {
+        switch ($model) {
+            case 'clients':
+                $file = ClientFiles::findOne($id);
+                break;
+            case 'troubles':
+                $file = TroubleFiles::findOne($id);
+                break;
+        }
+
+        Assert::isObject($file);
+
+        $file->mediaManager->getContent($file);
+    }
+
     public function actionList($contractId)
     {
         $model = ClientContract::findOne($contractId);
@@ -36,24 +54,7 @@ class FileController extends BaseController
         return $this->render('list', ['model' => $model]);
     }
 
-    public function actionDownload($id)
-    {
-        $model = ClientFile::findOne($id);
-
-        if (null === $model)
-            throw new Exception('Файл не найден');
-
-        header("Content-Type: " . $model->mime);
-        header("Pragma: ");
-        header("Cache-Control: ");
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Disposition: attachment; filename="' . iconv("UTF-8", "CP1251", $model->name) . '"');
-        header("Content-Length: " . strlen($model->content));
-        echo $model->content;
-        die;
-    }
-
-    public function actionUpload($contractId, $childId = null)
+    public function actionUploadClientFile($contractId, $childId = null)
     {
         $model = ClientContract::findOne($contractId);
 
@@ -61,7 +62,9 @@ class FileController extends BaseController
             throw new Exception("Договор не найден");
 
         $request = Yii::$app->request->post();
-        $model->fileManager->addFile($request['comment'], $request['name']);
+        if (isset($_FILES['file'])) {
+            $model->mediaManager->addFile($_FILES['file'], $request['comment'], $request['name']);
+        }
 
         if ($childId)
             return $this->redirect(['client/view', 'id' => $childId]);
@@ -69,22 +72,22 @@ class FileController extends BaseController
             return $this->redirect(['file/list', 'contractId' => $contractId]);
     }
 
-    public function actionDelete($id)
+    public function actionDeleteClientFile($id)
     {
-        $model = ClientFile::findOne($id);
+        $fileModel = ClientFiles::findOne($id);
 
-        if (null === $model)
+        if (null === $fileModel)
             throw new Exception('Файл не найден');
 
-        $model->contract->fileManager->removeFile($id);
+        $fileModel->contract->mediaManager->removeFile($fileModel);
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return ['status' => 'ok'];
     }
 
-    public function actionSend($id)
+    public function actionSendClientFile($id)
     {
-        $model = ClientFile::findOne($id);
+        $model = ClientFiles::findOne($id);
 
         if (null === $model)
             throw new Exception('Файл не найден');
@@ -103,7 +106,7 @@ class FileController extends BaseController
     public function actionReport()
     {
         $request = Yii::$app->request->post();
-        $query = ClientFile::find()->orderBy(['ts' => SORT_DESC]);
+        $query = ClientFiles::find()->orderBy(['ts' => SORT_DESC]);
 
         if($request['user_id'])
             $query->andWhere(['user_id' => $request['user_id']]);

@@ -11,7 +11,7 @@ use app\models\LkWizardState;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientDocument;
-use app\models\ClientFile;
+use app\models\media\ClientFiles;
 use app\models\ClientBPStatuses;
 use app\models\TroubleState;
 use app\models\User;
@@ -256,7 +256,7 @@ class WizardController extends /*BaseController*/ApiController
         if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["name"])
             throw new \Exception("data_error");
 
-        $file = $this->account->contract->fileManager->addFileFromParam(
+        $file = $this->account->contract->mediaManager->addFileFromParam(
             $data["file"]["name"], 
             base64_decode($data["file"]["content"]), 
             "ЛК - wizard", 
@@ -401,7 +401,7 @@ class WizardController extends /*BaseController*/ApiController
     private function getClientFiles()
     {
         $files = [];
-        foreach(ClientFile::findAll(["contract_id" => $this->account->contract_id, "user_id" => User::CLIENT_USER_ID]) as $file)
+        foreach(ClientFiles::findAll(["contract_id" => $this->account->contract_id, "user_id" => User::CLIENT_USER_ID]) as $file)
         {
             $files[] = $file->name;
         }

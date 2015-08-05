@@ -404,11 +404,11 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
         <?php foreach ($files as $file): ?>
             <div class="row" style="padding: 5px 0; border-top: 1px solid black;">
                 <div class="col-sm-4">
-                    <a href="/file/download?id=<?= $file->id ?>" target="_blank">
+                    <a href="/file/get-file?model=clients&id=<?= $file->id ?>" target="_blank">
                         <?= $file->name ?>
                     </a>
                     <a href="#" data-id="<?= $file->id ?>" class="fileSend">
-                        <img border=0 src='images/icons/envelope.gif'>
+                        <img border=0 src="/images/icons/envelope.gif" />
                     </a>
                 </div>
                 <div class="col-sm-4">
@@ -419,16 +419,15 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 </div>
                 <div class="col-sm-2">
                     <?= $file->ts ?>
-                    <a href='#' class="deleteFile" data-id="<?= $file->id ?>">
-                        <img style='margin: -3px 0 0 -2px;' class=icon src='/images/icons/delete.gif'
-                             alt="Удалить">
+                    <a href="#" class="deleteFile" data-id="<?= $file->id ?>">
+                        <img style="margin: -3px 0 0 -2px;" class=icon src="/images/icons/delete.gif" alt="Удалить" />
                     </a>
                 </div>
             </div>
         <?php endforeach; ?>
 
         <div class="row" style="padding: 5px 0;">
-            <form action="/file/upload?contractId=<?= $model->model->id ?>" method="post"
+            <form action="/file/upload-client-file?model=clients&contractId=<?= $model->model->id ?>" method="post"
                   enctype="multipart/form-data">
                 <div class="col-sm-4">
                     <input class="form-control input-sm" type=text name="name" placeholder="Название файла">
@@ -493,7 +492,7 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
         $('.fileSend').on('click', function (e) {
             e.preventDefault();
-            $.getJSON('/file/send', {id: $(this).data('id')}, function (data) {
+            $.getJSON('/file/send-client-file', {id: $(this).data('id')}, function (data) {
                 $('#file_content').val(data['file_content']);
                 $('#file_name').val(data['file_name']);
                 $('#file_mime').val(data['file_mime']);
@@ -507,7 +506,7 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
             var fid = $(this).data('id');
             var row = $(this).closest('.row');
             if (confirm('Вы уверены, что хотите удалить файл?')) {
-                $.getJSON('/file/delete', {id: fid}, function (data) {
+                $.getJSON('/file/delete-client-file', {id: fid}, function (data) {
                     console.log(data);
                     console.log(data['status'] == 'ok');
                     if (data['status'] == 'ok')
