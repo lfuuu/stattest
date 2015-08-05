@@ -349,7 +349,7 @@ class ClientAccount extends ActiveRecord
 
     public function getLkWizardState()
     {
-        return LkWizardState::findOne($this->contract->id);
+        return LkWizardState::findOne(["contract_id" => $this->contract->id, "is_on" => 1]);
     }
 
     /**

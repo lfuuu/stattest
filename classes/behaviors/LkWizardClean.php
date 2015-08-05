@@ -27,7 +27,10 @@ class LkWizardClean extends Behavior
                     $wizard = LkWizardState::findOne($event->sender->id);
 
                     if ($wizard)
-                        $wizard->delete();
+                    {
+                        $wizard->is_on = 0;
+                        $wizard->save();
+                    }
                 }
             }
         }

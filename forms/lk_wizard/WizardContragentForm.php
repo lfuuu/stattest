@@ -6,7 +6,9 @@ use app\classes\Form;
 
 use app\models\ClientContragentPerson;
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\Country;
+use app\models\Organization;
 
 class WizardContragentForm extends Form
 {
@@ -118,6 +120,8 @@ class WizardContragentForm extends Form
 
         $contragent->save(false);
 
+        $contract = ClientContract::findOne($account->contract->id);
+
         if ($contragent->legal_type == "ip" || $contragent->legal_type == "person")
         {
             $person = $contragent->person;
@@ -140,8 +144,20 @@ class WizardContragentForm extends Form
 
             $person->save();
             $contragent->refresh();
+
+            if ($contract->organization_id != Organization::MCM_TELEKOM)
+            {
+                $contract->organization_id = Organization::MCM_TELEKOM;
+                $contract->save();
+            }
+        } else { //legal
+            if ($contract->organization_id != Organization::MCN_TELEKOM)
+            {
+                $contract->organization_id = Organization::MCN_TELEKOM;
+                $contract->save();
+            }
         }
 
-        return true;//contragent->saveToAccount();
+        return true;
     }
 }

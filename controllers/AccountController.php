@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\dao\ClientGridSettingsDao;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
+use app\models\Country;
 use app\models\ClientBP;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
@@ -58,18 +59,27 @@ class AccountController extends BaseController
 
         if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
-            if ($state == "on" && !$wizard) {
-                $wizard = new LkWizardState;
-                $wizard->contract_id = $account->contract->id;
-                $wizard->step = 1;
-                $wizard->state = "process";
-                $wizard->save();
+            if ($state == "on") {
+
+                if ($wizard) {
+                    $wizard->is_on = 1;
+                    $wizard->step = 1;
+                    $wizard->state = "process";
+                    $wizard->save();
+                } else {
+                    LkWizardState::create(
+                        $account->contract->id, 
+                        0, 
+                        ($account->contract->contragent->country_id == Country::HUNGARY ? "t2t" : "mcn")
+                    );
+                }
             } else {
 
                 Assert::isObject($wizard);
 
                 if ($state == "off") {
-                    $wizard->delete();
+                    $wizard->is_on = 0;
+                    $wizard->save();
                 } else {
                     if ($state == "first" || $state == "next") {
                         $wizard->step = ($state == "first" ? 1 : ($wizard->step < 4 ? $wizard->step + 1 : 4));

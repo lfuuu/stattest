@@ -25,40 +25,47 @@ class LkWizardState extends ActiveRecord
         return $this->hasOne(Trouble::className(), ["id" => "trouble_id"]);
     }
 
-    public static function create($contractId, $troubleId = 0)
+    public static function create($contractId, $troubleId = 0, $type = 'mcn')
     {
         $wizard = new self();
         $wizard->contract_id = $contractId;
         $wizard->step = 1;
         $wizard->state = "process";
         $wizard->trouble_id = $troubleId;
+        $wizard->type = $type;
+        $wizard->is_on = 1;
 
         return $wizard->save();
     }
 
     public function getStepName()
     {
-        switch ($this->step) {
-            case 1:
-                return "Заполнение реквизитов";
-                break;
-            case 2:
-                return "Скачивание договора";
-                break;
-            case 3:
-                return "Загрузка договора";
-                break;
-            case 4:
-                $s = "Ожидание проверки";
-                switch ($this->state) {
-                    case 'approve':
-                        $s = "Документы проверенны";
-                        break;
-                    case 'rejected':
-                        $s = "Проверка не пройдена";
-                        break;
-                }
-                return $s;
+        if ($this->type == "mcn")
+        {
+            switch ($this->step) {
+                case 1:
+                    return "Заполнение реквизитов";
+                    break;
+                case 2:
+                    return "Скачивание договора";
+                    break;
+                case 3:
+                    return "Загрузка договора";
+                    break;
+                case 4:
+                    $s = "Ожидание проверки";
+                    switch ($this->state) {
+                        case 'approve':
+                            $s = "Документы проверенны";
+                            break;
+                        case 'rejected':
+                            $s = "Проверка не пройдена";
+                            break;
+                    }
+                    return $s;
+            }
+        } else { //t2t
+            return "Шаг ".$this->step;
         }
     }
 
@@ -71,10 +78,12 @@ class LkWizardState extends ActiveRecord
 
     public function add100Rub()
     {
-        $accounts = ClientAccount::findAll(['contract_id' => $this->contract_id]);
-        foreach ($accounts as $clientAccount) {
-            $tax_rate = $clientAccount->getTaxRate();
+        if (!$this->is_bonus_added)
+        {
+            $clientAccount = ClientAccount::findOne(['contract_id' => $this->contract_id]);
+
             $sum = -100;
+
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
@@ -94,14 +103,21 @@ class LkWizardState extends ActiveRecord
             $line->type = 'service';
             $line->amount = 1;
             $line->price = $sum;
-            $line->tax_rate = $tax_rate;
+            $line->tax_rate = $clientAccount->getTaxRate();
             $line->calculateSum($bill->price_include_vat);
             $line->sum = $sum;
             $line->save();
 
             Bill::dao()->recalcBill($bill);
+
+            $this->is_bonus_added = 1;
+            $this->save();
+
             ClientAccount::dao()->updateBalance($clientAccount->id);
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 }

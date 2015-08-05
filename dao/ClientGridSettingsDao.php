@@ -44,14 +44,16 @@ class ClientGridSettingsDao extends Singleton
         return $this->constructGridSettingArray($gridSettings, $genFilters);
     }
 
-    public function getAllByParams($params, $genFilters = false)
+    public function getAllByParams($params = [], $genFilters = false)
     {
         $res = [];
         foreach ($this->grids['data'] as $v) {
             $addToRes = true;
-            foreach ($params as $paramKey => $paramValue) {
-                if ($v[$paramKey] != $paramValue)
-                    $addToRes = false;
+            if ($params) {
+                foreach ($params as $paramKey => $paramValue) {
+                    if ($v[$paramKey] != $paramValue)
+                        $addToRes = false;
+                }
             }
             if ($addToRes) {
                 $res[$v['id']] = $this->constructGridSettingArray($v, $genFilters);
