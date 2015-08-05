@@ -104,8 +104,9 @@ class ClientGridSettingsDao extends Singleton
             ->orderBy('ct.sort')
             ->all();
 
-        foreach ($rows as $row)
+        foreach ($rows as $row) {
             $blocks_rows[$row['id']] = $row;
+        }
 
         foreach ($blocks_rows as $key => $block_row) {
             $query = new Query();
@@ -119,6 +120,27 @@ class ClientGridSettingsDao extends Singleton
             foreach ($blocks_items as $item) {
                 if ($item['link'] == null) {
                     $item['link'] = '/client/grid?bp=' . $item['id'];
+                }
+                $blocks_rows[$key]['items'][] = $item;
+            }
+        }
+
+        foreach ($rows as $row) {
+            $blocks_rows[$row['id'] . '_2'] = $row;
+        }
+
+        foreach ($blocks_rows as $key => $block_row) {
+            $query = new Query();
+            $query->addParams([':id' => $block_row['id']]);
+            $blocks_items = $query->select('bp.id, bp.name, link')
+                ->from('grid_business_process bp')
+                ->orderBy('bp.sort')
+                ->where('bp.client_contract_id = :id')
+                ->all();
+
+            foreach ($blocks_items as $item) {
+                if ($item['link'] == null) {
+                    $item['link'] = '/client/grid2?businessProcessId=' . $item['id'];
                 }
                 $blocks_rows[$key]['items'][] = $item;
             }

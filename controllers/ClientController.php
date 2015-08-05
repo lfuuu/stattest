@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\classes\grid\GridFactory;
 use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
@@ -167,12 +168,23 @@ class ClientController extends BaseController
         $model->setAttributes(Yii::$app->request->get());
         $dataProvider = $model->searchWithSetting();
 
-        //var_dump($dataProvider); die;
-
         return $this->render('index', [
-//          'searchModel' => $dataProvider,
             'dataProvider' => $dataProvider,
             'model' => $model,
+        ]);
+    }
+
+    public function actionGrid2($businessProcessId, $folderId = null)
+    {
+        $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
+        $gridFolder = $accountGrid->getFolder($folderId);
+        $gridFolder->setAttributes(Yii::$app->request->get());
+
+        $dataProvider = $gridFolder->spawnDataProvider();
+
+        return $this->render('index2', [
+            'dataProvider' => $dataProvider,
+            'activeFolder' => $gridFolder,
         ]);
     }
 
