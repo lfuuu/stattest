@@ -1483,6 +1483,7 @@ class m_newaccounts extends IModule
                 $isUPD = get_param_raw("upd-1", "") == "1";
                 $isAktImport = get_param_raw("akt-1", "") == "1";
 
+                $bill->SetClientDate((new \DateTime('now'))->format('Y-m-d'));
                 $c = $bill->Client();
                 if($c["mail_print"] == "no") continue;
 
