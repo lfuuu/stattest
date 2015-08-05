@@ -6,8 +6,12 @@ $actual = function ($from, $to) {
 };
 
 $renderDate = function ($from, $to) {
+    if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
+        return 'Резерв';
+    }
+
     $res = $from;
-    if($to && $to != '2029-01-01' && $to != '4000-01-01')
+    if(strtotime($to) < strtotime('2029-01-01'))
         $res  .= "&nbsp;-&nbsp;" . $to;
     return $res;
 };
