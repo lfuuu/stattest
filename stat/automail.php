@@ -13,7 +13,7 @@ define("print_sql", 1);
 	)exit();
 
 	$db->getRow('select * from mail_letter limit 1;');	//чтоб удостовериться, что всё работает
-	$FN = PATH_TO_ROOT."automail.running";
+	$FN = PATH_TO_ROOT."../runtime/automail.running";
 	if(file_exists($FN))
 		exit;
 
