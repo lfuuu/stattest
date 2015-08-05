@@ -345,8 +345,7 @@ class ClientDocumentDao extends Singleton
         } else {
             $contractDocument =
                 ClientDocument::find()
-                    ->andWhere(['type' => 'contract'])
-                    ->andWhere('contract_date <= :date', [':date' => $document->contract_dop_date ? $document->contract_dop_date : date('Y-m-d')])
+                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
                     ->orderBy('is_active desc, contract_date desc, id desc')
                     ->one();
             $lastContract = [
@@ -360,8 +359,12 @@ class ClientDocumentDao extends Singleton
         $organization = $document->getContract()->getOrganization($contractDate);
         $firm = $organization->getOldModeInfo();
         return [
-            'position' => $document->getContract()->getContragent()->position,
-            'fio' => $document->getContract()->getContragent()->fio,
+            'position' => $document->getContract()->getContragent() == 'legal'
+                ? $document->getContract()->getContragent()->position
+                : '',
+            'fio' => $document->getContract()->getContragent() == 'legal'
+                ? $document->getContract()->getContragent()->fio
+                : $document->getContract()->getContragent()->name_full,
             'name' => $document->getContract()->getContragent()->name,
             'name_full' => $document->getContract()->getContragent()->name_full,
             'address_jur' => $document->getContract()->getContragent()->address_jur,
@@ -389,12 +392,12 @@ class ClientDocumentDao extends Singleton
             'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
             'emails' => implode('; ', $officialContacts['email']),
             'phones' => implode('; ', $officialContacts['phone']),
-            'faxes' => implode('; ', $officialContacts['fax']),
+                'faxes' => implode('; ', $officialContacts['fax']),
 
             'organization_firma' => $firm->firma,
             'organization_director_post' => $firm->director_post,
             'organization_director' => $firm->director,
-            'organization_name' => $firm->name,
+                'organization_name' => $firm->name,
             'organization_address' => $firm->address,
             'organization_inn' => $firm->inn,
             'organization_kpp' => $firm->kpp,

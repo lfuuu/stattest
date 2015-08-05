@@ -293,7 +293,6 @@ class ClientAccount extends ActiveRecord
             'is_blocked' => 'Блокировка',
             'timezone_name' => 'Часовой пояс',
             'manager' => 'Менеджер',
-            'currency' => 'Валюта',
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
         ];

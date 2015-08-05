@@ -155,9 +155,9 @@ if ($has) :
                             if ($service->netList) :
                                 foreach ($service->netList as $net) :
                                     ?>
-                                    <tr bgcolor="<?= $actual($net->actual_from, $net->actual_to) ? '#DCEEA9' : '#fffff5' ?>">
+                                    <tr bgcolor="<?= $actual($net->actual_from, $net->actual_to) ? '#EEDCA9' : '#fffff5' ?>">
                                         <?php if ($j): ?>
-                                            <td rowspan=<?= count($service->netList) ?>bgcolor=#DCEEA9>
+                                            <td rowspan="<?= count($service->netList) ?>" bgcolor="<?= ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') ?>">
                                                 <a href='/?module=services&action=in_add2&id=<?= $service->id ?>'>
                                                     <img class=icon src='/images/icons/add.gif'>
                                                 </a>Создать сеть
@@ -176,7 +176,7 @@ if ($has) :
                                     </TR>
                                 <?php endforeach; ?>
                             <?php else : ?>
-                                <tr bgcolor="#DCEEA9">
+                                <tr bgcolor="#fffff5">
                                     <td>
                                         <a href='/?module=services&action=in_add2&id=<?= $service->id ?>'>
                                             <img class=icon src='/images/icons/add.gif'>
