@@ -314,9 +314,9 @@
           echo '"'.$r['code1'].'";"'.$r['code2'].'";"'.$r['name'].'";"'.$r['zone'].'";"'.$r['price1'].'";"'.$r['price2'].'";"'.$r['price3'].'";"'.$r['price4'].'"'."\n";
       }
     }else{
-      echo '"code1";"code2";"name";"zone";"price1"'."\n";
+      echo '"code1";"code2";"name";"zone";"price1";"price2"'."\n";
       foreach ($data as $r)
       {
-        echo '"'.$r['code1'].'";"'.$r['code2'].'";"'.$r['name'].'";"'.$r['zone'].'";"'.$r['price1'].'"'."\n";
+        echo '"'.$r['code1'].'";"'.$r['code2'].'";"'.$r['name'].'";"'.$r['zone'].'";"'.$r['price1'].'";"'.$r['price2'].'"'."\n";
       }
     }
