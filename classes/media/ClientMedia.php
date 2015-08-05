@@ -2,9 +2,10 @@
 
 namespace app\classes\media;
 
-use app\models\ClientContract;
 use Yii;
 use DateTime;
+use yii\db\ActiveRecord;
+use app\models\ClientContract;
 use app\models\media\ClientFiles;
 
 class ClientMedia extends MediaManager
@@ -20,6 +21,29 @@ class ClientMedia extends MediaManager
     public function getFolder()
     {
         return 'files';
+    }
+
+    public function addFileFromParam($name, $content, $comment = '', $userId = null)
+    {
+        if (!$name)
+            throw new \Exception('Не задано имя файла');
+
+        if (!$userId) {
+            $userId = Yii::$app->user->getId();
+        }
+
+        $model = $this->createFileModel($name, $comment);
+
+        if ($model->user_id !== $userId) {
+            $model->user_id = $userId;
+            $model->save();
+        }
+
+        if (file_put_contents($this->getFilePath($model), $content) !== false) {
+            return $model;
+        }
+
+        return false;
     }
 
     /**
@@ -40,10 +64,10 @@ class ClientMedia extends MediaManager
         return $model;
     }
 
-    protected function deleteFileModel($fileId)
+    protected function deleteFileModel(ActiveRecord $file)
     {
         /** @var ClientFiles $model */
-        $model = ClientFiles::findOne(['contract_id' => $this->contract->id, 'id' => $fileId]);
+        $model = ClientFiles::findOne(['contract_id' => $this->contract->id, 'id' => $file->id]);
         if ($model) {
             $model->delete();
         }
@@ -53,6 +77,5 @@ class ClientMedia extends MediaManager
     {
         return ClientFiles::findAll(['contract_id' => $this->contract->id]);
     }
-
 
 }

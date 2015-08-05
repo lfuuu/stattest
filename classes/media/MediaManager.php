@@ -36,7 +36,7 @@ abstract class MediaManager
      */
     protected abstract function createFileModel($name, $comment);
 
-    protected abstract function deleteFileModel($fileId);
+    protected abstract function deleteFileModel(ActiveRecord $file);
 
     protected abstract function getFileModels();
 
@@ -77,10 +77,7 @@ abstract class MediaManager
         }
 
         $model = $this->createFileModel($name, $comment);
-
-        $filePath = $this->getFilePath($model->id);
-
-        move_uploaded_file($file['tmp_name'], $filePath);
+        move_uploaded_file($file['tmp_name'], $this->getFilePath($model));
     }
 
     public function removeFile(ActiveRecord $fileModel)
@@ -122,7 +119,7 @@ abstract class MediaManager
 
     public function getContent($file)
     {
-        $filePath = $this->getFilePath($file->id);
+        $filePath = $this->getFilePath($file);
 
         if (file_exists($filePath)) {
             $fileData = $this->getFile($file);
@@ -143,7 +140,7 @@ abstract class MediaManager
 
     protected function getSize($file)
     {
-        $filePath = $this->getFilePath($file->id);
+        $filePath = $this->getFilePath($file);
 
         if (file_exists($filePath)) {
             return filesize($filePath);
@@ -165,7 +162,7 @@ abstract class MediaManager
         return [$ext, isset($this->mimesTypes[$ext]) ? $this->mimesTypes[$ext] : $mime];
     }
 
-    private function getFilePath(ActiveRecord $fileModel)
+    protected function getFilePath(ActiveRecord $fileModel)
     {
         return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), $fileModel->id]);
     }

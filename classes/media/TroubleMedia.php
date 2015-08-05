@@ -2,9 +2,10 @@
 
 namespace app\classes\media;
 
-use app\models\Trouble;
-use DateTime;
 use Yii;
+use DateTime;
+use yii\db\ActiveRecord;
+use app\models\Trouble;
 use app\models\media\TroubleFiles;
 
 class TroubleMedia extends MediaManager
@@ -32,7 +33,6 @@ class TroubleMedia extends MediaManager
         $model->ts = (new DateTime())->format(DateTime::ATOM);
 
         $model->name = $name;
-        $model->comment = $comment;
         $model->user_id = Yii::$app->user->getId();
 
         $model->save();
@@ -40,10 +40,10 @@ class TroubleMedia extends MediaManager
         return $model;
     }
 
-    protected function deleteFileModel($fileId)
+    protected function deleteFileModel(ActiveRecord $file)
     {
         /** @var TroubleFiles $model */
-        $model = TroubleFiles::findOne(['trouble_id' => $this->trouble->id, 'id' => $fileId]);
+        $model = TroubleFiles::findOne(['trouble_id' => $this->trouble->id, 'id' => $file->id]);
         if ($model) {
             $model->delete();
         }
