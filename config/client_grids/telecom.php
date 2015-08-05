@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 
@@ -12,7 +12,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
             ],
         ],
@@ -38,7 +38,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_CONNECTED],
             ],
         ],
@@ -64,7 +64,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_WORK],
             ],
         ],
@@ -92,7 +92,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_DISCONNECTED],
             ],
         ],
@@ -176,7 +176,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_TRASH],
             ],
         ],
@@ -203,7 +203,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_NOT_CONNECTED],
             ],
         ],
@@ -229,7 +229,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_TECH_FAILURE],
             ],
         ],
@@ -256,7 +256,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_FAILURE],
             ],
         ],
@@ -283,7 +283,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
                 ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_DUPLICATE],
             ],
         ],
@@ -310,7 +310,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'income'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -356,7 +356,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'negotiations'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -381,7 +381,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'testing'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -407,7 +407,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'connecting'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -433,7 +433,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'tech_deny'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -460,7 +460,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['c.status' => 'deny'],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [
@@ -487,7 +487,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['in', 'c.status', ['double', 'trash']],
-                ['cr.contract_type_id' => ClientContractType::TELEKOM],
+                ['cr.contract_type_id' => ContractType::TELEKOM],
             ],
         ],
         'columns' => [

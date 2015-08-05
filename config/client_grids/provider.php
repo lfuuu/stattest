@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 use app\models\User;
@@ -28,7 +28,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_ORDERS_ACTING],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -54,7 +54,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_ORDERS_NEGOTIATION_STAGE],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -80,7 +80,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_GPON],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -106,7 +106,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_VOLS],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -132,7 +132,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_SERVICE],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -158,7 +158,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_ACTING],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -184,7 +184,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_CLOSED],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -210,7 +210,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_SELF_BUY],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [
@@ -236,7 +236,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_ONCE],
-                ['cr.contract_type_id' => ClientContractType::PROVIDER],
+                ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
         'columns' => [

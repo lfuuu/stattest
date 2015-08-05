@@ -239,7 +239,7 @@ use yii\web\JsExpression;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList()],
+                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ContractType::getList()],
                     //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],
                     'state' => [
                         'type' => Form::INPUT_RAW,

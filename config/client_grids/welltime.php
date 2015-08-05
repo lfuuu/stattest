@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 

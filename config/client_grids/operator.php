@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 
@@ -13,7 +13,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_INCOMMING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -39,7 +39,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -65,7 +65,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TESTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -91,7 +91,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_ACTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -117,7 +117,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_MANUAL_BILL],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -143,7 +143,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_SUSPENDED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -169,7 +169,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TERMINATED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -195,7 +195,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_BLOCKED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -221,7 +221,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TECH_FAILURE],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -247,7 +247,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_AUTO_BLOCKED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -273,7 +273,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TRASH],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -299,7 +299,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_INCOMMING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -325,7 +325,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -351,7 +351,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TESTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -377,7 +377,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_ACTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -403,7 +403,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_JIRASOFT],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -429,7 +429,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_SUSPENDED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -455,7 +455,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TERMINATED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -481,7 +481,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_BLOCKED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -507,7 +507,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TECH_FAILURE],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -533,7 +533,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -559,7 +559,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TRASH],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -585,7 +585,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_INCOMMING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -611,7 +611,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -637,7 +637,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TESTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -663,7 +663,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_ACTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -689,7 +689,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_SUSPENDED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -715,7 +715,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TERMINATED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -741,7 +741,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_BLOCKED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -767,7 +767,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TECH_FAILURE],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -793,7 +793,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -819,7 +819,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TRASH],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -845,7 +845,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_INCOMMING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -871,7 +871,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -897,7 +897,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TESTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -923,7 +923,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_ACTING],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -949,7 +949,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_SUSPENDED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -975,7 +975,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TERMINATED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -1001,7 +1001,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_BLOCKED],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -1027,7 +1027,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TECH_FAILURE],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -1053,7 +1053,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [
@@ -1079,7 +1079,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TRASH],
-                ['cr.contract_type_id' => ClientContractType::OPERATOR],
+                ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
         'columns' => [

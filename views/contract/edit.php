@@ -58,7 +58,7 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 'attributes' => [
                     'contract_type_id' => [
                         'type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => \app\models\ClientContractType::getList(),
+                        'items' => \app\models\ContractType::getList(),
                         'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
                     ],
                     //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],

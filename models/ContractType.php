@@ -6,11 +6,11 @@ use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
- * @property varchar $name
+ * @property string $name
  * @property int $sort
  * @property
  */
-class ClientContractType extends ActiveRecord
+class ContractType extends ActiveRecord
 {
     const TELEKOM = 2;
     const OPERATOR = 3;

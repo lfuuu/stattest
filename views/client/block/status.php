@@ -90,7 +90,7 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
             'attributes' => [
                 'contract_type_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ClientContractType::getList(),
+                    'items' => \app\models\ContractType::getList(),
                     'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
                 ],
                 'business_process_id' => [

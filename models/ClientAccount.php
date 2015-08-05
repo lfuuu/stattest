@@ -314,7 +314,7 @@ class ClientAccount extends ActiveRecord
 
     public function getContractType()
     {
-        return $this->hasOne(ClientContractType::className(), ['id' => 'contract_type_id']);
+        return $this->hasOne(ContractType::className(), ['id' => 'contract_type_id']);
     }
 
     public function getRegionName()

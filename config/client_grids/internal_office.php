@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 
@@ -12,7 +12,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::INTERNAL_OFFICE],
+                ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
                 ['cr.business_process_status_id' => ClientBPStatuses::INTERNAL_OFFICE],
             ],
         ],
@@ -38,7 +38,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ClientContractType::INTERNAL_OFFICE],
+                ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
                 ['cr.business_process_status_id' => ClientBPStatuses::INTERNAL_OFFICE_CLOSED],
             ],
         ],

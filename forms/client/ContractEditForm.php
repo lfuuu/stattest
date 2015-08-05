@@ -4,7 +4,7 @@ namespace app\forms\client;
 use app\classes\Event;
 use app\dao\ClientGridSettingsDao;
 use app\models\ClientContractComment;
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
 use app\models\Organization;

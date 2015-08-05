@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 use app\models\User;
@@ -28,7 +28,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['in', 'c.status', ['double', 'trash']],
-                ['cr.contract_type_id' => ClientContractType::INTERNET_SHOP],
+                ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
             ],
         ],
         'columns' => [
@@ -54,7 +54,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['in', 'c.status', ['double', 'trash']],
-                ['cr.contract_type_id' => ClientContractType::INTERNET_SHOP],
+                ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
             ],
         ],
         'columns' => [

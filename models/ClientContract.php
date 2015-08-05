@@ -119,7 +119,7 @@ class ClientContract extends ActiveRecord
 
     public function getContractType()
     {
-        $m = ClientContractType::findOne($this->contract_type_id);
+        $m = ContractType::findOne($this->contract_type_id);
         return $m ? $m->name : $this->contract_type_id;
     }
 

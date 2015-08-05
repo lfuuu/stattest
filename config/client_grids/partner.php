@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBPStatuses;
 use app\models\ClientGridBussinesProcess;
 
@@ -13,7 +13,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ClientContractType::PARTNER],
+                ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
         'columns' => [
@@ -39,7 +39,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_ACTING],
-                ['cr.contract_type_id' => ClientContractType::PARTNER],
+                ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
         'columns' => [
@@ -65,7 +65,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_CLOSED],
-                ['cr.contract_type_id' => ClientContractType::PARTNER],
+                ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
         'columns' => [
