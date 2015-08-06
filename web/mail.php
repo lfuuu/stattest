@@ -28,7 +28,7 @@ use app\classes\documents\DocumentReport;
             echo $report->render();
         } else if ($R['obj'] == "sogl_mcm_telekom" || $R["obj"] == "notice_mcm_telekom") {
 
-            $bill = Bill::findOne(['client_id' => $R['bill']]);
+            $bill = Bill::find()->andWhere(['client_id' => $R['bill']])->orderBy("bill_date desc")->limit(1)->one();
 
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             echo $report->renderAsPDF();
