@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\CountryDao;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
@@ -12,7 +13,7 @@ use yii\db\ActiveRecord;
  */
 class Country extends ActiveRecord
 {
-    const RUSSIA = 276;
+    const RUSSIA = 643;
     const HUNGARY = 348;
     const GERMANY = 276;
 
@@ -30,4 +31,11 @@ class Country extends ActiveRecord
     {
         return CountryDao::me();
     }
+
+    public static function getList()
+    {
+        $arr = self::findAll(['in_use' => 1]);
+        return ArrayHelper::map($arr, 'code', 'name');
+    }
+
 }

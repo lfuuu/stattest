@@ -3,13 +3,14 @@
 use app\classes\StatModule;
 use app\models\Trouble;
 use app\models\LkWizardState;
-use app\models\ClientContractType;
+use app\models\ContractType;
 use app\models\ClientBP;
 use app\models\ClientBPStatuses;
-use app\models\TariffVirtpbx;
-use app\models\LogTarif;
-use app\models\User;
+use app\models\ClientContractComment;
 use app\models\ClientAccount;
+use app\models\TariffVirtpbx;
+use app\models\User;
+use app\models\Organization;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -43,56 +44,111 @@ if ($action=='add_client') {
         echo "error:";
         exit();
     }
+    $c = \app\models\ClientContact::findOne(['data' => $P['email'], 'type' => 'email']);
 
-    $id = $db->GetValue(
-        "SELECT 
-            client_id 
-        FROM 
-            `client_contacts` 
-        WHERE 
-                type='email' 
-            and `data` = '".mysql_real_escape_string($P["email"])."'
-        ORDER BY if(is_active = 1, if(is_official = 1, 2, 1), 0) desc, `id` DESC limit 1");
+    Yii::info("Start add_client");
+    Yii::info($P);
+    Yii::info($c);
 
-	if($id)
+	if($c)
 	{
-		die("ok:".$id);
+		die("ok:".$c->client_id);
 	}
-	$O = new ClientCS();
-	$O->client = "idNNNN";
-	$O->company = $P['company'];
-	$O->company_full = $P['company'];
-	$O->address_post = $P['address'];
-	$O->address_post_real = $P['address'];
-	$O->address_connect = $P['address'];
-	$O->address_jur = $P['address'];
-	$O->sale_channel = $P['market_chanel'];
-    $O->contract_type_id = ClientContractType::TELEKOM; //Телеком-клиент
-    $O->business_process_id = ClientBP::TELEKOM__SUPPORT; //Сопровождение
-    $O->business_process_status_id = ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES; //Заказ уcлуг
-    $O->status = "income"; 
+
+    $s = new \app\models\ClientSuper();
+    $s->name = $P['company'];
+    $s->save();
+
+    Yii::info($s);
+
+    $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
+    $cg->name = $cg->name_full = $P['company'];
+    $cg->address_jur = $P['address'];
+    $cg->legal_type = 'legal';
+    $cg->save();
+
+    Yii::info($cg);
+
+    $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
+    $cr->contract_type_id = ContractType::TELEKOM;
+    $cr->business_process_id = ClientBP::TELEKOM__SUPPORT;
+    $cr->business_process_status_id = ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+    $cr->organization_id = Organization::MCN_TELEKOM;
+
+
+    $cr->save();
+
+    Yii::info($cr);
+
+    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
+    $ca->address_post = $P['address'];
+    $ca->address_post_real = $P['address'];
+    $ca->address_connect = $P['address'];
+    $ca->sale_channel = $P['market_chanel'];
+    $ca->status = "income";
 
 	if($P["phone_connect"])
-		$O->phone_connect = $P["phone_connect"];
+        $ca->phone_connect = $P["phone_connect"];
 
-    if ($O->Create(0)) {
+    if ($ca->save()) {
+        Yii::info($ca);
         $contactId = 0;
-        if($P['contact']) $O->AddContact('phone',$P['contact'],$P["fio"],0);
-        if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
-        if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
-        if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
-        $O->Add("Входящие клиент с сайта: ".$P["company"]);
+		if($P['contact']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'phone';
+            $c->data = $P['contact'];
+            $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
+            $c->is_active = 1;
+            $c->is_official = 0;
+            $c->save();
+        }
+		if($P['phone']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'phone';
+            $c->data = $P['phone'];
+            $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+        }
+		if($P['fax']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'fax';
+            $c->data = $P['fax'];
+            $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+        }
+		if($P['email']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'email';
+            $c->data = $P['email'];
+            $c->comment = $P["fio"];
+            $c->user_id = User::CLIENT_USER_ID;
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+            $contactId = $c->id;
+        }
         if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
         {
-            $O->admin_contact_id = $contactId;
-            $O->admin_is_active = 0;
-            $O->Apply();
+            $ca->admin_contact_id = $contactId;
+            $ca->admin_is_active = 0;
+            $ca->save();
         }
 
         $R = array(
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
-            'client' => "id".$O->id,
+            'client' => "id".$ca->id,
             'date_start' => date('Y-m-d H:i:s'),
             'date_finish_desired' => date('Y-m-d H:i:s'),
             'problem' => "Входящие клиент с сайта: ".$P["company"],
@@ -101,20 +157,19 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($O->id, "mcn", $troubleId);
+        LkWizardState::create($cr->id, $troubleId);
+
 
         if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
         {
-            $client = ClientAccount::findOne(["id" => $O->id]);
+            $client = ClientAccount::findOne(["id" => $ca->id]);
             $tarif = TariffVirtpbx::find()->where(["and", ["id" => $vatsTarifId], ["!=", "status", "archive"]])->one();
 
             if ($client && $tarif)
             {
                 $actual_from = "4000-01-01";
                 $actual_to = "4000-01-01";
-
                 $vats = new UsageVirtpbx;
-
                 $vats->client = $client->client;
                 $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
                 $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -124,7 +179,6 @@ if ($action=='add_client') {
                 $vats->status = 'connecting';
                 $vats->server_pbx_id = 2; // vpbx-msk
                 $vats->save();
-
                 $logTarif = new LogTarif;
                 $logTarif->service = "usage_virtpbx";
                 $logTarif->id_service = $vats->id;
@@ -136,8 +190,9 @@ if ($action=='add_client') {
             }
         }
 
-        echo 'ok:'.$O->id;
-    } else {
+
+		echo 'ok:'.$ca->id;
+	} else {
 		echo 'error:';
 	}
 }elseif($action == "set_active")
@@ -241,7 +296,17 @@ if ($action=='add_client') {
     {
         $comment .= $r['number'].' - '.$r['price']."<br/>\n";
     }
-    $db->QueryInsert('client_statuses', array('id_client'=>$client_id,'comment'=>$comment,'user'=>'auto'));
+
+    $account = ClientAccount::findOne($client_id);
+    if (!$account)
+        return 0;
+
+
+    $c = new ClientContractComment();
+    $c->contract_id = $account->contract_id;
+    $c->user = 'auto';
+    $c->comment = $comment;
+    $c->save();
 
     $isOk = true;
     foreach($_numbers as $number)
@@ -252,9 +317,9 @@ if ($action=='add_client') {
             if ($reservInfo)
             {
                 $trouble = Trouble::findOne([
-                    "client" => "id".$client_id,
+                    "client" => $account->client,
                     "trouble_type" => "connect",
-                    "service" => "",
+                    "service" => ""
                     ]
                 );
 

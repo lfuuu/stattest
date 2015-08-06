@@ -37,13 +37,13 @@
 		</TR>
 {foreach from=$devices item=item name=outer}
 <TR bgcolor="{if $item.actual}#EEDCA9{else}#fffff5{/if}">
-          <TD nowrap><a href='{$LINK_START}module=routers&action=d_edit&id={$item.id}'>{$item.id}</a>
+          <TD nowrap><a href='{$LINK_START}module=routers&action=d_edit&id={$item.id}'>{$item.clientid}</a>
 <a href='{$LINK_START}module=routers&action=d_act&id={$item.id}' title='Бухгалтерский'><img src='images/icons/act.gif' border=0></a>
 <a href='{$LINK_START}module=routers&action=d_act&act=2&id={$item.id}' title='Технический'><img src='images/icons/act.gif' border=0></a>
 <a href='{$LINK_START}module=routers&action=d_act&act=3&id={$item.id}' title='Возврат'><img src='images/icons/act.gif' border=0></a>
 </TD>
           {if !isset($is_secondary_output)}
-          <TD><a href="{$LINK_START}module=clients&id={$item.client}">{$item.client}</a></TD>
+          <TD><a href="'/client/view?id={$item.clientid}'">{$item.client}</a></TD>
           {/if}
           <TD><b>{$item.vendor} {$item.model}</b><br>MAC:{$item.mac}
           </TD>

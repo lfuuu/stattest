@@ -3,14 +3,14 @@
 class SyncCoreHelper
 {
 
-    private static $allowClientStatusSQL = array("work","connecting","testing", "debt", "operator");
+    private static $allowClientStatusSQL = array("income", "negotiations", "work", "connecting", "testing", "debt", "operator");
 
     static function getFullClientStruct($superId) // only super client && conragent
     {
-        echo "\n".__FUNCTION__;
+        echo "\n" . __FUNCTION__;
         global $db;
 
-        $super = $db->GetRow("select id, name from client_super where id = '".$superId."'");
+        $super = $db->GetRow("select id, name from client_super where id = '" . $superId . "'");
 
         $emails = array();
 
@@ -20,47 +20,45 @@ class SyncCoreHelper
 
         $data = array("client" => array("id" => $super["id"], "name" => $super["name"]), "contragents" => array());
 
-        foreach($db->AllRecords("select id, name from client_contragent where super_id = '".$superId."'")as $contr)
-        {
+        $contragents = \app\models\ClientContragent::findAll(['super_id' => $superId]);
+        foreach ($contragents as $contr) {
             $dataContragent = array("id" => $contr["id"], "name" => $contr["name"], "accounts" => array());
 
             $adminContactId = 0;
-            foreach($db->AllRecords("select id, client, password, status, admin_contact_id  from clients where contragent_id = '".$contr["id"]."'") as $c)
-            {
-                $isMainCard = strpos($c["client"], "/") === false;
-                if ($isMainCard)
-                {
-                    $password = $c["password"];
-                    $main_card = $c["client"];
-                    $main_card_id = $c["id"];
-                    $adminContactId = $c["admin_contact_id"];
+            foreach ($contr->getContracts() as $contract) {
+                foreach ($contract->getAccounts() as $c) {
+                    $isMainCard = strpos($c["client"], "/") === false;
+                    if ($isMainCard) {
+                        $password = $c["password"];
+                        $main_card = $c["client"];
+                        $main_card_id = $c["id"];
+                        $adminContactId = $c["admin_contact_id"];
+                    }
+
+                    if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
+
+                    //self::loadEmails($emails, $c["id"]);
+
+                    /* add account event fiered next time
+                    $_account = array("id" => $c["id"], "products" => self::getProducts($c["id"]));
+                    $dataContragent["accounts"][] = $account;
+                    */
                 }
-
-                if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
-
-                //self::loadEmails($emails, $c["id"]);
-
-                /* add account event fiered next time
-                $_account = array("id" => $c["id"], "products" => self::getProducts($c["id"]));
-                $dataContragent["accounts"][] = $account;
-                */
             }
             $data["contragents"][] = $dataContragent;
         }
 
-        $adminEmail = $main_card_id."@mcn.ru";
+        $adminEmail = $main_card_id . "@mcn.ru";
 
-        if ($adminContactId)
-        {
+        if ($adminContactId) {
             $contact = app\models\ClientContact::findOne(["id" => $adminContactId, "type" => "email"]);
 
-            if ($contact)
-            {
+            if ($contact) {
                 $adminEmail = $contact->data;
             }
         }
 
-        $data["admin"] = array("email" => $adminEmail, "password" => $password?:password_gen(), "active" => true);
+        $data["admin"] = array("email" => $adminEmail, "password" => $password ?: password_gen(), "active" => true);
         /*
         if ($emails && $password)
         {
@@ -75,38 +73,36 @@ class SyncCoreHelper
         return $data;
     }
 
-    public static function getAccountStruct($cl)
+    public static function getAccountStruct(\app\models\ClientAccount $cl)
     {
-        echo "\n".__FUNCTION__;
+        echo "\n" . __FUNCTION__;
 
-        var_dump($cl->status);
-        if (!$cl->isMainCard() && !in_array($cl->status, self::$allowClientStatusSQL)) return false;
-         
+        if (!in_array($cl->status, self::$allowClientStatusSQL)) return false;
+
         return array(
-                "contragent" => array("id" => $cl->contragent_id), 
-                "accounts" => array(
-                    array(
-                        "id" => $cl->id,
-                        "products" => array()//self::getProducts($cl->id)
-                        )
-                    )
-                );
+            "contragent" => array("id" => $cl->contract->contragent_id),
+            "accounts" => array(
+                array(
+                    "id" => $cl->id,
+                    "products" => array()//self::getProducts($cl->id)
+                )
+            )
+        );
     }
 
     static function loadEmails(&$emails, $clientId)
     {
-        echo "\n".__FUNCTION__;
+        echo "\n" . __FUNCTION__;
         global $db;
-        foreach($db->AllRecords(
-                    "SELECT data 
+        foreach ($db->AllRecords(
+            "SELECT data
                     FROM `client_contacts` 
                     WHERE 
-                    `client_id` = '".$clientId."' 
+                    `client_id` = '" . $clientId . "'
                     AND `type` = 'email' 
                     AND `is_active` = '1' 
                     AND `is_official` = '1'
-                    ") as $e)
-        {
+                    ") as $e) {
             $emails[$e["data"]] = 1;
         }
     }
@@ -125,12 +121,12 @@ class SyncCoreHelper
                     FROM
                     usage_voip u, clients c
                     WHERE
-                    c.id = '".$clientId."'
+                    c.id = '" . $clientId . "'
                     AND c.client = u.client
                     AND actual_from <= cast(now() AS date)
-                    AND actual_to >= cast(now() AS date)") > 0)
-        {
-            return array("server_host" => PHONE_SERVER, "mnemonic" => "phone");
+                    AND actual_to >= cast(now() AS date)") > 0
+        ) {
+            return array("server_host" => \Yii::$app->params['PHONE_SERVER'], "mnemonic" => "phone");
         }
 
         return false;
@@ -147,15 +143,12 @@ class SyncCoreHelper
     {
         $oldState = self::getProductSavedState($clientId, $product, true);
 
-        if (!$newState && $oldState)
-        {
+        if (!$newState && $oldState) {
             $oldState->delete();
         }
 
-        if ($newState)
-        {
-            if (!$oldState)
-            {
+        if ($newState) {
+            if (!$oldState) {
                 $newState = new ProductState();
                 $newState->client_id = $clientId;
                 $newState->product = $product;
@@ -166,10 +159,11 @@ class SyncCoreHelper
 
     public static function getProductState($clientId, $product)
     {
-        switch($product)
-        {
-            case 'phone': return self::getProductPhone($clientId);
-            default: return false;
+        switch ($product) {
+            case 'phone':
+                return self::getProductPhone($clientId);
+            default:
+                return false;
         }
     }
 

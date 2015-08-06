@@ -1,15 +1,27 @@
 <h2>Бухгалтерия {$fixclient_data.id} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=0'>посложнее</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}Скрыть{else}Показать{/if} отказные счета</a>{/if})</span></h2>
 
 <a href='{$LINK_START}module=newaccounts&action=bill_create'>Создать счёт</a> /
-<a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a> <br><br>
+<a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a><br><br>
 <span title='Клиент должен нам'>Входящее сальдо</span>: <form style='display:inline' action='?' method=post onSubmit="return optools.bills.checkSubmitSetSaldo();"><input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{if isset($sum_cur.saldo)}{$sum_cur.saldo}{/if}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}р{/if}">
- на дату <input type=text class=text style='width:85px;border:0' name=date value="{$sum_cur.ts}"><input type=submit class=button value='ok'></form> &nbsp; <a href='javascript:toggle2(document.getElementById("saldo_history"))'>&raquo;</a><br>
-<table style='display:none;margin-left:20px' class=price id=saldo_history>
-<TR><TD class=header>Дата изменения</td><TD class=header>Пользователь</td><TD class=header>Сальдо</td><TD class=header>Дата сальдо</td></TR>
-{foreach from=$saldo_history item=item}
-<TR class=even><td>{$item.edit_time|udate}</td><td>{$item.user_name}</td><td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts|udate}</td></tr>
-{/foreach}
+ на дату <input type=text class=text style='width:85px;border:0' name=date value="{$sum_cur.ts|udate|mdate:"Y-m-d"}"><input type=submit class=button value='ok'></form> &nbsp; <a href='javascript:toggle2(document.getElementById("saldo_history"))'>&raquo;</a><br>
+<table style="display:none;margin-left:20px" class="price" id="saldo_history">
+    <tr>
+        <td class="header">Дата изменения</td>
+        <td class="header">Пользователь</td>
+        <td class="header">Сальдо</td>
+        <td class="header">Дата сальдо</td>
+        <td class="header"></td>
+    </tr>
+    {foreach from=$saldo_history item=item}
+        <tr class="even">
+            <td>{$item.edit_time|udate}</td>
+            <td>{$item.user_name}</td>
+            <td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td>
+            <td>{$item.ts|udate}</td>
+            <td><a href="/client/cancel-saldo?id={$item.id}&clientId={$fixclient_data.id}" onClick="return confirm('Вы уверены, что хотите отменить сальдо ?')"><b>отменить</b></a></td>
+        </tr>
+    {/foreach}
 </table>
 
 <table width=100%>
@@ -146,7 +158,7 @@
 </TR>
 {if isset($op.switch_to_mcn) && $op.switch_to_mcn}
 <tr>
-    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">Мсн Телеком</td>
+    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">{$op.switch_to_mcn}</td>
 </tr>
 {/if}
 

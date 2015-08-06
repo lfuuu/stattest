@@ -15,7 +15,7 @@
 {foreach from=$ports item=item}<tr>
 	<td>{$item.ord}</td>
 	<td><a href='{$PATH_TO_ROOT}pop_services.php?table=usage_ip_ports&id={$item.id}'>{$item.id}</a></td>
-	<td><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client}</a></td>
+	<td><a href='/client/view?id={$item.clientid}'>{$item.client}</a></td>
 	<td>{$item.manager}</td>
 	<td>{if isset($item.tarif.name)}
 		<span title='Текущий тариф: {$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}'>{$item.tarif.name}</span>

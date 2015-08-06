@@ -1,8 +1,9 @@
 <?php
 use app\classes\StatModule;
+use \app\models\ClientAccount;
+use app\classes\Assert;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
-use app\models\ClientAccount;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -35,6 +36,7 @@ class m_stats extends IModule{
 			trigger_error2('Выберите клиента');
 			return;
 		}
+        $clientNick = ClientAccount::findOne($fixclient)->client;
 		
 		$route=get_param_raw('route','');
 		
@@ -53,7 +55,7 @@ class m_stats extends IModule{
 		$detality = get_param_protected('detality','day');
 		$design->assign('detality',$detality);
 
-		list($routes_all,$routes_allB)=$this->get_routes_list($fixclient);
+		list($routes_all,$routes_allB)=$this->get_routes_list($clientNick);
 
 		//если сеть не задана, выводим все подсети клиента.
 		if($route){
@@ -64,7 +66,6 @@ class m_stats extends IModule{
 				return;
 			}
 		}else{
-			$client=$fixclient;
 			$routes=array();
 			foreach($routes_allB as $r)
 				$routes[] = $r;
@@ -93,6 +94,7 @@ class m_stats extends IModule{
 	function stats_vpn($fixclient) {
 		global $db,$design;
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
+        $clientNick = ClientAccount::findOne($fixclient)->client;
 		$ip=get_param_raw('ip','');
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
@@ -128,7 +130,7 @@ class m_stats extends IModule{
 			ON
 				T.id=get_tarif_internet(S.id)
 			where
-				S.client="'.$fixclient.'"
+				S.client="'.$clientNick.'"
 			AND
 				T.type="V"
 			and
@@ -158,20 +160,21 @@ class m_stats extends IModule{
 
 		$login=get_param_integer('login',0);
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
 
 		if ($login){
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (id="'.$login.'")');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (id="'.$login.'")');
 			if (!($r=$db->NextRecord())) {trigger_error2('Логин не существует'); return; }
 			$logins=array($r['login']);
 
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (login!="") order by login');
 			$logins_all=array();
 			while ($r=$db->NextRecord()){
 				$logins_all[]=$r;
 			}
 		} else {
 			//список всех сетей, нужен для вывода их списка.
-			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
+			$db->Query('select * from usage_ip_ppp where (client="'.$clientNick.'") and (login!="") order by login');
 			$logins_all=array(); $logins=array();
 			while ($r=$db->NextRecord()){
 				$logins[]=$r['login'];
@@ -212,14 +215,16 @@ class m_stats extends IModule{
             return;
         }
 
-        $client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
+        session_write_close();
 
-        $timezones = [ $client['timezone_name'] ];
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne($fixclient);
 
-        $client_id = $client['id'];
+        $timezones = [ $account->timezone_name ];
+
         $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
-                                       where u.client='".addslashes($client['client'])."'
+                                       where u.client='".addslashes($account->client)."'
                                        order by u.region desc, u.id asc");
         if (!$usages) {
             trigger_error2("У клиента нет подключенных телефонных номеров!");
@@ -289,29 +294,27 @@ class m_stats extends IModule{
         if(!in_array($direction,array('both','in','out')))
             $direction = 'both';
 
-        /** @var ClientAccount $client */
-        $client = ClientAccount::findOne($client_id);
 
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
         $design->assign('detality',$detality=get_param_protected('detality','day'));
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
-        $design->assign('timezone',$timezone=get_param_raw('timezone', $client->timezone_name));
+        $design->assign('timezone',$timezone=get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', $timezones);
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
-            //$stats = $this->prepareStatArray($client_id, $stats, $detality);
+            $stats = $this->prepareStatArray($account, $stats, $detality);
         } else {
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
             }
         }
 
         $design->assign('stats',$stats);
-        $design->assign('price_include_vat', $client->price_include_vat);
+        $design->assign('price_include_vat', $account->price_include_vat);
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
 	}
@@ -319,14 +322,13 @@ class m_stats extends IModule{
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
-    function prepareStatArray($client_id, $data = array(), $detality = '', $all_regions = array()) {
+    function prepareStatArray(ClientAccount $account, $data = array(), $detality = '', $all_regions = array()) {
 
         if (!count($data)) return $data;
         $Res = array();
         $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
 
-        $clientAccount = ClientAccount::findOne($client_id);
-        $tax_rate = $clientAccount->getTaxRate();
+        $tax_rate = $account->getTaxRate();
 
         switch ($detality) {
             case 'dest':
@@ -353,7 +355,7 @@ class m_stats extends IModule{
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
@@ -387,7 +389,7 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
@@ -434,7 +436,7 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
 
-                if ($clientAccount->price_include_vat) {
+                if ($account->price_include_vat) {
                     $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
                     $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
                     $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
@@ -481,6 +483,15 @@ class m_stats extends IModule{
                 "78633090000" => array("78633090000", "78633090499", "Ростов-на-дону"), //РОСТОВ-НА-ДОНУ
                 "78432070000" => array("78432070000", "78432070499", "Казань"), //КАЗАНЬ
                 "74232060000" => array("74232060000", "74232060499", "Владивосток"), //ВЛАДИВОСТОК
+
+                "36000000000" => array("36000000000", "36999999999", "ВЕНГРИЯ (вся)"),
+                "36100000000" => array("36100000000", "36199999999", "Будапешт (Венгрия)"),
+                "36464100000" => array("36464100000", "36464109999", "Мишкольц (Венгрия)"),
+                "36523000000" => array("36523000000", "36523009999", "Дебрецен (Венгрия)"),
+                "36623000000" => array("36623000000", "36623009999", "Сегед (Венгрия)"),
+                "36722500000" => array("36722500000", "36722509999", "Печ (Венгрия)"),
+                "36968000000" => array("36968000000", "36968009999", "Дьёр (Венгрия)")
+
                 );
 
         $rangeFrom = get_param_raw("range_from", '74996850000');
@@ -527,7 +538,7 @@ class m_stats extends IModule{
 
             $ns = $db->AllRecords($q = "
                         SELECT 
-                            a.*, c.company, c.client,
+                            a.*, cg.name AS company, c.client,
                             IF(client_id IN ('9130', '764'), 'our', 
                                 IF(date_reserved IS NOT NULL, 'reserv', 
                                     IF(active_usage_id IS NOT NULL, 'used', 
@@ -592,6 +603,8 @@ class m_stats extends IModule{
                                 number BETWEEN '".$rangeFrom."' AND '".$rangeTo."' 
                         )a 
                         LEFT JOIN clients c ON (c.id = a.client_id)
+                        LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                        LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                         WHERE beauty_level IN ('".implode("','", $beauty)."')
                         HAVING status IN ('".implode("','", $group)."')
                     ");
@@ -727,7 +740,7 @@ class m_stats extends IModule{
 
 		$detality=get_param_protected('detality','day');
 
-		$stats=$this->GetStatsCallback($from,$to,$detality,$fixclient_data['id']);
+		$stats=$this->GetStatsCallback($from,$to,$detality,$fixclient);
 		if (!$stats) return;
 		$design->assign('detality',$detality);
 		$design->assign('stats',$stats);
@@ -1455,7 +1468,7 @@ class m_stats extends IModule{
 		$max_bytes=get_param_raw('max_bytes');
 		$port_id=get_param_raw('port_id');
 		$flag=get_param_raw('flag');
-		if (!$year || !$month || !is_array($flag) || !is_array($in_bytes) || !is_array($out_bytes) || !is_array($max_bytes) || !is_array($port_id) || !is_array($clients)) return;// $this->stats_send_view($fixclient);
+		if (!$year || !$month || !is_array($flag) || !is_array($bytes) || !is_array($max_bytes) || !is_array($port_id) || !is_array($clients)) return;// $this->stats_send_view($fixclient);
 		foreach ($clients as $i=>$c) if (isset($flag[$i]) && $flag[$i]){
 			@$db->Query('insert into stats_send (client,state,year,month,port_id,bytes,max_bytes,message) value ("'.$c.'","ready",'.$year.','.$month.','.$port_id[$i].','.$bytes[$i].','.$max_bytes[$i].',"'.$email[$i].'")');
 		}
@@ -1473,7 +1486,9 @@ class m_stats extends IModule{
 		}
 
 		if (count($C)) $q='IF (client IN ("'.implode('","',$C).'"),1,0)'; else $q='0';
-		$db->Query('select *,'.$q.' as cur_sent from stats_send order by cur_sent desc,state,last_send desc,client');
+		$db->Query('select stats_send.*, c.id AS clientid,'.$q.' as cur_sent from stats_send
+		inner join clients c ON c.client = stats_send.client
+		order by cur_sent desc,state,last_send desc,client');
 		$R=array(); while ($r=$db->NextRecord()) {
 			$r['cur_sent']=(isset($C[$r['client']]))?1:0;
 			if (isset($R[$r['client']])){
@@ -1571,7 +1586,8 @@ class m_stats extends IModule{
 					ti.name tarif_name,
 					ti.mb_month,
 					ti.pay_month,
-					ti.pay_mb
+					ti.pay_mb,
+					c.id AS clientid
 				FROM
 					usage_ip_ports uip
 				INNER JOIN
@@ -1804,6 +1820,7 @@ class m_stats extends IModule{
 				SELECT
 					uip.id,
 					uip.client,
+					c.id AS clientid,
 					sum(tfr.in_bytes) in_bytes,
 					sum(tfr.out_bytes) out_bytes,
 					ti.name tarif_name,
@@ -1831,6 +1848,7 @@ class m_stats extends IModule{
 					usage_ip_ports as uip
 				ON
 					uip.id=tfr.id_port
+				INNER JOIN clients c ON c.client = uip.client
 				LEFT JOIN
 					log_tarif lt
 				ON
@@ -2417,63 +2435,6 @@ class m_stats extends IModule{
 		$design->assign_by_ref('show',$show);
 		$design->AddMain('stats/report_services.html');
 	}
-
-    function stats_report_inn()
-    {
-        global $design;
-
-        $managers = array();
-        $all = $this->_stat_report_inn();
-
-        $statuses = ClientCS::$statuses;
-        foreach($all as &$l)
-        {
-            $l["client_color"] = isset($statuses[$l["status"]]) ? $statuses[$l["status"]]["color"] : false;
-            $managers[$l["manager"]] = $l["manager"];
-        }
-        sort($managers);
-
-        $manager = get_param_raw("manager", false);
-
-        if($manager === false)
-        {
-            $R = array();
-        }elseif($manager == ""){
-            $R = $all;
-        }else{
-            $R = array();
-            foreach($all as $l)
-            {
-                if($l["manager"] == $manager)
-                {
-                    $R[] = $l;
-                }
-            }
-        }
-
-        $design->assign("inns", $R);
-        $design->assign("managers", $managers);
-        $design->assign("manager", $manager);
-
-        $design->AddMain("stats/report_inn.html");
-    }
-
-    function _stat_report_inn($manager = false)
-    {
-        global $db;
-
-        $R = $db->AllRecords(
-            "SELECT c.client, c.company, c.status, c.manager, unix_timestamp(l.ts) ts, f.*
-             FROM clients c, `log_client` l, log_client_fields f where c.id = l.client_id and f.ver_id = l.id
-             and ts >= '2012-04-01 00:00:00'
-             and field = 'inn'
-             and value_from != ''
-             ".($manager ? "and c.manager = '".$manager."'" : "")."
-             order by c.client, ts
-             limit 1000");
-
-        return $R;
-    }
 
     function stats_report_agent()
     {
@@ -4243,12 +4204,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			newbills as a
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
+		LEFT JOIN
+			client_contract as c ON c.id = b.contract_id
+		LEFT JOIN
+			client_contragent as d ON c.contragent_id = d.id
 		WHERE 
 			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
 			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
-			b.type IN ('org', 'priv','ip') AND 
+			d.legal_type IN ('legal', 'ip') AND
 			sum > 0 
 		GROUP BY
 			b.region
@@ -4672,29 +4637,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
   }
 	function stats_report_vpbx_stat_space($fixclient)
 	{
-		global $db, $design,$fixclient_data;
-		
+		global $design;
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
 		$from = $dateFrom->getSqlDay();
 		$to = $dateTo->getSqlDay();
-		
+
+        $clientNick = ClientAccount::findOne($fixclient)->client;
+
 		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
 		DatePickerPeriods::assignPeriods(new DateTime());
 		
-        $usage_id = get_param_integer('usage_id', 0);
-        if ($usage_id) {
-            $usage = \app\models\UsageVirtpbx::findOne($usage_id);
-            \app\classes\Assert::isObject($usage);
-            $client_id = $usage->clientAccount->id;
-        } elseif ($fixclient) {
-            $client_id = $fixclient_data['id'];
-        } else {
-            $client_id = 0;
-        }
-		$design->assign('usage_id', $usage_id);
+		$vpbx_id = get_param_integer('vpbx', 0);
+		$design->assign('vpbx_id', $vpbx_id);
+		$vpbx_id = 0;
+		$design->assign('client_id', $fixclient);
 
-		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($client_id, $usage_id, $from, $to);
+		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $fixclient, $vpbx_id, $from, $to);
 		$design->assign('stats', $stats);
 		$design->assign('stat_detailed', $stat_detailed);
 
@@ -4733,10 +4692,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         $to,
                         $from
 		);
-		if ($client_id)
+		if ($clientNick)
 		{
-			$condition_string .=' AND C.id = ?';
-			$condition_values[] = $client_id;
+			$condition_string .=' AND UV.client = ?';
+			$condition_values[] = $clientNick;
 		}
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
@@ -4762,6 +4721,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function getReportVpbxStatSpace($client_id, $vpbx_id, $from, $to)
 	{
 		global $db;
+        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
 		$stat_detailed = array();
 		$options = array();
 		$options['select'] = '
@@ -4833,7 +4793,13 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			$condition_string .=' AND stat.client_id = ?';
 			$condition_values[] = $client_id;
 		}
-
+		if ($clientNick)
+		{
+			$condition_string .=' AND UV.client = ?';
+			$condition_values[] = $clientNick;
+		} else {
+			$options['select'] .= ',UV.client';
+		}
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
 		{

@@ -11,7 +11,7 @@
     {if $pay.clients}
         {foreach from=$pay.clients item=client}
  <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled='disabled'{/if}>
-                <a href='./?module=newaccounts&action=bill_list&clients_client={if $client.client}{$client.client|escape:'url'}{else}{$client.id}{/if}'>{$client.client} <font style="color:green;"> ({$client.currency})</font></a> -
+                <a href='./?module=newaccounts&action=bill_list&clients_client={$client.id}'>{$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font></a> -
                 <span style='font-size:85%'>{$client.full_name} ({$client.manager})
                 </span><br>
         {/foreach}
@@ -46,7 +46,7 @@
 				<optgroup label="{$bill.bill_no}">
 			{else}
 				<option value={$bill.bill_no}{if $bill.is_selected} selected{assign var='is_select' value=true}{/if}>
-					{$bill.bill_no}
+					ЛС {$bill.client_id} # {$bill.bill_no}
 					{if $bill.is_payed==1}
 						=
 					{elseif $bill.is_payed ==2}

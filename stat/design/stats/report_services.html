@@ -139,7 +139,7 @@ $(document).ready(function() {
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
 		<td><a href="index.php?module=tarifs&action=edit&m=internet&id={$tarifs.I[$k].id}" target="_blank">{$t}</a></td>
-		<td><a href="index.php?module=clients&id={$tarifs.I[$k].client.id}" target="_blank">{$tarifs.I[$k].client.client}</a></td></tr>
+		<td><a href="/client/view?id={$tarifs.I[$k].client.id}" target="_blank">{$tarifs.I[$k].client.client}</a></td></tr>
 	{/foreach}
 	{/if}
 	{if $pcount}
@@ -153,7 +153,7 @@ $(document).ready(function() {
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
 		<td><a href="index.php?module=tarifs&action=edit&m=voip&id={$tarifs.P[$k].id}" target="_blank">{$t}</a></td>
-		<td><a href="index.php?module=clients&id={$tarifs.P[$k].client.id}" target="_blank">{$tarifs.P[$k].client.client}</a></td></tr>
+		<td><a href="/client/view?id={$tarifs.P[$k].client.id}" target="_blank">{$tarifs.P[$k].client.client}</a></td></tr>
 	{/foreach}
 	{/if}
 	{if $vcount}
@@ -167,7 +167,7 @@ $(document).ready(function() {
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
 		<td><a href="index.php?module=tarifs&action=edit&m=vpn&id={$tarifs.V[$k].id}" target="_blank">{$t}</a></td>
-		<td><a href="index.php?module=clients&id={$tarifs.V[$k].client.id}" target="_blank">{$tarifs.V[$k].client.client}</a></td></tr>
+		<td><a href="/client/view?id={$tarifs.V[$k].client.id}" target="_blank">{$tarifs.V[$k].client.client}</a></td></tr>
 	{/foreach}
 	{/if}
 	{if $ccount>0}
@@ -181,7 +181,7 @@ $(document).ready(function() {
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
 		<td><a href="index.php?module=tarifs&action=edit&m=collocation&id={$tarifs.C[$k].id}" target="_blank">{$t}</a></td>
-		<td><a href="index.php?module=clients&id={$tarifs.C[$k].client.id}" target="_blank">{$tarifs.C[$k].client.client}</a></td></tr>
+		<td><a href="/client/view?id={$tarifs.C[$k].client.id}" target="_blank">{$tarifs.C[$k].client.client}</a></td></tr>
 	{/foreach}
 	{/if}
 	{if $ecount}
@@ -195,7 +195,7 @@ $(document).ready(function() {
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
 		<td><a href="index.php?module=tarifs&action=edit&m=extra&id={$tarifs.E[$k].id}" target="_blank">{$t}</a></td>
-		<td><a href="index.php?module=clients&id={$tarifs.E[$k].client.id}" target="_blank">{$tarifs.E[$k].client.client}</a></td></tr>
+		<td><a href="/client/view?id={$tarifs.E[$k].client.id}" target="_blank">{$tarifs.E[$k].client.client}</a></td></tr>
 	{/foreach}
 	{/if}
 	{if $scount}
@@ -208,7 +208,7 @@ $(document).ready(function() {
 	{assign var='cnt' value=$cnt+1}
 	<tr style="background-color:{cycle values=$cycvals}">
 		<td>{$cnt}</td>
-		<td colspan="2"><a href="index.php?module=clients&id={$t.id}" target="_blank">{$t.client}</a></td></tr>
+		<td colspan="2"><a href="/client/view?id={$t.id}" target="_blank">{$t.client}</a></td></tr>
 	{/foreach}
 	{/if}
 </table>

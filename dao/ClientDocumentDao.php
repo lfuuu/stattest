@@ -1,180 +1,66 @@
 <?php
 namespace app\dao;
 
-use Yii;
-use app\classes\Assert;
-use app\classes\Singleton;
-use app\classes\BillContract;
-use app\models\Contract;
-use app\models\ClientDocument;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-use app\models\Organization;
+use app\models\ClientDocument;
+use Yii;
+use app\classes\Singleton;
+use app\models\Contract;
 
+/**
+ * @method static ClientDocumentDao me($args = null)
+ * @property
+ */
 class ClientDocumentDao extends Singleton
 {
-    private $design = null;
+    public static $folders = [
+        'mcn' => 'MCN',
 
-    public function addContract(
-        $accountId, 
-        $contractType, $contractGroup, $contractTemplate,
-        $_contractNo,  $_contractDate, 
-        $content,      $comment, 
-        $userId = null
-    )
+        'mcntelefonija' => 'MCN Телефония',
+        'mcninternet' => 'MCN Интернет',
+        'mcndatacenter' => 'MCN Дата-центр',
+
+        'interop' => 'Межоператорка',
+        'partners' => 'Партнеры',
+        'internetshop' => 'Интернет-магазин',
+
+        'welltime' => 'WellTime',
+        'arhiv' => 'Arhiv',
+    ];
+
+    public static function templateList($isWithType = false)
     {
-        Assert::isNotFalse(in_array($contractType, ["contract", "blank", "agreement"]));
-
-        $group = $this->contract_getFolder($contractGroup);
-
-        if(!$content)
-            $content = $this->getTemplate('template_'.$group."_".$contractTemplate);
-
-        $lastContract = BillContract::getLastContract($accountId, time());
-
-        $contractNo = $lastContract["no"];
-        $contractDate = date("d.m.Y", $lastContract["date"]);
-        $contractDopDate = "01.01.2012";
-        $contractDopNo = "0";
-
-        if ($contractType == "contract")
-        {
-            $contractDate = $_contractDate;
-            $contractNo = $_contractNo;
-        } else {
-
-            if ($contractType == "agreement")
-            {
-                $contractDopNo = $_contractNo;
-                $contractDopDate = $_contractDate;
-
-            } else { //blank
-                $contractDopNo = $_contractNo;
-                $contractDopDate = date("d.m.Y");
-            }
-
-            $lastContract = BillContract::getLastContract($accountId, ($contractType == "blank" ? strtotime("01.01.2035") : (strtotime($contractDopDate) ?: time())));
-
-            $contractNo = $lastContract["no"];
-            $contractDate = date("d.m.Y", $lastContract["date"]);
-        }
-
-        list($d, $m, $y) = explode(".", $contractDate);
-        $contractDate = $y."-".$m."-".$d;
-
-        list($d, $m, $y) = explode(".", $contractDopDate);
-        $contractDopDate = $y."-".$m."-".$d;
-
-        $contractId = $this->saveContract(
-            $accountId,
-            $content,
-            $contractType,
-            $contractNo,
-            $contractDate,
-            $contractDopNo,
-            $contractDopDate,
-            $comment,
-            $userId
-        );
-
-        $this->fix_contract($accountId, $contractId, $contractDate);
-
-        return $contractId;
-    }
-
-    public function saveContract(
-        $accountId, 
-        $content, $type, 
-        $no, 
-        $date, $dop_no, $dop_date, 
-        $comment,
-        $userId = null
-    )
-    {
-        if(!$no)
-            $no = $accountId.'-'.date('y');
-
-        //save in DB
-        $c = new ClientDocument;
-        $c->type = $type;
-        $c->contract_no = $no;
-        $c->contract_date = trim($date);
-        $c->contract_dop_no = $dop_no;
-        $c->contract_dop_date = trim($dop_date);
-        $c->ts = (new \DateTime())->format(\DateTime::ATOM);
-        $c->client_id = $accountId;
-        $c->comment = $comment;
-        $c->user_id = $userId ?: Yii::$app->user->getId();
-        $c->save();
-
-        $cno = $c->id;
-
-
-        //save content
-        $contractFileName = $accountId.'-'.$cno;
-        $contractFileName = preg_replace('[^\w\d\-\_]','',$contractFileName);
-        file_put_contents(Yii::$app->params['STORE_PATH'].'contracts/'.$contractFileName.'.html', $content);
-
-
-        return $cno;
-    }
-
-    public function contract_getFolder($folder = null)
-    {
-        $f = array(
-                "MCN" => "mcn",
-
-                "MCN Телефония" => "mcntelefonija",
-                "MCN Интернет" => "mcninternet",
-                "MCN Дата-центр" => "mcndatacenter",
-
-                "Межоператорка" => "interop",
-                "Партнеры" => "partners",
-                "Интернет-магазин" => "internetshop",
-
-                "WellTime" => "welltime",
-                "Arhiv" => "arhiv",
-                );
-
-        return $folder === null ? $f : $f[$folder];
-    }
-
-    public function contract_listTemplates($isWithType = false) {
         $R = array();
-        foreach (glob(Yii::$app->params['STORE_PATH'].'contracts/template_*.html') as $s) {
-            $t = str_replace(array('template_','.html'),array('',''),basename($s));
+        foreach (glob(Yii::$app->params['STORE_PATH'] . 'contracts/template_*.html') as $s) {
+            $t = str_replace(array('template_', '.html'), array('', ''), basename($s));
 
-            list($group,) = explode("_", $t);
+            list($group,) = explode('_', $t);
 
-            if ($isWithType)
-            {
+            if ($isWithType) {
                 $R[$group][] = $t;
             } else {
-                $R[$group][] = substr($t, strlen($group)+1);
+                $R[$group][] = substr($t, strlen($group) + 1);
             }
         }
 
-        foreach($this->contract_getFolder() as $folderName => $key )
-            $_R[$folderName] = isset($R[$key]) ? $R[$key] : array();
+        foreach (static::$folders as $key => $folderName)
+            $_R[$key] = isset($R[$key]) ? $R[$key] : array();
 
-        if ($isWithType)
-        {
-            $R = ["contract" => [], "blank" => [], "agreement" => []];
+        if ($isWithType) {
+            $R = ['contract' => [], 'blank' => [], 'agreement' => []];
 
-            foreach ($_R as $folder => $rr)
-            {
-                foreach($rr as $k => $r)
-                {
-                    $contract = Contract::findOne(["name" => $r]);
+            foreach ($_R as $folder => $rr) {
+                foreach ($rr as $k => $r) {
+                    $contract = Contract::findOne(['name' => $r]);
 
-                    if ($contract)
-                    {
+                    if ($contract) {
                         $type = $contract->type;
                     } else {
-                        $type = "contract";
+                        $type = 'contract';
                     }
-                    list($group,) = explode("_", $r);
-                    $R[$type][$folder][] = substr($r, strlen($group)+1);
+                    list($group,) = explode('_', $r);
+                    $R[$type][$folder][] = substr($r, strlen($group) + 1);
                 }
             }
         } else {
@@ -184,15 +70,65 @@ class ClientDocumentDao extends Singleton
         return $R;
     }
 
-    public function getTemplate($name) 
+    public function deleteFile(ClientDocument $document)
     {
-        $name = preg_replace('[^\w\d\-\_]','',$name);
+        $file = $this->getFilePath($document);
 
-        if (file_exists(Yii::$app->params['STORE_PATH'].'contracts/'.$name.'.html')) 
-        {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'].'contracts/'.$name.'.html');
+        if (file_exists($file)) {
+            return unlink($file);
+        }
+        return true;
+    }
+
+
+    public function generateFile(ClientDocument $document, $contractGroup, $contractTemplate)
+    {
+        $content = $this->getTemplate('template_' . $contractGroup . "_" . $contractTemplate);
+        file_put_contents($this->getFilePath($document), $content);
+        return $this->generateDefault($document);
+    }
+
+    public function updateFile(ClientDocument $document)
+    {
+        return file_put_contents($this->getFilePath($document), $document->content);
+    }
+
+    public function getFileContent(ClientDocument $document)
+    {
+        $file = $this->getFilePath($document);
+
+        if (file_exists($file)) {
+            return file_get_contents($file);
+        }
+
+        return '';
+    }
+
+    private function generateDefault(ClientDocument $document)
+    {
+        $file = $this->getFilePath($document);
+        $content = file_get_contents($file);
+
+        $design = \app\classes\Smarty::init();
+        $design->assign($this->spawnDocumentData($document));
+
+        $content = $this->contract_fix_static_parts_of_template($design, $content);
+        if (strpos($content, "{*#blank_zakaz#*}") !== false) {
+            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($document, $design), $content);
+        }
+        file_put_contents($file, $content);
+        $newDocument = $design->fetch($file);
+        return file_put_contents($file, $newDocument);
+    }
+
+    private function getTemplate($name)
+    {
+        $name = preg_replace('[^\w\d\-\_]', '', $name);
+
+        if (file_exists(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html')) {
+            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html');
         } else {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'].'contracts/template_mcn_default.html');
+            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/template_mcn_default.html');
         }
 
         $this->fix_style($data);
@@ -200,143 +136,30 @@ class ClientDocumentDao extends Singleton
         return $data;
     }
 
-	private function fix_contract($clientId, $contractId, $contractDate)
+    private function getFilePath(ClientDocument $document)
     {
-		$file = 'contracts/'.$clientId.'-'.$contractId.'.html';
-		$fileTemplate = 'contracts/'.$clientId.'-'.$contractId.'-tpl.html';
-
-		if(file_exists(Yii::$app->params['STORE_PATH'].$fileTemplate)) //already
-            return true;
-
-        $c = ClientDocument::findOne($contractId)->toArray();
-		if (!$c) {
-			trigger_error2('Такого договора не существует');
-			return;
-        }
-
-        $r = ClientAccount::dao()->getAccountPropertyOnDate($clientId, $c["contract_date"]);
-		
-        if (!$r) {
-			trigger_error2('Такого клиента не существует');
-			return;
-        }
-
-        $c["contract_dop_date"] = strtotime($c["contract_dop_date"]);
-        $c["contract_date"] = strtotime($c["contract_date"]);
-
-
-        $this->design = \app\classes\Smarty::init();
-        $this->design->assign("client", $r);
-        $this->design->assign("contract", $c);
-        $this->design->assign("contact", ClientContact::dao()->GetContact($r["id"]));
-
-
-		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
-
-        //** Выпилить */
-        //$this->contract_apply_firma($r["firma"], $contractDate);
-
-        $organization = Organization::find()->byId($r['organization_id'])->actual($contractDate)->one();
-        $this->design->assign('firm', $organization->getOldModeInfo());
-        $this->design->assign('firm_detail', $organization->getOldModeDetail());
-        //** /Выпилить */
-
-        $this->contract_apply_support_phone($r["region"]);
-
-        file_put_contents(Yii::$app->params['STORE_PATH'].$file, $content);//шаманство...
-
-        $c = $this->design->fetch(Yii::$app->params['STORE_PATH'].$file);
-
-		if(copy(Yii::$app->params['STORE_PATH'].$file, Yii::$app->params['STORE_PATH'].$fileTemplate))
-		{
-			file_put_contents(Yii::$app->params['STORE_PATH'].$file, $c);
-			return true;
-		}
-
-
-		return false;
+        $contractId = $document->account_id ? $document->account_id : $document->contract_id;
+        return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $document->id . '.html';
     }
 
     private function fix_style(&$content)
     {
-        if(strpos($content, "{/literal}</style>") === false)
-        {
-            $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
+        if (strpos($content, '{/literal}</style>') === false) {
+            $content = preg_replace('/<style([^>]*)>(.*?)<\/style>/six', '<style\\1>{literal}\\2{/literal}</style>', $content);
         }
     }
 
-
-    private function contract_fix_static_parts_of_template($content, $clientId=0)
-    {
-        if(($pos = strpos($content, "{\$include_")) !== false)
-        {
-        	$c = substr($content, $pos);
-        	$templateName = substr($c, 10, strpos($c, "}")-10);
-
-        	$fname =Yii::$app->params['STORE_PATH']."contracts/template_".$templateName.".html";
-
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$this->design->assign("include_".$templateName, $c);
-        	}
-
-        	$fname =Yii::$app->params['STORE_PATH']."contracts/".$templateName.".html";
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$this->design->assign("include_".$templateName, $c);
-        	}
-        }
-
-        if (strpos($content, "{*#blank_zakaz#*}") !== false)
-        {
-            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($clientId), $content);
-        }
-
-
-		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
-			$repl = ''; // москва(моб.)
-			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
-        }
-
-        $this->fix_style($content);
-
-		return $content;
-    }
-
-    private function contract_apply_support_phone($region)
-    {
-        switch($region)
-        {
-            case '97': $phone = "(861) 204-00-99"; break;
-            case '98': $phone = "(812) 372-69-99"; break;
-            case '95': $phone = "(343) 302-00-99"; break;
-            case '94': $phone = "(383) 312-00-99"; break;
-            case '96': $phone = "(846) 215-00-99"; break;
-            case '87': $phone = "(863) 309-00-99"; break;
-            case '93': $phone = "(843) 207-00-99"; break;
-            case '88': $phone = "(831) 235-00-99"; break;
-            case '99':
-            default: 
-                $phone = "(495) 105-99-95";
-        }
-
-        $this->design->assign("support_phone", $phone);
-    }
-
-    private function makeBlankZakaz($clientId)
+    private function makeBlankZakaz(ClientDocument $document, &$design)
     {
         /** @var ClientAccount $clientAccount */
-        $clientAccount = ClientAccount::findOne(["id" => $clientId]);
+        $clientAccount = $document->contract->accounts[0];
         $client = $clientAccount->client;
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
         $taxRate = $clientAccount->getTaxRate();
 
-        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
-        {
+        foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
             $data['voip'][] = [
@@ -348,21 +171,24 @@ class ClientDocumentDao extends Singleton
                 'free_local_min' => $usage->currentTariff->free_local_min * ($usage->currentTariff->freemin_for_number ? 1 : $usage->no_of_lines),
                 'connect_price' => (string)$usage->voipNumber->price,
                 'tarif_name' => $usage->currentTariff->name,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
-        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->pay_month, $taxRate);
 
-            switch($usage->currentTariff->type)
-            {
-                case 'C': $block = 'colocation'; break;
-                case 'V': $block = 'vpn';break;
-                case 'I': 
-                default: $block = 'ip'; 
+            switch ($usage->currentTariff->type) {
+                case 'C':
+                    $block = 'colocation';
+                    break;
+                case 'V':
+                    $block = 'vpn';
+                    break;
+                case 'I':
+                default:
+                    $block = 'ip';
             }
 
             $data[$block][] = [
@@ -370,27 +196,26 @@ class ClientDocumentDao extends Singleton
                 'id' => $usage->id,
                 'tarif_name' => $usage->currentTariff->name,
                 'pay_once' => $usage->currentTariff->pay_once,
-                'gb_month' => $usage->currentTariff->mb_month/1024,
+                'gb_month' => $usage->currentTariff->mb_month / 1024,
                 'pay_mb' => $usage->currentTariff->pay_mb,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage)
-        {
+        foreach (\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price, $taxRate);
 
             $data['vats'][] = [
                 'from' => strtotime($usage->actual_from),
-                'description' => "ВАТС ".$usage->id,
+                'description' => "ВАТС " . $usage->id,
                 'tarif_name' => $usage->currentTariff->description,
                 'space' => $usage->currentTariff->space,
                 'over_space_per_gb' => $usage->currentTariff->overrun_per_gb,
                 'num_ports' => $usage->currentTariff->num_ports,
                 'overrun_per_port' => $usage->currentTariff->overrun_per_port,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
@@ -403,14 +228,13 @@ class ClientDocumentDao extends Singleton
                 'from' => $usage->actual_from,
                 'description' => "SMS-рассылка",
                 'tarif_name' => $usage->currentTariff->description,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
         */
 
-        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach (\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price * $usage->amount, $taxRate);
 
             $data['extra'][] = [
@@ -418,29 +242,175 @@ class ClientDocumentDao extends Singleton
                 'tarif_name' => $usage->currentTariff->description,
                 'amount' => $usage->amount,
                 'pay_once' => 0,
-                'per_month' => round($sum_without_tax, 2),
-                'per_month_with_tax' => round($sum, 2)
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
-        $this->design->assign("blank_data", $data);
-        return $this->design->fetch("tarifs/blank.htm");
+        $design->assign("blank_data", $data);
+        return $design->fetch("tarifs/blank.htm");
     }
 
-    public function getFilePath($clientId, $contractId)
+    private function contract_fix_static_parts_of_template(&$design, $content)
     {
-        return Yii::$app->params['STORE_PATH'].'contracts/'.$clientId.'-'.$contractId.'.html';
-    }
+        if (($pos = strpos($content, '{\$include_')) !== false) {
+            $c = substr($content, $pos);
+            $templateName = substr($c, 10, strpos($c, '}') - 10);
 
-    public function getContent($clientId, $contractId)
-    {
-        $file = $this->getFilePath($clientId, $contractId);
+            $fname = Yii::$app->params['STORE_PATH'] . 'contracts/template_' . $templateName . '.html';
 
-        if(file_exists($file)) 
-        {
-            return file_get_contents($file);
-        } else {
-            return "File not found";
+            if (file_exists($fname)) {
+                $c = file_get_contents($fname);
+                $design->assign('include_' . $templateName, $c);
+            }
+
+            $fname = Yii::$app->params['STORE_PATH'] . 'contracts/' . $templateName . '.html';
+            if (file_exists($fname)) {
+                $c = file_get_contents($fname);
+                $design->assign('include_' . $templateName, $c);
+            }
         }
+
+
+        if (strpos($content, '{*#voip_moscow_tarifs_mob#*}') !== false) {
+            $repl = ''; // москва(моб.)
+            $content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
+        }
+
+        $this->fix_style($content);
+
+        return $content;
+    }
+
+    private function generateFirmDetail($f, $b = true)
+    {
+        $d = $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
+            (isset($f["post_address"]) ? "<br /> Почтовый адрес: " . $f["post_address"] : "")
+            . "<br /> ИНН " . $f["inn"] . ", КПП " . $f["kpp"]
+            . ($b ?
+                "<br /> Банковские реквизиты:"
+                . "<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank_name"]
+                . "<br /> к/с:&nbsp;" . $f["kor_acc"]
+                . "<br /> БИК:&nbsp;" . $f["bik"]
+                : '')
+            . "<br /> телефон: " . $f["phone"]
+            . (isset($f["fax"]) && $f["fax"] ? "<br /> факс: " . $f["fax"] : "")
+            . "<br /> е-mail: " . $f["email"];
+        return $d;
+    }
+
+    private function prepareContragentPaymentInfo(ClientAccount $account)
+    {
+        $contragent = $account->contract->contragent;
+
+        $result = 'Адрес: ' . (
+                $contragent->legal_type == 'person'
+                    ? $contragent->person->registration_address
+                    : $account->address_jur
+            ) . '<br />';
+
+        if ($contragent->legal_type == 'person') {
+            if (!empty($account->bank_properties))
+                return $result . nl2br($account->bank_properties);
+
+            return
+                $result .
+                'Паспорт серия ' . $contragent->person->passport_serial .
+                ' номер ' . $contragent->person->passport_number .
+                '<br />Выдан: ' . $contragent->person->passport_issued .
+                '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
+        }
+        else {
+            return
+                $result .
+                'Банковские реквизиты: ' . $account->bank_properties .
+                ', БИК ' . $account->bik .
+                ', ИНН ' . $contragent->inn .
+                ', КПП ' . $contragent->kpp .
+                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
+        }
+    }
+
+    private function spawnDocumentData(ClientDocument $document)
+    {
+        $account = $document->getAccount();
+        $contractDate = $document->contract_date;
+        $officialContacts = $account->getOfficialContact();
+
+        if ($document->type == 'contract') {
+            $lastContract = [
+                'contract_no' => $document->contract_no,
+                'contract_date' => $document->contract_date,
+            ];
+        } else {
+            $contractDocument =
+                ClientDocument::find()
+                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
+                    ->orderBy('is_active desc, contract_date desc, id desc')
+                    ->one();
+            $lastContract = [
+                'contract_no' => $contractDocument->contract_no,
+                'contract_date' => $contractDocument->contract_date,
+                'contract_dop_no' => $document->contract_no,
+                'contract_dop_date' => $document->contract_date,
+            ];
+        }
+
+        $organization = $document->getContract()->getOrganization($contractDate);
+        $firm = $organization->getOldModeInfo();
+
+        return [
+            'position' => $document->getContract()->getContragent()->legal_type == 'legal'
+                ? $document->getContract()->getContragent()->position
+                : '',
+            'fio' => $document->getContract()->getContragent()->legal_type == 'legal'
+                ? $document->getContract()->getContragent()->fio
+                : $document->getContract()->getContragent()->name_full,
+            'name' => $document->getContract()->getContragent()->name,
+            'name_full' => $document->getContract()->getContragent()->name_full,
+            'address_jur' => $document->getContract()->getContragent()->address_jur,
+            'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
+            'bik' => $account->bik,
+            'address_post_real' => $account->address_post_real,
+            'address_post' => $account->address_post,
+            'corr_acc' => $account->corr_acc,
+            'pay_acc' => $account->pay_acc,
+            'inn' => $document->getContract()->getContragent()->inn,
+            'kpp' => $document->getContract()->getContragent()->kpp,
+            'stamp' => $account->stamp,
+            'legal_type' => $account->getContract()->getContragent()->legal_type,
+            'old_legal_type' => $account->getContract()->getContragent()->legal_type !='person' ? 'org' : 'person',
+            'address_connect' => $account->address_connect,
+            'account_id' => $account->id,
+            'bank_name' => $account->bank_name,
+            'credit' => $account->credit,
+
+            'contract_no' => $lastContract['contract_no'],
+            'contract_date' => $lastContract['contract_date'],
+            'contract_dop_date' => $lastContract['contract_dop_date'],
+            'contract_dop_no' => $lastContract['contract_dop_no'],
+
+            'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
+            'emails' => implode('; ', $officialContacts['email']),
+            'phones' => implode('; ', $officialContacts['phone']),
+                'faxes' => implode('; ', $officialContacts['fax']),
+
+            'organization_firma' => $firm['firma'],
+            'organization_director_post' => $firm['director_post'],
+            'organization_director' => $firm['director'],
+                'organization_name' => $firm['name'],
+            'organization_address' => $firm['address'],
+            'organization_inn' => $firm['inn'],
+            'organization_kpp' => $firm['kpp'],
+            'organization_corr_acc' => $firm['kor_acc'],
+            'organization_bik' => $firm['bik'],
+            'organization_bank' => $firm['bank'],
+            'organization_phone' => $firm['phone'],
+            'organization_email' => $firm['email'],
+            'organization_pay_acc' => $firm['acc'],
+
+            'firm_detail_block' => $this->generateFirmDetail($firm, ($account->bik && $account->bank_properties)),
+            'payment_info' => $this->prepareContragentPaymentInfo($account),
+        ];
     }
 }

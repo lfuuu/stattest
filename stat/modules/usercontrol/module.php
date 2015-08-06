@@ -45,40 +45,6 @@ class m_usercontrol {
 	
 	//просмотр списка пользователей
 	function usercontrol_default() {
-		global $design,$db,$user;
-		$c=$user->GetAsClient();
-		if ($c){
-			$db->Query('select * from clients where client="'.$c.'"');
-			$r=$db->NextRecord();
-			$design->assign('client',$r);
-			if ($s = $db->getRow("select * from client_statuses where (id_client='".$r['id']."') and status!='' order by ts desc limit 1")) {
-				$s['status_name'] = (isset(ClientCS::$statuses[$s['status']]) ? ClientCS::$statuses[$s['status']]['name'] : $s['status']);;
-				$design->assign('status',$s);
-			}
-			
-			$C = array();
-			if (access('usercontrol','dealer')) {
-				$sc = $db->getRow('select * from sale_channels where dealer_id = '.$r['id']);
-				$T = array('usage_ip_ports'=>'Интернет','usage_voip'=>'IP-телефония','usage_extra'=>'Доп. услуги','emails'=>'Почта');
-				foreach ($db->AllRecords('select * from clients where sale_channel = '.$sc['id'].' order by id') as $r2) {
-					$s = $db->getRow("select * from client_statuses where (id_client='".$r2['id']."') and status!='' order by ts desc limit 1");
-					$r2['status_name'] = (isset(ClientCS::$statuses[$s['status']]) ? ClientCS::$statuses[$s['status']]['name'] : $s['status']);
-					$r2['services'] = array();
-					foreach (get_all_services($r2['client'],$r2['id']) as $v) {
-						if ($v['status']=='working' || $v['status']=='connecting') {
-							$v['service_name'] = (isset($T[$v['service']]))?$T[$v['service']]:'';
-							$r2['services'][] = $v;
-						}
-					}
-
-					$C[] = $r2;
-				}
-			}
-			$design->assign('clients',$C);
-			$design->AddMain('usercontrol/client.tpl');
-		} else {
-			$design->AddMain('usercontrol/operator.tpl');
-		}
 	}
 
 	//работа со одним пользователем
@@ -119,20 +85,13 @@ class m_usercontrol {
 			trigger_error2('Пароли не совпадают');
 			$this->usercontrol_edit_pass();
 		} else {
-			if ($c=$user->GetAsClient()){
-				$db->Query('select count(*) from clients where (client="'.$c.'") and (password="'.$password.'")');
-			} else $db->Query('select count(*) from user_users where (user="'.$user->Get('user').'") and (pass="'.password::hash($password).'")');
+            $db->Query('select count(*) from user_users where (user="'.$user->Get('user').'") and (pass="'.password::hash($password).'")');
 
 
 			$r=$db->NextRecord();
 			if ($r[0]==1){
 				trigger_error2('Ваш новый пароль - '.$pass);
-				$c=$user->GetAsClient();
-				if ($c){
-					$db->Query('select * from user_users where user="'.$user->Get('user').'"');
-				} else {
-					$db->Query('select * from clients where client="'.$c.'"');
-				}
+				$db->Query('select * from clients where client="'.$c.'"');
 				$r=$db->NextRecord();
 
 				$message = "Вы изменили пароль на сервере ".PROTOCOL_STRING.$_SERVER['HTTP_HOST']."\n";

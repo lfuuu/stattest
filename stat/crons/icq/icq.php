@@ -19,7 +19,7 @@
     $icq = new WebIcqPro();
     $count = 0;
     $countSend = 0;
-    if($icq->connect("661127544", 'eiS8vaimD#'))
+    if($icq->connect("679446996", 'vkwRe11'))
     {
         while(true)
         {

@@ -17,7 +17,7 @@ class Api
 		foreach ($clientIds as $clientId)
 		{
 
-			$c = ClientCard::find_by_id($clientId);
+			$c = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
 
 			if(!$c)
 			{

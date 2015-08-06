@@ -4,7 +4,8 @@ namespace app\classes;
 
 class DateFunction
 {
-    public static function dateReplaceMonth($string,$nMonth){
+    public static function dateReplaceMonth($string,$nMonth)
+    {
         $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
         $string=str_replace('месяца',$p[$nMonth-1],$string);
         $p=array('январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре');
@@ -16,7 +17,13 @@ class DateFunction
         return $string;
     }
 
-    public static function mdate($ts, $format){
+    public static function mdate($ts, $format)
+    {
+        if(!is_numeric($ts))
+        {
+            $ts = strtotime($ts);
+        }
+
         if ($ts) $s=date($format,$ts); else $s=date($format);
         if ($ts) $d=getdate($ts); else $d=getdate();
 

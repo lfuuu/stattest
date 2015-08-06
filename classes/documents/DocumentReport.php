@@ -41,7 +41,7 @@ abstract class DocumentReport extends Object
      */
     public function getOrganization()
     {
-        return $this->bill->clientAccount->getOrganization($this->bill->bill_date);
+        return $this->bill->clientAccount->loadVersionOnDate($this->bill->bill_date)->contract->organization;
     }
 
     /**
@@ -50,10 +50,7 @@ abstract class DocumentReport extends Object
     public function getPayer()
     {
         return
-            $this->bill->clientAccount->dao()->getAccountPropertyOnDate(
-                $this->bill->clientAccount->id,
-                $this->bill->bill_date
-            );
+            $this->bill->clientAccount->loadVersionOnDate($this->bill->bill_date);
     }
 
     /**

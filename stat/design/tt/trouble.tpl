@@ -1,3 +1,5 @@
+<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
+
 <h2>
     {if !$tt_trouble.bill_no}
         <a href='{$LINK_START}module=tt&action=list&mode=1&clients_client={$tt_client.client}'>Заявки</a>
@@ -18,7 +20,7 @@
     {if $tt_client}
         <tr>
             <td align="right">Клиент:</td>
-            <td><a href='{$LINK_START}module=clients&id={$tt_client.client}'>{$tt_client.company}</a> ({$tt_client.client})</td>
+            <td><a href='/client/view?id={$tt_client.id}'>{$tt_client.name}</a> ({$tt_client.client})</td>
         </tr>
     {/if}
     {if $tt_trouble.service}
@@ -41,7 +43,11 @@
     {/if}
     <tr>
         <td align="right">Трабл создал:</td>
-        <td>{$tt_trouble.user_author_name} ({$tt_trouble.user_author}), <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span></td>
+        <td>
+            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
+                <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name} ({$tt_trouble.user_author})</abbr>
+            </a>, <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span>
+        </td>
     </tr>
     <tr>
         <td align="right">Текущие сроки:</td>
@@ -67,6 +73,7 @@
             {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"}
         </td>
     </tr>
+
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td align="right">Добавить времени (часов)</td>
@@ -124,9 +131,17 @@
                 {foreach from=$tt_trouble.stages item=item name=outer}
                     <tr>
                         <td>{$item.state_name}</td>
-                        <td>{$item.user_main}</td>
+                        <td>
+                            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$item.user_main}">
+                                <abbr title="Установить в качестве ответственного">{$item.user_main}</abbr>
+                            </a>
+                        </td>
                         <td>{$item.date_start|udate:'m-d H:i'}<br>{$item.date_finish_desired|udate:'m-d H:i'}</td>
-                        <td>{$item.user_edit}</td>
+                        <td>
+                            <a href="javascript:void(0)" class="trouble-set-user" data-user="{$item.user_edit}">
+                                <abbr title="Установить в качестве ответственного">{$item.user_edit}</abbr>
+                            </a>
+                        </td>
                         <td>
                             {if count($item.doers)>0}
                             <table border='0' width='100%'>
@@ -154,8 +169,18 @@
                 {/foreach}
             </table>
 
-            {if $tt_write 
-            || ($tt_doComment && !$tt_isClosed) 
+            {if count($tt_media)}
+                <h2>Документы</h2>
+                <div class="media-list">
+                    {foreach from=$tt_media item=file}
+                        <div data-model="troubles" data-file-id="{$file.id}" data-mime-type="{$file.mimeType}">{$file.name}</div>
+                    {/foreach}
+                </div>
+                <div style="clear: both;"></div>
+            {/if}
+
+            {if $tt_write
+            || ($tt_doComment && !$tt_isClosed)
             || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
                 <form action="index_lite.php" method="post" id="state_1c_form">
                     <input type="hidden" name="module" value="tt" />
@@ -166,11 +191,15 @@
                 </form>
 
                 <h2>Этап</h2>
-                <form action="./?" method=post id=form name=form>
+                <form action="./?" method="post" id="form" name="form" enctype="multipart/form-data">
                     <input type=hidden name=action value=move>
                     <input type=hidden name=module value=tt>
                     <input type=hidden name=id value='{$tt_trouble.id}'>
                     <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
+                        <colgroup>
+                            <col width="30%" />
+                            <col width="70%" />
+                        </colgroup>
                         <tr>
                             <td>Комментарий:</td>
                             <td><textarea name=comment class=textarea>{if isset($stage.comment)}{$stage.comment}{/if}</textarea></td>
@@ -187,16 +216,15 @@
                                             {/if}
                                         {/foreach}
                                     {else}
-                                        <select class="select2" style="width: 250px" name=user>
+                                        <select class="select2 tt_users_list" style="width: 250px" name="user">
                                             {foreach from=$tt_users item=item}
-                                            {if $item.user}
-                                            <option value='{$item.user}'{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
-                                            {else}
-                                            </optgroup>
-                                            <optgroup label="{$item.name}">
-
+                                                {if $item.user}
+                                                    <option value="{$item.user}"{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
+                                                {else}
+                                                    </optgroup>
+                                                    <optgroup label="{$item.name}">
                                                 {/if}
-                                                {/foreach}
+                                            {/foreach}
                                             </optgroup>
                                         </select>
                                     {/if} {*admin_order:end*}
@@ -275,6 +303,17 @@
                                     </td>
                                 </tr>
                             {/if}
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <div class="file_upload form-control input-sm">
+                                        Выбрать файл<input class="media-manager" type="file" name="tt_files[]" />
+                                    </div>
+                                    <div class="media-manager-block"></div>
+                                </td>
+                            </tr>
+
                         {/if}
                         <tr><td colspan="2">&nbsp</td></tr>
                     </table>
@@ -304,3 +343,8 @@
         </td>
     </tr>
 </table>
+
+<script type="text/javascript" src="/js/jquery.nailthumb.min.js"></script>
+<script type="text/javascript" src="/js/jquery.multifile.min.js"></script>
+<script type="text/javascript" src="/js/behaviors/media-manager.js"></script>
+<script type="text/javascript" src="/js/behaviors/troubles-set-userlist-value.js"></script>

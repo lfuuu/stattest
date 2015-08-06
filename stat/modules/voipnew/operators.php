@@ -61,7 +61,7 @@ class m_voipnew_operators
         $client7800PricelistId = get_param_protected('client_7800_pricelist_id');
         $statClientCardId = get_param_protected('stat_client_card_id');
 
-        if ($statClientCardId && ClientCard::find($statClientCardId) == null) {
+        if ($statClientCardId && \app\models\ClientAccount::findOne([is_numeric($statClientCardId) ? 'id' : 'client' => $statClientCardId]) == null) {
             throw new Exception("Can't find client card with id #{$statClientCardId}");
         }
 

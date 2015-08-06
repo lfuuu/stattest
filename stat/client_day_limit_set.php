@@ -31,7 +31,8 @@ $res = $db->AllRecords('
       o.vat_rate
   from usage_voip u
           left join clients c on c.client=u.client
-              left join organization o on c.organization_id=o.id and o.actual_from < CAST(now() as DATE) and o.actual_to > CAST(now() as DATE)
+          left join client_contract cc on cc.id=c.contract_id
+          left join organization o on cc.organization_id=o.id and o.actual_from < CAST(now() as DATE) and o.actual_to > CAST(now() as DATE)
   where u.actual_from < CAST(now() as DATE) and u.actual_to > CAST(now() as DATE) and voip_is_day_calc > 0
 ');
 foreach($res as $r)

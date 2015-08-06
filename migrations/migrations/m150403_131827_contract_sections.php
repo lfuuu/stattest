@@ -6,12 +6,12 @@ class m150403_131827_contract_sections extends \app\classes\Migration
 {
     public function up()
     {
-        $this->execute("ALTER TABLE `client_contracts` 
+        $this->execute("ALTER TABLE `client_document`
             ADD COLUMN `type` enum('blank','agreement','contract') NOT NULL DEFAULT 'contract' AFTER `is_active`,
             ADD COLUMN `contract_dop_no`  int NOT NULL DEFAULT 0 AFTER `contract_dop_date`;
                 ");
 
-        $this->execute("update client_contracts set `type` = 'agreement' where contract_dop_date != '2012-01-01'");
+        $this->execute("update client_document set `type` = 'agreement' where contract_dop_date != '2012-01-01'");
 
         $this->execute("CREATE TABLE `contract` (
             `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

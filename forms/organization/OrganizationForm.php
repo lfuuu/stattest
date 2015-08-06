@@ -56,9 +56,9 @@ class OrganizationForm extends Form
             [
                 [
                     'lang_code', 'is_simple_tax_system', 'full_name', 'legal_address', 'post_address',
-                    'registration_id', 'tax_registration_id', 'tax_registration_reason', 'bank_account', 'bank_name',
-                    'bank_correspondent_account', 'bank_bik', 'bank_swift', 'contact_phone', 'contact_fax',
-                    'contact_email', 'contact_site', 'logo_file_name', 'stamp_file_name',
+                    'registration_id', 'tax_registration_id', 'tax_registration_reason', 'bank_account', 'bank_name', 'bank_correspondent_account',
+                    'bank_bik', 'bank_swift', 'contact_phone', 'contact_fax',
+                    'contact_email', 'contact_site', 'logo_file_name', 'stamp_file_name', 'organization_id'
                 ],
                 'string'
             ],

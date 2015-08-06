@@ -57,27 +57,16 @@
                         <div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>
                     {elseif $item.vpbx == 'multi'}
                         <div style="padding: 0 15 0 15; color: blue;">Мультитранк</div>
+                    {elseif $item.vpbx == 'line'}
+                        <div style="padding: 0 15 0 15; color: blue;">Линия</div>
+                    {elseif $item.vpbx == 'old'}
+                        <div style="padding: 0 15 0 15; color: gray;">Старая схема</div>
                     {else}
-                        {if $item.address}
-                            {if access("services_voip", "edit")}
-                                <a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.address}</a>
-                            {else}
-                                {$item.address}
-                            {/if}
-                        {else}
-                            <!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...
-                        {/if}
+                        ???
                     {/if}
                 </td>
                 <td nowrap><a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to<'3000-01-01'}{$item.actual_to}{/if}</a></td>
                 <td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
-                <td>
-                    {if isset($ats_schema[$item.E164]) && $ats_schema[$item.E164]}
-                        {if $ats_schema[$item.E164] == "new"}<span style="color: green;" title="Новая схема">Новая</span>
-                        {elseif $ats_schema[$item.E164] == "old"}<span style="color: gray;" title="Старая схема">Старая</span>
-                        {/if}
-                    {/if}
-                </td>
                 <td style="font-size: 8pt;">{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
                     {if $item.tarif.dest_group != 0}
                         / Набор:

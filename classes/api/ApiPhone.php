@@ -7,11 +7,11 @@ use yii\base\Exception;
 class ApiPhone
 {
     public static function isAvailable() {
-        return defined('PHONE_SERVER') && PHONE_SERVER;
+        return isset(\Yii::$app->params['PHONE_SERVER']) && \Yii::$app->params['PHONE_SERVER'];
     }
 
     public static function getApiUrl() {
-        return self::isAvailable() ? 'https://' . PHONE_SERVER . '/phone/api/' : false;
+        return self::isAvailable() ? 'https://' . \Yii::$app->params['PHONE_SERVER'] . '/phone/api/' : false;
     }
 
     public static function getMultitranks()

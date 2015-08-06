@@ -58,7 +58,11 @@ function do_events()
         try{
             switch($event->event)
             {
-                case 'company_changed':     EventHandler::companyChanged($param); break;
+                case 'client_set_status':
+                case 'usage_voip__insert':
+                case 'usage_voip__update':
+                case 'usage_voip__delete':  //ats2Numbers::check();
+                                            break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
                                        LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
@@ -80,17 +84,13 @@ function do_events()
                                  break;
             }
 
-            if (defined("CORE_SERVER") && CORE_SERVER)
+            if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'])
             {
                 switch($event->event)
                 {
-                    case 'add_super_client': SyncCore::AddSuperClient($param); break;
+                    case 'add_account':       SyncCore::addAccount($param, true);  break;
+                    case 'client_set_status': SyncCore::addAccount($param, false); break;
 
-                    case 'add_account':       SyncCore::AddAccount($param, true);  break;
-                    case 'client_set_status': SyncCore::AddAccount($param, false); break;
-
-                    //case 'contact_add_email': SyncCore::AddEmail($param);break;
-                    case 'password_changed': SyncCore::updateAdminPassword($param);break;
                     case 'admin_changed': SyncCore::adminChanged($param); break;
 
                     case 'usage_virtpbx__insert':
@@ -107,8 +107,8 @@ function do_events()
                     case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
                 }
 
-                if (defined("use_ats3"))
-                {
+//                if (defined("use_ats3"))
+//                {
                     $number = false;
                     switch($event->event)
                     {
@@ -123,7 +123,7 @@ function do_events()
 
                         case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
                     }
-                }
+//                }
             }
 
         } catch (Exception $e)

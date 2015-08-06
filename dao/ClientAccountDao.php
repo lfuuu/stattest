@@ -1,7 +1,8 @@
 <?php
 namespace app\dao;
 
-use app\models\ClientStatuses;
+use app\models\ClientContract;
+use app\models\ClientContractComment;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -10,6 +11,9 @@ use app\models\ClientAccount;
 use app\models\GoodsIncomeOrder;
 use app\models\PaymentOrder;
 use app\models\Saldo;
+use app\models\Datacenter;
+use app\models\ServerPbx;
+use app\models\Region;
 use DateTime;
 use DateTimeZone;
 
@@ -80,7 +84,6 @@ class ClientAccountDao extends Singleton
                 'bill_vis_no' => 'saldo',
                 'payment_date' => $saldo['ts'],
                 'oper_date' => $saldo['ts'],
-                'type' => 'priv',
                 'comment' => '',
                 'add_date' => $saldo['ts'],
                 'add_user' => 0,
@@ -239,7 +242,7 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->type != "multi"){ // не магазин
+        if ($clientAccount->contract->contract_type_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {
@@ -622,70 +625,50 @@ class ClientAccountDao extends Singleton
             $clientAccount->is_active = $newIsActive;
             $clientAccount->save();
 
-            $cs = new ClientStatuses();
+            $cs = new ClientContractComment();
 
             $cs->ts = date("Y-m-d H:i:s");
-            $cs->id_client = $clientAccount->id;
+            $cs->contract_id = $clientAccount->contract_id;
             $cs->user = \Yii::$app->user->getIdentity()->user;
-            $cs->status = "";
             $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
 
-    public function getAccountPropertyOnDate($clientId, $date)
+    public function getServerPbxId(ClientAccount $account, $region = 0)
     {
-        $dNow = date("Y-m-d",strtotime("+1 day"));
-        $c = ClientAccount::findOne($clientId)->toArray();
-
-        $trasitFields = array("mail_print", "bill_rename1", "address_post_real", "mail_who", "credit");
-        $transit = array();
-
-        foreach($trasitFields as $f)
-            $transit[$f] = $c[$f];
-
-        if($dNow >= $date)
+        if (!$region)
         {
-            $rows = ClientAccount::getDB()->createCommand("
-                        select *
-                        from log_client lc, log_client_fields lf
-                        where client_id = :client_id and
-                            if(apply_ts = '0000-00-00', ts >= :date_full, apply_ts > :date)
-                            and if(apply_ts = '0000-00-00', ts < :now_full, apply_ts <= :now)
-                            and type='fields'
-                            and lc.id = lf.ver_id
-                            and is_overwrited = 'no'
-                            and is_apply_set = 'yes'
-                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $dNow." 00:00:00"])->queryAll();
-            if ($rows) {
-                foreach ($rows as $l) {
-                    $c[$l["field"]] = $l["value_from"];
+            $region = $account->region;
+        }
+
+        $isFind = false;
+        foreach(Region::findAll(["country_id" => $account->country_id]) as $r)
+        {
+            if ($r->id == $region)
+            {
+                $isFind = true;
+                break;
+            }
+        }
+
+        if (!$isFind)
+            $region = $account->region;
+
+        if ($region == 99)
+        {
+            return ServerPbx::MSK_SERVER_ID;
+        } else {
+            $datacenter = Datacenter::findOne(["region" => $region]);
+            if ($datacenter)
+            {
+                $server = ServerPbx::findOne(["datacenter_id" => $datacenter->id]);
+
+                if ($server)
+                {
+                    return $server->id;
                 }
             }
         }
-        if ($dNow <= $date)
-        {
-            $rows = ClientAccount::getDB()->createCommand("
-                        select *
-                        from log_client lc, log_client_fields lf
-                        where client_id = :client_id
-                            and apply_ts BETWEEN :now AND :date
-                            and type='fields'
-                            and lc.id = lf.ver_id
-                            and is_apply_set = 'no'
-                        order by lf.id", [":client_id" => $c["id"], ":now" => $dNow, ":date" => $date])->queryAll();
-            if ($rows) {
-                foreach ($rows as $l) {
-                    $c[$l["field"]] = $l["value_to"];
-                }
-            }
-        }
-
-        foreach($trasitFields as $f) {
-            if (isset($transit[$f])) {
-                $c[$f] = $transit[$f];
-            }
-        }
-
-        return $c;
+        return ServerPbx::MSK_SERVER_ID;
     }
 }

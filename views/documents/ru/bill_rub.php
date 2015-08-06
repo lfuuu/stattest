@@ -35,7 +35,8 @@ $payer_company = $document->getPayer();
                 <td>
                     <?php
                     echo Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
-                        'document' => $document
+                        'organization' => $organization,
+                        'payer_company' => $payer_company,
                     ]);
                     ?>
                 </td>
@@ -108,13 +109,18 @@ $payer_company = $document->getPayer();
                 <td align="center"><b>Единица измерения</b></td>
                 <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
                 <?php if ($hasDiscount): ?>
-                <td align="center"><b>Скидка</b></td>
+                    <td align="center"><b>Скидка</b></td>
                 <?php endif; ?>
 
                 <?php if ($organization->isNotSimpleTaxSystem()): ?>
-                    <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <?php if ($document->bill->price_include_vat): ?>
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <?php else: ?>
+                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <?php endif; ?>
                 <?php else: ?>
                     <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                 <?php endif; ?>
@@ -144,9 +150,14 @@ $payer_company = $document->getPayer();
                     <?php endif; ?>
 
                     <?php if($organization->isNotSimpleTaxSystem()): ?>
-                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                        <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
-                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <?php if ($document->bill->price_include_vat): ?>
+                            <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <?php else: ?>
+                            <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
+                            <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <?php endif; ?>
                     <?php else: ?>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                     <?php endif; ?>
@@ -162,15 +173,38 @@ $payer_company = $document->getPayer();
                 </td>
 
                 <?php if($organization->isNotSimpleTaxSystem()): ?>
-                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                    <td align="center">
-                        <?= Utils::round($document->sum_with_tax, 2); ?>
-                    </td>
-                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                    <?php if ($document->bill->price_include_vat): ?>
+                        <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                    <?php else: ?>
+                        <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                    <?php endif; ?>
                 <?php else: ?>
                     <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php endif; ?>
             </tr>
+
+            <?php if (!$organization->isNotSimpleTaxSystem()): ?>
+                <tr>
+                    <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
+                        <div style="padding-top: 3px; height: 15px;">
+                            <b>Без налога (НДС)*</b>
+                        </div>
+                    </td>
+                    <td align="center">-</td>
+                </tr>
+                <tr>
+                    <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
+                        <div style="padding-top: 3px; height: 15px;">
+                            <b>Всего к оплате:</b>
+                        </div>
+                    </td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                </tr>
+            <?php endif; ?>
+
             </tbody>
         </table>
         <br />
@@ -180,6 +214,15 @@ $payer_company = $document->getPayer();
                 Сумма прописью: <?= Wordifier::Make($document->sum, $document->getCurrency()); ?>
             </i>
         </p>
+
+        <?php if (!$organization->isNotSimpleTaxSystem()): ?>
+            <p align="center">
+                <b>
+                    *НДС не облагается: Упрощённая система налогообложения, Глава 26.2. НК РФ.
+                </b>
+            </p>
+            <br /><br />
+        <?php endif; ?>
 
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <col width="*" />

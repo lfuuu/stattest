@@ -14,7 +14,11 @@ IP сети: {$router.net}<br>
 <table class=price cellSpacing=4 cellPadding=2 border=0 width='60%'>
 <tr><td class=header>Сеть</td><td class=header>клиент</td><td class=header>подключение</td></tr>
 {foreach from=$nets item=r}
-<TR bgcolor="{if $r.active}#EEDCA9{else}#fffff5{/if}"><td align=right>{$r.net}</td><td><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></td><td><a href='pop_services.php?table=usage_ip_ports&id={$r.id}'>{$r.id}</a></td></tr>
+<TR bgcolor="{if $r.active}#EEDCA9{else}#fffff5{/if}">
+    <td align=right>{$r.net}</td>
+    <td><a href='/client/view?id={$r.clientid}'>{$r.client}</a></td>
+    <td><a href='pop_services.php?table=usage_ip_ports&id={$r.id}'>{$r.id}</a></td>
+</tr>
 {/foreach}
 </table>
 
@@ -32,7 +36,7 @@ IP сети: {$router.net}<br>
 <?
 {foreach from=$router_clients item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-          <TD><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client_company}</a></TD>
+          <TD><a href='/client/view?id={$item.clientid}'>{$item.client_company}</a></TD>
           <TD>{$item.node}::{$item.port}</TD>
           <TD>{$item.actual_from} - {$item.actual_to}</TD>
           <TD>{foreach from=$item.ip_routes item=item_inner name=inner}{ipstat net=$item_inner.net}<br>{/foreach}</TD>

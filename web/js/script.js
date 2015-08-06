@@ -55,10 +55,28 @@ function closeNavigationBlock(id){
     localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
 
+function openAllNavigationBlocks()
+{
+    $('.layout_left .menupanel').each(function(){
+        openNavigationBlock($(this).attr('id'));
+    });
+}
+
+function closeAllNavigationBlocks()
+{
+    $('.layout_left .menupanel').each(function(){
+        closeNavigationBlock($(this).attr('id'));
+    });
+}
+
 function toggleNavigationBlock(id){
     if ($('#' + id).hasClass('opened')) {
         closeNavigationBlock(id);
     } else {
+        var blocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+        $.map(blocks, function(v,k){
+            closeNavigationBlock(k);
+        });
         openNavigationBlock(id);
     }
 }
@@ -312,35 +330,71 @@ function form_cpe_load(){
 	form_cpe_get_clients(1);
 }
 
-function showHistory(model, modelId) {
+function showHistory(obj, popup) {
     var el = $('.showhistorybutton');
-    $.get('/history/show?model=' + model + '&model_id=' + modelId, function(data){
-        el.replaceWith(data);
-    });
+    var loading = false;
+    if(loading == false) {
+        if(popup === true){
+            if(!$('#history-dialog').length)
+                $('<div id="history-dialog">').appendTo('.layout_main');
+            var dialog = $('#history-dialog');
+            dialog.dialog({
+                width:'80%',
+                height:'700'
+            });
+            dialog.empty();
+            loading = true;
+            $.get('/history/show', obj, function (data) {
+                dialog.append(data);
+                dialog.dialog('open');
+                loading = false;
+            }, 'html');
+        }
+        else{
+            if (el.data('sh') !== false) {
+                loading = true;
+                $.get('/history/show', obj, function (data) {
+                    el.next().after(data);
+                    el.text('∧');
+                    el.data('sh', false);
+                    loading = false;
+                }, 'html');
+            }
+            else {
+                el.text('∨');
+                el.next().next().remove();
+                el.data('sh', true);
+            }
+        }
+    }
+    return false;
 }
 
-function showHistoryPopup(model, modelId) {
-    var $dialog = $('<iframe src="'+'/history/show?model=' + model + '&model_id=' + modelId+'" title="История изменений" style="display: none;"></iframe>');
+function showVersion(obj, popup) {
+    var el = $('.showhistorybutton');
+    var loading = false;
+    if(loading == false) {
+        if(popup === true){
+            if(!$('#history-dialog').length)
+                $('<div id="history-dialog">').appendTo('.layout_main');
+            var dialog = $('#history-dialog');
+            dialog.dialog({
+                width:800,
+                height:700
+            });
+            dialog.empty();
+            loading = true;
+            $.get('/version/show', obj, function (data) {
+                dialog.append(data);
+                dialog.dialog('open');
+                loading = false;
+            }, 'html');
+        }
+        else{
 
-    $dialog.appendTo(document.body);
-
-    var width = window.innerWidth - 100;
-    var height = window.innerHeight - 100;
-    if (width > 1200) {
-        width = 1200;
+        }
     }
-
-    $dialog.dialog(
-        {
-            width: width,
-            height: height,
-            open: function(){
-                $dialog[0].style.width = '100%';
-            },
-            close: function(){
-                $dialog.remove();
-            }
-        });
+    return false;
 }
 
 function showIframePopup(element) {
@@ -357,7 +411,7 @@ function showIframePopup(element) {
         loader = createLoader();
 
     $dialog = $('<iframe scrolling="no" width="100%" height="' + height + '" src="' + $(element).attr('href') + '" />')
-                    .css('overflow', 'hidden');
+        .css('overflow', 'hidden');
 
     $dialog
         .dialog({
@@ -370,12 +424,12 @@ function showIframePopup(element) {
             open: function() {
                 $dialog.dialog('widget')
                     .find('.ui-dialog-titlebar')
-                        .replaceWith(loader);
+                    .replaceWith(loader);
 
                 $dialog.css('width', '100%').load(function() {
                     $dialog.dialog('widget')
                         .find('.dialog-loader')
-                            .remove();
+                        .remove();
                 });
             },
             close: function() {

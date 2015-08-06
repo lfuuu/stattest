@@ -235,7 +235,7 @@ www.mcntelecom.ru
 	<td align="center">{$bill.sum_without_tax|round:2}</td>
     <td align="center">
         {if !$isDiscount}
-            {if $bill_client.nds_zero}без НДС{else}{$bill.sum_tax|round:2}{/if}
+            {$bill.sum_tax|round:2}
         {else}
             &nbsp;
         {/if}

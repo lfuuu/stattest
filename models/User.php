@@ -5,6 +5,7 @@ use app\queries\UserQuery;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property integer $id
@@ -22,6 +23,9 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
     const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10;//Владимир Ан
+
+    const DEPART_SALES = 28;
+    const DEPART_PURCHASE = 29;
 
     public static function tableName()
     {
@@ -48,7 +52,13 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 
     public static function findByUsername($user)
     {
-        return static::findOne(['user' => $user, 'enabled' => 'yes']);
+        $user = static::findOne(['user' => $user]);
+
+        if ($user)
+            if ($user->enabled != 'yes')
+                $user->name = "(--".$user->name."--)";
+
+        return $user;
     }
 
     public static function findByPasswordResetToken($token)
@@ -75,5 +85,44 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->pass === md5($password);
+    }
+
+    public static function getAccountManagerList()
+    {
+        $arr = self::find()
+            //->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            ->andWhere(['depart_id' => self::DEPART_SALES])
+            ->andWhere(['enabled' => 'yes'])
+            ->all();
+        return ArrayHelper::map($arr, 'user', 'name', 'depart_id');
+    }
+
+    public static function getManagerList()
+    {
+        $arr = self::find()
+            //->andWhere(['in', 'usergroup', ['account_managers', 'manager']])
+            ->andWhere(['depart_id' => self::DEPART_SALES])
+            ->andWhere(['enabled' => 'yes'])
+            ->all();
+        return ArrayHelper::map($arr, 'user', 'name');
+    }
+
+    /**
+     * @param $id - Department ID
+     * @param array $options - Extends options
+     *                       - "primary": primary column for array
+     *                       - "enabled": extends selection on column "enabled = yes"
+     * @return array
+     */
+    public static function getUserListByDepart($id, $options = [])
+    {
+        $models = self::find()->andWhere(['depart_id' => $id]);
+
+        if (isset($options['enabled']))
+            $models->andWhere(['enabled' => 'yes']);
+
+        $primary = isset($options['primary']) ? $options['primary'] : 'id';
+
+        return ArrayHelper::map($models->all(), $primary, 'name');
     }
 }

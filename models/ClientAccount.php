@@ -2,38 +2,45 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\Event;
+use app\classes\voip\VoipStatus;
+use app\dao\ClientGridSettingsDao;
+use app\classes\BillContract;
 use DateTimeZone;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\classes\behaviors\LogClientContractTypeChange;
-use app\classes\behaviors\SetOldStatus;
-use app\classes\behaviors\LkWizardClean;
-use app\classes\FileManager;
 use app\models\ClientContact;
+use yii\helpers\ArrayHelper;
+
 
 /**
  * @property int $id
  * @property string $client
  * @property string $currency
  * @property string $nal
- * @property int $nds_zero
  * @property int $contract_type_id
  * @property int $price_include_vat
 
  * @property ClientSuper $superClient
- * @property ClientStatuses $lastComment
+ * @property ClientContractComment $lastComment
  * @property Country $country
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
  *
+ * @property ClientContact $contract
  * @method static ClientAccount findOne($condition)
-
  * @property
  *
  */
 class ClientAccount extends ActiveRecord
 {
+    const STATUS_INCOME = 'income';
+
+    public $client_orig = '';
+    public $historyVersionDate = null;
+
     public static $statuses = array(
         'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
         'testing'             => array('name'=>'тестируемый','color'=>'#6DCFF6'),
@@ -57,8 +64,135 @@ class ClientAccount extends ActiveRecord
         'operator'            => array('name'=>'Оператор','color'=>'lightblue')
     );
 
-    private $_lastComment = false;
+    public static $formTypes = [
+        'manual' => 'ручное',
+        'bill' => 'при выставлении счета',
+        'payment' => 'при внесении платежа',
+    ];
 
+    public static $nalTypes = [
+        'beznal' => 'безнал',
+        'nal' => 'нал',
+        'prov' => 'пров'
+    ];
+
+    /** Virtual variables */
+    public $payment_info;
+    /** /Virtual variables */
+
+    private $_lastComment = false;
+/*For old stat*/
+
+    public function getType()
+    {
+        return ($this->contract->contragent->legal_type !='person') ? 'org' : 'person';
+    }
+
+    public function getFirma()
+    {
+        return $this->contract->organization->firma;
+    }
+
+    public function getManager()
+    {
+        return $this->contract->manager;
+    }
+
+    public function getManager_name()
+    {
+        return User::find()->where(['user' => $this->contract->manager])->one()->name;;
+    }
+
+    public function getNumber()
+    {
+        return $this->contract->number;
+    }
+
+    public function getBusiness_process_id()
+    {
+        return $this->contract->business_process_id;
+    }
+
+    public function getBusiness_process_status_id()
+    {
+        return $this->contract->business_process_status_id;
+    }
+
+    public function getContract_type_id()
+    {
+        return $this->contract->contract_type_id;
+    }
+
+    public function getAccount_manager()
+    {
+        return $this->contract->account_manager;
+    }
+
+    public function getCompany()
+    {
+        return $this->contract->contragent->name;
+    }
+
+    public function getCompany_full()
+    {
+        return $this->contract->contragent->name_full;
+    }
+
+    public function getAddress_jur()
+    {
+        return $this->contract->contragent->address_jur;
+    }
+
+    public function getInn()
+    {
+        return $this->contract->contragent->inn;
+    }
+
+    public function getKpp()
+    {
+        return $this->contract->contragent->kpp;
+    }
+
+    public function getSigner_position()
+    {
+        return $this->contract->contragent->position;
+    }
+
+    public function getSigner_positionV()
+    {
+        return $this->contract->contragent->positionV;
+    }
+
+    public function getSigner_name()
+    {
+        return $this->contract->contragent->fio;
+    }
+
+    public function getSigner_nameV()
+    {
+        return $this->contract->contragent->fioV;
+    }
+
+    public function getOgrn()
+    {
+        return $this->contract->contragent->ogrn;
+    }
+
+    public function getOkpo()
+    {
+        return $this->contract->contragent->okpo;
+    }
+
+    public function getOpf()
+    {
+        return $this->contract->contragent->opf;
+    }
+
+    public function getOkvd()
+    {
+        return $this->contract->contragent->okvd;
+    }
+/**************/
     public static function tableName()
     {
         return 'clients';
@@ -74,12 +208,94 @@ class ClientAccount extends ActiveRecord
         return new ClientAccountQuery(get_called_class());
     }
 
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if ($this->isNewRecord) {
+            return parent::save($runValidation, $attributeNames);
+        } else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+                return parent::save($runValidation, $attributeNames);
+            } else {
+                $behaviors = $this->behaviors;
+                unset($behaviors['HistoryVersion']);
+                $behaviors = array_keys($behaviors);
+                foreach ($behaviors as $behavior)
+                    $this->detachBehavior($behavior);
+                $this->beforeSave(false);
+
+                $date = \Yii::$app->request->post('deferred-date');
+                if (
+                    $date
+                    && strtotime($date) < time()
+                    && HistoryVersion::find()
+                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
+                        ->andWhere(['<=', 'date', date('Y-m-d')])
+                        ->andWhere(['>', 'date', $date])
+                        ->count() == 0
+                )
+                    return parent::save($runValidation, $attributeNames);
+
+                return true;
+            }
+        }
+    }
+
     public function behaviors()
     {
         return [
-            LogClientContractTypeChange::className(),
-            SetOldStatus::className(),
-            LkWizardClean::className()
+            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
+            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'comment' => 'Комментарий',
+            'usd_rate_percent' => 'USD уровень в процентах',
+            'address_post' => 'Почтовый адрес',
+            'address_post_real' => 'Действительный почтовый адрес',
+            'bik' => 'БИК',
+            'bank_properties' => 'Банковские реквизиты',
+            'currency' => 'Валюта',
+            'stamp' => 'Печатать штамп',
+            'nal' => 'Предполагаемый метод платежа',
+            'sale_channel' => 'Канал продаж',
+            'user_impersonate' => 'Наследовать права пользователя',
+            'address_connect' => 'Предполагаемый адрес подключения',
+            'phone_connect' => 'Предполагаемый телефон подключения',
+            'id_all4net' => 'ID в All4Net',
+            'dealer_comment' => 'Комментарий для дилера',
+            'form_type' => 'Формирование с/ф',
+            'credit' => 'Разрешить кредит',
+            'credit_size' => 'Размер кредита',
+            'corr_acc' => 'К/С',
+            'pay_acc' => 'Р/С',
+            'bank_name' => 'Название банка',
+            'bank_city' => 'Город банка',
+            'price_type' => 'Тип цены для интернет-магазина',
+            'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
+            'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
+            'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
+            'balance' => 'Баланс',
+            'voip_is_day_calc' => 'Включить пересчет дневного лимита',
+            'region' => 'Регион',
+            'mail_print' => 'Массовая печать конвертов и закрывающих документов',
+            'mail_who' => '"Кому" письмо',
+            'head_company' => 'Головная компания',
+            'head_company_address_jur' => 'Юр. адрес головной компании',
+            'bill_rename1' => 'Номенклатура',
+            'is_agent' => 'Агент',
+            'is_with_consignee' => 'Использовать грузополучателя',
+            'consignee' => 'Грузополучатель',
+            'is_upd_without_sign' => 'Печать УПД без подписей',
+            'is_blocked' => 'Блокировка',
+            'timezone_name' => 'Часовой пояс',
+            'manager' => 'Менеджер',
+            'account_manager' => 'Ак. менеджер',
+            'custom_properties' => 'Ввести данные вручную',
         ];
     }
 
@@ -88,9 +304,23 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
+
+    /**
+     * @return ClientContract
+     */
+    public function getContract()
+    {
+        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->historyVersionDate);
+    }
+
     public function getContractType()
     {
-        return $this->hasOne(ClientContractType::className(), ['id' => 'contract_type_id']);
+        return $this->hasOne(ContractType::className(), ['id' => 'contract_type_id']);
+    }
+
+    public function getRegionName()
+    {
+        return $this->accountRegion ? $this->accountRegion->name : $this->region;
     }
 
     public function getCountry()
@@ -105,51 +335,30 @@ class ClientAccount extends ActiveRecord
 
     public function getUserManager()
     {
-        return $this->hasOne(User::className(), ["user" => "manager"]);
+        return User::findOne(['user' => $this->contract->manager]);
+    }
+
+    public function getLastContract($date = null)
+    {
+        return BillContract::getLastContract($this->id, $date);
     }
 
     public function getUserAccountManager()
     {
-        return $this->hasOne(User::className(), ["user" => "account_manager"]);
+        return User::findOne(['user' => $this->contract->account_manager]);
     }
 
     public function getLkWizardState()
     {
-        return $this->hasOne(LkWizardState::className(), ["account_id" => "id"]);
-    }
-
-    public function getStatusBP()
-    {
-        return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
-    }
-
-    public function getContragent()
-    {
-        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
-    }
-
-    public function getContacts()
-    {
-        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
-    }
-
-    public function getFiles()
-    {
-        return $this->hasMany(ClientFile::className(), ['client_id' => 'id'])->orderBy("ts");
+        return LkWizardState::findOne(["contract_id" => $this->contract->id, "is_on" => 1]);
     }
 
     /**
-     * @param string $date
-     * @return \app\models\Organization
+     * @return ClientContragent
      */
-    public function getOrganization($date = '')
+    public function getContragent()
     {
-        return Organization::find()->byId($this->organization_id)->actual($date)->one();
-    }
-
-    public function getFileManager()
-    {
-        return FileManager::create($this->id);
+        return $this->getContract()->getContragent()->loadVersionOnDate($this->historyVersionDate);
     }
 
     public function getStatusName()
@@ -172,8 +381,8 @@ class ClientAccount extends ActiveRecord
     {
         if ($this->_lastComment === false) {
             $this->_lastComment =
-                ClientStatuses::find()
-                    ->andWhere(['id_client' => $this->id])
+                ClientContractComment::find()
+                    ->andWhere(['contract_id' => $this->contract_id])
                     ->andWhere(['is_publish' => 1])
                     ->orderBy('ts desc')
                     ->all();
@@ -189,12 +398,71 @@ class ClientAccount extends ActiveRecord
         return new DateTimeZone($this->timezone_name);
     }
 
-    public function getTaxRate()
+    /**
+     * @return Organization
+     */
+    public function getOrganization($date = '')
     {
-        if ($this->nds_zero) {
-            return 0;
+        return $this->contract->getOrganization($date);
+    }
+
+    public function getAllContacts()
+    {
+        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+    }
+
+    public function getOfficialContact()
+    {
+        $contacts = ClientContact::find()
+            ->select(['type', 'data'])
+            ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
+            ->groupBy(['type', 'data'])
+            ->asArray()
+            ->all();
+
+        $result = ['fax'=>[],'phone'=>[],'email'=>[]];
+        foreach ($contacts as $contact) {
+            $result[$contact['type']][] = $contact['data'];
         }
 
+        return $result;
+    }
+
+    public function getBpStatuses()
+    {
+        $processes = [];
+        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach (ClientGridSettingsDao::me()->getAllByParams() as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
+        }
+
+        return ["processes" => $processes, "statuses" => $statuses];
+    }
+
+    public function getAdditionalInn($isActive = true)
+    {
+        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int) $isActive])->all();
+    }
+
+    public function getAdditionalPayAcc()
+    {
+        return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * @return $this
+     */
+    public function loadVersionOnDate($date)
+    {
+        return HistoryVersion::loadVersionOnDate($this, $date);
+    }
+
+    public function getTaxRate()
+    {
         $organization = $this->getOrganization();
         Assert::isObject($organization, 'Organization not found');
 
@@ -220,4 +488,46 @@ class ClientAccount extends ActiveRecord
         return [$sum, $sum_without_tax, $sum_tax];
     }
 
+    public function sync1C()
+    {
+        if (!defined('PATH_TO_ROOT'))
+        {
+            define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
+        }
+
+        require_once PATH_TO_ROOT . 'conf.php';
+
+        if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
+            return;
+
+        try {
+            if (($Client = \Sync1C::getClient())!==false)
+                $Client->saveClientCards($this->id);
+            else
+                throw new Exception('Ошибка синхронизации с 1С.');
+        } catch (\Sync1CException $e) {
+            $e->triggerError();
+        }
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        $this->sync1C();
+        parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function getServerPbxId($region)
+    {
+        return self::dao()->getServerPbxId($this, $region);
+    }
+
+    public function getRealtimeBalance()
+    {
+        return VoipStatus::create($this)->getRealtimeBalance();
+    }
+
+    public function getVoipWarnings()
+    {
+        return VoipStatus::create($this)->getWarnings();
+    }
 }

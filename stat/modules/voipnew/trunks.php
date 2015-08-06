@@ -16,9 +16,11 @@ class m_voipnew_trunks
         $now = $now->format('Y-m-d H:i:s');
 
 
-        $res = $db->AllRecords("    select u.*, c.id as client_id, c.company
+        $res = $db->AllRecords("    select u.*, c.id as client_id, cg.name as company
                                     from usage_trunk u
                                     left join clients c on c.id=u.client_account_id
+                                    left join client_contract cr on cr.id = c.contract_id
+                                    left join client_contragent cg on cg.id = cr.contragent_id
                                     where u.activation_dt <= '{$now}' and u.expire_dt >= '{$now}'
                                     order by u.connection_point_id desc, c.id, u.trunk_id          ");
 

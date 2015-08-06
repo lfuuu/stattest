@@ -25,7 +25,7 @@ width: 100px;
 		<td rowspan='{$one_day.rowspan}'>{$date}</td>
 		{foreach from=$one_day.doers item="day" key="doer"}
 			<td>{$day.name}<br /><br /><b style="color:red">{$tt_states_list[$day.cur_state].name}</b></td>
-			<td>{if !isset($print) || !$print}<a href='?module=clients&id={$day.client_id}' target='_blank' style='text-decoration:none;'>{$day.company}</a><br><br>{if $day.bill_no}<a href="./?module=newaccounts&action=bill_view&bill={$day.bill_no}" target=_blank>{$day.bill_no}</a>{if $view_calc}<br><br>
+			<td>{if !isset($print) || !$print}<a href='/client/view?id={$day.client_id}' target='_blank' style='text-decoration:none;'>{$day.company}</a><br><br>{if $day.bill_no}<a href="./?module=newaccounts&action=bill_view&bill={$day.bill_no}" target=_blank>{$day.bill_no}</a>{if $view_calc}<br><br>
             счет: {$day.bill_sum} <br>
             товары: {$day.sum_good}{if $day.count_good > 1}(x{$day.count_good}){/if} <br>
             услуги: {$day.sum_service}{if $day.count_service > 1}(x{$day.count_service}){/if}{/if}

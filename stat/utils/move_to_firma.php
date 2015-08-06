@@ -6,24 +6,14 @@ define('PATH_TO_ROOT','../');
 include PATH_TO_ROOT."conf_yii.php";
 
 $clients = app\models\ClientAccount::find()->where(
-    [
-        'and', 
-        [
-            'or', 
-            ["regexp", "company_full", "^[ ]*(И|и)ндивидуальный[ ]+(П|п)редприниматель"], 
-            ["regexp", "company_full", "^[ ]*И\.?[ ]*П\.?"],
-            ["type" => "priv"]
-        ],
-
         [
             "firma" => 'mcn_telekom',
             "contract_type_id" => 2,
             "business_process_id" => 1,
-            "business_process_status_id" => [8 ,9, 11, 19, 21]
-        ],
-
-        ['not', ["or", ['like', 'company_full', 'ООО'], ['like', 'company_full', 'ЗАО']]]
-    ])->all();
+            "business_process_status_id" => [8 ,9, 11, 19, 21],
+            "type" => ['priv', 'ip']
+        ]
+    )->all();
 
 
 
@@ -41,7 +31,7 @@ foreach($clients as $client)
     $l->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
     $l->comment = "firma";
     $l->type = "fields";
-    $l->apply_ts = "2015-07-01";
+    $l->apply_ts = "2015-08-01";
     $l->is_apply_set = "no";
     $l->save();
 

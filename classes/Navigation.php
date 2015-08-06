@@ -1,9 +1,10 @@
 <?php
 namespace app\classes;
 
+use app\dao\ClientGridSettingsDao;
 use app\models\billing\Pricelist;
 use Yii;
-use app\models\ClientGridSettings;
+use yii\helpers\Url;
 
 
 class Navigation
@@ -12,8 +13,22 @@ class Navigation
 
     private function __construct()
     {
-        $this->addBlockForStatModule('clients');
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setRights(['clients.read'])
+                ->setTitle('Клиенты')
+                ->addItem('Новый клиент',Url::toRoute(['client/create']), 'clients.read')
+                ->addItem('Мои клиенты',Url::toRoute([
+                    'client/search',
+                    'manager' => Yii::$app->user->identity->user,
+                    'account_manager' => Yii::$app->user->identity->user
+                ]), 'clients.read')
+                ->addItem('Каналы продаж', '/sale-channel/index', 'clients.edit')
+                ->addItem('Отчет по файлам', '/file/report', 'clients.edit')
+        );
         $this->addBlockNewClients();
+
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
         $this->addBlock(
@@ -143,31 +158,29 @@ class Navigation
         }
         return $this;
     }
-    
+
     private function addBlockNewClients()
     {
-        
-        $blocks_rows = ClientGridSettings::menuAsArray();
-        
+
+        $blocks_rows = ClientGridSettingsDao::menuAsArray();
+
         foreach($blocks_rows as $block_row)
         {
-            
+
             $block = NavigationBlock::create()
                 ->setId('client_'.$block_row['id'])
                 ->setRights(['clients.read'])
                 ->setTitle($block_row['name']);
-            
-            foreach($block_row['items'] as $item)
-            {   
 
+            foreach($block_row['items'] as $item)
+            {
                 $block->addItem($item['name'],$item['link']);
             }
-                    
+
             $this->addBlock($block);
 
-       
         }
-        
-    }
 
+    }
+    
 }

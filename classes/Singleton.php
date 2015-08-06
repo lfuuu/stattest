@@ -7,6 +7,11 @@ abstract class Singleton
 
     protected function __construct() {/* you can't create me */}
 
+    /**
+     * @param null $args
+     * @return self
+     * @throws \yii\base\Exception
+     */
     public static function me($args = null /* , ... */)
     {
         $class = get_called_class();

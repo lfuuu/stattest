@@ -2,19 +2,19 @@
 
 class WorkDays
 {
-    public function isWorkDayFromMonthStart($timestamp, $number = 3)
+    public static function isWorkDayFromMonthStart($timestamp, $number = 3)
     {
         $date = self::checkTimestamp($timestamp);
         $number = self::checkNumber($number, $date);
         return self::isWorkDayCheckCount($date, $number);
     }
-    public function isWorkDayFromMonthEnd($timestamp, $number = 3)
+    public static function isWorkDayFromMonthEnd($timestamp, $number = 3)
     {
         $date = self::checkTimestamp($timestamp);
         $number = self::checkNumber($number, $date);
         return self::isWorkDayCheckCount($date, $number, false);
     }
-    private function isWorkDayCheckCount(DateTime $date, $number = 3, $from_start_month = true) 
+    private static function isWorkDayCheckCount(DateTime $date, $number = 3, $from_start_month = true)
     {
         $one_day = new DateInterval('P1D');
         $work_day = self::isWorkDay($date);
@@ -55,7 +55,7 @@ class WorkDays
             return false;
         }
     }
-    private function checkTimestamp($timestamp) 
+    private static function checkTimestamp($timestamp)
     {
         $date = new DateTime();
         $date->setTimestamp($timestamp);
@@ -66,14 +66,14 @@ class WorkDays
         }
         return $date;
     }
-    private function checkNumber($number, DateTime $date) {
+    private static function checkNumber($number, DateTime $date) {
         if (!preg_match("|^[\d]+$|", $number) || $number < 0 || $number > $date->format('t'))
         {
             return false;
         }
         return $number;
     }
-    private function isWorkDay(DateTime $date) 
+    private static function isWorkDay(DateTime $date)
     {
         $day = $date->format('j');
         $month = $date->format('n');

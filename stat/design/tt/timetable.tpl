@@ -14,6 +14,23 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 
 {if $refix_flag}
 <form method='POST'>
+	{/if}
+	<table id='timetable_cal_panel_frame' style='position:absolute;visibility:hidden;background-color:silver;border:double'>
+		<tr><td colspan='2'><div align='right'><a href='#' style='text-decoration:none' id='hide_cal' onclick='return optools.tt.timetable_event_handler(event);'>X</a></div></td></tr>
+		<tr>
+			<td valign='middle'><a href='#' style='text-decoration:none' id='year_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='2009' readonly='readonly' id='timetable_cal_year_area' /><a href='#' style='text-decoration:none' id='year_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
+			<td valign='middle'><a href='#' style='text-decoration:none' id='month_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='Авг' readonly='readonly' id='timetable_cal_month_area' /><a href='#' style='text-decoration:none' id='month_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
+		</tr>
+		<tr><td colspan='2'>
+				<table id='timetable_cal_panel' align='center' border='0' cellpadding='1' cellspacing='1'></table>
+			</td></tr>
+	</table>
+	{if $refix_flag}
+</form>
+{/if}
+
+{if $refix_flag}
+<form method='POST'>
 <input type='hidden' name='module' value='tt' />
 <input type='hidden' name='action' value='refix_doers' />
 <input type='hidden' name='fix' value='ok' />
@@ -157,18 +174,3 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 {if $refix_flag}
 </form>
 {/if}
-
-{if $refix_flag}
-<form method='POST'>
-{/if}
-<table id='timetable_cal_panel_frame' style='position:absolute;visibility:hidden;background-color:silver;border:double'>
-	<tr><td colspan='2'><div align='right'><a href='#' style='text-decoration:none' id='hide_cal' onclick='return optools.tt.timetable_event_handler(event);'>X</a></div></td></tr>
-	<tr>
-		<td valign='middle'><a href='#' style='text-decoration:none' id='year_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='2009' readonly='readonly' id='timetable_cal_year_area' /><a href='#' style='text-decoration:none' id='year_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
-		<td valign='middle'><a href='#' style='text-decoration:none' id='month_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='Авг' readonly='readonly' id='timetable_cal_month_area' /><a href='#' style='text-decoration:none' id='month_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
-	</tr>
-	<tr><td colspan='2'>
-		<table id='timetable_cal_panel' align='center' border='0' cellpadding='1' cellspacing='1'></table>
-	</td></tr>
-</table>
-</form>

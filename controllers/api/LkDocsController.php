@@ -38,7 +38,8 @@ class LkDocsController extends ApiController
 
         $data = [["type" => "client_card", "id" => 0]];
 
-        $contract = ClientDocument::find()->account($this->accountId)->active()->contract()->last();
+        $contractId = ClientAccount::findOne($this->accountId)->contract_id;
+        $contract = ClientDocument::find()->contractId($contractId)->active()->contract()->last();
 
         if ($contract)
         {
@@ -118,19 +119,22 @@ class LkDocsController extends ApiController
                 'middle_name' => $c->person->middle_name,
                 'passport_serial' => $passportSerial,
                 'passport_number' => $passportNumber,
-                'passport_date_issued' => ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued)),
+                'passport_date_issued' => date("Y-m-d", ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued))),
                 'passport_issued' => $c->person->passport_issued ? "***" : "",
-                'address' => $c->person->address,
+                'address' => $c->person->registration_address,
                 ];
         }
 
-        if ($a->contacts)
+        if ($a->allContacts)
         {
             $allEmail = [];
             $officialEmails = [];
 
-            foreach($a->contacts as $contact)
+            foreach($a->allContacts as $contact)
             {
+                if (!$contact->is_active)
+                    continue;
+
                 if ($contact->type == "email")
                 {
                     $email = trim($contact->data);
@@ -188,8 +192,9 @@ class LkDocsController extends ApiController
             return $this->getProperty();
         }
 
+        $contractId = ClientAccount::findOne($this->accountId)->contract_id;
         $document = ClientDocument::find()
-            ->account($this->accountId)
+            ->contractId($contractId)
             ->active()
             ->andWhere(["id" => $form->id])
             ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date", "client_id"])

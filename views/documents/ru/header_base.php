@@ -4,10 +4,6 @@ use app\models\ClientContact;
 /** @var $document app\classes\documents\DocumentReport */
 
 $contact = ClientContact::dao()->GetContact($document->bill->clientAccount->id, true);
-
-$organization = $document->getOrganization();
-
-$payer_company = $document->getPayer();
 ?>
 
 <p>

@@ -28,7 +28,7 @@ class Bill {
         global $db;
         if (!$this->client_data)
         {
-            $this->client_data = ClientCS::getOnDate($this->client_id, $this->bill["bill_date"]);
+            $this->client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $this->bill["bill_date"]);
         }
 
         return ($v?($this->client_data[$v]):($this->client_data));
@@ -36,7 +36,7 @@ class Bill {
 
     public function SetClientDate($date)
     {
-           $this->client_data = ClientCS::getOnDate($this->client_id, $date);
+        $this->client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $date);
     }
 
     public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {
@@ -71,11 +71,13 @@ class Bill {
 
             $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
 
+            if(is_object($client_id))
+                $client_id = $client_id->toArray();
+
             if (is_array($client_id)) {
                 $this->client_data=$client_id;
                 $client_id=$client_id['id'];
-                if (!$currency) $currency=$this->client_data['currency'];
-            } else if (!$currency) {
+            } else {
                 $this->client_data=$db->GetRow("
 					select
 						*
@@ -84,8 +86,9 @@ class Bill {
 					where
 						id='".$client_id."'
                 ");
-                $currency=$this->client_data['currency'];
             }
+            if (!$currency) $currency=$this->client_data['currency'];
+
             $bill = new \app\models\Bill();
             $bill->client_id = $client_id;
             $bill->currency = $currency;
@@ -142,6 +145,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
@@ -208,6 +212,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
@@ -504,7 +509,7 @@ class Bill {
 
             $r['outprice'] =
                 $this->bill['price_include_vat']
-                    ? round($r['sum'] / $r['amount'], 4)
+                    ? round($r['sum_without_tax'] / $r['amount'], 4)
                     : round($r['sum_without_tax'] / $r['amount'], 4);
 
 
@@ -637,7 +642,7 @@ class Bill {
         $time_from = strtotime('first day of next month 00:00:00');
         $time_to = strtotime('last day of next month 23:59:59');
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
-        $nds = $client_data['nds_zero'] > 0 ? 1 : (1 + $tax_rate/100);
+        $nds = 1 + $tax_rate/100;
         $R = 0;
         foreach ($services as $service){
             if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))

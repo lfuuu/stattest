@@ -32,23 +32,31 @@ class NavigationBlock
         return $this;
     }
 
-    public function addItem($title, $url, $rights = null)
+    public function addItem($title, $url, $rights = [])
     {
-        if (is_array($url)) {
-            $url = Url::toRoute($url);
-        }
+        if (!empty($rights)) {
+            if (!is_array($rights)) {
+                $rights = [$rights];
+            }
 
-        if ($rights) {
+            $grant = false;
+
             foreach ($rights as $right) {
-                if (Yii::$app->user->can($right)) {
-                    $this->items[] = ['title' => $title, 'url' => $url];
+                $grant = Yii::$app->user->can($right);
+                if ($grant) {
                     break;
                 }
             }
-        } else {
-            $this->items[] = ['title' => $title, 'url' => $url];
+
+            if (!$grant) {
+                return $this;
+            }
         }
 
+        if (is_array($url)) {
+            $url = Url::toRoute($url);
+        }
+        $this->items[] = ['title' => $title, 'url' => $url];
         return $this;
     }
 

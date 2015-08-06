@@ -1,8 +1,6 @@
 <?php
 
-use app\classes\Utils;
 use app\classes\BillContract;
-use \app\models\ClientContragent;
 use app\models\ClientAccount;
 
 global $writeoff_services;
@@ -46,7 +44,7 @@ abstract class ServicePrototype {
         } else $this->devices=array();
         if (!$this->tarif_std) $this->LoadTarif();
 
-        $this->country = ClientContragent::findOne($this->client['contragent_id'])->country;
+        $this->country = \app\models\ClientContract::findOne($this->client['contract_id'])->getContragent()->country;
         $this->tax_rate = ClientAccount::findOne($this->client['id'])->getTaxRate();
     }
     public function SetDate($date_from,$date_to,$date_from_prev = 0,$date_to_prev = 0){
@@ -397,7 +395,8 @@ class ServiceEmails extends ServicePrototype {
 
         if($this->client["bill_rename1"] == "yes")
             foreach($R as &$v) {
-                if ($contract = BillContract::getLastContract($this->service['client_id'], $this->date_from))
+                $contractId = ClientAccount::findOne($this->service['client_id'])->contract_id;
+                if ($contract = BillContract::getLastContract($contractId, $this->date_from))
                     $v[1] .= Yii::t('biller', 'by_agreement', [
                         'contract_no' => $contract['no'],
                         'contract_date' => $contract['date']

@@ -20,8 +20,21 @@ use yii\db\ActiveRecord;
  */
 class TroubleStage extends ActiveRecord
 {
+    public $dif_time = '00:00';
+
     public static function tableName()
     {
         return 'tt_stages';
     }
+
+    public function getState()
+    {
+        return $this->hasOne(TroubleState::className(), ['id' => 'state_id']);
+    }
+
+    public static function find()
+    {
+        return parent::find()->select(['*', 'FROM_UNIXTIME(TIMESTAMPDIFF(SECOND, `'.self::tableName().'`.`date_start`, IF(`state_id`=2,`date_edit`,NOW())), "%dd %H:%i") AS `dif_time`']);
+    }
+
 }

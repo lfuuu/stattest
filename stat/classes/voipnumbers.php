@@ -15,22 +15,6 @@ class voipNumbersChecker
         $db->SwitchDB(SQL_DB);
     }
 
-    private static function sqlClient($client = null)
-    {
-        global $db;
-        if($client == null)
-        {
-            $client = $_SESSION["clients_client"];
-        }
-        
-        static $c = array();
-
-        if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".$db->escape($client)."'");
-
-        return "client_id='".$c[$client]."'";
-    }
-
     private static $sqlActual = "select client_id, e164, no_of_lines from (
         SELECT 
             c.id as client_id,

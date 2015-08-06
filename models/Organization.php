@@ -43,6 +43,7 @@ use app\dao\OrganizationDao;
 class Organization extends ActiveRecord
 {
     const MCN_TELEKOM = 1;
+    const MCM_TELEKOM = 11;
 
     public static function tableName()
     {
@@ -134,6 +135,7 @@ class Organization extends ActiveRecord
             'kpp'               => $this->tax_registration_reason,
             'acc'               => $this->bank_account,
             'bank'              => $this->bank_name,
+            'bank_name'         => $this->bank_name,
             'kor_acc'           => $this->bank_correspondent_account,
             'bik'               => $this->bank_bik,
             'phone'             => $this->contact_phone,

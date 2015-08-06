@@ -14,11 +14,12 @@
 <a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("месяц","{$smarty.now|date_format:"%m"}")+"%";return false;'>Соглашение о передаче прав (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>Договор</a><br><br>
+<a href='#' onclick='form.body.value+="\n%SOGL_MCM_TELEKOM%";return false;'>Соглашение о передаче прав (МСМ  Телеком)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NOTICE_MCM_TELEKOM%";return false;'>Уведомление о передаче прав (МСМ  Телеком)</a><br><br>
 </TD></TR></FORM></TABLE>
 
 {if $template.job_id}
@@ -74,7 +75,7 @@
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}{if $r.letter_state=='sent'} style='color:gray'{/if}>
 	<TD>{$smarty.foreach.outer.iteration}</TD>
 	<TD><a href='{$LINK_START}module=mail&action=preview&id={$template.job_id}&client={$r.client}'>pre</a></TD>
-	<TD><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
+	<TD><a href="/client/view?id={$r.client_id}" target="_blank">{$r.client_id}</a></TD>
 	<TD>{if isset($r.objects) && count($r.objects)}
 		<table cellspacing=2 cellpadding=1 border=0 class=mform>
 		{foreach from=$r.objects item=obj name=inner}

@@ -2,7 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\dao\CurrencyDao;
 
 class Currency extends ActiveRecord
 {
@@ -18,14 +17,15 @@ class Currency extends ActiveRecord
         self::EUR => 'EUR',
     ];
 
+    private static $currencyByCountry = [
+        Country::RUSSIA => self::RUB,
+        Country::HUNGARY => self::HUF,
+        Country::GERMANY => self::EUR,
+    ];
+
     public static function tableName()
     {
         return 'currency';
-    }
-
-    public static function dao()
-    {
-        return CurrencyDao::me();
     }
 
     public static function symbol($currencyId)
@@ -44,5 +44,10 @@ class Currency extends ActiveRecord
     public static function map()
     {
         return self::$symbols;
+    }
+
+    public static function defaultCurrencyByCountryId($countyId)
+    {
+        return isset(self::$currencyByCountry[$countyId]) ? self::$currencyByCountry[$countyId] : self::RUB;
     }
 }

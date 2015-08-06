@@ -84,9 +84,17 @@ class ClientAccountBiller
     {
         $this->transactions = [];
 
+        if ($this->onlyConnecting) {
+            $status = 'connecting';
+        } else {
+            $status = 'working';
+        }
+
+
         $this->processUsages(
             UsageIpPorts::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -94,6 +102,7 @@ class ClientAccountBiller
         $this->processUsages(
             UsageVoip::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -102,6 +111,7 @@ class ClientAccountBiller
         $this->processUsages(
             UsageVirtpbx::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -109,6 +119,7 @@ class ClientAccountBiller
         $this->processUsages(
             UsageExtra::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -116,6 +127,7 @@ class ClientAccountBiller
         $this->processUsages(
             UsageWelltime::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -123,6 +135,7 @@ class ClientAccountBiller
         $this->processUsages(
             Emails::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
@@ -130,6 +143,7 @@ class ClientAccountBiller
         $this->processUsages(
             UsageSms::find()
                 ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );

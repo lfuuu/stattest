@@ -183,7 +183,7 @@ class DbForm {
 
     public function fillUTCPeriod()
     {
-        $client = ClientAccount::findOne(['client' => $this->dbform['client']]);
+        $client = is_numeric($this->dbform['client']) ? ClientAccount::findOne($this->dbform['client']) : ClientAccount::findOne(['client' => $this->dbform['client']]);
         Assert::isObject($client);
         $this->dbform['activation_dt'] = (new DateTime($this->dbform['actual_from'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $this->dbform['expire_dt'] = (new DateTime($this->dbform['actual_to'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -207,6 +207,8 @@ class HelpDbForm {
         $design->assign('dbform_f_cpe',get_cpe_history($service,$id));
     }
     public static function assign_tt($service,$service_id,$client) {
+        if($client && !is_numeric($client))
+            $client = ClientAccount::findOne(['client' => $client])->id;
         StatModule::tt()->showTroubleList(1,'service',$client,$service,$service_id);
     }
     public static function save_block($service,$id,$block,$comment, $fieldsChanges = "") {
@@ -365,7 +367,8 @@ class DbFormUsageIpPorts extends DbForm{
             $this->fields['port']['enum'][] = $row['port_name'];
         }
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -499,7 +502,7 @@ class DbFormUsageVoip extends DbForm {
             if ($this->data['is_moved'])
             {
                 $this->fields['moved_from']=array("type" => "label");
-                $this->data['moved_from'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+                $this->data['moved_from'] = '<a target="_blank" href="/client/view?id='. $check_move->client . '">' . $check_move->client . '</a>';
             }
             $check_move_with_pbx = UsageVirtpbx::checkNumberIsMovedWithPbx( $check_move->client, $this->data['client'],$this->data['actual_from']);
             if (!empty($check_move_with_pbx))
@@ -512,7 +515,7 @@ class DbFormUsageVoip extends DbForm {
         if (!empty($check_move))
         {
             $this->fields['moved_to']=array("type" => "label");
-            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+            $this->data['moved_to'] = '<a target="_blank" href="/client/view?id='. $check_move->client . '">' . $check_move->client . '</a>';
         }
     }
     public function Display($form_params = array(),$h2='',$h3='') {
@@ -553,7 +556,8 @@ class DbFormUsageVoip extends DbForm {
         $this->fields["line7800_id"]["assoc_enum"] = $line7800_default + $lines7800;
 
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -714,7 +718,7 @@ class DbFormUsageVoip extends DbForm {
     {
         global $db, $fixclient_data;
 
-        if (!is_array($fixclient_data) || !isset($fixclient_data["client"])) {
+        if (!isset($fixclient_data["client"])) {
             throw new Exception("Клиент не найден");
         }
 
@@ -1024,7 +1028,8 @@ class DbFormUsageExtra extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data))
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1144,7 +1149,7 @@ class DbFormUsageITPark extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1243,7 +1248,7 @@ class DbFormUsageWelltime extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1383,21 +1388,20 @@ class DbFormUsageVirtpbx extends DbForm{
         if (!empty($check_move))
         {
             $this->fields['moved_to']=array("type" => "label");
-            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+            $this->data['moved_to'] = '<a target="_blank" href="/client/view?id='. $check_move->client . '">' . $check_move->client . '</a>';
         }
     }
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design, $fixclient_data;
 
         $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
-        if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
 
-        $client_price_include_vat = ClientAccount::find()
-            ->select('price_include_vat')
-            ->where(['client' => $fixclient_data['client']])
-            ->asArray()
-            ->one()['price_include_vat'];
+        if(!isset($fixclient_data)) {
+            $account = ClientAccount::findOne(['client' => $this->data['client']]);
+            $fixclient_data = $account->toArray();
+        } else {
+            $account = ClientAccount::findOne($fixclient_data['id']);
+        }
 
         if ($this->isData('id')) {
             $this->prepareMovedFieldsForDispaly();
@@ -1410,7 +1414,7 @@ class DbFormUsageVirtpbx extends DbForm{
             select id, description, price, currency, status
             from tarifs_virtpbx
             where
-                price_include_vat = "' . $client_price_include_vat . '"
+                price_include_vat = "' . $account->price_include_vat . '" and currency="'.$account->currency.'"
         '));
 
         DbForm::Display($form_params,$h2,$h3);
@@ -1510,7 +1514,7 @@ class DbFormUsageSms extends DbForm{
          global $db,$design, $fixclient_data;
 
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1609,7 +1613,7 @@ class DbFormUsageWellSystem extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+            $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
 
         $client_price_include_vat = ClientAccount::find()
             ->select('price_include_vat')
@@ -1710,7 +1714,7 @@ class DbFormUsageIPPPP extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
+        if (!isset($fixclient_data)) $fixclient_data= ClientAccount::findOne(['client' => $this->data['client']]);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_ip_ppp',$this->data['id']);
             HelpDbForm::assign_tt('usage_ip_ppp',$this->data['id'],$this->data['client']);

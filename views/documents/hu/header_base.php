@@ -1,7 +1,5 @@
 <?php
 /** @var $document app\classes\documents\DocumentReport */
-
-$organization = $document->getOrganization();
 ?>
 
 <p>

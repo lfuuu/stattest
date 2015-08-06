@@ -32,7 +32,7 @@ $origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getLis
 
 ?>
 <legend>
-    <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
+    <?= Html::a($clientAccount->company, '/client/view?id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония Транки', '/?module=services&action=trunk_view') ?> ->
     <?= Html::a($trunk->name, Url::to(['edit', 'id' => $usage->id])) ?>
 </legend>

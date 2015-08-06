@@ -73,17 +73,19 @@ $menumap = [
 $rows['telecom.sales.income'] = [
     'header' => 'Входящие',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="income"',
+				cr.contract_type_id=2 AND cl.status="income"',
     'sortable' => [
             'status',
             'id',
@@ -104,7 +106,7 @@ $rows['telecom.sales.income'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -112,7 +114,7 @@ $rows['telecom.sales.income'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -137,17 +139,19 @@ $rows['telecom.sales.income'] = [
 $rows['telecom.sales.negotiations'] = [
     'header' => 'В стадии переговоров',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="negotiations"',
+				cr.contract_type_id=2 AND cl.status="negotiations"',
     'sortable' => [
             'status',
             'id',
@@ -168,7 +172,7 @@ $rows['telecom.sales.negotiations'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -176,7 +180,7 @@ $rows['telecom.sales.negotiations'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -201,17 +205,19 @@ $rows['telecom.sales.negotiations'] = [
 $rows['telecom.sales.testing'] = [
     'header' => 'Тестируемые',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="testing"',
+				cr.contract_type_id=2 AND cl.status="testing"',
     'sortable' => [
             'status',
             'id',
@@ -232,7 +238,7 @@ $rows['telecom.sales.testing'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -240,7 +246,7 @@ $rows['telecom.sales.testing'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -265,17 +271,19 @@ $rows['telecom.sales.testing'] = [
 $rows['telecom.sales.connecting'] = [
     'header' => 'Подключаемые',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="connecting"',
+				cr.contract_type_id=2 AND cl.status="connecting"',
     'sortable' => [
             'status',
             'id',
@@ -296,7 +304,7 @@ $rows['telecom.sales.connecting'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -304,7 +312,7 @@ $rows['telecom.sales.connecting'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -329,17 +337,19 @@ $rows['telecom.sales.connecting'] = [
 $rows['telecom.sales.tech_deny'] = [
     'header' => 'Техотказ',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="tech_deny"',
+				cr.contract_type_id=2 AND cl.status="tech_deny"',
     'sortable' => [
             'status',
             'id',
@@ -360,7 +370,7 @@ $rows['telecom.sales.tech_deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -368,7 +378,7 @@ $rows['telecom.sales.tech_deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -393,17 +403,19 @@ $rows['telecom.sales.tech_deny'] = [
 $rows['telecom.sales.deny'] = [
     'header' => 'Отказ',
     'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="deny"',
+				cr.contract_type_id=2 AND cl.status="deny"',
     'sortable' => [
             'status',
             'id',
@@ -424,7 +436,7 @@ $rows['telecom.sales.deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -432,7 +444,7 @@ $rows['telecom.sales.deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -456,18 +468,19 @@ $rows['telecom.sales.deny'] = [
 
 $rows['telecom.sales.trash'] = [
     'header' => 'Мусор',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status in ("trash","double")',
+				cr.contract_type_id=2 AND cl.status in ("trash","double")',
     'sortable' => [
             'status',
             'id',
@@ -488,7 +501,7 @@ $rows['telecom.sales.trash'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -496,7 +509,7 @@ $rows['telecom.sales.trash'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -550,18 +563,19 @@ $rows['telecom.sales.trash'] = [
 
 $rows['telecom.accounting.work'] = [
     'header' => 'Включенные',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="work"',
+				cr.contract_type_id=2 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',
@@ -585,7 +599,7 @@ $rows['telecom.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -606,18 +620,19 @@ $rows['telecom.accounting.work'] = [
 
 $rows['telecom.accounting.closed'] = [
     'header' => 'Отключенные',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="closed"',
+				cr.contract_type_id=2 AND cl.status="closed"',
     'sortable' => [
             'status',
             'id',
@@ -641,7 +656,7 @@ $rows['telecom.accounting.closed'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -662,18 +677,19 @@ $rows['telecom.accounting.closed'] = [
 
 $rows['telecom.accounting.debt'] = [
     'header' => 'Отключенные за долги',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="debt"',
+				cr.contract_type_id=2 AND cl.status="debt"',
     'sortable' => [
             'status',
             'id',
@@ -697,7 +713,7 @@ $rows['telecom.accounting.debt'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -718,18 +734,19 @@ $rows['telecom.accounting.debt'] = [
 
 $rows['telecom.accounting.blocked'] = [
     'header' => 'Временно заблокированные',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="blocked"',
+				cr.contract_type_id=2 AND cl.status="blocked"',
     'sortable' => [
             'status',
             'id',
@@ -753,7 +770,7 @@ $rows['telecom.accounting.blocked'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -774,18 +791,19 @@ $rows['telecom.accounting.blocked'] = [
 
 $rows['telecom.accounting.reserved'] = [
     'header' => 'Резервирование канала',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="reserved"',
+				cr.contract_type_id=2 AND cl.status="reserved"',
     'sortable' => [
             'status',
             'id',
@@ -809,7 +827,7 @@ $rows['telecom.accounting.reserved'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -830,18 +848,19 @@ $rows['telecom.accounting.reserved'] = [
 
 $rows['telecom.accounting.suspended'] = [
     'header' => 'Приостановлен',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="suspended"',
+				cr.contract_type_id=2 AND cl.status="suspended"',
     'sortable' => [
             'status',
             'id',
@@ -865,7 +884,7 @@ $rows['telecom.accounting.suspended'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -951,18 +970,19 @@ $rows['telecom.accounting.suspended'] = [
 
 $rows['operators.accounting.work'] = [
     'header' => 'Временно заблокирован',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=3 AND cl.status="work"',
+				cr.contract_type_id=3 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',
@@ -983,7 +1003,7 @@ $rows['operators.accounting.work'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -991,7 +1011,7 @@ $rows['operators.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1015,18 +1035,19 @@ $rows['operators.accounting.work'] = [
 
 $rows['operators.accounting.deny'] = [
     'header' => 'Отказ',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=3 AND cl.status="deny"',
+				cr.contract_type_id=3 AND cl.status="deny"',
     'sortable' => [
             'status',
             'id',
@@ -1047,7 +1068,7 @@ $rows['operators.accounting.deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1055,7 +1076,7 @@ $rows['operators.accounting.deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1079,18 +1100,19 @@ $rows['operators.accounting.deny'] = [
 
 $rows['operators.accounting.testing'] = [
     'header' => 'Тестируемые',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=3 AND cl.status="testing"',
+				cr.contract_type_id=3 AND cl.status="testing"',
     'sortable' => [
             'status',
             'id',
@@ -1111,7 +1133,7 @@ $rows['operators.accounting.testing'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1119,7 +1141,7 @@ $rows['operators.accounting.testing'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1144,7 +1166,7 @@ $rows['operators.accounting.testing'] = [
 
 $rows['procurement.sales.new'] = [
     'header' => 'Новый',
-    'sql' => '           SELECT 
+    'sql' => 'SELECT 
                 T.*,
                 S.*,
                 T.client AS client_orig,
@@ -1167,7 +1189,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1178,6 +1200,12 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&2147483648))
             GROUP BY T.id
             ',
@@ -1244,7 +1272,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id
@@ -1255,6 +1283,12 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&4294967296))
             GROUP BY T.id
             ',
@@ -1321,7 +1355,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1332,6 +1366,12 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&8589934592))
             GROUP BY T.id
             ',
@@ -1398,7 +1438,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1409,6 +1449,12 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&17179869184))
             GROUP BY T.id',
     'sortable' => [
@@ -1475,7 +1521,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id  
@@ -1486,6 +1532,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&34359738368))
             GROUP BY T.id
             ORDER BY T.id
@@ -1553,7 +1601,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1564,6 +1612,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "incomegoods") AND (T.folder&68719476736))
             GROUP BY T.id
             ',
@@ -1607,18 +1657,19 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
 
 $rows['procurement.accounting.work'] = [
     'header' => 'Поставщики',
-    'sql' => 'SELECT 
-				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+    'sql' => 'SELECT cl.status, cl.id, cl.client, cg.name AS company, cr.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency,
 				DATE(cls.ts) date_zayavka
 			FROM clients cl
-			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			INNER JOIN client_contract cr ON cr.id = cl.contract_id
+			INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract_comment cls ON cr.id = cls.contract_id
 			AND
 				( cls.id IS NULL AND
-					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+					cls.id = (SELECT MIN(id) FROM client_contract_comment WHERE contract_id=cr.id)
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=4 AND cl.status="work"',
+				cr.contract_type_id=4 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',
@@ -1639,7 +1690,7 @@ $rows['procurement.accounting.work'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1647,7 +1698,7 @@ $rows['procurement.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1694,7 +1745,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1705,6 +1756,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&1))
             GROUP BY T.id
             ',
@@ -1724,7 +1777,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1775,7 +1828,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1786,6 +1839,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&2))
             GROUP BY T.id
             ',
@@ -1805,7 +1860,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1856,7 +1911,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1867,6 +1922,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&33554432))
             GROUP BY T.id
             ',
@@ -1886,7 +1943,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1937,7 +1994,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -1948,6 +2005,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&268435456))
             GROUP BY T.id
             ',
@@ -1967,7 +2026,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2018,7 +2077,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2029,6 +2088,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&536870912))
             GROUP BY T.id
             ',
@@ -2048,7 +2109,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2099,7 +2160,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2110,6 +2171,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&1073741824))
             GROUP BY T.id
             ',
@@ -2129,7 +2192,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2181,7 +2244,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2192,6 +2255,8 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&2097152))
             GROUP BY T.id
             ',
@@ -2211,7 +2276,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2263,7 +2328,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2274,6 +2339,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&4))
             GROUP BY T.id
             ',
@@ -2293,7 +2362,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2344,7 +2413,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2355,6 +2424,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&4194304))
             GROUP BY T.id
             ',
@@ -2374,7 +2447,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2425,7 +2498,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2436,6 +2509,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&32))
             GROUP BY T.id
             ',
@@ -2455,7 +2532,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2506,7 +2583,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2517,6 +2594,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&8))
             GROUP BY T.id
             ',
@@ -2536,7 +2617,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2587,7 +2668,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2598,6 +2679,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&16))
             GROUP BY T.id
             ',
@@ -2617,7 +2702,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2668,7 +2753,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2679,6 +2764,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&8192))
             GROUP BY T.id
             ',
@@ -2698,7 +2787,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2749,7 +2838,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2760,6 +2849,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&16777216))
             GROUP BY T.id
             ',
@@ -2779,7 +2872,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2830,7 +2923,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2841,6 +2934,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&64))
             GROUP BY T.id
             ',
@@ -2860,7 +2957,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2911,7 +3008,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name AS trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name AS company
             FROM
                 tt_troubles AS T
             LEFT JOIN tt_stages AS S2 ON S2.trouble_id = T.id 
@@ -2922,6 +3019,10 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+			LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+			LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
             WHERE ((T.trouble_type = "shop_orders") AND (T.folder&128))
             GROUP BY T.id
             ',
@@ -2941,7 +3042,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',

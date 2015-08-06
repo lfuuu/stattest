@@ -38,7 +38,9 @@ class m_send {
 	
 	function send_default($fixclient){
 		global $db,$design;
-		$sql='select * from newbill_send order by state,last_send desc,client';
+		$sql='select newbill_send.*, c.id as clientid from newbill_send
+INNER JOIN clients c ON c.client = newbill_send.client
+order by newbill_send.state,newbill_send.last_send desc,newbill_send.client';
 		$db->Query($sql);
 		$R=array(); while ($r=$db->NextRecord()) {
 			if (isset($R[$r['client']])){
@@ -54,7 +56,7 @@ class m_send {
 		$year=get_param_integer('year',''); if (!$year) return;
 		$month=get_param_integer('month',''); if (!$month) return;
 		$date=$year.'-'.$month.'-1';
-		$sql="select newbills.bill_no,newbills.bill_date,clients.manager,clients.client,clients.email,IF(DAY(bill_date)=1,1,0) as fday from newbills
+		$sql="select newbills.bill_no,newbills.bill_date,clients.manager,clients.client, clients.id as clientid,clients.email,IF(DAY(bill_date)=1,1,0) as fday from newbills
 			INNER JOIN clients on newbills.client_id=clients.id
 			where (newbills.bill_date='".$year."-".$month."-01')
 			ORDER BY IF(clients.email='',1,0),client";
@@ -93,7 +95,9 @@ class m_send {
 		}
 
 		if (count($C)) $q='IF (client IN ("'.implode('","',$C).'"),1,0)'; else $q='0';
-		$sql='select *,'.$q.' as cur_sent from newbill_send order by cur_sent desc,state,last_send desc,client';
+		$sql='select newbill_send.*,'.$q.' as cur_sent, clients.id as clientid from newbill_send
+		left join clients on clients.client = newbill_send.client
+		order by cur_sent desc,state,last_send desc,client';
 		$db->Query($sql);
 		$R=array(); while ($r=$db->NextRecord()) {
 			$r['cur_sent']=(isset($C[$r['client']]))?1:0;
@@ -126,7 +130,7 @@ class m_send {
 			$bill = new Bill($r['bill_no']);
 			$R=array('obj'=>'bill','source'=>2,'bill'=>$r['bill_no']);
 			$R['client']=$bill->Get('client_id');
-			$body.=LK_PATH.'docs/?bill='.udata_encode_arr($R)."\n";
+			$body.=Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R)."\n";
 		}
 		$body.="\n оПНЯХЛ ЯБНЕБПЕЛЕММН ХУ НОКЮРХРЭ.\n\n";
 		

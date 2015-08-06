@@ -181,6 +181,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['i'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'Ежемесячно' => [
                 'pay_month' => 'сумма',
@@ -192,6 +193,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['v'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'Ежемесячно' => [
                 'pay_month' => 'сумма',
@@ -203,6 +205,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
         $this->FieldSets['c'] = [
             'name' => 'Название',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'pay_once' => 'Подключение',
             'pay_month' => 'Аб. плата',
             'Мб в месяц' => [
@@ -294,6 +297,7 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
             'description' => 'Описание',
             'code' => 'Код',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price'=> 'Стоимость',
             'period' => 'Период',
         ];
@@ -350,6 +354,7 @@ class DbViewTarifsITPark extends DbView{
         $this->FieldSets['z'] = [
             'description' =>'Описание',
             'price_include_vat' =>'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         ];
@@ -374,6 +379,7 @@ class DbViewTarifsWelltime extends DbView{
         $this->FieldSets['z']=array(
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         );
@@ -411,6 +417,7 @@ class DbViewTarifsVirtpbx extends DbView{
         $this->FieldSets['z']=array(
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         );
@@ -439,6 +446,7 @@ class DbViewTarifsSms extends DbView{
         $this->FieldSets['z'] = [
             'description'=>'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'per_month_price' => 'Абонентская плата, руб.',
             'per_sms_price' => 'за 1 СМС, руб.',
         ];
@@ -465,6 +473,7 @@ class DbViewTarifsWellSystem extends DbView{
         $this->FieldSets['z'] = [
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
+			'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
         ];
@@ -683,42 +692,7 @@ class DbViewUsagePhoneRedirConditions extends DbView {
 		parent::__construct();
 	}
 }
-class DbViewSaleChannels extends DbView {
-	public function __construct() {
-		$this->filters=array();
-		$this->SQLFilters=array();
-		$this->SQLFilterNames=array();
-		$this->SQLFilterGroups=array();
-		$this->table='sale_channels';
-		$this->Headers['z']='Каналы продаж';
-		$this->FieldSets['z']=array(
-							'name' => 'Название',
-							'dealer_id' => 'ID дилера',
-							'is_agent' => 'Агент',
-							'interest' => 'Вознаграждение',
-							'courier_name' => 'Курьер',
-		);
-		$this->fieldset='z';
-		$this->SQLQuery = 'select a.*, b.name as courier_name from '.$this->table.' as a LEFT JOIN courier as b ON b.id = a.courier_id';
-		parent::__construct();
-	}
-}
-class DbFormSaleChannels extends DbForm{
-	public function __construct() {
-		DbForm::__construct('sale_channels');
-		$this->fields['name']=array();
-		$this->fields['dealer_id']=array();
-		$this->fields['is_agent']=array('assoc_enum'=>array('0'=>'Нет', '1'=>'Да'));
-		$this->fields['interest']=array();
-        global $db;
-        $couriers = array("0" => "-");
-        foreach($db->AllRecords("select id, name from courier where depart='Региональный представитель'") as $o)
-        {
-            $couriers[$o["id"]] = $o["name"];
-        }
-		$this->fields['courier_id']=array('assoc_enum' => $couriers);
-	}
-}
+
 class DbViewTechNets extends DbView {
 	public function __construct() {
 		$this->filters=array();

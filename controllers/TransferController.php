@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ClientContragent;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -69,11 +70,11 @@ class TransferController extends BaseController
         $result = ClientAccount::getDB()->createCommand("
             SELECT SQL_CALC_FOUND_ROWS c.`id`, c.`client`, cc.`name` AS 'contragent'
             FROM `clients` c
-                    LEFT JOIN `client_contragent` cc ON cc.`id` = c.`contragent_id`
+                    INNER JOIN `client_contract` cr ON cr.`id` = c.`contract_id`
+                    INNER JOIN `client_contragent` cc ON cc.`id` = cr.`contragent_id`
             WHERE
                 c.`id` != " . (int) $client_id . " AND
                 c.`client` LIKE '%" . $term . "%' OR
-                c.`company` LIKE '%" . $term . "%' OR
                 c.`id` = " . (int) $term . " OR
                 cc.`name` LIKE '%" . $term . "%'
             ORDER BY cc.`name` DESC, c.`id` DESC

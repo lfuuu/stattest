@@ -28,7 +28,7 @@ window.setTimeout("javscript:refrfunc()",{/literal}{$refresh}{literal}000);
 {foreach from=$send_client item=item name=inner}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 {if $smarty.foreach.inner.iteration==1}
-	<TD rowspan='{count_rows_func start=0 arr=$send_client}'><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client}</a></TD>
+	<TD rowspan='{count_rows_func start=0 arr=$send_client}'><a href='/client/view?id={$item.clientid}'>{$item.client}</a></TD>
 {/if}
 	<TD>{fsize value=$item.bytes}</TD>
 	<TD>{$item.year}-{$item.month}</TD>

@@ -27,7 +27,7 @@ th{font: bold 9pt Arial;}
 </tr><tr class={cycle values="even,odd"}><td width="1%">&nbsp;</td>
 <td nowrap width="10%" align=right>{$item.sum|money:$item.currency} / {$item.sum_full|money:$item.currency}</td>
 <td nowrap width="12%" align=center{if $item.bill_nal!='beznal'} bgcolor='#{if $item.bill_nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}>{$item.debt.sum|money:$item.debt.currency}/{$item.bill_nal}</td>
-<td width="27%" colspan=2 align=left>{$item.payment_comment}&nbsp;</td>
+<td width="27%" colspan=2 align=left>&nbsp;</td>
 <td width="50%" valign=top>Отказ</td>
 </tr>
 <tr><td colspan=7 style="padding: 0 0 0 0; margin: 0 0 0 0;"><hr noshade style="padding:0 0 0 0;margin:0 0 0 0;"></tr>{/foreach}

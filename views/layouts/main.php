@@ -1,22 +1,27 @@
 <?php
 use yii\helpers\Html;
 use app\assets\AppAsset;
+
 /* @var $this \yii\web\View */
 /* @var $user \app\models\User */
 
 global $fixclient_data;
 
 AppAsset::register($this);
-
 $user = Yii::$app->user->identity;
-
+$myTroublesCount = $this->context->getMyTroublesCount();
+if (isset($fixclient_data['id'])) {
+    $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
+} else {
+    $activeClient = null;
+}
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>"/>
-    <base href="/" />
+    <base href="/"/>
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
@@ -25,71 +30,129 @@ $user = Yii::$app->user->identity;
 
 <?php $this->beginBody() ?>
 
-<?php if (Yii::$app->user->can('monitoring.top')):?>
-    <iframe src='?module=monitoring&action=top' width=100% height=17 style='border:0; padding:0 0 0 0;margin:-15 0 0 0;'></iframe>
+<?php if (Yii::$app->user->can('monitoring.top')): ?>
+    <iframe src='?module=monitoring&action=top' width=100% height=17
+            style='border:0; padding:0 0 0 0;margin:-15 0 0 0;'></iframe>
 <?php endif; ?>
 
-<div class="layout_left">
-    <div class="site_caption">
-        <a href="/" class="logo"></a>
-        <div class="message">Сервер статистики</div>
+<style>
 
-        <?php if ($fixclient_data): ?>
-            <script>var fixclient="<?=$fixclient_data['client']?>";</script>
-            <?php if (!Yii::$app->user->can('clients.read')): ?>
-                <b><?= Html::encode($fixclient_data['client']) ?></b>
-                <div class=card>
-                    <?= Html::a('Logout', ['site/logout']) ?>
+    .i-manager {
+        color: #43657d;
+    }
+
+    .i-accmanager {
+        color: #7b217d;
+    }
+
+    i.check {
+        color: green;
+        font-size: 16px;
+        font-style: normal;
+    }
+
+    i.check:before {
+        content: '✓';
+    }
+
+    i.uncheck {
+        color: red;
+        font-size: 16px;
+        font-style: normal;
+    }
+
+    i.uncheck:before {
+        content: '✕';
+    }
+</style>
+
+<div class="row" style="background: white;
+  position: fixed;
+  top: 0;
+  z-index: 999;
+  border-bottom: 1px solid black;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  padding-bottom: 8px;
+  left:0;
+  right:0;
+  ">
+    <div class="col-sm-12">
+        <div class="row" style="width: 350px; float: left; ">
+            <div class="col-sm-6">
+                <a href="/" class="logo"></a>
+            </div>
+            <div class="col-sm-6">
+                <div style="padding-top: 15px; text-align: center;">
+                        <div class="menupanel" style="text-align: center">
+                            <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
+                            <ul class="user-menu" style="display: none;">
+                                <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
+                                <li><a href="/?module=usercontrol&action=edit">Изменить профайл</a></li>
+                                <li><a href="/?module=usercontrol&amp;action=edit_pass">Изменить пароль</a></li>
+                                <li><a href="/site/logout">Выход</a></li>
+                            </ul>
+                            <?php if ($myTroublesCount > 0): ?>
+                                <br>
+                                <br>
+                                <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
+                                    Поручено <?= $myTroublesCount ?> заявок
+                                </a>
+                            <?php endif; ?>
+                        </div>
                 </div>
-            <?php else: ?>
-                <div style="padding: 2px">Л.С.  
-                    <b><a href="?module=clients&id=<?=$fixclient_data['id']?>">
-                            <?= $fixclient_data['id'] ?>
-                        </a></b>
-                    (<b><a href='?module=clients&unfix=1'>снять</a></b>)
-                </div>
-                <div style="padding: 2px">
-                    <?=  Html::encode($fixclient_data['company']);?>
-                </div>
-                <div class=card>
-                    Логин: <strong><?=Html::encode($user->user)?></strong>
-                    <?= Html::a('Logout', ['site/logout']) ?>
+            </div>
+        </div>
+        <div id="top_search" style="margin-top: 15px; height: 40px; padding-left: 360px;">
+            <?php if (Yii::$app->user->can('clients.read')): ?>
+                <div class="row">
+                    <?= $this->render('widgets/search') ?>
+                    <?php if ($activeClient): ?>
+                        <div class="col-sm-12">
+                            <?php
+                            $str = htmlspecialchars($activeClient->contract->contragent->name .' / Договор
+                            № '. $activeClient->contract->number .' / ЛС № '. $activeClient->id);
+                            ?>
+                            <h2 style="display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;
+                                    max-width: 90%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
+                            " class="c-blue-color"
+                                title="<?=$str?>">
+                                <a href="/client/view?id=<?= $activeClient->id ?>">
+                                    <?= $activeClient->contract->contragent->name .' / Договор № '
+                                    . $activeClient->contract->number .' / ЛС № ' . "<b style=\"font-size:120%;\">{$activeClient->id}</b>" ?>
+                                </a>
+                            </h2>
+                            <a href="/account/unfix" title="Снять" style="vertical-align: text-bottom;"><i class="uncheck"></i> </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
-        <?php else: ?>
-            <script>var fixclient = "";</script>
-            Клиент не выбран
-            <div class=card>
-                Логин: <strong><?=$user->user?></strong>
-                <?= Html::a('Logout', ['site/logout']) ?>
-            </div>
-        <?php endif; ?>
+        </div>
+
     </div>
+</div>
+
+<div class="layout_left col-sm-2">
 
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>
 
     <div style="height: 100px;"></div>
 </div>
 
-<div class="layout_main">
+<div class="layout_main col-sm-10 col-md-push-2">
     <div style="min-height: 70%">
-    <div id="top_search" style="margin-top: 15px; margin-bottom: 40px">
-        <?php if (Yii::$app->user->can('clients.read')): ?>
-            <?= $this->render('widgets/search') ?>
-        <?php endif; ?>
+
+        <?= $this->render('widgets/messages') ?>
+
+        <?= $content ?>
+
+        <div class="row">
+            <div style="padding: 15px; margin-top: 100px" class="col-sm-12">
+                <a href="http://www.mcn.ru/"><img height="16" src="images/logo_msn_s.gif" width="58"
+                                                  border="0/"></a><br>
+                <span style="color: #666">©2014 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
+            </div>
+        </div>
     </div>
-
-    <?= $this->render('widgets/messages') ?>
-
-    <?= $content ?>
-
-    </div>
-
-    <div style="padding: 15px; margin-top: 100px">
-        <a href="http://www.mcn.ru/"><img height=16 src="images/logo_msn_s.gif" width=58 border=0/></a><br/>
-        <span style="color: #666">©2014 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
-    </div>
-
 </div>
 
 <?php $this->endBody() ?>
@@ -102,22 +165,25 @@ $user = Yii::$app->user->identity;
         prevText: '&#x3c;Пред',
         nextText: 'След&#x3e;',
         currentText: 'Сегодня',
-        monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
-            'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
-        monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
-            'Июл','Авг','Сен','Окт','Ноя','Дек'],
-        dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
-        dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
-        dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+        monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        monthNamesShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+            'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+        dayNames: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
+        dayNamesShort: ['вск', 'пнд', 'втр', 'срд', 'чтв', 'птн', 'сбт'],
+        dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
         weekHeader: 'Не',
         dateFormat: 'yy-mm-dd',
         firstDay: 1,
         showMonthAfterYear: false,
-        yearSuffix: ''};
-    $(document).ready(function(){
+        yearSuffix: ''
+    };
+    $(document).ready(function () {
         $('.select2').select2();
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
+
+        $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
     });
 </script>
 

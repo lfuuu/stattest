@@ -1,9 +1,9 @@
 <table border=0 width=100%>
     <tr>
         <td width="33%">
-            <a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
-            <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
-            <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
+            <a href="/client/view?id={$bill_client.id}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
+            <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.id}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
+            <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.id}' style="font-weight: bold; font-size: large">
                 {$bill_client.client}
             </a>
             {assign var="isClosed" value="0"}
@@ -136,7 +136,7 @@
         <th>Наименование</th>
         <th>Период</th>
         <th>Количество{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
-        <th style="text-align: right">Цена</th>
+        <th style="text-align: right">Цена ({if $bill.price_include_vat > 0}вкл. НДС{else}без НДС{/if})</th>
         {if $discount != 0}
             <th style="text-align: right">Скидка</th>
         {/if}
@@ -272,7 +272,7 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/documents/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
+        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/document/get-mhtml?bill_no={$bill.bill_no}">MS Word</a><br />
     {/foreach}
 {/if}
 
@@ -317,6 +317,11 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 <input type=checkbox value=1 name="nbn_modem" id=wm10><label for='wm10'>NetByNet: акт модем</label><br>
 <input type=checkbox value=1 name="nbn_gds" id=wm11><label for='wm11'>NetByNet: заказ</label><br>
 {/if}
+{if $bill_client.firma == 'mcm_telekom'}
+<input type=checkbox value=1 name="sogl_mcm_telekom" id=wm9><label for='wm9'>Соглашение (МСМ Телеком)</label><br>
+<input type=checkbox value=1 name="notice_mcm_telekom" id=wm10><label for='wm10'>Уведомление (МСМ Телеком)</label><br>
+{/if}
+
 
 
 </td><td valign=top>
@@ -356,7 +361,7 @@ function doFormSend()
 
 <br/>
 
-<button class="showhistorybutton" onclick="showHistory('Bill',{$bill.id})">Открыть историю изменений</button>
+<button class="showhistorybutton" onclick="showHistory({literal}{Bill:{/literal}{$bill.id}{literal}}{/literal})">Открыть историю изменений</button>
 
 <h3>События счета:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}

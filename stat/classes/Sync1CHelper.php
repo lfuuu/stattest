@@ -4,27 +4,23 @@ class Sync1CHelper
 {
     public function getClientCardData($cardId)
     {
-        $clientCard = ClientCard::find($cardId);
-        if (!$clientCard)
-            throw new Exception('Client card not found');
-
-        $client = $clientCard->getClient();
-        if (!$client)
+        $account = \app\models\ClientAccount::findOne($cardId);
+        if (!$account)
             throw new Exception('Client not found');
 
         $clientCardData = array(
-            'ИдКлиентаСтат' => $client->client,
-            'ИдКарточкиКлиентаСтат' => $clientCard->client,
-            'КодКлиентаСтат' => $client->id,
-            'КодКарточкиКлиентаСтат' => $clientCard->id,
-            'НаименованиеКомпании' => $clientCard->company,
-            'ПолноеНаименованиеКомпании' => $clientCard->company_full,
-            'ИНН' => $clientCard->inn,
-            'КПП' => $clientCard->kpp,
-            'ПравоваяФорма' => $clientCard->type == 'org' ? 'ЮрЛицо' : 'ФизЛицо',
-            'Организация' => $clientCard->firma,
-            'ВалютаРасчетов' => $clientCard->currency,
-            'ВидЦен' => $clientCard->price_type ? $clientCard->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
+            'ИдКлиентаСтат' => $account->client,
+            'ИдКарточкиКлиентаСтат' => $account->client,
+            'КодКлиентаСтат' => $account->id,
+            'КодКарточкиКлиентаСтат' => $account->id,
+            'НаименованиеКомпании' => $account->contract->contragent->name,
+            'ПолноеНаименованиеКомпании' => $account->contract->contragent->name_full,
+            'ИНН' => $account->contract->contragent->inn,
+            'КПП' => $account->contract->contragent->kpp,
+            'ПравоваяФорма' => in_array($account->contract->contragent->legal_type, ['legal', 'ip']) ? 'ЮрЛицо' : 'ФизЛицо',
+            'Организация' => $account->contract->organization->firma,
+            'ВалютаРасчетов' => $account->currency,
+            'ВидЦен' => $account->price_type ? $account->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
         );
 
         return $clientCardData;

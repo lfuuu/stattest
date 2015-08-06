@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\HistoryChanges;
 use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
@@ -57,7 +56,7 @@ class Bill extends ActiveRecord
     public function behaviors()
     {
         return [
-            HistoryChanges::className(),
+            \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 

@@ -7,9 +7,9 @@ use app\models\billing\Pricelist;
         Прайлисты Клиентские Оригинация:
     <?php elseif ($type == Pricelist::TYPE_CLIENT && $orig == 0): ?>
         Прайлисты Клиентские Терминация:
-    <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
-        Прайлисты Операторские Оригинация:
     <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 1): ?>
+        Прайлисты Операторские Оригинация:
+    <?php elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 0): ?>
         Прайлисты Операторские Терминация:
     <?php elseif ($type == Pricelist::TYPE_LOCAL && $orig == 0): ?>
         Прайлисты Местные Терминация:
@@ -62,7 +62,7 @@ use app\models\billing\Pricelist;
         <?php if ($type == Pricelist::TYPE_LOCAL): ?>
             <td><?=$networkConfigs[$pricelist->local_network_config_id]?></td>
         <?php endif; ?>
-        <td><?=$pricelist->price_include_vat ? 'Вкл НДС' : 'Без НДС'?></td>
+        <td><?=$pricelist->price_include_vat ? 'С НДС' : 'Без НДС'?></td>
         <td><a href='/voip/pricelist/files?pricelistId=<?=$pricelist->id?>'>файлы</a></td>
         <td><a href='index.php?module=voipnew&action=defs&pricelist=<?=$pricelist->id?>'>цены</a></td>
     </tr>

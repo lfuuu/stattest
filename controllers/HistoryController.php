@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\models\ClientContragent;
 use app\models\HistoryChanges;
 use Yii;
 use app\classes\BaseController;
@@ -15,38 +16,55 @@ class HistoryController extends BaseController
             [
                 'allow' => true,
                 'actions' => ['show'],
-                'roles' => ['@'],
+                'roles' => ['clients.read'],
             ],
         ];
         return $behaviors;
     }
 
-    public function actionShow($model, $model_id)
+    public function actionShow()
     {
-        $className = 'app\\models\\' . $model;
-        if (!class_exists($className)) {
-            throw new Exception('Bad model type');
+        $models = [];
+        $getRequest = Yii::$app->request->get();
+        $getOptions = $getRequest['options'];
+        if(!$getRequest)
+            throw new Exception('Models does not exists');
+
+        $changes = HistoryChanges::find()
+            ->joinWith('user');
+        foreach ($getRequest as $modelName => $modelId) {
+            if ($modelName == 'options')
+                continue;
+            $className = 'app\\models\\' . $modelName;
+            if (!class_exists($className)) {
+                throw new Exception('Bad model type');
+            }
+
+            $changes->orWhere(['model' => $modelName, 'model_id' => $modelId]);
+            $models[$modelName] = new $className();
+        }
+
+        $changes = $changes->orderBy('created_at desc');
+        if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges']))
+            $changes = $changes->limit(isset($getOptions['howMany']) ? (int) $getOptions['howMany'] : 1);
+        $changes = $changes->all();
+
+        foreach($changes as &$change){
+            if(false !== strpos($change->data_json, 'contragent_id')){
+                $data = json_decode($change->data_json, true);
+                $dataPrev = json_decode($change->prev_data_json, true);
+                $data['contragent_id'] = ClientContragent::findOne($data['contragent_id'])->name;
+                $dataPrev['contragent_id'] = ClientContragent::findOne($dataPrev['contragent_id'])->name;
+                $change->data_json = json_encode($data, JSON_FORCE_OBJECT);
+                $change->prev_data_json = json_encode($dataPrev, JSON_FORCE_OBJECT);
+            }
         }
 
         $this->layout = 'minimal';
 
-        $changes =
-            HistoryChanges::find()
-                ->joinWith('user')
-                ->andWhere(['model' => $model])
-                ->andWhere(['model_id' => $model_id])
-                ->orderBy('created_at desc')
-                ->all();
-
-
-
-        return Yii::$app->request->isAjax ?
-                $this->renderPartial('show', [
-                    'model' => new $className(),
-                    'changes' => $changes,
-                ]) : $this->render('show', [
-                    'model' => new $className(),
-                    'changes' => $changes,
-        ]);
+        return Yii::$app->request->isAjax
+            ? $this->renderPartial('show', ['changes' => $changes, 'models' => $models])
+            : $this->render('show', ['changes' => $changes, 'models' => $models]);
     }
+
 }
