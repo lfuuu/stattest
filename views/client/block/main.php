@@ -30,7 +30,7 @@ use \app\models\ClientContract;
                      style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
-                            <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name ? $contragent->name : '...' ?></span></a>
+                            <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name ? $contragent->name : '<i>Не задано</i>' ?></span></a>
                     </div>
                     <div class="col-sm-5" style="  overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
                         <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>
@@ -94,7 +94,7 @@ use \app\models\ClientContract;
                                         <div
                                             style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
-                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? 'active-client' : ''; ?>">
+                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
                                             <span class="col-sm-2"
                                                   style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
                                                 ЛС № <?= $contractAccount->id ?>
@@ -143,6 +143,7 @@ use \app\models\ClientContract;
     $(function () {
 
         $('.active-client').closest('.contragent-wrap').addClass('active-contragent');
+        $('.active-client-mcm').closest('.contragent-wrap').addClass('active-contragent-mcm');
 
         $('.set-block').click(function (e) {
             e.stopPropagation();
