@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\classes\Assert;
 use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
@@ -16,6 +17,7 @@ use app\models\UsageSms;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
+use app\models\Saldo;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
@@ -202,4 +204,25 @@ class ClientController extends BaseController
                 ]);
         }
     }
+
+    public function actionCancelSaldo($id, $clientId)
+    {
+        $saldo = Saldo::find()->where(['id' => $id, 'client_id' => $clientId])->one();
+
+        Assert::isObject($saldo);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $saldo->delete();
+            ClientAccount::dao()->updateBalance($clientId);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
 }
