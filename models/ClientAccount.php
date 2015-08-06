@@ -191,6 +191,13 @@ class ClientAccount extends ActiveRecord
     {
         return $this->contract->contragent->okvd;
     }
+
+
+    public function getChannelName()
+    {
+        return $this->sale_channel ? SaleChannel::getList()[$this->sale_channel] : '';
+    }
+
 /**************/
     public static function tableName()
     {

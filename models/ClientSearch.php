@@ -60,11 +60,6 @@ class ClientSearch extends ClientAccount
         return $this->contract->managerName;
     }
 
-    public function getChannelName()
-    {
-        return $this->sale_channel ? SaleChannel::getList()[$this->sale_channel] : '';
-    }
-
     public function getLastComment()
     {
         $lastComment =

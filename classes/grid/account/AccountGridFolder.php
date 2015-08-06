@@ -64,12 +64,6 @@ abstract class AccountGridFolder extends Model
         return [];
     }
 
-    public function hasFilters()
-    {
-        return true;
-    }
-
-
     public function rules()
     {
         return [
@@ -82,10 +76,11 @@ abstract class AccountGridFolder extends Model
 
     public function attributeLabels()
     {
-        return parent::attributeLabels() +
+        return (new ClientAccount())->attributeLabels() +
         [
             'id' => '# ЛС',
-            'companyName' => 'Название компании',
+            'company' => 'Название компании',
+            'created' => 'Дата регистрации',
             'inn' => 'ИНН',
             'managerName' => 'Менеджер',
             'channelName' => 'Канал продаж',
@@ -100,79 +95,17 @@ abstract class AccountGridFolder extends Model
         return new static($grid);
     }
 
-    public function __construct(AccountGrid $grid)
+    public function __construct($grid = null)
     {
-        $this->grid = $grid;
+        if($grid && $grid instanceof AccountGrid) {
+            $this->grid = $grid;
+        }
         parent::__construct();
     }
 
     public function getId()
     {
         return md5(get_called_class());
-    }
-
-    public function search($params)
-    {
-        $query = ClientAccount::find();
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'sort' => [
-                'defaultOrder' => [
-                    'id' => SORT_DESC
-                ]
-            ]
-        ]);
-
-        $this->setAttributes($params);
-
-        $query->innerJoin(ClientContract::tableName(), ClientContract::tableName() . '.id=' . ClientAccount::tableName() . '.contract_id');
-        $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientContract::tableName() . '.contragent_id');
-
-        $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
-        $query->orFilterWhere([ClientContract::tableName() . '.manager' => $this->manager]);
-        $query->orFilterWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
-        $query->orFilterWhere(['like', 'name_full', $this->companyName]);
-        $query->orFilterWhere(['like', 'name', $this->companyName]);
-        $query->orFilterWhere(['like', 'inn', $this->inn]);
-        $query->orFilterWhere(['like', 'address_connect', $this->address]);
-
-
-        if ($this->contractNo) {
-            $query->orFilterWhere(['number' => $this->contractNo]);
-            if (!$dataProvider->getTotalCount())
-                $query->orFilterWhere(['like', 'number', $this->contractNo]);
-        }
-
-        if ($this->email) {
-            $query->leftJoin(ClientContact::tableName(), ClientContact::tableName() . '.client_id=' . ClientAccount::tableName() . '.id');
-            $query->andFilterWhere(['like', ClientContact::tableName() . '.data', $this->email]);
-            $query->andFilterWhere([ClientContact::tableName() . '.type' => 'email']);
-        }
-
-        if ($this->voip) {
-            $query->leftJoin(UsageVoip::tableName(), UsageVoip::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', UsageVoip::tableName() . '.e164', $this->voip]);
-        }
-
-        if ($this->ip) {
-            $query->leftJoin(UsageIpPorts::tableName(), UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->leftJoin(UsageIpRoutes::tableName(), UsageIpRoutes::tableName() . '.port_id=' . UsageIpPorts::tableName() . '.id');
-            $query->andFilterWhere(['like', UsageIpRoutes::tableName() . '.net', $this->ip]);
-        }
-
-        if ($this->domain) {
-            $query->leftJoin(Domain::tableName(), Domain::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', Domain::tableName() . '.domain', $this->domain]);
-        }
-
-        if ($this->adsl) {
-            $query->leftJoin(UsageIpPorts::tableName(), UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->leftJoin(TechPort::tableName(), UsageIpPorts::tableName() . '.port_id=' . TechPort::tableName() . '.id');
-            $query->andFilterWhere(['like', TechPort::tableName() . '.node', $this->adsl]);
-        }
-
-        return $dataProvider;
     }
 
     public function queryParams(Query $query)
@@ -182,19 +115,29 @@ abstract class AccountGridFolder extends Model
             'c.status',
             'c.id',
             'c.contract_id',
-            'cg.name AS company',
+            'cg.name AS contract_contragent_name',
             'cr.manager',
             'cr.account_manager',
+            'mu.name as manager_name',
+            'amu.name as account_manager_name',
             'c.support',
             'c.telemarketing',
             'c.sale_channel',
+            'sh.name as sale_channel_name',
             'DATE(c.created) AS created',
             'c.currency',
             'c.region',
+            'reg.name as region_name',
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
         $query->join('INNER JOIN', 'client_contragent cg', 'cr.contragent_id = cg.id');
+        $query->join('LEFT JOIN', 'user_users amu', 'amu.user = cr.account_manager');
+        $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
+        $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
+        $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
+
+
 
     }
 
@@ -212,7 +155,7 @@ abstract class AccountGridFolder extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [
-                //'defaultOrder' => [$this->queryOrderBy(),]
+                'defaultOrder' => [$this->queryOrderBy(),]
             ]
         ]);
 
@@ -278,58 +221,52 @@ abstract class AccountGridFolder extends Model
         return $query->count();
     }
 
-    private function getPreparedColumns()
+    public function getPreparedColumns()
     {
-        foreach ($this->getColumns() as $k => $column) {
-            $columnName = is_string($column) ? $column : $k;
-            $columnParams = is_array($column) ? $column : [];
-            $columns[$columnName] =
-                isset($this->grids['defaultColumnsParams'][$columnName])
-                    ? array_merge_recursive($this->grids['defaultColumnsParams'][$columnName], $columnParams)
-                    : $columnParams;
+        $columns = [];
+        foreach ($this->getColumns() as $column) {
+            $columns[$column] = $this->getDefaultColumns()[$column];
+            $columns[$column]['label'] = $this->getAttributeLabel($column);
 
-            $columns[$columnName]['label'] = $this->spawnColumnLabel($column, $columnName);
+            $callback =
+                !is_array($columns[$column]['filter'])
+                    ? $columns[$column]['filter']
+                    : array_pop($columns[$column]['filter']);
 
-            if ($genFilters && $columns[$columnName]['filter']) {
-                $callback =
-                    !is_array($columns[$columnName]['filter'])
-                        ? $columns[$columnName]['filter']
-                        : array_pop($columns[$columnName]['filter']);
+            if ($callback instanceof \Closure)
+                $columns[$column]['filter'] = $callback();
 
-                if ($callback  instanceof \Closure)
-                    $columns[$columnName]['filter'] = $callback();
-            }
         }
-        //var_dump($columns); die;
-        $gridSettings['columns'] = $columns;
+
+        return $columns;
     }
 
-    private function getDefaultFilters()
+    private function getDefaultColumns()
     {
         return [
             'status' => [
                 'attribute' => 'status',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<span class="btn btn-grid" style="background:' . $data->statusColor . '" title="' . $data->statusName . '">&nbsp;</span>';
+                    return '<span class="btn btn-grid" style="background:' . ClientAccount::$statuses[$data['status']]['color'] . '" title="' . ClientAccount::$statuses[$data['status']]['name'] . '">&nbsp;</span>';
                 },
                 'filterType' => \kartik\grid\GridView::FILTER_COLOR
             ],
             'id' => [
                 'attribute' => 'id',
                 'filter' => function(){
-                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('companyName').'" />';
+                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="/client/view?id=' . $data->id . '">' . $data->id . '</a>';
+                    return '<a href="/client/view?id=' . $data['id'] . '">' .$data['id'] . '</a>';
                 }
             ],
             'company' => [
                 'attribute' => 'company',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="/client/view?id=' . $data->id . '">' . $data->contract->contragent->name . '</a>';
+                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['contract_contragent_name'] . '</a>';
                 },
                 'filter' => function() {
                     return '<input name="companyName" id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '" class="form-control" />';
@@ -339,7 +276,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'created',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->created;
+                    return $data['created'];
                 },
                 'filter' => function () {
                     return \kartik\daterange\DateRangePicker::widget([
@@ -365,7 +302,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'service',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->service;
+                    return $data['service'];
                 },
                 'filter' => function () {
                     return \yii\helpers\Html::dropDownList(
@@ -389,56 +326,56 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'abon',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->abon;
+                    return $data['abon'];
                 }
             ],
             'over' => [
                 'attribute' => 'over',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->over;
+                    return $data['over'];
                 }
             ],
             'total' => [
                 'attribute' => 'total',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->total;
+                    return $data['total'];
                 }
             ],
             'abon1' => [
                 'attribute' => 'abon1',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->abon1;
+                    return $data['abon1'];
                 }
             ],
             'over1' => [
                 'attribute' => 'over1',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->over1;
+                    return $data['over1'];
                 }
             ],
             'abondiff' => [
                 'attribute' => 'abondiff',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->abondiff;
+                    return $data['abondiff'];
                 }
             ],
             'overdiff' => [
                 'attribute' => 'overdiff',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->overdiff;
+                    return $data['overdiff'];
                 }
             ],
             'bill_date' => [
                 'attribute' => 'bill_date',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->bill_date;
+                    return $data['bill_date'];
                 },
                 'filter' => function () {
                     return \kartik\daterange\DateRangePicker::widget([
@@ -457,7 +394,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'manager',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="index.php?module=users&m=user&id=' . $data->userManager->user . '">' . $data->userManager->name . '</a>';
+                    return $data['manager_name'];
                 },
                 'filter' => function () {
                     return \kartik\widgets\Select2::widget([
@@ -475,7 +412,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'account_manager',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="index.php?module=users&m=user&id=' . $data->userAccountManager->user . '">' . $data->userAccountManager->name . '</a>';
+                    return $data['account_manager_name'];
                 },
                 'filter' => function () {
                     return \kartik\widgets\Select2::widget([
@@ -493,7 +430,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'currency',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->currency;
+                    return $data['currency'];
                 },
                 'filter' => function () {
                     return \yii\helpers\Html::dropDownList(
@@ -508,7 +445,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'sale_channel',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="/sale-channel/edit?id=' . $data->sale_channel . '">' . $data->channelName . '</a>';
+                    return '<a href="/sale-channel/edit?id=' . $data['sale_channel'] . '">' . $data['sale_channel_name'] . '</a>';
                 },
                 'filter' => function () {
                     return \kartik\widgets\Select2::widget([
@@ -526,7 +463,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'region',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return $data->accountRegion->name;
+                    return $data['region_name'];
                 },
                 'filter' => function () {
                     return \yii\helpers\Html::dropDownList(

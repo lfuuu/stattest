@@ -29,7 +29,7 @@ use app\classes\grid\account\AccountGridFolder;
         echo GridView::widget([
                 'dataProvider' => $dataProvider,
                 'filterModel' => $activeFolder,
-                'columns' => $activeFolder->getColumns(),
+                'columns' => $activeFolder->getPreparedColumns(),
             ]
         );
         ?>

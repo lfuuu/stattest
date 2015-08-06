@@ -7,11 +7,16 @@ use Yii;
 
 abstract class AccountGrid implements AccountGridInterface
 {
+    protected function getDefaultFolder()
+    {
+        return $this->getFolders()[0];
+    }
+
     public function getFolder($folderId)
     {
         //Get Default ...
         if ($folderId === null) {
-            return $this->getFolders()[0];
+            return $this->getDefaultFolder();
         }
 
         foreach ($this->getFolders() as $folder) {
