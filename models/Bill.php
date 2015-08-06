@@ -112,6 +112,11 @@ class Bill extends ActiveRecord
         return Bill::dao()->isClosed($this);
     }
 
+    public function getExtendsInfo()
+    {
+        return $this->hasOne(BillExtendsInfo::className(), ['bill_no' => 'bill_no']);
+    }
+
     public function beforeDelete()
     {
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
