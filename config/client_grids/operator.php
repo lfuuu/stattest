@@ -12,7 +12,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_INCOMMING],
+                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -298,7 +298,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_INCOMMING],
+                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -584,7 +584,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_INCOMMING],
+                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -844,7 +844,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_INCOMMING],
+                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],

@@ -7,6 +7,7 @@ class ClientGridBussinesProcess extends ActiveRecord
 
     // Телеком
     const TELECOM_MAINTENANCE = 1; // Сопровождение
+    const TELECOM_REPORTS = 16; // Отчеты
     const TELECOM_SALES = 2; // Продажи
 
     // Интернет магазин

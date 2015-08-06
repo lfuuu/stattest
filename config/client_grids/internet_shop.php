@@ -27,7 +27,7 @@ return [
         'grid_business_process_id' => ClientGridBussinesProcess::INTERNET_SHOP_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['in', 'c.status', ['double', 'trash']],
+                ['not in', 'c.status', ['double', 'trash']],
                 ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
             ],
         ],

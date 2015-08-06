@@ -9,7 +9,7 @@ class ClientBPStatuses
     // Общие
     const STATE_NEGOTIATIONS = 11; // Переговоры
 
-    // Телеком - Сопровождение
+    // Телеком
     const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Заказ услуг
     const TELEKOM_MAINTENANCE_CONNECTED = 8; //Подключаемые
     const TELEKOM_MAINTENANCE_WORK = 9; // Включенные
@@ -20,6 +20,18 @@ class ClientBPStatuses
     const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // Тех. отказ
     const TELEKOM_MAINTENANCE_FAILURE = 28; // Отказ
     const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Дубликат
+
+    const TELEKOM_SALES_INCOMING = 1; // Входящие
+    const TELEKOM_SALES_NEGOTIATIONS = 2; // В стадии переговоров
+    const TELEKOM_SALES_TESTING = 3; // Тестируемые
+    const TELEKOM_SALES_CONNECTING = 4; // Подключаемые
+    const TELEKOM_SALES_TECH_FAILURE = 5; // Техотказ
+    const TELEKOM_SALES_FAILURE = 6; // Отказ
+    const TELEKOM_SALES_TRASH = 7; // Мусор
+
+    // Интернет магазин
+    const INTERNET_SHOP_ACTING = 16; // Сопровождение
+    const INTERNET_SHOP_TRASH = 18; // Сопровождение
 
     // Поставщик
     const PROVIDER_ORDERS_ACTING = 32; // Заказы - Действущий
@@ -42,7 +54,7 @@ class ClientBPStatuses
     const INTERNAL_OFFICE_CLOSED = 111; // Закрытые
 
     // Оператор
-    const OPERATOR_OPERATORS_INCOMMING = 37; // Операторы - Входящий
+    const OPERATOR_OPERATORS_INCOMING = 37; // Операторы - Входящий
     const OPERATOR_OPERATORS_NEGOTIATIONS = 38; // Операторы - Переговоры
     const OPERATOR_OPERATORS_TESTING = 39; // Операторы - Тестирование
     const OPERATOR_OPERATORS_ACTING = 40; // Операторы - Действующий
@@ -53,7 +65,7 @@ class ClientBPStatuses
     const OPERATOR_OPERATORS_TECH_FAILURE = 44; // Операторы - Техотказ
     const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // Операторы - Автоблокировка
     const OPERATOR_OPERATORS_TRASH = 121; // Операторы - Мусор
-    const OPERATOR_CLIENTS_INCOMMING = 47; // Клиенты - Входящий
+    const OPERATOR_CLIENTS_INCOMING = 47; // Клиенты - Входящий
     const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Клиенты - Переговоры
     const OPERATOR_CLIENTS_TESTING = 49; // Клиенты - Тестирование
     const OPERATOR_CLIENTS_ACTING = 50; // Клиенты - Действующий
@@ -63,7 +75,7 @@ class ClientBPStatuses
     const OPERATOR_CLIENTS_BLOCKED = 53; // Клиенты - Фрод блокировка
     const OPERATOR_CLIENTS_TECH_FAILURE = 54; // Клиенты - Техотказ
     const OPERATOR_CLIENTS_TRASH = 122; // Клиенты - Мусор
-    const OPERATOR_INFRASTRUCTURE_INCOMMING = 62; // Инфраструктура - Входящий
+    const OPERATOR_INFRASTRUCTURE_INCOMING = 62; // Инфраструктура - Входящий
     const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // Инфраструктура - Переговоры
     const OPERATOR_INFRASTRUCTURE_TESTING = 64; // Инфраструктура - Тестирование
     const OPERATOR_INFRASTRUCTURE_ACTING = 65; // Инфраструктура - Действующий
@@ -72,7 +84,7 @@ class ClientBPStatuses
     const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Инфраструктура - Фрод блокировка
     const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Инфраструктура - Техотказ
     const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Инфраструктура - Мусор
-    const OPERATOR_FORMAL_INCOMMING = 77; // Формальные - Входящий
+    const OPERATOR_FORMAL_INCOMING = 77; // Формальные - Входящий
     const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Формальные - Переговоры
     const OPERATOR_FORMAL_TESTING = 79; // Формальные - Тестирование
     const OPERATOR_FORMAL_ACTING = 80; // Формальные - Действующий
@@ -82,6 +94,12 @@ class ClientBPStatuses
     const OPERATOR_FORMAL_TECH_FAILURE = 84; // Формальные - Техотказ
     const OPERATOR_FORMAL_TRASH = 124; // Формальные - Мусор
 
+    const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // Пуско-наладка
+    const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // Техобслуживание
+    const WELLTIME_MAINTENANCE_MAINTENANCE_FREE = 97; // Без Техобслуживания
+    const WELLTIME_MAINTENANCE_SUSPENDED = 98; // Приостановленные
+    const WELLTIME_MAINTENANCE_FAILURE = 99; // Отказ
+    const WELLTIME_MAINTENANCE_TRASH = 100; // Мусор
 
 
     const FOLDER_TELECOM_AUTOBLOCK = 21;

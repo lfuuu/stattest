@@ -329,26 +329,6 @@ return [
         'oldstatus' => 'income',
         'color' => '#CCFFFF',
     ],
-    31 => [
-        'id' => 31,
-        'name' => \Yii::t('app', 'Входящие'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
-        'columns' => [
-            'status',
-            'id',
-            'company',
-            'created',
-            'currency',
-            'sale_channel',
-            'manager',
-            'region',
-        ],
-        'default' => false,
-        'show_as_status' => true,
-        'is_close_status' => false,
-        'oldstatus' => 'income',
-        'color' => '#CCFFFF',
-    ],
     2 => [
         'id' => 2,
         'name' => \Yii::t('app', 'В стадии переговоров'),
@@ -402,7 +382,7 @@ return [
     ],
     4 => [
         'id' => 4,
-        'name' => \Yii::t('app', 'Подлключаемые'),
+        'name' => \Yii::t('app', 'Подключаемые'),
         'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [

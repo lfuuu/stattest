@@ -196,7 +196,11 @@ abstract class AccountGridFolder extends Model
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
         $query->join('INNER JOIN', 'client_contragent cg', 'cr.contragent_id = cg.id');
 
-        $query->orderBy(['c.created' => SORT_DESC]);
+    }
+
+    public function queryOrderBy()
+    {
+        return 'c.created desc';
     }
 
     public function spawnDataProvider()
@@ -208,7 +212,7 @@ abstract class AccountGridFolder extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [
-                //'defaultOrder' => $orderBy
+                //'defaultOrder' => [$this->queryOrderBy(),]
             ]
         ]);
 
@@ -220,17 +224,18 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
 
-        if ($this->currency)
-            $query->andFilterWhere(['c.currency' => $this->currency]);
+        if ($this->currency) {
+            $query->andWhere(['c.currency' => $this->currency]);
+        }
 
         if ($this->bill_date) {
             $billDates = explode('+-+', $this->bill_date);
-            $query->andFilterWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
+            $query->andWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
         if ($this->createdDate) {
             $createdDates = explode('+-+', $this->createdDate);
-            $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+            $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
         if ($this->grid == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
