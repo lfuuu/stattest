@@ -55,6 +55,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
         $routes =
             UsageIpRoutes::find()
                 ->andWhere(['port_id' => $this->service->id])
+                ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
+                ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
                 ->all();
 
         foreach ($routes as $route) {
@@ -64,11 +66,13 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $targetRoute->setAttributes($route->getAttributes(), false);
                 unset($targetRoute->id);
                 $targetRoute->actual_from = $this->getActualDate();
+                $targetRoute->activation_dt = $this->getActivationDatetime();
                 $targetRoute->port_id = $targetService->id;
 
                 $targetRoute->save();
 
                 $route->actual_to = $this->getExpireDate();
+                $route->expire_dt = $this->getExpireDatetime();
 
                 $route->save();
 
@@ -123,6 +127,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
             TechCpe::find()
                 ->andWhere(['service' => 'usage_ip_ports'])
                 ->andWhere(['id_service' => $this->service->id])
+                ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
+                ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
                 ->all();
 
         foreach ($devices as $device) {
