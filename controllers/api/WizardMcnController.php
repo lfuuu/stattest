@@ -21,7 +21,7 @@ use app\forms\lk_wizard\WizardContragentForm;
 use app\forms\lk_wizard\ContactForm;
 
 
-class WizardController extends /*BaseController*/ApiController
+class WizardMcnController extends /*BaseController*/ApiController
 {
     private $accountId = null;
     private $account = null;
