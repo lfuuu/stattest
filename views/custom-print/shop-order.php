@@ -5,7 +5,7 @@ use app\models\TroubleStage;
 $organization = $document->organization;
 ?>
 
-ID<?= $document->bill->clientAccount->id; ?><br />
+ID <?= $document->bill->clientAccount->id; ?><br />
 <?= $document->bill->clientAccount->contragent->name; ?><br />
 Юридический адрес: <?= $document->bill->clientAccount->contragent->address_jur; ?><br />
 Адрес подключения:<br /><br />
@@ -57,13 +57,13 @@ endforeach;
             <td><?= ($position + 1); ?>.</td>
             <td align="left">
                 <span>
-                    <?= $line['art']; ?><br /><?= $line['store']; ?>
+                    <?= $line['art']; ?><br />
                     <?php if ($line['type'] == 'good'): ?>
-                        <?php if ($line['store'] == 'yes'): ?>
+                        <?php if ($line['in_store'] == 'yes'): ?>
                             <b style="color: green;">Склад</b>
-                        <?php elseif ($line['store'] == 'no'): ?>
+                        <?php elseif ($line['in_store'] == 'no'): ?>
                             <b style="color: blue;">Заказ</b>
-                        <?php elseif ($line['store'] == 'remote'): ?>
+                        <?php elseif ($line['in_store'] == 'remote'): ?>
                             <b style="color: #c40000;">ДалСклад</b>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -120,7 +120,7 @@ endforeach;
             ->orderBy(['stage_id' => SORT_DESC])
             ->all();
     ?>
-    Комментарии:<br />
+    <br />Комментарии:<br />
     <?php foreach ($comments as $comment): ?>
         <b><?= $comment->user_edit; ?>:</b> <?= $comment->comment; ?><br />
     <?php endforeach; ?>

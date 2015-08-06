@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\classes\BaseController;
-use app\classes\documents\GetBill;
+use app\classes\documents\GetBillData;
 use app\models\ClientAccount;
 use app\models\Bill;
 use app\models\Trouble;
@@ -15,7 +15,7 @@ class CustomPrintController extends BaseController
     {
         $clientAccount = ClientAccount::findOne($id);
 
-        $this->layout = 'empty';
+        $this->layout = 'print-form';
         return $this->render('client', [
             'account' => $clientAccount,
         ]);
@@ -25,13 +25,13 @@ class CustomPrintController extends BaseController
     {
         $bill = Bill::findOne(['bill_no' => $id]);
         $billReport =
-            (new GetBill)
+            (new GetBillData)
                 ->setBill($bill)
                 ->prepare();
 
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
-        $this->layout = 'empty';
+        $this->layout = 'print-form';
         return $this->render('shop-order', [
             'document' => $billReport,
             'trouble' => $trouble,

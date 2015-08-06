@@ -20,6 +20,6 @@ ID <?= $account->id; ?><br />
     if ($contact->type != 'phone' || !$contact->is_active || !$contact->data):
         continue;
     endif;
-    echo $contact->data . ($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '');
+    echo $contact->data . ($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '') . '; &nbsp;';
 endforeach;
 ?>
