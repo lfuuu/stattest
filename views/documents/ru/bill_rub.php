@@ -190,7 +190,7 @@ $payer_company = $document->getPayer();
                 <tr>
                     <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
                         <div style="padding-top: 3px; height: 15px;">
-                            <b>Без налога (НДС)</b>
+                            <b>Без налога (НДС)*</b>
                         </div>
                     </td>
                     <td align="center">-</td>
