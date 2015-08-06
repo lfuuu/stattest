@@ -145,6 +145,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
@@ -211,6 +212,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
