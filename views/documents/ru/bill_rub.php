@@ -109,7 +109,7 @@ $payer_company = $document->getPayer();
                 <td align="center"><b>Единица измерения</b></td>
                 <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
                 <?php if ($hasDiscount): ?>
-                <td align="center"><b>Скидка</b></td>
+                    <td align="center"><b>Скидка</b></td>
                 <?php endif; ?>
 
                 <?php if ($organization->isNotSimpleTaxSystem()): ?>
@@ -185,6 +185,26 @@ $payer_company = $document->getPayer();
                     <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php endif; ?>
             </tr>
+
+            <?php if (!$organization->isNotSimpleTaxSystem()): ?>
+                <tr>
+                    <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
+                        <div style="padding-top: 3px; height: 15px;">
+                            <b>Без налога (НДС)</b>
+                        </div>
+                    </td>
+                    <td align="center">-</td>
+                </tr>
+                <tr>
+                    <td colspan="<?=$hasDiscount ? '6' : '5'?>" align="right">
+                        <div style="padding-top: 3px; height: 15px;">
+                            <b>Всего к оплате:</b>
+                        </div>
+                    </td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                </tr>
+            <?php endif; ?>
+
             </tbody>
         </table>
         <br />
@@ -194,6 +214,15 @@ $payer_company = $document->getPayer();
                 Сумма прописью: <?= Wordifier::Make($document->sum, $document->getCurrency()); ?>
             </i>
         </p>
+
+        <?php if (!$organization->isNotSimpleTaxSystem()): ?>
+            <p align="center">
+                <b>
+                    *НДС не облагается: Упрощённая система налогообложения, Глава 26.2. НК РФ.
+                </b>
+            </p>
+            <br /><br />
+        <?php endif; ?>
 
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <col width="*" />
