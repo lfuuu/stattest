@@ -1483,7 +1483,7 @@ class m_newaccounts extends IModule
                 $isUPD = get_param_raw("upd-1", "") == "1";
                 $isAktImport = get_param_raw("akt-1", "") == "1";
 
-                $c = $bill->Client();
+                $c = ClientAccount::findOne($bill->client_id);
                 if($c["mail_print"] == "no") continue;
 
                 $d = $this->get_bill_docs($bill);
@@ -3012,7 +3012,7 @@ where cg.inn = '".$inn."'";
 
                 if(/*substr($bill->Get("bill_date"), 7,3) == "-01" && */$bill->Get("postreg") == "0000-00-00" && !$bill->isOneZadatok())
                 {
-                    $c = $bill->Client();
+                    $c = ClientAccount::findOne($bill->client_id);
                     if($c["mail_print"] == "yes")
                     {
                         $bills[] = $p["bill_no"];
