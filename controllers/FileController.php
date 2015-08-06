@@ -92,11 +92,13 @@ class FileController extends BaseController
         if (null === $model)
             throw new Exception('Файл не найден');
 
+        $file = $model->mediaManager->getFile($model, $with_content = 1);
+
         $res = [
             'file_name' => $model->name,
-            'file_content' => base64_encode($model->content),
+            'file_content' => base64_encode($file['content']),
             'msg_session' => md5(rand() + time()),
-            'file_mime' => $model->mime,
+            'file_mime' => $file['mimeType'],
         ];
 
         Yii::$app->response->format = Response::FORMAT_JSON;

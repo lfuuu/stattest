@@ -55,6 +55,14 @@
         background: #D5F1FF;
     }
 
+    .active-contragent-mcm{
+        background: #F8ECFF;
+    }
+
+    .active-client-mcm{
+        background: #F8BEFF;
+    }
+
     td,th{
         padding: 4px 8px
     }

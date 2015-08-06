@@ -18,19 +18,14 @@ class SyncCore
             $accountSync->external_id = "*" . $superId;
 
             try{
-                $data = ApiCore::exec($action, $struct);
+                ApiCore::exec($action, $struct);
+                $accountSync->save();
             }catch(Exception $e)
             {
                 $accountSync->save();
                 throw $e;
             }
 
-            if (isset($data["data"]))
-            {
-                $accountSync->external_id = $data["data"]["client_id"];
-            }
-
-            $accountSync->save();
         }
     }
 
@@ -41,14 +36,8 @@ class SyncCore
         if (!$account)
             throw new Exception("Клиент не найден");
 
-        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "external_id" => '*' . $account->super_id]);
-        if (!$superClientSync)
-        {
-            //event::go("add_super_client", $cl->super_id);
-            //event::go("add_account", $cl->id, true);
-            //return;
-            SyncCore::addSuperClient($account->super_id);
-        }
+
+        SyncCore::addSuperClient($account->super_id);
 
 
         if ($isResetProductState)

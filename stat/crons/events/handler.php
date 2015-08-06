@@ -88,8 +88,6 @@ function do_events()
             {
                 switch($event->event)
                 {
-                    case 'add_super_client': SyncCore::addSuperClient($param); break;
-
                     case 'add_account':       SyncCore::addAccount($param, true);  break;
                     case 'client_set_status': SyncCore::addAccount($param, false); break;
 

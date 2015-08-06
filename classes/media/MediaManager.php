@@ -103,9 +103,9 @@ abstract class MediaManager
         return $result;
     }
 
-    public function getFile($file)
+    public function getFile($file, $with_content = 0)
     {
-        return [
+        $fileData = [
             'id' => $file->id,
             'ext' => $this->getMime($file)[0],
             'mimeType' => $this->getMime($file)[1],
@@ -115,6 +115,12 @@ abstract class MediaManager
             'author' => $file->user_id,
             'created' => $file->ts,
         ];
+
+        if ($with_content) {
+            $fileData['content'] = file_get_contents($this->getFilePath($file));
+        }
+
+        return $fileData;
     }
 
     public function getContent($file)

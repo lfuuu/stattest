@@ -112,9 +112,7 @@
     <br>
     Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
     <br>
-    <br>{if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom' || $bill_client.firma == 'mcm_telekom')}
-    <b>Обращаем Ваше Внимание!</b> <br>Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес:<br>{$organization.post_address}, {$organization.name}{/if}
-
+    <br>
     <br>
     <br>
 

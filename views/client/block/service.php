@@ -6,8 +6,12 @@ $actual = function ($from, $to) {
 };
 
 $renderDate = function ($from, $to) {
+    if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
+        return 'Резерв';
+    }
+
     $res = $from;
-    if($to && $to != '2029-01-01' && $to != '4000-01-01')
+    if(strtotime($to) < strtotime('2029-01-01'))
         $res  .= "&nbsp;-&nbsp;" . $to;
     return $res;
 };
@@ -300,7 +304,7 @@ if ($has) :
                                 </td>
                                 <td><?= $device->serial ?></td>
                                 <td><?= $renderDate($device->actual_from, $device->actual_to); ?></td>
-                                <td><?= $device->ip ?> / <?= $device->ip_nat ?></td>
+                                <td><?= $ipstat($device->ip) ?><?= $device->ip_nat ? '&nbsp;/&nbsp;'.$ipstat($device->ip_nat) : '' ?></td>
                                 <td><?= $device->numbers ?></td>
                                 <td>
                                     <a href='/?module=routers&action=d_apply&dbform_action=delete&dbform[id]=<?= $device->id ?>'><img
