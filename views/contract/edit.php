@@ -376,11 +376,11 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
                     <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
-                            data-type="agreement" data-not-external="1"></select>
+                            data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
                     <select class="form-control input-sm tmpl" name="ClientDocument[template]"
-                            data-type="agreement" data-not-external="1"></select>
+                            data-type="agreement"></select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
