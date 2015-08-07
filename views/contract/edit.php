@@ -332,23 +332,27 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 <div class="col-sm-2"><?= $doc->user->name ?></div>
                 <div class="col-sm-2"><?= $doc->ts ?></div>
                 <div class="col-sm-2">
-                    <a href="/document/edit?id=<?= $doc->id ?>"
-                       target="_blank"><img
-                            class="icon" src="/images/icons/edit.gif"></a>
-                    <a href="/document/print/?id=<?= $doc->id ?>"
-                       target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                    <a href="/document/send?id=<?= $doc->id ?>"
-                       target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                    <?php if ($doc->is_active) : ?>
-                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
-                        </a>
-                    <?php else : ?>
-                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
-                        </a>
-                    <? endif; ?>
-                    <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                    <?php if (!empty($doc->getFileContent())): ?>
+                        <a href="/document/edit?id=<?= $doc->id ?>"
+                           target="_blank"><img
+                                class="icon" src="/images/icons/edit.gif"></a>
+                        <a href="/document/print/?id=<?= $doc->id ?>"
+                           target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
+                        <a href="/document/send?id=<?= $doc->id ?>"
+                           target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
+                        <?php if ($doc->is_active) : ?>
+                            <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                            </a>
+                        <?php else : ?>
+                            <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                            </a>
+                        <? endif; ?>
+                        <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                    <?php else: ?>
+                        <b>Не создан</b>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -357,7 +361,7 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 <div class="col-sm-2">
                     <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                     <input type="hidden" name="ClientDocument[type]" value="agreement">
-                    <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
+                    <input class="form-control input-sm unchecked-contract-no" type="text" name="ClientDocument[contract_no]"
                            value="<?= isset($armnt) && $armnt > 1 ? $armnt + 1 : 1 ?>"></div>
                 <div class="col-sm-2">
                     <?= DatePicker::widget(
@@ -376,11 +380,11 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
                     <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
-                            data-type="agreement"></select>
+                            data-type="agreement" data-not-external="1"></select>
                 </div>
                 <div class="col-sm-2">
                     <select class="form-control input-sm tmpl" name="ClientDocument[template]"
-                            data-type="agreement"></select>
+                            data-type="agreement" data-not-external="1"></select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>

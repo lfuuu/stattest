@@ -30,3 +30,5 @@
     </script>
 </div>
 
+<script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>
+
