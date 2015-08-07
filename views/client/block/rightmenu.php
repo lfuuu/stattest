@@ -43,9 +43,6 @@ use yii\helpers\Url;
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
             <a href="/custom-print/print-client/?id=<?= $account->id; ?>" onClick="return ImmediatelyPrint(this)">Печать карточки клиента</a>
         </li>
-        <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
-            <a href="/custom-print/print-shop-order?id=<?= $account->id; ?>" onClick="return ImmediatelyPrint(this)">Печать заказа магазина</a>
-        </li>
     </ul>
 
     <ul>
@@ -86,5 +83,3 @@ use yii\helpers\Url;
         padding: 5px 0 5px 20px;
     }
 </style>
-
-<script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>

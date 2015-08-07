@@ -4,7 +4,27 @@ ID <?= $account->id; ?><br />
 Аккаунт менеджер: <?= $account->contract->accountManagerName; ?><br /><br />
 
 Юридический адрес: <?= $account->contragent->address_jur; ?><br />
-Адрес подключения:<br /><br />
+
+<table border="0" cellspacing="2" cellpadding="2" style="border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;">
+    <thead>
+        <tr>
+            <th>Название услуги</th>
+            <th>Адрес подключения</th>
+            <th>Параметры</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($services as $service => $usages): ?>
+            <?php foreach($usages as $usage): ?>
+                <tr>
+                    <td><?= $usage->getTypeTitle(); ?></td>
+                    <td><?= $usage->address; ?></td>
+                    <td><?= $usage->getTypeDescription(); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </tbody>
+</table>
 
 Комментарии:<br />
 <?php foreach ($account->contract->comments as $comment): ?>
@@ -23,3 +43,16 @@ ID <?= $account->id; ?><br />
     echo $contact->data . ($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '') . '; &nbsp;';
 endforeach;
 ?>
+
+<style type="text/css">
+th {
+    border: 1px solid #CCCCCC;
+    padding: 3px 4px 3px 4px;
+    background: #F0F0F0;
+}
+td {
+    border: 1px solid #CCCCCC;
+    padding: 3px 4px 3px 4px;
+}
+</style>
+

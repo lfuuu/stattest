@@ -3,10 +3,13 @@
 namespace app\controllers;
 
 use app\classes\BaseController;
-use app\classes\documents\GetBillData;
+use app\classes\Assert;
+use app\classes\documents\DocumentReportFactory;
 use app\models\ClientAccount;
 use app\models\Bill;
 use app\models\Trouble;
+use app\models\UsageVoip;
+use app\models\UsageIpPorts;
 
 class CustomPrintController extends BaseController
 {
@@ -15,25 +18,38 @@ class CustomPrintController extends BaseController
     {
         $clientAccount = ClientAccount::findOne($id);
 
-        $this->layout = 'print-form';
+        $services = [];
+
+        $services['voip'] =
+            UsageVoip::find()
+                ->where(['client' => $clientAccount->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['ipport'] =
+            UsageIpPorts::find()
+                ->where(['client' => $clientAccount->client])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $this->layout = 'minimal';
         return $this->render('client', [
             'account' => $clientAccount,
+            'services' => $services,
         ]);
     }
 
-    public function actionPrintShopOrder($id)
+    public function actionPrintBill($bill_no)
     {
-        $bill = Bill::findOne(['bill_no' => $id]);
-        $billReport =
-            (new GetBillData)
-                ->setBill($bill)
-                ->prepare();
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+        Assert::isObject($bill);
+        $report = DocumentReportFactory::me()->getReport($bill, $docType = 'bill', $sendEmail = 0);
 
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
-        $this->layout = 'print-form';
-        return $this->render('shop-order', [
-            'document' => $billReport,
+        $this->layout = 'minimal';
+        return $this->render('bill', [
+            'document' => $report,
             'trouble' => $trouble,
         ]);
     }

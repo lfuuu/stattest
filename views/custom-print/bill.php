@@ -7,8 +7,7 @@ $organization = $document->organization;
 
 ID <?= $document->bill->clientAccount->id; ?><br />
 <?= $document->bill->clientAccount->contragent->name; ?><br />
-Юридический адрес: <?= $document->bill->clientAccount->contragent->address_jur; ?><br />
-Адрес подключения:<br /><br />
+Юридический адрес: <?= $document->bill->clientAccount->contragent->address_jur; ?><br /><br />
 
 Комментарии:<br />
 <?php foreach ($document->bill->clientAccount->contract->comments as $comment): ?>

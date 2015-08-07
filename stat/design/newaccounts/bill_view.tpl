@@ -20,15 +20,17 @@
                 {if !$isClosed}
                     <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
                     <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
-                    <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
+                    <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a> /
                 {/if}
             {elseif $1c_bill_flag}
                 {if !$isClosed}
                     <a href='{$LINK_START}module=newaccounts&action=make_1c_bill&bill_no={$bill.bill_no}'>редактировать</a> /
-                    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
+                    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
                 {/if}
             {/if}
-        </td>
+
+            <a href="/custom-print/print-bill?bill_no={$bill.bill_no}" onClick="return ImmediatelyPrint(this)">распечатать</a>
+         </td>
         <td>&nbsp;</td>
         <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
@@ -387,3 +389,5 @@ function doFormSend()
 <input type=submit class=button value='Сохранить'>
 </form><br>
 {/if*}
+
+<script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>
