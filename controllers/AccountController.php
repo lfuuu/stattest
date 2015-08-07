@@ -2,11 +2,11 @@
 
 namespace app\controllers;
 
-use app\dao\ClientGridSettingsDao;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
+use app\models\BusinessProcess;
+use app\models\BusinessProcessStatus;
 use app\models\Country;
-use app\models\ClientBP;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
 use Yii;
@@ -184,14 +184,14 @@ class AccountController extends BaseController
     public function actionLoadBpStatuses()
     {
         $processes = [];
-        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
-            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        foreach (BusinessProcess::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
         }
 
         $statuses = [];
-
-        foreach (ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]) as $s) {
-            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
+        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
+        foreach ($bpStatuses as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
         }
 
         $res = ["processes" => $processes, "statuses" => $statuses];
