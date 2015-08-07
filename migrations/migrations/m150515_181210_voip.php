@@ -112,7 +112,7 @@ class m150515_181210_voip extends \app\classes\Migration
 
         $this->execute("
             update voip_numbers n
-			left join (
+            left join (
                     select u.E164 as number, u.id as usage_id from usage_voip u where u.actual_to>=now()
             ) as u on n.number=u.number
             set n.usage_id = u.usage_id;

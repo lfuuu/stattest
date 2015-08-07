@@ -1,5 +1,4 @@
 <?php
-use app\classes\grid\GridView;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\grid\column\CountryColumn;
@@ -7,7 +6,7 @@ use app\classes\grid\column\CityColumn;
 use kartik\grid\DataColumn;
 use yii\helpers\Html;
 
-echo GridView::widget([
+echo \kartik\grid\GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
