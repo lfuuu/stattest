@@ -1,5 +1,6 @@
 <?php
 use app\models\TechCpe;
+use yii\helpers\Html;
 
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
@@ -206,12 +207,26 @@ if ($has) :
                     <a href="index.php?module=services&action=vo_act&sendmail=1" target="_blank">
                         <img class="icon" src="/images/icons/act.gif">Отправить акт
                     </a>
+
+                    <?php if (!empty($services['voip_reserve'])): ?>
+                        <table class="table table-condensed">
+                            <tbody>
+                            <?php foreach ($services['voip_reserve'] as $number): ?>
+                                <td>Зарезервирован</td>
+                                <td><?= Html::a($number->number, '/usage/number/view?did=' . $number->number) ?></td>
+                                <td>C <?= $number->reserve_from ?></td>
+                                <td>По <?= $number->reserve_till ?></td>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
                     <table class="table table-condensed">
                         <tbody>
                         <?php foreach ($services['voip'] as $service): ?>
                             <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                                 <td width="10%">
-                                    <a href="/pop_services.php?table=usage_voip&id=<?= $service->id ?>"
+                                    <a href="/usage/voip/edit?id=<?= $service->id ?>"
                                        target="_blank"><?= $service->id ?></a>
                                     <a href="index.php?module=stats&action=voip&phone=<?= $service->region ?>_<?= $service->E164 ?>"
                                        style="float:right;">
@@ -224,11 +239,11 @@ if ($has) :
                                 </td>
                                 <td width="10%"><?= $service->regionName->name ?></td>
                                 <td style="font-size: 8pt;" width="15%">
-                                    <a href="/pop_services.php?table=usage_voip&id=<?= $service->id ?>"
+                                    <a href="/usage/voip/edit?id=<?= $service->id ?>"
                                        target="_blank"><?= $service->address ?></a>
                                 </td>
                                 <td>
-                                    <a href="/pop_services.php?table=usage_voip&id=<?= $service->id ?>" target="_blank">
+                                    <a href="/usage/voip/edit?id=<?= $service->id ?>" target="_blank">
                                         <?= $renderDate($service->actual_from, $service->actual_to); ?>
                                     </a>
                                 </td>

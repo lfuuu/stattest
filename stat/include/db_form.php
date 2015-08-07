@@ -701,14 +701,6 @@ class DbFormUsageVoip extends DbForm {
             }else{
                 trigger_error2("Не сохранено! Выберите тариф");
             }
-
-            Event::go('ats2_numbers_check');
-            if ($toAutoCreate) {
-                Event::go("ats2_autocreate_accounts", $this->data["id"] . '|' . $this->data["one_sip"]);
-            }
-            Event::go('ats3_actualize_number', $this->data["E164"]);
-            Event::go('core_update_product_state_phone', $this->data["id"] . '|' . $this->dbform['client']);
-
         }
 
         return $v;

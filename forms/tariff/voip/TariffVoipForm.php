@@ -42,11 +42,12 @@ class TariffVoipForm extends Form
             [
                 [
                     'id','connection_point_id','pricelist_id', 'is_virtual', 'is_testing', 'price_include_vat',
-                    'month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','month_min_payment',
+                    'free_local_min','freemin_for_number',
                     'dest', 'paid_redirect', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'tariffication_free_first_seconds',
                 ],
                 'integer'
             ],
+            [['month_line','month_number','once_line','once_number','month_min_payment'], 'number'],
             [['currency_id','name','name_short','status',], 'string'],
         ];
     }
@@ -64,7 +65,7 @@ class TariffVoipForm extends Form
             'name_short' => 'Краткое название',
             'month_line' => 'ежемесячная плата за линию',
             'month_number' => 'ежемесячная плата за номер',
-            'month_min_payment' => 'минимальный платеж',
+            'month_min_payment' => 'минимальный платеж 7800',
             'once_line' => 'плата за подключение линии',
             'once_number' => 'плата за подключение номера',
             'free_local_min' => 'бесплатных местных минут',

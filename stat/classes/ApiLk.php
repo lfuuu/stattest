@@ -10,9 +10,13 @@ use app\forms\usage\UsageVoipEditForm;
 
 class ApiLk
 {
+    /**
+     * @param $clientId
+     * @return ClientAccount
+     */
     private static function getAccount($clientId)
     {
-        return ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
+        return ClientAccount::findOne($clientId);
     }
 
     public static function getBalanceList($clientId)
@@ -330,33 +334,26 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        $useTestTariff = false;
-        /** @var TariffVoip[] $tariffs */
-        if ($useTestTariff) {
-            $tariffs =
-                TariffVoip::find()
-                    ->andWhere("status in ('public','special')")
-                    ->andWhere(['dest' => 4])
-                    ->andWhere(['is_testing' => 1])
-                    ->all();
-        } else {
+        if ($clientAccount->contract->state != 'unchecked') {
             $tariffs =
                 TariffVoip::find()
                     ->andWhere(['status' => 'public'])
                     ->andWhere(['dest' => 4])
                     ->andWhere(['is_testing' => 0])
                     ->all();
+        } else {
+            $tariffs = [];
         }
 
         $resultTariffsByConnectionPointId = [];
 
         foreach ($tariffs as $tariff) {
 
-            if (!isset($resultTariffsByConnectionPointId[$tariff->region])) {
-                $resultTariffsByConnectionPointId[$tariff->region] = [];
+            if (!isset($resultTariffsByConnectionPointId[$tariff->connection_point_id])) {
+                $resultTariffsByConnectionPointId[$tariff->connection_point_id] = [];
             }
 
-            $resultTariffsByConnectionPointId[$tariff->region][$tariff->id] = [
+            $resultTariffsByConnectionPointId[$tariff->connection_point_id][$tariff->id] = [
                 'type' => 'old',
                 'id' => $tariff->id,
                 'name' => $tariff->name,
@@ -447,53 +444,55 @@ class ApiLk
 
     public static function getVoipList($clientId, $isSimple = false)
     {
-        global $db, $db_ats;
         $ret = array();
+
 
         $account = self::getAccount($clientId);
 
         if (!$account)
             return $ret;
 
-        foreach(NewBill::find_by_sql(
-                '
+        $usageRows =
+            Yii::$app->db->createCommand("
                     SELECT
-                        u.id,
-                        u.E164 AS number,
-                        actual_from,
-                        actual_to,
-                        no_of_lines,
-                        IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-                        u.region
-                    FROM (
-                        SELECT
-                            u.*
-                        FROM
-                            usage_voip u, (
-                                SELECT
-                                    MAX(actual_from) AS max_actual_from,
-                                    E164
-                                FROM
-                                    usage_voip
-                                WHERE
-                                    client=?
-                                GROUP BY E164
-                            ) a
-                        WHERE
-                                a.e164 = u.e164
-                            AND client=?
-                            AND max_actual_from = u.actual_from
-                            AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
-                        ) AS `u`
-    
-                     ORDER BY
-                         `u`.`actual_from` DESC
-    
-                ', array($account->client, $account->client)) as $v)
-        {
-            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
+                            u.id,
+                            u.E164 AS number,
+                            actual_from,
+                            actual_to,
+                            no_of_lines,
+                            IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                            u.region
+                        FROM (
+                            SELECT
+                                u.*
+                            FROM
+                                usage_voip u, (
+                                    SELECT
+                                        MAX(actual_from) AS max_actual_from,
+                                        E164
+                                    FROM
+                                        usage_voip
+                                    WHERE
+                                        client=:client
+                                    GROUP BY E164
+                                ) a
+                            WHERE
+                                    a.e164 = u.e164
+                                AND client=:client
+                                AND max_actual_from = u.actual_from
+                                AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
+                            ) AS `u`
 
-            $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
+                         ORDER BY
+                             `u`.`actual_from` DESC
+                ",
+                [':client' => $account->client ]
+            )->queryAll();
+        foreach($usageRows as $usageRow)
+        {
+            $line = $usageRow;
+
+            $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
             $line["tarif_name"] = $usage->currentTariff->name;
             $line["per_month"] = number_format($usage->getAbonPerMonth(), 2, ".", " ");
@@ -829,9 +828,13 @@ class ApiLk
         ];
     }
 
-    public static function getVoipTarifs($currency = 'RUB', $status = 'public', $dest = '4')
+    public static function getVoipTarifs($accountId)
     {
-        $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
+        $account = self::getAccount($accountId);
+        $currency = $account->currency;
+        $status = 'public';
+        $dest = '4';
+        $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','connection_point_id');
         $ret = array();
         foreach(NewBill::find_by_sql("
             SELECT
@@ -839,7 +842,7 @@ class ApiLk
             FROM
                 `tarifs_voip`
             WHERE
-                `currency` = ?
+                `currency_id` = ?
             AND `status` = ?
             AND `dest` = ?
             ORDER BY
@@ -971,7 +974,7 @@ class ApiLk
 
         $mainTariff = TariffVoip::findOne($mainTariffId);
         Assert::isObject($mainTariff);
-        Assert::isEqual($clientAccount->currency, $mainTariff->currency);
+        Assert::isEqual($clientAccount->currency, $mainTariff->currency_id);
 
         $linesCount = (int)$linesCount;
         if ($linesCount > 10) $linesCount = 10;
@@ -989,10 +992,10 @@ class ApiLk
         $model->did = $number->number;
         $model->connecting_date = $connectingDate->format('Y-m-d');
 
-        $model->tariff_local_mob_id = TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 5])->andWhere(['is_testing' => 1])->scalar();
-        $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->andWhere(['is_testing' => 1])->scalar();
+        $model->tariff_local_mob_id = TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 5])->scalar();
+        $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->scalar();
         $model->tariff_russia_mob_id = $model->tariff_russia_id;
-        $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->andWhere(['is_testing' => 1])->scalar();
+        $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->scalar();
 
         if (!$model->validate()) {
             Yii::error($model->errors);

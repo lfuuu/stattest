@@ -102,10 +102,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 Number::dao()->startActiveStat($number, $usage);
             }
 
-            Event::go('ats2_numbers_check');
-            Event::go("ats2_autocreate_accounts", $usage->id . '|' . $usage->one_sip);
-            Event::go('ats3_actualize_number', $usage->E164);
-            Event::go('core_update_product_state_phone', $this->clientAccount->client);
+            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
+            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {

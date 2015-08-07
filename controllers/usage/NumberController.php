@@ -88,19 +88,22 @@ class NumberController extends BaseController
 
         $cityList = City::dao()->getList(true);
         $didGroupList = DidGroup::dao()->getList(false, $cityId);
-        $statusList = Number::$statusList;
 
         if (!$didGroups) {
             $didGroups = array_keys($didGroupList);
         }
         if (!$statuses) {
+            $statusList= Number::$statusList;
+            unset($statusList[Number::STATUS_HOLD]);
             $statuses = array_keys($statusList);
         }
 
         $numbers =
             Yii::$app->db->createCommand("
-                    select n.*, c.company, c.client from voip_numbers n
+                    select n.*, ccc.name as company, c.client from voip_numbers n
                     left join clients c on n.client_id=c.id
+                    left join client_contract cc on cc.id=c.contract_id
+                    left join client_contragent ccc on ccc.id=cc.contragent_id
                     where
                         n.city_id = :cityId
                         and n.did_group_id in ('" . implode("','", $didGroups) . "')
@@ -115,12 +118,13 @@ class NumberController extends BaseController
         if ($city && $city->connection_point_id && in_array('hold', $statuses)) {
             $callsCount =
                 Yii::$app->dbPg->createCommand("
-                    select usage_num, count(*) / 3 as count_avg3m
-                    from calls.calls_" . $city->connection_point_id . "
-                    where time > now() - interval '3 month'
-                    and usage_id is null
-                    and region= " . $city->connection_point_id . "
-                    group by usage_num
+                    select dst_number as usage_num, count(*) / 3 as count_avg3m
+                    from calls_raw.calls_raw
+                    where connect_time > now() - interval '3 month'
+                    and server_id = $city->connection_point_id
+                    and number_service_id is null
+                    and orig = false
+                    group by dst_number
                 ")->queryAll();
             $callsCountByNumber = [];
             foreach ($callsCount as $calls) {
@@ -141,7 +145,7 @@ class NumberController extends BaseController
             'prefix' => $prefix,
             'cityList' => $cityList,
             'didGroupList' => $didGroupList,
-            'statusList' => $statusList,
+            'statusList' => Number::$statusList,
             'numbers' => $numbers,
             'minCalls' => 10 //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
         ]);

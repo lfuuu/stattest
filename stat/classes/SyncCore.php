@@ -113,13 +113,11 @@ class SyncCore
         }
     }
 
-    public static function checkProductState($product, $param)
+    public static function checkProductState($product, $accountId)
     {
         if ($product == "phone" && !isset(\Yii::$app->params['PHONE_SERVER']) || !\Yii::$app->params['PHONE_SERVER']) return;
 
-        list($usageId, $client) = $param;
-
-        $account = \app\models\ClientAccount::findOne(['client' => $client]);
+        $account = \app\models\ClientAccount::findOne($accountId);
 
         if (!$account) return false;
 
@@ -146,8 +144,6 @@ class SyncCore
         {
             ApiCore::exec($actionJSON, $struct);
         }
-
-        return $action;
     }
 
     public static function adminChanged($clientId)

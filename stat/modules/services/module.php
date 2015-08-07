@@ -1312,6 +1312,9 @@ class m_services extends IModule{
     }
     function services_vo_close($fixclient){
         global $design,$db, $user;
+
+        trigger_error2('Для отключения номера зайдите в редактирование номера');
+
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;

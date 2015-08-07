@@ -25,7 +25,6 @@ class m_stats_head extends IModuleHead{
 		'report_inn'	    => array('stats','report'),
 		'courier_sms'		=> array('stats','report'),
 		'report_voip_operators_traf' => array('stats','vip_report'),
-		'voip_free_stat' => array('stats','report'),
 		'support_efficiency'	=>  array('stats','report'),
 		'report_phone_sales'  =>  array('stats','report'),
 		'report_agent' => array('stats','report'),
@@ -35,7 +34,6 @@ class m_stats_head extends IModuleHead{
         'agent_settings' => array('stats', 'vip_report'),
         'save_agent_settings' => array('stats', 'vip_report'),
         'report_agent_details' => array('stats','vip_report'),
-        'report_reserve' => array('stats', 'r'),
 		'onlime_details'	    => array('stats','report'),
 	);
 
@@ -48,7 +46,6 @@ class m_stats_head extends IModuleHead{
             array('Интернет',		'internet'),
             array('Collocation',	'internet','&is_coll=1'),
             array('PPP',			'ppp'),
-            array('Состояние номеров',		'voip_free_stat'),
             array('Callback',		'callback'),
             array('VPN',			'vpn'),
             array('Рассылка',		'send_view'),
@@ -72,7 +69,6 @@ class m_stats_head extends IModuleHead{
             array('Настройка Агента', 'agent_settings'),
             array('Региональные представители', 'report_sale_channel'),
             array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
-            array('Номера в резерве', 'report_reserve'),
         );
     }
 }

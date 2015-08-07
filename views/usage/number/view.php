@@ -32,7 +32,7 @@ use yii\helpers\Html;
                     <th>
                         <?php
                         $clientAccount = ClientAccount::findOne($number->client_id);
-                        echo Html::a($clientAccount->id . ' ' . $clientAccount->company, '/?module=clients&id=' . $clientAccount->id);
+                        echo Html::a($clientAccount->id . ' ' . $clientAccount->company, '/client/view?id=' . $clientAccount->id);
                         ?>
                     </th>
                 </tr>
@@ -96,7 +96,7 @@ use yii\helpers\Html;
                                         <b>Снят резерв.</b>
                                     <?php endif; ?>
                                     <?php if ($log['client_id']): ?>
-                                        ЛС: <a href='?module=clients&id=<?= $log['client_id'] ?>' style='text-decoration:none;font-weight:bold'><?= $log['client'] ?></a>
+                                        ЛС: <a href='/client/view?id=<?= $log['client_id'] ?>' style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </td>

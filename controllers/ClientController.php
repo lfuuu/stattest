@@ -9,6 +9,7 @@ use app\forms\client\ContragentEditForm;
 use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
+use app\models\Number;
 use app\models\TechCpe;
 use app\models\Trouble;
 use app\models\UsageExtra;
@@ -112,6 +113,11 @@ class ClientController extends BaseController
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
+        $services['voip_reserve'] =
+                Number::find()
+                    ->where(['status' => Number::STATUS_RESERVED])
+                    ->andWhere(['client_id' => $account->id])
+                    ->all();
         return
             $this->render(
                 'view',

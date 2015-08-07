@@ -75,7 +75,7 @@
     <tr><td>ежемесячная плата за номер:</td><td>
         <input type="text" name="month_number" value="{$data.month_number}"/>
     </td></tr>
-    <tr><td>минимальный платеж:</td><td>
+    <tr><td>минимальный платеж 7800:</td><td>
         <input type="text" name="month_min_payment" value="{$data.month_min_payment}"/>
     </td></tr>
     <tr><td>плата за подключение линии:</td><td>

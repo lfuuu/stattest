@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\classes\Event;
 use app\models\LogTarif;
 use app\models\UsageVoip;
 use Yii;
@@ -62,6 +63,9 @@ class UsageVoipCloseForm extends Form
             foreach ($nextHistoryItems as $nextHistoryItem) {
                 $nextHistoryItem->delete();
             }
+
+            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
+            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {

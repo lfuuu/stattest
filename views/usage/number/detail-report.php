@@ -74,7 +74,7 @@ use yii\helpers\Html;
                         <span>Не продается</span>
                     <?php endif; ?>
                 </td>
-                <td><a href="./?module=clients&id=<?= $n['client_id'] ?>"><?= $n['client'] ?></a></td>
+                <td><a href="/client/view?id=<?= $n['client_id'] ?>"><?= $n['client'] . ' ' . $n['company'] ?></a></td>
                 <td <?php if (isset($n['count_avg3m']) && $n['count_avg3m'] > $minCalls): ?> style="font-weight: bold; color: red;"<?php endif; ?> >
                     <?php if (isset($n['count_avg3m'])): ?>
                         <?= $n['count_avg3m'] ?>
