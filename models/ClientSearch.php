@@ -83,12 +83,14 @@ class ClientSearch extends ClientAccount
 
         $query->innerJoin(ClientContract::tableName(), ClientContract::tableName() . '.id=' . ClientAccount::tableName() . '.contract_id');
         $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientContract::tableName() . '.contragent_id');
+        $query->innerJoin(ClientSuper::tableName(), ClientSuper::tableName() . '.id=' . ClientContragent::tableName() . '.super_id');
 
         $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
         $query->orFilterWhere([ClientContract::tableName() . '.manager' => $this->manager]);
         $query->orFilterWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
-        $query->orFilterWhere(['like', 'name_full', $this->companyName]);
-        $query->orFilterWhere(['like', 'name', $this->companyName]);
+        $query->orFilterWhere(['like', ClientContragent::tableName().'.name_full', $this->companyName]);
+        $query->orFilterWhere(['like', ClientContragent::tableName().'.name', $this->companyName]);
+        $query->orFilterWhere(['like', ClientSuper::tableName().'.name', $this->companyName]);
         $query->orFilterWhere(['like', 'inn', $this->inn]);
         $query->orFilterWhere(['like', 'address_connect', $this->address]);
 
