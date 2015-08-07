@@ -40,6 +40,12 @@ use yii\helpers\Url;
     </ul>
 
     <ul>
+        <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
+            <a href="/custom-print/print-client/?id=<?= $account->id; ?>" onClick="return ImmediatelyPrint(this)">Печать карточки клиента</a>
+        </li>
+    </ul>
+
+    <ul>
         <li>
             <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг</a>
         </li>
