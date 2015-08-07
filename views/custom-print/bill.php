@@ -124,14 +124,3 @@ endforeach;
         <b><?= $comment->user_edit; ?>:</b> <?= $comment->comment; ?><br />
     <?php endforeach; ?>
 <?php endif; ?>
-
-
-Германия
-Хабаровск
-Уфа
-Брянск
-Воронеж
-Челябинск
-Волгоград
-Пермь
-
