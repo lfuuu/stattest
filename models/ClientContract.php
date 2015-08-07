@@ -40,7 +40,7 @@ class ClientContract extends ActiveRecord
             'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
             'contragent_id' => 'Контрагент',
-            'is_external' => 'Внешний дого',
+            'is_external' => 'Внешний договор',
         ];
     }
 
