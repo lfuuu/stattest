@@ -170,6 +170,16 @@ class m150515_181210_voip extends \app\classes\Migration
             update usage_voip set type_id = '7800' where E164 like '7800%';
         ");
 
+        $this->execute("
+            ALTER TABLE `did_group`
+            ADD COLUMN `beauty_level`  int NOT NULL DEFAULT 0 AFTER `city_id`;
+
+            update did_group set beauty_level=0 where name like 'Стандарт%';
+            update did_group set beauty_level=4 where name like 'Платин%';
+            update did_group set beauty_level=3 where name like 'Золот%';
+            update did_group set beauty_level=2 where name like 'Сереб%';
+            update did_group set beauty_level=1 where name like 'Бронз%';
+        ");
 
         $this->executeSqlFile('usage_voip.sql');
 
