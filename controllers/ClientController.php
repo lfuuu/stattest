@@ -163,20 +163,7 @@ class ClientController extends BaseController
         return $this->render('create', ['contragent' => $contragent, 'account' => $account, 'contract' => $contract]);
     }
 
-    public function actionGrid($bp = 0, $grid = 0)
-    {
-        $model = (new ClientSearch());
-        $model->getGridSetting($bp, $grid);
-        $model->setAttributes(Yii::$app->request->get());
-        $dataProvider = $model->searchWithSetting();
-
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'model' => $model,
-        ]);
-    }
-
-    public function actionGrid2($businessProcessId, $folderId = null)
+    public function actionGrid($businessProcessId, $folderId = null)
     {
         $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
         $gridFolder = $accountGrid->getFolder($folderId);
@@ -184,7 +171,7 @@ class ClientController extends BaseController
 
         $dataProvider = $gridFolder->spawnDataProvider();
 
-        return $this->render('index2', [
+        return $this->render('index', [
             'dataProvider' => $dataProvider,
             'activeFolder' => $gridFolder,
         ]);

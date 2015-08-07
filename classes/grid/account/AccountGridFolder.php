@@ -95,7 +95,7 @@ abstract class AccountGridFolder extends Model
             'c.status',
             'c.id',
             'c.contract_id',
-            'cg.name AS contract_contragent_name',
+            'cg.name AS company',
             'cr.manager',
             'cr.account_manager',
             'mu.name as manager_name',
@@ -123,7 +123,7 @@ abstract class AccountGridFolder extends Model
 
     public function queryOrderBy()
     {
-        return 'c.created desc';
+        return ['created' => SORT_DESC];
     }
 
     public function spawnDataProvider()
@@ -135,7 +135,8 @@ abstract class AccountGridFolder extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [
-                'defaultOrder' => [$this->queryOrderBy(),]
+                'defaultOrder' => $this->queryOrderBy(),
+                'attributes' => $this->getColumns()
             ]
         ]);
 
@@ -228,7 +229,7 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'company',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['contract_contragent_name'] . '</a>';
+                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['company'] . '</a>';
                 },
                 'filter' => function() {
                     return '<input name="companyName" id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '" class="form-control" />';

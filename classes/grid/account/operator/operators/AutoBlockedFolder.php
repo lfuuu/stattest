@@ -34,5 +34,12 @@ class AutoBlockedFolder extends AccountGridFolder
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_AUTO_BLOCKED]);
+
+        $pg_query = new Query();
+        $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
+        $ids = $pg_query->column(\Yii::$app->dbPg);
+        if (!empty($ids)) {
+            $query->andWhere(['in', 'c.id', $ids]);
+        }
     }
 }

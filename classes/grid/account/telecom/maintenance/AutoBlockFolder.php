@@ -43,9 +43,7 @@ class AutoBlockFolder extends AccountGridFolder
         $query->andWhere(['c.is_blocked' => 0]);
 
         $pg_query = new Query();
-
         $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
-
         $ids = $pg_query->column(\Yii::$app->dbPg);
         if (!empty($ids)) {
             $query->andWhere(['in', 'c.id', $ids]);
