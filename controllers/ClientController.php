@@ -63,7 +63,6 @@ class ClientController extends BaseController
 
         $troubles = Trouble::find()
             ->andWhere(['client' => $account->client])
-            ->andWhere(['server_id' => 0])
             ->orderBy('`date_creation` DESC')
             ->all();
 
