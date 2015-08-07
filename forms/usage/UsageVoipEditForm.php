@@ -61,18 +61,25 @@ class UsageVoipEditForm extends UsageVoipForm
         $tariffMain = TariffVoip::findOne($this->tariff_main_id);
         Assert::isObject($tariffMain);
 
+        $actualFrom = $this->connecting_date;
+
         if ($tariffMain->is_testing) {
             $actualTo = new DateTime($this->connecting_date, $this->timezone);
             $actualTo->modify('+10 days');
             $actualTo = $actualTo->format('Y-m-d');
         } else {
-            $actualTo = '2029-01-01';
+            $actualTo = '4000-01-01';
         }
+
+        $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
-        $usage->actual_from = $this->connecting_date;
+        $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
+        $usage->activation_dt = $activationDt;
+        $usage->expire_dt = $expireDt;
         $usage->type_id = $this->type_id;
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;

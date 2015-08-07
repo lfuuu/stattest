@@ -5,6 +5,7 @@ use app\models\LogTarif;
 use Yii;
 use app\classes\Assert;
 use app\classes\Form;
+use app\classes\Event;
 
 class UsageVoipDeleteHistoryForm extends Form
 {
@@ -30,6 +31,9 @@ class UsageVoipDeleteHistoryForm extends Form
         try {
 
             $historyItem->delete();
+
+            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
+            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {

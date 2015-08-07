@@ -7,6 +7,8 @@ use app\models\UsageVoip;
 use Yii;
 use app\classes\Assert;
 use app\classes\Form;
+use DateTime;
+use DateTimeZone;
 
 class UsageVoipCloseForm extends Form
 {
@@ -46,7 +48,12 @@ class UsageVoipCloseForm extends Form
             return false;
         }
 
-        $usage->actual_to = $closeDate->format('Y-m-d');
+        $actualTo = $closeDate->format('Y-m-d');
+        $expireDt = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
+
+        $usage->actual_to = $actualTo;
+        $usage->expire_dt = $expireDt;
 
         $nextHistoryItems =
             LogTarif::find()
