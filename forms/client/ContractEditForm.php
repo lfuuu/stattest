@@ -34,6 +34,7 @@ class ContractEditForm extends Form
         $business_process_status_id,
         $contract_type_id,
         $state,
+        $is_external = 0,
 
         $save_comment_stage = false,
         $public_comment = [];
@@ -45,9 +46,9 @@ class ContractEditForm extends Form
     public function rules()
     {
         $rules = [
-            [['number', 'date', 'manager', 'account_manager', 'comment'], 'string'],
-            [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id'], 'integer'],
-            ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original', 'external']],
+            [['date', 'manager', 'account_manager', 'comment'], 'string'],
+            [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id', 'is_external'], 'integer'],
+            ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original',]],
             ['business_process_id', 'default', 'value' => 1],
             ['business_process_status_id', 'default', 'value' => 19],
             [['public_comment', 'save_comment_stage'], 'safe'],
