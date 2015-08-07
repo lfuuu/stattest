@@ -2,19 +2,18 @@
 namespace app\models;
 
 use app\classes\media\ClientMedia;
-use yii\db\ActiveRecord;
+use app\classes\model\HistoryActiveRecord;
 use app\models\media\ClientFiles;
 
 /**
  * @property Organization $organization
  * @property
  */
-class ClientContract extends ActiveRecord
+class ClientContract extends HistoryActiveRecord
 {
     const CONTRACT_TYPE_MULTY = 5;
 
     public $newClient = null;
-    public $historyVersionDate = null;
 
     public static $states = [
         'unchecked' => 'Не проверено',
@@ -46,44 +45,11 @@ class ClientContract extends ActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
-    }
-
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        if ($this->isNewRecord) {
-            return parent::save($runValidation, $attributeNames);
-        } else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation, $attributeNames);
-            } else {
-                $behaviors = $this->behaviors;
-                unset($behaviors['HistoryVersion']);
-                $behaviors = array_keys($behaviors);
-                foreach ($behaviors as $behavior)
-                    $this->detachBehavior($behavior);
-                $this->beforeSave(false);
-
-                $date = \Yii::$app->request->post('deferred-date');
-                if (
-                    $date
-                    && strtotime($date) < time()
-                    && HistoryVersion::find()
-                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
-                        ->andWhere(['<=', 'date', date('Y-m-d')])
-                        ->andWhere(['>', 'date', $date])
-                        ->count() == 0
-                )
-                    return parent::save($runValidation, $attributeNames);
-
-                return true;
-            }
-        }
     }
 
     public function getManagerName()
@@ -132,7 +98,7 @@ class ClientContract extends ActiveRecord
      */
     public function getOrganization($date = '')
     {
-        $date = $this->historyVersionDate ? $this->historyVersionDate : ($date ?: date('Y-m-d'));
+        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date('Y-m-d'));
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }
@@ -158,7 +124,11 @@ class ClientContract extends ActiveRecord
      */
     public function getContragent()
     {
-        return ClientContragent::findOne($this->contragent_id)->loadVersionOnDate($this->historyVersionDate);
+        $contragent = ClientContragent::findOne($this->contragent_id);
+        if ($contragent && $this->historyVersionRequestedDate) {
+            $contragent->loadVersionOnDate($this->historyVersionRequestedDate);
+        }
+        return $contragent;
     }
 
     /**
@@ -166,10 +136,12 @@ class ClientContract extends ActiveRecord
      */
     public function getAccounts()
     {
-        $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id'])->all();
+        $models = ClientAccount::findAll(['contract_id' => $this->id]);
         foreach($models as &$model)
         {
-            $model = $model->loadVersionOnDate($this->historyVersionDate);
+            if ($model && $this->historyVersionRequestedDate) {
+                $model->loadVersionOnDate($this->historyVersionRequestedDate);
+            }
         }
         return $models;
     }
