@@ -33,6 +33,6 @@ class AutoBlockedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_AUTO_BLOCKED]);
+        $query->andWhere(['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS]);
     }
 }

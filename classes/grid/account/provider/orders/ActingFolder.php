@@ -11,7 +11,7 @@ class ActingFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Действущий';
+        return 'Действующий';
     }
 
     public function getColumns()

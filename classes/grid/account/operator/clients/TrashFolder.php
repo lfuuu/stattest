@@ -11,7 +11,7 @@ class TrashFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Фрод блокировка';
+        return 'Мусор';
     }
 
     public function getColumns()

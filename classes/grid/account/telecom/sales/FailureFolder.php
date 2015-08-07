@@ -14,6 +14,11 @@ class FailureFolder extends AccountGridFolder
         return 'Отказ';
     }
 
+    public function getCount()
+    {
+        return null;
+    }
+
     public function getColumns()
     {
         return [
@@ -34,11 +39,6 @@ class FailureFolder extends AccountGridFolder
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere(['c.status' => 'deny']);
-    }
-
-    public function getCount()
-    {
-        return null;
     }
 
 }

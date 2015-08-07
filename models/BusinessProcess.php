@@ -13,6 +13,7 @@ class BusinessProcess extends ActiveRecord
     const TELECOM_SALES = 2; // Продажи
 
     // Интернет магазин
+    const INTERNET_SHOP_ORDERS = 3; // Заказы магазина
     const INTERNET_SHOP_MAINTENANCE = 4; // Сопровождение
 
     // Поставщик

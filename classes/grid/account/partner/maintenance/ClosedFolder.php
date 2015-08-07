@@ -11,7 +11,7 @@ class ClosedFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Закрытые';
+        return 'Закрытый';
     }
 
     public function getColumns()

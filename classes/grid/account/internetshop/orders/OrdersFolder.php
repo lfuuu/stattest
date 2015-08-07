@@ -1,5 +1,5 @@
 <?php
-namespace app\classes\grid\account\telecom\sales;
+namespace app\classes\grid\account\internetshop\orders;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
@@ -7,16 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class TechFailureFolder extends AccountGridFolder
+class OrdersFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Техотказ';
-    }
-
-    public function getCount()
-    {
-        return null;
+        return 'Заказ магазина';
     }
 
     public function getColumns()
@@ -38,7 +33,5 @@ class TechFailureFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['c.status' => 'tech_deny']);
     }
-
 }

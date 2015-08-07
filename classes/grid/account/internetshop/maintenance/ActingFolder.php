@@ -33,6 +33,6 @@ class ActingFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['in', 'c.status', ['double', 'trash']]);
+        $query->andWhere(['not in', 'c.status', ['double', 'trash']]);
     }
 }

@@ -22,26 +22,8 @@ abstract class AccountGridFolder extends Model
     public $manager;
     public $account_manager;
     public $bill_date;
-    public $email;
-    public $voip;
-    public $ip;
-    public $domain;
-    public $address;
-    public $adsl;
     public $service;
-    public $abon;
-    public $over;
-    public $total;
-    public $abon1;
-    public $over1;
-    public $abondiff;
-    public $overdiff;
-    public $date_from;
-    public $date_to;
-    public $sum;
     public $regionId;
-    public $inn;
-    public $contractNo;
     public $sale_channel;
 
     public function getName()
@@ -58,8 +40,7 @@ abstract class AccountGridFolder extends Model
     {
         return [
             [['id', 'regionId', 'sale_channel'], 'integer'],
-            [['companyName', 'inn', 'email', 'voip', 'contractNo', 'ip', 'domain', 'address', 'adsl',
-                'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
+            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
         ];
     }
 
@@ -68,15 +49,24 @@ abstract class AccountGridFolder extends Model
     {
         return (new ClientAccount())->attributeLabels() +
         [
-            'id' => '# ЛС',
-            'company' => 'Название компании',
-            'created' => 'Дата регистрации',
+            'id' => 'ИД',
+            'company' => 'Компания',
+            'created' => 'Заведен',
             'inn' => 'ИНН',
             'managerName' => 'Менеджер',
             'channelName' => 'Канал продаж',
             'contractNo' => '№ договора',
-            'status' => 'Статус',
+            'status' => '#',
             'lastComment' => 'Комментарий',
+            'service' => 'Услуга',
+            'bill_date' => 'Дата платежа',
+            'abon' => 'Абон.(пред.)',
+            'over' => 'Прев.(пред.)',
+            'total' => 'Всего',
+            'abon1' => 'Абон.(тек.)',
+            'over1' => 'Прев.(тек.)',
+            'abondiff' => 'Абон.(diff)',
+            'overdiff' => 'Прев.(diff)',
         ];
     }
 
@@ -169,24 +159,6 @@ abstract class AccountGridFolder extends Model
         if ($this->createdDate) {
             $createdDates = explode('+-+', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
-        }
-
-        if ($this->grid == BusinessProcessStatus::FOLDER_TELECOM_AUTOBLOCK) {
-            $pg_query = new Query();
-
-            $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
-
-            $ids = $pg_query->column(\Yii::$app->dbPg);
-            if (!empty($ids)) {
-                $query->andFilterWhere(['in', 'c.id', $ids]);
-            }
-        }
-
-        if ($query->params) {
-            $params = [];
-            foreach ($query->params as $paramKey => $paramValue)
-                $params[':' . $paramKey] = $this->$paramKey ? $this->$paramKey : $paramValue;
-            $query->addParams($params);
         }
 
         return $dataProvider;

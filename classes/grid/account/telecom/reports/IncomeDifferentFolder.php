@@ -33,6 +33,11 @@ class IncomeDifferentFolder extends AccountGridFolder
         ];
     }
 
+    public function getCount()
+    {
+        return null;
+    }
+
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
@@ -57,7 +62,6 @@ class IncomeDifferentFolder extends AccountGridFolder
         $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id');
         $query->join('INNER JOIN', 'newbill_lines l', 'l.bill_no=b.bill_no');
 
-        $query->andWhere('b.is_payed = 1');
         $query->andWhere('l.type = "service"');
         $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
 

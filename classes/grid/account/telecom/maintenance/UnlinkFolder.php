@@ -11,7 +11,7 @@ class UnlinkFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Непривязанные';
+        return 'Не привязанные';
     }
 
     public function getColumns()

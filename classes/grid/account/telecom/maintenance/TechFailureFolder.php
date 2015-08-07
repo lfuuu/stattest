@@ -14,6 +14,11 @@ class TechFailureFolder extends AccountGridFolder
         return 'Техотказ';
     }
 
+    public function getCount()
+    {
+        return null;
+    }
+
     public function getColumns()
     {
         return [
@@ -34,11 +39,6 @@ class TechFailureFolder extends AccountGridFolder
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_TECH_FAILURE]);
-    }
-
-    public function getCount()
-    {
-        return null;
     }
 
 }

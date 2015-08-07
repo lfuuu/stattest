@@ -14,17 +14,31 @@ class FailureFolder extends AccountGridFolder
         return 'Отказ';
     }
 
+    public function getCount()
+    {
+        return null;
+    }
+
+    public function getColumns()
+    {
+        return [
+            'status',
+            'id',
+            'company',
+            'created',
+            'currency',
+            'sale_channel',
+            'manager',
+            'region',
+        ];
+    }
+
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_FAILURE]);
-    }
-
-    public function getCount()
-    {
-        return null;
     }
 
 }

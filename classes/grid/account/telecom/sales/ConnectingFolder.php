@@ -36,9 +36,4 @@ class ConnectingFolder extends AccountGridFolder
         $query->andWhere(['c.status' => 'connecting']);
     }
 
-    public function getCount()
-    {
-        return null;
-    }
-
 }

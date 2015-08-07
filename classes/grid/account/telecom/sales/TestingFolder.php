@@ -36,9 +36,4 @@ class TestingFolder extends AccountGridFolder
         $query->andWhere(['c.status' => 'testing']);
     }
 
-    public function getCount()
-    {
-        return null;
-    }
-
 }

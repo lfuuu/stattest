@@ -17,7 +17,6 @@ class IncomeFromUsagesFolder extends AccountGridFolder
     public function getColumns()
     {
         return [
-            'account_manager',
             'service',
             'region',
             'abon',

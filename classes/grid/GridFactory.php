@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\classes\grid\account\AccountGrid;
 use app\classes\grid\account\InternalOffice;
 use app\classes\grid\account\InternetShopMaintenance;
+use app\classes\grid\account\InternetShopOrders;
 use app\classes\grid\account\OperatorClients;
 use app\classes\grid\account\OperatorFormal;
 use app\classes\grid\account\OperatorInfrastructure;
@@ -37,6 +38,7 @@ class GridFactory extends Singleton
             new TelecomReports(),
             new TelecomSales(),
             new InternetShopMaintenance(),
+            new InternetShopOrders(),
             new InternalOffice(),
             new OperatorOperators(),
             new OperatorClients(),

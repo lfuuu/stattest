@@ -30,6 +30,11 @@ class IncomeFromCustomersFolder extends AccountGridFolder
         ];
     }
 
+    public function getCount()
+    {
+        return null;
+    }
+
     public function queryParams(Query $query)
     {
         parent::queryParams($query);

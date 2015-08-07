@@ -36,9 +36,4 @@ class IncomingFolder extends AccountGridFolder
         $query->andWhere(['c.status' => 'income']);
     }
 
-    public function getCount()
-    {
-        return null;
-    }
-
 }

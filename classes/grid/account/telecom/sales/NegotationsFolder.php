@@ -21,7 +21,6 @@ class NegotationsFolder extends AccountGridFolder
             'id',
             'company',
             'created',
-            'currency',
             'sale_channel',
             'manager',
             'region',
@@ -34,11 +33,6 @@ class NegotationsFolder extends AccountGridFolder
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere(['c.status' => 'negotiations']);
-    }
-
-    public function getCount()
-    {
-        return null;
     }
 
 }
