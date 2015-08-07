@@ -8,6 +8,7 @@ class DidGroupForm extends Form
     public $id;
     public $name;
     public $city_id;
+    public $beauty_level;
 
     public function rules()
     {
@@ -15,6 +16,7 @@ class DidGroupForm extends Form
             [['id'], 'integer'],
             [['name'], 'string'],
             [['city_id'], 'integer'],
+            [['beauty_level'], 'integer'],
         ];
     }
 
@@ -23,6 +25,7 @@ class DidGroupForm extends Form
         return [
             'city_id' => 'Город',
             'name' => 'Название',
+            'beauty_level' => 'Красивость',
         ];
     }
 }

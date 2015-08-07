@@ -20,6 +20,14 @@ class DidGroup extends ActiveRecord
     const BEAUTY_LEVEL_SILVER = 3;
     const BEAUTY_LEVEL_BRONZE = 4;
 
+    public static $beautyLevelNames = [
+        self::BEAUTY_LEVEL_STANDART => 'Стандартный',
+        self::BEAUTY_LEVEL_PLATINUM => 'Платиновый',
+        self::BEAUTY_LEVEL_GOLD     => 'Золотой',
+        self::BEAUTY_LEVEL_SILVER   => 'Серебрянный',
+        self::BEAUTY_LEVEL_BRONZE   => 'Бронзовый',
+    ];
+
     public static function tableName()
     {
         return 'did_group';

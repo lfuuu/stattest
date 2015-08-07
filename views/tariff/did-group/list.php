@@ -3,7 +3,7 @@ use kartik\grid\GridView;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\grid\column\CityColumn;
-use yii\helpers\Html;
+use app\classes\grid\column\BeautyLevelColumn;
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
@@ -12,6 +12,7 @@ echo GridView::widget([
         ['class' => IdColumn::className()],
         ['class' => CityColumn::className()],
         ['class' => NameColumn::className()],
+        ['class' => BeautyLevelColumn::className()],
     ],
     'toolbar' =>  [
         '{toggleData}',

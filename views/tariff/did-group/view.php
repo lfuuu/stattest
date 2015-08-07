@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use app\models\DidGroup;
 ?>
 
 <div class="well">
@@ -15,6 +16,7 @@ use kartik\builder\Form;
             'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'id')],
             'name' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
             'city_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
+            'beauty_level' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::$beautyLevelNames, 'options' => ['disabled' => 'disabled']],
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
