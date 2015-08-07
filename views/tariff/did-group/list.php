@@ -1,5 +1,5 @@
 <?php
-use app\classes\grid\GridView;
+use kartik\grid\GridView;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\grid\column\CityColumn;
