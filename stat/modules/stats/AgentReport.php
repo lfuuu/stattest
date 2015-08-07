@@ -273,7 +273,7 @@ class AgentReport
                         $total['fsum'] += $ret[$r['id']]['fsum'];
             }
         }
-        $total = AgentReport::prepareTotals($total);
+        //$total = AgentReport::prepareTotals($total);
         return array($ret, $total);
     }
     
