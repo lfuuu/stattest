@@ -332,27 +332,23 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 <div class="col-sm-2"><?= $doc->user->name ?></div>
                 <div class="col-sm-2"><?= $doc->ts ?></div>
                 <div class="col-sm-2">
-                    <?php if (!empty($doc->getFileContent())): ?>
-                        <a href="/document/edit?id=<?= $doc->id ?>"
-                           target="_blank"><img
-                                class="icon" src="/images/icons/edit.gif"></a>
-                        <a href="/document/print/?id=<?= $doc->id ?>"
-                           target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                        <a href="/document/send?id=<?= $doc->id ?>"
-                           target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                        <?php if ($doc->is_active) : ?>
-                            <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
-                            </a>
-                        <?php else : ?>
-                            <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
-                            </a>
-                        <? endif; ?>
-                        <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
-                    <?php else: ?>
-                        <b>Не создан</b>
-                    <?php endif; ?>
+                    <a href="/document/edit?id=<?= $doc->id ?>"
+                       target="_blank"><img
+                            class="icon" src="/images/icons/edit.gif"></a>
+                    <a href="/document/print/?id=<?= $doc->id ?>"
+                       target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
+                    <a href="/document/send?id=<?= $doc->id ?>"
+                       target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
+                    <?php if ($doc->is_active) : ?>
+                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                        </a>
+                    <?php else : ?>
+                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
+                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                        </a>
+                    <? endif; ?>
+                    <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                 </div>
             </div>
         <?php endif; ?>
