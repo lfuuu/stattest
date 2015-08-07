@@ -167,13 +167,8 @@ class ClientDocument extends ActiveRecord
 
         if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {
             $contract = ClientContract::findOne($this->contract_id);
-            if ($contract->is_external == 1) {
-                $contract->number = $this->contract_no;
-                $contract->save();
-            }
-            else {
-                $this->contract_no = $contract->number;
-            }
+            $contract->number = $this->contract_no;
+            $contract->save();
         }
 
         return parent::beforeSave($insert);
