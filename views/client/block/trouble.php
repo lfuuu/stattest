@@ -1,18 +1,19 @@
 <?php
-$troublesIsset = false;
+$troublesCount = 0;
 foreach ($troubles as $k => $trouble) {
     if (!in_array($trouble->stage->state_id, [2, 20, 21, 39, 40, 46, 47, 48]))
-        $troublesIsset = true;
+        $troublesCount++;
     else
         unset($troubles[$k]);
 }
-if ($troublesIsset):
+if ($troublesCount):
     ?>
 
     <div class="tt-troubles">
         <div class="row" style="padding-left: 15px;">
             <h2>Заявки</h2>
-            <table border="1" width="100%">
+            <span>Найдено <?= $troublesCount ?> заявок</span>
+            <table border="1" style="border: 1px solid #ddd;" width="100%">
                 <thead>
                 <tr style="background: #f7f7f7;">
                     <th>№</th>
@@ -32,7 +33,7 @@ if ($troublesIsset):
                 <tbody>
                 <?php $i=1; ?>
                 <?php foreach ($troubles as $k => $trouble) : ?>
-                    <tr style="border-top: 2px solid black; background: <?= $i%2==0 ? '#f9f9f9' : 'white' ?>;">
+                    <tr style="border-top: 2px solid #555555; background: <?= $i%2==0 ? '#f9f9f9' : 'white' ?>;">
                         <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id ?>"><?= $trouble->id ?></a></b></td>
                         <td><?= $trouble->date_creation ?></td>
                         <td><?= $trouble->stage->state->name ?></td>

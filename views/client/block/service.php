@@ -124,7 +124,7 @@ if ($has) :
                                     ?>
                                     <tr bgcolor="<?= $actual($cpe->actual_from, $cpe->actual_to) ? '#DCEEA9' : '#fffff5' ?>">
                                         <?php if ($j): ?>
-                                            <td rowspan=<?= count($service->cpeList) ?>bgcolor=#DCEEA9>
+                                            <td rowspan=<?= count($service->cpeList) ?> bgcolor=#DCEEA9>
                                                 <a href='/?module=routers&action=d_add'>
                                                     <img class=icon src='/images/icons/add.gif'>
                                                 </a>Создать устройство
@@ -154,6 +154,7 @@ if ($has) :
                             </tr>
                         <?php endif; ?>
 
+                            <tr><td colspan="5" bgcolor="#fffff5" style="padding: 0; margin: 0; font-size: 5px;">&nbsp;</td></tr>
                             <?php
                             $j = true;
                             if ($service->netList) :
