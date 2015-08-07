@@ -77,7 +77,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
-        $usage->status = 'connecting';
+        $usage->status = $this->status;
         $usage->address = $this->address ?: '';
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
@@ -118,6 +118,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function edit()
     {
+        $this->usage->status = $this->status;
         $this->usage->address = $this->address;
 
         $transaction = Yii::$app->db->beginTransaction();

@@ -30,10 +30,15 @@ $tariffStatus = [
     'archive' => 'Архивный',
 ];
 
+$status = [
+    'connecting' => 'Подключаемый',
+    'working' => 'Включенный',
+];
+
 ?>
 
 <legend>
-    <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
+    <?= Html::a($clientAccount->company, '/client/view?id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония', '/?module=services&action=vo_view') ?> ->
     Добавление номера
 </legend>
@@ -104,6 +109,7 @@ echo Form::widget([
     'columns' => 2,
     'attributes' => [
         'no_of_lines' => ['type' => Form::INPUT_TEXT],
+        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
         'address' => ['type' => Form::INPUT_TEXT],
     ],
 ]);

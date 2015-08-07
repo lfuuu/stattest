@@ -10,6 +10,7 @@ class UsageVoipForm extends Form
     public $city_id;
     public $connection_point_id;
     public $type_id;
+    public $status;
     public $did;
     public $number_tariff_id;
     public $connecting_date;
@@ -36,7 +37,7 @@ class UsageVoipForm extends Form
     {
         return [
             [['id','client_account_id','city_id','connection_point_id','number_tariff_id','line7800_id','no_of_lines'], 'integer'],
-            [['type_id','did','connecting_date','tariff_change_date','address'], 'string'],
+            [['type_id','did','connecting_date','tariff_change_date','address', 'status'], 'string'],
             [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
             [['tariff_main_status'], 'string'],
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],

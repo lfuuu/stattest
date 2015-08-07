@@ -33,9 +33,14 @@ $tariffStatus = [
     'archive' => 'Архивный',
 ];
 
+$status = [
+    'connecting' => 'Подключаемый',
+    'working' => 'Включенный',
+];
+
 ?>
 <legend>
-    <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
+    <?= Html::a($clientAccount->company, '/client/view?id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония', '/?module=services&action=vo_view') ?> ->
     <?= Html::a($usage->E164, Url::to(['edit', 'id' => $usage->id])) ?>
 </legend>
@@ -98,9 +103,10 @@ if ($model->type_id == '7800') {
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 2,
+    'columns' => 3,
     'attributes' => [
         'no_of_lines' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
         'address' => ['type' => Form::INPUT_TEXT],
     ],
 ]);
