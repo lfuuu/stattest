@@ -7,7 +7,7 @@ use app\classes\grid\account\welltime\maintenance\MaintenanceFolder;
 use app\classes\grid\account\welltime\maintenance\MaintenanceFreeFolder;
 use app\classes\grid\account\welltime\maintenance\SuspendedFolder;
 use app\classes\grid\account\welltime\maintenance\TrashFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -21,7 +21,7 @@ class WelltimeMaintenance extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::WELLTIME_MAINTENANCE;
+        return BusinessProcess::WELLTIME_MAINTENANCE;
     }
 
     public function getFolders()

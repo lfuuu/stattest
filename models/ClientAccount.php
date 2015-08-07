@@ -2,17 +2,13 @@
 namespace app\models;
 
 use app\classes\Assert;
-use app\classes\Event;
 use app\classes\voip\VoipStatus;
-use app\dao\ClientGridSettingsDao;
 use app\classes\BillContract;
 use DateTimeZone;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\models\ClientContact;
-use yii\helpers\ArrayHelper;
 
 
 /**
@@ -437,13 +433,14 @@ class ClientAccount extends ActiveRecord
     public function getBpStatuses()
     {
         $processes = [];
-        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
-            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        foreach (BusinessProcess::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
         }
 
         $statuses = [];
-        foreach (ClientGridSettingsDao::me()->getAllByParams() as $s) {
-            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
+        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
+        foreach ($bpStatuses as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
         }
 
         return ["processes" => $processes, "statuses" => $statuses];

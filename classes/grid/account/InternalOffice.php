@@ -3,7 +3,7 @@ namespace app\classes\grid\account;
 
 use app\classes\grid\account\internaloffice\internaloffice\ClosedFolder;
 use app\classes\grid\account\internaloffice\internaloffice\InternalOfficeFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -17,7 +17,7 @@ class InternalOffice extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::INTERNAL_OFFICE;
+        return BusinessProcess::INTERNAL_OFFICE;
     }
 
     public function getFolders()

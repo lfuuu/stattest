@@ -3,20 +3,10 @@ namespace app\classes\grid\account;
 
 use app\classes\grid\account\telecom\maintenance\AutoBlockFolder;
 use app\models\ClientAccount;
-use app\models\ClientBPStatuses;
-use app\models\ClientContact;
-use app\models\ClientContract;
-use app\models\ClientContragent;
-use app\models\ContractType;
-use app\models\Domain;
-use app\models\TechPort;
-use app\models\UsageIpPorts;
-use app\models\UsageIpRoutes;
-use app\models\UsageVoip;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQuery;
 use yii\db\Query;
 
 
@@ -181,7 +171,7 @@ abstract class AccountGridFolder extends Model
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
-        if ($this->grid == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
+        if ($this->grid == BusinessProcessStatus::FOLDER_TELECOM_AUTOBLOCK) {
             $pg_query = new Query();
 
             $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');

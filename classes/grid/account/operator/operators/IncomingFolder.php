@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\operator\operators;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class IncomingFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_INCOMING]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_INCOMING]);
     }
 }

@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\provider\orders;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class NegotationStageFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_ORDERS_NEGOTIATION_STAGE]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_ORDERS_NEGOTIATION_STAGE]);
     }
 }

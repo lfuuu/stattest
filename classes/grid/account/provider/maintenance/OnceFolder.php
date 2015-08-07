@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\provider\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class OnceFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_ONCE]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_ONCE]);
     }
 }

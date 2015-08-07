@@ -8,7 +8,7 @@ use app\classes\grid\account\provider\maintenance\OnceFolder;
 use app\classes\grid\account\provider\maintenance\SelfBuyFolder;
 use app\classes\grid\account\provider\maintenance\ServiceFolder;
 use app\classes\grid\account\provider\maintenance\VOLSFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -22,7 +22,7 @@ class ProviderMaintenance extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::PROVIDER_MAINTENANCE;
+        return BusinessProcess::PROVIDER_MAINTENANCE;
     }
 
     public function getFolders()

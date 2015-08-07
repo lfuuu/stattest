@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\internaloffice\internaloffice;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class ClosedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::INTERNAL_OFFICE_CLOSED]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::INTERNAL_OFFICE_CLOSED]);
     }
 }

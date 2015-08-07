@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\telecom\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,7 +33,7 @@ class TrashFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_TRASH]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH]);
     }
 
     public function getCount()

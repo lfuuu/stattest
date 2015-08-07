@@ -2,7 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use yii\db\ActiveQuery;
 use yii\db\Query;
 
@@ -80,7 +80,7 @@ class ClientGridSettingsDao extends Singleton
                     foreach ($params as $paramKey => $param) {
                         $query->$paramKey = $param;
                     }
-                    if ($row['id'] == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
+                    if ($row['id'] == BusinessProcessStatus::FOLDER_TELECOM_AUTOBLOCK) {
                         $pg_query = new Query();
                         $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
 
@@ -101,7 +101,7 @@ class ClientGridSettingsDao extends Singleton
         $query = new Query();
         $rows = $query->select('ct.id,ct.name')
             ->from('client_contract_type ct')
-            ->innerJoin('grid_business_process bp', 'bp.client_contract_id = ct.id')
+            ->innerJoin('client_contract_business_process bp', 'bp.contract_type_id = ct.id')
             ->groupBy('ct.id')
             ->orderBy('ct.sort')
             ->all();
@@ -113,10 +113,10 @@ class ClientGridSettingsDao extends Singleton
         foreach ($blocks_rows as $key => $block_row) {
             $query = new Query();
             $query->addParams([':id' => $block_row['id']]);
-            $blocks_items = $query->select('bp.id, bp.name, link')
-                ->from('grid_business_process bp')
+            $blocks_items = $query->select('bp.id, bp.name')
+                ->from('client_contract_business_process bp')
                 ->orderBy('bp.sort')
-                ->where('bp.client_contract_id = :id')
+                ->where('bp.contract_type_id = :id')
                 ->all();
 
             foreach ($blocks_items as $item) {
@@ -134,10 +134,10 @@ class ClientGridSettingsDao extends Singleton
         foreach ($blocks_rows as $key => $block_row) {
             $query = new Query();
             $query->addParams([':id' => $block_row['id']]);
-            $blocks_items = $query->select('bp.id, bp.name, link')
-                ->from('grid_business_process bp')
+            $blocks_items = $query->select('bp.id, bp.name')
+                ->from('client_contract_business_process bp')
                 ->orderBy('bp.sort')
-                ->where('bp.client_contract_id = :id')
+                ->where('bp.contract_type_id = :id')
                 ->all();
 
             foreach ($blocks_items as $item) {

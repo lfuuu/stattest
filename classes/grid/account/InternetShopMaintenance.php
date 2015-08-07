@@ -3,7 +3,7 @@ namespace app\classes\grid\account;
 
 use app\classes\grid\account\internetshop\maintenance\ActingFolder;
 use app\classes\grid\account\internetshop\maintenance\TrashFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -17,7 +17,7 @@ class InternetShopMaintenance extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::INTERNET_SHOP_MAINTENANCE;
+        return BusinessProcess::INTERNET_SHOP_MAINTENANCE;
     }
 
     public function getFolders()

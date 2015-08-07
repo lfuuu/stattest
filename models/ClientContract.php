@@ -3,7 +3,6 @@ namespace app\models;
 
 use app\classes\media\ClientMedia;
 use yii\db\ActiveRecord;
-use app\dao\ClientGridSettingsDao;
 use app\models\media\ClientFiles;
 
 /**
@@ -113,7 +112,7 @@ class ClientContract extends ActiveRecord
 
     public function getBusinessProcess()
     {
-        $m = $this->hasOne(ClientGridBussinesProcess::className(), ['id' => 'business_process_id'])->one();
+        $m = $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id'])->one();
         return ($m) ? $m->name : $this->business_process_id;
     }
 
@@ -125,7 +124,7 @@ class ClientContract extends ActiveRecord
 
     public function getBusinessProcessStatus()
     {
-        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id, false);
+        return BusinessProcessStatus::findOne($this->business_process_status_id);
     }
 
     /**

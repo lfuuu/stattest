@@ -12,7 +12,7 @@ use app\classes\grid\account\telecom\maintenance\TechFailureFolder;
 use app\classes\grid\account\telecom\maintenance\TrashFolder;
 use app\classes\grid\account\telecom\maintenance\UnlinkFolder;
 use app\classes\grid\account\telecom\maintenance\WorkFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -26,7 +26,7 @@ class TelecomMaintenance extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::TELECOM_MAINTENANCE;
+        return BusinessProcess::TELECOM_MAINTENANCE;
     }
 
     public function getFolders()

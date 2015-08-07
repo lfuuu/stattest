@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\partner\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class NegotationsFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_NEGOTIATIONS]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_NEGOTIATIONS]);
     }
 }

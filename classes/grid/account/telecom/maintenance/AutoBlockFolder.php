@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\telecom\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -36,8 +36,8 @@ class AutoBlockFolder extends AccountGridFolder
             'not in',
             'cr.business_process_status_id',
             [
-                ClientBPStatuses::TELEKOM_MAINTENANCE_CONNECTED,
-                ClientBPStatuses::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
             ],
         ]);
         $query->andWhere(['c.is_blocked' => 0]);

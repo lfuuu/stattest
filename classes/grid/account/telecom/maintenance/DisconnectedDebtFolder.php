@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\telecom\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -32,7 +32,7 @@ class DisconnectedDebtFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_WORK]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 1]);
     }
 }

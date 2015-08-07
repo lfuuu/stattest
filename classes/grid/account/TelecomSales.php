@@ -13,7 +13,7 @@ use app\classes\grid\account\telecom\sales\NegotationsFolder;
 use app\classes\grid\account\telecom\sales\TechFailureFolder;
 use app\classes\grid\account\telecom\sales\TestingFolder;
 use app\classes\grid\account\telecom\sales\TrashFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -27,7 +27,7 @@ class TelecomSales extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::TELECOM_SALES;
+        return BusinessProcess::TELECOM_SALES;
     }
 
     public function getFolders()

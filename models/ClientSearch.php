@@ -175,7 +175,7 @@ class ClientSearch extends ClientAccount
             $query->andFilterWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
-        if ($this->grid == ClientBPStatuses::FOLDER_TELECOM_AUTOBLOCK) {
+        if ($this->grid == BusinessProcessStatus::FOLDER_TELECOM_AUTOBLOCK) {
             $pg_query = new Query();
 
             $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');

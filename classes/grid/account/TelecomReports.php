@@ -6,7 +6,7 @@ use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromUsagesFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -20,7 +20,7 @@ class TelecomReports extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::TELECOM_REPORTS;
+        return BusinessProcess::TELECOM_REPORTS;
     }
 
     public function getFolders()

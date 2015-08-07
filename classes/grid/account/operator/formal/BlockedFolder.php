@@ -2,7 +2,7 @@
 namespace app\classes\grid\account\operator\formal;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
 
@@ -33,6 +33,6 @@ class BlockedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
-        $query->andWhere(['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_BLOCKED]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_BLOCKED]);
     }
 }

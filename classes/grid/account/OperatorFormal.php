@@ -11,7 +11,7 @@ use app\classes\grid\account\operator\formal\TechFailureFolder;
 use app\classes\grid\account\operator\formal\TerminatedFolder;
 use app\classes\grid\account\operator\formal\TestingFolder;
 use app\classes\grid\account\operator\formal\TrashFolder;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\ContractType;
 use Yii;
 
@@ -25,7 +25,7 @@ class OperatorFormal extends AccountGrid
 
     public function getBusinessProcessId()
     {
-        return ClientGridBussinesProcess::OPERATOR_FORMAL;
+        return BusinessProcess::OPERATOR_FORMAL;
     }
 
     public function getFolders()

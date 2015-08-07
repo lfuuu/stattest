@@ -1,18 +1,18 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 
 return [
 
     24 => [
         'id' => 24,
         'name' => \Yii::t('app', 'Переговоры'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PARTNER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PARTNER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_NEGOTIATIONS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
@@ -35,10 +35,10 @@ return [
     35 => [
         'id' => 35,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PARTNER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PARTNER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING],
                 ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
@@ -61,10 +61,10 @@ return [
     26 => [
         'id' => 26,
         'name' => \Yii::t('app', 'Закрытый'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PARTNER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PARTNER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PARTNER_MAINTENANCE_CLOSED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_CLOSED],
                 ['cr.contract_type_id' => ContractType::PARTNER],
             ],
         ],
