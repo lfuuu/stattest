@@ -2,6 +2,7 @@
 
 use app\models\Trouble;
 use app\models\User;
+use app\models\Bill;
 
 $troublesIsset = false;
 $serversTroubles = [];
@@ -43,6 +44,14 @@ if ($troublesIsset):
                 <tbody>
                 <?php $i=1; ?>
                 <?php foreach ($troubles as $k => $trouble) : ?>
+                    <?php
+                    $is_payed = 0;
+                    if ($trouble->bill_no):
+                        $bill = Bill::findOne(['bill_no' => $trouble->bill_no]);
+                        $is_payed = $bill->is_payed;
+                    endif;
+                    ?>
+
                     <tr style="border-top: 2px solid black; background: <?= ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF'); ?>;">
                         <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble->id; ?></a></b></td>
                         <td><?= $trouble->date_creation; ?></td>
@@ -54,7 +63,7 @@ if ($troublesIsset):
                         <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype]; ?></td>
                         <td><?= ($trouble->stage->dif_time ? $trouble->stage->dif_time : '0'); ?></td>
                         <td><?= User::findOne(['user' => $trouble->user_author])->name; ?>(<?= $trouble->user_author; ?>)</td>
-                        <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $trouble->bill_no && $trouble->is_payed == 1 ? ' background-color: #CCFFCC;' : ''); ?>">
+                        <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $is_payed == 1 ? ' background-color: #CCFFCC;' : ''); ?>">
                             <?php if($trouble->service) : ?>
                                 <a href='pop_services.php?table=<?= $trouble->service; ?>&id=<?= $trouble->service_id; ?>'>
                                     <?= $trouble->usage; ?>
@@ -97,6 +106,14 @@ if ($troublesIsset):
                 <tbody>
                 <?php $i=1; ?>
                 <?php foreach ($serversTroubles as $k => $trouble) : ?>
+                    <?php
+                    $is_payed = 0;
+                    if ($trouble->bill_no):
+                        $bill = Bill::findOne(['bill_no' => $trouble->bill_no]);
+                        $is_payed = $bill->is_payed;
+                    endif;
+                    ?>
+
                     <tr style="border-top: 2px solid black; background: <?= ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF'); ?>;">
                         <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble->id; ?></a></b></td>
                         <td><?= $trouble->date_creation; ?></td>
@@ -108,7 +125,7 @@ if ($troublesIsset):
                         <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype]; ?></td>
                         <td><?= ($trouble->stage->dif_time ? $trouble->stage->dif_time : '0'); ?></td>
                         <td><?= User::findOne(['user' => $trouble->user_author])->name; ?>(<?= $trouble->user_author; ?>)</td>
-                        <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $trouble->bill_no && $trouble->is_payed == 1 ? ' background-color: #CCFFCC;' :'' ); ?>">
+                        <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $is_payed == 1 ? ' background-color: #CCFFCC;' :'' ); ?>">
                             <?php if($trouble->server_id): ?>
                                 <a href="./?module=routers&action=server_pbx_apply&id=<?= $trouble->server_id; ?>">
                                     <?= $trouble->usage; ?>
