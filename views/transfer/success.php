@@ -18,7 +18,7 @@ use app\forms\transfer\ServiceTransferForm;
             <tr>
                 <td valign="top" style="overflow-y: auto; overflow-x: hidden;">
                     <p>
-                        <b>Успешно перенесены услуги:</b>
+                        <b>Успешно перенесены услуги / устройства:</b>
                     </p>
 
                     <div style="height: 350px;">

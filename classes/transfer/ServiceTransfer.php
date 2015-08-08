@@ -23,9 +23,9 @@ abstract class ServiceTransfer
 
     /**
      * Конструктор класса
-     * @param Usage $service - экземпляр услуги
+     * @param $service - экземпляр услуги
      */
-    public function __construct(Usage $service)
+    public function __construct($service)
     {
         $this->service = $service;
     }
@@ -55,6 +55,7 @@ abstract class ServiceTransfer
     /**
      * Перенос базовой сущности услуги
      * @return object - созданная услуга
+     * @throws \Exception
      */
     public function process()
     {
