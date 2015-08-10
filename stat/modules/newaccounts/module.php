@@ -1883,7 +1883,7 @@ class m_newaccounts extends IModule
             }else{
                 if(in_array($obj, array('invoice','upd'))){
 
-                    $design->assign("client_contract", BillContract::getString($bill->Client("id"), $bill->getTs()));
+                    $design->assign("client_contract", BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
 
                     $id = $db->QueryInsert(
                         "log_newbills",

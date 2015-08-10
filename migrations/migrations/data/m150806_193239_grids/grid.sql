@@ -26,7 +26,8 @@ ENGINE=InnoDB
 DROP TABLE IF EXISTS `grid_business_process_statuses`;
 DROP TABLE IF EXISTS `grid_business_process`;
 
-INSERT INTO `nispd`.`client_contract_business_process_status` VALUES
+
+INSERT INTO `client_contract_business_process_status` VALUES
 (33,3,'Заказ магазина',0,'once','silver'),
 
 (30,9,'Заказ магазина',0,'income','#CCFFFF'),
