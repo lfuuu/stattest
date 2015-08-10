@@ -111,7 +111,7 @@ if ($troublesIsset):
                     ?>
 
                     <tr style="border-top: 2px solid black; background: <?= ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF'); ?>;">
-                        <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble['id']; ?></a></b></td>
+                        <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble->id; ?></a></b></td>
                         <td><?= $trouble->date_creation; ?></td>
                         <td><?= $trouble->stage->state->name; ?></td>
                         <td><?= $trouble->stage->user_main; ?></td>
