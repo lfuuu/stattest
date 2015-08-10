@@ -102,4 +102,9 @@ jQuery(document).ready(function() {
             genBankProp();
         });
 
+    $('#buttonSave')
+        .on('click', function() {
+            $(this).parents('form').trigger('submit');
+        });
+
 });
