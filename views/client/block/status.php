@@ -1,5 +1,6 @@
 <?php
 
+use Yii;
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
@@ -9,7 +10,14 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
 ?>
 <div class="status-block">
     <?php
-    $f = ActiveForm::begin(['action' => Url::toRoute(['contract/edit', 'id' => $contractForm->id, 'childId' => $account->id])]);
+    $f = ActiveForm::begin([
+        'action' => Url::toRoute([
+            'contract/edit',
+            'id' => $contractForm->id,
+            'childId' => $account->id,
+            'returnTo' => Url::toRoute(['client/view', 'id'=>$contractForm->id, 'childId'=>$account->id]),
+        ])
+    ]);
     ?>
     <div class="row" style="background: <?= isset($currentBusinessProcessStatus['color']) ? $currentBusinessProcessStatus['color'] : '' ?>;">
         <div class="col-sm-3">
