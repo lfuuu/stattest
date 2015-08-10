@@ -340,3 +340,5 @@ use \app\models\ClientContragent;
         });
     </script>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>

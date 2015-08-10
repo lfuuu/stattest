@@ -53,7 +53,11 @@ class ContragentController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['client/view','id'=>$childId]);
+            $returnTo =
+                Yii::$app->request->get('returnTo')
+                    ?:['contragent/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1];
+
+            $this->redirect($returnTo);
         }
 
         return $this->render("edit", [
