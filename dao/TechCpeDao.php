@@ -4,6 +4,8 @@ namespace app\dao;
 
 use Yii;
 use app\classes\Singleton;
+use app\models\ClientAccount;
+use app\models\TechCpe;
 
 class TechCpeDao extends Singleton
 {
@@ -59,6 +61,16 @@ class TechCpeDao extends Singleton
                     ? ''
                     : '<div class="ping2" style="background-color:' . $P2 . '">&nbsp;</div>'
             );
+    }
+
+    public function getPossibleToTransfer(ClientAccount $client)
+    {
+        return
+            TechCpe::find()
+                ->client($client->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->all();
     }
 
 }

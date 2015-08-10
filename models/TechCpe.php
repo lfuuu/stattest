@@ -4,6 +4,7 @@ namespace app\models;
 use app\dao\TechCpeDao;
 use yii\db\ActiveRecord;
 use app\queries\TechCpeQuery;
+use app\classes\transfer\TechCpeTransfer;
 
 /**
  * @property int $id
@@ -33,9 +34,24 @@ class TechCpe extends ActiveRecord
     /**
      * @return TechCpeDao
      */
-    public function dao()
+    public static function dao()
     {
         return TechCpeDao::me();
+    }
+
+    public function getTransferHelper()
+    {
+        return new TechCpeTransfer($this);
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Клиентские устройства';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->model->vendor . ' ' . $this->model->model;
     }
 
 }

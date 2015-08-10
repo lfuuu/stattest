@@ -274,7 +274,7 @@ if ($has) :
 
             <?php if ($services['device']) : ?>
                 <div id="device">
-                    <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
+                    <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a> (<a href="/transfer/index/?client=<?= $account->id; ?>&usages=TechCpe" onClick="return showIframePopup(this)">перенос устройств</a>)</h3>
                     <table cellspacing="4" cellpadding="2" width="100%" border="0">
                         <thead>
                         <tr bgcolor="#FFFFD8">

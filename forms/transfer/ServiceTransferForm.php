@@ -15,6 +15,7 @@ use app\models\UsageIpPorts;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageTrunk;
+use app\models\TechCpe;
 
 class ServiceTransferForm extends Form
 {
@@ -51,6 +52,7 @@ class ServiceTransferForm extends Form
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
             //UsageVirtpbx::dao(),
+            TechCpe::dao(),
         ];
     }
 
@@ -138,13 +140,18 @@ class ServiceTransferForm extends Form
     /**
      * Получение доступных для переноса услуг
      * @param ClientAccount $client - клиент для которого получаем список услуг
+     * @param array $usages - список услуг которые возможны для переноса
      * @return array
      */
-    public function getPossibleServices(ClientAccount $client)
+    public function getPossibleServices(ClientAccount $client, $usages = [])
     {
         /** @var Usage[] $services */
         $services = [];
         foreach ($this->getServicesGroups() as $serviceDao) {
+            $modelName = str_replace('Dao', '', (new \ReflectionClass($serviceDao))->getShortName());
+            if (count($usages) && !in_array($modelName, $usages))
+                continue;
+
             $services = array_merge(
                 $services,
                 $serviceDao->getPossibleToTransfer($client)
@@ -186,7 +193,7 @@ class ServiceTransferForm extends Form
     public function getService($className, $id)
     {
         $service = $className::findOne($id);
-        if (!$service instanceof Usage) {
+        if (!$service) {
             Assert::isUnreachable();
         }
         return $service;

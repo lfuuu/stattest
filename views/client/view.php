@@ -12,7 +12,7 @@
             </div>
         </div>
         <?= $this->render('block/trouble', ['troubles' => $troubles]); ?>
-        <?= $this->render('block/service', ['services' => $services]); ?>
+        <?= $this->render('block/service', ['services' => $services, 'account' => $account]); ?>
 
     </div>
 

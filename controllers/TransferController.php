@@ -13,7 +13,7 @@ use yii\helpers\Json;
 class TransferController extends BaseController
 {
 
-    public function actionIndex($client)
+    public function actionIndex($client, $only_usage = '')
     {
         $clientAccount = ClientAccount::findOne($client);
         Assert::isObject($clientAccount);
@@ -36,7 +36,8 @@ class TransferController extends BaseController
         $this->layout = 'minimal';
         return $this->render('index', [
             'model' => $model,
-            'client' => $clientAccount
+            'client' => $clientAccount,
+            'only_usages' => (array) $only_usage,
         ]);
     }
 
