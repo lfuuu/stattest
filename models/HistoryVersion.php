@@ -115,12 +115,12 @@ class HistoryVersion extends ActiveRecord
             ->andWhere(['<=', 'date', $date])
             ->orderBy('date DESC')->one();
 
-        if($historyModel)
+        if($historyModel) {
             $model->setAttributes(json_decode($historyModel['data_json'], true), false);
-
+            $model->setHistoryVersionStoredDate($historyModel['date']);
+        }
         $model->setHistoryVersionRequestedDate($date);
-        $model->setHistoryVersionStoredDate((isset($historyModel)) ? $historyModel['date'] : null);
-
+        
         return $model;
     }
 

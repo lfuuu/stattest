@@ -121,7 +121,7 @@ class AccountController extends BaseController
         $model = new AccountEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1, 'date' => $date]);
+            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1, 'date' => $model->historyVersionStoredDate]);
         }
 
         if(!($this->getFixClient() && $this->getFixClient()->id == $id)){
