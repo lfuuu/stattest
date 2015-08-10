@@ -1,19 +1,19 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 
 return [
 
     34 => [
         'id' => 34,
         'name' => \Yii::t('app', 'Внутренний офис'),
-        'grid_business_process_id' => ClientGridBussinesProcess::INTERNAL_OFFICE,
+        'grid_business_process_id' => BusinessProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
-                ['cr.business_process_status_id' => ClientBPStatuses::INTERNAL_OFFICE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::INTERNAL_OFFICE],
             ],
         ],
         'columns' => [
@@ -35,11 +35,11 @@ return [
     111 => [
         'id' => 111,
         'name' => \Yii::t('app', 'Закрытые'),
-        'grid_business_process_id' => ClientGridBussinesProcess::INTERNAL_OFFICE,
+        'grid_business_process_id' => BusinessProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
-                ['cr.business_process_status_id' => ClientBPStatuses::INTERNAL_OFFICE_CLOSED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::INTERNAL_OFFICE_CLOSED],
             ],
         ],
         'columns' => [

@@ -352,13 +352,14 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 </div>
             </div>
         <?php endif; ?>
+
         <div class="row" style="padding-top: 5px;">
             <form action="/document/create" method="post">
                 <div class="col-sm-2">
                     <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                     <input type="hidden" name="ClientDocument[type]" value="agreement">
                     <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
-                           value="<?= isset($armnt) && $armnt > 1 ? $armnt + 1 : 1 ?>"></div>
+                           value="<?= isset($armnt) && $armnt > 0 ? $armnt + 1 : 1 ?>"></div>
                 <div class="col-sm-2">
                     <?= DatePicker::widget(
                         [

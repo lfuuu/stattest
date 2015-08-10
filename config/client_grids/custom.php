@@ -1,8 +1,8 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 
 return [
 

@@ -1,19 +1,19 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 
 return [
 
     19 => [
         'id' => 19,
         'name' => \Yii::t('app', 'Заказ услуг'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
             ],
         ],
         'columns' => [
@@ -35,11 +35,11 @@ return [
     8 => [
         'id' => 8,
         'name' => \Yii::t('app', 'Подключаемые'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_CONNECTED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED],
             ],
         ],
         'columns' => [
@@ -61,11 +61,11 @@ return [
     9 => [
         'id' => 9,
         'name' => \Yii::t('app', 'Включенные'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_WORK],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK],
             ],
         ],
         'columns' => [
@@ -89,11 +89,11 @@ return [
     10 => [
         'id' => 10,
         'name' => \Yii::t('app', 'Отключенные'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_DISCONNECTED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED],
             ],
         ],
         'columns' => [
@@ -116,11 +116,11 @@ return [
     11 => [
         'id' => 11,
         'name' => \Yii::t('app', 'Отключенные за долги'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['c.is_blocked' => 1],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_WORK],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK],
             ],
         ],
         'columns' => [
@@ -141,7 +141,7 @@ return [
     21 => [
         'id' => 21,
         'name' => \Yii::t('app', 'Автоблокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['c.is_blocked' => 0],
@@ -149,8 +149,8 @@ return [
                     'not in',
                     'cr.business_process_status_id',
                     [
-                        ClientBPStatuses::TELEKOM_MAINTENANCE_CONNECTED,
-                        ClientBPStatuses::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
+                        BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
+                        BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
                     ],
                 ],
             ],
@@ -173,11 +173,11 @@ return [
     22 => [
         'id' => 22,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_TRASH],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH],
             ],
         ],
         'columns' => [
@@ -200,11 +200,11 @@ return [
     23 => [
         'id' => 23,
         'name' => \Yii::t('app', 'Не привязанные'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_NOT_CONNECTED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_NOT_CONNECTED],
             ],
         ],
         'columns' => [
@@ -226,11 +226,11 @@ return [
     27 => [
         'id' => 27,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_TECH_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_TECH_FAILURE],
             ],
         ],
         'columns' => [
@@ -253,11 +253,11 @@ return [
     28 => [
         'id' => 28,
         'name' => \Yii::t('app', 'Отказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_FAILURE],
             ],
         ],
         'columns' => [
@@ -280,11 +280,11 @@ return [
     29 => [
         'id' => 29,
         'name' => \Yii::t('app', 'Дубликат'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::TELECOM_MAINTENANCE,
         'queryParams' => [
             'where' => [
                 ['cr.contract_type_id' => ContractType::TELEKOM],
-                ['cr.business_process_status_id' => ClientBPStatuses::TELEKOM_MAINTENANCE_DUPLICATE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_DUPLICATE],
             ],
         ],
         'columns' => [
@@ -306,7 +306,7 @@ return [
     1 => [
         'id' => 1,
         'name' => \Yii::t('app', 'Входящие'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'income'],
@@ -329,30 +329,10 @@ return [
         'oldstatus' => 'income',
         'color' => '#CCFFFF',
     ],
-    31 => [
-        'id' => 31,
-        'name' => \Yii::t('app', 'Входящие'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
-        'columns' => [
-            'status',
-            'id',
-            'company',
-            'created',
-            'currency',
-            'sale_channel',
-            'manager',
-            'region',
-        ],
-        'default' => false,
-        'show_as_status' => true,
-        'is_close_status' => false,
-        'oldstatus' => 'income',
-        'color' => '#CCFFFF',
-    ],
     2 => [
         'id' => 2,
         'name' => \Yii::t('app', 'В стадии переговоров'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'negotiations'],
@@ -377,7 +357,7 @@ return [
     3 => [
         'id' => 3,
         'name' => \Yii::t('app', 'Тестируемые'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'testing'],
@@ -402,8 +382,8 @@ return [
     ],
     4 => [
         'id' => 4,
-        'name' => \Yii::t('app', 'Подлключаемые'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'name' => \Yii::t('app', 'Подключаемые'),
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'connecting'],
@@ -429,7 +409,7 @@ return [
     5 => [
         'id' => 5,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'tech_deny'],
@@ -456,7 +436,7 @@ return [
     6 => [
         'id' => 6,
         'name' => \Yii::t('app', 'Отказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['c.status' => 'deny'],
@@ -483,7 +463,7 @@ return [
     7 => [
         'id' => 7,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::TELECOM_SALES,
+        'grid_business_process_id' => BusinessProcess::TELECOM_SALES,
         'queryParams' => [
             'where' => [
                 ['in', 'c.status', ['double', 'trash']],

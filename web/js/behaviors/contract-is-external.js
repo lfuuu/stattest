@@ -17,7 +17,7 @@ jQuery(document).ready(function() {
         };
 
     $isExternal
-        .on('input change', $isExternalAction)
+        .on('input', $isExternalAction)
         .trigger('input');
 
 });

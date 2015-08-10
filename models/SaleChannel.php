@@ -6,6 +6,7 @@ use yii\helpers\ArrayHelper;
 
 class SaleChannel extends ActiveRecord
 {
+    private static $list;
     public static function tableName()
     {
         return 'sale_channels';
@@ -35,8 +36,11 @@ class SaleChannel extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+        if (self::$list === null) {
+            $arr = self::find()->all();
+            self::$list = ArrayHelper::map($arr, 'id', 'name');
+        }
+        return self::$list;
     }
 
     public function getCourierName()

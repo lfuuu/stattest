@@ -2,18 +2,16 @@
 namespace app\forms\client;
 
 use app\classes\Event;
-use app\dao\ClientGridSettingsDao;
+use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
-use app\models\ContractType;
 use app\models\ClientContragent;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcess;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
-use yii\base\Theme;
 use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
@@ -96,19 +94,19 @@ class ContractEditForm extends Form
 
     public function getBusinessProcessesList()
     {
-        $arr = ClientGridBussinesProcess::find()->all();
+        $arr = BusinessProcess::find()->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
     public function getBusinessProcessStatusesList()
     {
-        $arr = ClientGridSettingsDao::me()->getAllByParams(['show_as_status' => true]);
+        $arr = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();;
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
     public function getCurrentBusinessProcessStatus()
     {
-        return ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($this->business_process_status_id, false);
+        return BusinessProcessStatus::findOne($this->business_process_status_id);
     }
 
     public function save()

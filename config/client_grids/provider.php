@@ -1,8 +1,8 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 use app\models\User;
 
 $provider_manager_column = [
@@ -24,10 +24,10 @@ return [
     32 => [
         'id' => 32,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_ORDERS,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_ORDERS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_ORDERS_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_ORDERS_ACTING],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -50,10 +50,10 @@ return [
     36 => [
         'id' => 36,
         'name' => \Yii::t('app', 'В стадии переговоров'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_ORDERS,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_ORDERS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_ORDERS_NEGOTIATION_STAGE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_ORDERS_NEGOTIATION_STAGE],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -76,10 +76,10 @@ return [
     108 => [
         'id' => 108,
         'name' => \Yii::t('app', 'GPON'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_GPON],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_GPON],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -102,10 +102,10 @@ return [
     109 => [
         'id' => 109,
         'name' => \Yii::t('app', 'ВОЛС'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_VOLS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_VOLS],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -128,10 +128,10 @@ return [
     110 => [
         'id' => 110,
         'name' => \Yii::t('app', 'Сервисный'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_SERVICE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_SERVICE],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -154,10 +154,10 @@ return [
     15 => [
         'id' => 15,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_ACTING],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -180,10 +180,10 @@ return [
     92 => [
         'id' => 92,
         'name' => \Yii::t('app', 'Закрытый'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_CLOSED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_CLOSED],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -206,10 +206,10 @@ return [
     93 => [
         'id' => 93,
         'name' => \Yii::t('app', 'Самозакупки'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_SELF_BUY],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_SELF_BUY],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],
@@ -232,10 +232,10 @@ return [
     94 => [
         'id' => 94,
         'name' => \Yii::t('app', 'Разовый'),
-        'grid_business_process_id' => ClientGridBussinesProcess::PROVIDER_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::PROVIDER_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::PROVIDER_MAINTENANCE_ONCE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_ONCE],
                 ['cr.contract_type_id' => ContractType::PROVIDER],
             ],
         ],

@@ -1,18 +1,18 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 
 return [
 
     37 => [
         'id' => 37,
         'name' => \Yii::t('app', 'Входящий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_INCOMMING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -35,10 +35,10 @@ return [
     38 => [
         'id' => 38,
         'name' => \Yii::t('app', 'Переговоры'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_NEGOTIATIONS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -61,10 +61,10 @@ return [
     39 => [
         'id' => 39,
         'name' => \Yii::t('app', 'Тестирование'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TESTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_TESTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -87,10 +87,10 @@ return [
     40 => [
         'id' => 40,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_ACTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -113,10 +113,10 @@ return [
     107 => [
         'id' => 107,
         'name' => \Yii::t('app', 'Ручной счет'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_MANUAL_BILL],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_MANUAL_BILL],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -139,10 +139,10 @@ return [
     41 => [
         'id' => 41,
         'name' => \Yii::t('app', 'Приостановлен'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_SUSPENDED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_SUSPENDED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -165,10 +165,10 @@ return [
     42 => [
         'id' => 42,
         'name' => \Yii::t('app', 'Расторгнут'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TERMINATED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_TERMINATED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -191,10 +191,10 @@ return [
     43 => [
         'id' => 43,
         'name' => \Yii::t('app', 'Фрод блокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_BLOCKED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_BLOCKED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -217,10 +217,10 @@ return [
     44 => [
         'id' => 44,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TECH_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_TECH_FAILURE],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -243,10 +243,10 @@ return [
     45 => [
         'id' => 45,
         'name' => \Yii::t('app', 'Автоблокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_AUTO_BLOCKED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_AUTO_BLOCKED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -269,10 +269,10 @@ return [
     121 => [
         'id' => 121,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_OPERATORS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_OPERATORS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_OPERATORS_TRASH],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_TRASH],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -295,10 +295,10 @@ return [
     47 => [
         'id' => 47,
         'name' => \Yii::t('app', 'Входящий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_INCOMMING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -321,10 +321,10 @@ return [
     48 => [
         'id' => 48,
         'name' => \Yii::t('app', 'Переговоры'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_NEGOTIATIONS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -347,10 +347,10 @@ return [
     49 => [
         'id' => 49,
         'name' => \Yii::t('app', 'Тестирование'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TESTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_TESTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -373,10 +373,10 @@ return [
     50 => [
         'id' => 50,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_ACTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -399,10 +399,10 @@ return [
     56 => [
         'id' => 56,
         'name' => \Yii::t('app', 'JiraSoft'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_JIRASOFT],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_JIRASOFT],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -425,10 +425,10 @@ return [
     51 => [
         'id' => 51,
         'name' => \Yii::t('app', 'Приостановлен'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_SUSPENDED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_SUSPENDED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -451,10 +451,10 @@ return [
     52 => [
         'id' => 52,
         'name' => \Yii::t('app', 'Расторгнут'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TERMINATED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_TERMINATED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -477,10 +477,10 @@ return [
     53 => [
         'id' => 53,
         'name' => \Yii::t('app', 'Фрод блокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_BLOCKED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_BLOCKED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -503,10 +503,10 @@ return [
     54 => [
         'id' => 54,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TECH_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_TECH_FAILURE],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -529,10 +529,10 @@ return [
     55 => [
         'id' => 55,
         'name' => \Yii::t('app', 'Автоблокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
+                ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -555,10 +555,10 @@ return [
     122 => [
         'id' => 122,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_CLIENTS,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_CLIENTS,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_CLIENTS_TRASH],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_TRASH],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -581,10 +581,10 @@ return [
     62 => [
         'id' => 62,
         'name' => \Yii::t('app', 'Входящий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_INCOMMING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -607,10 +607,10 @@ return [
     63 => [
         'id' => 63,
         'name' => \Yii::t('app', 'Переговоры'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_NEGOTIATIONS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -633,10 +633,10 @@ return [
     64 => [
         'id' => 64,
         'name' => \Yii::t('app', 'Тестирование'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TESTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_TESTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -659,10 +659,10 @@ return [
     65 => [
         'id' => 65,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_ACTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -685,10 +685,10 @@ return [
     66 => [
         'id' => 66,
         'name' => \Yii::t('app', 'Приостановлен'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_SUSPENDED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_SUSPENDED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -711,10 +711,10 @@ return [
     67 => [
         'id' => 67,
         'name' => \Yii::t('app', 'Расторгнут'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TERMINATED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_TERMINATED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -737,10 +737,10 @@ return [
     68 => [
         'id' => 68,
         'name' => \Yii::t('app', 'Фрод блокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_BLOCKED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_BLOCKED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -763,10 +763,10 @@ return [
     69 => [
         'id' => 69,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TECH_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_TECH_FAILURE],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -789,10 +789,10 @@ return [
     70 => [
         'id' => 70,
         'name' => \Yii::t('app', 'Автоблокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
+                ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -815,10 +815,10 @@ return [
     123 => [
         'id' => 123,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_INFRASTRUCTURE,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_INFRASTRUCTURE_TRASH],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_TRASH],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -841,10 +841,10 @@ return [
     77 => [
         'id' => 77,
         'name' => \Yii::t('app', 'Входящий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_INCOMMING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_INCOMING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -867,10 +867,10 @@ return [
     78 => [
         'id' => 78,
         'name' => \Yii::t('app', 'Переговоры'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_NEGOTIATIONS],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -893,10 +893,10 @@ return [
     79 => [
         'id' => 79,
         'name' => \Yii::t('app', 'Тестирование'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TESTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_TESTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -919,10 +919,10 @@ return [
     80 => [
         'id' => 80,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_ACTING],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_ACTING],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -945,10 +945,10 @@ return [
     81 => [
         'id' => 81,
         'name' => \Yii::t('app', 'Приостановлен'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_SUSPENDED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_SUSPENDED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -971,10 +971,10 @@ return [
     82 => [
         'id' => 82,
         'name' => \Yii::t('app', 'Расторгнут'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TERMINATED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_TERMINATED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -997,10 +997,10 @@ return [
     83 => [
         'id' => 83,
         'name' => \Yii::t('app', 'Фрод блокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_BLOCKED],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_BLOCKED],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -1023,10 +1023,10 @@ return [
     84 => [
         'id' => 84,
         'name' => \Yii::t('app', 'Техотказ'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TECH_FAILURE],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_TECH_FAILURE],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -1049,10 +1049,10 @@ return [
     85 => [
         'id' => 85,
         'name' => \Yii::t('app', 'Автоблокировка'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['!=', 'cr.business_process_status_id', ClientBPStatuses::STATE_NEGOTIATIONS],
+                ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],
@@ -1075,10 +1075,10 @@ return [
     124 => [
         'id' => 124,
         'name' => \Yii::t('app', 'Мусор'),
-        'grid_business_process_id' => ClientGridBussinesProcess::OPERATOR_FORMAL,
+        'grid_business_process_id' => BusinessProcess::OPERATOR_FORMAL,
         'queryParams' => [
             'where' => [
-                ['cr.business_process_status_id' => ClientBPStatuses::OPERATOR_FORMAL_TRASH],
+                ['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_TRASH],
                 ['cr.contract_type_id' => ContractType::OPERATOR],
             ],
         ],

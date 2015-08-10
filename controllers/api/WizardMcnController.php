@@ -12,7 +12,7 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientDocument;
 use app\models\media\ClientFiles;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
@@ -67,7 +67,7 @@ class WizardMcnController extends /*BaseController*/ApiController
 
     private function _checkClean($account)
     {
-        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
+        if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
         {
             $wizard = LkWizardState::findOne($account->contract->id);
             if ($wizard)
@@ -379,7 +379,7 @@ class WizardMcnController extends /*BaseController*/ApiController
                 "contact_phone" => $contact["phone"],
                 "contact_fio" => $contact["fio"],
                 "file_list" => $files,
-                "is_upload" => count($files) < 5
+                "is_upload" => count($files) < 10,
             ];
 
         return $d;

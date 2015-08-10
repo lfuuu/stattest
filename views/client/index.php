@@ -1,19 +1,25 @@
 <?php
-use \kartik\grid\GridView;
+use kartik\grid\GridView;
+use app\classes\grid\account\AccountGridFolder;
+
+/** @var AccountGridFolder $activeFolder */
 
 ?>
 
 <div class="row">
     <div class="col-sm-12">
         <ul class="nav nav-pills">
-            <?php foreach (\app\dao\ClientGridSettingsDao::me()->getTabList($model->bp) as $item): ?>
-                <?php $urlParams = array_merge(Yii::$app->request->get(), ['client/grid', 'grid' => $item['id']]); ?>
-                <li class="<?= $model->grid == $item['id'] ? 'active' : '' ?>">
+            <?php foreach ($activeFolder->grid->getFolders() as $folder): ?>
+                <?php $urlParams = array_merge(Yii::$app->request->get(), ['client/grid', 'folderId' => $folder->getId()]); ?>
+                <li class="<?= $activeFolder->getId() == $folder->getId() ? 'active' : '' ?>">
                     <a href="<?= \yii\helpers\Url::toRoute($urlParams) ?>">
-                        <?= $item['name'] ?>
-                        <?php if (isset($item['count'])): ?>
-                            (<?= $item['count'] ?>)
-                        <?php endif; ?>
+                        <?php
+                            echo $folder->getName();
+                            $count = $folder->getCount();
+                            if ($count !== null) {
+                                echo " ($count)";
+                            }
+                        ?>
                     </a>
                 </li>
             <?php endforeach; ?>
@@ -22,8 +28,8 @@ use \kartik\grid\GridView;
         <?php
         echo GridView::widget([
                 'dataProvider' => $dataProvider,
-                'filterModel' => $model,
-                'columns' => $model->getGridSetting()['columns']
+                'filterModel' => $activeFolder,
+                'columns' => $activeFolder->getPreparedColumns(),
             ]
         );
         ?>

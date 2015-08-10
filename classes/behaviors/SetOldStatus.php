@@ -2,7 +2,7 @@
 
 namespace app\classes\behaviors;
 
-use app\dao\ClientGridSettingsDao;
+use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use yii\base\Behavior;
@@ -22,7 +22,7 @@ class SetOldStatus extends Behavior
     public function update($event)
     {
         if ($event->sender instanceof ClientContract) {
-            $bpStatus = ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($event->sender->business_process_status_id, false);
+            $bpStatus = BusinessProcessStatus::findOne($event->sender->business_process_status_id);
 
             if ($bpStatus && isset($bpStatus['oldstatus'])) {
                 $this->setStatusForChildAccounts($event->sender, $bpStatus['oldstatus']);
@@ -35,7 +35,7 @@ class SetOldStatus extends Behavior
 
                 if (!$event->sender->is_blocked) {
                     $newStatus = "work";
-                    $bpStatus = ClientGridSettingsDao::me()->getGridByBusinessProcessStatusId($event->sender->business_process_status_id, false);
+                    $bpStatus = BusinessProcessStatus::findOne($event->sender->business_process_status_id);
                     if (isset($bpStatus['oldstatus']) && $bpStatus['oldstatus'])
                         $newStatus = $bpStatus['oldstatus'];
                 }

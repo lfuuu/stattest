@@ -2,7 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\models\ClientBPStatuses;
+use app\models\BusinessProcessStatus;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
@@ -72,7 +72,7 @@ class LkWizardState extends ActiveRecord
     public static function isBPStatusAllow($bpsId, $contractId = 0)
     {
         return in_array($bpsId, [
-            ClientBPStatuses::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
+            BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
         ]) || $contractId == 9130;
     }
 

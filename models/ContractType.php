@@ -30,4 +30,9 @@ class ContractType extends ActiveRecord
         $arr = self::find()->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
+
+    public function getBusinessProcesses()
+    {
+        return $this->hasMany(BusinessProcess::className(), ['contract_type_id' => 'id'])->orderBy(['sort' => SORT_ASC]);
+    }
 }

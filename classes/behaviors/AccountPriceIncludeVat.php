@@ -2,9 +2,7 @@
 
 namespace app\classes\behaviors;
 
-use app\dao\ClientGridSettingsDao;
 use app\models\ClientAccount;
-use app\models\ClientContract;
 use app\models\ContractType;
 use app\models\Country;
 use yii\base\Behavior;
