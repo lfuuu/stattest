@@ -58,9 +58,11 @@ span {
         <th>
             <p><span><b>Абонентская<br> плата,<br>руб./мес.</b></span></p>
         </th>
+        {if $blank_data.has8800}
         <th>
-            <p><span><b>Стоимость<br> превышения за 1<br> мин. местного<br> исходящего<br> трафика,<br> руб./мин.</b></span></p>
+            <p><span><b>Гарантированный платеж<br/>в счет оплаты трафика, руб./мин.</b></span></p>
         </th>
+        {/if}
         <th>
             <p><span><b>Дата<br>подключения</b></span></p>
         </th>
@@ -85,9 +87,11 @@ span {
         <td align=center>
             <p><span>{$i.per_month|round:2}</span></p>
         </td>
+        {if $blank_data.has8800}
         <td align=center>
-            <p><span>0.58</span></p>
+            <p><span>{if $i.month_min_payment != 0.00}{$i.month_min_payment}{else}----{/if}</span></p>
         </td>
+        {/if}
         <td>
             <p><span>{if $i.from < 32503669200}{* 3000-01-01 *}{$i.from|mdate:"Y-m-d"}{else}&nbsp;{/if}</span></p>
         </td>

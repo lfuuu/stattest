@@ -156,6 +156,7 @@ class ClientDocumentDao extends Singleton
         $client = $clientAccount->client;
 
         $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
+        $data['has8800'] = false;
 
         $taxRate = $clientAccount->getTaxRate();
 
@@ -172,8 +173,11 @@ class ClientDocumentDao extends Singleton
                 'connect_price' => (string)$usage->voipNumber->price,
                 'tarif_name' => $usage->currentTariff->name,
                 'per_month' => round($sum, 2),
-                'per_month_without_tax' => round($sum_without_tax, 2)
+                'per_month_without_tax' => round($sum_without_tax, 2),
+                'month_min_payment' => $usage->currentTariff->month_min_payment,
             ];
+            if(!$data['has8800'] && in_array($usage->currentTariff->id, [226,263,264,321,322,323,448]))
+                $data['has8800'] = true;
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
