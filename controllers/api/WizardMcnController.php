@@ -379,7 +379,7 @@ class WizardMcnController extends /*BaseController*/ApiController
                 "contact_phone" => $contact["phone"],
                 "contact_fio" => $contact["fio"],
                 "file_list" => $files,
-                "is_upload" => count($files) < 5
+                "is_upload" => count($files) < 10,
             ];
 
         return $d;
