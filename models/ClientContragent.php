@@ -145,12 +145,4 @@ class ClientContragent extends HistoryActiveRecord
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
-
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
-    }
 }

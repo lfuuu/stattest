@@ -63,7 +63,7 @@ class ContractController extends BaseController
 
     public function actionEdit($id, $childId = null, $date = null)
     {
-        $model = new ContractEditForm(['id' => $id, 'deferredDate' => $date]);
+        $model = new ContractEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
         $accountId = $model->getModel()->getAccounts()[0]->id;
         if(!($this->getFixClient() && $this->getFixClient()->id == $accountId)){
@@ -82,7 +82,7 @@ class ContractController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['contract/edit','id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1]);
+            return $this->redirect(['contract/edit','id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $date]);
         }
 
         return $this->render("edit", [

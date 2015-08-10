@@ -16,7 +16,8 @@ class ContragentEditForm extends Form
     protected $person = null,
         $contragent = null;
 
-    public $deferredDate = null;
+    public $historyVersionRequestedDate = null;
+    public $historyVersionStoredDate = null;
 
     public $legal_type,
         $name,
@@ -53,7 +54,7 @@ class ContragentEditForm extends Form
                 'kpp', 'position', 'fio', 'opf', 'okpo', 'okvd', 'ogrn'], 'default', 'value' => ''],
 
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
-                'passport_number', 'passport_issued', 'registration_address'], 'string'],
+                'passport_number', 'passport_issued', 'registration_address', 'historyVersionStoredDate',], 'string'],
             [['first_name', 'last_name', 'middle_name', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
@@ -74,14 +75,20 @@ class ContragentEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contragent = ClientContragent::findOne($this->id)->loadVersionOnDate($this->deferredDate);
+            $this->contragent = ClientContragent::findOne($this->id);
+            if($this->contragent && $this->historyVersionRequestedDate) {
+                $this->contragent->loadVersionOnDate($this->historyVersionRequestedDate);
+            }
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
 
             $person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id]);
-            if($person)
-                $this->person = $person->loadVersionOnDate($this->deferredDate);
+            if($person) {
+                if ($this->historyVersionRequestedDate) {
+                    $this->person = $person->loadVersionOnDate($this->historyVersionRequestedDate);
+                }
+            }
             else
                 $this->person = new ClientContragentPerson();
 
@@ -96,11 +103,17 @@ class ContragentEditForm extends Form
     {
         $this->fillContragentNameByLegalType();
         $this->fillContragent();
+        if($this->contragent && $this->historyVersionStoredDate) {
+            $this->contragent->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+        }
         $contragent = $this->contragent;
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);
             if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
                 $this->fillPerson();
+                if ($this->historyVersionStoredDate) {
+                    $this->person->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+                }
                 $person = $this->person;
                 if (!$person->contragent_id)
                     $person->contragent_id = $contragent->id;
@@ -167,8 +180,8 @@ class ContragentEditForm extends Form
                 break;
             case ClientContragent::IP_TYPE:
                 $name = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
-                $this->name = '�?П ' . $name;
-                $this->name_full = '�?П ' . $name;
+                $this->name = 'ИП ' . $name;
+                $this->name_full = 'ИП ' . $name;
                 break;
             case ClientContragent::PERSON_TYPE:
                 $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");

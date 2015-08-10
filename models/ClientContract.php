@@ -201,14 +201,6 @@ class ClientContract extends HistoryActiveRecord
             $account->sync1C();
     }
 
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
-    }
-
     public function statusesForChange()
     {
         if(!$this->state || $this->state == 'unchecked' || \Yii::$app->user->can('clients.changeback_contract_state'))

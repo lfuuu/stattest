@@ -31,12 +31,4 @@ class ClientContragentPerson extends HistoryActiveRecord
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
-
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
-    }
 }
