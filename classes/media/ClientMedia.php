@@ -32,7 +32,7 @@ class ClientMedia extends MediaManager
             $userId = Yii::$app->user->getId();
         }
 
-        $model = $this->createFileModel($name, $comment);
+        $model = $this->createFileModel($name, $comment, $userId);
 
         if ($model->user_id !== $userId) {
             $model->user_id = $userId;
@@ -49,7 +49,7 @@ class ClientMedia extends MediaManager
     /**
      * @return ClientFiles
      */
-    protected function createFileModel($name, $comment)
+    protected function createFileModel($name, $comment, $userId = null)
     {
         $model = new ClientFiles();
         $model->contract_id = $this->contract->id;
@@ -57,7 +57,7 @@ class ClientMedia extends MediaManager
 
         $model->name = $name;
         $model->comment = $comment;
-        $model->user_id = Yii::$app->user->getId();
+        $model->user_id = $userId ?: Yii::$app->user->getId();
 
         $model->save();
 

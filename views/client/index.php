@@ -10,7 +10,7 @@ use app\classes\grid\account\AccountGridFolder;
     <div class="col-sm-12">
         <ul class="nav nav-pills">
             <?php foreach ($activeFolder->grid->getFolders() as $folder): ?>
-                <?php $urlParams = array_merge(Yii::$app->request->get(), ['client/grid2', 'folderId' => $folder->getId()]); ?>
+                <?php $urlParams = array_merge(Yii::$app->request->get(), ['client/grid', 'folderId' => $folder->getId()]); ?>
                 <li class="<?= $activeFolder->getId() == $folder->getId() ? 'active' : '' ?>">
                     <a href="<?= \yii\helpers\Url::toRoute($urlParams) ?>">
                         <?php

@@ -256,7 +256,7 @@ class WizardMcnController extends /*BaseController*/ApiController
     {
         $data = $this->loadAndCheck();
 
-        if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["name"])
+        if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["content"])
             throw new \Exception("data_error");
 
         $file = $this->account->contract->mediaManager->addFileFromParam(
@@ -379,7 +379,7 @@ class WizardMcnController extends /*BaseController*/ApiController
                 "contact_phone" => $contact["phone"],
                 "contact_fio" => $contact["fio"],
                 "file_list" => $files,
-                "is_upload" => count($files) < 5
+                "is_upload" => count($files) < 10,
             ];
 
         return $d;

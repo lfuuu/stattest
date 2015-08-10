@@ -19,7 +19,6 @@ class ClientContract extends HistoryActiveRecord
         'unchecked' => 'Не проверено',
         'checked_original' => 'Оригинал',
         'checked_copy' => 'Копия',
-        'external' => 'Внешний',
     ];
 
     public static function tableName()
@@ -39,6 +38,7 @@ class ClientContract extends HistoryActiveRecord
             'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
             'contragent_id' => 'Контрагент',
+            'is_external' => 'Внешний договор',
         ];
     }
 

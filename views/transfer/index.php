@@ -5,7 +5,7 @@ use kartik\widgets\DatePicker;
 
 /** @var $model ServiceTransferForm */
 
-$possibleServices = $model->getPossibleServices($client);
+$possibleServices = $model->getPossibleServices($client, $only_usages);
 ?>
 
 <form method="POST" action="/transfer/index/?client=<?php echo $client->id; ?>">
@@ -89,7 +89,7 @@ $possibleServices = $model->getPossibleServices($client);
                         <div class="radio">
                             <label>
                                 <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?= (sizeof($model->servicesErrors) ? ' checked="checked"' : ''); ?> />
-                                Выбранные услуги
+                                Выбранные услуги / устройства
                             </label>
                         </div>
 

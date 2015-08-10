@@ -12,7 +12,7 @@
             </div>
         </div>
         <?= $this->render('block/trouble', ['troubles' => $troubles]); ?>
-        <?= $this->render('block/service', ['services' => $services]); ?>
+        <?= $this->render('block/service', ['services' => $services, 'account' => $account]); ?>
 
     </div>
 
@@ -29,4 +29,6 @@
         });
     </script>
 </div>
+
+<script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>
 
