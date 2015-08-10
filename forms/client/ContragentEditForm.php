@@ -1,10 +1,10 @@
 <?php
 namespace app\forms\client;
 
+use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
-use app\models\HistoryVersion;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
@@ -148,6 +148,14 @@ class ContragentEditForm extends Form
         return false;
     }
 
+    /**
+     * @return ClientContragent
+     */
+    public function getContragentModel()
+    {
+        return $this->contragent;
+    }
+
     private function fillContragentNameByLegalType()
     {
         switch ($this->legal_type) {
@@ -159,8 +167,8 @@ class ContragentEditForm extends Form
                 break;
             case ClientContragent::IP_TYPE:
                 $name = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
-                $this->name = 'ИП ' . $name;
-                $this->name_full = 'ИП ' . $name;
+                $this->name = '�?П ' . $name;
+                $this->name_full = '�?П ' . $name;
                 break;
             case ClientContragent::PERSON_TYPE:
                 $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");

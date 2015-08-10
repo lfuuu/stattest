@@ -38,6 +38,12 @@ class ContractController extends BaseController
             throw new Exception('Contract does not exists');
 
         $accountId = $model->getAccounts()[0]->id;
+        if(!($this->getFixClient() && $this->getFixClient()->id == $accountId)){
+            if($accountId) {
+                Yii::$app->session->set('clients_client', $accountId);
+                $this->applyFixClient($accountId);
+            }
+        }
         return $this->redirect(['client/view', 'id' => $accountId]);
     }
 
@@ -58,6 +64,14 @@ class ContractController extends BaseController
     public function actionEdit($id, $childId = null, $date = null)
     {
         $model = new ContractEditForm(['id' => $id, 'deferredDate' => $date]);
+
+        $accountId = $model->getModel()->getAccounts()[0]->id;
+        if(!($this->getFixClient() && $this->getFixClient()->id == $accountId)){
+            if($accountId) {
+                Yii::$app->session->set('clients_client', $accountId);
+                $this->applyFixClient($accountId);
+            }
+        }
 
         if($childId===null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);

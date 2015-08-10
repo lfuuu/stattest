@@ -124,6 +124,13 @@ class AccountController extends BaseController
             return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1]);
         }
 
+        if(!($this->getFixClient() && $this->getFixClient()->id == $id)){
+            if($id) {
+                Yii::$app->session->set('clients_client', $id);
+                $this->applyFixClient($id);
+            }
+        }
+
         return $this->render("edit", [
             'model' => $model,
             'addAccModel' => new ClientPayAcc(),
