@@ -37,7 +37,6 @@ class Trouble extends ActiveRecord
     const TYPE_TROUBLE = 'trouble';
     const TYPE_TASK = 'task';
     const SUBTYPE_TROUBLE = 'trouble';
-    const SERVER_TROUBLE_TYPE = 6;
 
     public $client_name = '';
 

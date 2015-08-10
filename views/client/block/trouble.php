@@ -1,6 +1,5 @@
 <?php
 
-use app\models\Trouble;
 use app\models\User;
 use app\models\Bill;
 
@@ -9,14 +8,17 @@ $serversTroubles = [];
 
 foreach ($troubles as $k => $trouble) {
     if (!in_array($trouble->stage->state_id, [2, 20, 21, 39, 40, 46, 47, 48])) {
-        $troublesIsset = true;
-        if ($trouble->server_id == Trouble::SERVER_TROUBLE_TYPE) {
+        if ($trouble->server_id) {
             $serversTroubles[] = $trouble;
             unset($troubles[$k]);
         }
+        else {
+            $troublesIsset = true;
+        }
     }
-    else
+    else {
         unset($troubles[$k]);
+    }
 }
 if ($troublesIsset):
     ?>
