@@ -29,6 +29,25 @@ class TroubleDao extends Singleton
                 ->queryScalar();
     }
 
+    public function getServerTroublesIDsForClient(ClientAccount $client)
+    {
+        return
+            Trouble::getDb()->createCommand("
+                SELECT tt.`id`
+                FROM
+                    `tt_troubles` tt
+                        INNER JOIN `tt_stages` ts ON ts.`stage_id` = tt.`cur_stage_id` AND ts.`trouble_id` = tt.`id`
+                            LEFT JOIN `server_pbx` pbx ON pbx.`id` = tt.`server_id`
+                                LEFT JOIN `datacenter` dc ON dc.`id` = pbx.`datacenter_id`
+                                    LEFT JOIN `clients` c ON dc.`region` = c.`region`
+                WHERE
+                  tt.`server_id`
+                  AND ts.`state_id` NOT IN (2,20,21,39,40,46,47,48)
+                  AND c.`client` = :client
+            ", [':client' => $client->client])
+                ->queryAll();
+    }
+
     public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);

@@ -8,13 +8,7 @@ $serversTroubles = [];
 
 foreach ($troubles as $k => $trouble) {
     if (!in_array($trouble->stage->state_id, [2, 20, 21, 39, 40, 46, 47, 48])) {
-        if ($trouble->server_id) {
-            $serversTroubles[] = $trouble;
-            unset($troubles[$k]);
-        }
-        else {
-            $troublesIsset = true;
-        }
+        $troublesIsset = true;
     }
     else {
         unset($troubles[$k]);
@@ -84,7 +78,7 @@ if ($troublesIsset):
     </div>
 <?php endif; ?>
 
-<?php if (count($serversTroubles)): ?>
+<?php if (count($serverTroubles)): ?>
     <div class="tt-troubles">
         <div class="row" style="padding-left: 15px;">
             <h2>Серверные заявки</h2>
@@ -107,7 +101,7 @@ if ($troublesIsset):
                 </thead>
                 <tbody>
                 <?php $i=1; ?>
-                <?php foreach ($serversTroubles as $k => $trouble) : ?>
+                <?php foreach ($serverTroubles as $k => $trouble) : ?>
                     <?php
                     $is_payed = 0;
                     if ($trouble->bill_no):
@@ -117,7 +111,7 @@ if ($troublesIsset):
                     ?>
 
                     <tr style="border-top: 2px solid black; background: <?= ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF'); ?>;">
-                        <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble->id; ?></a></b></td>
+                        <td><b><a href="/index.php?module=tt&action=view&id=<?= $trouble->id; ?>"><?= $trouble['id']; ?></a></b></td>
                         <td><?= $trouble->date_creation; ?></td>
                         <td><?= $trouble->stage->state->name; ?></td>
                         <td><?= $trouble->stage->user_main; ?></td>
