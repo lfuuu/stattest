@@ -183,7 +183,7 @@ use yii\helpers\Url;
             </div>
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
+                <?= Html::button('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
             <?php ActiveForm::end(); ?>
 
@@ -421,6 +421,7 @@ use yii\helpers\Url;
             }
 
             $('#accounteditform-bik').typeahead({
+                    autoselect: true,
                     hint: true,
                     highlight: true,
                     minLength: 3,
