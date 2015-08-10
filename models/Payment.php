@@ -35,6 +35,7 @@ class Payment extends ActiveRecord
     const BANK_MOS  = 'mos';
     const BANK_URAL = 'ural';
     const BANK_SBER = 'sber';
+    const BANK_RAIFFEISEN = 'raiffeisen';
 
     const ECASH_CYBERPLAT = 'Cyberplat';
     const ECASH_YANDEX    = 'Yandex';
@@ -51,6 +52,7 @@ class Payment extends ActiveRecord
         self::BANK_MOS  => 'Банк Москвы',
         self::BANK_URAL => 'УралСиб',
         self::BANK_SBER => 'Сбербанк',
+        self::BANK_RAIFFEISEN => 'Райфайзен Будапешт',
     ];
 
     public static $ecash = [

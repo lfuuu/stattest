@@ -11,6 +11,10 @@ class ClientDocument extends ActiveRecord
 {
     const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
 
+    const DOCUMENT_BLANK_TYPE = 'blank';
+    const DOCUMENT_CONTRACT_TYPE = 'contract';
+    const DOCUMENT_AGREEMENT_TYPE = 'agreement';
+
     public $content;
     public $group;
     public $template;
@@ -38,7 +42,7 @@ class ClientDocument extends ActiveRecord
     public function rules()
     {
         return [
-            [['contract_id','contract_no'], 'required'],
+            [['contract_id', 'contract_no'], 'required'],
             [['contract_id', 'is_active', 'account_id'], 'integer'],
             [['contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
@@ -157,16 +161,28 @@ class ClientDocument extends ActiveRecord
                         $oldContract->erase();
             }
         }
+
+        if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {
+            $contract = ClientContract::findOne($this->contract_id);
+            $contract->number = $this->contract_no;
+            $contract->save();
+        }
+
         return parent::beforeSave($insert);
     }
 
     public function afterSave($insert, $changedAttributes)
     {
+        $contract = ClientContract::findOne($this->contract_id);
+
         if ($insert && $this->group && $this->template) {
-            $this->dao()->generateFile($this, $this->group, $this->template);
+            if (!($this->type == self::DOCUMENT_CONTRACT_TYPE && $contract->is_external)) {
+                $this->dao()->generateFile($this, $this->group, $this->template);
+            }
         } elseif ($this->content !== null) {
             $this->dao()->updateFile($this);
         }
+
         return parent::afterSave($insert, $changedAttributes);
     }
 }

@@ -125,7 +125,7 @@ if ($has) :
                                     ?>
                                     <tr bgcolor="<?= $actual($cpe->actual_from, $cpe->actual_to) ? '#DCEEA9' : '#fffff5' ?>">
                                         <?php if ($j): ?>
-                                            <td rowspan=<?= count($service->cpeList) ?>bgcolor=#DCEEA9>
+                                            <td rowspan=<?= count($service->cpeList) + 1 ?> bgcolor=#DCEEA9>
                                                 <a href='/?module=routers&action=d_add'>
                                                     <img class=icon src='/images/icons/add.gif'>
                                                 </a>Создать устройство
@@ -146,7 +146,7 @@ if ($has) :
                                 <?php endforeach; ?>
                         <?php else : ?>
                             <tr bgcolor="#DCEEA9">
-                                <td>
+                                <td rowspan="1">
                                     <a href='/?module=routers&action=d_add'>
                                         <img class=icon src='/images/icons/add.gif'>
                                     </a>Создать устройство
@@ -155,6 +155,7 @@ if ($has) :
                             </tr>
                         <?php endif; ?>
 
+                            <tr><td colspan="5" bgcolor="#fffff5" style="padding: 0; margin: 0; font-size: 5px;">&nbsp;</td></tr>
                             <?php
                             $j = true;
                             if ($service->netList) :
@@ -289,7 +290,7 @@ if ($has) :
 
             <?php if ($services['device']) : ?>
                 <div id="device">
-                    <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
+                    <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a> (<a href="/transfer/index/?client=<?= $account->id; ?>&only_usage=TechCpe" onClick="return showIframePopup(this)">перенос устройств</a>)</h3>
                     <table cellspacing="4" cellpadding="2" width="100%" border="0">
                         <thead>
                         <tr bgcolor="#FFFFD8">

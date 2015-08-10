@@ -2,17 +2,13 @@
 namespace app\models;
 
 use app\classes\Assert;
-use app\classes\Event;
+use app\classes\model\HistoryActiveRecord;
 use app\classes\voip\VoipStatus;
-use app\dao\ClientGridSettingsDao;
 use app\classes\BillContract;
 use DateTimeZone;
 use yii\base\Exception;
-use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\models\ClientContact;
-use yii\helpers\ArrayHelper;
 
 
 /**
@@ -34,12 +30,12 @@ use yii\helpers\ArrayHelper;
  * @property
  *
  */
-class ClientAccount extends ActiveRecord
+class ClientAccount extends HistoryActiveRecord
 {
+
     const STATUS_INCOME = 'income';
 
     public $client_orig = '';
-    public $historyVersionDate = null;
 
     public static $statuses = array(
         'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
@@ -192,6 +188,13 @@ class ClientAccount extends ActiveRecord
     {
         return $this->contract->contragent->okvd;
     }
+
+
+    public function getChannelName()
+    {
+        return $this->sale_channel ? SaleChannel::getList()[$this->sale_channel] : '';
+    }
+
 /**************/
     public static function tableName()
     {
@@ -208,43 +211,10 @@ class ClientAccount extends ActiveRecord
         return new ClientAccountQuery(get_called_class());
     }
 
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        if ($this->isNewRecord) {
-            return parent::save($runValidation, $attributeNames);
-        } else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation, $attributeNames);
-            } else {
-                $behaviors = $this->behaviors;
-                unset($behaviors['HistoryVersion']);
-                $behaviors = array_keys($behaviors);
-                foreach ($behaviors as $behavior)
-                    $this->detachBehavior($behavior);
-                $this->beforeSave(false);
-
-                $date = \Yii::$app->request->post('deferred-date');
-                if (
-                    $date
-                    && strtotime($date) < time()
-                    && HistoryVersion::find()
-                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
-                        ->andWhere(['<=', 'date', date('Y-m-d')])
-                        ->andWhere(['>', 'date', $date])
-                        ->count() == 0
-                )
-                    return parent::save($runValidation, $attributeNames);
-
-                return true;
-            }
-        }
-    }
-
     public function behaviors()
     {
         return [
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
@@ -310,7 +280,10 @@ class ClientAccount extends ActiveRecord
      */
     public function getContract()
     {
-        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->historyVersionDate);
+        $contract = ClientContract::findOne($this->contract_id);
+        if($contract && $this->getHistoryVersionRequestedDate())
+            $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        return $contract;
     }
 
     public function getContractType()
@@ -358,7 +331,7 @@ class ClientAccount extends ActiveRecord
      */
     public function getContragent()
     {
-        return $this->getContract()->getContragent()->loadVersionOnDate($this->historyVersionDate);
+        return $this->getContract()->getContragent();
     }
 
     public function getStatusName()
@@ -431,13 +404,14 @@ class ClientAccount extends ActiveRecord
     public function getBpStatuses()
     {
         $processes = [];
-        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
-            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        foreach (BusinessProcess::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
         }
 
         $statuses = [];
-        foreach (ClientGridSettingsDao::me()->getAllByParams() as $s) {
-            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['grid_business_process_id']];
+        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
+        foreach ($bpStatuses as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
         }
 
         return ["processes" => $processes, "statuses" => $statuses];
@@ -451,14 +425,6 @@ class ClientAccount extends ActiveRecord
     public function getAdditionalPayAcc()
     {
         return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
-    }
-
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
     }
 
     public function getTaxRate()
@@ -530,4 +496,5 @@ class ClientAccount extends ActiveRecord
     {
         return VoipStatus::create($this)->getWarnings();
     }
+
 }

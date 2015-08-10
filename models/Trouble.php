@@ -110,7 +110,7 @@ class Trouble extends ActiveRecord
     {
         if ($this->server_id) {
             $server = ServerPbx::findOne($this->server_id);
-            return "Сервер: {$server->name},<br>Регион: {$server->datacenter->region->name}";
+            return "Сервер: {$server->name},<br>Регион: {$server->datacenter->datacenterRegion->name}";
         } elseif ($this->service) {
             if ($this->service != 'usage_voip')
                 return str_replace('usage_', '', $this->service) . '-' . $this->service_id;

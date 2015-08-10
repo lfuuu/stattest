@@ -17,6 +17,7 @@ abstract class MediaManager
         'jpeg' => 'image/jpeg',
         'jpg'  => 'image/jpeg',
         'jpe'  => 'image/jpeg',
+        'png'  => 'image/png',
         'htm'  => 'text/html',
         'html' => 'text/html',
         'txt'  => 'text/plain',
@@ -135,7 +136,8 @@ abstract class MediaManager
                 Yii::$app->end();
             }
             else {
-                Header('Content-Type: ' . $fileData['mimeType']);
+                Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
+                Header('Content-Type:' . $fileData['mimeType']);
                 echo file_get_contents($filePath);
                 Yii::$app->end();
             }

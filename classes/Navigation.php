@@ -1,8 +1,8 @@
 <?php
 namespace app\classes;
 
-use app\dao\ClientGridSettingsDao;
 use app\models\billing\Pricelist;
+use app\models\ContractType;
 use Yii;
 use yii\helpers\Url;
 
@@ -161,26 +161,31 @@ class Navigation
 
     private function addBlockNewClients()
     {
-
-        $blocks_rows = ClientGridSettingsDao::menuAsArray();
+        $exclusion = [
+            2 => '?module=tt&action=view_type&type_pk=8',
+            3 => '?module=tt&action=view_type&type_pk=4',
+            5 => '/?module=tt&action=view_type&type_pk=7',
+        ];
+        $blocks_rows = ContractType::find()->orderBy(['sort' => SORT_ASC])->all();
 
         foreach($blocks_rows as $block_row)
         {
-
             $block = NavigationBlock::create()
-                ->setId('client_'.$block_row['id'])
+                ->setId('client_'.$block_row->id)
                 ->setRights(['clients.read'])
-                ->setTitle($block_row['name']);
+                ->setTitle($block_row->name);
 
-            foreach($block_row['items'] as $item)
+            foreach($block_row->businessProcesses as $item)
             {
-                $block->addItem($item['name'],$item['link']);
+                $block->addItem($item->name,
+                    isset($exclusion[$item->id])
+                    ? $exclusion[$item->id]
+                    : Url::toRoute(['client/grid', 'businessProcessId' => $item->id])
+                );
             }
 
             $this->addBlock($block);
-
         }
-
     }
     
 }

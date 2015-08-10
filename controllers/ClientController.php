@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\classes\grid\GridFactory;
 use app\classes\Assert;
 use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
@@ -64,7 +65,6 @@ class ClientController extends BaseController
 
         $troubles = Trouble::find()
             ->andWhere(['client' => $account->client])
-            ->andWhere(['server_id' => 0])
             ->orderBy('`date_creation` DESC')
             ->all();
 
@@ -168,19 +168,17 @@ class ClientController extends BaseController
         return $this->render('create', ['contragent' => $contragent, 'account' => $account, 'contract' => $contract]);
     }
 
-    public function actionGrid($bp = 0, $grid = 0)
+    public function actionGrid($businessProcessId, $folderId = null)
     {
-        $model = (new ClientSearch());
-        $model->getGridSetting($bp, $grid);
-        $model->setAttributes(Yii::$app->request->get());
-        $dataProvider = $model->searchWithSetting();
+        $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
+        $gridFolder = $accountGrid->getFolder($folderId);
+        $gridFolder->setAttributes(Yii::$app->request->get());
 
-        //var_dump($dataProvider); die;
+        $dataProvider = $gridFolder->spawnDataProvider();
 
         return $this->render('index', [
-//          'searchModel' => $dataProvider,
             'dataProvider' => $dataProvider,
-            'model' => $model,
+            'activeFolder' => $gridFolder,
         ]);
     }
 

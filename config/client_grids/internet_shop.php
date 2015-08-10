@@ -1,8 +1,8 @@
 <?php
 
 use app\models\ContractType;
-use app\models\ClientBPStatuses;
-use app\models\ClientGridBussinesProcess;
+use app\models\BusinessProcessStatus;
+use app\models\BusinessProcess;
 use app\models\User;
 
 $internet_shop_manager_column = [
@@ -24,10 +24,10 @@ return [
     16 => [
         'id' => 16,
         'name' => \Yii::t('app', 'Действующий'),
-        'grid_business_process_id' => ClientGridBussinesProcess::INTERNET_SHOP_MAINTENANCE,
+        'grid_business_process_id' => BusinessProcess::INTERNET_SHOP_MAINTENANCE,
         'queryParams' => [
             'where' => [
-                ['in', 'c.status', ['double', 'trash']],
+                ['not in', 'c.status', ['double', 'trash']],
                 ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
             ],
         ],

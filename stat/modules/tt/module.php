@@ -1072,7 +1072,8 @@ where c.client="'.$trouble['client_orig'].'"')
         {
             $W[]='T.server_id in ("'.implode('","', (is_array($server_id) ? $server_id : [$server_id])).'")';
         } else if (!$t_id) { // убираем серверные траблы из списка простых заявок. Показывает траблу - если открыта детелизация
-            $W[]='T.server_id=0';
+            if ($mode != 2 && $mode != 3)
+                $W[]='T.server_id=0';
         }
 
         $showStages = ($mode>=1 || $client || $service || $service_id || $t_id || $server_id);
@@ -1147,7 +1148,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     WHERE nb.bill_no = T.bill_no
                 ),
                 T.client) as client,
-                is_payed,
+                    is_payed,
                 is_rollback,
                 tt.name as trouble_name,
                 cr.manager,
