@@ -59,7 +59,7 @@ class UsageVoipCloseForm extends Form
             LogTarif::find()
                 ->andWhere(['service' => 'usage_voip'])
                 ->andWhere(['id_service' => $usage->id])
-                ->andWhere('date_activation > :date', [$usage->actual_to])
+                ->andWhere('date_activation > :date', [':date' => $usage->actual_to])
                 ->all();
 
         $transaction = Yii::$app->db->beginTransaction();
