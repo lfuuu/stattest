@@ -82,7 +82,11 @@ class ContractController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['contract/edit','id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $model->historyVersionStoredDate]);
+            $returnTo =
+                Yii::$app->request->get('returnTo')
+                    ?:['contract/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $model->historyVersionStoredDate];
+
+            return $this->redirect($returnTo);
         }
 
         return $this->render("edit", [

@@ -388,7 +388,29 @@ use yii\web\JsExpression;
                     'empty26' => ['type' => Form::INPUT_RAW,],
 
                     'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Оказанные услуги по Договору', 'no' => 'Абонентская плата по Договору'],],
+                    'empty27' => ['type' => Form::INPUT_RAW,],
+                    'empty28' => ['type' => Form::INPUT_RAW,],
+                    'empty29' => ['type' => Form::INPUT_RAW,],
 
+                    'bik' => ['columnOptions' => ['colspan' => 2],],
+                    'corr_acc' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty30' => ['type' => Form::INPUT_RAW,],
+                    'empty31' => ['type' => Form::INPUT_RAW,],
+
+                    'pay_acc' => ['columnOptions' => ['colspan' => 2],],
+                    'bank_name' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty32' => ['type' => Form::INPUT_RAW,],
+                    'empty33' => ['type' => Form::INPUT_RAW,],
+
+                    'custom_properties' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
+                    'bank_city' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
+                    'empty35' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+
+                    'bank_properties' => ['type' => Form::INPUT_TEXTAREA,'columnOptions' => ['colspan' => 4], 'options' => ['disabled' => 'disabled']],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
+                    'empty36' => ['type' => Form::INPUT_RAW,],
                 ],
             ]);
 
@@ -467,3 +489,4 @@ use yii\web\JsExpression;
 
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
 <script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>
+<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>

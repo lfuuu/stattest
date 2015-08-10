@@ -120,7 +120,7 @@ class HistoryVersion extends ActiveRecord
             $model->setHistoryVersionStoredDate($historyModel['date']);
         }
         $model->setHistoryVersionRequestedDate($date);
-        
+
         return $model;
     }
 

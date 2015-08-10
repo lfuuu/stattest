@@ -318,7 +318,9 @@ class m_newaccounts extends IModule
                 'delta'=>0,
                 'bill'=>$r['saldo'],
                 'ts'=>$r['ts'],
-                'saldo'=>$r['saldo']
+                'saldo'=>$r['saldo'],
+                'last_saldo'=>$r['saldo'],
+                'last_saldo_ts'=>$r['ts'],
             );
         }else{
             $sum[$fixclient_data['currency']]
@@ -1883,7 +1885,7 @@ class m_newaccounts extends IModule
             }else{
                 if(in_array($obj, array('invoice','upd'))){
 
-                    $design->assign("client_contract", BillContract::getString($bill->Client("id"), $bill->getTs()));
+                    $design->assign("client_contract", BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
 
                     $id = $db->QueryInsert(
                         "log_newbills",

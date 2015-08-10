@@ -147,17 +147,17 @@ class ClientDocument extends ActiveRecord
         if ($insert) {
             $this->contract_dop_date = '2012-01-01';
             $this->contract_dop_no = '0';
-            if ($this->type != 'contract') {
-                $utime = $this->type == 'blank' ? strtotime('2035-01-01') : ($this->contract_dop_date ? strtotime($this->contract_dop_date) : time());
+            if ($this->type != self::DOCUMENT_CONTRACT_TYPE) {
+                $utime = $this->type == self::DOCUMENT_BLANK_TYPE ? strtotime('2035-01-01') : ($this->contract_dop_date ? strtotime($this->contract_dop_date) : time());
                 $lastContract = BillContract::getLastContract($this->contract_id, $utime);
 
                 $this->contract_no = $this->contract_no ? $this->contract_no : ($lastContract ? $lastContract['no'] : 1);
                 $this->contract_date = $this->contract_date ? $this->contract_date : date('Y-m-d', $lastContract ? $lastContract['date'] : time());
                 $this->contract_dop_no = $this->contract_no;
-                $this->contract_dop_date = ($this->type == 'agreement') ? $this->contract_date : date('Y-m-d');
+                $this->contract_dop_date = ($this->type == self::DOCUMENT_AGREEMENT_TYPE) ? $this->contract_date : date('Y-m-d');
             }
 
-            if ($this->type == 'contract') {
+            if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {
                 $oldContracts = self::findAll(['contract_id' => $this->contract_id]);
                 if ($oldContracts)
                     foreach ($oldContracts as $oldContract)
