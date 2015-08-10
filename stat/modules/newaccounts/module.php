@@ -318,7 +318,9 @@ class m_newaccounts extends IModule
                 'delta'=>0,
                 'bill'=>$r['saldo'],
                 'ts'=>$r['ts'],
-                'saldo'=>$r['saldo']
+                'saldo'=>$r['saldo'],
+                'last_saldo'=>$r['saldo'],
+                'last_saldo_ts'=>$r['ts'],
             );
         }else{
             $sum[$fixclient_data['currency']]
