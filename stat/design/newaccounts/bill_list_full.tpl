@@ -255,3 +255,11 @@
     }
 {/literal}
 </script>
+
+<script>
+{literal}
+
+    $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
+
+{/literal}
+</script>
