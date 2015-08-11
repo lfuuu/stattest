@@ -21,7 +21,7 @@ class AutoBlockFolder extends AccountGridFolder
             'id',
             'company',
             'currency',
-            //'block_date',
+            'block_date',
             'manager',
             'region',
         ];
@@ -31,6 +31,15 @@ class AutoBlockFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
+        $query->addSelect('ab.block_date');
+        $query->leftJoin(
+            '(
+                SELECT `client_id`, MAX(`date`) AS block_date
+                FROM `lk_notice_log`
+                WHERE `event` = "zero_balance"
+                GROUP BY `client_id`
+            ) AS ab',
+            'ab.`client_id` = c.`id`');
         $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
         $query->andWhere([
             'not in',

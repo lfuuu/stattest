@@ -54,7 +54,7 @@ class IncomeFromCustomersFolder extends AccountGridFolder
         $query->andWhere('l.type = "service"');
         $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
 
-        list($dateFrom, $dateTo) = explode('+-+', $this->bill_date);
+        list($dateFrom, $dateTo) = explode(' - ', $this->bill_date);
         if (!$dateFrom)
             $dateFrom = date('Y-m-01');
         if (!$dateTo)
