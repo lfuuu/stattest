@@ -35,6 +35,14 @@ $status = [
     'working' => 'Включенный',
 ];
 
+$allowedDirectionList = [
+    'full' => 'Все',
+    'russia' => 'Россия',
+    'localmob' => 'Местные стац.+моб.',
+    'local' => 'Местные стац.',
+    'blocked' => 'Запрет исх. связи',
+];
+
 ?>
 
 <legend>
@@ -109,8 +117,9 @@ echo Form::widget([
     'columns' => 2,
     'attributes' => [
         'no_of_lines' => ['type' => Form::INPUT_TEXT],
-        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
         'address' => ['type' => Form::INPUT_TEXT],
+        'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
+        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
     ],
 ]);
 

@@ -18,6 +18,7 @@ class UsageVoipForm extends Form
     public $no_of_lines;
     public $address;
     public $line7800_id;
+    public $allowed_direction;
 
     public $tariff_main_status;
     public $tariff_main_id;
@@ -37,7 +38,7 @@ class UsageVoipForm extends Form
     {
         return [
             [['id','client_account_id','city_id','connection_point_id','number_tariff_id','line7800_id','no_of_lines'], 'integer'],
-            [['type_id','did','connecting_date','tariff_change_date','address', 'status'], 'string'],
+            [['type_id','did','connecting_date','tariff_change_date','address', 'status', 'allowed_direction'], 'string'],
             [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
             [['tariff_main_status'], 'string'],
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
@@ -58,6 +59,8 @@ class UsageVoipForm extends Form
             'no_of_lines' => 'Количество линий',
             'address' => 'Адрес',
             'line7800_id' => 'Линия без номера',
+            'allowed_direction' => 'Разрешенные направления',
+            'status' => 'Статус',
 
             'tariff_main_status' => 'Тип тарифа',
             'tariff_main_id' => 'Тариф Основной',
