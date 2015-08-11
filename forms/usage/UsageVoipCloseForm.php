@@ -72,7 +72,7 @@ class UsageVoipCloseForm extends Form
                 $nextHistoryItem->delete();
             }
 
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
+            Number::dao()->actualizeStatusByE164($usage->E164);
 
             Event::go('update_phone_product', ['account_id' => $usage->clientAccount->id]);
             Event::go('actualize_number', ['number' => $usage->E164]);
