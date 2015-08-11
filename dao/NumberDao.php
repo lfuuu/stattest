@@ -147,7 +147,10 @@ class NumberDao extends Singleton
     public function actualizeStatus(Number $number)
     {
         /** @var UsageVoip $usage */
-        $usage = UsageVoip::find()->andWhere('actual_from<=DATE(now()) and  actual_to >= DATE(now())')->one();
+        $usage = UsageVoip::find()
+            ->andWhere(['E164' => $number->number])
+            ->andWhere('actual_from<=DATE(now()) and  actual_to >= DATE(now())')
+            ->one();
         
         if ($usage) {
             if ($number->status != Number::STATUS_ACTIVE) {
