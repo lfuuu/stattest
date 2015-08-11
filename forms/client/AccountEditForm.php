@@ -125,7 +125,7 @@ class AccountEditForm extends Form
         return ArrayHelper::merge(
             (new ClientAccount())->attributeLabels(),
             [
-                'admin_email' => 'Email Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°'
+                'admin_email' => 'Email администратора'
             ]
         );
     }
