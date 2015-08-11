@@ -48,4 +48,58 @@ jQuery(document).ready(function() {
         });
     });
 
+    $('#accounteditform-custom_properties').on('click', function(e){
+        var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
+        f.prop('disabled',  !f.prop('disabled'));
+    });
+    $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-pay_acc').on('blur', function(){
+        genBankProp();
+    });
+
+    $(' #accounteditform-pay_acc').closest('form').on('submit', function(){
+        var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
+        f.prop('disabled',  false);
+    })
+
+    var substringMatcher = function () {
+        return function findMatches(q, cb) {
+            $.getJSON('search/bank', {
+                search: $("#accounteditform-bik").val()
+            }, function (matches) {
+                cb(matches);
+            });
+        };
+    };
+
+    function genBankProp()
+    {
+        var pa = $('#accounteditform-pay_acc').val();
+        var ca = $('#accounteditform-corr_acc').val();
+        var bn = $('#accounteditform-bank_name').val();
+        var bc = $('#accounteditform-bank_city').val();
+        var v = 'р/с '+ pa + "\n" + bn + ' ' + bc + (ca ? ("\n" +'к/с '+ ca) : '');
+        $('#accounteditform-bank_properties').val(v);
+    }
+
+    $('#accounteditform-bik').typeahead({
+            autoselect: true,
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            async: true,
+        },
+        {
+            name: 'accounteditform-bik',
+            source: substringMatcher(),
+            templates: {
+                suggestion: function(obj){ return obj['value']; }
+            }
+        })
+        .on('typeahead:selected', function($e, data) {
+            $('#accounteditform-bank_name').val(data['bank_name']);
+            $('#accounteditform-corr_acc').val(data['corr_acc']);
+            $('#accounteditform-bank_city').val(data['bank_city']);
+            genBankProp();
+        });
+
 });

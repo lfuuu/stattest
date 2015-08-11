@@ -21,7 +21,8 @@ class AccountEditForm extends Form
     const DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC = 1;
 
     protected $clientM = null;
-    public $deferredDate = null;
+    public $historyVersionRequestedDate = null;
+    public $historyVersionStoredDate = null;
 
     public $id,
         $super_id,
@@ -77,7 +78,7 @@ class AccountEditForm extends Form
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                     'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties',
-                    'admin_email'
+                    'admin_email', 'historyVersionStoredDate',
                 ],
                 'string'
             ],
@@ -137,7 +138,11 @@ class AccountEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->clientM = ClientAccount::findOne($this->id)->loadVersionOnDate($this->deferredDate);
+
+            $this->clientM = ClientAccount::findOne($this->id);
+            if($this->clientM && $this->historyVersionRequestedDate) {
+                $this->clientM->loadVersionOnDate($this->historyVersionRequestedDate);
+            }
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
@@ -197,7 +202,10 @@ class AccountEditForm extends Form
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
-        $client->setAttributes($this->getAttributes(null, ['deferredDate', 'id']), false);
+        $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
+        if($client && $this->historyVersionStoredDate) {
+            $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+        }
 
         $contract = ClientContract::findOne($client->contract_id);
         $contragent = ClientContragent::findOne($contract->contragent_id);

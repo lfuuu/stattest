@@ -39,12 +39,13 @@ class ContractEditForm extends Form
 
     protected $contract = null;
 
-    public $deferredDate = null;
+    public $historyVersionRequestedDate;
+    public $historyVersionStoredDate;
 
     public function rules()
     {
         $rules = [
-            [['date', 'manager', 'account_manager', 'comment'], 'string'],
+            [['date', 'manager', 'account_manager', 'comment', 'historyVersionStoredDate',], 'string'],
             [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id', 'is_external'], 'integer'],
             ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original',]],
             ['business_process_id', 'default', 'value' => 1],
@@ -67,7 +68,10 @@ class ContractEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contract = ClientContract::findOne($this->id)->loadVersionOnDate($this->deferredDate);
+            $this->contract = ClientContract::findOne($this->id);
+            if($this->contract && $this->historyVersionRequestedDate) {
+                $this->contract->loadVersionOnDate($this->historyVersionRequestedDate);
+            }
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }
@@ -84,7 +88,9 @@ class ContractEditForm extends Form
 
     public function getOrganizationsList()
     {
-        $date = $this->deferredDate ? $this->deferredDate : date('Y-m-d');
+        $date = date('Y-m-d');
+        if($this->contract && $this->contract->getHistoryVersionStoredDate())
+            $date = $this->contract->getHistoryVersionStoredDate();
         $organizations = Organization::find()
             ->andWhere(['<=', 'actual_from', $date])
             ->andWhere(['>=', 'actual_to', $date])
@@ -144,6 +150,9 @@ class ContractEditForm extends Form
                 }
             ),
             false);
+        if($contract && $this->historyVersionStoredDate) {
+            $contract->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+        }
 
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);

@@ -85,8 +85,8 @@ class HistoryVersion extends ActiveRecord
         if (null === $currentModel)
             $currentModel = new $modelClass();
 
-        if (!($currentModel instanceof HistoryVersionInterface)) {
-            Assert::isUnreachable('model must be instance of HistoryVersionInterface');
+        if (!($currentModel instanceof HistoryActiveRecord)) {
+            Assert::isUnreachable('model must be instance of HistoryActiveRecord');
         }
 
         $historyModel = static::find()
@@ -115,9 +115,11 @@ class HistoryVersion extends ActiveRecord
             ->andWhere(['<=', 'date', $date])
             ->orderBy('date DESC')->one();
 
-        $model->setAttributes(json_decode($historyModel['data_json'], true), false);
+        if($historyModel) {
+            $model->setAttributes(json_decode($historyModel['data_json'], true), false);
+            $model->setHistoryVersionStoredDate($historyModel['date']);
+        }
         $model->setHistoryVersionRequestedDate($date);
-        $model->setHistoryVersionStoredDate($historyModel['date']);
 
         return $model;
     }

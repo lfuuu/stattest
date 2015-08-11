@@ -133,4 +133,18 @@ class BaseController extends Controller
             $fixclient_data = [];
         }
     }
+
+    public function getFixClient()
+    {
+        global $fixclient_data;
+        if($fixclient_data['id'])
+            $accountId = $fixclient_data['id'];
+        elseif($_SESSION["clients_client"])
+            $accountId = $_SESSION["clients_client"];
+        elseif(Yii::$app->user->identity->restriction_client_id)
+            $accountId = Yii::$app->user->identity->restriction_client_id;
+        if($accountId)
+            return ClientAccount::findOne($accountId);
+        return null;
+    }
 }

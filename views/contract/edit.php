@@ -130,19 +130,9 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
             <div class="row">
                 <div class="col-sm-4">
                     <div class="col-sm-12" type="textInput">
-                        <label class="control-label" for="deferred-date">Сохранить на</label>
-                        <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
-                        <?= Html::dropDownList('deferred-date', null,
-                            (Yii::$app->request->get('date') ? [Yii::$app->request->get('date') => 'Дату из истории'] : [])
-                            +
-                            [
-                                date('Y-m-d', time()) => 'Текущую дату',
-                                date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
-                                date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
-                                date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
-                                '' => 'Выбраную дату'
-                            ],
-                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'name' => 'deferred-date', 'id' => 'deferred-date']); ?>
+                        <label class="control-label" for="historyVersionStoredDate">Сохранить на</label>
+                        <?= Html::dropDownList('ContractEditForm[historyVersionStoredDate]', null, $model->getModel()->getDateList(),
+                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']); ?>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -188,12 +178,12 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                 $('#type-select .btn').not('.btn-primary').each(function () {
                     $($(this).data('tab')).remove();
                 });
-                if ($("#deferred-date option:selected").val() == '')
-                    $('#deferred-date option:selected').val($('#deferred-date-input').val()).select();
+                if ($("#historyVersionStoredDate option:selected").val() == '')
+                    $('#historyVersionStoredDate option:selected').val($('#deferred-date-input').val()).select();
                 return true;
             });
 
-            $('#deferred-date').on('change', function () {
+            $('#historyVersionStoredDate').on('change', function () {
                 console.log(this);
                 var datepicker = $('#deferred-date-input');
                 if ($("option:selected", this).val() == '') {

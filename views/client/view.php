@@ -11,7 +11,7 @@
                 <?= $this->render('block/rightmenu', ['account' => $account]); ?>
             </div>
         </div>
-        <?= $this->render('block/trouble', ['troubles' => $troubles]); ?>
+        <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
         <?= $this->render('block/service', ['services' => $services, 'account' => $account]); ?>
 
     </div>

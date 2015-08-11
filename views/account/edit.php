@@ -147,19 +147,9 @@ use yii\helpers\Url;
             <div class="row">
                 <div class="col-sm-4">
                     <div class="col-sm-12" type="textInput">
-                        <label class="control-label" for="deferred-date">Сохранить на</label>
-                        <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
-                        <?= Html::dropDownList('deferred-date', null,
-                            (Yii::$app->request->get('date') ? [Yii::$app->request->get('date') => 'Дату из истории'] : [])
-                            +
-                            [
-                                date('Y-m-d', time()) => 'Текущую дату',
-                                date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
-                                date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
-                                date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
-                                '' => 'Выбраную дату'
-                            ],
-                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'name' => 'deferred-date', 'id' => 'deferred-date']); ?>
+                        <label class="control-label" for="historyVersionStoredDate">Сохранить на</label>
+                        <?= Html::dropDownList('AccountEditForm[historyVersionStoredDate]', null, $model->getModel()->getDateList(),
+                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']); ?>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -183,7 +173,7 @@ use yii\helpers\Url;
             </div>
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
+                <?= Html::button('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
             <?php ActiveForm::end(); ?>
 
@@ -206,12 +196,12 @@ use yii\helpers\Url;
             });
 
             $('#buttonSave').on('click', function (e) {
-                if ($("#deferred-date option:selected").val() == '')
-                    $('#deferred-date option:selected').val($('#deferred-date-input').val()).select();
+                if ($("#historyVersionStoredDate option:selected").val() == '')
+                    $('#historyVersionStoredDate option:selected').val($('#deferred-date-input').val()).select();
                 return true;
             });
 
-            $('#deferred-date').on('change', function () {
+            $('#historyVersionStoredDate').on('change', function () {
                 var datepicker = $('#deferred-date-input');
                 if ($("option:selected", this).val() == '') {
                     datepicker.parent().parent().show();
@@ -384,64 +374,6 @@ use yii\helpers\Url;
 
     <?php endif; ?>
 
-
-    <script>
-        $(function(){
-            $('#accounteditform-custom_properties').on('click', function(e){
-                var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
-                f.prop('disabled',  !f.prop('disabled'));
-            });
-            $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-pay_acc').on('blur', function(){
-                genBankProp();
-            });
-
-            $(' #accounteditform-pay_acc').closest('form').on('submit', function(){
-                var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
-                f.prop('disabled',  false);
-            })
-
-            var substringMatcher = function () {
-                return function findMatches(q, cb) {
-                    $.getJSON('search/bank', {
-                        search: $("#accounteditform-bik").val()
-                    }, function (matches) {
-                        cb(matches);
-                    });
-                };
-            };
-
-            function genBankProp()
-            {
-                var pa = $('#accounteditform-pay_acc').val();
-                var ca = $('#accounteditform-corr_acc').val();
-                var bn = $('#accounteditform-bank_name').val();
-                var bc = $('#accounteditform-bank_city').val();
-                var v = 'р/с '+ pa + "\n" + bn + ' ' + bc + (ca ? ("\n" +'к/с '+ ca) : '');
-                $('#accounteditform-bank_properties').val(v);
-            }
-
-            $('#accounteditform-bik').typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 3,
-                    async: true,
-                },
-                {
-                    name: 'accounteditform-bik',
-                    source: substringMatcher(),
-                    templates: {
-                        suggestion: function(obj){ return obj['value']; }
-                    }
-                })
-                .on('typeahead:selected', function($e, data) {
-                    $('#accounteditform-bank_name').val(data['bank_name']);
-                    $('#accounteditform-corr_acc').val(data['corr_acc']);
-                    $('#accounteditform-bank_city').val(data['bank_city']);
-                    genBankProp();
-                });
-        });
-    </script>
-
     <script>
         var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
         var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
@@ -479,4 +411,5 @@ use yii\helpers\Url;
     </script>
 </div>
 
+<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
