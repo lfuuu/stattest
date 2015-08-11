@@ -82,10 +82,9 @@ jQuery(document).ready(function() {
     }
 
     $('#accounteditform-bik').typeahead({
-            autoselect: true,
             hint: true,
             highlight: true,
-            minLength: 3,
+            minLength: 7,
             async: true,
         },
         {

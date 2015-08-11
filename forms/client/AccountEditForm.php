@@ -13,6 +13,7 @@ use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
+use app\models\Bik;
 
 class AccountEditForm extends Form
 {
@@ -124,7 +125,7 @@ class AccountEditForm extends Form
         return ArrayHelper::merge(
             (new ClientAccount())->attributeLabels(),
             [
-                'admin_email' => 'Email администратора'
+                'admin_email' => 'Email Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°'
             ]
         );
     }
@@ -202,6 +203,27 @@ class AccountEditForm extends Form
         $contract = ClientContract::findOne($client->contract_id);
         $contragent = ClientContragent::findOne($contract->contragent_id);
         $client->country_id = $contragent->country_id;
+
+        if (!$this->custom_properties) {
+            if (
+                !empty($this->bik) &&
+                (empty($client->corr_acc) || empty($client->bank_name) || empty($client->bank_city))
+            ) {
+                $bik = Bik::findOne(['bik' => $this->bik]);
+
+                if ($bik) {
+                    $client->bik = $bik->bik;
+                    $client->corr_acc = $bik->corr_acc;
+                    $client->bank_name = $bik->bank_name;
+                    $client->bank_city = $bik->bank_city;
+
+                    $client->bank_properties =
+                        'р/с ' . ($client->pay_acc ?: '') . "\n" .
+                        $client->bank_name . ' ' . $client->bank_city .
+                        ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
+                }
+            }
+        }
 
         if ($client->save()) {
             if (!$client->client) {
