@@ -4,6 +4,7 @@ namespace app\forms\usage;
 use app\classes\Assert;
 use app\classes\Event;
 use app\models\City;
+use app\models\Region;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffVoip;
@@ -13,7 +14,6 @@ use DateTimeZone;
 use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
-
 use yii\helpers\ArrayHelper;
 
 class UsageVoipEditForm extends UsageVoipForm
@@ -30,6 +30,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public $today;
     /** @var DateTime */
     public $tomorrow;
+
+    public $addressPlaceholder = '';
 
     public function rules()
     {
@@ -74,6 +76,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
+        $city = City::findOne($this->city_id);
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -86,7 +89,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
         $usage->status = $this->status;
-        $usage->address = $this->address ?: '';
+        $usage->address = $this->address ?: $city->region->datacenter->address;
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -126,8 +129,10 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function edit()
     {
+        $region = Region::findOne($this->usage->region);
+
         $this->usage->status = $this->status;
-        $this->usage->address = $this->address;
+        $this->usage->address = $this->address ?: $region->datacenter->address;
         $this->usage->allowed_direction = $this->allowed_direction;
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -231,6 +236,10 @@ class UsageVoipEditForm extends UsageVoipForm
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
             $this->connection_point_id = $this->city->connection_point_id;
+
+            if (empty($this->address)) {
+                $this->addressPlaceholder = $this->city->region->datacenter->address;
+            }
         }
 
         if (!$this->type_id) {
