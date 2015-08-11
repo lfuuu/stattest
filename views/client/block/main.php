@@ -26,7 +26,7 @@ use \app\models\ClientContract;
         <div class="col-sm-12">
             <?php $contragents = $client->contragents;
             foreach ($contragents as $k => $contragent): ?>
-                <div class="row contragent-wrap"
+                <div class="row contragent-wrap" id="contragent<?=$contragent->id?>"
                      style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">

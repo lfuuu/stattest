@@ -1,10 +1,10 @@
 <?php
 namespace app\models;
 
+use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
-use yii\db\ActiveRecord;
 
-class ClientContragent extends ActiveRecord
+class ClientContragent extends HistoryActiveRecord
 {
     const LEGAL_TYPE = 'legal';
     const PERSON_TYPE = 'person';
@@ -62,42 +62,9 @@ class ClientContragent extends ActiveRecord
         return $rules;
     }
 
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        if ($this->isNewRecord) {
-            return parent::save($runValidation, $attributeNames);
-        } else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation, $attributeNames);
-            } else {
-                $behaviors = $this->behaviors;
-                unset($behaviors['HistoryVersion']);
-                $behaviors = array_keys($behaviors);
-                foreach ($behaviors as $behavior)
-                    $this->detachBehavior($behavior);
-                $this->beforeSave(false);
-
-                $date = \Yii::$app->request->post('deferred-date');
-                if (
-                    $date
-                    && strtotime($date) < time()
-                    && HistoryVersion::find()
-                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
-                        ->andWhere(['<=', 'date', date('Y-m-d')])
-                        ->andWhere(['>', 'date', $date])
-                        ->count() == 0
-                )
-                    return parent::save($runValidation, $attributeNames);
-
-                return true;
-            }
-        }
-    }
-
     public function behaviors()
     {
         return [
-            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'ContragentCountry' => \app\classes\behaviors\ContragentCountry::className(),
         ];
@@ -146,8 +113,10 @@ class ClientContragent extends ActiveRecord
     public function getPerson()
     {
         $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
-        if ($person)
-            $person = $person->loadVersionOnDate($this->historyVersionDate);
+        if ($person){
+            if($this->getHistoryVersionRequestedDate())
+                $person = $person->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        }
         else {
             $person = new ClientContragentPerson();
             $person->contragent_id = $this->id;
@@ -162,7 +131,9 @@ class ClientContragent extends ActiveRecord
     {
         $models = ClientContract::findAll(['contragent_id' => $this->id]);
         foreach ($models as &$model) {
-            $model = $model->loadVersionOnDate($this->historyVersionDate);
+            if ($model && $this->historyVersionRequestedDate) {
+                $model->loadVersionOnDate($this->historyVersionRequestedDate);
+            }
         }
         return $models;
     }
@@ -173,13 +144,5 @@ class ClientContragent extends ActiveRecord
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
-    }
-
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
     }
 }

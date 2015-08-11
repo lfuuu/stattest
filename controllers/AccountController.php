@@ -118,10 +118,17 @@ class AccountController extends BaseController
 
     public function actionEdit($id, $date = null)
     {
-        $model = new AccountEditForm(['id' => $id, 'deferredDate' => $date]);
+        $model = new AccountEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1]);
+            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1, 'date' => $model->historyVersionStoredDate]);
+        }
+
+        if(!($this->getFixClient() && $this->getFixClient()->id == $id)){
+            if($id) {
+                Yii::$app->session->set('clients_client', $id);
+                $this->applyFixClient($id);
+            }
         }
 
         return $this->render("edit", [

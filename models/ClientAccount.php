@@ -2,11 +2,11 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\model\HistoryActiveRecord;
 use app\classes\voip\VoipStatus;
 use app\classes\BillContract;
 use DateTimeZone;
 use yii\base\Exception;
-use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 
@@ -29,12 +29,12 @@ use app\queries\ClientAccountQuery;
  * @method static ClientAccount findOne($condition)
  * @property
  */
-class ClientAccount extends ActiveRecord
+class ClientAccount extends HistoryActiveRecord
 {
+
     const STATUS_INCOME = 'income';
 
     public $client_orig = '';
-    public $historyVersionDate = null;
 
     public static $statuses = array(
         'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
@@ -210,43 +210,10 @@ class ClientAccount extends ActiveRecord
         return new ClientAccountQuery(get_called_class());
     }
 
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        if ($this->isNewRecord) {
-            return parent::save($runValidation, $attributeNames);
-        } else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
-                return parent::save($runValidation, $attributeNames);
-            } else {
-                $behaviors = $this->behaviors;
-                unset($behaviors['HistoryVersion']);
-                $behaviors = array_keys($behaviors);
-                foreach ($behaviors as $behavior)
-                    $this->detachBehavior($behavior);
-                $this->beforeSave(false);
-
-                $date = \Yii::$app->request->post('deferred-date');
-                if (
-                    $date
-                    && strtotime($date) < time()
-                    && HistoryVersion::find()
-                        ->andWhere(['model' => HistoryVersion::prepareClassName(self::className()), 'model_id' => $this->id])
-                        ->andWhere(['<=', 'date', date('Y-m-d')])
-                        ->andWhere(['>', 'date', $date])
-                        ->count() == 0
-                )
-                    return parent::save($runValidation, $attributeNames);
-
-                return true;
-            }
-        }
-    }
-
     public function behaviors()
     {
         return [
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
         ];
@@ -312,7 +279,10 @@ class ClientAccount extends ActiveRecord
      */
     public function getContract()
     {
-        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->historyVersionDate);
+        $contract = ClientContract::findOne($this->contract_id);
+        if($contract && $this->getHistoryVersionRequestedDate())
+            $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        return $contract;
     }
 
     public function getContractType()
@@ -360,7 +330,7 @@ class ClientAccount extends ActiveRecord
      */
     public function getContragent()
     {
-        return $this->getContract()->getContragent()->loadVersionOnDate($this->historyVersionDate);
+        return $this->getContract()->getContragent();
     }
 
     public function getStatusName()
@@ -456,14 +426,6 @@ class ClientAccount extends ActiveRecord
         return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
     }
 
-    /**
-     * @return $this
-     */
-    public function loadVersionOnDate($date)
-    {
-        return HistoryVersion::loadVersionOnDate($this, $date);
-    }
-
     public function getTaxRate()
     {
         $organization = $this->getOrganization();
@@ -533,4 +495,5 @@ class ClientAccount extends ActiveRecord
     {
         return VoipStatus::create($this)->getWarnings();
     }
+
 }

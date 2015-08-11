@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\classes\Assert;
+use app\classes\model\HistoryActiveRecord;
 use yii\base\Model;
 use yii\db\ActiveRecord;
 
@@ -60,8 +62,7 @@ class HistoryVersion extends ActiveRecord
         $currentModel = $modelClass::findOne($this->model_id);
 
         $currentModel->setAttributes(json_decode($this->data_json, true), false);
-        $currentModel->detachBehavior('HistoryVersion');
-        return $currentModel->save(fa);
+        return $currentModel->save(false);
     }
 
     public static function getVersionOnDate($modelName, $modelId, $date = null)
@@ -84,6 +85,10 @@ class HistoryVersion extends ActiveRecord
         if (null === $currentModel)
             $currentModel = new $modelClass();
 
+        if (!($currentModel instanceof HistoryActiveRecord)) {
+            Assert::isUnreachable('model must be instance of HistoryActiveRecord');
+        }
+
         $historyModel = static::find()
             ->andWhere(['model' => $modelName])
             ->andWhere(['model_id' => $modelId])
@@ -91,12 +96,13 @@ class HistoryVersion extends ActiveRecord
             ->orderBy('date DESC')->one();
 
         $currentModel->setAttributes(json_decode($historyModel['data_json'], true), false);
-        $currentModel->historyVersionDate = $date;
+        $currentModel->setHistoryVersionRequestedDate($date);
+        $currentModel->setHistoryVersionStoredDate($historyModel['date']);
 
         return $currentModel;
     }
 
-    public static function loadVersionOnDate(ActiveRecord $model, $date = null)
+    public static function loadVersionOnDate(HistoryActiveRecord $model, $date = null)
     {
         $modelName = substr($model->className(), strlen('app\\models\\'));
 
@@ -109,8 +115,11 @@ class HistoryVersion extends ActiveRecord
             ->andWhere(['<=', 'date', $date])
             ->orderBy('date DESC')->one();
 
-        $model->setAttributes(json_decode($historyModel['data_json'], true), false);
-        $model->historyVersionDate = $date;
+        if($historyModel) {
+            $model->setAttributes(json_decode($historyModel['data_json'], true), false);
+            $model->setHistoryVersionStoredDate($historyModel['date']);
+        }
+        $model->setHistoryVersionRequestedDate($date);
 
         return $model;
     }

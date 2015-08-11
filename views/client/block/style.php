@@ -52,7 +52,7 @@
     }
 
     .active-client{
-        background: #D5F1FF;
+        background: #FFE087;
     }
 
     .active-contragent-mcm{
@@ -60,7 +60,7 @@
     }
 
     .active-client-mcm{
-        background: #F8BEFF;
+        background: #FFE087;
     }
 
     td,th{

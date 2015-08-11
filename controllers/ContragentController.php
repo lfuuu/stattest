@@ -42,7 +42,16 @@ class ContragentController extends BaseController
 
     public function actionEdit($id, $childId = null, $date = null)
     {
-        $model = new ContragentEditForm(['id' => $id, 'deferredDate' => $date]);
+        $model = new ContragentEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
+
+        if(!($this->getFixClient() && $this->getFixClient()->getContract()->contragent_id == $id)){
+            $contragentModel = $model->getContragentModel();
+            $account = $contragentModel->getContracts()[0]->getAccounts()[0];
+            if($account) {
+                Yii::$app->session->set('clients_client', $account->id);
+                $this->applyFixClient($account->id);
+            }
+        }
 
         if($childId===null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
