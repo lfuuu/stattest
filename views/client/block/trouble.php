@@ -14,13 +14,13 @@ foreach ($troubles as $k => $trouble) {
         unset($troubles[$k]);
     }
 }
-if ($troublesCount):
+if ($troublesIsset):
     ?>
 
     <div class="tt-troubles">
         <div class="row" style="padding-left: 15px;">
             <h2>Заявки</h2>
-            <span>Найдено <?= $troublesCount ?> заявок</span>
+            <span>Найдено <?= count($troubles); ?> заявок</span>
             <table border="1" style="border: 1px solid #ddd;" width="100%">
                 <thead>
                 <tr style="background: #F7F7F7;">
