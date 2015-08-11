@@ -82,10 +82,9 @@ jQuery(document).ready(function() {
     }
 
     $('#accounteditform-bik').typeahead({
-            autoselect: true,
             hint: true,
             highlight: true,
-            minLength: 3,
+            minLength: 7,
             async: true,
         },
         {
@@ -100,6 +99,11 @@ jQuery(document).ready(function() {
             $('#accounteditform-corr_acc').val(data['corr_acc']);
             $('#accounteditform-bank_city').val(data['bank_city']);
             genBankProp();
+        });
+
+    $('#buttonSave')
+        .on('click', function() {
+            $(this).parents('form').trigger('submit');
         });
 
 });
