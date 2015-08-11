@@ -32,7 +32,7 @@ class UsageVoipDeleteHistoryForm extends Form
 
             $historyItem->delete();
 
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
+            Event::go('update_phone_product', ['account_id' => $usage->clientAccount->id]);
             Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();

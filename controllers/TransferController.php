@@ -37,7 +37,7 @@ class TransferController extends BaseController
         return $this->render('index', [
             'model' => $model,
             'client' => $clientAccount,
-            'only_usages' => (array) $only_usage,
+            'only_usages' => $only_usage ? (array) $only_usage : [],
         ]);
     }
 

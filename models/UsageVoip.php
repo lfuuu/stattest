@@ -15,6 +15,7 @@ use app\models\Datacenter;
  * @property int $id
  *
  * @property Region $connectionPoint
+ * @property ClientAccount $clientAccount
  * @property
  */
 class UsageVoip extends ActiveRecord implements Usage

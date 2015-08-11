@@ -20,6 +20,7 @@ class UsageVoipForm extends Form
     public $line7800_id;
     public $allowed_direction;
 
+    public $mass_change_tariff;
     public $tariff_main_status;
     public $tariff_main_id;
     public $tariff_local_mob_id;
@@ -39,6 +40,7 @@ class UsageVoipForm extends Form
         return [
             [['id','client_account_id','city_id','connection_point_id','number_tariff_id','line7800_id','no_of_lines'], 'integer'],
             [['type_id','did','connecting_date','tariff_change_date','address', 'status', 'allowed_direction'], 'string'],
+            [['mass_change_tariff'], 'boolean'],
             [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
             [['tariff_main_status'], 'string'],
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
@@ -62,6 +64,7 @@ class UsageVoipForm extends Form
             'allowed_direction' => 'Разрешенные направления',
             'status' => 'Статус',
 
+            'mass_change_tariff' => 'Массово изменить тариф у всех услуг с этим тарифом',
             'tariff_main_status' => 'Тип тарифа',
             'tariff_main_id' => 'Тариф Основной',
             'tariff_local_mob_id' => 'Тариф Местные мобильные',

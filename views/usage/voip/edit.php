@@ -92,19 +92,23 @@ if ($model->type_id == '7800') {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 2,
+        'columns' => 4,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
             'line7800_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getLinesFor7800($clientAccount), 'options' => ['disabled' => 'disabled']],
+            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 } else {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 1,
+        'columns' => 3,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 }
@@ -112,9 +116,8 @@ if ($model->type_id == '7800') {
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 4,
+    'columns' => 3,
     'attributes' => [
-        'no_of_lines' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
         'address' => ['type' => Form::INPUT_TEXT],
         'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
         'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
@@ -301,6 +304,15 @@ if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tar
         ],
     ]);
 }
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 1,
+    'attributes' => [
+        'mass_change_tariff' => ['type' => Form::INPUT_CHECKBOX],
+    ],
+]);
 
 echo Form::widget([
     'model' => $model,
