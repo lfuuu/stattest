@@ -44,6 +44,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
         $rules[] = [['address'], 'string', 'on' => 'edit'];
         $rules[] = [[
+            'no_of_lines',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'change-tariff'];
 
@@ -54,11 +55,13 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function add()
     {
-        $connectingDate = new DateTime($this->connecting_date, $this->timezone);
+/*
+        $connectingDate= new DateTime($this->connecting_date, $this->timezone);
         if ($connectingDate < $this->today) {
             $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
             return false;
         }
+*/
 
         $tariffMain = TariffVoip::findOne($this->tariff_main_id);
         Assert::isObject($tariffMain);
@@ -136,8 +139,21 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function edit()
     {
+/*
+        $connectingDate= new DateTime($this->connecting_date, $this->timezone);
+        if ($connectingDate < $this->today) {
+            $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
+            return false;
+        }
+*/
+
         $region = Region::findOne($this->usage->region);
 
+        $actualFrom = $this->connecting_date;
+        $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
+        $this->usage->actual_from = $actualFrom;
+        $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
         if (!$this->address) {
             $this->usage->address = $region->datacenter->address;
@@ -148,6 +164,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->usage->address_from_datacenter_id = null;
         }
         $this->usage->allowed_direction = $this->allowed_direction;
+        $this->usage->no_of_lines = $this->no_of_lines;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -200,6 +217,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->usage = $usage;
             $this->id = $usage->id;
             $this->connection_point_id = $usage->region;
+            $this->connecting_date = $usage->actual_from;
             $this->tariff_change_date = $this->tomorrow->format('Y-m-d');
 
             $this->setAttributes($usage->getAttributes(), false);
@@ -386,17 +404,28 @@ class UsageVoipEditForm extends UsageVoipForm
         if ($this->tariff_group_russia) $destGroup .= '1';
         if ($this->tariff_group_intern) $destGroup .= '2';
 
-        $tariffUsages = [$usage];
+
+        if ($this->mass_change_tariff) {
+            $tariffUsages = [];
+            foreach(UsageVoip::findAll(['client' => $usage->clientAccount->client]) as $otherUsage) {
+                if ($otherUsage->isActive()) {
+                    $tariffUsages[] = $otherUsage;
+                }
+            }
+
+            $currentTariff = $this->getCurrentTariffByUsageId($usage->id, $tariffDate);
+            $massChangeMainTariffId = $currentTariff->id_tarif;
+        } else {
+            $tariffUsages = [$usage];
+            $massChangeMainTariffId = null;
+        }
+
         foreach ($tariffUsages as $tariffUsage) {
-            $currentTariff =
-                LogTarif::find()
-                    ->andWhere(['service' => 'usage_voip'])
-                    ->andWhere(['id_service' => $tariffUsage->id])
-                    ->andWhere('date_activation<=:date', [':date' => $tariffDate])
-                    ->andWhere('id_tarif!=0')
-                    ->orderBy('date_activation desc, id desc')
-                    ->limit(1)
-                    ->one();
+            $currentTariff = $this->getCurrentTariffByUsageId($tariffUsage->id, $tariffDate);
+
+            if ($massChangeMainTariffId && $massChangeMainTariffId != $currentTariff->id_tarif) {
+                continue;
+            }
 
             $tariffChanged = false;
             if ($this->tariff_main_id != $currentTariff->id_tarif) $tariffChanged = true;
@@ -495,5 +524,18 @@ class UsageVoipEditForm extends UsageVoipForm
             intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
 
+    }
+
+    private function getCurrentTariffByUsageId($usageId, $date)
+    {
+        return
+            LogTarif::find()
+                ->andWhere(['service' => 'usage_voip'])
+                ->andWhere(['id_service' => $usageId])
+                ->andWhere('date_activation<=:date', [':date' => $date])
+                ->andWhere('id_tarif!=0')
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
+                ->one();
     }
 }

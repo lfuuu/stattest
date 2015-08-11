@@ -70,6 +70,7 @@ class TechCpeDao extends Singleton
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])
+                ->andWhere(['id_service' => 0])
                 ->all();
     }
 

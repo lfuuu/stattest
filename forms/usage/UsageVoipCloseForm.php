@@ -35,7 +35,7 @@ class UsageVoipCloseForm extends Form
     {
         $usage = UsageVoip::findOne($this->usage_id); /** @var UsageVoip $usage */
         Assert::isObject($usage);
-        Assert::isTrue($usage->isActive());
+        Assert::isTrue($usage->isActive(), 'Услуга уже отключена');
 
         $timezone = $usage->clientAccount->timezone;
         $nextDay = new \DateTime('now', $timezone);
@@ -44,8 +44,8 @@ class UsageVoipCloseForm extends Form
 
         $closeDate = new \DateTime($this->close_date, $timezone);
         if ($closeDate < $nextDay) {
-            Yii::$app->session->addFlash('error', 'Закрыть услугу можно только со следующего дня');
-            return false;
+//            Yii::$app->session->addFlash('error', 'Закрыть услугу можно только со следующего дня');
+//            return false;
         }
 
         $actualTo = $closeDate->format('Y-m-d');

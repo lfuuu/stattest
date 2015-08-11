@@ -62,7 +62,7 @@ class NumberDao extends Singleton
     public function startActiveStat(Number $number, UsageVoip $usage)
     {
         if (!in_array($number->status, [Number::STATUS_INSTOCK, Number::STATUS_RESERVED])) {
-            Assert::isUnreachable();
+            Assert::isUnreachable('Включить можно только свободный или зарезервированный номер');
         }
 
         $number->client_id = $usage->clientAccount->id;
