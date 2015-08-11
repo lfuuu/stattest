@@ -247,3 +247,8 @@ UPDATE `country` SET `alpha_3`='JAM' WHERE `code` = 388;
 UPDATE `country` SET `alpha_3`='JPN' WHERE `code` = 392;
 UPDATE `country` SET `alpha_3`='LTU' WHERE `code` = 440;
 UPDATE `country` SET `alpha_3`='PCN' WHERE `code` = 612;
+UPDATE `country` SET `alpha_3`='ANT' WHERE `code` = 530;
+UPDATE `country` SET `alpha_3`='YUG' WHERE `code` = 891;
+UPDATE `country` SET `alpha_3`='---' WHERE `code` = 895;
+UPDATE `country` SET `alpha_3`='---' WHERE `code` = 896;
+DELETE FROM `country` WHERE `code` = 736;
