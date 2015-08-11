@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
+use app\models\UsageVoipPackage;
 use Yii;
 
 class VoipBiller extends Biller
@@ -110,6 +111,20 @@ class VoipBiller extends Biller
                     ->setTemplateData($template_data)
             );
         }
+
+        $packages =
+            $this->usage->getUsagePackages()
+                ->where(['>=', 'actual_to', $this->billerPeriodFrom->format('Y-m-d')])
+                ->all();
+
+        foreach ($packages as $package) {
+            $transactions =
+                $package->getBiller($this->billerDate, $this->clientAccount)
+                    ->process(false, false, true, false)
+                    ->getTransactions();
+
+            $this->transactions = array_merge($this->transactions, $transactions);
+        }
     }
 
     protected function processResource()
@@ -191,15 +206,28 @@ class VoipBiller extends Biller
             }
 
             $this->addPackage(
-                $package =
-                    BillerPackageResource::create($this)
-                        ->setPrice($r['price'])
-                        ->setMinPayment($minPayment)
-                        ->setMinPaymentTemplate($minPaymentTemplate)
-                        ->setPeriodType(self::PERIOD_MONTH) // Need for localization
-                        ->setTemplate($template)
-                        ->setTemplateData($template_data)
+                BillerPackageResource::create($this)
+                    ->setPrice($r['price'])
+                    ->setMinPayment($minPayment)
+                    ->setMinPaymentTemplate($minPaymentTemplate)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
+        }
+
+        /** @var UsageVoipPackage[] $packages */
+        $packages =
+            $this->usage->getUsagePackages()
+                ->where(['>=', 'actual_to', $this->billerActualTo->format('Y-m-d')])
+                ->all();
+
+        foreach ($packages as $package) {
+            $transactions =
+                $package->getBiller($this->billerDate, $this->clientAccount)
+                    ->process(false, false, false, true)
+                    ->getTransactions();
+            $this->transactions = array_merge($this->transactions, $transactions);
         }
     }
 

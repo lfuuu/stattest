@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\dao\CurrencyDao;
 use yii\db\ActiveRecord;
 
 class Currency extends ActiveRecord
@@ -26,6 +27,11 @@ class Currency extends ActiveRecord
     public static function tableName()
     {
         return 'currency';
+    }
+
+    public function dao()
+    {
+        return CurrencyDao::me();
     }
 
     public static function symbol($currencyId)

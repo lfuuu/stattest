@@ -596,7 +596,6 @@ class Db_map_nispd extends Db_map {
 				'*.E164'				=> 'номер телефона',
 				'*.ClientIPAddress'		=> 'IP-адрес',
 				'*.enabled'				=> 'включено',
-				'*.date_last_writeoff'	=> 'дата последнего списания',
 				'*.status'				=> 'состояние',
 				'tech_cpe.numbers'	=> 'телефонные номера',
 				'tech_cpe.logins'	=> 'логины',

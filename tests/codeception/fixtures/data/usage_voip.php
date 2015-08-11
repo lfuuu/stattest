@@ -10,7 +10,6 @@ return [
         'client' => 'voip',
         'E164' => '74992130216',
         'no_of_lines' => '1',
-        'date_last_writeoff' => '0000-00-00 00:00:00',
         'status' => 'working',
         'address' => '',
         'no_of_callfwd' => '0',

@@ -2,6 +2,7 @@
 /*
 4268 0337 0354 5624
 */
+use app\classes\Event;
 
 class YandexProcessor
 {
@@ -157,7 +158,7 @@ class YandexProcessor
         $payment->comment = "Yandex pay# ".$this->data["invoiceId"]." at ".$paymentDateFull;
         $payment->save();
 
-        event::go("yandex_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
+        Event::go("yandex_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
 
         return true;
     }

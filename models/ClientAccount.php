@@ -28,6 +28,7 @@ use app\queries\ClientAccountQuery;
  * @property ClientContact $contract
  * @method static ClientAccount findOne($condition)
  * @property
+ *
  */
 class ClientAccount extends HistoryActiveRecord
 {

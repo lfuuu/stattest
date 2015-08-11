@@ -38,16 +38,16 @@ class Transaction extends ActiveRecord
     const SOURCE_STAT = 'stat';
     const SOURCE_BILL = 'bill';
     const SOURCE_PAYMENT = 'payment';
-    const SOURCE_JERASOFT = 'jerasoft';
 
-    const SERVICE_WELLTIME  = 'usage_welltime';
-    const SERVICE_EXTRA     = 'usage_extra';
-    const SERVICE_VIRTPBX   = 'usage_virtpbx';
-    const SERVICE_SMS       = 'usage_sms';
-    const SERVICE_EMAIL     = 'emails';
-    const SERVICE_IPPORT    = 'usage_ip_ports';
-    const SERVICE_VOIP      = 'usage_voip';
-    const SERVICE_TRUNK     = 'usage_trunk';
+    const SERVICE_WELLTIME      = 'usage_welltime';
+    const SERVICE_EXTRA         = 'usage_extra';
+    const SERVICE_VIRTPBX       = 'usage_virtpbx';
+    const SERVICE_SMS           = 'usage_sms';
+    const SERVICE_EMAIL         = 'emails';
+    const SERVICE_IPPORT        = 'usage_ip_ports';
+    const SERVICE_VOIP          = 'usage_voip';
+    const SERVICE_VOIP_PACKAGE  = 'usage_voip_package';
+    const SERVICE_TRUNK         = 'usage_trunk';
 
     const TYPE_CONNECTING = 'connecting';
     const TYPE_PERIODICAL = 'periodical';

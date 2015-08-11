@@ -156,6 +156,8 @@ class ClientAccountBiller
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $transactionTypes = [];
+            print $this->connecting . ' -> ' . $this->periodical . ' -> ' . $this->resource . '<br />';
+
             if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTING;
             if ($this->periodical) $transactionTypes[] = Transaction::TYPE_PERIODICAL;
             if ($this->resource) $transactionTypes[] = Transaction::TYPE_RESOURCE;
@@ -250,6 +252,7 @@ class ClientAccountBiller
 
     private function processUsages(array $usages)
     {
+
         foreach ($usages as $usage) {
             $this->processUsage($usage);
         }

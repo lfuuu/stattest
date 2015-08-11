@@ -31,9 +31,22 @@ class Navigation
 
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
-        $this->addBlockForStatModule('tarifs');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Тарифы')
+                ->addItem('Телефония', ['tariff/voip'], ['tarifs.read'])
+                ->addItem('Телефония Пакеты', ['tariff/voip-package'], ['tarifs.read'])
+                ->addStatModuleItems('tarifs')
+                ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
+                ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+        );
         $this->addBlockForStatModule('tt');
-        $this->addBlockForStatModule('stats');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Статистика')
+                ->addStatModuleItems('stats')
+                ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
+        );
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
         $this->addBlockForStatModule('users');
@@ -42,18 +55,19 @@ class Navigation
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
 
-        $voipBlock = $this->getBlockForStatModule('voipnew');
-        if ($voipBlock) {
-            $this->addBlock(
-                $voipBlock
-                    ->addItem('Плайслисты Клиент Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1])
-                    ->addItem('Плайслисты Клиент Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0])
-                    ->addItem('Плайслисты Опер Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1])
-                    ->addItem('Плайслисты Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0])
-                    ->addItem('Плайслисты Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0])
-                    ->addItem('Местные Префиксы', ['voip/network-config/list'])
-            );
-        }
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Телефония')
+                ->addStatModuleItems('voipnew')
+                ->addItem('Плайслисты Клиент Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1])
+                ->addItem('Плайслисты Клиент Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0])
+                ->addItem('Плайслисты Опер Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1])
+                ->addItem('Плайслисты Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0])
+                ->addItem('Плайслисты Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0])
+                ->addItem('Местные Префиксы', ['voip/network-config/list'])
+                ->addItem('Списки префиксов', ['voip/prefixlist'])
+                ->addItem('Направления', ['voip/destination'])
+        );
 
         $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
@@ -61,14 +75,17 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('logs');
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('settings')
-                ->setTitle('Настройки')
-                ->setRights(['organization.read', 'person.read'])
+        $settingsBlock = NavigationBlock::create();
+        if ($settingsBlock) {
+            $this->addBlock(
+                $settingsBlock
+                    ->setId('settings')
+                    ->setTitle('Настройки')
+                    ->setRights(['organization.read', 'person.read'])
                     ->addItem('Организации', ['/organization'])
                     ->addItem('Ответственные лица', ['/person'])
-        );
+            );
+        }
     }
 
     /**
@@ -96,6 +113,10 @@ class Navigation
             $block->id = 'block' . md5($block->title);
         }
 
+        if (empty($block->items)) {
+            return $this;
+        }
+
         if ($block->rights) {
           foreach ($block->rights as $right) {
             if (Yii::$app->user->can($right)) {
@@ -106,13 +127,11 @@ class Navigation
         } else {
           $this->blocks[] = $block;
         }
+
         return $this;
     }
 
-    /**
-     * @return NavigationBlock
-     */
-    private function getBlockForStatModule($moduleName)
+    private function addBlockForStatModule($moduleName)
     {
         $statModule = StatModule::getHeadOrModule($moduleName);
 
@@ -134,12 +153,6 @@ class Navigation
             $block->addItem($item[0], $url);
         }
 
-        return $block;
-    }
-
-    private function addBlockForStatModule($moduleName)
-    {
-        $block = $this->getBlockForStatModule($moduleName);
         if ($block !== null) {
             $this->addBlock($block);
         }

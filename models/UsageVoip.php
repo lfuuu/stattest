@@ -13,6 +13,8 @@ use app\models\Datacenter;
 
 /**
  * @property int $id
+ *
+ * @property Region $connectionPoint
  * @property
  */
 class UsageVoip extends ActiveRecord implements Usage
@@ -59,6 +61,24 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getConnectionPoint()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    public function isActive()
+    {
+        $timezone = $this->clientAccount->timezone;
+
+        $now = new DateTime('now', $timezone);
+
+        $actualFrom = new DateTime($this->actual_from, $timezone);
+        $actualTo = new DateTime($this->actual_to, $timezone);
+        $actualTo->setTime(23, 59, 59);
+
+        return $actualFrom <= $now and $actualTo >= $now;
     }
 
     public function getVoipNumber()
@@ -115,7 +135,13 @@ class UsageVoip extends ActiveRecord implements Usage
 
     public function getAbonPerMonth()
     {
-        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines-1));
+        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines - 1));
     }
+
+    public function getUsagePackages()
+    {
+        return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+    }
+
 }
 

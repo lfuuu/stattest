@@ -7,7 +7,19 @@
 <input type="hidden" name="action" value="voip_edit" />
 <input type="hidden" name="id" value="{$data.id}" />
 <table>
-    <tr><td>Регион:</td><td>
+    <tr><td>Страна:</td><td>
+            {if $data.id > 0}
+                <input type="hidden" name="country_id" value="{$data.country_id}" />
+                {$countries[$data.country_id].name}
+            {else}
+                <select name="country_id">
+                    {foreach from=$countries item='r'}
+                        <option value="{$r.code}"{if $r.code eq $data.country_id} selected{/if}>{$r.name}</option>
+                    {/foreach}
+                </select>
+            {/if}
+        </td></tr>
+    <tr><td>Точка подключения:</td><td>
     {if $data.id > 0}
         <input type="hidden" name="region" value="{$data.region}" />
         {$regions[$data.region].name}
@@ -63,7 +75,7 @@
     <tr><td>ежемесячная плата за номер:</td><td>
         <input type="text" name="month_number" value="{$data.month_number}"/>
     </td></tr>
-    <tr><td>минимальный платеж:</td><td>
+    <tr><td>минимальный платеж 7800:</td><td>
         <input type="text" name="month_min_payment" value="{$data.month_min_payment}"/>
     </td></tr>
     <tr><td>плата за подключение линии:</td><td>
@@ -100,6 +112,10 @@
                 <input type="checkbox" name="is_virtual" value="1" {if $data.is_virtual > 0}checked{/if} />
                 тариф для виртуальных номеров</label>
         </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="is_testing" value="1" {if $data.is_testing > 0}checked{/if} />
+                тариф поумолчанию</label>
+        </td></tr>
     <tr>
         <td></td>
         <td>
@@ -112,7 +128,7 @@
     <tr><td>прайс-лист:</td><td>
         <select class="select2" name="pricelist_id" style="width: 400px">
         {foreach from=$pricelists item='r'}
-            <option data-type="{$r.price_include_vat}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
+            <option data-type="{if $r.price_include_vat == 1}1{else}0{/if}" value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
         {/foreach}
         </select>
     </td></tr>

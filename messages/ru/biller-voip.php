@@ -5,7 +5,6 @@ return [
     'voip_group_local' => 'местные мобильные',
     'voip_group_long_distance' => 'междугородные',
     'voip_group_international' => 'дальнее зарубежье',
-    'voip_group_sng' => 'ближнее зарубежье',
 
     'voip_connection' => 'Подключение к IP-телефонии по тарифу {tariff}',
 
@@ -53,4 +52,8 @@ return [
     'voip_package_monfly_fee' => 'Абонентская плата за пакет минут {service}{date_range}',
 
     'voip_sip_trunk_monfly_fee' => 'Абонентская плата за Sip транк по тарифу {tariff}{date_range}',
+
+    'voip_package_fee' => 'Абонентская плата за пакет "{tariff}" с номера {service}{date_range}',
+    'voip_package_payment' => 'Абонентская плата за пакет "{tariff}" с номера {service}{date_range}',
+    'voip_package_minpay' => 'Минимальный платеж за пакет "{tariff}" с номера {service}{date_range}',
 ];

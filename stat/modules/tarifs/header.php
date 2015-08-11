@@ -25,7 +25,6 @@ class m_tarifs_head extends IModuleHead{
     public function __construct()
     {
         $this->menu = array(
-            array('IP-телефония',            'voip'),
             array('Интернет',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
             array('VPN',                    'view','&m=vpn'),

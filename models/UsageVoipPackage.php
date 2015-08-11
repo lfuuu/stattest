@@ -1,0 +1,75 @@
+<?php
+namespace app\models;
+
+use DateTime;
+use yii\db\ActiveRecord;
+use app\classes\bill\Biller;
+use app\classes\bill\VoipPackageBiller;
+use app\classes\transfer\ServiceTransfer;
+use app\classes\transfer\VoipServiceTransfer;
+
+/**
+ * @property int $id
+ *
+ * @property Region $connectionPoint
+ * @property
+ */
+class UsageVoipPackage extends ActiveRecord implements Usage
+{
+
+    public static function tableName()
+    {
+        return 'usage_voip_package';
+    }
+
+    public function getTariff()
+    {
+        return $this->hasOne(TariffVoipPackage::className(), ['id' => 'tariff_id']);
+    }
+
+    public function getUsageVoip()
+    {
+        return $this->hasOne(UsageVoip::className(), ['id' => 'usage_voip_id']);
+    }
+
+    /**
+     * @return Biller
+     */
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
+    {
+        return new VoipPackageBiller($this, $date, $clientAccount);
+    }
+
+    /**
+     * @return ServiceTransfer
+     */
+    public function getTransferHelper()
+    {
+        return new VoipServiceTransfer($this);
+    }
+
+    public function getServiceType()
+    {
+        return Transaction::SERVICE_VOIP_PACKAGE;
+    }
+
+    public function getTypeDescription()
+    {
+        return 'Телефония пакет';
+    }
+
+    public static function getTypeTitle()
+    {
+        return 'Телефония пакет';
+    }
+
+    /**
+     * @return ClientAccount
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+}
+

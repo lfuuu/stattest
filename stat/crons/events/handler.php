@@ -88,42 +88,38 @@ function do_events()
             {
                 switch($event->event)
                 {
-                    case 'add_account':       SyncCore::addAccount($param, true);  break;
-                    case 'client_set_status': SyncCore::addAccount($param, false); break;
+                    case 'add_account':
+                        SyncCore::addAccount($param, true);
+                        break;
 
-                    case 'admin_changed': SyncCore::adminChanged($param); break;
+                    case 'client_set_status':
+                        SyncCore::addAccount($param, false);
+                        break;
+
+                    case 'admin_changed':
+                        SyncCore::adminChanged($param);
+                        break;
 
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                                                  VirtPbx3::check($param[0]);
-                    break;
-                    case 'client_set_status':
-                                                  VirtPbx3::check();
-                                                  break; 
+                        VirtPbx3::check($param[0]);
+                        break;
 
-                    case 'usage_voip__insert':
-                    case 'usage_voip__update':
-                    case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
+                    case 'actualize_number':
+                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+                        break;
+
+                    case 'update_phone_product':
+                        SyncCore::checkProductState('phone', $param['account_id']);
+                        break;
+
+                    case 'midnight':
+                        ActaulizerVoipNumbers::me()->actualizeAll();
+                        break;
+
+                    case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
                 }
-
-//                if (defined("use_ats3"))
-//                {
-                    $number = false;
-                    switch($event->event)
-                    {
-                        case 'actualize_number': $number = $param["number"];
-                        case 'usage_voip__insert':
-                        case 'usage_voip__update':
-                        case 'usage_voip__delete': $number = $number ?: $param[2];
-                                                    ActaulizerVoipNumbers::me()->actualizeByNumber($number); break;
-
-                        case 'midnight': 
-                        case 'client_set_status': ActaulizerVoipNumbers::me()->actualizeAll(); break;
-
-                        case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
-                    }
-//                }
             }
 
         } catch (Exception $e)

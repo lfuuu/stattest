@@ -26,4 +26,9 @@ class Enum extends Object
     {
         return isset(static::$names[$key]) ? static::$names[$key] : $key;
     }
+
+    public static function getValue($key, $default = null)
+    {
+        return isset(static::$names[$key]) ? static::$names[$key] : $default;
+    }
 }

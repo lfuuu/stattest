@@ -1,4 +1,5 @@
 <?php
+use app\classes\Event;
 
 use \app\models\ClientAccount;
 
@@ -304,7 +305,7 @@ class CyberplatActionCheck
             $payment->comment = "Cyberplat pay# " . $data["receipt"] . " at " . str_replace("T", " ", $data["date"]);
             $payment->save();
 
-            event::go("cyberplat_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
+            Event::go("cyberplat_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
 
 
             $answer =  new Answer_OK_payment();

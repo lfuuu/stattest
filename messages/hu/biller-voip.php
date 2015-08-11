@@ -14,4 +14,8 @@ return [
 
     'voip_group_calls_payment' => 'Távközlési előfizetési díj {service} telefonszámra{date_range}',
     'voip_group_calls_payment_custom' => 'Távközlési előfizetési díj {service} telefonszámra{date_range}',
+
+    'voip_package_fee' => '{tariff} {service} {date_range}',
+    'voip_package_payment' => '{tariff} {service} {date_range}',
+    'voip_package_minpay' => '{tariff} {service} {date_range}',
 ];

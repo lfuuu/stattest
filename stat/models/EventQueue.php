@@ -43,8 +43,8 @@ class EventQueue extends ActiveRecord\Model
 
     private static function setNextStart($o)
     {
-        if (substr($o->event, 0, 6) != "ats3__")
-            $o->iteration = 19;
+//        if (substr($o->event, 0, 6) != "ats3__")
+//            $o->iteration = 19;
 
         switch ($o->iteration)
         {

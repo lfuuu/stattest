@@ -45,6 +45,7 @@ class m_tarifs{
         elseif ($m=='welltime') {$p='welltime'; $q='z';}
         elseif ($m=='virtpbx') {$p='virtpbx'; $q='z';}
         elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
+        elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
         elseif ($m=='voip') {$p='voip'; $q='z';}
         elseif ($m=='sms') {$p='sms'; $q='z';}
         else return false;
@@ -68,10 +69,12 @@ class m_tarifs{
             !($dbf->Load($id))
         )return;
 
-        $dbf->Process();
-
+        if( ($dbf->Process()) == "add"){
+            $db->QueryUpdate("price_voip", "id", array("id" => $dbf->data["id"], "idExt" => $dbf->data["id"]));
+        }
         if(!isset($_SESSION['trash']) || !is_array($_SESSION['trash']))
             $_SESSION['trash'] = array();
+        $_SESSION['trash']['price_voip'] = 1;
 
         $dbf->Display(
             array(
@@ -102,19 +105,26 @@ class m_tarifs{
     function tarifs_voip(){
         global $db, $pg_db, $design;
 
-        $f_region = get_param_integer('f_region', '99');
+        $f_country = get_param_integer('f_country', '');
+        $f_region = get_param_integer('f_region', '');
         $f_dest = get_param_protected('f_dest', '');
-        $f_currency = get_param_protected('f_currency', 'RUB');
+        $f_currency = get_param_protected('f_currency', '');
         $f_show_archive = get_param_integer('f_show_archive', 0);
+        $design->assign('f_country',$f_country);
         $design->assign('f_region',$f_region);
         $design->assign('f_dest',$f_dest);
         $design->assign('f_currency',$f_currency);
         $design->assign('f_show_archive',$f_show_archive);
 
-        $where = 'where t.region='.(int)$f_region;
+        $where = 'where 1=1 ';
+        if ($f_country != '')
+            $where .= ' and t.country_id='.(int)$f_country;
+        if ($f_region != '')
+            $where .= ' and t.region='.(int)$f_region;
         if ($f_dest != '')
             $where .= ' and t.dest='.(int)$f_dest;
-        $where .= " and t.currency='$f_currency'";
+        if ($f_currency != '')
+            $where .= ' and t.currency='.(int)$f_currency;
         if ($f_show_archive == 0)
           $where .= ' and t.status!="archive"';
 
@@ -132,6 +142,7 @@ class m_tarifs{
 
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'code'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_list.tpl');
@@ -144,11 +155,11 @@ class m_tarifs{
             $data['name'] = $_POST['name'];
             $data['name_short'] = $_POST['name_short'];
             $data['status'] = $_POST['status'];
-            $data['month_line'] = (float)$_POST['month_line'];
-            $data['month_number'] = (float)$_POST['month_number'];
-            $data['month_min_payment'] = (float)$_POST['month_min_payment'];
-            $data['once_line'] = (float)$_POST['once_line'];
-            $data['once_number'] = (float)$_POST['once_number'];
+            $data['month_line'] = (int)$_POST['month_line'];
+            $data['month_number'] = (int)$_POST['month_number'];
+            $data['month_min_payment'] = (int)$_POST['month_min_payment'];
+            $data['once_line'] = (int)$_POST['once_line'];
+            $data['once_number'] = (int)$_POST['once_number'];
             $data['free_local_min'] = (int)$_POST['free_local_min'];
             $data['freemin_for_number'] = (get_param_integer('freemin_for_number', 0) > 0 ? 1 : 0);
             $data['pricelist_id'] = (int)$_POST['pricelist_id'];
@@ -157,11 +168,13 @@ class m_tarifs{
             $data['tariffication_full_first_minute'] = (get_param_integer('tariffication_full_first_minute', 0) > 0 ? 1 : 0);
             $data['tariffication_free_first_seconds'] = (get_param_integer('tariffication_free_first_seconds', 0) > 0 ? 1 : 0);
             $data['is_virtual'] = (get_param_integer('is_virtual', 0) > 0 ? 1 : 0);
+            $data['is_testing'] = (get_param_integer('is_testing', 0) > 0 ? 1 : 0);
             $data['edit_user'] = $user->Get('id');
             $data['edit_time'] = date('Y.m.d H:i:s');
             $data['price_include_vat'] = get_param_integer('price_include_vat');
             $data['id'] = $id;
             if ($data['id']=='0'){
+                $data['country_id'] = $_POST['country_id'];
                 $data['region'] = (int)$_POST['region'];
                 $data['dest'] = (int)$_POST['dest'];
                 $data['currency'] = $_POST['currency'];
@@ -192,6 +205,7 @@ class m_tarifs{
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists', $pricelists);
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'code'));
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_edit.tpl');
@@ -489,6 +503,20 @@ class m_tarifs{
             $prefses = $last_gen;
         }
         return $prefses;
+    }
+
+
+    function tarifs_price_tel()
+    {
+        if(get_param_raw("gen", "") == "true") {
+            PriceTel::gen();
+        }
+
+        if(get_param_raw("save", "") == "true") {
+            PriceTel::save();
+        }
+
+        PriceTel::view();
     }
 
     function tarifs_virtpbx()

@@ -34,8 +34,6 @@
                 <option value='our' {if $is_our=='our'}selected{/if}>Собственные</option>
 			</select></td>
 		</tr>
-		<tr><td colspan='5'>Количество звонков за последние 2 дня <input type='text' size='3' name='count_calls' value='{if $count_calls}{$count_calls}{else}<4{/if}' />
-		<input type='checkbox' name='filter_count_calls' {if $filter_count_calls}checked{/if} /></td></tr>
 		<tr style='text-align:center'><td colspan='5'><input type='submit' value='Ok' /></td></tr>
 	</table>
 	</form>
@@ -54,7 +52,7 @@
 		{foreach from=$free_nums item='num'}
             {if $num.client_id == ''}
 			<tr><td >
-				<a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
+				<a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='/usage/number/view?did={$num.number}'>{$num.number}</a>
                 {if $num.actual_to} (откл: {$num.actual_to}){/if}
             </td></tr>
             {/if}
@@ -64,7 +62,7 @@
         {foreach from=$free_nums item='num'}
             {if $num.client_id != '' and $num.client_id != '764' and $num.usage_id == ''}
             <tr><td>
-                <a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
+                <a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='/usage/number/view?did={$num.number}'>{$num.number}</a>
                 (клиент: <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='/client/view?id={$num.client_id}'>{$num.client_id}</a>
                 резерв: {$num.reserved_free_date|substr:0:10})
             </td></tr>
@@ -75,7 +73,7 @@
         {foreach from=$free_nums item='num'}
             {if $num.client_id == '764' and $num.usage_id == ''}
             <tr><td >
-                <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
+                <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='/usage/number/view?did={$num.number}'>{$num.number}</a>
             </td></tr>
             {/if}
         {/foreach}
@@ -83,7 +81,7 @@
 	<td valign="top"><table>
 		{foreach from=$nonfree_nums item='num'}
 			<tr><td>
-				<a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='?module=services&action=e164_edit&e164={$num.e164}'>{$num.e164}</a>
+				<a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='/usage/number/view?did={$num.e164}'>{$num.e164}</a>
 			</td></tr>
 		{/foreach}
 	</table></td>

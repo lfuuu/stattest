@@ -37,7 +37,7 @@ class VoipReservNumber
         if ($tarifId === null)
             $tarifId = $tarifs[$region]['id_tarif'];
         
-        $tarif = $db->GetRow("select * from tarifs_voip where id = '".$tarifId."' and region = '".$region."'");
+        $tarif = $db->GetRow("select * from tarifs_voip where id = '".$tarifId."' and connection_point_id = '".$region."'");
 
         if (!$tarif)
             throw new Exception("Тариф не найден");

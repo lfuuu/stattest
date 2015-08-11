@@ -67,9 +67,6 @@ class ClientDocument extends ActiveRecord
         return self::find()->andWhere(['account_id' => $this->account_id])->active()->blank()->fromContract($this)->last();
     }
 
-    /**
-     * @return ClientDocumentDao
-     */
     public function dao()
     {
         return ClientDocumentDao::me();

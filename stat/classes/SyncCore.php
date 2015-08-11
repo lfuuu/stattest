@@ -2,6 +2,7 @@
 
 use app\models\CoreSyncIds;
 use app\classes\api\ApiCore;
+use app\classes\Event;
 
 class SyncCore
 {
@@ -68,17 +69,18 @@ class SyncCore
                         $accountSync->external_id = "*" . $account->id;
                         $accountSync->save();
                     }
+
                 } catch(Exception $e)
                 {
 
                     if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
                     {
-                        //event::go("add_account", $account->id, true);
+                        //Event::go("add_account", $account->id, true);
                     }
 
                     if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                     {
-                        //event::go("add_account", $account->id, true);
+                        //Event::go("add_account", $account->id, true);
                     }
 
                     if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
@@ -111,13 +113,11 @@ class SyncCore
         }
     }
 
-    public static function checkProductState($product, $param)
+    public static function checkProductState($product, $accountId)
     {
         if ($product == "phone" && !isset(\Yii::$app->params['PHONE_SERVER']) || !\Yii::$app->params['PHONE_SERVER']) return;
 
-        list($usageId, $client) = $param;
-
-        $account = \app\models\ClientAccount::findOne(['client' => $client]);
+        $account = \app\models\ClientAccount::findOne($accountId);
 
         if (!$account) return false;
 
@@ -144,8 +144,6 @@ class SyncCore
         {
             ApiCore::exec($actionJSON, $struct);
         }
-
-        return $action;
     }
 
     public static function adminChanged($clientId)

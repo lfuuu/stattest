@@ -11,6 +11,9 @@ $blocks = $this->context->getNavigationBlocks();
 </div>
 
 <?php foreach ($blocks as $block): ?>
+
+    <?php if (empty($block->items)) continue; ?>
+
     <div id="navigation-block-<?=$block->id?>" class="menupanel">
         <div class="title" onclick="toggleNavigationBlock('navigation-block-<?=$block->id?>')">
             <span class="title">

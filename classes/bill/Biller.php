@@ -61,6 +61,7 @@ abstract class Biller
     protected function setupBillerDate(DateTime $date)
     {
         $this->billerDate = new DateTime();
+
         $this->billerDate->setTimezone($this->timezone);
         $this->billerDate->setDate($date->format('Y'), $date->format('m'), $date->format('d'));
         $this->billerDate->setTime($date->format('H'), $date->format('i'), $date->format('s'));

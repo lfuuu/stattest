@@ -3,7 +3,7 @@
         <h2>Услуги</h2>
         <h3>IP-телефония</h3>
         {if access_action('services','vo_add')}
-            <a id='vo_add_link' href='{$LINK_START}module=services&action=vo_add'>
+            <a id='vo_add_link' href='/usage/voip/add?clientAccountId={$fixclient_data.id}'>
                 <img class=icon src='{$IMAGES_PATH}icons/phone_add.gif'>
                 Добавить телефонный номер
             </a><br>
@@ -42,7 +42,7 @@
             <tr bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
                 <td width=1% nowrap>
                     {if access("services_voip", "edit")}
-                        <a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.id}</a>
+                        <a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.id}</a>
                     {else}
                         {$item.id}
                     {/if}
@@ -65,7 +65,7 @@
                         ???
                     {/if}
                 </td>
-                <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a></td>
+                <td nowrap><a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to<'3000-01-01'}{$item.actual_to}{/if}</a></td>
                 <td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
                 <td style="font-size: 8pt;">{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
                     {if $item.tarif.dest_group != 0}

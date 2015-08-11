@@ -2,6 +2,7 @@
 use app\classes\StatModule;
 use app\models\ClientAccount;
 use app\classes\Assert;
+use app\classes\Event;
 
 class DbForm {
     protected $table;
@@ -566,8 +567,8 @@ class DbFormUsageVoip extends DbForm {
 
         $R=$db->AllRecords(
             'select * from tarifs_voip '.
-            (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').
-            ' and region="'.$region.'"'.
+            (isset($fixclient_data['currency'])?'where currency_id="'.$fixclient_data['currency'].'" ':'').
+            ' and connection_point_id="'.$region.'"'.
             ' and price_include_vat=' . $client_price_include_vat .
             ' order by status, month_line, month_min_payment', 'id'
         );
@@ -619,6 +620,8 @@ class DbFormUsageVoip extends DbForm {
         }
 
         if ($v=='add' || $v=='edit') {
+            $toAutoCreate = false;
+
             $b = 1;
             if ($this->dbform['t_id_tarif'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_local_mob'] == 0) $b=0;
@@ -679,11 +682,27 @@ class DbFormUsageVoip extends DbForm {
                         );
                 }
 
+                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
+
+
+                    if ($v == "add") {
+                        $toAutoCreate = true;
+                    } elseif ($v == "edit") {
+                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field) {
+                            if ($this->dbform[$field] != $current[$field]) {
+                                $toAutoCreate = true;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+
             }else{
                 trigger_error2("Не сохранено! Выберите тариф");
             }
         }
-        voipNumbers::check();
+
         return $v;
     }
 
@@ -718,7 +737,6 @@ class DbFormUsageVoip extends DbForm {
         $usage = \app\models\UsageVoip::findOne(["id" => $usageId]);
         $usage->create_params = json_encode($data);
         $usage->save();
-
     }
 
     private function check_number()
@@ -1928,8 +1946,8 @@ class DbFormFactory {
             return new DbFormUsageIpPorts();
         }elseif ($table=='usage_ip_ppp') {
             return new DbFormUsageIPPPP();
-        }elseif ($table=='usage_voip') {
-            return new DbFormUsageVoip();
+//        }elseif ($table=='usage_voip') {
+//            return new DbFormUsageVoip();
         }elseif ($table=='tech_cpe') {
             return new DbFormTechCPE();
         }elseif ($table=='tech_cpe_models') {
@@ -1981,7 +1999,6 @@ $GLOBALS['translate_arr']=array(
     'usage_voip.E164'                => 'номер телефона',
     '*.ClientIPAddress'        => 'IP-адрес',
     '*.enabled'                => 'включено',
-    '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
     'usage_voip.is_trunk'              => 'Оператор',
     'usage_voip.allowed_direction'      => 'Разрешенные направления',
