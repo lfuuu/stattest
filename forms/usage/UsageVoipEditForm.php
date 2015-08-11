@@ -164,11 +164,13 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function changeTariff()
     {
+/*
         $tariffChangeDate= new \DateTime($this->tariff_change_date, $this->timezone);
         if ($tariffChangeDate < $this->tomorrow) {
-            $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
+            $this->addError('tariff_change_date', 'Дата изменения тарифа не может быть в прошлом');
             return false;
         }
+*/
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
