@@ -4216,7 +4216,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             and B.bill_no like "20____-____"
             and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
             and cr.contract_type_id != 6 ## internal office
-            and cr.business_process_status_id != 22 ## trash
+            and cr.business_process_status_id not in (22, 28, 99) ## trash, cancel
         GROUP BY
             B.bill_no
         order by
