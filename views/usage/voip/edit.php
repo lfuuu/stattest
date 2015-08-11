@@ -38,6 +38,15 @@ $status = [
     'working' => 'Включенный',
 ];
 
+
+$allowedDirectionList = [
+    'full' => 'Все',
+    'russia' => 'Россия',
+    'localmob' => 'Местные стац.+моб.',
+    'local' => 'Местные стац.',
+    'blocked' => 'Запрет исх. связи',
+];
+
 ?>
 <legend>
     <?= Html::a($clientAccount->company, '/client/view?id='.$clientAccount->id) ?> ->
@@ -103,11 +112,12 @@ if ($model->type_id == '7800') {
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 3,
+    'columns' => 4,
     'attributes' => [
         'no_of_lines' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
         'address' => ['type' => Form::INPUT_TEXT],
+        'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
+        'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
     ],
 ]);
 

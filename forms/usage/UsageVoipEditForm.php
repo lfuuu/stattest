@@ -128,6 +128,7 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         $this->usage->status = $this->status;
         $this->usage->address = $this->address;
+        $this->usage->allowed_direction = $this->allowed_direction;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
