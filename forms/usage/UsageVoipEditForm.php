@@ -54,7 +54,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function add()
     {
-        $connectingDate= new DateTime($this->connecting_date, $this->timezone);
+        $connectingDate = new DateTime($this->connecting_date, $this->timezone);
         if ($connectingDate < $this->today) {
             $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
             return false;
@@ -89,7 +89,14 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
         $usage->status = $this->status;
-        $usage->address = $this->address ?: $city->region->datacenter->address;
+        if (!$this->address) {
+            $usage->address = $city->region->datacenter->address;
+            $usage->address_from_datacenter_id = $city->region->datacenter->id;
+        }
+        else {
+            $usage->address = $this->address;
+            $usage->address_from_datacenter_id = null;
+        }
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -132,7 +139,14 @@ class UsageVoipEditForm extends UsageVoipForm
         $region = Region::findOne($this->usage->region);
 
         $this->usage->status = $this->status;
-        $this->usage->address = $this->address ?: $region->datacenter->address;
+        if (!$this->address) {
+            $this->usage->address = $region->datacenter->address;
+            $this->usage->address_from_datacenter_id = $region->datacenter->id;
+        }
+        else {
+            $this->usage->address = $this->address;
+            $this->usage->address_from_datacenter_id = null;
+        }
         $this->usage->allowed_direction = $this->allowed_direction;
 
         $transaction = Yii::$app->db->beginTransaction();
