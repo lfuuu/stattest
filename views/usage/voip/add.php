@@ -118,7 +118,6 @@ echo Form::widget([
         'no_of_lines' => ['type' => Form::INPUT_TEXT],
         'address' => [
             'type' => Form::INPUT_TEXT,
-            'value' => 'test',
             'options' => [
                 'placeholder' => $model->addressPlaceholder,
             ],
