@@ -73,7 +73,7 @@ class NavigationBlock
         list($title, $items) = $statModule->GetPanel(null);
 
         if (!$title || !$items) {
-            return null;
+            return $this;
         }
 
         foreach ($items as $item) {
