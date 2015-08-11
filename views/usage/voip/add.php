@@ -56,10 +56,9 @@ $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 5,
+    'columns' => 4,
     'attributes' => [
         'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-        'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload']],
         'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> City::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload',]],
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">

@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property int $country_id
+ * @property string $connection_point_id
  * @property string $voip_number_format
 
  * @property Country $country

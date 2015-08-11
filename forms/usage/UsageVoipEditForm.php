@@ -35,7 +35,7 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         $rules = parent::rules();
         $rules[] = [[
-            'type_id', 'connection_point_id', 'city_id', 'client_account_id',
+            'type_id', 'city_id', 'client_account_id',
             'no_of_lines', 'did',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'add'];
@@ -73,6 +73,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -228,6 +229,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
+            $this->connection_point_id = $this->city->connection_point_id;
         }
 
         if (!$this->type_id) {
