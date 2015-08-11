@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Number;
 use app\classes\StatModule;
 use app\models\Trouble;
 use app\models\LkWizardState;
@@ -242,46 +243,22 @@ if ($action=='add_client') {
 
 }elseif($action == "get_free_numbers")
 {
+
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
-	$res = $db->AllRecords("
-          SELECT a.*, (SELECT MAX(actual_to) FROM usage_voip WHERE e164 = a.number AND NOT (actual_from > '3000-01-01' AND actual_to > '3000-01-01')) date_to
-          FROM (
-            SELECT number, beauty_level, price, vn.region
-              FROM voip_numbers vn
-              LEFT JOIN usage_voip uv ON (
-                    uv.E164 = vn.number AND 
-                    (
-                           ( actual_from > '3000-01-01' AND actual_from > '3000-01-01')
-                        OR ( actual_from <= CAST(NOW() AS date) AND actual_to >= CAST(NOW() AS date))
-                    )
-              )
+    $numbers =
+        Yii::$app->db->createCommand("
+                SELECT * FROM `voip_numbers` WHERE (`region`=:region) AND (`status`='instock')
+                HAVING if(region = :region, if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true), true)
+                ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number  ",
+            [':region' => $region]
+        )
+            ->queryAll();
 
-              WHERE 
-                  uv.E164 IS NULL 
-                AND client_id IS NULL 
-                AND (
-                    (used_until_date IS NULL OR used_until_date < NOW() - INTERVAL 6 MONTH)
-                  OR
-                    (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < NOW()))
-                  OR 
-                    status <> 'new'
-                 ) ".($region !== null ? " AND vn.region = '".$region."'" : "")."
+    foreach($numbers as $r) {
+        echo $r['number'].';'.$r['beauty_level'].';'.$r['price'].';'.$r['region']."\n";
+    }
 
-              )a
-              HAVING (date_to IS NULL OR date_to < NOW()) and 
-              
-                if(region = 99,
-                    if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true),
-                true)
-
-          #order by if(beauty_level=0, 10, beauty_level) desc, number
-          ORDER BY IF(region = 99, -IFNULL(price,0), if(beauty_level=0, 10, beauty_level)) DESC, number
-	                        ");
-	foreach($res as $r)
-	{
-		echo $r['number'].';'.$r['beauty_level'].';'.$r['price'].';'.$r['region']."\n";
-	}
 }elseif($action == "reserve_number")
 {
     $client_id = get_param_integer("client_id", 0);
