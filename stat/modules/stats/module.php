@@ -1049,12 +1049,12 @@ class m_stats extends IModule{
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
 
             if ($clientAccount->price_include_vat) {
-                $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
-                $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
+                $rt['price_without_tax'] = number_format($price * 100 / (100 + $tax_rate), 2, '.', '');
+                $rt['price_with_tax'] = number_format($price, 2, '.', '');
                 $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
             } else {
-                $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-                $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
+                $rt['price_without_tax'] = number_format($price, 2, '.', '');
+                $rt['price_with_tax'] = number_format($price * (100 + $tax_rate) / 100, 2, '.', '');
                 $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
             }
 
