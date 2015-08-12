@@ -109,8 +109,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveTariff($usage, $this->connecting_date);
 
             if ($usage->type_id == 'number') {
-                $number = Number::findOne($usage->E164);
-                Number::dao()->startActiveStat($number, $usage);
+                Number::dao()->actualizeStatusByE164($usage->E164);
             }
 
             Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
@@ -152,6 +151,10 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
 
             $this->usage->save();
+
+            Number::dao()->actualizeStatusByE164($this->usage->E164);
+
+            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -206,15 +209,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
 
-            $currentTariff =
-                LogTarif::find()
-                    ->andWhere(['service' => 'usage_voip'])
-                    ->andWhere(['id_service' => $usage->id])
-                    ->andWhere('date_activation<=NOW()')
-                    ->andWhere('id_tarif!=0')
-                    ->orderBy('date_activation desc, ts desc, id desc')
-                    ->limit(1)
-                    ->one();
+            $currentTariff = $usage->getCurrentLogTariff();
 
             if ($currentTariff) {
                 $this->tariff_main_id = $currentTariff->id_tarif;
@@ -392,7 +387,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 }
             }
 
-            $currentTariff = $this->getCurrentTariffByUsageId($usage->id, $tariffDate);
+            $currentTariff = $usage->getCurrentLogTariff($tariffDate);
             $massChangeMainTariffId = $currentTariff->id_tarif;
         } else {
             $tariffUsages = [$usage];
@@ -400,7 +395,7 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 
         foreach ($tariffUsages as $tariffUsage) {
-            $currentTariff = $this->getCurrentTariffByUsageId($tariffUsage->id, $tariffDate);
+            $currentTariff = $tariffUsage->getCurrentLogTariff($tariffDate);
 
             if ($massChangeMainTariffId && $massChangeMainTariffId != $currentTariff->id_tarif) {
                 continue;
@@ -503,18 +498,5 @@ class UsageVoipEditForm extends UsageVoipForm
             intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
 
-    }
-
-    private function getCurrentTariffByUsageId($usageId, $date)
-    {
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_voip'])
-                ->andWhere(['id_service' => $usageId])
-                ->andWhere('date_activation<=:date', [':date' => $date])
-                ->andWhere('id_tarif!=0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\ActaulizerVoipNumbers;
+use app\models\Number;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -118,7 +119,10 @@ function do_events()
                         ActaulizerVoipNumbers::me()->actualizeAll();
                         break;
 
-                    case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
+                    case 'ats3__sync':
+                        ActaulizerVoipNumbers::me()->sync($param["number"]);
+                        Number::dao()->actualizeStatusByE164($param["number"]);
+                        break;
                 }
             }
 

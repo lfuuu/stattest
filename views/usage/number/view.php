@@ -88,6 +88,12 @@ use yii\helpers\Html;
                                     <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
                                     <b>снят</b> с клиента
                                     <a href='?module=clients&id=<?= $log['client_id'] ?>' style='text-decoration:none;font-weight:bold'><?= $log['client'] ?></a>
+                                <?php elseif ($log['action'] == 'hold'): ?>
+                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
+                                    <b>помещен в отстойник</b>
+                                <?php elseif ($log['action'] == 'unhold'): ?>
+                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
+                                    <b>убран из отстойника</b>
                                 <?php elseif ($log['action'] == 'invertReserved'): ?>
                                     <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
                                     <?php if ($log['addition'] == 'Y'): ?>

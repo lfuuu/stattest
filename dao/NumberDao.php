@@ -61,10 +61,6 @@ class NumberDao extends Singleton
 
     public function startActiveStat(Number $number, UsageVoip $usage)
     {
-        if (!in_array($number->status, [Number::STATUS_INSTOCK, Number::STATUS_RESERVED])) {
-            Assert::isUnreachable('Включить можно только свободный или зарезервированный номер');
-        }
-
         $number->client_id = $usage->clientAccount->id;
         $number->usage_id = $usage->id;
         $number->reserve_from = null;
@@ -78,8 +74,6 @@ class NumberDao extends Singleton
 
     public function stopActive(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_ACTIVE);
-
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
         $number->client_id = null;
@@ -97,6 +91,8 @@ class NumberDao extends Singleton
 
         $number->status = Number::STATUS_HOLD;
         $number->save();
+
+        Number::dao()->log($number, 'hold');
     }
 
     public function stopHold(Number $number)
@@ -105,6 +101,8 @@ class NumberDao extends Singleton
 
         $number->status = Number::STATUS_INSTOCK;
         $number->save();
+
+        Number::dao()->log($number, 'unhold');
     }
 
     public function startNotSell(Number $number)
@@ -136,6 +134,32 @@ class NumberDao extends Singleton
             ':userId' => Yii::$app->user->getId(),
             ':addition' => $addition,
         ])->execute();
+    }
 
+    public function actualizeStatusByE164($numbereE164)
+    {
+        $number = Number::findOne(['number' => $numbereE164]);
+        if ($number) {
+            $this->actualizeStatus($number);
+        }
+    }
+
+    public function actualizeStatus(Number $number)
+    {
+        /** @var UsageVoip $usage */
+        $usage = UsageVoip::find()
+            ->andWhere(['E164' => $number->number])
+            ->andWhere('actual_from<=DATE(now()) and  actual_to >= DATE(now())')
+            ->one();
+        
+        if ($usage) {
+            if ($number->status != Number::STATUS_ACTIVE) {
+                Number::dao()->startActiveStat($number, $usage);
+            }
+        } else {
+            if ($number->status == Number::STATUS_ACTIVE) {
+                Number::dao()->stopActive($number);
+            }
+        }
     }
 }

@@ -806,20 +806,34 @@ class m_stats extends IModule{
 		return $R;
 	}
 
-    function FindByNumber($region , $from, $to, $find)
+    function FindByNumber($region , $from, $to, $find, $timezone = "Europe/Moscow")
     {
         global $pg_db;
-      $R = array();
-      $geo = array();
+
+        $R = array();
+        $geo = array();
+
+
+        $from = new DateTime(date('Y-m-d', $from), new DateTimeZone($timezone));
+        $to = new DateTime(date('Y-m-d 23:59:59', $to), new DateTimeZone($timezone));
+
+        $from->setTimezone(new DateTimeZone('UTC'));
+        $to->setTimezone(new DateTimeZone('UTC'));
+
+        $dt = new DateTime();
+        $dt->setTimezone(new DateTimeZone($timezone));
+
+        $offset = $dt->getOffset();
+
         foreach($pg_db->AllRecords($q =
-                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id FROM calls_raw.calls_raw
-                  WHERE \"connect_time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
+                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id, connect_time FROM calls_raw.calls_raw
+                  WHERE \"connect_time\" BETWEEN '".$from->format('Y-m-d H:i:s')."' AND '".$to->format('Y-m-d H:i:s.999999')."'
                   AND '".$find."' in (src_number, dst_number)
                   AND server_id = '".$region."'
                   AND operator_id < 50
                   LIMIT 1000") as $l)
         {
-          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["connect_time"]));
+          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["connect_time"])+$offset);
 
           if ($l['len']>=24*60*60) $d=floor($l['len']/(24*60*60)); else $d=0;
           $l["len"]=($d?($d.'d '):'').gmdate("H:i:s",$l['len']-$d*24*60*60);
@@ -843,10 +857,13 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone, $regions = array(), $isFull = false){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone = "Europe/Moscow", $regions = array(), $isFull = false){
         global $pg_db;
 
-        if (!$timezone instanceof DateTimeZone) {
+        if (!$timezone)
+            $timezone = 'Europe/Moscow';
+
+        if (!($timezone instanceof DateTimeZone)) {
             $timezone = new DateTimeZone($timezone);
         }
 

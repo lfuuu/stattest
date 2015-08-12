@@ -10,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property int $usage_id
  * @property int $city_id
  * @property int $did_group_id
+ * @property string $status
 
  * @property City $city
  * @property DidGroup $didGroup

@@ -44,7 +44,7 @@ class TariffVoipDao extends Singleton
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 5]);
-        $query->andWhere(['status' => 'public']);
+        //$query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
             $query->andWhere(['connection_point_id' => $connectingPointId]);
@@ -72,7 +72,7 @@ class TariffVoipDao extends Singleton
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 1]);
-        $query->andWhere(['status' => 'public']);
+        //$query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
             $query->andWhere(['connection_point_id' => $connectingPointId]);
@@ -100,7 +100,7 @@ class TariffVoipDao extends Singleton
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 2]);
-        $query->andWhere(['status' => 'public']);
+        //$query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
             $query->andWhere(['connection_point_id' => $connectingPointId]);
@@ -128,7 +128,7 @@ class TariffVoipDao extends Singleton
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 3]);
-        $query->andWhere(['status' => 'public']);
+        //$query->andWhere(['status' => 'public']);
 
         if ($connectingPointId !== false) {
             $query->andWhere(['connection_point_id' => $connectingPointId]);

@@ -305,14 +305,20 @@ if ($model->tariff_group_local_mob || $model->tariff_group_russia || $model->tar
     ]);
 }
 
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'columns' => 1,
-    'attributes' => [
-        'mass_change_tariff' => ['type' => Form::INPUT_CHECKBOX],
-    ],
-]);
+$logTariff = $usage->getCurrentLogTariff();
+if ($logTariff) {
+    $mainTariff = TariffVoip::findOne($logTariff->id_tarif);
+    if ($mainTariff) {
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 1,
+            'attributes' => [
+                'mass_change_tariff' => ['type' => Form::INPUT_CHECKBOX, 'label' => 'Массово изменить тариф у всех услуг с тарифом "' . $mainTariff->name . '"'],
+            ],
+        ]);
+    }
+}
 
 echo Form::widget([
     'model' => $model,

@@ -3,6 +3,7 @@ namespace app\forms\usage;
 
 use app\classes\Event;
 use app\models\LogTarif;
+use app\models\Number;
 use app\models\UsageVoip;
 use Yii;
 use app\classes\Assert;
@@ -70,6 +71,8 @@ class UsageVoipCloseForm extends Form
             foreach ($nextHistoryItems as $nextHistoryItem) {
                 $nextHistoryItem->delete();
             }
+
+            Number::dao()->actualizeStatusByE164($usage->E164);
 
             Event::go('update_phone_product', ['account_id' => $usage->clientAccount->id]);
             Event::go('actualize_number', ['number' => $usage->E164]);
