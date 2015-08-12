@@ -139,9 +139,12 @@ class ClientController extends BaseController
     {
         $request = Yii::$app->request->post();
         $contragent = new ContragentEditForm();
+        $contragent->load($request);
         $contract = new ContractEditForm();
+        $contract->load($request);
         $account = new AccountEditForm();
-        if ($request) {
+        $account->load($request);
+        if ($request && !$request['notSave']) {
             $transaction = Yii::$app->db->beginTransaction();
             $commit = false;
             $super = new ClientSuper();

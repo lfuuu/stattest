@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Language;
 use Yii;
 use yii\base\Model;
 
@@ -56,7 +57,13 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+            $user = $this->getUser();
+            if(Yii::$app->user->login($user, $this->rememberMe ? 3600*24*30 : 0)) {
+                Language::setCurrentLanguage($user->language);
+                return true;
+            }
+            else
+                return false;
         } else {
             return false;
         }

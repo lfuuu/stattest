@@ -153,12 +153,12 @@ abstract class AccountGridFolder extends Model
         }
 
         if ($this->bill_date) {
-            $billDates = explode('+-+', $this->bill_date);
+            $billDates = explode(' - ', $this->bill_date);
             $query->andWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
         if ($this->createdDate) {
-            $createdDates = explode('+-+', $this->createdDate);
+            $createdDates = explode(' - ', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 

@@ -181,7 +181,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getOpf()
     {
-        return $this->contract->contragent->opf;
+        return $this->contract->contragent->opf_id;
     }
 
     public function getOkvd()
