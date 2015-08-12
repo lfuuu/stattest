@@ -350,8 +350,12 @@ if ($action=='add_client') {
     if(!($d = @unserialize($d))) die("error: params is bad");
 
     list($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, $timezone) = $d;
-    
-    $a = $s->GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, $timezone);
+
+    $dt = new DateTime();
+    $dt->setTimeZone(new DateTimeZone('Europe/Moscow'));
+
+    $a = $s->GetStatsVoIP($region,$from+$dt->getOffset(),$to+$dt->getOffset(),$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, "Europe/Moscow");
+
 
     echo serialize($a);
 
