@@ -319,8 +319,6 @@ if ($action=='add_client') {
 {
     if(!isset($_GET["d"])) die("error: empty params");
 
-    include "../modules/stats/module.php";
-
     $s = new m_stats();
 
     $d = $_GET["d"];
@@ -340,8 +338,6 @@ if ($action=='add_client') {
 }elseif($action == "stat_find")
 {
     if(!isset($_GET["d"])) die("error: empty params");
-
-    include "../modules/stats/module.php";
 
     $s = new m_stats();
 
