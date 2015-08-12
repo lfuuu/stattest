@@ -46,10 +46,14 @@ class ContragentController extends BaseController
 
         if(!($this->getFixClient() && $this->getFixClient()->getContract()->contragent_id == $id)){
             $contragentModel = $model->getContragentModel();
-            $account = $contragentModel->getContracts()[0]->getAccounts()[0];
-            if($account) {
-                Yii::$app->session->set('clients_client', $account->id);
-                $this->applyFixClient($account->id);
+            $contracts = $contragentModel->getContracts();
+
+            if (sizeof($contracts)) {
+                $account = $contragentModel->getContracts()[0]->getAccounts()[0];
+                if ($account) {
+                    Yii::$app->session->set('clients_client', $account->id);
+                    $this->applyFixClient($account->id);
+                }
             }
         }
 
