@@ -142,7 +142,7 @@ $config = [
             ],
             // default settings for each widget from kartik\widgets used when autoWidget is true
             'autoWidgetSettings' => [
-                'date' => ['pluginOptions' => ['autoclose' => true]], // example
+                'date' => ['pluginOptions' => ['autoclose' => true, 'todayBtn' => 'linked']], // example
                 'datetime' => [], // setup if needed
                 'time' => [], // setup if needed
             ],
