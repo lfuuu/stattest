@@ -25,7 +25,6 @@ abstract class AccountGridFolder extends Model
     public $service;
     public $regionId;
     public $sale_channel;
-    public $block_date;
 
     public function getName()
     {
@@ -68,6 +67,7 @@ abstract class AccountGridFolder extends Model
             'over1' => 'Прев.(тек.)',
             'abondiff' => 'Абон.(diff)',
             'overdiff' => 'Прев.(diff)',
+            'block_date' => 'Дата блокировки',
         ];
     }
 
@@ -151,17 +151,17 @@ abstract class AccountGridFolder extends Model
         }
 
         if ($this->bill_date) {
-            $billDates = explode(' - ', $this->bill_date);
+            $billDates = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
             $query->andWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
         if ($this->createdDate) {
-            $createdDates = explode(' - ', $this->createdDate);
+            $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
-        if ($this->block_date) {
-            $blockDates = explode(' - ', $this->block_date);
+        if (isset($this->block_date)) {
+            $blockDates = preg_split('/[\s+]\-[\s+]/', $this->block_date);
             $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
         }
 

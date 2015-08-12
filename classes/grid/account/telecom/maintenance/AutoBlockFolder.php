@@ -9,6 +9,8 @@ use yii\db\Query;
 
 class AutoBlockFolder extends AccountGridFolder
 {
+    public $block_date;
+
     public function getName()
     {
         return 'Автоблокировка';
