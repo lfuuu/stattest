@@ -812,7 +812,7 @@ class m_stats extends IModule{
       $R = array();
       $geo = array();
         foreach($pg_db->AllRecords($q =
-                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id FROM calls_raw.calls_raw
+                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id, connect_time FROM calls_raw.calls_raw
                   WHERE \"connect_time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
                   AND '".$find."' in (src_number, dst_number)
                   AND server_id = '".$region."'
@@ -843,10 +843,13 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone, $regions = array(), $isFull = false){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone = "Europe/Moscow", $regions = array(), $isFull = false){
         global $pg_db;
 
-        if (!$timezone instanceof DateTimeZone) {
+        if (!$timezone)
+            $timezone = 'Europe/Moscow';
+
+        if (!($timezone instanceof DateTimeZone)) {
             $timezone = new DateTimeZone($timezone);
         }
 
