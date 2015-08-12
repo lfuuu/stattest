@@ -15,7 +15,7 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
             'contract/edit',
             'id' => $contractForm->id,
             'childId' => $account->id,
-            'returnTo' => Url::toRoute(['client/view', 'id'=>$contractForm->id, 'childId'=>$account->id]),
+            'returnTo' => Url::toRoute(['client/view', 'id'=>$account->id, 'childId'=>$contractForm->id]),
         ])
     ]);
     ?>
