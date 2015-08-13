@@ -4,15 +4,22 @@ use app\classes\grid\account\AccountGridFolder;
 
 /** @var AccountGridFolder $activeFolder */
 
+$urlParams = Yii::$app->request->get();
 ?>
 
 <div class="row">
     <div class="col-sm-12">
         <ul class="nav nav-pills">
             <?php foreach ($activeFolder->grid->getFolders() as $folder): ?>
-                <?php $urlParams = array_merge(Yii::$app->request->get(), ['client/grid', 'folderId' => $folder->getId()]); ?>
+                <?php
+                $params =
+                    array_merge(
+                        array_intersect_key($urlParams, get_class_vars(get_class($folder))),
+                        ['client/grid', 'folderId' => $folder->getId(), 'businessProcessId' => $urlParams['businessProcessId']]
+                    );
+                ?>
                 <li class="<?= $activeFolder->getId() == $folder->getId() ? 'active' : '' ?>">
-                    <a href="<?= \yii\helpers\Url::toRoute($urlParams) ?>">
+                    <a href="<?= \yii\helpers\Url::toRoute($params) ?>">
                         <?php
                             echo $folder->getName();
                             $count = $folder->getCount();
