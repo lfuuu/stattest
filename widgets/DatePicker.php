@@ -3,8 +3,10 @@
 namespace app\widgets;
 
 use Yii;
+use DateTime;
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
+use yii\web\JsExpression;
 
 class DatePicker extends \kartik\date\DatePicker
 {
@@ -43,7 +45,7 @@ class DatePicker extends \kartik\date\DatePicker
         if (is_string($options)) {
             return $options;
         }
-        $icon = ($type === 'picker') ? 'calendar' : 'remove';
+        $icon = ($type === 'picker') ? 'calendar' : $type;
         Html::addCssClass($options, 'input-group-addon kv-date-' . $icon);
         $icon = '<i class="glyphicon glyphicon-' . ArrayHelper::remove($options, 'icon', $icon) . '"></i>';
         $title = ArrayHelper::getValue($options, 'title', '');
@@ -61,7 +63,6 @@ class DatePicker extends \kartik\date\DatePicker
      */
     protected function parseMarkup($input)
     {
-        /*
         $css = $this->disabled ? ' disabled' : '';
         if ($this->type == self::TYPE_INPUT || $this->type == self::TYPE_INLINE) {
             if (isset($this->size)) {
@@ -86,6 +87,11 @@ class DatePicker extends \kartik\date\DatePicker
             Html::addCssClass($this->_container, 'date');
             $picker = $this->renderAddon($this->pickerButton);
             $remove = $this->renderAddon($this->removeButton, 'remove');
+
+            if ($part4 == 'today') {
+                $part4 = $this->renderAddon($this->todayButton(), 'today');
+            }
+
             if ($this->type == self::TYPE_COMPONENT_APPEND) {
                 $content = $part1 . $part2 . $input . $part3 . $remove . $picker . $part4;
             } else {
@@ -135,7 +141,19 @@ class DatePicker extends \kartik\date\DatePicker
         if ($this->type == self::TYPE_INLINE) {
             return Html::tag('div', '', $this->_container) . $input;
         }
-        */
+    }
+
+    private function todayButton()
+    {
+        $today = (new DateTime('now'))->format('Y-m-d');
+        return [
+            'icon' => 'check',
+            'title' => 'Установить дату в сегодня',
+            'onClick' => new JsExpression("jQuery(this).on('click.kvdatepicker', function(e) {
+                e.preventDefault();
+                $(this).parent().find('.kv-date-calendar').kvDatepicker('update', '" . $today . "');
+            })"),
+        ];
     }
 
 }

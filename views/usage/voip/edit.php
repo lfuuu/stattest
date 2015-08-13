@@ -9,6 +9,7 @@ use yii\helpers\Url;
 use app\models\User;
 use app\models\TariffVoip;
 use app\models\TariffVoipPackage;
+use app\widgets\DateControl as CustomDateControl;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -107,43 +108,27 @@ if ($model->type_id == '7800') {
         'columns' => 3,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
             'connecting_date' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => \app\widgets\DateControl::className(),
+                'widgetClass' => CustomDateControl::className(),
                 'options' => [
-                     'autoWidgetSettings' => [
-                            \app\widgets\DateControl::FORMAT_DATE => [
-                                'class' => '\app\widgets\DatePicker',
-                                'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                    'autoWidgetSettings' => [
+                        DateControl::FORMAT_DATE => [
+                            'class' => '\app\widgets\DatePicker',
+                            'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                            'options' => [
                                 'addon' => [
-                                    'part1' => '<span class="input-group-addon">Birth Date</span>',
-                                    'part2' => '<span class="input-group-addon">bef</span>',
-                                    'part3' => '<span class="input-group-addon">aft</span>',
+                                    'part4' => 'today',
                                 ],
-
                             ],
+                        ],
                      ],
                 ],
             ],
-            'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 }
-
-echo app\widgets\DatePicker::widget([
-    'name' => 'dp_addon_1',
-    'type' => DatePicker::TYPE_COMPONENT_PREPEND,
-    'value' => '23-Feb-1982',
-    'addon' => [
-        'part1' => '<span class="input-group-addon">Birth Date</span>',
-        'part2' => '<span class="input-group-addon">bef</span>',
-        'part3' => '<span class="input-group-addon">aft</span>'
-    ],
-    'pluginOptions' => [
-        'autoclose' => true,
-        'format' => 'dd-M-yyyy'
-    ]
-]);
 
 echo Form::widget([
     'model' => $model,
