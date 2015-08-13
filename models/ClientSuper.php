@@ -19,7 +19,7 @@ class ClientSuper extends ActiveRecord
     {
         return [
             'name' => 'Название',
-            'financial_manager_id' => 'Финаносвый менеджер'
+            'financial_manager_id' => 'Финансовый менеджер'
         ];
     }
 
