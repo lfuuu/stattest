@@ -119,9 +119,9 @@ class m_tt extends IModule{
             $db->Query('update tt_stages set date_finish_desired = date_finish_desired + INTERVAL '.$time.' HOUR where stage_id='.$trouble['cur_stage_id']);
         }elseif(($dateActivation = get_param_raw("date_activation", "none")) !== "none")
         {
-            if(strtotime($dateActivation))
+            if($datetimeActivation = (new DateTime($dateActivation, new DateTimeZone('Europe/Moscow')))->format('Y-m-d H:i:s'))
             {
-                $db->Query('update tt_stages set date_start = "'.$dateActivation.'" where stage_id='.$trouble['cur_stage_id']);
+                $db->Query('update tt_stages set date_start = "'.$datetimeActivation.'" where stage_id='.$trouble['cur_stage_id']);
             }
 
         }

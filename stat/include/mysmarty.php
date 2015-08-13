@@ -227,12 +227,12 @@ function smarty_modifier_mdate($value,$format) {
 }
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
     if (is_numeric($value)) {
-        $date = new DateTime('now', new DateTimeZone('UTC'));
+        $date = new DateTime('now', new DateTimeZone('Europe/Moscow'));
         if ($value > 0) {
             $date->setTimestamp($value);
         }
     } else {
-        $date = new DateTime($value, new DateTimeZone('UTC'));
+        $date = new DateTime($value, new DateTimeZone('Europe/Moscow'));
     }
     $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
 
