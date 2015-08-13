@@ -6,7 +6,7 @@ use app\classes\Language;
 
 $language = Language::getLanguageByCountryId($contragent->country_id?:643);
 $formFolderName = Language::getLanguageExtension($language);
-$model->formLang = $language;
+$contragent->formLang = $language;
 ?>
 <div class="row">
     <div class="col-sm-12">

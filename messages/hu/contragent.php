@@ -20,6 +20,7 @@ return [
     'birthday' => 'Születési idő',
     'other_document' => 'Más dokumentum',
     'comment' => 'Megjegyzés',
+    'signer_passport' => 'Szig. szám',
 
 
     'legalTypeLegal' => 'Jogi személy',

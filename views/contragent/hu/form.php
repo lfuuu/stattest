@@ -51,7 +51,6 @@ use app\models\Country;
         ],
         'attributes' => [
             'inn' => [],
-            'okvd' => [],
             'ogrn' => [],
             'opf_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,

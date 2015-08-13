@@ -73,7 +73,7 @@ class ClientContragent extends HistoryActiveRecord
     {
         $result = [];
         foreach ($this->getContracts() as $contract) {
-            $result[] = array_merge($result, $contract->getAccounts());
+            $result = array_merge($result, $contract->getAccounts());
         }
         return $result;
     }

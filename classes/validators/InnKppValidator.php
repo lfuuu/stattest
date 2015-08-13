@@ -3,6 +3,7 @@ namespace app\classes\validators;
 
 use app\models\ClientContract;
 use app\models\ContractType;
+use app\models\Country;
 use yii\validators\Validator;
 
 class InnKppValidator extends Validator
@@ -24,7 +25,7 @@ class InnKppValidator extends Validator
         $attributes = [];
         if (in_array($model->legal_type, ['ip', 'legal']))
             $attributes[] = 'inn';
-        if ($model->legal_type == 'legal')
+        if ($model->legal_type == 'legal' && $model->country_id == Country::RUSSIA)
             $attributes[] = 'kpp';
 
         $contracts = $this->hasOperatorContract($model);

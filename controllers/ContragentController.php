@@ -30,7 +30,9 @@ class ContragentController extends BaseController
     {
         $model = new ContragentEditForm(['super_id' => $parentId]);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        $request = Yii::$app->request->post();
+        $notSave = (isset($request['notSave']) && $request['notSave']);
+        if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
             $this->redirect(['client/view','id'=>$childId]);
         }
 
@@ -65,18 +67,16 @@ class ContragentController extends BaseController
             Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
         }
 
+        $showLastChanges = false;
         $request = Yii::$app->request->post();
         $notSave = (isset($request['notSave']) && $request['notSave']);
         if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
-            $returnTo =
-                Yii::$app->request->get('returnTo')
-                    ?:['contragent/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1];
-
-            $this->redirect($returnTo);
+            $showLastChanges = true;
         }
 
         return $this->render("edit", [
-            'model' => $model
+            'model' => $model,
+            'showLastChanges' => $showLastChanges,
         ]);
 
     }

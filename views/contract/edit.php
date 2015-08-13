@@ -19,7 +19,6 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
 $language = Language::getLanguageByCountryId($contragents[0]['country_id']?:643);
 $formFolderName = Language::getLanguageExtension($language);
-$model->formLang = $language;
 ?>
 
 <div class="row">

@@ -62,6 +62,8 @@ $model->formLang = $language;
 </div>
 
 <script>
+    showLastChanges = <?= $showLastChanges ?>;
+
     $(function(){
         $('#deferred-date-input').parent().parent().hide();
     });

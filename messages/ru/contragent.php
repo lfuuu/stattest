@@ -31,6 +31,7 @@ return [
     'birthplace' => 'Место рождения',
     'birthday' => 'Дата рождения',
     'other_document' => 'Другой документ',
+    'signer_passport' => 'Номер внутреннего паспорта',
 
 
     'legalTypeIp' => 'ИП',
