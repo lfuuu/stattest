@@ -211,6 +211,7 @@ class ContragentEditForm extends Form
         $contragent->kpp = $this->kpp;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;
+        $contragent->comment = $this->comment;
 
         if ($contragent->legal_type == 'person')
             $contragent->tax_regime = 0;

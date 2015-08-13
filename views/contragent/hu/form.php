@@ -122,7 +122,11 @@ use app\models\Country;
     ]);
     echo '</div>';
     ?>
+    <div class="col-sm-6">
+        <?= $f->field($model, 'comment')->textarea(['style' => 'height: 100px;']) ?>
+    </div>
 </div>
+
 
 
 <script>
