@@ -116,7 +116,12 @@ echo Form::widget([
     'columns' => 2,
     'attributes' => [
         'no_of_lines' => ['type' => Form::INPUT_TEXT],
-        'address' => ['type' => Form::INPUT_TEXT],
+        'address' => [
+            'type' => Form::INPUT_TEXT,
+            'options' => [
+                'placeholder' => $model->addressPlaceholder,
+            ],
+        ],
         'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
         'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
     ],

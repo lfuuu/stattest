@@ -4,6 +4,7 @@ namespace app\forms\usage;
 use app\classes\Assert;
 use app\classes\Event;
 use app\models\City;
+use app\models\Region;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffVoip;
@@ -13,7 +14,6 @@ use DateTimeZone;
 use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
-
 use yii\helpers\ArrayHelper;
 
 class UsageVoipEditForm extends UsageVoipForm
@@ -30,6 +30,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public $today;
     /** @var DateTime */
     public $tomorrow;
+
+    public $addressPlaceholder = '';
 
     public function rules()
     {
@@ -77,6 +79,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
+        $city = City::findOne($this->city_id);
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -89,7 +92,14 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
         $usage->status = $this->status;
-        $usage->address = $this->address ?: '';
+        if (!$this->address) {
+            $usage->address = $city->region->datacenter->address;
+            $usage->address_from_datacenter_id = $city->region->datacenter->id;
+        }
+        else {
+            $usage->address = $this->address;
+            $usage->address_from_datacenter_id = null;
+        }
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -136,13 +146,22 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
+        $region = Region::findOne($this->usage->region);
+
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
         $this->usage->actual_from = $actualFrom;
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
-        $this->usage->address = $this->address;
+        if (!$this->address) {
+            $this->usage->address = $region->datacenter->address;
+            $this->usage->address_from_datacenter_id = $region->datacenter->id;
+        }
+        else {
+            $this->usage->address = $this->address;
+            $this->usage->address_from_datacenter_id = null;
+        }
         $this->usage->allowed_direction = $this->allowed_direction;
         $this->usage->no_of_lines = $this->no_of_lines;
 
@@ -246,6 +265,10 @@ class UsageVoipEditForm extends UsageVoipForm
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
             $this->connection_point_id = $this->city->connection_point_id;
+
+            if (empty($this->address)) {
+                $this->addressPlaceholder = $this->city->region->datacenter->address;
+            }
         }
 
         if (!$this->type_id) {
