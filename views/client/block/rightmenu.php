@@ -28,26 +28,20 @@ use yii\helpers\Url;
         <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
             <a href="?module=incomegoods&action=order_edit&id=">Создать заказ Поставщику</a>
         </li>
-    </ul>
 
-    <ul>
         <li>
             <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a>
         </li>
         <li>
             <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
         </li>
-    </ul>
 
-    <ul>
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
             <a href="/custom-print/print-client/?id=<?= $account->id; ?>" onClick="return ImmediatelyPrint(this)">Печать карточки клиента</a>
         </li>
-    </ul>
 
-    <ul>
         <li>
-            <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг</a>
+            <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг и устройств</a>
         </li>
     </ul>
 </div>

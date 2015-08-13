@@ -25,20 +25,17 @@ use app\forms\transfer\ServiceTransferForm;
                         <?php foreach ($movedServices as $serviceType => $serviceIds):
                             $serviceTitle = '';
                             ?>
-                            <div style="position: relative;">
-                                <ul style="position: relative; top: 20px;">
+                            <div>
+                                <b><?= $serviceIds[0]->$service->getTypeTitle() ?></b>
+                                <ul>
                                     <?php foreach($serviceIds as $serviceId):
                                         $service = $model->getService($serviceType, $serviceId);
-                                        $serviceTitle = $service->getTypeTitle();
                                         ?>
                                         <li>
                                             <?= $service->prev_usage_id; ?>: <?= $service->getTypeDescription(); ?>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
-                                <div style="position: absolute; top: 0;">
-                                    <b><?= $serviceTitle; ?></b>
-                                </div>
                             </div>
 
                         <?php endforeach; ?>
