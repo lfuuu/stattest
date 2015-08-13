@@ -39,8 +39,9 @@ class HistoryVersion extends ActiveRecord
             $diffs = [];
             if ($k > 0) {
                 $oldKeys = array_diff_key($versions[$k - 1]['data_json'], $versions[$k]['data_json']);
-                foreach ($oldKeys as $key)
+                foreach ($oldKeys as $key => $value) {
                     $diffs[$key] = [$versions[$k - 1]['data_json'][$key], ''];
+                }
 
                 foreach ($versions[$k]['data_json'] as $key => $val) {
                     $oldVal = isset($versions[$k - 1]['data_json'][$key]) ? $versions[$k - 1]['data_json'][$key] : '';

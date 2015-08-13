@@ -40,7 +40,7 @@ abstract class AccountGridFolder extends Model
     {
         return [
             [['id', 'regionId', 'sale_channel'], 'integer'],
-            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency', 'service'], 'string'],
+            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency', 'service', 'block_date'], 'string'],
         ];
     }
 
@@ -67,6 +67,7 @@ abstract class AccountGridFolder extends Model
             'over1' => 'Прев.(тек.)',
             'abondiff' => 'Абон.(diff)',
             'overdiff' => 'Прев.(diff)',
+            'block_date' => 'Дата блокировки',
         ];
     }
 
@@ -116,9 +117,6 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-
-
-
     }
 
     public function queryOrderBy()
@@ -153,13 +151,18 @@ abstract class AccountGridFolder extends Model
         }
 
         if ($this->bill_date) {
-            $billDates = explode(' - ', $this->bill_date);
+            $billDates = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
             $query->andWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
         if ($this->createdDate) {
-            $createdDates = explode(' - ', $this->createdDate);
+            $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+        }
+
+        if (isset($this->block_date)) {
+            $blockDates = preg_split('/[\s+]\-[\s+]/', $this->block_date);
+            $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
         }
 
         return $dataProvider;
@@ -253,14 +256,26 @@ abstract class AccountGridFolder extends Model
                         ]
                     ]);
                 }
-            ],/*
-    'block_date' => [
-        'attribute' => 'block_date',
-        'format' => 'raw',
-        'value' => function ($data) {
-            return $data->block_date;
-        }
-    ],*/
+            ],
+            'block_date' => [
+                'attribute' => 'block_date',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return $data['block_date'];
+                },
+                'filter' => function () {
+                    return \kartik\daterange\DateRangePicker::widget([
+                        'name' => 'block_date',
+                        'presetDropdown' => true,
+                        'hideInput' => true,
+                        'value' => \Yii::$app->request->get('block_date'),
+                        'containerOptions' => [
+                            'style' => 'width:300px;',
+                            'class' => 'drp-container input-group',
+                        ]
+                    ]);
+                }
+            ],
             'service' => [
                 'attribute' => 'service',
                 'format' => 'raw',

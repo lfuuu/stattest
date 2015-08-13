@@ -46,7 +46,7 @@ $model->formLang = $language;
             </div>
 
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
         </div>
         <?php ActiveForm::end(); ?>

@@ -22,7 +22,12 @@ class SyncCoreHelper
 
         $contragents = \app\models\ClientContragent::findAll(['super_id' => $superId]);
         foreach ($contragents as $contr) {
-            $dataContragent = array("id" => $contr["id"], "name" => $contr["name"], "accounts" => array());
+            $dataContragent = [
+                'id' => $contr->id,
+                'name' => $contr->name,
+                'country' => $contr->country->alpha_3,
+                'accounts' => [],
+            ];
 
             $adminContactId = 0;
             foreach ($contr->getContracts() as $contract) {

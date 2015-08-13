@@ -1,13 +1,14 @@
 <?php
 namespace app\controllers\usage;
 
+use Yii;
+use DateTime;
+use yii\helpers\ArrayHelper;
 use app\classes\Assert;
 use app\forms\usage\NumberForm;
 use app\models\City;
 use app\models\DidGroup;
 use app\models\Number;
-use Yii;
-use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
 
@@ -85,6 +86,7 @@ class NumberController extends BaseController
         $didGroups = Yii::$app->request->post('didGroups');
         $statuses = Yii::$app->request->post('statuses');
         $prefix = Yii::$app->request->post('prefix');
+        $viewType = Yii::$app->request->post('view-minimal');
 
         $cityList = City::dao()->getList(true);
         $didGroupList = DidGroup::dao()->getList(false, $cityId);
@@ -136,6 +138,12 @@ class NumberController extends BaseController
                     $numbers[$k]['count_avg3m'] = $callsCountByNumber[$n["number"]];
                 }
             }
+        }
+
+        if (!empty($viewType)) {
+            $result = implode("\r\n", ArrayHelper::getColumn($numbers, 'number'));
+            Yii::$app->response->sendContentAsFile($result, 'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
+            Yii::$app->end();
         }
 
         return $this->render('detail-report', [

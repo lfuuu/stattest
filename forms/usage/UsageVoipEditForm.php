@@ -112,7 +112,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 Number::dao()->actualizeStatusByE164($usage->E164);
             }
 
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
             Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
@@ -341,17 +340,17 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         }
         if ($this->type_id == 'line') {
-            if (!preg_match('/$\d{4,5}^/', $this->did)) {
+            if (!preg_match('/^\d{4,5}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }
         if ($this->type_id == 'operator') {
-            if (!preg_match('/$\d{3}^/', $this->did)) {
+            if (!preg_match('/^\d{3}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }
         if ($this->type_id == '7800') {
-            if (!preg_match('/$7800\d{7}^/', $this->did)) {
+            if (!preg_match('/^7800\d{7}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }

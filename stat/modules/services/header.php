@@ -118,7 +118,6 @@ class m_services_head extends IModuleHead {
 		array('Интернет',				'in_view'),
 		array('Collocation',			'co_view'),
 		array('WellSystem',				'wellsystem_view'),
-		array('Номерные ёмкости',	    'e164'),
 		array('Доменные имена',			'dn_view'),
 		array('E-Mail',					'em_view'),
 		array('PPP-логины',				'ppp_view'),
