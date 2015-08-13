@@ -45,6 +45,13 @@ use yii\helpers\Html;
 
     <br>
 
+    <?php if(count($numbers)): ?>
+        <div style="float: right; padding-bottom: 5px;">
+            <input type="submit" value="Получить список номеров" name="view-minimal" class="btn btn-primary" />
+        </div>
+        <br />
+    <?php endif; ?>
+
     <table class="table table-bordered table-striped table-condensed table-hover">
         <tr>
             <th>Номер</th>
