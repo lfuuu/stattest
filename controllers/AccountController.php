@@ -4,8 +4,6 @@ namespace app\controllers;
 
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
-use app\models\BusinessProcess;
-use app\models\BusinessProcessStatus;
 use app\models\Country;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
@@ -15,7 +13,6 @@ use app\classes\Assert;
 use yii\base\Exception;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
-use yii\web\Response;
 use app\models\ClientAccount;
 
 
@@ -33,7 +30,7 @@ class AccountController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'actions' => ['view', 'index', 'unfix'],
                         'roles' => ['clients.read'],
                     ],
                     [
@@ -186,25 +183,6 @@ class AccountController extends BaseController
         $model->voip_disabled = !$model->voip_disabled;
         $model->save();
         return $this->redirect(['client/view', 'id' => $id]);
-    }
-
-    public function actionLoadBpStatuses()
-    {
-        $processes = [];
-        foreach (BusinessProcess::find()->orderBy("sort")->all() as $b) {
-            $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
-        }
-
-        $statuses = [];
-        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
-        foreach ($bpStatuses as $s) {
-            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
-        }
-
-        $res = ["processes" => $processes, "statuses" => $statuses];
-
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return $res;
     }
 
     public function actionAdditionalInnCreate($accountId)

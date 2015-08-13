@@ -404,7 +404,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getBpStatuses()
     {
         $processes = [];
-        foreach (BusinessProcess::find()->orderBy("sort")->all() as $b) {
+        foreach (BusinessProcess::find()->andWhere(['show_as_status' => '1'])->orderBy("sort")->all() as $b) {
             $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
         }
 

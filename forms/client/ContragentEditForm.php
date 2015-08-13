@@ -1,7 +1,7 @@
 <?php
 namespace app\forms\client;
 
-use app\classes\DoubleAttributeLabelTraut;
+use app\classes\DoubleAttributeLabelTrait;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
@@ -11,7 +11,7 @@ use yii\base\Exception;
 
 class ContragentEditForm extends Form
 {
-    use DoubleAttributeLabelTraut;
+    use DoubleAttributeLabelTrait;
 
     protected function getLangCategory()
     {

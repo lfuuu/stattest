@@ -1,6 +1,5 @@
 ALTER TABLE `client_contragent`
 	ADD COLUMN `signer_passport` VARCHAR(20) NOT NULL DEFAULT '' AFTER `fioV`,
-	CHANGE COLUMN `opf` `opf` INT NOT NULL DEFAULT '0' AFTER `tax_regime`,
 	ADD COLUMN `comment` TEXT NOT NULL AFTER `ogrn`;
 
 ALTER TABLE `client_contragent_person`
@@ -22,8 +21,6 @@ INSERT INTO `language` (`code`, `name`) VALUES ('ru-RU', 'Russian');
 INSERT INTO `language` (`code`, `name`) VALUES ('hu-HU', 'Magyar');
 
 ALTER TABLE `user_users` ADD COLUMN `language` VARCHAR(5) NOT NULL DEFAULT 'ru-RU' AFTER `timezone_name`;
-
-
 
 UPDATE `country` SET `lang`='hu-HU' WHERE  `code`=348;
 UPDATE `country` SET `lang`='ru-RU' WHERE  `code`<>348;

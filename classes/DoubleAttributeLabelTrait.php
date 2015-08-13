@@ -4,7 +4,7 @@ namespace app\classes;
 
 use yii\helpers\Inflector;
 
-trait DoubleAttributeLabelTraut
+trait DoubleAttributeLabelTrait
 {
     public $formLang;
 

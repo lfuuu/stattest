@@ -66,7 +66,8 @@ class ContragentController extends BaseController
         }
 
         $request = Yii::$app->request->post();
-        if ($model->load($request) && !$request['notSave'] && $model->validate() && $model->save()) {
+        $notSave = (isset($request['notSave']) && $request['notSave']);
+        if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
             $returnTo =
                 Yii::$app->request->get('returnTo')
                     ?:['contragent/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1];

@@ -6,7 +6,7 @@ use app\models\Country;
 
 class Language
 {
-    static private $languageList;
+    const DEFAULT_LANGUAGE = 'ru-RU'; //RUSSIAN
 
     public static function setCurrentLanguage($lang = null)
     {
@@ -14,7 +14,7 @@ class Language
             if (\Yii::$app->session->has('language') && self::languageExists(\Yii::$app->session->get('language')))
                 $lang = \Yii::$app->session->get('language');
             else
-                $lang = self::getLanguageList()[0];
+                $lang = static::DEFAULT_LANGUAGE;
         }
 
         \Yii::$app->session->set('language', $lang);
@@ -39,20 +39,9 @@ class Language
         return (explode('-', $lang)[0]);
     }
 
-    public static function getLanguageList()
-    {
-        if(!self::$languageList){
-            $langs = [];
-            foreach(\app\models\Language::find()->all() as $lang)
-                $langs[] = $lang->code;
-            self::$languageList = $langs;
-        }
-        return self::$languageList;
-    }
-
     private static function languageExists($lang)
     {
-        return in_array($lang, self::getLanguageList());
+        return array_key_exists($lang, \app\models\Language::getList());
     }
 
     private static function setAppLanguage($lang)

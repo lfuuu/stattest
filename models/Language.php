@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 class Language extends ActiveRecord
 {
@@ -11,4 +12,8 @@ class Language extends ActiveRecord
         return 'language';
     }
 
+    public static function getList()
+    {
+        return ArrayHelper::map(self::findAll(), 'code', 'name');
+    }
 }
