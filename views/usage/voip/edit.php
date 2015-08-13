@@ -118,8 +118,8 @@ if ($model->type_id == '7800') {
                             'class' => '\app\widgets\DatePicker',
                             'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                             'options' => [
-                                'addon' => [
-                                    'part4' => 'today',
+                                'addons' => [
+                                    'todayButton' => [],
                                 ],
                             ],
                         ],

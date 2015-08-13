@@ -76,6 +76,7 @@ class DatePicker extends \kartik\date\DatePicker
         if ($this->type == self::TYPE_INPUT) {
             return $input;
         }
+
         $part1 = $part2 = $part3 = $part4 = '';
         if (!empty($this->addon) && ($this->_hasAddon || $this->type == self::TYPE_RANGE)) {
             $part1 = ArrayHelper::getValue($this->addon, 'part1', '');
@@ -90,6 +91,16 @@ class DatePicker extends \kartik\date\DatePicker
 
             if ($part4 == 'today') {
                 $part4 = $this->renderAddon($this->todayButton(), 'today');
+            }
+
+            $addons = [];
+            if (is_array($this->addon)) {
+                foreach ($this->addon as $addon) {
+                    if (is_array($addon))
+                        $addons[] = $addon;
+                    if (is_string($addon) && method_exists($this, $addon))
+                        $addons[] =  $this->{$addon}();
+                }
             }
 
             if ($this->type == self::TYPE_COMPONENT_APPEND) {
@@ -145,13 +156,14 @@ class DatePicker extends \kartik\date\DatePicker
 
     private function todayButton()
     {
-        $today = (new DateTime('now'))->format('Y-m-d');
+        list($year, $month, $day) = explode('-', (new DateTime('now'))->format('Y-m-d'));
         return [
             'icon' => 'check',
             'title' => 'Установить дату в сегодня',
             'onClick' => new JsExpression("jQuery(this).on('click.kvdatepicker', function(e) {
-                e.preventDefault();
-                $(this).parent().find('.kv-date-calendar').kvDatepicker('update', '" . $today . "');
+                var datepicker = $(this).parent();
+                datepicker.kvDatepicker('setDate', new Date(" . $year . ',' . $month . ',' . $day . "));
+                datepicker.kvDatepicker('hide');
             })"),
         ];
     }
