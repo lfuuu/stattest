@@ -87,7 +87,13 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
                             'container' => ['style' => 'margin-top: 25px;'],
                         ],
                     ],
-                    'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
+                    'organization_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => $model->getOrganizationsList(),
+                        'options' => [
+                            'data-is-new' => $model->isNewRecord ? 1 : 0,
+                        ],
+                    ],
                     'manager' => [
                         'type' => Form::INPUT_RAW,
                         'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['manager'] . '</label>'

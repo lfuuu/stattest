@@ -53,7 +53,8 @@ jQuery(document).ready(function() {
     $contragents
         .on('change', function() {
             $applyOrganization($(this).find('option:selected').data('legal-type'));
-        })
-        .trigger('change');
+        });
+    if ($organizations.data('is-new') == 1)
+        $contragents.trigger('change');
 
 });
