@@ -2,6 +2,7 @@
 namespace app\controllers\usage;
 
 use Yii;
+use DateTime;
 use yii\helpers\ArrayHelper;
 use app\classes\Assert;
 use app\forms\usage\NumberForm;
@@ -141,7 +142,7 @@ class NumberController extends BaseController
 
         if (!empty($viewType)) {
             $result = implode("\r\n", ArrayHelper::getColumn($numbers, 'number'));
-            Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.txt');
+            Yii::$app->response->sendContentAsFile($result, 'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
             Yii::$app->end();
         }
 
