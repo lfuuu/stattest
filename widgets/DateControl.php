@@ -12,7 +12,7 @@ class DateControl extends \kartik\datecontrol\DateControl
      * for example:
      * ~~~
      * options' => [
-     *     'autoWidgetSettings' => [
+     *     'autoWidgetSettings  ' => [
      *         DateControl::FORMAT_DATE => [
      *             'options' => [
      *                 'pluginOptions' => [

@@ -107,11 +107,43 @@ if ($model->type_id == '7800') {
         'columns' => 3,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+            'connecting_date' => [
+                'type' => Form::INPUT_WIDGET,
+                'widgetClass' => \app\widgets\DateControl::className(),
+                'options' => [
+                     'autoWidgetSettings' => [
+                            \app\widgets\DateControl::FORMAT_DATE => [
+                                'class' => '\app\widgets\DatePicker',
+                                'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                                'addon' => [
+                                    'part1' => '<span class="input-group-addon">Birth Date</span>',
+                                    'part2' => '<span class="input-group-addon">bef</span>',
+                                    'part3' => '<span class="input-group-addon">aft</span>',
+                                ],
+
+                            ],
+                     ],
+                ],
+            ],
             'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 }
+
+echo app\widgets\DatePicker::widget([
+    'name' => 'dp_addon_1',
+    'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+    'value' => '23-Feb-1982',
+    'addon' => [
+        'part1' => '<span class="input-group-addon">Birth Date</span>',
+        'part2' => '<span class="input-group-addon">bef</span>',
+        'part3' => '<span class="input-group-addon">aft</span>'
+    ],
+    'pluginOptions' => [
+        'autoclose' => true,
+        'format' => 'dd-M-yyyy'
+    ]
+]);
 
 echo Form::widget([
     'model' => $model,
