@@ -112,7 +112,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 Number::dao()->actualizeStatusByE164($usage->E164);
             }
 
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
             Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
