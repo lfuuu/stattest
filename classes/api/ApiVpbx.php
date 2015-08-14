@@ -49,7 +49,7 @@ class ApiVpbx
         try{
             $u = UsageVirtpbx::findOne($usageId);
             if ($u) {
-                $regionId = $u->server->datacenter->region;
+                $regionId = $u->region;
             }
         } catch(Exception $e) {
         }

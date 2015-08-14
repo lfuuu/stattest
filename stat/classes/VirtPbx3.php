@@ -199,8 +199,8 @@ class VirtPbx3Action
                 SELECT
                     s.ip
                 FROM usage_virtpbx u
-                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-                LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
+                INNER JOIN datacenter d ON d.region = u.region
+                INNER JOIN server_pbx s ON s.datacenter_id = d.id
                 WHERE u.id = {$l["usage_id"]}
             ");
 

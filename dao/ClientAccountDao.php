@@ -633,42 +633,4 @@ class ClientAccountDao extends Singleton
             $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
-
-    public function getServerPbxId(ClientAccount $account, $region = 0)
-    {
-        if (!$region)
-        {
-            $region = $account->region;
-        }
-
-        $isFind = false;
-        foreach(Region::findAll(["country_id" => $account->country_id]) as $r)
-        {
-            if ($r->id == $region)
-            {
-                $isFind = true;
-                break;
-            }
-        }
-
-        if (!$isFind)
-            $region = $account->region;
-
-        if ($region == 99)
-        {
-            return ServerPbx::MSK_SERVER_ID;
-        } else {
-            $datacenter = Datacenter::findOne(["region" => $region]);
-            if ($datacenter)
-            {
-                $server = ServerPbx::findOne(["datacenter_id" => $datacenter->id]);
-
-                if ($server)
-                {
-                    return $server->id;
-                }
-            }
-        }
-        return ServerPbx::MSK_SERVER_ID;
-    }
 }

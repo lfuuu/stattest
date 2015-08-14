@@ -11,7 +11,7 @@ class m150808_095621_usage_virtpbx_region extends \app\classes\Migration
 
         $this->execute("
             UPDATE
-                `usage_virtpbx uv`
+                `usage_virtpbx` uv
                     LEFT JOIN `server_pbx` sp ON sp.`id` = uv.`server_pbx_id`
                         LEFT JOIN `datacenter` dc ON dc.`id` = sp.`datacenter_id`
             SET uv.`region` = dc.`region`;

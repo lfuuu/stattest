@@ -669,7 +669,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
                     select 
                         s.*, 
                         d.name as datacenter, 
-                        (select count(*) from usage_virtpbx u where u.server_pbx_id = s.id) as count 
+                        (select count(*) from usage_virtpbx u where d.region = u.region) as count
                     from 
                         server_pbx s, datacenter d 
                     where 

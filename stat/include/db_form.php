@@ -310,7 +310,6 @@ class HelpDbForm {
             'ip'=>'ip',
             'router'=>'роутер',
             'amount'=>'количество',
-            'server_pbx_id'=>'Сервер АТС',
         );
         return isset($names[$fld]) ? $names[$fld] : $fld;
     }
@@ -2137,7 +2136,6 @@ $GLOBALS['translate_arr']=array(
     '*.is_web_call' => 'Звонки с сайта',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
-    '*.server_pbx_id' => 'Сервер АТС',
     '*.number' => 'Номер',
     '*.per_month_price' => 'Абонентская плата (с НДС)',
     '*.per_sms_price' => 'за 1 СМС (с НДС)',

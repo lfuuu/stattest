@@ -10,7 +10,7 @@ return [
         'status' => 'working',
         'comment' => 'Тестовая АТС',
         'tarif_id' => '0',
-        'server_pbx_id' => '2',
+        'region' => '99',
         'is_moved' => '0',
     ],
 ];

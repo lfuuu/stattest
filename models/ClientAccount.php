@@ -482,11 +482,6 @@ class ClientAccount extends HistoryActiveRecord
         parent::afterSave($insert, $changedAttributes);
     }
 
-    public function getServerPbxId($region)
-    {
-        return self::dao()->getServerPbxId($this, $region);
-    }
-
     public function getRealtimeBalance()
     {
         return VoipStatus::create($this)->getRealtimeBalance();

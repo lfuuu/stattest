@@ -177,7 +177,7 @@ if ($action=='add_client') {
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->server_pbx_id = 2; // vpbx-msk
+                $vats->region = 99; // vpbx-msk
                 $vats->save();
                 $logTarif = new LogTarif;
                 $logTarif->service = "usage_virtpbx";

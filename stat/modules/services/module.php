@@ -1888,7 +1888,8 @@ class m_services extends IModule{
                 IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
-            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
+            LEFT JOIN datacenter d ON d.region = S.region
+            LEFT JOIN server_pbx sp ON sp.datacenter_id = d.id
             LEFT JOIN clients c ON (c.client = S.client)
 
             HAVING actual
@@ -1927,7 +1928,8 @@ class m_services extends IModule{
                 IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
-            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
+            LEFT JOIN datacenter d ON d.region = S.region
+            LEFT JOIN server_pbx sp ON sp.datacenter_id = d.id
             
             WHERE S.client="'.$clientNick.'"'
         );
