@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\classes\Language;
 use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -20,7 +21,7 @@ class SiteController extends BaseController
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index'],
+                        'actions' => ['logout', 'index', 'change-language'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -68,7 +69,12 @@ class SiteController extends BaseController
     public function actionLogout()
     {
         Yii::$app->user->logout();
-
         return $this->goHome();
+    }
+
+    public function actionChangeLanguage($lang = null, $country = null)
+    {
+        Language::setCurrentLanguage($lang?:$country?Language::getLanguageByCountryId($country):null);
+        return $this->goBack();
     }
 }

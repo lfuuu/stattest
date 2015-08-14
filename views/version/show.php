@@ -35,7 +35,7 @@ $links = [
     <?php foreach($versions as $k => $version) : ?>
     <div class="row" style="background: <?= $k%2==0 ? '#f7f7f7' : 'white' ?>; border-top: 1px solid rgb(33, 51, 237);">
         <div class="col-sm-2">
-            <a href="<?= $links[$version->model].$version->model_id.($last === $k ? '' : '&date=' . $version->date) ?>"><?= $version->date ?></a>
+            <a href="<?= $links[$version->model].$version->model_id.'&date=' . $version->date ?>"><?= $version->date ?></a>
             <?php if($last !== $k || !$version['diffs']) : ?>
                 <i class="uncheck btn-delete-version" style="cursor: pointer;" data-model="<?= $version->model ?>"
                    data-model-id="<?= $version->model_id ?>" data-date="<?= $version->date ?>"></i>

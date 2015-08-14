@@ -1379,7 +1379,7 @@ class ApiLk
         global $db;
 
         $account = ClientAccount::findOne($client_id);
-        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
+        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$account["client"]."'");
 
         $message = "Заказ на отключение услуги IP Телефония из Личного Кабинета. \n";
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";

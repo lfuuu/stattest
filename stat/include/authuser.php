@@ -17,7 +17,9 @@ class password
 
 function access($option,$acc){
     global $user;
-    return $user->HasPrivelege($option,$acc);
+    if($user && $user instanceof AuthUser)
+        return $user->HasPrivelege($option,$acc);
+    return false;
 }
 
 function access_action($module,$action){

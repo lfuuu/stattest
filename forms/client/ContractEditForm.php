@@ -100,7 +100,7 @@ class ContractEditForm extends Form
 
     public function getBusinessProcessesList()
     {
-        $arr = BusinessProcess::find()->all();
+        $arr = BusinessProcess::find()->andWhere(['show_as_status' => '1'])->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
 

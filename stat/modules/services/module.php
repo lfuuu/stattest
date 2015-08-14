@@ -639,7 +639,7 @@ class m_services extends IModule{
 
       $db->Query("
                 select
-                    usage_voip.*,
+                    usage_voip.*, c.id AS clientId,
                     IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual
                 from
                     usage_voip
