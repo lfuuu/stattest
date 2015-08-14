@@ -232,7 +232,10 @@ class ApiLk
         $organizationId = 1;
         if ($billModel)
         {
-            $organizationId = $billModel->clientAccount->contract->organization->organization_id;
+            $contractId = $billModel->clientAccount->contract->id;
+            $c = \app\models\HistoryVersion::getVersionOnDate(app\models\ClientContract::className(), $contractId, $curr_bill->Get("bill_date"));
+            if ($c)
+                $organizationId = $c->organization_id;
         }
 
 
