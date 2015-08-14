@@ -6,100 +6,100 @@ use yii\db\ActiveRecord;
 class BusinessProcessStatus extends ActiveRecord
 {
 
-    // Общие
-    const STATE_NEGOTIATIONS = 11; // Переговоры
+    // РћР±С‰РёРµ
+    const STATE_NEGOTIATIONS = 11; // РџРµСЂРµРіРѕРІРѕСЂС‹
 
-    // Телеком
-    const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Заказ услуг
-    const TELEKOM_MAINTENANCE_CONNECTED = 8; //Подключаемые
-    const TELEKOM_MAINTENANCE_WORK = 9; // Включенные
-    const TELEKOM_MAINTENANCE_DISCONNECTED = 10; // Отключенные
-    const TELEKOM_MAINTENANCE_DISCONNECTED_DEBT = 11; // Отключенные за долги
-    const TELEKOM_MAINTENANCE_TRASH = 22; // Мусор
-    const TELEKOM_MAINTENANCE_NOT_CONNECTED = 0; // Не привязанные
-    const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // Тех. отказ
-    const TELEKOM_MAINTENANCE_FAILURE = 28; // Отказ
-    const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Дубликат
+    // РўРµР»РµРєРѕРј
+    const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Р—Р°РєР°Р· СѓСЃР»СѓРі
+    const TELEKOM_MAINTENANCE_CONNECTED = 8; //РџРѕРґРєР»СЋС‡Р°РµРјС‹Рµ
+    const TELEKOM_MAINTENANCE_WORK = 9; // Р’РєР»СЋС‡РµРЅРЅС‹Рµ
+    const TELEKOM_MAINTENANCE_DISCONNECTED = 10; // РћС‚РєР»СЋС‡РµРЅРЅС‹Рµ
+    const TELEKOM_MAINTENANCE_DISCONNECTED_DEBT = 11; // РћС‚РєР»СЋС‡РµРЅРЅС‹Рµ Р·Р° РґРѕР»РіРё
+    const TELEKOM_MAINTENANCE_TRASH = 22; // РњСѓСЃРѕСЂ
+    const TELEKOM_MAINTENANCE_NOT_CONNECTED = 0; // РќРµ РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ
+    const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // РўРµС…. РѕС‚РєР°Р·
+    const TELEKOM_MAINTENANCE_FAILURE = 28; // РћС‚РєР°Р·
+    const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Р”СѓР±Р»РёРєР°С‚
 
-    const TELEKOM_SALES_INCOMING = 1; // Входящие
-    const TELEKOM_SALES_NEGOTIATIONS = 2; // В стадии переговоров
-    const TELEKOM_SALES_TESTING = 3; // Тестируемые
-    const TELEKOM_SALES_CONNECTING = 4; // Подключаемые
-    const TELEKOM_SALES_TECH_FAILURE = 5; // Техотказ
-    const TELEKOM_SALES_FAILURE = 6; // Отказ
-    const TELEKOM_SALES_TRASH = 7; // Мусор
+    const TELEKOM_SALES_INCOMING = 1; // Р’С…РѕРґСЏС‰РёРµ
+    const TELEKOM_SALES_NEGOTIATIONS = 2; // Р’ СЃС‚Р°РґРёРё РїРµСЂРµРіРѕРІРѕСЂРѕРІ
+    const TELEKOM_SALES_TESTING = 3; // РўРµСЃС‚РёСЂСѓРµРјС‹Рµ
+    const TELEKOM_SALES_CONNECTING = 4; // РџРѕРґРєР»СЋС‡Р°РµРјС‹Рµ
+    const TELEKOM_SALES_TECH_FAILURE = 5; // РўРµС…РѕС‚РєР°Р·
+    const TELEKOM_SALES_FAILURE = 6; // РћС‚РєР°Р·
+    const TELEKOM_SALES_TRASH = 7; // РњСѓСЃРѕСЂ
 
-    // Интернет магазин
-    const INTERNET_SHOP_ACTING = 16; // Сопровождение
-    const INTERNET_SHOP_TRASH = 18; // Сопровождение
+    // РРЅС‚РµСЂРЅРµС‚ РјР°РіР°Р·РёРЅ
+    const INTERNET_SHOP_ACTING = 16; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ
+    const INTERNET_SHOP_TRASH = 18; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ
 
-    // Поставщик
-    const PROVIDER_ORDERS_ACTING = 32; // Заказы - Действущий
-    const PROVIDER_ORDERS_NEGOTIATION_STAGE = 36; // Заказы - В стадии переговоров
-    const PROVIDER_MAINTENANCE_GPON = 108; // Сопровождение - GPON
-    const PROVIDER_MAINTENANCE_VOLS = 109; // Сопровождение - ВОЛС
-    const PROVIDER_MAINTENANCE_SERVICE = 110; // Сопровождение - Сервисный
-    const PROVIDER_MAINTENANCE_ACTING = 15; // Сопровождение - Действущий
-    const PROVIDER_MAINTENANCE_CLOSED = 92; // Сопровождение - Закрытый
-    const PROVIDER_MAINTENANCE_SELF_BUY = 93; // Сопровождение - Самозакупки
-    const PROVIDER_MAINTENANCE_ONCE = 94; // Сопровождение - Разовый
+    // РџРѕСЃС‚Р°РІС‰РёРє
+    const PROVIDER_ORDERS_ACTING = 32; // Р—Р°РєР°Р·С‹ - Р”РµР№СЃС‚РІСѓС‰РёР№
+    const PROVIDER_ORDERS_NEGOTIATION_STAGE = 36; // Р—Р°РєР°Р·С‹ - Р’ СЃС‚Р°РґРёРё РїРµСЂРµРіРѕРІРѕСЂРѕРІ
+    const PROVIDER_MAINTENANCE_GPON = 108; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - GPON
+    const PROVIDER_MAINTENANCE_VOLS = 109; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р’РћР›РЎ
+    const PROVIDER_MAINTENANCE_SERVICE = 110; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - РЎРµСЂРІРёСЃРЅС‹Р№
+    const PROVIDER_MAINTENANCE_ACTING = 15; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р”РµР№СЃС‚РІСѓС‰РёР№
+    const PROVIDER_MAINTENANCE_CLOSED = 92; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р—Р°РєСЂС‹С‚С‹Р№
+    const PROVIDER_MAINTENANCE_SELF_BUY = 93; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - РЎР°РјРѕР·Р°РєСѓРїРєРё
+    const PROVIDER_MAINTENANCE_ONCE = 94; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р Р°Р·РѕРІС‹Р№
 
-    // Партнер
-    const PARTNER_MAINTENANCE_NEGOTIATIONS = 24; // Сопровождение - Переговоры
-    const PARTNER_MAINTENANCE_ACTING = 35; // Сопровождение - Действующий
-    const PARTNER_MAINTENANCE_CLOSED = 26; // Сопровождение - Закрытый
+    // РџР°СЂС‚РЅРµСЂ
+    const PARTNER_MAINTENANCE_NEGOTIATIONS = 24; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - РџРµСЂРµРіРѕРІРѕСЂС‹
+    const PARTNER_MAINTENANCE_ACTING = 35; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р”РµР№СЃС‚РІСѓСЋС‰РёР№
+    const PARTNER_MAINTENANCE_CLOSED = 26; // РЎРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ - Р—Р°РєСЂС‹С‚С‹Р№
 
-    // Внутренний офис
-    const INTERNAL_OFFICE = 34; // Внутренний офис
-    const INTERNAL_OFFICE_CLOSED = 111; // Закрытые
+    // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РѕС„РёСЃ
+    const INTERNAL_OFFICE = 34; // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РѕС„РёСЃ
+    const INTERNAL_OFFICE_CLOSED = 111; // Р—Р°РєСЂС‹С‚С‹Рµ
 
-    // Оператор
-    const OPERATOR_OPERATORS_INCOMING = 37; // Операторы - Входящий
-    const OPERATOR_OPERATORS_NEGOTIATIONS = 38; // Операторы - Переговоры
-    const OPERATOR_OPERATORS_TESTING = 39; // Операторы - Тестирование
-    const OPERATOR_OPERATORS_ACTING = 40; // Операторы - Действующий
-    const OPERATOR_OPERATORS_MANUAL_BILL = 107; // Операторы - Ручной счет
-    const OPERATOR_OPERATORS_SUSPENDED = 41; // Операторы - Приостановлен
-    const OPERATOR_OPERATORS_TERMINATED = 42; // Операторы - Расторгнут
-    const OPERATOR_OPERATORS_BLOCKED = 43; // Операторы - Фрод блокировка
-    const OPERATOR_OPERATORS_TECH_FAILURE = 44; // Операторы - Техотказ
-    const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // Операторы - Автоблокировка
-    const OPERATOR_OPERATORS_TRASH = 121; // Операторы - Мусор
-    const OPERATOR_CLIENTS_INCOMING = 47; // Клиенты - Входящий
-    const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Клиенты - Переговоры
-    const OPERATOR_CLIENTS_TESTING = 49; // Клиенты - Тестирование
-    const OPERATOR_CLIENTS_ACTING = 50; // Клиенты - Действующий
-    const OPERATOR_CLIENTS_JIRASOFT = 56; // Клиенты - JiraSoft
-    const OPERATOR_CLIENTS_SUSPENDED = 51; // Клиенты - Приостановлен
-    const OPERATOR_CLIENTS_TERMINATED = 52; // Клиенты - Расторгнут
-    const OPERATOR_CLIENTS_BLOCKED = 53; // Клиенты - Фрод блокировка
-    const OPERATOR_CLIENTS_TECH_FAILURE = 54; // Клиенты - Техотказ
-    const OPERATOR_CLIENTS_TRASH = 122; // Клиенты - Мусор
-    const OPERATOR_INFRASTRUCTURE_INCOMING = 62; // Инфраструктура - Входящий
-    const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // Инфраструктура - Переговоры
-    const OPERATOR_INFRASTRUCTURE_TESTING = 64; // Инфраструктура - Тестирование
-    const OPERATOR_INFRASTRUCTURE_ACTING = 65; // Инфраструктура - Действующий
-    const OPERATOR_INFRASTRUCTURE_SUSPENDED = 66; // Инфраструктура - Приостановлен
-    const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // Инфраструктура - Расторгнут
-    const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Инфраструктура - Фрод блокировка
-    const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Инфраструктура - Техотказ
-    const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Инфраструктура - Мусор
-    const OPERATOR_FORMAL_INCOMING = 77; // Формальные - Входящий
-    const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Формальные - Переговоры
-    const OPERATOR_FORMAL_TESTING = 79; // Формальные - Тестирование
-    const OPERATOR_FORMAL_ACTING = 80; // Формальные - Действующий
-    const OPERATOR_FORMAL_SUSPENDED = 81; // Формальные - Приостановлен
-    const OPERATOR_FORMAL_TERMINATED = 82; // Формальные - Расторгнут
-    const OPERATOR_FORMAL_BLOCKED = 83; // Формальные - Фрод блокировка
-    const OPERATOR_FORMAL_TECH_FAILURE = 84; // Формальные - Техотказ
-    const OPERATOR_FORMAL_TRASH = 124; // Формальные - Мусор
+    // РћРїРµСЂР°С‚РѕСЂ
+    const OPERATOR_OPERATORS_INCOMING = 37; // РћРїРµСЂР°С‚РѕСЂС‹ - Р’С…РѕРґСЏС‰РёР№
+    const OPERATOR_OPERATORS_NEGOTIATIONS = 38; // РћРїРµСЂР°С‚РѕСЂС‹ - РџРµСЂРµРіРѕРІРѕСЂС‹
+    const OPERATOR_OPERATORS_TESTING = 39; // РћРїРµСЂР°С‚РѕСЂС‹ - РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ
+    const OPERATOR_OPERATORS_ACTING = 40; // РћРїРµСЂР°С‚РѕСЂС‹ - Р”РµР№СЃС‚РІСѓСЋС‰РёР№
+    const OPERATOR_OPERATORS_MANUAL_BILL = 107; // РћРїРµСЂР°С‚РѕСЂС‹ - Р СѓС‡РЅРѕР№ СЃС‡РµС‚
+    const OPERATOR_OPERATORS_SUSPENDED = 41; // РћРїРµСЂР°С‚РѕСЂС‹ - РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅ
+    const OPERATOR_OPERATORS_TERMINATED = 42; // РћРїРµСЂР°С‚РѕСЂС‹ - Р Р°СЃС‚РѕСЂРіРЅСѓС‚
+    const OPERATOR_OPERATORS_BLOCKED = 43; // РћРїРµСЂР°С‚РѕСЂС‹ - Р¤СЂРѕРґ Р±Р»РѕРєРёСЂРѕРІРєР°
+    const OPERATOR_OPERATORS_TECH_FAILURE = 44; // РћРїРµСЂР°С‚РѕСЂС‹ - РўРµС…РѕС‚РєР°Р·
+    const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // РћРїРµСЂР°С‚РѕСЂС‹ - РђРІС‚РѕР±Р»РѕРєРёСЂРѕРІРєР°
+    const OPERATOR_OPERATORS_TRASH = 121; // РћРїРµСЂР°С‚РѕСЂС‹ - РњСѓСЃРѕСЂ
+    const OPERATOR_CLIENTS_INCOMING = 47; // РљР»РёРµРЅС‚С‹ - Р’С…РѕРґСЏС‰РёР№
+    const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // РљР»РёРµРЅС‚С‹ - РџРµСЂРµРіРѕРІРѕСЂС‹
+    const OPERATOR_CLIENTS_TESTING = 49; // РљР»РёРµРЅС‚С‹ - РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ
+    const OPERATOR_CLIENTS_ACTING = 50; // РљР»РёРµРЅС‚С‹ - Р”РµР№СЃС‚РІСѓСЋС‰РёР№
+    const OPERATOR_CLIENTS_JIRASOFT = 56; // РљР»РёРµРЅС‚С‹ - JiraSoft
+    const OPERATOR_CLIENTS_SUSPENDED = 51; // РљР»РёРµРЅС‚С‹ - РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅ
+    const OPERATOR_CLIENTS_TERMINATED = 52; // РљР»РёРµРЅС‚С‹ - Р Р°СЃС‚РѕСЂРіРЅСѓС‚
+    const OPERATOR_CLIENTS_BLOCKED = 53; // РљР»РёРµРЅС‚С‹ - Р¤СЂРѕРґ Р±Р»РѕРєРёСЂРѕРІРєР°
+    const OPERATOR_CLIENTS_TECH_FAILURE = 54; // РљР»РёРµРЅС‚С‹ - РўРµС…РѕС‚РєР°Р·
+    const OPERATOR_CLIENTS_TRASH = 122; // РљР»РёРµРЅС‚С‹ - РњСѓСЃРѕСЂ
+    const OPERATOR_INFRASTRUCTURE_INCOMING = 62; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - Р’С…РѕРґСЏС‰РёР№
+    const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - РџРµСЂРµРіРѕРІРѕСЂС‹
+    const OPERATOR_INFRASTRUCTURE_TESTING = 64; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ
+    const OPERATOR_INFRASTRUCTURE_ACTING = 65; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - Р”РµР№СЃС‚РІСѓСЋС‰РёР№
+    const OPERATOR_INFRASTRUCTURE_SUSPENDED = 66; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅ
+    const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - Р Р°СЃС‚РѕСЂРіРЅСѓС‚
+    const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - Р¤СЂРѕРґ Р±Р»РѕРєРёСЂРѕРІРєР°
+    const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - РўРµС…РѕС‚РєР°Р·
+    const OPERATOR_INFRASTRUCTURE_TRASH = 123; // РРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР° - РњСѓСЃРѕСЂ
+    const OPERATOR_FORMAL_INCOMING = 77; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - Р’С…РѕРґСЏС‰РёР№
+    const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - РџРµСЂРµРіРѕРІРѕСЂС‹
+    const OPERATOR_FORMAL_TESTING = 79; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ
+    const OPERATOR_FORMAL_ACTING = 80; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - Р”РµР№СЃС‚РІСѓСЋС‰РёР№
+    const OPERATOR_FORMAL_SUSPENDED = 81; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅ
+    const OPERATOR_FORMAL_TERMINATED = 82; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - Р Р°СЃС‚РѕСЂРіРЅСѓС‚
+    const OPERATOR_FORMAL_BLOCKED = 83; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - Р¤СЂРѕРґ Р±Р»РѕРєРёСЂРѕРІРєР°
+    const OPERATOR_FORMAL_TECH_FAILURE = 84; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - РўРµС…РѕС‚РєР°Р·
+    const OPERATOR_FORMAL_TRASH = 124; // Р¤РѕСЂРјР°Р»СЊРЅС‹Рµ - РњСѓСЃРѕСЂ
 
-    const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // Пуско-наладка
-    const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // Техобслуживание
-    const WELLTIME_MAINTENANCE_MAINTENANCE_FREE = 97; // Без Техобслуживания
-    const WELLTIME_MAINTENANCE_SUSPENDED = 98; // Приостановленные
-    const WELLTIME_MAINTENANCE_FAILURE = 99; // Отказ
-    const WELLTIME_MAINTENANCE_TRASH = 100; // Мусор
+    const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // РџСѓСЃРєРѕ-РЅР°Р»Р°РґРєР°
+    const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // РўРµС…РѕР±СЃР»СѓР¶РёРІР°РЅРёРµ
+    const WELLTIME_MAINTENANCE_MAINTENANCE_FREE = 97; // Р‘РµР· РўРµС…РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ
+    const WELLTIME_MAINTENANCE_SUSPENDED = 98; // РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рµ
+    const WELLTIME_MAINTENANCE_FAILURE = 99; // РћС‚РєР°Р·
+    const WELLTIME_MAINTENANCE_TRASH = 100; // РњСѓСЃРѕСЂ
 
 
     const FOLDER_TELECOM_AUTOBLOCK = 21;
