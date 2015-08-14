@@ -62,6 +62,7 @@ class VoipReservNumber
                     "id_tarif"            => $tarifId,
                     "id_tarif_local_mob"  => $tarifs[$region]['id_tarif_local_mob'],
                     "id_tarif_russia"     => $tarifs[$region]['id_tarif_russia'],
+                    "id_tarif_russia_mob" => $tarifs[$region]['id_tarif_russia'],
                     "id_tarif_intern"     => $tarifs[$region]['id_tarif_intern'],
                     "ts"                  => array("NOW()"),
                     "date_activation"     => array("NOW()"),
