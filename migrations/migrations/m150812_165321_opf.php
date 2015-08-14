@@ -16,9 +16,11 @@ class m150812_165321_opf extends \app\classes\Migration
             ALTER TABLE `client_contragent`
         	  CHANGE COLUMN `opf` `opf_id` INT(11) NOT NULL DEFAULT '0' AFTER `tax_regime`;
 
-              INSERT INTO `code_opf` (`code`, `name`) VALUES ('1100', 'Предприятия');
-              INSERT INTO `code_opf` (`code`, `name`) VALUES ('1110', 'Государственные предприятия');
-              INSERT INTO `code_opf` (`code`, `name`) VALUES ('1230', 'Объединения предприятий акционерного общества');
+              INSERT INTO `code_opf` (`code`, `name`) VALUES ('1 22 47', 'Публичные акционерные общества');
+              INSERT INTO `code_opf` (`code`, `name`) VALUES ('1 23 00', 'Общества с ограниченной ответственностью');
+              INSERT INTO `code_opf` (`code`, `name`) VALUES ('5 01 02', 'Индивидуальные предприниматели');
+              INSERT INTO `code_opf` (`code`, `name`) VALUES ('7 04 00', 'Фонды');
+              INSERT INTO `code_opf` (`code`, `name`) VALUES ('7 50 00', 'Учреждения');
         ");
     }
 
