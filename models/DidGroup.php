@@ -15,10 +15,10 @@ use yii\db\ActiveRecord;
 class DidGroup extends ActiveRecord
 {
     const BEAUTY_LEVEL_STANDART = 0;
-    const BEAUTY_LEVEL_PLATINUM = 1;
-    const BEAUTY_LEVEL_GOLD = 2;
-    const BEAUTY_LEVEL_SILVER = 3;
-    const BEAUTY_LEVEL_BRONZE = 4;
+    const BEAUTY_LEVEL_PLATINUM = 4;
+    const BEAUTY_LEVEL_GOLD = 3;
+    const BEAUTY_LEVEL_SILVER = 2;
+    const BEAUTY_LEVEL_BRONZE = 1;
 
     public static $beautyLevelNames = [
         self::BEAUTY_LEVEL_STANDART => 'Стандартный',
