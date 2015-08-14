@@ -5,43 +5,37 @@ use yii\helpers\Url;
 <div id="rightmenu">
     <ul>
         <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
-            <a href="/account/create?parentId=<?= $account->contract_id ?>">Создать доп. ЛС</a>
-        </li>
-    </ul>
-
-    <ul>
-        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
             <a href="/account/edit?id=<?= $account->id ?>">Редактировать ЛС</a>
         </li>
-        <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
-            <a href="/document/print-envelope?clientId=<?= $account->id ?>" target="_blank">Напечатать конверт</a>
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="/account/create?parentId=<?= $account->contract_id ?>">Создать доп. ЛС</a>
         </li>
-        <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a>
+        </li>
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
+        </li>
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг и устройств</a>
+        </li>
+        <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">Заказ на Установку/Монтаж</a>
         </li>
         <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders">Создать заказ из Магазина</a>
         </li>
-        <li style="background: url('/images/icons/disable.gif') no-repeat 0px 6px;">
+        <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1">Возврат товара</a>
         </li>
-        <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
+        <li style="background: url('/images/icons/disable.gif') no-repeat 0px 6px;">
             <a href="?module=incomegoods&action=order_edit&id=">Создать заказ Поставщику</a>
         </li>
-
-        <li>
-            <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a>
+        <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
+            <a href="/document/print-envelope?clientId=<?= $account->id ?>" target="_blank">Напечатать конверт</a>
         </li>
-        <li>
-            <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
-        </li>
-
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
             <a href="/custom-print/print-client/?id=<?= $account->id; ?>" onClick="return ImmediatelyPrint(this)">Печать карточки клиента</a>
-        </li>
-
-        <li>
-            <a href="/transfer/index/?client=<?= $account->id; ?>" onClick="return showIframePopup(this)">Перенос услуг и устройств</a>
         </li>
     </ul>
 </div>
