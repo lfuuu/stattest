@@ -31,6 +31,9 @@
 		<TR><TD class=left>e-mail:</TD><TD>
 		<input name=email class=text value='{$user.email}'> (<a href='mailto:{$user.email}'>написать</a>)
 		</TD></TR>
+		<TR><TD class=left>Язык:</TD><TD>
+		<select name="language"><option value="ru-RU" {if $user.language == 'ru-RU'}selected{/if}>Русский</option><option value="hu-HU" {if $user.language == 'hu-HU'}selected{/if}>Magyar</option></select>
+		</TD></TR>
 		<TR><TD class=left>Внутренний номер (логин в comcenter):</TD><TD>
 		<input name=phone_work class=text value='{$user.phone_work}'>
 		</TD></TR>
