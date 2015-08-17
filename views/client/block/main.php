@@ -91,7 +91,6 @@ use \app\models\ClientContract;
                                         <?php
                                         $realtimeBalance = $contractAccount->getRealtimeBalance();
                                         ?>
-                                        <a href="/account/edit?id=<?= $contractAccount->id ?>" style="position: absolute;top: 4px; left: 20px;"><img src="/images/icons/edit.gif"></a>
                                         <div
                                             style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
