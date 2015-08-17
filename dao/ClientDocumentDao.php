@@ -176,7 +176,7 @@ class ClientDocumentDao extends Singleton
                 'per_month_without_tax' => round($sum_without_tax, 2),
                 'month_min_payment' => $usage->currentTariff->month_min_payment,
             ];
-            if(!$data['has8800'] && in_array($usage->currentTariff->id, [226,263,264,321,322,323,448]))
+            if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
                 $data['has8800'] = true;
         }
 
@@ -308,23 +308,28 @@ class ClientDocumentDao extends Singleton
         $contragent = $account->contract->contragent;
 
         $result = 'Адрес: ' . (
-                $contragent->legal_type == 'person'
-                    ? $contragent->person->registration_address
-                    : $account->address_jur
+            $contragent->legal_type == 'person'
+                ? $contragent->person->registration_address
+                : $account->address_jur
             ) . '<br />';
 
         if ($contragent->legal_type == 'person') {
-            if (!empty($account->bank_properties))
-                return $result . nl2br($account->bank_properties);
+            if ($contragent->person
+                && !empty(
+                    $contragent->person->passport_serial
+                    . $contragent->person->passport_number
+                    . $contragent->person->passport_issued
+                    . $contragent->person->passport_date_issued
+                )
+            )
+                return
+                    $result .
+                    'Паспорт серия ' . $contragent->person->passport_serial .
+                    ' номер ' . $contragent->person->passport_number .
+                    '<br />Выдан: ' . $contragent->person->passport_issued .
+                    '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
 
-            return
-                $result .
-                'Паспорт серия ' . $contragent->person->passport_serial .
-                ' номер ' . $contragent->person->passport_number .
-                '<br />Выдан: ' . $contragent->person->passport_issued .
-                '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
-        }
-        else {
+        } else {
             return
                 $result .
                 'Банковские реквизиты: ' . $account->bank_properties .
@@ -383,7 +388,7 @@ class ClientDocumentDao extends Singleton
             'kpp' => $document->getContract()->getContragent()->kpp,
             'stamp' => $account->stamp,
             'legal_type' => $account->getContract()->getContragent()->legal_type,
-            'old_legal_type' => $account->getContract()->getContragent()->legal_type !='person' ? 'org' : 'person',
+            'old_legal_type' => $account->getContract()->getContragent()->legal_type != 'person' ? 'org' : 'person',
             'address_connect' => $account->address_connect,
             'account_id' => $account->id,
             'bank_name' => $account->bank_name,
@@ -397,12 +402,12 @@ class ClientDocumentDao extends Singleton
             'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
             'emails' => implode('; ', $officialContacts['email']),
             'phones' => implode('; ', $officialContacts['phone']),
-                'faxes' => implode('; ', $officialContacts['fax']),
+            'faxes' => implode('; ', $officialContacts['fax']),
 
             'organization_firma' => $firm['firma'],
             'organization_director_post' => $firm['director_post'],
             'organization_director' => $firm['director'],
-                'organization_name' => $firm['name'],
+            'organization_name' => $firm['name'],
             'organization_address' => $firm['address'],
             'organization_inn' => $firm['inn'],
             'organization_kpp' => $firm['kpp'],
