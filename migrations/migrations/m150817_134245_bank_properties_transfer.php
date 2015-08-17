@@ -6,7 +6,7 @@ class m150817_134245_bank_properties_transfer extends \app\classes\Migration
     {
         $this->execute("
             ALTER TABLE `client_contragent_person`
-                CHANGE COLUMN `passport_issued` `passport_issued` TEXT NULL DEFAULT '' AFTER `passport_number`;
+                CHANGE COLUMN `passport_issued` `passport_issued` VARCHAR (1024) NULL DEFAULT '' AFTER `passport_number`;
 
             INSERT INTO client_contragent_person (`contragent_id`, `passport_issued`)
                 (
