@@ -62,6 +62,7 @@ class VoipReservNumber
                     "id_tarif"            => $tarifId,
                     "id_tarif_local_mob"  => $tarifs[$region]['id_tarif_local_mob'],
                     "id_tarif_russia"     => $tarifs[$region]['id_tarif_russia'],
+                    "id_tarif_russia_mob" => $tarifs[$region]['id_tarif_russia'],
                     "id_tarif_intern"     => $tarifs[$region]['id_tarif_intern'],
                     "ts"                  => array("NOW()"),
                     "date_activation"     => array("NOW()"),
@@ -97,8 +98,8 @@ class VoipReservNumber
                         tarifs_voip
                     where
                         status='public' and
-                        region='".$region_id."' and
-                        currency='RUB'
+                        connection_point_id='".$region_id."' and
+                        currency_id='RUB'
                     " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
                     );
             foreach ($tarifs as $r) {

@@ -10,7 +10,7 @@ class BillDocRepRuRUB extends DocumentReport
 
     public function getLanguage()
     {
-        return 'ru';
+        return 'ru-RU';
     }
 
     public function getCurrency()

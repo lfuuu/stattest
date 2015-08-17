@@ -4407,11 +4407,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 $companyName = str_replace(['«','»'], '"', $companyName);
                 $companyName = str_replace('"', '""', $companyName);
 
-                echo $r["inv_no"].";";
+                echo '="'.$r["inv_no"]."\";";
                 echo date("d.m.Y",$r["inv_date"]).";";
                 echo '"' . $companyName . '";';
-                echo '"' . $r["inn"] . '";';
-                echo '"' . $r["kpp"] . '";';
+                echo '="' . $r["inn"] . '";';
+                echo '="' . $r["kpp"] . '";';
                 echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
