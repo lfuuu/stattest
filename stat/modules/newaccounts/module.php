@@ -4215,7 +4215,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             and B.bill_no like "20____-____"
             and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
             and cr.contract_type_id != 6 ## internal office
-            and cr.business_process_status_id != 22 ## trash
+            and cr.business_process_status_id not in (22, 28, 99) ## trash, cancel
         GROUP BY
             B.bill_no
         order by
@@ -4407,11 +4407,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 $companyName = str_replace(['«','»'], '"', $companyName);
                 $companyName = str_replace('"', '""', $companyName);
 
-                echo $r["inv_no"].";";
+                echo '="'.$r["inv_no"]."\";";
                 echo date("d.m.Y",$r["inv_date"]).";";
                 echo '"' . $companyName . '";';
-                echo '"' . $r["inn"] . '";';
-                echo '"' . $r["kpp"] . '";';
+                echo '="' . $r["inn"] . '";';
+                echo '="' . $r["kpp"] . '";';
                 echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";

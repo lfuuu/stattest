@@ -20,38 +20,9 @@ class ClientContragent extends HistoryActiveRecord
         '2' => 'Без НДС',
     ];
 
-    public static $legalTypes = [
-        self::LEGAL_TYPE => 'Юр. лицо',
-        self::PERSON_TYPE => 'ИП',
-        self::IP_TYPE => 'Физю лицо',
-    ];
-
     public static function tableName()
     {
         return 'client_contragent';
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            "name" => "Краткое наименование",
-            "name_full" => "Полное наименование",
-            "address_jur" => "Адрес юридический",
-            "legal_type" => "Тип",
-            "inn" => "ИНН",
-            "inn_euro" => "ЕвроИНН",
-            "kpp" => "КПП",
-            "position" => "Должность Исполнительного органа",
-            "fio" => "ФИО Исполнительного органа",
-            "positionV" => "Должность Исполнительного органа",
-            "fioV" => "ФИО Исполнительного органа",
-            "tax_regime" => "Налоговый режим",
-            "ogrn" => "Код ОГРН",
-            "opf" => "Код ОПФ",
-            "okpo" => "Код ОКПО",
-            "okvd" => "Код ОКВЭД",
-            'country_id' => 'Страна',
-        ];
     }
 
     public function rules()
@@ -102,7 +73,7 @@ class ClientContragent extends HistoryActiveRecord
     {
         $result = [];
         foreach ($this->getContracts() as $contract) {
-            $result[] = array_merge($result, $contract->getAccounts());
+            $result = array_merge($result, $contract->getAccounts());
         }
         return $result;
     }

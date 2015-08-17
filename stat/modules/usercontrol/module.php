@@ -57,12 +57,16 @@ class m_usercontrol {
 		$name=get_param_protected('name');
 		$email=get_param_protected('email');
 		$icq=get_param_protected('icq');
+		$language=get_param_protected('language');
         $show_troubles_on_every_page=get_param_integer('show_troubles_on_every_page', 0);
 		$phone_mobile=get_param_protected('phone_mobile');
 		$phone_work=get_param_protected('phone_work');
 		$q_photo=$this->process_photo($user->Get('id'));
-		$db->Query('update user_users set name="'.$name.'",email="'.$email.'",icq="'.$icq.'",phone_work="'.$phone_work.'",phone_mobile="'.$phone_mobile.'"'.$q_photo.', show_troubles_on_every_page="'.$show_troubles_on_every_page.'" where user="'.$user->Get('user').'"');
-        $user->loadUserData();
+		$db->Query('update user_users set name="'.$name.'",email="'.$email.'",icq="'.$icq.'",phone_work="'.$phone_work.'",phone_mobile="'.$phone_mobile.'"'.$q_photo.', show_troubles_on_every_page="'.$show_troubles_on_every_page.'", language = "'.$language.'" where user="'.$user->Get('user').'"');
+
+		\app\classes\Language::setCurrentLanguage($language);
+
+		$user->loadUserData();
         $design->assign('authuser', $user->_Data);
 		$this->usercontrol_edit();
 	}

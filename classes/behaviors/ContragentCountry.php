@@ -29,15 +29,10 @@ class ContragentCountry extends Behavior
 
     private function updateAccountCountry(ClientContragent $contragent)
     {
-        $contracts = ClientContract::findAll(['contragent_id' => $contragent->id]);
-        foreach ($contracts as $contract) {
-            $accounts = ClientAccount::findAll(['contract_id' => $contract->id]);
-            foreach ($accounts as $account) {
-                /** @var ClientAccount $account */
-                if ($account->country_id != $contragent->country_id) {
-                    $account->country_id = $contragent->country_id;
-                    $account->save();
-                }
+        foreach ($contragent->getAccounts() as $account) {
+            if ($account->country_id != $contragent->country_id) {
+                $account->country_id = $contragent->country_id;
+                $account->save();
             }
         }
     }

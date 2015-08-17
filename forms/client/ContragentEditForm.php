@@ -1,7 +1,7 @@
 <?php
 namespace app\forms\client;
 
-use app\models\ClientContract;
+use app\classes\DoubleAttributeLabelTrait;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
@@ -11,6 +11,13 @@ use yii\base\Exception;
 
 class ContragentEditForm extends Form
 {
+    use DoubleAttributeLabelTrait;
+
+    protected function getLangCategory()
+    {
+        return 'contragent';
+    }
+
     public $id;
     public $super_id;
     protected $person = null,
@@ -23,16 +30,18 @@ class ContragentEditForm extends Form
         $name,
         $name_full,
         $address_jur,
-        $inn = "",
-        $kpp = "",
-        $position = "",
-        $fio = "",
-        $tax_regime = 0,
-        $opf = "",
-        $okpo = "",
-        $okvd = "",
-        $ogrn = "",
-        $country_id = Country::RUSSIA,
+        $inn,
+        $kpp,
+        $position,
+        $fio,
+        $tax_regime,
+        $opf_id,
+        $okpo,
+        $okvd,
+        $ogrn,
+        $country_id,
+        $signer_passport,
+        $comment,
 
         $contragent_id,
         $first_name,
@@ -42,41 +51,43 @@ class ContragentEditForm extends Form
         $passport_serial,
         $passport_number,
         $passport_issued,
-        $registration_address;
+        $registration_address,
+        $mother_maiden_name,
+        $birthplace,
+        $birthday,
+        $other_document;
 
     public function rules()
     {
         $rules = [
             [['legal_type', 'super_id'], 'required'],
             [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
+                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'string'],
             [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'opf', 'okpo', 'okvd', 'ogrn'], 'default', 'value' => ''],
+                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'default', 'value' => ''],
 
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
-                'passport_number', 'passport_issued', 'registration_address', 'historyVersionStoredDate',], 'string'],
+                'passport_number', 'passport_issued', 'registration_address', 'historyVersionStoredDate',
+                'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'string'],
             [['first_name', 'last_name', 'middle_name', 'passport_serial',
-                'passport_number', 'passport_issued', 'registration_address'], 'default', 'value' => ''],
+                'passport_number', 'passport_issued', 'registration_address',
+                'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
-            ['tax_regime', 'default', 'value' => '0'],
+            [['tax_regime', 'opf_id'], 'default', 'value' => '0'],
+            ['country_id', 'default', 'value' => Country::RUSSIA],
 
-            ['legal_type', 'in', 'range' => array_keys(ClientContragent::$legalTypes)],
-            [['super_id', 'country_id', 'tax_regime'], 'integer'],
+            ['legal_type', 'in', 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]],
+            [['super_id', 'country_id', 'tax_regime', 'opf_id'], 'integer'],
 
         ];
         return $rules;
-    }
-
-    public function attributeLabels()
-    {
-        return (new ClientContragent())->attributeLabels() + (new ClientContragentPerson())->attributeLabels();
     }
 
     public function init()
     {
         if ($this->id) {
             $this->contragent = ClientContragent::findOne($this->id);
-            if($this->contragent && $this->historyVersionRequestedDate) {
+            if ($this->contragent && $this->historyVersionRequestedDate) {
                 $this->contragent->loadVersionOnDate($this->historyVersionRequestedDate);
             }
             if ($this->contragent === null) {
@@ -84,12 +95,11 @@ class ContragentEditForm extends Form
             }
 
             $this->person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id]);
-            if($this->person) {
+            if ($this->person) {
                 if ($this->historyVersionRequestedDate) {
                     $this->person->loadVersionOnDate($this->historyVersionRequestedDate);
                 }
-            }
-            else
+            } else
                 $this->person = new ClientContragentPerson();
 
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
@@ -103,7 +113,7 @@ class ContragentEditForm extends Form
     {
         $this->fillContragentNameByLegalType();
         $this->fillContragent();
-        if($this->contragent && $this->historyVersionStoredDate) {
+        if ($this->contragent && $this->historyVersionStoredDate) {
             $this->contragent->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
         $contragent = $this->contragent;
@@ -155,7 +165,7 @@ class ContragentEditForm extends Form
 
     public function getPersonId()
     {
-        if($this->person){
+        if ($this->person) {
             return $this->person->id;
         }
         return false;
@@ -201,13 +211,14 @@ class ContragentEditForm extends Form
         $contragent->kpp = $this->kpp;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;
+        $contragent->comment = $this->comment;
 
         if ($contragent->legal_type == 'person')
             $contragent->tax_regime = 0;
         else
             $contragent->tax_regime = $this->tax_regime;
 
-        $contragent->opf = $this->opf;
+        $contragent->opf_id = $this->opf_id;
         $contragent->okpo = $this->okpo;
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;

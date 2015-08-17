@@ -9,7 +9,7 @@ class BillDocRepHuHUF extends DocumentReport
 
     public function getLanguage()
     {
-        return 'hu';
+        return 'hu-HU';
     }
 
     public function getCurrency()

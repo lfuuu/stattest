@@ -103,6 +103,7 @@ class m_users {
 			$f=array(
 				'user'				=> get_param_protected('newuser'),
 				'usergroup'			=> get_param_protected('usergroup'),
+				'language'			=> get_param_protected('language'),
 				'depart_id'			=> get_param_protected('depart_id'),
 				'name'				=> get_param_protected('name'),
 				'rights'			=> get_param_raw('rights',array()),
@@ -149,10 +150,11 @@ class m_users {
 								'phone_work="'.$f['phone_work']. '",' .
 								'phone_mobile="'.$f['phone_mobile']. '",' .
 								'icq="'.$f['icq']. '",' .
+								'language="'.$f['language']. '",' .
 								'enabled="'.$f['enabled']. '",' .
 								'courier_id="'.$f['courier_id'].'",'.
 				                'trouble_redirect="'.$f['trouble_redirect'].'"'.$q_photo .' where user="'.$id.'"');
-
+				\app\classes\Language::setCurrentLanguage($f['language']);
 				if (access('users','grant')){
 					$R=array();
 					$db->Query('select * from user_grant_users where (name="'. $id. '")');

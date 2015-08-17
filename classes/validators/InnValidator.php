@@ -28,6 +28,9 @@ class InnValidator extends Validator
         } else if (strlen($inn) == 12)
         {
             return $this->checkInn12($inn);
+        } else if (strlen($inn) == 13)
+        {
+            return $this->checkInnHU($inn);
         }
         return false;
     }
@@ -67,5 +70,10 @@ class InnValidator extends Validator
         $n12 %= 10;
 
         return $inn[10] == $n11 && $inn[11] == $n12;
+    }
+
+    private function checkInnHU($inn)
+    {
+        return boolval(preg_match('/^\d{8}-\d{1}-\d{2}$/', $inn));
     }
 }

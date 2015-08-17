@@ -22,7 +22,7 @@ class WizardContragentForm extends Form
         $position = "",
         $fio = "",
         $tax_regime = 1,
-        $opf = "",
+        $opf_id = 0,
         $okpo = "",
         $okvd = "",
         $ogrn = "",

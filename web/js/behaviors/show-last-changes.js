@@ -27,7 +27,7 @@ var parseQueryStr = function(query) {
 jQuery(document).ready(function() {
 
     var $params = parseQueryStr(self.location.search);
-    if ($params.id && $params.showLastChanges) {
+    if ($params.id && ($params.showLastChanges || (typeof showLastChanges !== 'undefined' && showLastChanges))) {
         $('<div />')
             .css({'text-align': 'center'})
             .addClass('alert alert-success fade in')

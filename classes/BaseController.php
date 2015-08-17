@@ -29,6 +29,12 @@ class BaseController extends Controller
         ];
     }
 
+    public function init()
+    {
+        parent::init();
+        Language::setCurrentLanguage();
+    }
+
     public function beforeAction($action)
     {
         if (!($this instanceof CompatibilityController)) {

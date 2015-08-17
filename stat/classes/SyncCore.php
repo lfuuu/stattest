@@ -142,6 +142,7 @@ class SyncCore
 
         if ($action && $struct)
         {
+            Event::go("product_".$product."_".$action, ["product" => $product, "account_id" => $accountId]);
             ApiCore::exec($actionJSON, $struct);
         }
     }

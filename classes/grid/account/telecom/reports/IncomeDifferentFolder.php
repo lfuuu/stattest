@@ -42,7 +42,7 @@ class IncomeDifferentFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        list($dateFrom, $dateTo) = explode('+-+', $this->bill_date);
+        list($dateFrom, $dateTo) = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
         if (!$dateFrom)
             $dateFrom = date('Y-m-01');
         if (!$dateTo)

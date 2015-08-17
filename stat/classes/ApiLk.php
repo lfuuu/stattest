@@ -6,6 +6,7 @@ use app\classes\Assert;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\models\City;
+use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
 
 class ApiLk
@@ -226,41 +227,76 @@ class ApiLk
         $dt = BillDocument::dao()->getByBillNo($curr_bill->GetNo());
 
 
-        $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
+        $billModel = app\models\Bill::findOne(['bill_no' => $billNo]);
 
-        if (strtotime($curr_bill->Get("bill_date")) >= strtotime("2014-07-01"))
+        $organizationId = 1;
+        if ($billModel)
         {
-            $types["u1"] = $dt["a1"];
-            $types["u2"] = $dt["a2"];
-            $types["ut"] = $dt["i3"];
-        } else {
-            $types["a1"] = $dt["a1"];
-            $types["a2"] = $dt["a2"];
-            $types["i1"] = $dt["a1"];
-            $types["i2"] = $dt["a2"];
+            $contractId = $billModel->clientAccount->contract->id;
+            $c = \app\models\HistoryVersion::getVersionOnDate(app\models\ClientContract::className(), $contractId, $curr_bill->Get("bill_date"));
+            if ($c)
+                $organizationId = $c->organization_id;
         }
 
 
-        $ret = array(
-                        "bill" => array(
-                                        "bill_no" => $b->bill_no,
-                                        "is_rollback" => $b->is_rollback,
-                                        "is_1c" => $b->is1C(),
-                                        "lines" => $lines,
-                                        "sum_total" => number_format($b->sum, 2, '.',''),
-                                        "dtypes" => $types
-                        ),
-                        "link" => array(
-                                        "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUB", "client" => $clientId)),
-                                        "invoice1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-1", "client" => $clientId)),
-                                        "invoice2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId)),
-                                        "akt1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId)),
-                                        "akt2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId)),
-                                        "upd1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-1", "client" => $clientId)),
-                                        "upd2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-2", "client" => $clientId)),
-                                        "updt" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-3", "client" => $clientId)),
-                        ),
-        );
+        $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
+
+        if ($organizationId == app\models\Organization::MCM_TELEKOM)
+        {
+            $types["a1"] = $dt["a1"];
+            $types["a2"] = $dt["a2"];
+        } else {
+
+            if (strtotime($curr_bill->Get("bill_date")) >= strtotime("2014-07-01"))
+            {
+                $types["u1"] = $dt["a1"];
+                $types["u2"] = $dt["a2"];
+                $types["ut"] = $dt["i3"];
+            } else {
+                $types["a1"] = $dt["a1"];
+                $types["a2"] = $dt["a2"];
+                $types["i1"] = $dt["a1"];
+                $types["i2"] = $dt["a2"];
+            }
+        }
+
+
+        $ret = [
+            "bill" => [
+                "bill_no" => $b->bill_no,
+                "is_rollback" => $b->is_rollback,
+                "is_1c" => $b->is1C(),
+                "lines" => $lines,
+                "sum_total" => number_format($b->sum, 2, '.',''),
+                "dtypes" => $types
+            ],
+            "link" => [
+                "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUB", "client" => $clientId)),
+                ],
+            ];
+
+        if (isset($types["i1"]) && $types["i1"])
+            $ret["link"]["invoice1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-1", "client" => $clientId));
+
+        if (isset($types["i2"]) && $types["i2"])
+            $ret["link"]["invoice2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId));
+
+        if (isset($types["a1"]) && $types["a1"])
+            $ret["link"]["akt1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId));
+
+        if (isset($types["a2"]) && $types["a2"])
+            $ret["link"]["akt2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId));
+
+        if (isset($types["u1"]) && $types["u1"])
+            $ret["link"]["upd1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-1", "client" => $clientId));
+
+        if (isset($types["u2"]) && $types["u2"])
+            $ret["link"]["upd2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-2", "client" => $clientId));
+
+        if (isset($types["ut"]) && $types["ut"])
+            $ret["link"]["updt"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-3", "client" => $clientId));
+
+
 
         return $ret;
     }
@@ -1343,7 +1379,7 @@ class ApiLk
         global $db;
 
         $account = ClientAccount::findOne($client_id);
-        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
+        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$account["client"]."'");
 
         $message = "Заказ на отключение услуги IP Телефония из Личного Кабинета. \n";
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
