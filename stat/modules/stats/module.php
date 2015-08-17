@@ -830,7 +830,8 @@ class m_stats extends IModule{
                   WHERE \"connect_time\" BETWEEN '".$from->format('Y-m-d H:i:s')."' AND '".$to->format('Y-m-d H:i:s.999999')."'
                   AND '".$find."' in (src_number, dst_number)
                   AND server_id = '".$region."'
-                  AND operator_id < 50
+                  --- AND operator_id < 50
+                  AND number_service_id is not null
                   LIMIT 1000") as $l)
         {
           $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["connect_time"])+$offset);
