@@ -540,7 +540,6 @@ class UsageVoipEditForm extends UsageVoipForm
             ')')->execute();
 
     }
-}
 
     private function setDisconnectionDate()
     {
