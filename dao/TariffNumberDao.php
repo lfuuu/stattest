@@ -35,7 +35,7 @@ class TariffNumberDao extends Singleton
                 'name'
             );
         if ($withEmpty) {
-            $list = ['' => '-- Тип номера --'] + $list;
+            $list = ['' => '-- DID группа --'] + $list;
         }
         return $list;
     }

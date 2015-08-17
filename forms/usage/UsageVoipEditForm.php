@@ -15,6 +15,7 @@ use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
 use yii\helpers\ArrayHelper;
+use app\models\Usage;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
@@ -32,6 +33,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public $tomorrow;
 
     public $addressPlaceholder = '';
+    public $disconnecting_date;
+    public $region;
 
     public function rules()
     {
@@ -42,7 +45,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'add'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
-        $rules[] = [['address'], 'string', 'on' => 'edit'];
+        $rules[] = [['address', 'disconnecting_date'], 'string', 'on' => 'edit'];
         $rules[] = [[
             'no_of_lines',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
@@ -73,7 +76,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $actualTo->modify('+10 days');
             $actualTo = $actualTo->format('Y-m-d');
         } else {
-            $actualTo = '4000-01-01';
+            $actualTo = Usage::MAX_POSSIBLE_DATE;
         }
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -165,6 +168,20 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->allowed_direction = $this->allowed_direction;
         $this->usage->no_of_lines = $this->no_of_lines;
 
+        if (!$this->disconnecting_date) {
+            $actualTo = (new DateTime(Usage::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
+            $expireDt =
+                (new DateTime($actualTo, $this->timezone))
+                    ->setTimezone(new DateTimeZone('UTC'))
+                    ->format('Y-m-d H:i:s');
+
+            $this->usage->actual_to = $actualTo;
+            $this->usage->expire_dt = $expireDt;
+        }
+        else {
+            $this->setDisconnectionDate();
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
@@ -223,6 +240,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->id = $usage->id;
             $this->connection_point_id = $usage->region;
             $this->connecting_date = $usage->actual_from;
+            $this->disconnecting_date = (new DateTime($usage->actual_to))->format('Y') === '4000' ? '' : $usage->actual_to;
             $this->tariff_change_date = $this->tomorrow->format('Y-m-d');
 
             $this->setAttributes($usage->getAttributes(), false);
@@ -364,17 +382,17 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         }
         if ($this->type_id == 'line') {
-            if (!preg_match('/$\d{4,5}^/', $this->did)) {
+            if (!preg_match('/^\d{4,5}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }
         if ($this->type_id == 'operator') {
-            if (!preg_match('/$\d{3}^/', $this->did)) {
+            if (!preg_match('/^\d{3}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }
         if ($this->type_id == '7800') {
-            if (!preg_match('/$7800\d{7}^/', $this->did)) {
+            if (!preg_match('/^7800\d{7}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
             }
         }
@@ -522,4 +540,45 @@ class UsageVoipEditForm extends UsageVoipForm
             ')')->execute();
 
     }
+
+    private function setDisconnectionDate()
+    {
+        Assert::isTrue($this->usage->isActive(), 'Услуга уже отключена');
+
+        $timezone = $this->usage->clientAccount->timezone;
+        $closeDate = new DateTime($this->disconnecting_date, $timezone);
+
+        $actualTo = $closeDate->format('Y-m-d');
+        $expireDt = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
+        $this->usage->actual_to = $actualTo;
+        $this->usage->expire_dt = $expireDt;
+
+        $nextHistoryItems =
+            LogTarif::find()
+                ->andWhere(['service' => 'usage_voip'])
+                ->andWhere(['id_service' => $this->usage->id])
+                ->andWhere('date_activation > :date', [':date' => $this->usage->actual_to])
+                ->all();
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $this->usage->save();
+
+            foreach ($nextHistoryItems as $nextHistoryItem) {
+                $nextHistoryItem->delete();
+            }
+
+            Number::dao()->actualizeStatusByE164($this->usage->E164);
+
+            Event::go('update_phone_product', ['account_id' => $this->usage->clientAccount->id]);
+            Event::go('actualize_number', ['number' => $this->usage->E164]);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
 }
