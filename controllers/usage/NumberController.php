@@ -127,7 +127,8 @@ class NumberController extends BaseController
                     and number_service_id is null
                     and orig = false
                     group by dst_number
-                ")->queryAll();
+                ")->cache(86400)->queryAll();
+
             $callsCountByNumber = [];
             foreach ($callsCount as $calls) {
                 $callsCountByNumber[$calls['usage_num']] = $calls['count_avg3m'];
