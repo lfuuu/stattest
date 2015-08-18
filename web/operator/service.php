@@ -292,7 +292,7 @@ if ($action=='add_client') {
     foreach($_numbers as $number)
     {
         try{
-            $reservInfo = VoipReservNumber::reserv($number, $client_id);
+            $reservInfo = VoipReservNumber::reserv($number, $client_id, 1, null, true);
 
             if ($reservInfo)
             {
