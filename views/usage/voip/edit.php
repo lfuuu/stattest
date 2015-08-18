@@ -119,7 +119,7 @@ else if ($model->type_id == '7800') {
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
             'no_of_lines' => ['type' => Form::INPUT_TEXT],
-            'line7800_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getLinesFor7800($clientAccount), 'options' => ['disabled' => 'disabled']],
+            'line7800_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
         ],
     ]);
 }
