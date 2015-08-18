@@ -14,11 +14,13 @@ class UsageVoipForm extends Form
     public $did;
     public $number_tariff_id;
     public $connecting_date;
+    public $disconnecting_date;
     public $tariff_change_date;
     public $no_of_lines;
     public $address;
     public $line7800_id;
     public $allowed_direction;
+    public $address_from_datacenter_id;
 
     public $mass_change_tariff;
     public $tariff_main_status;
@@ -54,8 +56,9 @@ class UsageVoipForm extends Form
             'city_id' => 'Город',
             'connection_point_id' => 'Точка присоединения',
             'type_id' => 'Тип',
-            'number_tariff_id' => 'Тип номера',
+            'number_tariff_id' => 'DID группа',
             'connecting_date' => 'Дата подключения',
+            'disconnecting_date' => 'Дата отключения',
             'tariff_change_date' => 'Дата изменения тарифа',
             'did' => 'Номер',
             'no_of_lines' => 'Количество линий',

@@ -11,6 +11,8 @@ use app\classes\bill\Biller;
  */
 interface Usage
 {
+    const MAX_POSSIBLE_DATE = '4000-01-01';
+
     /**
      * @return Biller
      */

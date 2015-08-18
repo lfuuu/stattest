@@ -1,12 +1,14 @@
 <?php
+
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
-use app\models\Region;
+use kartik\widgets\DatePicker;
 use app\models\City;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
+use app\widgets\DateControl as CustomDateControl;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
@@ -79,21 +81,25 @@ if ($model->type_id == 'number') {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
-            'number_tariff_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffNumber::dao()->getList(true, $clientAccount->country_id, $clientAccount->currency, $model->city_id), 'options' => ['class' => 'select2 form-reload']],
+            'number_tariff_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => TariffNumber::dao()->getList(true, $clientAccount->country_id, $clientAccount->currency, $model->city_id),
+                'options' => ['class' => 'select2 form-reload'],
+            ],
             'did' => ['type' => Form::INPUT_TEXT],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 } elseif ($model->type_id == '7800') {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
             'did' => ['type' => Form::INPUT_TEXT],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
             'line7800_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getLinesFor7800($clientAccount)],
         ],
     ]);
@@ -101,27 +107,55 @@ if ($model->type_id == 'number') {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 2,
+        'columns' => 4,
         'attributes' => [
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 }
 
-
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 2,
+    'columns' => 4,
     'attributes' => [
-        'no_of_lines' => ['type' => Form::INPUT_TEXT],
-        'address' => ['type' => Form::INPUT_TEXT],
+        'connecting_date' => [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => CustomDateControl::className(),
+            'options' => [
+                'autoWidgetSettings' => [
+                    DateControl::FORMAT_DATE => [
+                        'class' => '\app\widgets\DatePicker',
+                        'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                        'options' => [
+                            'addons' => [
+                                'todayButton' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        ],
         'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
         'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
     ],
 ]);
 
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 1,
+    'attributes' => [
+        'address' => [
+            'type' => Form::INPUT_TEXT,
+            'options' => [
+                'placeholder' => $model->addressPlaceholder,
+                'data-datacenter-address' => ($model->city ? $model->city->region->datacenter->address : ''),
+            ],
+        ],
+    ],
+]);
 
 echo Form::widget([
     'model' => $model,
@@ -193,3 +227,6 @@ ActiveForm::end();
         submitForm('default');
     });
 </script>
+
+<link href="/css/behaviors/text-field-help-icon.css" rel="stylesheet" />
+<script type="text/javascript" src="/js/behaviors/usage-voip-address-from-datacenter.js"></script>
