@@ -191,42 +191,37 @@ class VirtPbx3Action
         if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX) {
             return null;
         }
+        
+        if (ApiVpbx::isAvailable())
+        {
+            $exceptionProduct = null;
+            try {
 
-        $exceptionProduct = null;
-        try {
-            $vpbxIP =
-                $db->GetValue("
-                SELECT
-                    s.ip
-                FROM usage_virtpbx u
-                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-                LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
-                WHERE u.id = {$l["usage_id"]}
-            ");
+                $newState = ["mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]];
 
-            $newState = array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS : $vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]);
+                ApiCore::exec('add_products_from_stat', SyncCoreHelper::getAddProductStruct($l["client_id"], $newState));
 
-            ApiCore::exec('add_products_from_stat', SyncCoreHelper::getAddProductStruct($l["client_id"], $newState));
+            } catch (Exception $e) {
+                $exceptionProduct = $e;
+            }
 
-        } catch (Exception $e) {
-            $exceptionProduct = $e;
-        }
+            $exceptionVpbx = null;
+            try {
 
-        $exceptionVpbx = null;
-        try {
+                ApiVpbx::create($l["client_id"], $l["usage_id"]);
 
-            ApiVpbx::create($l["client_id"], $l["usage_id"]);
+            } catch (Exception $e) {
+                $exceptionVpbx = $e;
+            }
 
-        } catch (Exception $e) {
-            $exceptionVpbx = $e;
-        }
+            if ($exceptionProduct) {
+                throw $exceptionProduct;
+            }
 
-        if ($exceptionProduct) {
-            throw $exceptionProduct;
-        }
+            if ($exceptionVpbx) {
+                throw $exceptionVpbx;
+            }
 
-        if ($exceptionVpbx) {
-            throw $exceptionVpbx;
         }
 
         return $db->QueryInsert("actual_virtpbx", array(

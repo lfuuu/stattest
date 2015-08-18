@@ -9,22 +9,30 @@ use app\models\ClientAccount;
 
 class ApiVpbx
 {
-    public static function isAvailable() {
-        return defined('VIRTPBX_URL') && VIRTPBX_URL;
+    public static function isAvailable() 
+    {
+        return self::getVpbxHost() && self::getApiUrl();
     }
 
-    public static function getApiUrl() {
-        return self::isAvailable() ? VIRTPBX_URL : false;
+    public static function getVpbxHost($usageId)
+    {
+        return defined("PHONE_SERVER") ? PHONE_SERVER : false;
     }
 
-    public static function exec($host, $action, $data) {
-        if (!self::isAvailable()) {
+    public static function getApiUrl() 
+    {
+        return defined('VIRTPBX_URL') && VIRTPBX_URL ? VIRTPBX_URL : false;
+    }
+
+    public static function exec($action, $data) 
+    {
+        if (!self::isAvailable()) 
+        {
             throw new Exception('API Vpbx was not configured');
         }
 
         $url = self::getApiUrl();
-
-        $host = defined("VIRTPBX_TEST_ADDRESS") && VIRTPBX_TEST_ADDRESS ? VIRTPBX_TEST_ADDRESS : $host;
+        $host = self::getVpbxHost();
 
         $url = strtr($url, array("[address]" => $host, "[action]" => $action));
 
@@ -55,7 +63,6 @@ class ApiVpbx
         }
 
         ApiVpbx::exec(
-            self::getVpbxHost($usageId),
             'create',
             [
                 "client_id"  => (int)$clientId,
@@ -75,7 +82,6 @@ class ApiVpbx
     public static function stop($clientId, $usageId)
     {
         ApiVpbx::exec(
-            self::getVpbxHost($usageId),
             'delete',
             [
                 "client_id"  => (int)$clientId,
@@ -89,7 +95,6 @@ class ApiVpbx
         $tariff = self::getTariff($usageId);
 
         ApiVpbx::exec(
-            self::getVpbxHost($usageId),
             'update',
             [
                 "client_id"  => (int)$clientId,
@@ -125,7 +130,6 @@ class ApiVpbx
     public static function getStatistic($clientId, $usageId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")
     {
         $result = self::exec(
-            self::getVpbxHost($usageId),
             $statisticFunction,
             [
                 "client_id" => (int)$clientId,
@@ -143,22 +147,6 @@ class ApiVpbx
         }
 
         return $result[$statisticField];
-    }
-
-    public static function getVpbxHost($usageId)
-    {
-        return defined("PHONE_SERVER") ? PHONE_SERVER : false;
-        /*
-        $command =
-            Yii::$app->db->createCommand('
-                SELECT s.ip
-                FROM usage_virtpbx u
-                INNER JOIN server_pbx s ON s.id = u.server_pbx_id
-				WHERE u.id = :usageId
-            ', [':usageId' => $usageId]);
-
-        return $command->queryScalar();
-         */
     }
 
     public static function getTariff($usageId)
