@@ -484,7 +484,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $list =
             ArrayHelper::map(
                 $query
-                    ->orderBy(UsageVoip::tableName() . '.id')
+                    ->orderBy($tableName . '.`id`')
                     ->asArray()
                     ->all(),
                 'id',
