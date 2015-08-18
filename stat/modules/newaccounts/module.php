@@ -4149,10 +4149,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     function newaccounts_balance_sell($fixclient){
         global $design,$db,$user;
         $dateFrom = new DatePickerValues('date_from', 'first');
-	$dateTo= new DatePickerValues('date_to', 'last');
-	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
-	$date_from=$dateFrom->getDay();
-	$date_to=$dateTo->getDay();
+        $dateTo= new DatePickerValues('date_to', 'last');
+        $dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+        $date_from=$dateFrom->getDay();
+        $date_to=$dateTo->getDay();
         $design->assign('date_from_val',$date_from_val=$dateFrom->getTimestamp());
         $design->assign('date_to_val',$date_to_val=$dateTo->getTimestamp());
         $design->assign('firma',$firma = get_param_protected('firma','mcn_telekom'));
@@ -4181,15 +4181,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'cr.organization_id="' . $firma . '"';
         }
 
-
         $W[] = "cg.legal_type in ('ip', 'legal')";
 
         $W_gds = $W;
-        
 
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
-
 
         $q_service = '
             select * from (
