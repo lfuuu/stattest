@@ -177,7 +177,7 @@ if ($action=='add_client') {
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->region = 99; // vpbx-msk
+                $vats->region = \app\models\Region::MOSCOW; // vpbx-msk
                 $vats->save();
                 $logTarif = new LogTarif;
                 $logTarif->service = "usage_virtpbx";

@@ -29,7 +29,7 @@
     </td>
 	<td>{$item.tarif.description}</td>
 	<td>{$item.tarif.price}</td>
-	<td>{$item.server_pbx}</td>
+	<td>{$item.regionName}</td>
 </tr>	
 {/foreach}
 </tbody>

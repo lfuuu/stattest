@@ -668,8 +668,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $design->assign('ds',$q = $db->AllRecords('
                     select 
                         s.*, 
-                        d.name as datacenter, 
-                        (select count(*) from usage_virtpbx u where d.region = u.region) as count
+                        d.name as datacenter
                     from 
                         server_pbx s, datacenter d 
                     where 
