@@ -250,6 +250,9 @@ abstract class AccountGridFolder extends Model
                         'presetDropdown' => true,
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('created'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
                         'containerOptions' => [
                             'style' => 'width:300px;',
                             'class' => 'drp-container input-group',
