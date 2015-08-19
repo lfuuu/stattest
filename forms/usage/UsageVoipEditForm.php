@@ -83,8 +83,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
-        $city = City::findOne($this->city_id);
-
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
         $usage->actual_from = $actualFrom;
@@ -96,14 +94,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
         $usage->status = $this->status;
-        if (!$this->address) {
-            $usage->address = $city->region->datacenter->address;
-            $usage->address_from_datacenter_id = $city->region->datacenter->id;
-        }
-        else {
-            $usage->address = $this->address;
-            $usage->address_from_datacenter_id = null;
-        }
+        $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -150,22 +141,13 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
-        $region = Region::findOne($this->usage->region);
-
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
         $this->usage->actual_from = $actualFrom;
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
-        if (!$this->address) {
-            $this->usage->address = $region->datacenter->address;
-            $this->usage->address_from_datacenter_id = $region->datacenter->id;
-        }
-        else {
-            $this->usage->address = $this->address;
-            $this->usage->address_from_datacenter_id = null;
-        }
+        $this->usage->address = $this->address;
         $this->usage->allowed_direction = $this->allowed_direction;
         $this->usage->no_of_lines = $this->no_of_lines;
 
