@@ -61,16 +61,17 @@
 
         <thead>
             <tr>
+                <td width="5%" rowspan="4" class="s">№<br />п/п</td>
+                <td width="5%" rowspan="4" class="s">Код<br />вида<br />опера-<br />ции</td>
                 <td width="10%" rowspan="4" class="s">Дата и номер счета-фактуры продавца</td>
                 <td width="*" rowspan="4">Наименование покупателя</td>
-                <td width="5%" rowspan="4">ИНН покупателя</td>
-                <td width="5%" rowspan="4">КПП покупателя</td>
+                <td width="5%" rowspan="4">ИНН/КПП<br />покупателя</td>
                 <td width="5%" rowspan="4">Тип ЛС</td>
                 <td width="5%" rowspan="4">Тип договора</td>
                 <td width="5%" rowspan="4">Статус</td>
-                <td width="5%" rowspan="4" class="s">Дата оплаты счета-фактуры продавца</td>
+                <td width="5%" rowspan="4" class="s">Номер и дата документа, подтверждающего оплату</td>
                 <td width="5%" rowspan="4">Всего продаж, включая НДС</td>
-                <td width="40% colspan="8">В том числе</td>
+                <td width="30%" colspan="8">В том числе</td>
             </tr>
             <tr>
                 <td width="53%" colspan="7">продажи, облагаемые налогом по ставке</td>
@@ -93,15 +94,17 @@
         </thead>
         <tbody>
             {foreach from=$data item=r name=outer}
-                <tr class={cycle values="even,odd"}>
-                    <td><nobr>{$r.inv_no},</nobr> <nobr>{$r.inv_date|mdate:"d.m.Y"}</nobr></td>
+                {assign var="index" value=$smarty.foreach.outer.index+1}
+                <tr class="{cycle values="even,odd"}">
+                    <td>{$index}</td>
+                    <td>01</td>
+                    <td><nobr>{$r.inv_no};</nobr> <nobr>{$r.inv_date|mdate:"d.m.Y"}</nobr></td>
                     <td class="s">{$r.company_full}&nbsp;</td>
-                    <td>{if $r.inn}{$r.inn}{else}&nbsp;{/if}</td>
-                    <td>{if $r.kpp}{$r.kpp}{else}&nbsp;{/if}</td>
+                    <td>{if $r.inn}{$r.inn}{if $r.type == 'org' && $r.kpp}/{$r.kpp}{/if}{else}&nbsp;{/if}</td>
                     <td>{$r.type}</td>
                     <td>{$r.contract}</td>
                     <td>{$r.contract_status}</td>
-                    <td>{if $r.payment_date}{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
+                    <td>{if $r.payment_date}{$r.payment_no};{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
                     <td>{$r.sum|round:2|replace:".":","}</td>
                     <td>{$r.sum_without_tax|round:2|replace:".":","}</td>
                     <td>{$r.sum_tax|round:2|replace:".":","}</td>
@@ -113,8 +116,8 @@
                     <td>0</td>
                 </tr>
             {/foreach}
-            <tr class={cycle values="even,odd"}>
-                <td colspan="8" align="right">Всего:</td>
+            <tr class="{cycle values="even,odd"}">
+                <td colspan="9" align="right">Всего:</td>
                 <td>{$sum.sum|round:2|replace:".":","}</td>
                 <td>{$sum.sum_without_tax|round:2}</td>
                 <td>{$sum.sum_tax|round:2}</td>

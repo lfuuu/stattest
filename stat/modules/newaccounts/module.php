@@ -4196,6 +4196,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     cg.inn,
                     cg.kpp,
                     cg.legal_type AS type,
+                    max(P.payment_no) as payment_no,
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
@@ -4236,6 +4237,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                     and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
                         cg.kpp,
                         cg.legal_type AS type,
+                        max(P.payment_no) as payment_no,
                         max(P.payment_date) as payment_date,
                         sum(P.sum) as `pay_sum`,
                         (
@@ -4285,12 +4287,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         $AA = array();
 
-        foreach($db->AllRecords($q_service) as $l)
+        foreach(Yii::$app->getDb()->createCommand($q_service)/*->cache(24 * 60 * 60)*/->queryAll() as $l)
             $AA[] = $l;
 
-        foreach($db->AllRecords($q_gds) as $l)
+        foreach(Yii::$app->getDb()->createCommand($q_gds)/*->cache(24 * 60 * 60)*/->queryAll() as $l)
             $AA[] = $l;
-
 
         //$res = mysql_query($q = "select * from (".$q_service." union ".$q_gds.") a order by a.bill_no") or die(mysql_error());
 
@@ -4313,13 +4314,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     //$this->bb_cache__set($p["bill_no"]."--".$I, $A);
                 }
 
-
                 if (is_array($A) && $A['bill']['sum']) {
-
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
                     $A["bill"]["contract"] = $p["contract"];
                     $A["bill"]["contract_status"] = $p["contract_status"];
-
 
                     $invDate = $A['bill']['shipment_ts'] ? 
                         $A['bill']['shipment_ts'] : 
@@ -4352,12 +4350,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['kpp'] = "-----";
                         }
 
+                        $A['bill']['payment_no'] = $p['payment_no'];
                         $A['bill']['payment_date'] = $p['payment_date'];
                         $A['bill']['pay_sum'] = $p['pay_sum'];
 
                         $A['bill']['inv_no'] = $A['inv_no'];
-
-
 
                         if($p["is_rollback"])
                         {
@@ -4365,11 +4362,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 $A["bill"][$f] = -abs($A["bill"][$f]);
                         }
 
-
                         foreach ($S as $sk=>$sv) {
                             $S[$sk]+=$A['bill'][$sk];
                         }
-
 
                         $R[$A['inv_date'].'-'.($Rc++)] = $A['bill'];
                     }
