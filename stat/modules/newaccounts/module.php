@@ -4408,7 +4408,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                 echo (++$count) . ';';
                 echo '="01";';
-                echo '"' . $r['inv_no'] . ' ' . date('d.m.Y', $r['inv_date']) . '";';
+                echo '"' . $r['inv_no'] . ';' . date('d.m.Y', $r['inv_date']) . '";';
                 echo '"' . $companyName . '";';
                 echo '"' . $r['inn'] . ($r['type'] == 'org' && $r['kpp'] ? '/' . $r['kpp'] : '') . '";';
                 echo '"' . $r['payments'] . '";';
