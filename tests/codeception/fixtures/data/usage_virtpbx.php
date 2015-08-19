@@ -10,7 +10,7 @@ return [
         'status' => 'working',
         'comment' => 'Тестовая АТС',
         'tarif_id' => '0',
-        'region' => '99',
+        'region' => \app\models\Region::MOSCOW,
         'is_moved' => '0',
     ],
 ];
