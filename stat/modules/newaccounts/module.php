@@ -4188,101 +4188,104 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
 
-        $q_service = '
-            select * from (
-                select
+        $q_service = "
+            SELECT * FROM (
+                SELECT
                     B.*,
-                    cg.name_full AS company_full,
-                    cg.inn,
-                    cg.kpp,
-                    cg.legal_type AS type,
-                    max(P.payment_no) as payment_no,
-                    max(P.payment_date) as payment_date,
-                    sum(P.sum) as pay_sum,
-                    bill_date as shipment_date,
-                    0 as shipment_ts,
-                    18 as min_nds
+                    cg.`name_full` AS company_full,
+                    cg.`inn`,
+                    cg.`kpp`,
+                    cg.`legal_type` AS type,
+                    P.`payment_no` AS payment_no,
+                    MAX(P.`payment_date`) AS payment_date,
+                    SUM(P.`sum`) AS pay_sum,
+                    `bill_date` AS shipment_date,
+                    0 AS shipment_ts,
+                    18 AS min_nds
                 FROM
-                    newbills B
-                LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-                INNER JOIN clients as C ON (C.id = B.client_id)
-                 INNER JOIN `client_contract` cr ON cr.id=C.contract_id
-                 INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-        WHERE
-                '.MySQLDatabase::Generate($W).'
-            and B.bill_no like "20____-____"
-            and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
-            and cr.contract_type_id != 6 ## internal office
-            and cr.business_process_status_id not in (22, 28, 99) ## trash, cancel
-        GROUP BY
-            B.bill_no
-        order by
-            B.bill_no
-
-        ) f';
+                    `newbills` B
+                      LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
+                        INNER JOIN `clients` C ON (C.`id` = B.`client_id`)
+                          INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
+                            INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
+                WHERE
+                    " . MySQLDatabase::Generate($W) . "
+                    AND B.`bill_no` LIKE '20____-____'
+                    AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
+                    AND cr.`contract_type_id` != 6 ## internal office
+                    AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
+                GROUP BY
+                    B.`bill_no`
+                ORDER BY
+                    B.`bill_no`
+        ) f";
 
         $q_gds = "  
-            select *, unix_timestamp(shipment_date) as shipment_ts from (
-                    select
-                        B.*,
-                        cg.name_full AS company_full,
-                        cg.inn,
-                        if(doc_date != '0000-00-00', 
-                            doc_date, 
-                            (
-                                SELECT min(cast(date_start as date)) 
-                                FROM tt_troubles t , `tt_stages` s  
-                                WHERE t.bill_no = B.bill_no 
-                                    and t.id = s.trouble_id 
-                                    and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
-                        cg.kpp,
-                        cg.legal_type AS type,
-                        max(P.payment_no) as payment_no,
-                        max(P.payment_date) as payment_date,
-                        sum(P.sum) as `pay_sum`,
+            SELECT *, UNIX_TIMESTAMP(shipment_date) AS shipment_ts
+            FROM (
+                SELECT
+                    B.*,
+                    cg.`name_full` AS company_full,
+                    cg.`inn`,
+                    IF(`doc_date` != '0000-00-00',
+                        `doc_date`,
                         (
-                            SELECT min(nds) 
-                            FROM `newbill_lines` nl, g_goods g 
-                            WHERE 
-                                    nl.item_id != '' 
-                                and nl.bill_no = B.bill_no 
-                                and item_id = g.id
-                                ) as min_nds
-                    FROM
+                            SELECT MIN(CAST(`date_start` AS DATE))
+                            FROM `tt_troubles` t , `tt_stages` s
+                            WHERE
+                                t.`bill_no` = B.`bill_no`
+                                AND t.`id` = s.`trouble_id`
+                                AND state_id IN (SELECT `id` FROM `tt_states` WHERE `state_1c` = 'Отгружен')
+                        )
+                    ) AS shipment_date,
+                    cg.`kpp`,
+                    cg.`legal_type` AS type,
+                    P.`payment_no` AS payment_no,
+                    MAX(P.`payment_date`) AS payment_date,
+                    SUM(P.`sum`) AS `pay_sum`,
                     (
-                        SELECT DISTINCT bill_no 
-                        FROM newbills 
-                        WHERE doc_date BETWEEN '".$date_from."' and '".$date_to."'  #выбор счетов-фактур с утановленной датой документа
-                        
+                        SELECT MIN(nds)
+                        FROM `newbill_lines` nl, `g_goods` g
+                        WHERE
+                            nl.`item_id` != ''
+                            AND nl.`bill_no` = B.`bill_no`
+                            AND `item_id` = g.`id`
+                    ) AS min_nds
+                FROM
+                    (
+                        SELECT DISTINCT `bill_no`
+                        FROM `newbills`
+                        WHERE
+                            `doc_date` BETWEEN '" . $date_from . "' AND '" . $date_to . "'  #выбор счетов-фактур с утановленной датой документа
+
                         UNION 
                         
-                        SELECT DISTINCT bill_no 
-                        FROM tt_stages s, tt_troubles t 
-                        WHERE s.trouble_id = t.id 
-                            and date_start between '".$date_from." 00:00:00' and '".$date_to." 23:59:59' 
-                            and state_id in (select id from tt_states where state_1c = 'Отгружен') #выбор счетов-фактур по дате отгрузки
-                            and t.bill_no is not NULL
-                    )t, 
-                        newbills B
-                    LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-                    INNER JOIN clients as C ON (C.id = B.client_id)
-                     INNER JOIN `client_contract` cr ON cr.id=C.contract_id
-                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                    where
-                        t.bill_no = B.bill_no and
-                        B.bill_no like '20____/____' and  #только счета с товарами (выставленные через 1С)
-
-                        ".MySQLDatabase::Generate($W_gds)."
-
-                        GROUP BY
-                            B.bill_no
-                        order by
-                            B.bill_no
-
-                        )a 
-                        where 
-                            (min_nds is null or  min_nds > 0)  ###исключить счета, с товарами без НДС 
-                            and shipment_date between '".$date_from."' and '".$date_to."'";
+                        SELECT DISTINCT `bill_no`
+                        FROM `tt_stages` s, `tt_troubles` t
+                        WHERE
+                            s.`trouble_id` = t.`id`
+                            AND `date_start` BETWEEN '" . $date_from . " 00:00:00' AND '" . $date_to . " 23:59:59'
+                            AND `state_id` IN (SELECT `id` FROM `tt_states` WHERE `state_1c` = 'Отгружен') #выбор счетов-фактур по дате отгрузки
+                            AND t.`bill_no` IS NOT NULL
+                    ) t,
+                    `newbills` B
+                        LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
+                            INNER JOIN clients as C ON (C.id = B.client_id)
+                                INNER JOIN `client_contract` cr ON cr.id=C.contract_id
+                                    INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                WHERE
+                    t.`bill_no` = B.`bill_no`
+                    AND B.`bill_no` LIKE '20____/____' #только счета с товарами (выставленные через 1С)
+                    AND
+                        " . MySQLDatabase::Generate($W_gds) . "
+                GROUP BY
+                    B.`bill_no`
+                ORDER BY
+                    B.`bill_no`
+            ) a
+            WHERE
+                (min_nds IS NULL OR min_nds > 0)  ###исключить счета, с товарами без НДС
+                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "'";
 
 
         $AA = array();
