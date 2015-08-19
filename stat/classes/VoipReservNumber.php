@@ -1,8 +1,10 @@
 <?php 
 
+use app\classes\Event;
+
 class VoipReservNumber
 {
-    public static function reserv($number, $clientId, $lineCount = 1, $tarifId = null)
+    public static function reserv($number, $clientId, $lineCount = 1, $tarifId = null, $isForceStart = false)
     {
         global $db;
 
@@ -49,7 +51,7 @@ class VoipReservNumber
                     "region"        => $region,
                     "E164"          => $number,
                     "no_of_lines"   => $lineCount,
-                    "actual_from"   => "4000-01-01",
+                    "actual_from"   => ($isForceStart ? date("Y-m-d") : "4000-01-01"),
                     "actual_to"     => "4000-01-01",
                     "status"        => "connecting"
                     )
@@ -62,6 +64,7 @@ class VoipReservNumber
                     "id_tarif"            => $tarifId,
                     "id_tarif_local_mob"  => $tarifs[$region]['id_tarif_local_mob'],
                     "id_tarif_russia"     => $tarifs[$region]['id_tarif_russia'],
+                    "id_tarif_russia_mob" => $tarifs[$region]['id_tarif_russia'],
                     "id_tarif_intern"     => $tarifs[$region]['id_tarif_intern'],
                     "ts"                  => array("NOW()"),
                     "date_activation"     => array("NOW()"),
@@ -72,6 +75,8 @@ class VoipReservNumber
                     "minpayment_intern"   => '0',
                     )
                 );
+        
+        Event::go("actualize_number", ["number" => $number]);
 
         return array("tarif" => $tarif, "usage_id" => $usageVoipId);
 
@@ -97,8 +102,8 @@ class VoipReservNumber
                         tarifs_voip
                     where
                         status='public' and
-                        region='".$region_id."' and
-                        currency='RUB'
+                        connection_point_id='".$region_id."' and
+                        currency_id='RUB'
                     " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
                     );
             foreach ($tarifs as $r) {

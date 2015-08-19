@@ -30,4 +30,10 @@ class City extends ActiveRecord
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
+
+    public function getRegion()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
+    }
+
 }

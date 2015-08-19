@@ -3,7 +3,6 @@ namespace app\controllers\usage;
 
 use app\classes\Assert;
 use app\forms\usage\UsageVoipAddPackageForm;
-use app\forms\usage\UsageVoipCloseForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\ClientAccount;
@@ -60,11 +59,6 @@ class VoipController extends BaseController
         $usage = UsageVoip::findOne($id);
 
         $form = new UsageVoipDeleteHistoryForm();
-        if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
-            return $this->redirect(['edit', 'id' => $id]);
-        }
-
-        $form = new UsageVoipCloseForm();
         if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
             return $this->redirect(['edit', 'id' => $id]);
         }

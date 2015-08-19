@@ -83,7 +83,7 @@ class m_voipreports_calls_report
                     if (0 === $row)
                         break;
                 }
-                echo implode(';', $row)."\n";
+                echo '"'.implode('";"', $row).'"'."\n";
             }
 
             $pg_db->Query('END');

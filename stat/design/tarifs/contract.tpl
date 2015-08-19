@@ -358,6 +358,10 @@ $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
     {/foreach}
     {literal}
 
+    document.onready = function() {
+        document.getElementById('contract_template_group').onchange();
+    };
+
     function do_change_template_group(o) {
         var group = o.options[o.selectedIndex].value;
 

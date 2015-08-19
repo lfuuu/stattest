@@ -57,6 +57,7 @@ if ($action=='add_client') {
 
     $s = new \app\models\ClientSuper();
     $s->name = $P['company'];
+    $s->validate();
     $s->save();
 
     Yii::info($s);
@@ -65,6 +66,7 @@ if ($action=='add_client') {
     $cg->name = $cg->name_full = $P['company'];
     $cg->address_jur = $P['address'];
     $cg->legal_type = 'legal';
+    $cg->validate();
     $cg->save();
 
     Yii::info($cg);
@@ -74,7 +76,7 @@ if ($action=='add_client') {
     $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
     $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->organization_id = Organization::MCN_TELEKOM;
-
+    $cr->validate();
 
     $cr->save();
 
@@ -89,6 +91,8 @@ if ($action=='add_client') {
 
 	if($P["phone_connect"])
         $ca->phone_connect = $P["phone_connect"];
+
+    $ca->validate();
 
     if ($ca->save()) {
         Yii::info($ca);
@@ -288,7 +292,7 @@ if ($action=='add_client') {
     foreach($_numbers as $number)
     {
         try{
-            $reservInfo = VoipReservNumber::reserv($number, $client_id);
+            $reservInfo = VoipReservNumber::reserv($number, $client_id, 1, null, true);
 
             if ($reservInfo)
             {
