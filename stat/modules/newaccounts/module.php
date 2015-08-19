@@ -4197,7 +4197,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     cg.`kpp`,
                     cg.`legal_type` AS type,
                     P.`payment_no` AS payment_no,
-                    MAX(P.`payment_date`) AS payment_date,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(P.`payment_no`, ';', DATE_FORMAT(P.`payment_date`, '%d.%m.%Y')) ORDER BY P.`payment_date` DESC SEPARATOR ', '
+                    ) AS payments,
                     SUM(P.`sum`) AS pay_sum,
                     `bill_date` AS shipment_date,
                     0 AS shipment_ts,
@@ -4240,8 +4242,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     ) AS shipment_date,
                     cg.`kpp`,
                     cg.`legal_type` AS type,
-                    P.`payment_no` AS payment_no,
-                    MAX(P.`payment_date`) AS payment_date,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(P.`payment_no`, ';', DATE_FORMAT(P.`payment_date`, '%d.%m.%Y')) ORDER BY P.`payment_date` DESC SEPARATOR ', '
+                    ) AS payments,
                     SUM(P.`sum`) AS `pay_sum`,
                     (
                         SELECT MIN(nds)
@@ -4269,10 +4272,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             AND t.`bill_no` IS NOT NULL
                     ) t,
                     `newbills` B
-                        LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-                            INNER JOIN clients as C ON (C.id = B.client_id)
-                                INNER JOIN `client_contract` cr ON cr.id=C.contract_id
-                                    INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                        LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
+                            INNER JOIN `clients` as C ON (C.`id` = B.`client_id`)
+                                INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
+                                    INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
                 WHERE
                     t.`bill_no` = B.`bill_no`
                     AND B.`bill_no` LIKE '20____/____' #только счета с товарами (выставленные через 1С)

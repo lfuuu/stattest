@@ -104,7 +104,7 @@
                     <td>{$r.type}</td>
                     <td>{$r.contract}</td>
                     <td>{$r.contract_status}</td>
-                    <td>{if $r.payment_date}{$r.payment_no};{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
+                    <td>{if $r.payments}{$r.payments}{else}&nbsp;{/if}</td>
                     <td>{$r.sum|round:2|replace:".":","}</td>
                     <td>{$r.sum_without_tax|round:2|replace:".":","}</td>
                     <td>{$r.sum_tax|round:2|replace:".":","}</td>
