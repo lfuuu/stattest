@@ -4410,7 +4410,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 echo '="01";';
                 echo '"' . $r['inv_no'] . ' ' . date('d.m.Y', $r['inv_date']) . '";';
                 echo '"' . $companyName . '";';
-                echo '"' . $r['inn'] . ($r['kpp'] ? '/' . $r['kpp'] : '') . '";';
+                echo '"' . $r['inn'] . ($r['type'] == 'org' && $r['kpp'] ? '/' . $r['kpp'] : '') . '";';
                 echo '"' . $r['payments'] . '";';
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
