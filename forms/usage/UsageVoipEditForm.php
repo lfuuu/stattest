@@ -246,7 +246,9 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
-            $this->line7800_id = UsageVoip::findOne($usage->line7800_id)->E164;
+            if ($usage->line7800_id && ($line7800 = UsageVoip::findOne($usage->line7800_id)) instanceof Usage) {
+                $this->line7800_id = $line7800->E164;
+            }
 
             $currentTariff = $usage->getCurrentLogTariff();
 
