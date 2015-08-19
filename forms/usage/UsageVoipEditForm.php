@@ -51,7 +51,8 @@ class UsageVoipEditForm extends UsageVoipForm
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'change-tariff'];
 
-        $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number';}];
+        $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
+        $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
         return $rules;
     }
 
@@ -245,6 +246,9 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
+            if ($usage->line7800_id && ($line7800 = UsageVoip::findOne($usage->line7800_id)) instanceof Usage) {
+                $this->line7800_id = $line7800->E164;
+            }
 
             $currentTariff = $usage->getCurrentLogTariff();
 
@@ -468,16 +472,21 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function getLinesFor7800(ClientAccount $clientAccount)
     {
+        $tableName = UsageVoip::tableName();
+
         $query =
             UsageVoip::find()
-                ->andWhere(['client' => $clientAccount->client])
-                ->andWhere('LENGTH(E164) >= 4 and LENGTH(E164) <= 6')
-                ->andWhere('actual_to > DATE(now())');
-            ;
+                ->leftJoin($tableName . ' uv', 'uv.`line7800_id` = ' . $tableName . '.`id`')
+                ->andWhere([$tableName . '.`client`' => $clientAccount->client])
+                ->andWhere('LENGTH(`' . $tableName . '`.`E164`) >= 4')
+                ->andWhere('LENGTH(`' . $tableName . '`.`E164`) <= 6')
+                ->andWhere($tableName . '.`actual_to` > DATE(NOW())')
+                ->andWhere(['uv.`line7800_id`' => null]);
+
         $list =
             ArrayHelper::map(
                 $query
-                    ->orderBy('id')
+                    ->orderBy($tableName . '.`id`')
                     ->asArray()
                     ->all(),
                 'id',
