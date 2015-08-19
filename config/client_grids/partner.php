@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\BusinessProcess;
 
@@ -13,7 +13,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_NEGOTIATIONS],
-                ['cr.contract_type_id' => ContractType::PARTNER],
+                ['cr.contract_subdivision_id' => ContractSubdivision::PARTNER],
             ],
         ],
         'columns' => [
@@ -39,7 +39,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING],
-                ['cr.contract_type_id' => ContractType::PARTNER],
+                ['cr.contract_subdivision_id' => ContractSubdivision::PARTNER],
             ],
         ],
         'columns' => [
@@ -65,7 +65,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_CLOSED],
-                ['cr.contract_type_id' => ContractType::PARTNER],
+                ['cr.contract_subdivision_id' => ContractSubdivision::PARTNER],
             ],
         ],
         'columns' => [

@@ -242,7 +242,7 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->contract->contract_type_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
+        if ($clientAccount->contract->contract_subdivision_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {

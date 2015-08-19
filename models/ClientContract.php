@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\helpers\SetFieldTypeHelper;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\models\media\ClientFiles;
@@ -19,6 +20,23 @@ class ClientContract extends HistoryActiveRecord
         'unchecked' => 'Не проверено',
         'checked_original' => 'Оригинал',
         'checked_copy' => 'Копия',
+        'offer' => 'Оферта',
+    ];
+
+    public static $districts = [
+        'cfd' => 'ЦФО',
+        'sfd' => 'ЮФО',
+        'nwfd' => 'СЗФО',
+        'dfo' => 'ДФО',
+        'sfo' => 'СФО',
+        'ufo' => 'УФО',
+        'pfo' => 'ПФО',
+    ];
+
+    public static $financialTypes = [
+        'profitable' => 'Доходный',
+        'consumables' => 'Расходный',
+        'yield-consumable' => 'Доходно-расходный',
     ];
 
     public static function tableName()
@@ -35,8 +53,11 @@ class ClientContract extends HistoryActiveRecord
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
             'business_process_status_id' => 'Статус бизнес процесса',
+            'contract_subdivision_id' => 'Подразделение',
             'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
+            'financial_type' => 'Финансовый тип договора',
+            'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
             'is_external' => 'Внешний договор',
         ];
@@ -82,10 +103,10 @@ class ClientContract extends HistoryActiveRecord
         return ($m) ? $m->name : $this->business_process_id;
     }
 
-    public function getContractType()
+    public function getContractSubdivision()
     {
-        $m = ContractType::findOne($this->contract_type_id);
-        return $m ? $m->name : $this->contract_type_id;
+        $m = ContractSubdivision::findOne($this->contract_subdivision_id);
+        return $m ? $m->name : $this->contract_subdivision_id;
     }
 
     public function getBusinessProcessStatus()
@@ -137,8 +158,7 @@ class ClientContract extends HistoryActiveRecord
     public function getAccounts()
     {
         $models = ClientAccount::findAll(['contract_id' => $this->id]);
-        foreach($models as &$model)
-        {
+        foreach ($models as &$model) {
             if ($model && $this->historyVersionRequestedDate) {
                 $model->loadVersionOnDate($this->historyVersionRequestedDate);
             }
@@ -165,7 +185,7 @@ class ClientContract extends HistoryActiveRecord
     public function getAllDocuments()
     {
         return ClientDocument::find()
-            ->andWhere(['contract_id' => $this->id, 'type' => ['agreement','contract']])
+            ->andWhere(['contract_id' => $this->id, 'type' => ['agreement', 'contract']])
             ->all();
     }
 
@@ -175,6 +195,19 @@ class ClientContract extends HistoryActiveRecord
             ->andWhere(['contract_id' => $this->id, 'type' => 'contract', 'is_active' => 1])
             ->orderBy('id DESC')
             ->one();
+    }
+
+    public function getFederalDistrictAsArray()
+    {
+        return SetFieldTypeHelper::getFieldValue($this, 'federal_district');
+    }
+
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if(is_array($this->federal_district))
+            $this->federal_district = SetFieldTypeHelper::generateFieldValue($this, 'federal_district', $this->federal_district, false);
+
+        return parent::save($runValidation, $attributeNames);
     }
 
     public function afterSave($insert, $changedAttributes)
@@ -197,22 +230,29 @@ class ClientContract extends HistoryActiveRecord
             $this->save();
         }
 
-        foreach($this->getAccounts() as $account)
+        foreach ($this->getAccounts() as $account)
             $account->sync1C();
     }
 
     public function statusesForChange()
     {
-        if(!$this->state || $this->state == 'unchecked' || \Yii::$app->user->can('clients.changeback_contract_state'))
+        if (!$this->state || $this->state == 'unchecked' || \Yii::$app->user->can('clients.changeback_contract_state'))
             return self::$states;
 
-        if($this->state == 'checked_original')
-            return ['checked_original' =>self::$states['checked_original']];
+        if ($this->state == 'checked_original')
+            return ['checked_original' => self::$states['checked_original']];
 
-        if($this->state == 'checked_copy')
+        if ($this->state == 'checked_copy')
             return [
-                'checked_copy' =>self::$states['checked_copy'],
-                'checked_original' =>self::$states['checked_original'],
+                'checked_copy' => self::$states['checked_copy'],
+                'checked_original' => self::$states['checked_original'],
+            ];
+
+        if ($this->state == 'offer')
+            return [
+                'offer' => self::$states['offer'],
+                'checked_copy' => self::$states['checked_copy'],
+                'checked_original' => self::$states['checked_original'],
             ];
 
         return [];

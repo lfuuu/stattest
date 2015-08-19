@@ -32,7 +32,7 @@ class TestingFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
         $query->andWhere(['c.status' => 'testing']);
     }
 

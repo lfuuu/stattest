@@ -2,42 +2,49 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 class BusinessProcess extends ActiveRecord
 {
 
     const TELECOM_SUPPORT = 1;
-    // Телеком
-    const TELECOM_MAINTENANCE = 1; // Сопровождение
-    const TELECOM_REPORTS = 16; // Отчеты
-    const TELECOM_SALES = 2; // Продажи
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const TELECOM_MAINTENANCE = 1; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const TELECOM_REPORTS = 16; // пїЅпїЅпїЅпїЅпїЅпїЅ
+    const TELECOM_SALES = 2; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    // Интернет магазин
-    const INTERNET_SHOP_ORDERS = 3; // Заказы магазина
-    const INTERNET_SHOP_MAINTENANCE = 4; // Сопровождение
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const INTERNET_SHOP_ORDERS = 3; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const INTERNET_SHOP_MAINTENANCE = 4; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    // Поставщик
-    const PROVIDER_ORDERS = 5; // Заказы
-    const PROVIDER_MAINTENANCE = 6; // Сопровождение
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const PROVIDER_ORDERS = 5; // пїЅпїЅпїЅпїЅпїЅпїЅ
+    const PROVIDER_MAINTENANCE = 6; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    // Партнер
-    const PARTNER_MAINTENANCE = 8; // Сопровождение
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const PARTNER_MAINTENANCE = 8; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    // Внутренний офис
-    const INTERNAL_OFFICE = 10; // Внутренний офис
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    const INTERNAL_OFFICE = 10; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
-    // Оператор
-    const OPERATOR_OPERATORS = 11; // Операторы
-    const OPERATOR_CLIENTS = 12; // Клиенты
-    const OPERATOR_INFRASTRUCTURE = 13; // Инфраструктура
-    const OPERATOR_FORMAL = 14; // Формальные
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const OPERATOR_OPERATORS = 11; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const OPERATOR_CLIENTS = 12; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const OPERATOR_INFRASTRUCTURE = 13; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const OPERATOR_FORMAL = 14; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     // Welltime
-    const WELLTIME_MAINTENANCE = 15; // Сопровождение
+    const WELLTIME_MAINTENANCE = 15; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     public static function tableName()
     {
         return 'client_contract_business_process';
+    }
+
+    public static function getList()
+    {
+        $arr = self::find()->andWhere(['show_as_status' => '1'])->all();
+        return ArrayHelper::map($arr, 'id', 'name');
     }
 
 }

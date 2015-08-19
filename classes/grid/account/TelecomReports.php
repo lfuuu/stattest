@@ -7,15 +7,15 @@ use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromUsagesFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 
 
 class TelecomReports extends AccountGrid
 {
-    public function getContractType()
+    public function getContractSubdivision()
     {
-        return ContractType::TELEKOM;
+        return ContractSubdivision::TELEKOM;
     }
 
     public function getBusinessProcessId()

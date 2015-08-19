@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\BusinessProcess;
 
@@ -13,7 +13,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 95],
+                ['cr.contract_subdivision_id' => 95],
             ],
         ],
         'columns' => [
@@ -39,7 +39,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 96],
+                ['cr.contract_subdivision_id' => 96],
             ],
         ],
         'columns' => [
@@ -65,7 +65,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 97],
+                ['cr.contract_subdivision_id' => 97],
             ],
         ],
         'columns' => [
@@ -91,7 +91,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 98],
+                ['cr.contract_subdivision_id' => 98],
             ],
         ],
         'columns' => [
@@ -117,7 +117,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 99],
+                ['cr.contract_subdivision_id' => 99],
             ],
         ],
         'columns' => [
@@ -143,7 +143,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS,],
-                ['cr.contract_type_id' => 100],
+                ['cr.contract_subdivision_id' => 100],
             ],
         ],
         'columns' => [

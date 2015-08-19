@@ -231,7 +231,7 @@ class m_tarifs{
 
         $group = get_param_raw("contract_template_group", "MCN");
         $contract = get_param_raw("contract_template", get_param_raw("contract_template_add", "default"));
-        $contractType = get_param_raw("contract_type", "contract");
+        $ContractSubdivision = get_param_raw("contract_type", "contract");
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
@@ -262,7 +262,7 @@ class m_tarifs{
 
                     $oContract = new Contract();
                     $oContract->name = $name;
-                    $oContract->type = $contractType;
+                    $oContract->type = $ContractSubdivision;
                     $oContract->save();
                 }
             }
@@ -343,8 +343,8 @@ class m_tarifs{
                     $oContract->name = $name;
                 }
 
-                if ($oContract->type != $contractType)
-                    $oContract->type = $contractType;
+                if ($oContract->type != $ContractSubdivision)
+                    $oContract->type = $ContractSubdivision;
 
                 $oContract->save();
 
@@ -358,7 +358,7 @@ class m_tarifs{
 
             $oContract = Contract::findOne(["name" => $name]);
             if ($oContract){
-                $contractType = $oContract->type;
+                $ContractSubdivision = $oContract->type;
             } else {
                 //default = "contract" (in get_param_raw set)
             }
@@ -380,7 +380,7 @@ class m_tarifs{
         $design->assign("info", $info);
         $design->assign("contract_template_group", $group);
         $design->assign("contract_template", $contract);
-        $design->assign("contract_type", $contractType);
+        $design->assign("contract_type", $ContractSubdivision);
 
         $design->assign("folders", ClientDocumentDao::$folders);
 

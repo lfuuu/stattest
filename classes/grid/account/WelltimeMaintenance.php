@@ -8,15 +8,15 @@ use app\classes\grid\account\welltime\maintenance\MaintenanceFreeFolder;
 use app\classes\grid\account\welltime\maintenance\SuspendedFolder;
 use app\classes\grid\account\welltime\maintenance\TrashFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 
 
 class WelltimeMaintenance extends AccountGrid
 {
-    public function getContractType()
+    public function getContractSubdivision()
     {
-        return ContractType::WELLTIME;
+        return ContractSubdivision::WELLTIME;
     }
 
     public function getBusinessProcessId()

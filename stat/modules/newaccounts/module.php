@@ -173,7 +173,7 @@ class m_newaccounts extends IModule
         global $design, $db, $user, $fixclient, $fixclient_data;
 
         $account = ClientAccount::findOne($fixclient);
-        $isMulty = $account->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = $account->contract->contract_subdivision_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -267,7 +267,7 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_subdivision_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -729,14 +729,14 @@ class m_newaccounts extends IModule
 
         if ($r) {
             $r["client_orig"] = $r["client"];
-            $contractTypeId = ClientAccount::findOne($r['id'])->contract->contract_type_id;
+            $ContractSubdivisionId = ClientAccount::findOne($r['id'])->contract->contract_subdivision_id;
             if (access("clients", "read_multy"))
-                if ($contractTypeId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
+                if ($ContractSubdivisionId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($contractTypeId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
+            if ($ContractSubdivisionId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
@@ -4213,8 +4213,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         WHERE
                 '.MySQLDatabase::Generate($W).'
             and B.bill_no like "20____-____"
-            and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
-            and cr.contract_type_id != 6 ## internal office
+            and if(B.sum < 0, cr.contract_subdivision_id =2, true) ### only telekom clients with negative sum
+            and cr.contract_subdivision_id != 6 ## internal office
             and cr.business_process_status_id not in (22, 28, 99) ## trash, cancel
         GROUP BY
             B.bill_no

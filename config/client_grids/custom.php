@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\BusinessProcess;
 
@@ -32,7 +32,7 @@ return [
         'grid_business_process_id' => 9,
         'queryParams' => [
             'where' => [
-                'cr.contract_type_id = 1',
+                'cr.contract_subdivision_id = 1',
             ],
         ],
         'columns' => [

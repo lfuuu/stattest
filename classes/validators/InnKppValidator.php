@@ -2,7 +2,7 @@
 namespace app\classes\validators;
 
 use app\models\ClientContract;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\Country;
 use yii\validators\Validator;
 
@@ -52,7 +52,7 @@ class InnKppValidator extends Validator
     {
         return ClientContract::find()
             ->andWhere(['contragent_id' => $model->id])
-            ->andWhere(['=', 'contract_type_id', ContractType::OPERATOR])
+            ->andWhere(['=', 'contract_subdivision_id', ContractSubdivision::OPERATOR])
             ->count() ? true : false;
     }
 

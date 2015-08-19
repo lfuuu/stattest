@@ -32,7 +32,7 @@ class MaintenanceFreeFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE_FREE]);
     }
 }

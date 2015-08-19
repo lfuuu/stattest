@@ -7,7 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Language;
 
-$contragents = $model->getContragentListBySuperId();
+$contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;
 $contragentsOptions = [];
 
 foreach ($contragents as $contragent) {

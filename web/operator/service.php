@@ -4,7 +4,7 @@ use app\models\Number;
 use app\classes\StatModule;
 use app\models\Trouble;
 use app\models\LkWizardState;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
 use app\models\ClientAccount;
@@ -70,7 +70,7 @@ if ($action=='add_client') {
     Yii::info($cg);
 
     $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-    $cr->contract_type_id = ContractType::TELEKOM;
+    $cr->contract_subdivision_id = ContractSubdivision::TELEKOM;
     $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
     $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->organization_id = Organization::MCN_TELEKOM;

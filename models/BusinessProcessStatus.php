@@ -2,104 +2,105 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 class BusinessProcessStatus extends ActiveRecord
 {
 
-    // Îáùèå
-    const STATE_NEGOTIATIONS = 11; // Ïåğåãîâîğû
+    // ï¿½ï¿½ï¿½ï¿½ï¿½
+    const STATE_NEGOTIATIONS = 11; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Òåëåêîì
-    const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Çàêàç óñëóã
-    const TELEKOM_MAINTENANCE_CONNECTED = 8; //Ïîäêëş÷àåìûå
-    const TELEKOM_MAINTENANCE_WORK = 9; // Âêëş÷åííûå
-    const TELEKOM_MAINTENANCE_DISCONNECTED = 10; // Îòêëş÷åííûå
-    const TELEKOM_MAINTENANCE_DISCONNECTED_DEBT = 11; // Îòêëş÷åííûå çà äîëãè
-    const TELEKOM_MAINTENANCE_TRASH = 22; // Ìóñîğ
-    const TELEKOM_MAINTENANCE_NOT_CONNECTED = 0; // Íå ïğèâÿçàííûå
-    const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // Òåõ. îòêàç
-    const TELEKOM_MAINTENANCE_FAILURE = 28; // Îòêàç
-    const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Äóáëèêàò
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_CONNECTED = 8; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_WORK = 9; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_DISCONNECTED = 10; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_DISCONNECTED_DEBT = 11; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_TRASH = 22; // ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_NOT_CONNECTED = 0; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_FAILURE = 28; // ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_MAINTENANCE_DUPLICATE = 29; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    const TELEKOM_SALES_INCOMING = 1; // Âõîäÿùèå
-    const TELEKOM_SALES_NEGOTIATIONS = 2; // Â ñòàäèè ïåğåãîâîğîâ
-    const TELEKOM_SALES_TESTING = 3; // Òåñòèğóåìûå
-    const TELEKOM_SALES_CONNECTING = 4; // Ïîäêëş÷àåìûå
-    const TELEKOM_SALES_TECH_FAILURE = 5; // Òåõîòêàç
-    const TELEKOM_SALES_FAILURE = 6; // Îòêàç
-    const TELEKOM_SALES_TRASH = 7; // Ìóñîğ
+    const TELEKOM_SALES_INCOMING = 1; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_NEGOTIATIONS = 2; // ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_TESTING = 3; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_CONNECTING = 4; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_TECH_FAILURE = 5; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_FAILURE = 6; // ï¿½ï¿½ï¿½ï¿½ï¿½
+    const TELEKOM_SALES_TRASH = 7; // ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Èíòåğíåò ìàãàçèí
-    const INTERNET_SHOP_ACTING = 16; // Ñîïğîâîæäåíèå
-    const INTERNET_SHOP_TRASH = 18; // Ñîïğîâîæäåíèå
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const INTERNET_SHOP_ACTING = 16; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const INTERNET_SHOP_TRASH = 18; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Ïîñòàâùèê
-    const PROVIDER_ORDERS_ACTING = 32; // Çàêàçû - Äåéñòâóùèé
-    const PROVIDER_ORDERS_NEGOTIATION_STAGE = 36; // Çàêàçû - Â ñòàäèè ïåğåãîâîğîâ
-    const PROVIDER_MAINTENANCE_GPON = 108; // Ñîïğîâîæäåíèå - GPON
-    const PROVIDER_MAINTENANCE_VOLS = 109; // Ñîïğîâîæäåíèå - ÂÎËÑ
-    const PROVIDER_MAINTENANCE_SERVICE = 110; // Ñîïğîâîæäåíèå - Ñåğâèñíûé
-    const PROVIDER_MAINTENANCE_ACTING = 15; // Ñîïğîâîæäåíèå - Äåéñòâóùèé
-    const PROVIDER_MAINTENANCE_CLOSED = 92; // Ñîïğîâîæäåíèå - Çàêğûòûé
-    const PROVIDER_MAINTENANCE_SELF_BUY = 93; // Ñîïğîâîæäåíèå - Ñàìîçàêóïêè
-    const PROVIDER_MAINTENANCE_ONCE = 94; // Ñîïğîâîæäåíèå - Ğàçîâûé
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_ORDERS_ACTING = 32; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_ORDERS_NEGOTIATION_STAGE = 36; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_GPON = 108; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - GPON
+    const PROVIDER_MAINTENANCE_VOLS = 109; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_SERVICE = 110; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_ACTING = 15; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_CLOSED = 92; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_SELF_BUY = 93; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PROVIDER_MAINTENANCE_ONCE = 94; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Ïàğòíåğ
-    const PARTNER_MAINTENANCE_NEGOTIATIONS = 24; // Ñîïğîâîæäåíèå - Ïåğåãîâîğû
-    const PARTNER_MAINTENANCE_ACTING = 35; // Ñîïğîâîæäåíèå - Äåéñòâóşùèé
-    const PARTNER_MAINTENANCE_CLOSED = 26; // Ñîïğîâîæäåíèå - Çàêğûòûé
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PARTNER_MAINTENANCE_NEGOTIATIONS = 24; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PARTNER_MAINTENANCE_ACTING = 35; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const PARTNER_MAINTENANCE_CLOSED = 26; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Âíóòğåííèé îôèñ
-    const INTERNAL_OFFICE = 34; // Âíóòğåííèé îôèñ
-    const INTERNAL_OFFICE_CLOSED = 111; // Çàêğûòûå
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    const INTERNAL_OFFICE = 34; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    const INTERNAL_OFFICE_CLOSED = 111; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    // Îïåğàòîğ
-    const OPERATOR_OPERATORS_INCOMING = 37; // Îïåğàòîğû - Âõîäÿùèé
-    const OPERATOR_OPERATORS_NEGOTIATIONS = 38; // Îïåğàòîğû - Ïåğåãîâîğû
-    const OPERATOR_OPERATORS_TESTING = 39; // Îïåğàòîğû - Òåñòèğîâàíèå
-    const OPERATOR_OPERATORS_ACTING = 40; // Îïåğàòîğû - Äåéñòâóşùèé
-    const OPERATOR_OPERATORS_MANUAL_BILL = 107; // Îïåğàòîğû - Ğó÷íîé ñ÷åò
-    const OPERATOR_OPERATORS_SUSPENDED = 41; // Îïåğàòîğû - Ïğèîñòàíîâëåí
-    const OPERATOR_OPERATORS_TERMINATED = 42; // Îïåğàòîğû - Ğàñòîğãíóò
-    const OPERATOR_OPERATORS_BLOCKED = 43; // Îïåğàòîğû - Ôğîä áëîêèğîâêà
-    const OPERATOR_OPERATORS_TECH_FAILURE = 44; // Îïåğàòîğû - Òåõîòêàç
-    const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // Îïåğàòîğû - Àâòîáëîêèğîâêà
-    const OPERATOR_OPERATORS_TRASH = 121; // Îïåğàòîğû - Ìóñîğ
-    const OPERATOR_CLIENTS_INCOMING = 47; // Êëèåíòû - Âõîäÿùèé
-    const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Êëèåíòû - Ïåğåãîâîğû
-    const OPERATOR_CLIENTS_TESTING = 49; // Êëèåíòû - Òåñòèğîâàíèå
-    const OPERATOR_CLIENTS_ACTING = 50; // Êëèåíòû - Äåéñòâóşùèé
-    const OPERATOR_CLIENTS_JIRASOFT = 56; // Êëèåíòû - JiraSoft
-    const OPERATOR_CLIENTS_SUSPENDED = 51; // Êëèåíòû - Ïğèîñòàíîâëåí
-    const OPERATOR_CLIENTS_TERMINATED = 52; // Êëèåíòû - Ğàñòîğãíóò
-    const OPERATOR_CLIENTS_BLOCKED = 53; // Êëèåíòû - Ôğîä áëîêèğîâêà
-    const OPERATOR_CLIENTS_TECH_FAILURE = 54; // Êëèåíòû - Òåõîòêàç
-    const OPERATOR_CLIENTS_TRASH = 122; // Êëèåíòû - Ìóñîğ
-    const OPERATOR_INFRASTRUCTURE_INCOMING = 62; // Èíôğàñòğóêòóğà - Âõîäÿùèé
-    const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // Èíôğàñòğóêòóğà - Ïåğåãîâîğû
-    const OPERATOR_INFRASTRUCTURE_TESTING = 64; // Èíôğàñòğóêòóğà - Òåñòèğîâàíèå
-    const OPERATOR_INFRASTRUCTURE_ACTING = 65; // Èíôğàñòğóêòóğà - Äåéñòâóşùèé
-    const OPERATOR_INFRASTRUCTURE_SUSPENDED = 66; // Èíôğàñòğóêòóğà - Ïğèîñòàíîâëåí
-    const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // Èíôğàñòğóêòóğà - Ğàñòîğãíóò
-    const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Èíôğàñòğóêòóğà - Ôğîä áëîêèğîâêà
-    const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Èíôğàñòğóêòóğà - Òåõîòêàç
-    const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Èíôğàñòğóêòóğà - Ìóñîğ
-    const OPERATOR_FORMAL_INCOMING = 77; // Ôîğìàëüíûå - Âõîäÿùèé
-    const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Ôîğìàëüíûå - Ïåğåãîâîğû
-    const OPERATOR_FORMAL_TESTING = 79; // Ôîğìàëüíûå - Òåñòèğîâàíèå
-    const OPERATOR_FORMAL_ACTING = 80; // Ôîğìàëüíûå - Äåéñòâóşùèé
-    const OPERATOR_FORMAL_SUSPENDED = 81; // Ôîğìàëüíûå - Ïğèîñòàíîâëåí
-    const OPERATOR_FORMAL_TERMINATED = 82; // Ôîğìàëüíûå - Ğàñòîğãíóò
-    const OPERATOR_FORMAL_BLOCKED = 83; // Ôîğìàëüíûå - Ôğîä áëîêèğîâêà
-    const OPERATOR_FORMAL_TECH_FAILURE = 84; // Ôîğìàëüíûå - Òåõîòêàç
-    const OPERATOR_FORMAL_TRASH = 124; // Ôîğìàëüíûå - Ìóñîğ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_INCOMING = 37; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_NEGOTIATIONS = 38; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_TESTING = 39; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_ACTING = 40; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_MANUAL_BILL = 107; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_SUSPENDED = 41; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_TERMINATED = 42; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_BLOCKED = 43; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_TECH_FAILURE = 44; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_AUTO_BLOCKED = 45; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_OPERATORS_TRASH = 121; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_INCOMING = 47; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_TESTING = 49; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_ACTING = 50; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_JIRASOFT = 56; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - JiraSoft
+    const OPERATOR_CLIENTS_SUSPENDED = 51; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_TERMINATED = 52; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_BLOCKED = 53; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_TECH_FAILURE = 54; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_CLIENTS_TRASH = 122; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_INCOMING = 62; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_TESTING = 64; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_ACTING = 65; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_SUSPENDED = 66; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_INFRASTRUCTURE_TRASH = 123; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_INCOMING = 77; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_NEGOTIATIONS = 78; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_TESTING = 79; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_ACTING = 80; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_SUSPENDED = 81; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_TERMINATED = 82; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_BLOCKED = 83; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_TECH_FAILURE = 84; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const OPERATOR_FORMAL_TRASH = 124; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // Ïóñêî-íàëàäêà
-    const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // Òåõîáñëóæèâàíèå
-    const WELLTIME_MAINTENANCE_MAINTENANCE_FREE = 97; // Áåç Òåõîáñëóæèâàíèÿ
-    const WELLTIME_MAINTENANCE_SUSPENDED = 98; // Ïğèîñòàíîâëåííûå
-    const WELLTIME_MAINTENANCE_FAILURE = 99; // Îòêàç
-    const WELLTIME_MAINTENANCE_TRASH = 100; // Ìóñîğ
+    const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const WELLTIME_MAINTENANCE_MAINTENANCE_FREE = 97; // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const WELLTIME_MAINTENANCE_SUSPENDED = 98; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    const WELLTIME_MAINTENANCE_FAILURE = 99; // ï¿½ï¿½ï¿½ï¿½ï¿½
+    const WELLTIME_MAINTENANCE_TRASH = 100; // ï¿½ï¿½ï¿½ï¿½ï¿½
 
 
     const FOLDER_TELECOM_AUTOBLOCK = 21;
@@ -107,6 +108,28 @@ class BusinessProcessStatus extends ActiveRecord
     public static function tableName()
     {
         return 'client_contract_business_process_status';
+    }
+
+    public static function getList()
+    {
+        $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();;
+        return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public static function getTree()
+    {
+        $processes = [];
+        foreach (BusinessProcess::find()->andWhere(['show_as_status' => '1'])->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->contract_subdivision_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
+        foreach ($bpStatuses as $s) {
+            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
+        }
+
+        return ["processes" => $processes, "statuses" => $statuses];
     }
 
 }

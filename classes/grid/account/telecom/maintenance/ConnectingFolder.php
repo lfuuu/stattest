@@ -3,7 +3,7 @@ namespace app\classes\grid\account\telecom\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 use yii\db\Query;
 
@@ -33,7 +33,7 @@ class ConnectingFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED]);
     }
 }

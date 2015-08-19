@@ -35,9 +35,9 @@ use kartik\builder\Form;
             'type' => Form::INPUT_TEXT
         ],
         'attributes' => [
-            'contract_type_id' => [
+            'contract_subdivision_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\models\ContractType::getList(),
+                'items' => \app\models\ContractSubdivision::getList(),
                 'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
             ],
             //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],

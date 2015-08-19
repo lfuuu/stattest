@@ -2,7 +2,7 @@
 namespace app\classes;
 
 use app\models\billing\Pricelist;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 use yii\helpers\Url;
 
@@ -166,7 +166,7 @@ class Navigation
             3 => '?module=tt&action=view_type&type_pk=4',
             5 => '/?module=tt&action=view_type&type_pk=7',
         ];
-        $blocks_rows = ContractType::find()->orderBy(['sort' => SORT_ASC])->all();
+        $blocks_rows = ContractSubdivision::find()->orderBy(['sort' => SORT_ASC])->all();
 
         foreach($blocks_rows as $block_row)
         {

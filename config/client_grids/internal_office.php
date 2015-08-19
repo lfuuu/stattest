@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\BusinessProcess;
 
@@ -12,7 +12,7 @@ return [
         'grid_business_process_id' => BusinessProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
+                ['cr.contract_subdivision_id' => ContractSubdivision::INTERNAL_OFFICE],
                 ['cr.business_process_status_id' => BusinessProcessStatus::INTERNAL_OFFICE],
             ],
         ],
@@ -38,7 +38,7 @@ return [
         'grid_business_process_id' => BusinessProcess::INTERNAL_OFFICE,
         'queryParams' => [
             'where' => [
-                ['cr.contract_type_id' => ContractType::INTERNAL_OFFICE],
+                ['cr.contract_subdivision_id' => ContractSubdivision::INTERNAL_OFFICE],
                 ['cr.business_process_status_id' => BusinessProcessStatus::INTERNAL_OFFICE_CLOSED],
             ],
         ],

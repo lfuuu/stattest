@@ -1,6 +1,6 @@
 <?php
 
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use app\models\BusinessProcessStatus;
 use app\models\BusinessProcess;
 use app\models\User;
@@ -28,7 +28,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['not in', 'c.status', ['double', 'trash']],
-                ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
+                ['cr.contract_subdivision_id' => ContractSubdivision::INTERNET_SHOP],
             ],
         ],
         'columns' => [
@@ -54,7 +54,7 @@ return [
         'queryParams' => [
             'where' => [
                 ['in', 'c.status', ['double', 'trash']],
-                ['cr.contract_type_id' => ContractType::INTERNET_SHOP],
+                ['cr.contract_subdivision_id' => ContractSubdivision::INTERNET_SHOP],
             ],
         ],
         'columns' => [

@@ -9,15 +9,15 @@ use app\classes\grid\account\provider\maintenance\SelfBuyFolder;
 use app\classes\grid\account\provider\maintenance\ServiceFolder;
 use app\classes\grid\account\provider\maintenance\VOLSFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 
 
 class ProviderMaintenance extends AccountGrid
 {
-    public function getContractType()
+    public function getContractSubdivision()
     {
-        return ContractType::PROVIDER;
+        return ContractSubdivision::PROVIDER;
     }
 
     public function getBusinessProcessId()

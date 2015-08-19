@@ -3,15 +3,15 @@ namespace app\classes\grid\account;
 
 use app\classes\grid\account\internetshop\orders\OrdersFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\ContractSubdivision;
 use Yii;
 
 
 class InternetShopOrders extends AccountGrid
 {
-    public function getContractType()
+    public function getContractSubdivision()
     {
-        return ContractType::INTERNET_SHOP;
+        return ContractSubdivision::INTERNET_SHOP;
     }
 
     public function getBusinessProcessId()
