@@ -4149,10 +4149,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     function newaccounts_balance_sell($fixclient){
         global $design,$db,$user;
         $dateFrom = new DatePickerValues('date_from', 'first');
-	$dateTo= new DatePickerValues('date_to', 'last');
-	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
-	$date_from=$dateFrom->getDay();
-	$date_to=$dateTo->getDay();
+        $dateTo= new DatePickerValues('date_to', 'last');
+        $dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+        $date_from=$dateFrom->getDay();
+        $date_to=$dateTo->getDay();
         $design->assign('date_from_val',$date_from_val=$dateFrom->getTimestamp());
         $design->assign('date_to_val',$date_to_val=$dateTo->getTimestamp());
         $design->assign('firma',$firma = get_param_protected('firma','mcn_telekom'));
@@ -4181,119 +4181,123 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'cr.organization_id="' . $firma . '"';
         }
 
-
         $W[] = "cg.legal_type in ('ip', 'legal')";
 
         $W_gds = $W;
-        
 
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
 
-
-        $q_service = '
-            select * from (
-                select
+        $q_service = "
+            SELECT * FROM (
+                SELECT
                     B.*,
-                    cg.name_full AS company_full,
-                    cg.inn,
-                    cg.kpp,
-                    cg.legal_type AS type,
-                    max(P.payment_date) as payment_date,
-                    sum(P.sum) as pay_sum,
-                    bill_date as shipment_date,
-                    0 as shipment_ts,
-                    18 as min_nds
+                    cg.`name_full` AS company_full,
+                    cg.`inn`,
+                    cg.`kpp`,
+                    cg.`legal_type` AS type,
+                    P.`payment_no` AS payment_no,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(P.`payment_no`, ';', DATE_FORMAT(P.`payment_date`, '%d.%m.%Y')) ORDER BY P.`payment_date` DESC SEPARATOR ', '
+                    ) AS payments,
+                    SUM(P.`sum`) AS pay_sum,
+                    `bill_date` AS shipment_date,
+                    0 AS shipment_ts,
+                    18 AS min_nds
                 FROM
-                    newbills B
-                LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-                INNER JOIN clients as C ON (C.id = B.client_id)
-                 INNER JOIN `client_contract` cr ON cr.id=C.contract_id
-                 INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-        WHERE
-                '.MySQLDatabase::Generate($W).'
-            and B.bill_no like "20____-____"
-            and if(B.sum < 0, cr.contract_type_id =2, true) ### only telekom clients with negative sum
-            and cr.contract_type_id != 6 ## internal office
-            and cr.business_process_status_id not in (22, 28, 99) ## trash, cancel
-        GROUP BY
-            B.bill_no
-        order by
-            B.bill_no
-
-        ) f';
+                    `newbills` B
+                      LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
+                        INNER JOIN `clients` C ON (C.`id` = B.`client_id`)
+                          INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
+                            INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
+                WHERE
+                    " . MySQLDatabase::Generate($W) . "
+                    AND B.`bill_no` LIKE '20____-____'
+                    AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
+                    AND cr.`contract_type_id` != 6 ## internal office
+                    AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
+                GROUP BY
+                    B.`bill_no`
+                ORDER BY
+                    B.`bill_no`
+        ) f";
 
         $q_gds = "  
-            select *, unix_timestamp(shipment_date) as shipment_ts from (
-                    select
-                        B.*,
-                        cg.name_full AS company_full,
-                        cg.inn,
-                        if(doc_date != '0000-00-00', 
-                            doc_date, 
-                            (
-                                SELECT min(cast(date_start as date)) 
-                                FROM tt_troubles t , `tt_stages` s  
-                                WHERE t.bill_no = B.bill_no 
-                                    and t.id = s.trouble_id 
-                                    and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
-                        cg.kpp,
-                        cg.legal_type AS type,
-                        max(P.payment_date) as payment_date,
-                        sum(P.sum) as `pay_sum`,
+            SELECT *, UNIX_TIMESTAMP(shipment_date) AS shipment_ts
+            FROM (
+                SELECT
+                    B.*,
+                    cg.`name_full` AS company_full,
+                    cg.`inn`,
+                    IF(`doc_date` != '0000-00-00',
+                        `doc_date`,
                         (
-                            SELECT min(nds) 
-                            FROM `newbill_lines` nl, g_goods g 
-                            WHERE 
-                                    nl.item_id != '' 
-                                and nl.bill_no = B.bill_no 
-                                and item_id = g.id
-                                ) as min_nds
-                    FROM
+                            SELECT MIN(CAST(`date_start` AS DATE))
+                            FROM `tt_troubles` t , `tt_stages` s
+                            WHERE
+                                t.`bill_no` = B.`bill_no`
+                                AND t.`id` = s.`trouble_id`
+                                AND state_id IN (SELECT `id` FROM `tt_states` WHERE `state_1c` = 'Отгружен')
+                        )
+                    ) AS shipment_date,
+                    cg.`kpp`,
+                    cg.`legal_type` AS type,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(P.`payment_no`, ';', DATE_FORMAT(P.`payment_date`, '%d.%m.%Y')) ORDER BY P.`payment_date` DESC SEPARATOR ', '
+                    ) AS payments,
+                    SUM(P.`sum`) AS `pay_sum`,
                     (
-                        SELECT DISTINCT bill_no 
-                        FROM newbills 
-                        WHERE doc_date BETWEEN '".$date_from."' and '".$date_to."'  #выбор счетов-фактур с утановленной датой документа
-                        
+                        SELECT MIN(nds)
+                        FROM `newbill_lines` nl, `g_goods` g
+                        WHERE
+                            nl.`item_id` != ''
+                            AND nl.`bill_no` = B.`bill_no`
+                            AND `item_id` = g.`id`
+                    ) AS min_nds
+                FROM
+                    (
+                        SELECT DISTINCT `bill_no`
+                        FROM `newbills`
+                        WHERE
+                            `doc_date` BETWEEN '" . $date_from . "' AND '" . $date_to . "'  #выбор счетов-фактур с утановленной датой документа
+
                         UNION 
                         
-                        SELECT DISTINCT bill_no 
-                        FROM tt_stages s, tt_troubles t 
-                        WHERE s.trouble_id = t.id 
-                            and date_start between '".$date_from." 00:00:00' and '".$date_to." 23:59:59' 
-                            and state_id in (select id from tt_states where state_1c = 'Отгружен') #выбор счетов-фактур по дате отгрузки
-                            and t.bill_no is not NULL
-                    )t, 
-                        newbills B
-                    LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-                    INNER JOIN clients as C ON (C.id = B.client_id)
-                     INNER JOIN `client_contract` cr ON cr.id=C.contract_id
-                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                    where
-                        t.bill_no = B.bill_no and
-                        B.bill_no like '20____/____' and  #только счета с товарами (выставленные через 1С)
-
-                        ".MySQLDatabase::Generate($W_gds)."
-
-                        GROUP BY
-                            B.bill_no
-                        order by
-                            B.bill_no
-
-                        )a 
-                        where 
-                            (min_nds is null or  min_nds > 0)  ###исключить счета, с товарами без НДС 
-                            and shipment_date between '".$date_from."' and '".$date_to."'";
+                        SELECT DISTINCT `bill_no`
+                        FROM `tt_stages` s, `tt_troubles` t
+                        WHERE
+                            s.`trouble_id` = t.`id`
+                            AND `date_start` BETWEEN '" . $date_from . " 00:00:00' AND '" . $date_to . " 23:59:59'
+                            AND `state_id` IN (SELECT `id` FROM `tt_states` WHERE `state_1c` = 'Отгружен') #выбор счетов-фактур по дате отгрузки
+                            AND t.`bill_no` IS NOT NULL
+                    ) t,
+                    `newbills` B
+                        LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
+                            INNER JOIN `clients` as C ON (C.`id` = B.`client_id`)
+                                INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
+                                    INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
+                WHERE
+                    t.`bill_no` = B.`bill_no`
+                    AND B.`bill_no` LIKE '20____/____' #только счета с товарами (выставленные через 1С)
+                    AND
+                        " . MySQLDatabase::Generate($W_gds) . "
+                GROUP BY
+                    B.`bill_no`
+                ORDER BY
+                    B.`bill_no`
+            ) a
+            WHERE
+                (min_nds IS NULL OR min_nds > 0)  ###исключить счета, с товарами без НДС
+                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "'";
 
 
         $AA = array();
 
-        foreach($db->AllRecords($q_service) as $l)
+        foreach(Yii::$app->getDb()->createCommand($q_service)/*->cache(24 * 60 * 60)*/->queryAll() as $l)
             $AA[] = $l;
 
-        foreach($db->AllRecords($q_gds) as $l)
+        foreach(Yii::$app->getDb()->createCommand($q_gds)/*->cache(24 * 60 * 60)*/->queryAll() as $l)
             $AA[] = $l;
-
 
         //$res = mysql_query($q = "select * from (".$q_service." union ".$q_gds.") a order by a.bill_no") or die(mysql_error());
 
@@ -4316,13 +4320,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     //$this->bb_cache__set($p["bill_no"]."--".$I, $A);
                 }
 
-
                 if (is_array($A) && $A['bill']['sum']) {
-
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
                     $A["bill"]["contract"] = $p["contract"];
                     $A["bill"]["contract_status"] = $p["contract_status"];
-
 
                     $invDate = $A['bill']['shipment_ts'] ? 
                         $A['bill']['shipment_ts'] : 
@@ -4355,12 +4356,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['kpp'] = "-----";
                         }
 
+                        $A['bill']['payment_no'] = $p['payment_no'];
                         $A['bill']['payment_date'] = $p['payment_date'];
                         $A['bill']['pay_sum'] = $p['pay_sum'];
 
                         $A['bill']['inv_no'] = $A['inv_no'];
-
-
 
                         if($p["is_rollback"])
                         {
@@ -4368,11 +4368,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 $A["bill"][$f] = -abs($A["bill"][$f]);
                         }
 
-
                         foreach ($S as $sk=>$sv) {
                             $S[$sk]+=$A['bill'][$sk];
                         }
-
 
                         $R[$A['inv_date'].'-'.($Rc++)] = $A['bill'];
                     }
@@ -4399,20 +4397,21 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             echo "Книга продаж;;;;;;;;;;;;;;;;\n";
             echo ";;;;;;;;;;;;;;;;;;\n";
             echo ";;;;;;;в том числе продажи, облагаемые налогом по ставке;;;;;;;;;;;\n";
-            echo "Номер счета-фактуры продавца;Дата счета-фактуры продавца;Наименование покупателя;ИНН покупателя;КПП покупателя;Дата оплаты счета-фактуры продавца;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
+            echo "№ п/п;Код вида операции;Дата и номер счета-фактуры продавца;Наименование покупателя;ИНН/КПП покупателя;Номер и дата документа, подтверждающего оплату;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
 
+            $count = 0;
             foreach($R as $r)
             {
                 $companyName = html_entity_decode($r["company_full"]);
                 $companyName = str_replace(['«','»'], '"', $companyName);
                 $companyName = str_replace('"', '""', $companyName);
 
-                echo $r["inv_no"].";";
-                echo date("d.m.Y",$r["inv_date"]).";";
+                echo (++$count) . ';';
+                echo '="01";';
+                echo '"' . $r['inv_no'] . ';' . date('d.m.Y', $r['inv_date']) . '";';
                 echo '"' . $companyName . '";';
-                echo '"' . $r["inn"] . '";';
-                echo '"' . $r["kpp"] . '";';
-                echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
+                echo '"' . $r['inn'] . ($r['type'] == 'org' ? '/' . ($r['kpp'] ?: '') : '') . '";';
+                echo '"' . $r['payments'] . '";';
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_tax"],2), 2, ",", "").";";
@@ -4422,7 +4421,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 echo "0;";
                 echo "0;";
                 echo $r["client_id"].";";
-
 
                 echo "\n";
             }

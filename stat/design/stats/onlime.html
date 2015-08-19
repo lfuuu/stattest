@@ -57,92 +57,96 @@ optools.DatePickerInit();
 <tr><td><b>Возврат</b></td><td>{if $s.rollback}{$s.rollback}{else}0{/if}</td><td><a href="./?{$url}&list=rollback">Посмотреть&raquo;</a></td></tr>
 </table><br>
 {if $list}
-<h2>{$listName}</h2>
-<div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">Экспорт в Excel</a></div>
-<table id=repart_table border=1 style="border-collapse: collapse;" cellspacing=2 >
-<tr id="tr_head">
-<td rowspan=2 width=1%>#</td>
-<td rowspan=2 width=10%>Оператор</td>
-<td colspan=2 width=10%>Номер счета</td>
-<td rowspan=2 width=10%>Дата<br>создания заказа</td>
-<td colspan=6 width=1%>Кол-во</td>
-<td colspan=1 width=10%>Номер купона</td>
-<td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
-<td colspan=2 width=10%>Дата доставки</td>
-<td rowspan=2 width=20%>Этапы</td>
-</tr>
-<tr id="tr_head">
-<td>OnLime</td>
-<td>Маркомнет Сервис</td>
-<td>Tele CARD</td>
-<td>HD-ресивер</td>
-<td>НВ-р. с диском</td>
-<td>NetGear роутер</td>
-<td>Zyxel KEENETIC EXTRA</td>
-<td>D-Link DWA-182</td>
-<td>Gigaset C530</td>
-<td>Серийный номер</td>
-<td>Желаемая</td>
-<td>Фактическая</td>
-</tr>
+    <h2>{$listName}</h2>
+    <div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">Экспорт в Excel</a></div>
+    <table id=repart_table border=1 style="border-collapse: collapse;" cellspacing=2 >
+        <tr id="tr_head">
+            <td rowspan=2 width=1%>#</td>
+            <td rowspan=2 width=10%>Оператор</td>
+            <td colspan=2 width=10%>Номер счета</td>
+            <td rowspan=2 width=10%>Дата<br>создания заказа</td>
+            <td colspan=7 width=1%>Кол-во</td>
+            <td colspan=1 width=10%>Номер купона</td>
+            <td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
+            <td colspan=2 width=10%>Дата доставки</td>
+            <td rowspan=2 width=20%>Этапы</td>
+        </tr>
+        <tr id="tr_head">
+            <td>OnLime</td>
+            <td>Маркомнет Сервис</td>
+            <td>Tele CARD</td>
+            <td>HD-ресивер</td>
+            <td>НВ-р. с диском</td>
+            <td>NetGear роутер</td>
+            <td>ТВ-приставка «Стандарт»</td>
+            <td>Zyxel KEENETIC EXTRA</td>
+            <td>D-Link DWA-182</td>
+            <td>Gigaset C530</td>
+            <td>Серийный номер</td>
+            <td>Желаемая</td>
+            <td>Фактическая</td>
+        </tr>
 
-{foreach from=$list item=i key=idx}
-<tr>
-<td rowspan=2>{$idx+1}.</td>
-<td rowspan=2>{$i.fio_oper}</td>
-<td rowspan=2>{$i.req_no}</td>
-<td rowspan=2>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
-<td rowspan=2>{$i.date_creation}</td>
-<td rowspan=2 align=center>{$i.count_3|round:0}</td>
-<td rowspan=2 align=center>{$i.count_9|round:0}</td>
-<td rowspan=2 align=center>{$i.count_11|round:0}</td>
-<td rowspan=2 align=center>{$i.count_12|round:0}</td>
-<td rowspan=2 align=center>{$i.count_18|round:0}</td>
-<td rowspan=2 align=center>{$i.count_19|round:0}</td>
-<td rowspan=2 align=center>{$i.count_22|round:0}</td>
-<td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
-<td rowspan=2><p>{$i.fio}</p>
-    <p>{$i.phone}</p>
-    <p>{$i.address}</p></td>
-<td rowspan=2>{$i.date_deliv}</td>
-<td rowspan=2>{$i.date_delivered|substr:0:-3}</td>
-<td rowspan=2>
-<div id="d_{$idx}" style="display:none;" title="Заказ {$i.bill_no}">
-{include file='stats/onlime_stage.tpl' i_stages=$i.stages last=100}
-</div>
-{include file='stats/onlime_stage.tpl' i_stages=$i.stages last=2}
-{if count($i.stages) > 2}
-    <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">Посмотреть всю историю</div>
-{/if}
-</td>
-</tr>
-<tr>
-    <td>{$i.serials|replace:",":",<br>"}</td>
-</tr>
-{/foreach}
-{if $list}
-<tr>
-    <td colspan=5 align=right><b>Итого:</b>&nbsp;&nbsp;</td>
-    <td align=center><b>{$total.count_3}</b></td>
-    <td align=center><b>{$total.count_9}</b></td>
-    <td align=center><b>{$total.count_11}</b></td>
-    <td align=center><b>{$total.count_12}</b></td>
-    <td align=center><b>{$total.count_18}</b></td>
-    <td align=center><b>{$total.count_19}</b></td>
-    <td align=center><b>{$total.count_22}</b></td>
-    <td colspan=5>&nbsp;</td>
-</tr>
-{/if}
-</table>
-<script>
-{literal}
+        {foreach from=$list item=i key=idx}
+            <tr>
+                <td rowspan=2>{$idx+1}.</td>
+                <td rowspan=2>{$i.fio_oper}</td>
+                <td rowspan=2>{$i.req_no}</td>
+                <td rowspan=2>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
+                <td rowspan=2>{$i.date_creation}</td>
+                <td rowspan=2 align=center>{$i.count_3|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_9|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_11|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_12|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_17|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_18|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_19|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_22|round:0}</td>
+                <td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
+                <td rowspan=2><p>{$i.fio}</p>
+                    <p>{$i.phone}</p>
+                    <p>{$i.address}</p></td>
+                <td rowspan=2>{$i.date_deliv}</td>
+                <td rowspan=2>{$i.date_delivered|substr:0:-3}</td>
+                <td rowspan=2>
+                    <div id="d_{$idx}" style="display:none;" title="Заказ {$i.bill_no}">
+                    {include file='stats/onlime_stage.tpl' i_stages=$i.stages last=100}
+                    </div>
+                    {include file='stats/onlime_stage.tpl' i_stages=$i.stages last=2}
+                    {if count($i.stages) > 2}
+                        <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">Посмотреть всю историю</div>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td>{$i.serials|replace:",":",<br>"}</td>
+            </tr>
+        {/foreach}
 
-$("div.to_view").click(function(e){
-    $("#"+e.srcElement.id.replace("t_", "d_")).dialog();
-})
+        {if $list}
+            <tr>
+                <td colspan=5 align=right><b>Итого:</b>&nbsp;&nbsp;</td>
+                <td align=center><b>{$total.count_3}</b></td>
+                <td align=center><b>{$total.count_9}</b></td>
+                <td align=center><b>{$total.count_11}</b></td>
+                <td align=center><b>{$total.count_12}</b></td>
+                <td align=center><b>{$total.count_17}</b></td>
+                <td align=center><b>{$total.count_18}</b></td>
+                <td align=center><b>{$total.count_19}</b></td>
+                <td align=center><b>{$total.count_22}</b></td>
+                <td colspan=5>&nbsp;</td>
+            </tr>
+        {/if}
+    </table>
+    <script>
+    {literal}
 
-{/literal}
-</script>
+    $("div.to_view").click(function(e){
+        $("#"+e.srcElement.id.replace("t_", "d_")).dialog();
+    })
+
+    {/literal}
+    </script>
 {/if}
 <div id="order_details" title="Подробная информация" style="display: none;"></div>
 <script>

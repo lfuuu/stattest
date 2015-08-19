@@ -12,7 +12,7 @@ class DateControl extends \kartik\datecontrol\DateControl
      * for example:
      * ~~~
      * options' => [
-     *     'autoWidgetSettings' => [
+     *     'autoWidgetSettings  ' => [
      *         DateControl::FORMAT_DATE => [
      *             'options' => [
      *                 'pluginOptions' => [
@@ -37,6 +37,9 @@ class DateControl extends \kartik\datecontrol\DateControl
     {
         parent::initConfig();
         $this->_widgetSettings = ArrayHelper::merge($this->_widgetSettings, $this->autoWidgetSettings);
+        if (!empty($this->_widgetSettings[$this->type]['class'])) {
+            $this->widgetClass = $this->_widgetSettings[$this->type]['class'];
+        }
     }
 
 }

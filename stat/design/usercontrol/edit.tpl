@@ -6,6 +6,7 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 <TR><TD class=left width=30%>Полное имя:</TD><TD><input style='width:100%' name=name class=text value='{$authuser.name}'></TD></TR>
 <TR><TD class=left>e-mail:</TD><TD><input style='width:60%' name=email class=text value='{$authuser.email}'></TD></TR>
+<TR><TD class=left>Язык:</TD><TD><select name="language"><option value="ru-RU" {if $authuser.language == 'ru-RU'}selected{/if}>Русский</option><option value="hu-HU" {if $authuser.language == 'hu-HU'}selected{/if}>Magyar</option></select></TD></TR>
 <TR><TD class=left>Внутренний номер (логин в comcenter):</TD><TD><input style='width:60%' name=phone_work class=text value='{$authuser.phone_work}'></TD></TR>
 <TR><TD class=left>Телефон мобильный:</TD><TD><input style='width:60%' name=phone_mobile class=text value='{$authuser.phone_mobile}'></TD></TR>
 <TR><TD class=left>ICQ:</TD><TD><input style='width:60%' name=icq class=text value='{$authuser.icq}'></TD></TR>

@@ -21,7 +21,7 @@ trait DoubleAttributeLabelTrait
         elseif($t2 === null)
             return $t1;
         else
-            return $t1.' ('.$t2.')';
+            return $t1.' / '.$t2;
     }
 
     abstract protected function getLangCategory();

@@ -401,12 +401,14 @@ function work()
             $didGroupId = $didGroups[$num['city_id']][$beautyLevel];
         }
 
+        /*
         if (!empty($didGroups[$num['city_id']])) {
             $didGroupId = $didGroups[$num['city_id']][count($didGroups[$num['city_id']])-1];
         }
+         */
 
         if ($didGroupId) {
-            if ($num['did_group_id'] != $didGroupId && $num['beauty_level'] != $beautyLevel) {
+            if ($num['did_group_id'] != $didGroupId || $num['beauty_level'] != $beautyLevel) {
                 $db->Query("UPDATE voip_numbers SET beauty_level='" . $beautyLevel . "', did_group_id='" . $didGroupId . "' WHERE number='" . $num['number'] . "'");
                 echo $num['number'] . ' - ' . $beautyLevel . " " . $didGroupId . "<br/>\n";
                 $changedCount++;

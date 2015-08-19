@@ -122,16 +122,16 @@ class Onlime1CCreateBill
         {
             switch($product["id"])
             {
-                case '3': $goodId = "f75a5b2f-382f-11e0-9c3c-d485644c7711"; break;
-                case '9': $goodId = "14723f35-d423-11e3-9fe5-00155d881200"; break;
-                case '11': $goodId = "2c6d3955-d423-11e3-9fe5-00155d881200"; break;
-                case '12': $goodId = "e1a5bf94-0764-11e4-8c79-00155d881200"; break;
-
-                case '18': $goodId="55b6f916-b3fb-11e3-9fe5-00155d881200"; break;
-                case '19': $goodId="14265ab3-9bca-11e4-8402-00155d881200"; break;
-                case '20': $goodId="e147d6bc-73f0-11e1-afcc-00155d881200"; break;
-                case '21': $goodId="e5f617a4-8f97-11e1-afcc-00155d881200"; break;
-                case '22': $goodId="4454e4d5-a79e-11e4-a330-00155d881200"; break;
+                case '3':   $goodId = "f75a5b2f-382f-11e0-9c3c-d485644c7711"; break;
+                case '9':   $goodId = "14723f35-d423-11e3-9fe5-00155d881200"; break;
+                case '11':  $goodId = "2c6d3955-d423-11e3-9fe5-00155d881200"; break;
+                case '12':  $goodId = "e1a5bf94-0764-11e4-8c79-00155d881200"; break;
+                case '17':  $goodId = "4dff356b-41a0-11e5-93ad-00155d881200"; break;
+                case '18':  $goodId = "55b6f916-b3fb-11e3-9fe5-00155d881200"; break;
+                case '19':  $goodId = "14265ab3-9bca-11e4-8402-00155d881200"; break;
+                case '20':  $goodId = "e147d6bc-73f0-11e1-afcc-00155d881200"; break;
+                case '21':  $goodId = "e5f617a4-8f97-11e1-afcc-00155d881200"; break;
+                case '22':  $goodId = "4454e4d5-a79e-11e4-a330-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])

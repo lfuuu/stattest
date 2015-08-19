@@ -26,18 +26,22 @@ class TariffVoipDao extends Singleton
         }
 
         $list =
-            ArrayHelper::map(
-                $query
-                    ->orderBy('status, month_line, month_min_payment')
-                    ->asArray()
-                    ->all(),
-                'id',
-                'name'
-            );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+            $query
+                ->orderBy('status, month_line, month_min_payment')
+                ->asArray()
+                ->all();
+
+
+        $result = [];
+        foreach ($list as $tariff) {
+            $result[ $tariff['id'] ] = $tariff['name'] . ' (' . $tariff['month_number'] . '-' . $tariff['month_line'] . ')';
         }
-        return $list;
+
+        if ($withEmpty) {
+            $result = ['' => '-- Тариф --'] + $result;
+        }
+
+        return $result;
     }
 
     public function getLocalMobList($withEmpty = false, $connectingPointId = false, $currencyId = false)

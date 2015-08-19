@@ -21,7 +21,7 @@ class ActualNumberDao extends Singleton
             FROM
             ( SELECT 
                 a.*, 
-                IF (number_type = 'nonumber', IFNULL((SELECT e164 FROM usage_voip u WHERE line7800_id = usage_id AND CAST(NOW() AS  DATE) BETWEEN actual_from AND actual_to), '') , '') AS number7800
+                IF (number_type = 'nonumber', IFNULL((SELECT e164 FROM usage_voip u WHERE line7800_id = usage_id AND CAST(NOW() AS  DATE) BETWEEN actual_from AND actual_to LIMIT 1), '') , '') AS number7800
             FROM (
                 SELECT 
                     client_id, 
@@ -58,12 +58,13 @@ class ActualNumberDao extends Singleton
                             allowed_direction,
                             c.voip_disabled
                         FROM
-                            usage_voip u, clients c
+                            usage_voip u, clients c, client_contract ct
                         WHERE
                             (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
-                            and u.client = c.client 
-                            and ((c.status in ('negotiations','work','connecting','testing')) or c.id = 9130)
-                            and LENGTH(e164) > 3
+                            AND u.client = c.client 
+                            AND ct.id = c.contract_id
+                            AND ((c.status in ('negotiations','work','connecting','testing')) or c.id = 9130 or ct.business_process_status_id in (8, 9, 19))
+                            AND LENGTH(e164) > 3
                             ".($number ? "and e164 = :number" : "")."
                         ORDER BY u.id
                     )a

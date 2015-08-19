@@ -68,7 +68,7 @@ class OnlimeCheckOrders
             {
                 CheckFormat::isEmpty($product["id"], "Id продукта #".($idx+1)." не задано");
                 CheckFormat::isNotInt($product["id"], "Id продукта #".($idx+1)." задано неверно");
-                CheckFormat::isNotInArray($product["id"], array(3, 9, 11, 12, 18, 19, 20, 21, 22), "Id продукта #".($idx+1)." задано неверно");
+                CheckFormat::isNotInArray($product["id"], array(3, 9, 11, 12, 17, 18, 19, 20, 21, 22), "Id продукта #".($idx+1)." задано неверно");
 
                 CheckFormat::isEmpty($product["quantity"], "Количество продукта #".($idx+1)." не задано");
                 CheckFormat::isNotInt($product["quantity"], "Количество продукта #".($idx+1)." задано неверно");

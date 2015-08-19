@@ -4,11 +4,14 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
 use kartik\widgets\DatePicker;
-use kartik\daterange\DateRangePicker;
 use yii\helpers\Url;
 use app\models\User;
 use app\models\TariffVoip;
+use app\models\TariffNumber;
 use app\models\TariffVoipPackage;
+use app\models\Region;
+use app\models\VoipNumber;
+use app\widgets\DateControl as CustomDateControl;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -64,50 +67,69 @@ echo Form::widget([
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Тип</label>
-                <input type="text" class="form-control" value="' . $types[$usage->type_id] . '" readonly>
+                <input type="text" class="form-control" value="' . $types[$usage->type_id] . '" readonly="readonly" />
             </div>
         '],
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Точка подключения</label>
-                <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly>
+                <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly="readonly" />
             </div>
         '],
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Страна</label>
-                <input type="text" class="form-control" value="' . $clientAccount->country->name . '" readonly>
+                <input type="text" class="form-control" value="' . $clientAccount->country->name . '" readonly="readonly" />
             </div>
         '],
         ['type' => Form::INPUT_RAW, 'value' => '
             <div class="form-group">
                 <label class="control-label">Валюта</label>
-                <input type="text" class="form-control" value="' . $clientAccount->currency . '" readonly>
+                <input type="text" class="form-control" value="' . $clientAccount->currency . '" readonly="readonly" />
             </div>
         '],
     ],
 ]);
 
-if ($model->type_id == '7800') {
+if ($model->type_id == 'number') {
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'columns' => 4,
+        'attributes' => [
+            'number_tariff_id' => [
+                'type' => Form::INPUT_RAW,
+                'value' => '
+                    <div class="form-group">
+                        <label class="control-label">DID группа</label>
+                        <input type="text" class="form-control" value="' . VoipNumber::findOne($model->did)->didGroup->name . '" readonly="readonly" />
+                    </div>
+                ',
+            ],
+            'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+            'no_of_lines' => ['type' => Form::INPUT_TEXT],
+        ],
+    ]);
+}
+else if ($model->type_id == '7800') {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
         'columns' => 4,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-            'line7800_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getLinesFor7800($clientAccount), 'options' => ['disabled' => 'disabled']],
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
             'no_of_lines' => ['type' => Form::INPUT_TEXT],
+            'line7800_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
         ],
     ]);
-} else {
+}
+else {
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
             'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-            'connecting_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
             'no_of_lines' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
@@ -116,14 +138,74 @@ if ($model->type_id == '7800') {
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 3,
+    'columns' => 4,
     'attributes' => [
-        'address' => ['type' => Form::INPUT_TEXT],
+        'connecting_date' => [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => CustomDateControl::className(),
+            'options' => [
+                'autoWidgetSettings' => [
+                    DateControl::FORMAT_DATE => [
+                        'class' => '\app\widgets\DatePicker',
+                        'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                        'options' => [
+                            'addons' => [
+                                'todayButton' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'disconnecting_date' => [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => CustomDateControl::className(),
+            'options' => [
+                'autoWidgetSettings' => [
+                    DateControl::FORMAT_DATE => [
+                        'class' => '\app\widgets\DatePicker',
+                        'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                        'options' => [
+                            'options' => [
+                                'placeholder' => $model->disconnecting_date ?: 'Не задано',
+                            ],
+                            'addons' => [
+                                'todayButton' => [],
+                                'clearButton' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
         'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
         'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
     ],
 ]);
 
+$region = Region::findOne($model->region);
+$address_options = [
+    'data-datacenter-address' => $region->datacenter->address,
+];
+if ($model->address_from_datacenter_id) {
+    $address_options = [
+        'class' => 'input_help_icon',
+        'placeholder' => $model->address,
+    ];
+    $model->address = '';
+}
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 1,
+    'attributes' => [
+        'address' => [
+            'type' => Form::INPUT_TEXT,
+            'options' => $address_options,
+        ],
+    ],
+]);
 
 echo Form::widget([
     'model' => $model,
@@ -349,32 +431,8 @@ ActiveForm::end();
     });
 </script>
 
-<h2><span style="border-bottom: 1px dotted #000; cursor: pointer;" onclick="$('#div_close').toggle()">Отключить услугу:</span></h2>
-<div id="div_close" style="display: none">
-    <?php
-    $formModel = new \app\forms\usage\UsageVoipCloseForm();
-    $formModel->usage_id = $usage->id;
 
-    $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
-    echo Html::activeHiddenInput($formModel, 'usage_id');
-    echo Form::widget([
-        'model' => $formModel,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            'close_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
-            'x2' => ['type' => Form::INPUT_RAW, 'value' => '
-                            <div style="padding-top: 22px">
-                                ' . Html::submitButton('Отключить услугу', ['class' => 'btn btn-primary']) . '
-                            </div>
-                        '],
-        ],
-    ]);
-    $form->end();
-    ?>
-</div>
-
-<h2>Подключенные пакеты:</h2>
+<!--h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">
     <col width="10%" />
     <col width="* " />
@@ -387,7 +445,7 @@ ActiveForm::end();
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($usagePackages as $package): ?>
+        <?php /*foreach ($usagePackages as $package): ?>
             <?php
             $actualTo =
                 round(
@@ -414,12 +472,13 @@ ActiveForm::end();
                     ?>
                 </td>
             </tr>
-        <?php endforeach; ?>
+        <?php endforeach;*/ ?>
     </tbody>
 </table>
 
-<h2>Добавить пакет:</h2>
+<h2>Добавить пакет:</h2-->
 <?php
+/*
 $formModel = new \app\forms\usage\UsageVoipAddPackageForm;
 $formModel->usage_voip_id = $usage->id;
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
@@ -465,6 +524,7 @@ echo Form::widget([
 ]);
 
 ActiveForm::end();
+*/
 ?>
 <br />
 <br />
@@ -474,3 +534,5 @@ ActiveForm::end();
 <br />
 <br />
 <br />
+<link href="/css/behaviors/text-field-help-icon.css" rel="stylesheet" />
+<script type="text/javascript" src="/js/behaviors/usage-voip-address-from-datacenter.js"></script>

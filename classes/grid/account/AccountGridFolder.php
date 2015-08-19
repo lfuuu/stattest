@@ -150,17 +150,17 @@ abstract class AccountGridFolder extends Model
             $query->andWhere(['c.currency' => $this->currency]);
         }
 
-        if ($this->bill_date) {
+        if ($this->bill_date && !empty($this->bill_date)) {
             $billDates = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
             $query->andWhere(['between', 'b.bill_date', $billDates[0], $billDates[1]]);
         }
 
-        if ($this->createdDate) {
+        if ($this->createdDate && !empty($this->createdDate)) {
             $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
-        if (isset($this->block_date)) {
+        if (isset($this->block_date) && !empty($this->block_date)) {
             $blockDates = preg_split('/[\s+]\-[\s+]/', $this->block_date);
             $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
         }
@@ -250,6 +250,9 @@ abstract class AccountGridFolder extends Model
                         'presetDropdown' => true,
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('created'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
                         'containerOptions' => [
                             'style' => 'width:300px;',
                             'class' => 'drp-container input-group',
@@ -269,6 +272,9 @@ abstract class AccountGridFolder extends Model
                         'presetDropdown' => true,
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('block_date'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
                         'containerOptions' => [
                             'style' => 'width:300px;',
                             'class' => 'drp-container input-group',
@@ -361,6 +367,9 @@ abstract class AccountGridFolder extends Model
                         'presetDropdown' => true,
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('bill_date'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
                         'containerOptions' => [
                             'style' => 'width:300px;',
                             'class' => 'drp-container input-group',

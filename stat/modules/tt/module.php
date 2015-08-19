@@ -119,9 +119,9 @@ class m_tt extends IModule{
             $db->Query('update tt_stages set date_finish_desired = date_finish_desired + INTERVAL '.$time.' HOUR where stage_id='.$trouble['cur_stage_id']);
         }elseif(($dateActivation = get_param_raw("date_activation", "none")) !== "none")
         {
-            if(strtotime($dateActivation))
+            if($datetimeActivation = (new DateTime($dateActivation, new DateTimeZone('Europe/Moscow')))->format('Y-m-d H:i:s'))
             {
-                $db->Query('update tt_stages set date_start = "'.$dateActivation.'" where stage_id='.$trouble['cur_stage_id']);
+                $db->Query('update tt_stages set date_start = "'.$datetimeActivation.'" where stage_id='.$trouble['cur_stage_id']);
             }
 
         }
@@ -1422,7 +1422,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $design->assign('so',$so=get_param_integer ('so', 0));
         $design->assign('sort',$sort=get_param_integer('sort',1));
         $order = $so ? 'desc' : 'asc';
-        provide_sort($R,$sort,$so,array(1=>'trouble_id', 2=> 'client', 3=> 'state_order', 4 => 'user_main'),'trouble_id');
+        $orderField = ($mode != 2 ? 'trouble_id' : 'date_start');
+        provide_sort(
+            $R,
+            $sort,
+            $so,
+            [1 => $orderField, 2 => 'client', 3 => 'state_order', 4 => 'user_main'],
+            $orderField
+        );
         $design->assign('tt_troubles',$R);
         $design->assign('CUR','?module=tt&action=list&mode='.$mode);
 
