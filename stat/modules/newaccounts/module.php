@@ -4397,20 +4397,21 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             echo "Книга продаж;;;;;;;;;;;;;;;;\n";
             echo ";;;;;;;;;;;;;;;;;;\n";
             echo ";;;;;;;в том числе продажи, облагаемые налогом по ставке;;;;;;;;;;;\n";
-            echo "Номер счета-фактуры продавца;Дата счета-фактуры продавца;Наименование покупателя;ИНН покупателя;КПП покупателя;Дата оплаты счета-фактуры продавца;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
+            echo "п/п;Код вида операции;Дата и номер счета-фактуры продавца;Наименование покупателя;ИНН/КПП покупателя;Номер и дата документа, подтверждающего оплату;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
 
+            $count = 0;
             foreach($R as $r)
             {
                 $companyName = html_entity_decode($r["company_full"]);
                 $companyName = str_replace(['«','»'], '"', $companyName);
                 $companyName = str_replace('"', '""', $companyName);
 
-                echo '="'.$r["inv_no"]."\";";
-                echo date("d.m.Y",$r["inv_date"]).";";
+                echo (++$count) . ';';
+                echo '="01";';
+                echo '"' . $r['inv_no'] . ' ' . date('d.m.Y', $r['inv_date']) . '";';
                 echo '"' . $companyName . '";';
-                echo '="' . $r["inn"] . '";';
-                echo '="' . $r["kpp"] . '";';
-                echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
+                echo '"' . $r['inn'] . ($r['kpp'] ? '/' . $r['kpp'] : '') . '";';
+                echo '"' . $r['payments'] . '";';
                 echo number_format(round($r["sum"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
                 echo number_format(round($r["sum_tax"],2), 2, ",", "").";";
@@ -4420,7 +4421,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 echo "0;";
                 echo "0;";
                 echo $r["client_id"].";";
-
 
                 echo "\n";
             }
