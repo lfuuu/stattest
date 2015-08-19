@@ -100,7 +100,7 @@
                     <td>01</td>
                     <td><nobr>{$r.inv_no};</nobr> <nobr>{$r.inv_date|mdate:"d.m.Y"}</nobr></td>
                     <td class="s">{$r.company_full}&nbsp;</td>
-                    <td>{if $r.inn}{$r.inn}{if $r.type == 'org'}/{/if}{if $r.kpp}{$r.kpp}{/if}{else}&nbsp;{/if}</td>
+                    <td>{if $r.inn}{$r.inn}{if $r.type == 'org'}/{if $r.kpp}{$r.kpp}{/if}{/if}{else}&nbsp;{/if}</td>
                     <td>{$r.type}</td>
                     <td>{$r.contract}</td>
                     <td>{$r.contract_status}</td>
