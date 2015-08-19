@@ -7,6 +7,7 @@ use app\models\ClientDocument;
 use Yii;
 use app\classes\Singleton;
 use app\models\Contract;
+use app\models\TariffVoip;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -163,6 +164,8 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
+            $currentTariff = $usage->getCurrentLogTariff();
+
             $data['voip'][] = [
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
@@ -176,8 +179,37 @@ class ClientDocumentDao extends Singleton
                 'per_month_without_tax' => round($sum_without_tax, 2),
                 'month_min_payment' => $usage->currentTariff->month_min_payment,
             ];
+
             if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
                 $data['has8800'] = true;
+
+            if (
+                $currentTariff->id_tarif_local_mob
+                && ($tarifLocalMob = TariffVoip::findOne($currentTariff->id_tarif_local_mob)) instanceof TariffVoip
+            ) {
+                $data['voip_current_tariff']['tarif_local_mob'] = $tarifLocalMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia_mob
+                && ($tarifRussiaMob = TariffVoip::findOne($currentTariff->id_tarif_russia_mob)) instanceof TariffVoip
+            ) {
+                $data['voip_current_tariff']['tarif_russia_mob'] = $tarifRussiaMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia
+                && ($tarifRussia = TariffVoip::findOne($currentTariff->id_tarif_russia)) instanceof TariffVoip
+            ) {
+                $data['voip_current_tariff']['tarif_russia'] = $tarifRussia->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_intern
+                && ($tarifIntern = TariffVoip::findOne($currentTariff->id_tarif_intern)) instanceof TariffVoip
+            ) {
+                $data['voip_current_tariff']['tarif_intern'] = $tarifIntern->name;
+            }
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
