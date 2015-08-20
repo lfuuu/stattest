@@ -236,5 +236,8 @@ class ContragentEditForm extends Form
         $person->passport_number = $this->passport_number;
         $person->passport_issued = $this->passport_issued;
         $person->registration_address = $this->registration_address;
+        $person->birthplace = $this->birthplace;
+        $person->birthday = $this->birthday;
+        $person->mother_maiden_name = $this->mother_maiden_name;
     }
 }
