@@ -185,7 +185,7 @@ use app\models\Country;
     echo Form::widget([
         'model' => $model,
         'form' => $f,
-        'columns' => 1,
+        'columns' => 2,
         'columnOptions' => ['class' => 'col-sm-12'],
         'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
         'attributeDefaults' => [
@@ -195,7 +195,6 @@ use app\models\Country;
             'passport_date_issued' => [
                 'type' => Form::INPUT_WIDGET,
                 'widgetClass' => '\kartik\widgets\DatePicker',
-                'columnOptions' => ['class' => 'col-sm-6'],
                 'options' => [
                     'removeButton' => false,
                     'pluginOptions' => [
@@ -206,8 +205,23 @@ use app\models\Country;
                     ],
                 ],
             ],
-            'passport_issued' => [],
-            'registration_address' => [],
+            'birthday' => [
+                'type' => Form::INPUT_WIDGET,
+                'widgetClass' => '\kartik\widgets\DatePicker',
+                'options' => [
+                    'removeButton' => false,
+                    'pluginOptions' => [
+                        'autoclose' => true,
+                        'format' => 'yyyy-mm-dd',
+                        'startDate' => '-100y',
+                        'endDate' => '0y',
+                    ],
+                ],
+            ],
+            'passport_issued' => ['columnOptions' => ['colspan' => 2]],
+            ['type' => Form::INPUT_RAW],
+            'registration_address' => ['columnOptions' => ['colspan' => 2]],
+            ['type' => Form::INPUT_RAW],
         ],
     ]);
     echo '</div>';
