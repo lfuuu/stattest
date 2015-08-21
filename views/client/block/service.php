@@ -8,7 +8,7 @@ $actual = function ($from, $to) {
 
 $renderDate = function ($from, $to) {
     if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
-        return 'Резерв';
+        return 'Не был включен';
     }
 
     $res = $from;
