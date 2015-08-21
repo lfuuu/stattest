@@ -318,23 +318,22 @@
     <table style="border-collapse: collapse;" border="1" class="service_table">
         <tr>
             <td>
-                <p><span>Направление</span></p>
+                <p><span><b>Направление</b></span></p>
             </td>
             <td>
-                <p><span>Местные мобильные номера</span></p>
+                <p><span><b>Местные мобильные номера</b></span></p>
             </td>
             <td>
-                <p><span>Мобильные номера РФ</span></p>
+                <p><span><b>Мобильные номера РФ</b></span></p>
             </td>
             <td>
-                <p><span>Междугородные вызовы (фикс.)</span></p>
+                <p><span><b>Междугородные вызовы (фикс.)</b></span></p>
             </td>
             <td>
-                <p><span>Международные вызовы</span></p>
+                <p><span><b>Международные вызовы</b></span></p>
             </td>
         </tr>
         {foreach from=$blank_data.voip item=i}
-            {assign var="minpayment" value=$i.voip_current_tariff.minpayment_local_mob+$i.voip_current_tariff.minpayment_russia+$i.voip_current_tariff.minpayment_intern}
             <tr>
                 <td>
                     <p><span>{$i.number}</span></p>
@@ -352,37 +351,18 @@
                     <p><span>{$i.voip_current_tariff.tarif_intern}</span></p>
                 </td>
             </tr>
-            {if $minpayment}
+            {foreach from=$i.minpayments item=payment}
                 <tr>
                     <td>
-                        <p><span>Минимальный гарантированный платеж, руб./мес.</span></p>
+                        <p><span>Минимальный гарантированный платеж, {$payment.value} руб./мес.</span></p>
                     </td>
-                    <td>
-                        <p><span>
-                            {if $i.voip_current_tariff.minpayment_group_local_mob}Набор:{/if}
-                            {$i.voip_current_tariff.minpayment_local_mob}
-                        </span></p>
-                    </td>
-                    <td>
-                        <p><span>
-                            {if $i.voip_current_tariff.minpayment_group_russia}Набор:{/if}
-                            {$i.voip_current_tariff.minpayment_russia}
-                        </span></p>
-                    </td>
-                    <td>
-                        <p><span>
-                            {if $i.voip_current_tariff.minpayment_group_russia}Набор:{/if}
-                            {$i.voip_current_tariff.minpayment_russia}
-                        </span></p>
-                    </td>
-                    <td>
-                        <p><span>
-                            {if $i.voip_current_tariff.minpayment_group_intern}Набор:{/if}
-                            {$i.voip_current_tariff.minpayment_intern}
-                        </span></p>
-                    </td>
+                    {foreach from=$payment.variants item=type}
+                        <td>
+                            <p><span>{if $type == 1}+{/if}</span></p>
+                        </td>
+                    {/foreach}
                 </tr>
-            {/if}
+            {/foreach}
         {/foreach}
     </table>
 {/if}

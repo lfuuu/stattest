@@ -178,11 +178,6 @@ class ClientDocumentDao extends Singleton
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2),
                 'month_min_payment' => $usage->currentTariff->month_min_payment,
-                'voip_current_tariff' => [
-                    'minpayment_local_mob' => $currentTariff->minpayment_local_mob,
-                    'minpayment_russia' => $currentTariff->minpayment_russia,
-                    'minpayment_intern' => $currentTariff->minpayment_intern,
-                ],
             ];
 
             if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
@@ -222,23 +217,30 @@ class ClientDocumentDao extends Singleton
 
             if ($currentTariff->dest_group != 0 && $currentTariff->minpayment_group) {
                 $group = preg_split('//', $currentTariff->dest_group, -1, PREG_SPLIT_NO_EMPTY);
+                $minpayment = ['value' => $currentTariff->minpayment_group, 'variants' => [0, 0, 0, 0,]];
                 for ($i=0, $s=sizeof($group); $i<$s; $i++) {
                     switch ($group[$i]) {
                         case 1:
-                            $row['voip_current_tariff']['minpayment_group_russia'] = $group[$i];
-                            $row['voip_current_tariff']['minpayment_russia'] = $currentTariff->minpayment_group;
+                            $minpayment['variants'][1] = 1;
+                            $minpayment['variants'][2] = 1;
                             break;
                         case 2:
-                            $row['voip_current_tariff']['minpayment_group_intern'] = $group[$i];
-                            $row['voip_current_tariff']['minpayment_intern'] = $currentTariff->minpayment_group;
+                            $minpayment['variants'][3] = 1;
                             break;
                         case 5:
-                            $row['voip_current_tariff']['minpayment_group_local_mob'] = $group[$i];
-                            $row['voip_current_tariff']['minpayment_local_mob'] = $currentTariff->minpayment_group;
+                            $minpayment['variants'][0] = 1;
                             break;
                     }
                 }
+                $row['minpayments'][] = $minpayment;
             }
+
+            if ($currentTariff->minpayment_local_mob > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_local_mob, 'variants' => [1, 0, 0, 0,]];
+            if ($currentTariff->minpayment_russia > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_russia, 'variants' => [0, 1, 1, 0,]];
+            if ($currentTariff->minpayment_intern > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
 
             $data['voip'][] = $row;
         }
