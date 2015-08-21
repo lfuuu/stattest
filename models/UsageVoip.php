@@ -29,6 +29,13 @@ class UsageVoip extends ActiveRecord implements Usage
         'local' => 'Внутр.',
     ];
 
+    public function behaviors()
+    {
+        return [
+            'UsageVoipAddress' => \app\classes\behaviors\UsageVoipAddress::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_voip';
@@ -150,17 +157,5 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
     }
 
-    public function getCurrenyTariff()
-    {
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_voip'])
-                ->andWhere(['id_service' => $this->id])
-                ->andWhere('date_activation<=NOW()')
-                ->andWhere('id_tarif!=0')
-                ->orderBy('date_activation desc, ts desc, id desc')
-                ->limit(1)
-                ->one();
-    }
 }
 
