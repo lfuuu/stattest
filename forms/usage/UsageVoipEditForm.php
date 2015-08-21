@@ -224,7 +224,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $line7800->E164;
             }
 
-            $currentTariff = $usage->getCurrentLogTariff();
+            if (!($currentTariff = $usage->getCurrentLogTariff()))
+                $currentTariff = $usage->getCurrentLogTariff($usage->actual_from);
 
             if ($currentTariff) {
                 $this->tariff_main_id = $currentTariff->id_tarif;

@@ -8,6 +8,9 @@ use app\dao\services\ExtraServiceDao;
 use app\models\Organization;
 use app\classes\Event;
 use app\classes\Assert;
+use app\models\UsageVoip;
+use app\models\TariffVoip;
+use app\models\VoipNumber;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -626,36 +629,37 @@ class m_services extends IModule{
 
         $has_trunk = false;
         if (!$this->fetch_client($fixclient)) {
-      $region = get_param_protected("letter_region");
-      $phone=get_param_protected('phone','');
+            $region = get_param_protected("letter_region");
+            $phone=get_param_protected('phone','');
 
-      $where = array();
+            $where = array();
 
-      if($region && $region != "any")
-        $where[] = "region = '".$region."'";
+            if($region && $region != "any")
+                $where[] = "region = '".$region."'";
 
-      if($phone)
-        $where[] = "INSTR(E164,'".$phone."')";
+            if($phone)
+                $where[] = "INSTR(E164,'".$phone."')";
 
-      $db->Query("
-                select
-                    usage_voip.*, c.id AS clientId,
-                    IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual
-                from
-                    usage_voip
-                    INNER JOIN clients c ON c.client = usage_voip.client
-                    ".($where ? "where (".implode(") and (", $where).")" : "")."
-                order by
-                    actual desc,
-                    ".$order
-      );
+            $db->Query("
+                    select
+                        usage_voip.*, c.id AS clientId,
+                        IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual
+                    from
+                        usage_voip
+                        INNER JOIN clients c ON c.client = usage_voip.client
+                        ".($where ? "where (".implode(") and (", $where).")" : "")."
+                    order by
+                        actual desc,
+                        ".$order
+            );
 
-      $R=array(); 
-      while ($r=$db->NextRecord()) {
-          $R[]=$r; 
-          if ($r['is_trunk'] == '1') 
-              $has_trunk = true;
-      }
+            $R=array();
+            while ($r=$db->NextRecord()) {
+              $R[]=$r;
+              if ($r['is_trunk'] == '1')
+                  $has_trunk = true;
+            }
+
             $design->assign('phone',$phone);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
@@ -705,12 +709,54 @@ class m_services extends IModule{
             }
 
             foreach ($R as &$r) {
-                $r['tarif']=get_tarif_current('usage_voip',$r['id']);
-                $r['cpe']=get_cpe_history('usage_voip',$r['id']);
+                /** @var UsageVoip $usage */
+                $usage = UsageVoip::findOne($r['id']);
+
+                if (!($r['tarif'] = $usage->currentTariff)) {
+                    $r['logTarif'] = $usage->getCurrentLogTariff($usage->actual_from);
+                    $r['tarif'] = TariffVoip::findOne($r['logTarif']->id_tarif);
+                }
+                else {
+                    $r['logTarif'] = $usage->currentLogTariff;
+                }
+                $r['tarifs'] = [];
+                if (
+                    $r['logTarif']->id_tarif_local_mob &&
+                    ($tarifLocalMob = TariffVoip::findOne($r['logTarif']->id_tarif_local_mob)) instanceof TariffVoip
+                ) {
+                    $r['tarifs']['local_mob'] = $tarifLocalMob;
+                }
+                if (
+                    $r['logTarif']->id_tarif_russia_mob &&
+                    ($tarifRussiaMob = TariffVoip::findOne($r['logTarif']->id_tarif_russia_mob)) instanceof TariffVoip
+                ) {
+                    $r['tarifs']['russia_mob'] = $tarifRussiaMob;
+                }
+                if (
+                    $r['logTarif']->id_tarif_russia &&
+                    ($tarifRussia = TariffVoip::findOne($r['logTarif']->id_tarif_russia)) instanceof TariffVoip
+                ) {
+                    $r['tarifs']['russia'] = $tarifRussia;
+                }
+                if (
+                    $r['logTarif']->id_tarif_intern
+                    && ($tarifIntern = TariffVoip::findOne($r['logTarif']->id_tarif_intern)) instanceof TariffVoip
+                ) {
+                    $r['tarifs']['intern'] = $tarifIntern;
+                }
+
+                $r['cpe'] = get_cpe_history('usage_voip',$r['id']);
                 $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
             }
 
-
+            $numbers =
+                VoipNumber::find()
+                    ->leftJoin('`usage_voip` uv', 'uv.`E164` = ' . VoipNumber::tableName() . '.`number`')
+                    ->where([
+                        VoipNumber::tableName() . '.`client_id`' => $this->fetched_client['id'],
+                        'uv.`E164`' => null,
+                    ])
+                    ->all();
 
             $notAcos = array();
             foreach($db->AllRecords("select * from voip_permit where client = '$clientNick'") as $p) {
@@ -730,6 +776,7 @@ class m_services extends IModule{
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->assign('voip_conn_permit',$notAcos);
+            $design->assign('numbers', $numbers);
             $design->assign('is_vo_view', get_param_raw("action", "") == "vo_view");
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
             $design->assign('cur_region', $db->GetValue('select region from clients where id="'.$fixclient.'"') );
