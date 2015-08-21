@@ -12,9 +12,12 @@ use app\models\billing\Pricelist;
 class TariffVoip extends ActiveRecord
 {
     const STATE_PUBLIC = 'public';
+    const STATE_TRANSIT = 'transit';
     const STATE_SPECIAL = 'special';
     const STATE_STORE = 'archive';
     const STATE_OPERATOR = 'operator';
+    const STATE_TEST = 'test';
+    const STATE_7800 = '7800';
 
     const DEST_RUSSIA = 1;
     const DEST_INTERNATIONAL = 2;
@@ -24,8 +27,11 @@ class TariffVoip extends ActiveRecord
     public static $statuses = [
         self::STATE_PUBLIC => 'Публичный',
         self::STATE_SPECIAL => 'Специальный',
-        self::STATE_STORE => 'Архивный',
+        self::STATE_TRANSIT => 'Переходный',
         self::STATE_OPERATOR => 'Оператор',
+        self::STATE_TEST => 'Тестовый',
+        self::STATE_7800 => '7800',
+        self::STATE_STORE => 'Архивный',
     ];
 
     public static $destinations = [

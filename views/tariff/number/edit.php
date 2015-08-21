@@ -11,6 +11,9 @@ use app\models\City;
 $statuses = [
     'public' => 'Публичный',
     'special' => 'Специальный',
+    'transit' => 'Переходный',
+    'test' => 'Тестовый',
+    '7800' => '7800',
     'archive' => 'Архивный',
 ];
 $periods = [

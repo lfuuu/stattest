@@ -10,6 +10,7 @@ use DateTime;
 use app\models\TariffVoip;
 use app\models\VoipNumber;
 use app\models\Datacenter;
+use app\classes\behaviors\ActualizeVoipNumber;
 
 /**
  * @property int $id
@@ -32,6 +33,13 @@ class UsageVoip extends ActiveRecord implements Usage
     public static function tableName()
     {
         return 'usage_voip';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'AcctualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
+            ];
     }
 
     public static function find()
