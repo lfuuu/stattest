@@ -29,7 +29,7 @@ use kartik\builder\Form;
     echo Form::widget([
         'model' => $model,
         'form' => $f,
-        'columns' => 3,
+        'columns' => 2,
         'attributeDefaults' => [
             'container' => ['class' => 'col-sm-12'],
             'type' => Form::INPUT_TEXT
@@ -38,35 +38,19 @@ use kartik\builder\Form;
             'contract_type_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => \app\models\ContractType::getList(),
-                'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
-            ],
-            //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],
-            'state' => [
-                'type' => Form::INPUT_RAW,
-                'value' => function () use ($f, $model) {
-                    $res = '<div class="col-sm-12">';
-                    $res .= $f->field($model, 'state')->begin();
-                    $res .= Html::activeLabel($model, 'state', ['class' => 'control-label']); //label
-                    $res .= Html::activeDropDownList(
-                        $model,
-                        'state', $model->model->statusesForChange(),
-                        [
-                            'class' => 'form-control ' . $model->state,
-                        ]
-                    ); //Field
-                    $res .= Html::error($model, 'state', ['class' => 'help-block', 'encode' => false]); //error
-                    $res .= $f->field($model, 'state')->end();
-                    $res .= '</div>';
-                    return $res;
-                },
-            ],
-            'is_external' => [
-                'type' => Form::INPUT_CHECKBOX,
-                'options' => [
-                    'container' => ['style' => 'margin-top: 25px;'],
-                ],
             ],
             'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
+        ],
+    ]);
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 2,
+        'attributeDefaults' => [
+            'container' => ['class' => 'col-sm-12'],
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
             'manager' => [
                 'type' => Form::INPUT_RAW,
                 'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['manager'] . '</label>'
