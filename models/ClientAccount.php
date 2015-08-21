@@ -461,8 +461,9 @@ class ClientAccount extends HistoryActiveRecord
         {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
-
-        define("NO_WEB", 1);
+        if (!defined("NO_WEB"))
+            define("NO_WEB", 1);
+            
         require_once PATH_TO_ROOT . 'conf.php';
 
         if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
