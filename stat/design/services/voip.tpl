@@ -1,4 +1,4 @@
-{if count($voip_conn) || !isset($is_secondary_output)}
+{if count($voip_conn) || count($numbers) || !isset($is_secondary_output)}
     {if !isset($is_secondary_output)}
         <h2>Услуги</h2>
         <h3>IP-телефония</h3>
@@ -11,7 +11,51 @@
     {else}
         <h3><a href='?module=services&action=vo_view'>IP-телефония</a></h3>
     {/if}
-    
+
+    <br />
+    {if count($numbers)}
+        <table class="table table-bordered table-striped table-condensed table-hover">
+            <colgroup>
+                <col width="30%" />
+                <col width="30%" />
+                <col width="30%" />
+            </colgroup>
+            <tr>
+                <th>Номер</th>
+                <th>Группа</th>
+                <th>Состояние</th>
+            </tr>
+            {foreach from=$numbers item=item}
+                <tr>
+                    <td><a href="/usage/number/view?did={$item.number}" target="_blank">{$item.number}</a></td>
+                    <td>{$item.didGroup.name}</td>
+                    <td>
+                        {if ($item.status == 'instock')}
+                            <span style="color: green; font-weight: bold">Свободен</span>
+                        {elseif ($item.status == 'reserved')}
+                            <span style="color: #c40000; font-weight: bold">В резерве</span>
+                            {if $item.reserve_from}
+                                с {$item.reserve_from|mdate:"Y-m-d"}
+                            {/if}
+                            {if $item.reserve_till}
+                                по {$item.reserve_till|mdate:"Y-m-d"}
+                            {/if}
+                        {elseif ($item.status == 'active')}
+                            <span style="color: gray;">Используется</span>
+                        {elseif ($item.status == 'hold')}
+                            <span style="color: blue;">В отстойнике</span>
+                            {if $item.hold_from}
+                                с {$item.hold_from|mdate:"Y-m-d"}
+                            {/if}
+                        {elseif ($item.status == 'notsell')}
+                            <span>Не продается</span>
+                        {/if}
+                    </td>
+                </tr>
+            {/foreach}
+        </table>
+    {/if}
+
     {if isset($is_secondary_output)}
         <table border=0 width=99%>
             <tr>
@@ -99,47 +143,4 @@
             <a href="./?module=services&action=vo_settings_send">Выслать настройки</a>
         </div>
     {/if}
-{/if}
-
-{if count($numbers)}
-    <h2>Услуги</h2>
-    <h3>IP-телефония - Номера</h3>
-
-    <table class="table table-bordered table-striped table-condensed table-hover">
-        <tr>
-            <th>Номер</th>
-            <th>Группа</th>
-            <th>Состояние</th>
-            <th>Клиент</th>
-        </tr>
-        {foreach from=$numbers item=item}
-            <tr>
-                <td><a href="/usage/number/view?did={$item.number}" target="_blank">{$item.number}</a></td>
-                <td>didGroupList[$n['did_group_id']]</td>
-                <td>
-                    {if ($item.status == 'instock')}
-                        <span style="color: green; font-weight: bold">Свободен</span>
-                    {elseif ($item.status == 'reserved')}
-                        <span style="color: #c40000; font-weight: bold">В резерве</span>
-                        {if $item.reserve_from}
-                            {$item.reserve_from} с {$item.reserve_from|mdate:"Y-m-d"}
-                        {/if}
-                        {if $item.reserve_till}
-                            {$item.reserve_till} по substr($item.reserve_till, 0, 10)
-                        {/if}
-                    {elseif ($item.status == 'active')}
-                        <span style="color: gray;">Используется</span>
-                    {elseif ($item.status == 'hold')}
-                        <span style="color: blue;">В отстойнике</span>
-                        {if $item.hold_from}
-                            {$item.hold_from} с substr($item.hold_from, 0, 10)
-                        {/if}
-                    {elseif ($item.status == 'notsell')}
-                        <span>Не продается</span>
-                    {/if}
-                </td>
-                <td><a href="/client/view?id={$item.client_id}" target="_blank">$item.client.name $item.client.company</a></td>
-            </tr>
-        {/foreach}
-    </table>
 {/if}
