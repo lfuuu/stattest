@@ -7,6 +7,7 @@ use app\models\ClientDocument;
 use Yii;
 use app\classes\Singleton;
 use app\models\Contract;
+use app\models\TariffVoip;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -163,7 +164,9 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
-            $data['voip'][] = [
+            $currentTariff = $usage->getCurrentLogTariff();
+
+            $row = [
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
                 'description' => "Телефонный номер: " . $usage->E164,
@@ -175,9 +178,69 @@ class ClientDocumentDao extends Singleton
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2),
                 'month_min_payment' => $usage->currentTariff->month_min_payment,
+                'voip_current_tariff' => [
+                    'minpayment_local_mob' => $currentTariff->minpayment_local_mob,
+                    'minpayment_russia' => $currentTariff->minpayment_russia,
+                    'minpayment_intern' => $currentTariff->minpayment_intern,
+                ],
             ];
+
             if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
                 $data['has8800'] = true;
+
+            if (
+                $currentTariff->id_tarif_local_mob
+                && ($tarifLocalMob = TariffVoip::findOne($currentTariff->id_tarif_local_mob)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifLocalMob */
+                $row['voip_current_tariff']['tarif_local_mob'] = $tarifLocalMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia_mob
+                && ($tarifRussiaMob = TariffVoip::findOne($currentTariff->id_tarif_russia_mob)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifRussiaMob */
+                $row['voip_current_tariff']['tarif_russia_mob'] = $tarifRussiaMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia
+                && ($tarifRussia = TariffVoip::findOne($currentTariff->id_tarif_russia)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifRussia */
+                $row['voip_current_tariff']['tarif_russia'] = $tarifRussia->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_intern
+                && ($tarifIntern = TariffVoip::findOne($currentTariff->id_tarif_intern)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifIntern */
+                $row['voip_current_tariff']['tarif_intern'] = $tarifIntern->name;
+            }
+
+            if ($currentTariff->dest_group != 0 && $currentTariff->minpayment_group) {
+                $group = preg_split('//', $currentTariff->dest_group, -1, PREG_SPLIT_NO_EMPTY);
+                for ($i=0, $s=sizeof($group); $i<$s; $i++) {
+                    switch ($group[$i]) {
+                        case 1:
+                            $row['voip_current_tariff']['minpayment_group_russia'] = $group[$i];
+                            $row['voip_current_tariff']['minpayment_russia'] = $currentTariff->minpayment_group;
+                            break;
+                        case 2:
+                            $row['voip_current_tariff']['minpayment_group_intern'] = $group[$i];
+                            $row['voip_current_tariff']['minpayment_intern'] = $currentTariff->minpayment_group;
+                            break;
+                        case 5:
+                            $row['voip_current_tariff']['minpayment_group_local_mob'] = $group[$i];
+                            $row['voip_current_tariff']['minpayment_local_mob'] = $currentTariff->minpayment_group;
+                            break;
+                    }
+                }
+            }
+
+            $data['voip'][] = $row;
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {

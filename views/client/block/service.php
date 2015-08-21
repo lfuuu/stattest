@@ -9,7 +9,7 @@ $actual = function ($from, $to) {
 
 $renderDate = function ($from, $to) {
     if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
-        return 'Резерв';
+        return 'Не был включен';
     }
 
     $res = $from;
@@ -285,7 +285,7 @@ if ($has) :
                                     }
                                     if (strpos($log->dest_group, '1') === false) {
                                         $tariff = TariffVoip::findOne($log->id_tarif_russia);
-                                        echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0 ? '(' . $log->minpayment_russia . ')' : '');
+                                        echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
                                         $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
                                         echo '/ МГ ' . ($tariff ? $tariff->name : '');
                                     }

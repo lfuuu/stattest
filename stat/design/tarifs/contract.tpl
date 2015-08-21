@@ -359,7 +359,8 @@ $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
     {literal}
 
     document.onready = function() {
-        document.getElementById('contract_template_group').onchange();
+        if (!document.getElementById("contract_template").options.length)
+            document.getElementById('contract_template_group').onchange();
     };
 
     function do_change_template_group(o) {

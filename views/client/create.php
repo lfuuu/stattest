@@ -10,7 +10,7 @@ $contragent->formLang = $language;
 ?>
 <div class="row">
     <div class="col-sm-12">
-        <h2>Создание клиента</h2>
+        <h2>Новый клиент</h2>
 
         <?php $f = ActiveForm::begin(); ?>
 
