@@ -28,7 +28,8 @@ class UsageVoipAddress extends Behavior
             $usage->address = $region->datacenter->address;
             $usage->address_from_datacenter_id = $region->datacenter->id;
         }
-        else {
+
+        if ($usage->address != $region->datacenter->address) {
             $usage->address_from_datacenter_id = null;
         }
     }
