@@ -176,13 +176,13 @@ class ContractEditForm extends Form
 
     public function validate($attributeNames = null, $clearErrors = false)
     {
-        if(!array_key_exists($this->state, $this->getModel()->statusesForChange()))
+        if (!$this->getIsNewRecord() && !array_key_exists($this->state, $this->getModel()->statusesForChange()))
             $this->addError('state', 'Вы не можете менять статус');
 
-        if( !$this->getIsNewRecord() &&  $this->contract_type_id != $this->getModel()->contract_type_id && !Yii::$app->user->can('clients.restatus'))
+        if (!$this->getIsNewRecord() && $this->contract_type_id != $this->getModel()->contract_type_id && !Yii::$app->user->can('clients.restatus'))
             $this->addError('state', 'Вы не можете менять тип договора');
 
-        if(
+        if (
             ($this->business_process_id != $this->getModel()->business_process_id || $this->business_process_status_id != $this->getModel()->business_process_status_id)
             && !Yii::$app->user->can('clients.restatus')
         )
@@ -190,7 +190,7 @@ class ContractEditForm extends Form
 
         if ($this->contract->attributes['state'] !== $this->state && $this->state != 'unchecked') {
             $contragent = ClientContragent::findOne($this->contragent_id);
-            if(!$contragent->getIsNewRecord())
+            if (!$contragent->getIsNewRecord())
                 $contragent->hasChecked = true;
             if (!$contragent->validate()) {
                 if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
