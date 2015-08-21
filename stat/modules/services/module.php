@@ -742,7 +742,7 @@ class m_services extends IModule{
                     $r['logTarif']->id_tarif_intern
                     && ($tarifIntern = TariffVoip::findOne($r['logTarif']->id_tarif_intern)) instanceof TariffVoip
                 ) {
-                    $r['tarifs']['inter'] = $tarifIntern;
+                    $r['tarifs']['intern'] = $tarifIntern;
                 }
 
                 $r['cpe'] = get_cpe_history('usage_voip',$r['id']);
