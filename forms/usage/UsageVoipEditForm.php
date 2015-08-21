@@ -72,6 +72,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $actualFrom = $this->connecting_date;
 
+        /*
         if ($tariffMain->is_testing) {
             $actualTo = new DateTime($this->connecting_date, $this->timezone);
             $actualTo->modify('+10 days');
@@ -79,6 +80,8 @@ class UsageVoipEditForm extends UsageVoipForm
         } else {
             $actualTo = Usage::MAX_POSSIBLE_DATE;
         }
+         */
+        $actualTo = Usage::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -112,13 +115,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $usage->save();
 
             $this->saveTariff($usage, $this->connecting_date);
-
-            if ($usage->type_id == 'number') {
-                Number::dao()->actualizeStatusByE164($usage->E164);
-            }
-
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -170,10 +166,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
 
             $this->usage->save();
-
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -559,11 +551,6 @@ class UsageVoipEditForm extends UsageVoipForm
             foreach ($nextHistoryItems as $nextHistoryItem) {
                 $nextHistoryItem->delete();
             }
-
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('update_phone_product', ['account_id' => $this->usage->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {

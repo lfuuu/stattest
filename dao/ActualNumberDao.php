@@ -10,8 +10,17 @@ use app\models\ActualNumber;
  */
 class ActualNumberDao extends Singleton
 {
-    public function collectFromUsages($number = null)
+    public function collectFromUsages($number = null, $clientId = null)
     {
+        $params = [];
+
+        if ($number)
+            $params[":number"] = $number;
+
+        if ($clientId)
+            $params[":client_id"] = $clientId;
+
+
         $data = ActualNumber::getDb()->createCommand("
 
             SELECT 
@@ -43,7 +52,7 @@ class ActualNumberDao extends Singleton
                             u.region,
                             u.id as usage_id,
                             #IFNULL((SELECT an.id FROM usage_voip u7800, actual_number an WHERE u7800.id = u.line7800_id and an.number = u7800.e164), 0) AS line7800_id,
-                            IFNULL((SELECT block FROM log_block WHERE id= (SELECT MAX(id) FROM log_block WHERE service='usage_voip' AND id_service=u.id)), 0) AS is_blocked,
+                            c.is_blocked AS is_blocked,
                             IFNULL((
                                 SELECT 
                                     is_virtual 
@@ -66,12 +75,13 @@ class ActualNumberDao extends Singleton
                             AND ((c.status in ('negotiations','work','connecting','testing')) or c.id = 9130 or ct.business_process_status_id in (8, 9, 19))
                             AND LENGTH(e164) > 3
                             ".($number ? "and e164 = :number" : "")."
+                            ".($clientId ? "and c.id = :client_id" : "")."
                         ORDER BY u.id
                     )a
                 WHERE e164 NOT LIKE '7800%'
                 )a
             )a
-                    ", ($number ? [":number" => $number] : []))->queryAll();
+                    ", $params)->queryAll();
 
         $d = array();
         foreach($data as $l)
@@ -81,8 +91,16 @@ class ActualNumberDao extends Singleton
 
     }
 
-    public function loadSaved($number = null)
+    public function loadSaved($number = null, $clientId = null)
     {
+        $params = [];
+
+        if ($number)
+            $params[":number"] = $number;
+
+        if ($clientId)
+            $params[":client_id"] = $clientId;
+
         $data = ActualNumber::getDb()->createCommand("
                 SELECT 
                     client_id, number, region, call_count, 
@@ -92,7 +110,8 @@ class ActualNumberDao extends Singleton
                     actual_number a
                 WHERE number not like '7800%'
                 ".($number ? "and number = :number" : "")."
-                ORDER BY id", [":number" => $number])->queryAll();
+                ".($clientId ? "and client_id = :client_id" : "")."
+                ORDER BY id", $params)->queryAll();
 
         $d = array();
         foreach($data as $l)

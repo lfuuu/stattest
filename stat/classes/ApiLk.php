@@ -959,7 +959,10 @@ class ApiLk
                 LEFT JOIN clients c ON (c.id = a.client_id)
                 HAVING status IN ('free')
             ")
-                ->queryAll();
+            ->queryAll();
+
+        $skipFrom = 1;
+        $areaLen = 3;
         
         foreach($numbers as $number)
         {

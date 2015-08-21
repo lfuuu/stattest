@@ -217,6 +217,7 @@ class ClientAccount extends HistoryActiveRecord
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'ActaulizeClientVoip' => \app\classes\behaviors\ActaulizeClientVoip::className()
         ];
     }
 
@@ -461,6 +462,7 @@ class ClientAccount extends HistoryActiveRecord
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
 
+        define("NO_WEB", 1);
         require_once PATH_TO_ROOT . 'conf.php';
 
         if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
