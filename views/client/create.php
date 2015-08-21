@@ -46,3 +46,4 @@ $contragent->formLang = $language;
 
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
 <script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>
+<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
