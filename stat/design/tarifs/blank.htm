@@ -333,39 +333,56 @@
                 <p><span>Международные вызовы</span></p>
             </td>
         </tr>
-        <tr>
-            <td>
-                <p><span>Выбор тарифного плана</span></p>
-            </td>
-            <td>
-                <p><span>{$blank_data.voip_current_tariff.tarif_local_mob}</span></p>
-            </td>
-            <td>
-                <p><span>{$blank_data.voip_current_tariff.tarif_russia_mob}</span></p>
-            </td>
-            <td>
-                <p><span>{$blank_data.voip_current_tariff.tarif_russia}</span></p>
-            </td>
-            <td>
-                <p><span>{$blank_data.voip_current_tariff.tarif_intern}</span></p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p><span>Минимальный гарантированный платеж, руб./мес.</span></p>
-            </td>
-            <td>
-                <p><span></span></p>
-            </td>
-            <td>
-                <p><span></span></p>
-            </td>
-            <td>
-                <p><span></span></p>
-            </td>
-            <td>
-                <p><span></span></p>
-            </td>
-        </tr>
+        {foreach from=$blank_data.voip item=i}
+            {assign var="minpayment" value=$i.voip_current_tariff.minpayment_local_mob+$i.voip_current_tariff.minpayment_russia+$i.voip_current_tariff.minpayment_intern}
+            <tr>
+                <td>
+                    <p><span>{$i.number}</span></p>
+                </td>
+                <td>
+                    <p><span>{$i.voip_current_tariff.tarif_local_mob}</span></p>
+                </td>
+                <td>
+                    <p><span>{$i.voip_current_tariff.tarif_russia_mob}</span></p>
+                </td>
+                <td>
+                    <p><span>{$i.voip_current_tariff.tarif_russia}</span></p>
+                </td>
+                <td>
+                    <p><span>{$i.voip_current_tariff.tarif_intern}</span></p>
+                </td>
+            </tr>
+            {if $minpayment}
+                <tr>
+                    <td>
+                        <p><span>Минимальный гарантированный платеж, руб./мес.</span></p>
+                    </td>
+                    <td>
+                        <p><span>
+                            {if $i.voip_current_tariff.minpayment_group_local_mob}Набор:{/if}
+                            {$i.voip_current_tariff.minpayment_local_mob}
+                        </span></p>
+                    </td>
+                    <td>
+                        <p><span>
+                            {if $i.voip_current_tariff.minpayment_group_russia}Набор:{/if}
+                            {$i.voip_current_tariff.minpayment_russia}
+                        </span></p>
+                    </td>
+                    <td>
+                        <p><span>
+                            {if $i.voip_current_tariff.minpayment_group_russia}Набор:{/if}
+                            {$i.voip_current_tariff.minpayment_russia}
+                        </span></p>
+                    </td>
+                    <td>
+                        <p><span>
+                            {if $i.voip_current_tariff.minpayment_group_intern}Набор:{/if}
+                            {$i.voip_current_tariff.minpayment_intern}
+                        </span></p>
+                    </td>
+                </tr>
+            {/if}
+        {/foreach}
     </table>
 {/if}
