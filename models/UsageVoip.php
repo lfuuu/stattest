@@ -34,19 +34,13 @@ class UsageVoip extends ActiveRecord implements Usage
     {
         return [
             'UsageVoipAddress' => \app\classes\behaviors\UsageVoipAddress::className(),
+            'AcctualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
         ];
     }
 
     public static function tableName()
     {
         return 'usage_voip';
-    }
-
-    public function behaviors()
-    {
-        return [
-            'AcctualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
-            ];
     }
 
     public static function find()
