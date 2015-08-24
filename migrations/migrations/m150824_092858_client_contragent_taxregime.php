@@ -35,6 +35,6 @@ class m150824_092858_client_contragent_taxregime extends \app\classes\Migration
     {
         echo "m150824_092858_client_contragent_taxregime cannot be reverted.\n";
 
-        return true;
+        return false;
     }
 }
