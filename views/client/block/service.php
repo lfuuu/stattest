@@ -1,6 +1,7 @@
 <?php
 use app\models\TechCpe;
 use yii\helpers\Html;
+use app\models\TariffVoip;
 
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
@@ -8,7 +9,7 @@ $actual = function ($from, $to) {
 
 $renderDate = function ($from, $to) {
     if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
-        return 'Резерв';
+        return 'Не был включен';
     }
 
     $res = $from;
@@ -225,6 +226,18 @@ if ($has) :
                     <table class="table table-condensed">
                         <tbody>
                         <?php foreach ($services['voip'] as $service): ?>
+                            <?php
+                            /** @var TariffVoip $currentTariff */
+                            /** @var \app\models\LogTarif $log */
+                            $currentTariff = $log = null;
+                            if (!($currentTariff = $service->currentTariff)) {
+                                $log = $service->getCurrentLogTariff($service->actual_from);
+                                $currentTariff = TariffVoip::findOne($log->id_tarif);
+                            }
+                            else {
+                                $log = $service->currentLogTariff;
+                            }
+                            ?>
                             <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                                 <td width="10%">
                                     <a href="/usage/voip/edit?id=<?= $service->id ?>"
@@ -249,13 +262,9 @@ if ($has) :
                                     </a>
                                 </td>
                                 <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
-                                <td style="font-size: 8pt;"><?= $service->currentTariff->name ?>
-                                    (<?= $service->currentTariff->month_line ?>
-                                    -<?= $service->currentTariff->month_number ?>
-                                    )
+                                <td style="font-size: 8pt;">
+                                    <?= $currentTariff->name ?> (<?= $currentTariff->month_line . '-' . $currentTariff->month_number ?>)
                                     <?php
-                                    $log = $service->currentLogTariff;
-
                                     if ($log->dest_group != '0') {
                                         echo '/ Набор:';
                                         if (strpos($log->dest_group, '5') !== false)
@@ -268,17 +277,22 @@ if ($has) :
                                             echo ' СНГ';
                                         echo $log->minpayment_group;
                                     }
-                                    if (strpos($log->dest_group, '5') !== false)
-                                        echo '/ Моб ' . $log->tarif_local_mob_name . ($log->minpayment_local_mob > 0) ? '(' . $log->minpayment_local_mob . ')' : '';
-                                    if (strpos($log->dest_group, '1') !== false)
-                                        echo '/ МГ ' . $log->tarif_russia_name . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
-                                    if (strpos($log->dest_group, '1') !== false)
-                                        echo '/ МГ ' . $log->tarif_russia_mob_name . $log->tarif_russia_mob_name;
-                                    if (strpos($log->dest_group, '2') !== false)
-                                        echo '/ МН' . $log->tarif_intern_name . ($log->minpayment_intern > 0) ? '(' . $log->minpayment_intern . ')' : '';
-                                    if (strpos($log->dest_group, '3') !== false)
-                                        echo '/ СНГ' . $log->tarif_sng_name . ($log->minpayment_sng > 0) ? '(' . $log->minpayment_sng . ')' : '';
-
+                                    /** @var TariffVoip $tariff */
+                                    $tariff = null;
+                                    if (strpos($log->dest_group, '5') === false) {
+                                        $tariff = TariffVoip::findOne($log->id_tarif_local_mob);
+                                        echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($log->minpayment_local_mob > 0 ? '(' . $log->minpayment_local_mob . ')' : '');
+                                    }
+                                    if (strpos($log->dest_group, '1') === false) {
+                                        $tariff = TariffVoip::findOne($log->id_tarif_russia);
+                                        echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
+                                        $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
+                                        echo '/ МГ ' . ($tariff ? $tariff->name : '');
+                                    }
+                                    if (strpos($log->dest_group, '2') === false) {
+                                        $tariff = TariffVoip::findOne($log->id_tarif_intern);
+                                        echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
+                                    }
                                     ?>
                                 </td>
                             </tr>

@@ -117,15 +117,10 @@ use app\models\Currency;
             'empty32' => ['type' => Form::INPUT_RAW,],
             'empty33' => ['type' => Form::INPUT_RAW,],
 
-            'custom_properties' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
+            'empty35' => ['type' => Form::INPUT_RAW, 'columnOptions' => ['colspan' => 2],],
             'bank_city' => ['columnOptions' => ['colspan' => 2], 'options' => ['disabled' => 'disabled']],
-            'empty35' => ['type' => Form::INPUT_RAW,],
             'empty36' => ['type' => Form::INPUT_RAW,],
-
-            'bank_properties' => ['type' => Form::INPUT_TEXTAREA,'columnOptions' => ['colspan' => 4], 'options' => ['disabled' => 'disabled']],
-            'empty36' => ['type' => Form::INPUT_RAW,],
-            'empty36' => ['type' => Form::INPUT_RAW,],
-            'empty36' => ['type' => Form::INPUT_RAW,],
+            'empty37' => ['type' => Form::INPUT_RAW,],
         ],
     ]);
     ?>

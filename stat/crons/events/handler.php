@@ -111,6 +111,10 @@ function do_events()
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                         break;
 
+                    case 'actualize_client':
+                        ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
+                        break;
+
                     case 'update_phone_product':
                         SyncCore::checkProductState('phone', $param['account_id']);
                         break;

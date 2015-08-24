@@ -72,6 +72,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $actualFrom = $this->connecting_date;
 
+        /*
         if ($tariffMain->is_testing) {
             $actualTo = new DateTime($this->connecting_date, $this->timezone);
             $actualTo->modify('+10 days');
@@ -79,11 +80,11 @@ class UsageVoipEditForm extends UsageVoipForm
         } else {
             $actualTo = Usage::MAX_POSSIBLE_DATE;
         }
+         */
+        $actualTo = Usage::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-
-        $city = City::findOne($this->city_id);
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -96,14 +97,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->E164 = $this->did;
         $usage->no_of_lines = $this->no_of_lines;
         $usage->status = $this->status;
-        if (!$this->address) {
-            $usage->address = $city->region->datacenter->address;
-            $usage->address_from_datacenter_id = $city->region->datacenter->id;
-        }
-        else {
-            $usage->address = $this->address;
-            $usage->address_from_datacenter_id = null;
-        }
+        $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -121,13 +115,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $usage->save();
 
             $this->saveTariff($usage, $this->connecting_date);
-
-            if ($usage->type_id == 'number') {
-                Number::dao()->actualizeStatusByE164($usage->E164);
-            }
-
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -150,22 +137,13 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
-        $region = Region::findOne($this->usage->region);
-
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
         $this->usage->actual_from = $actualFrom;
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
-        if (!$this->address) {
-            $this->usage->address = $region->datacenter->address;
-            $this->usage->address_from_datacenter_id = $region->datacenter->id;
-        }
-        else {
-            $this->usage->address = $this->address;
-            $this->usage->address_from_datacenter_id = null;
-        }
+        $this->usage->address = $this->address;
         $this->usage->allowed_direction = $this->allowed_direction;
         $this->usage->no_of_lines = $this->no_of_lines;
 
@@ -188,10 +166,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
 
             $this->usage->save();
-
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -250,7 +224,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $line7800->E164;
             }
 
-            $currentTariff = $usage->getCurrentLogTariff();
+            if (!($currentTariff = $usage->getCurrentLogTariff()))
+                $currentTariff = $usage->getCurrentLogTariff($usage->actual_from);
 
             if ($currentTariff) {
                 $this->tariff_main_id = $currentTariff->id_tarif;
@@ -577,11 +552,6 @@ class UsageVoipEditForm extends UsageVoipForm
             foreach ($nextHistoryItems as $nextHistoryItem) {
                 $nextHistoryItem->delete();
             }
-
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('update_phone_product', ['account_id' => $this->usage->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
