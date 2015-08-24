@@ -1,9 +1,11 @@
 <?php
 namespace app\commands;
 
-use app\models\Number;
 use Yii;
+use DateTime;
 use yii\console\Controller;
+use app\models\Number;
+use app\models\UsageVoip;
 
 
 class NumberController extends Controller
@@ -31,6 +33,30 @@ class NumberController extends Controller
             Number::dao()->stopHold($number);
             echo $number->number . " unholded\n";
         }
+    }
 
+    public function actionActualizeNumbersByUsages()
+    {
+        $today = new DateTime("now");
+        $yesterday = (new DateTime("now"))->modify("-1 day");
+        $usages = UsageVoip::find()->andWhere(
+            ["or", 
+                [
+                    "=", 
+                    "actual_from", 
+                    $today->format("Y-m-d")
+                ], 
+                [
+                    "=",
+                    "actual_to",
+                    $yesterday->format("Y-m-d")
+                ]
+            ])->all();
+
+        foreach($usages as $usage) {
+
+            Number::dao()->actualizeStatusByE164($usage->E164);
+            echo $today->format("Y-m-d").": ".$usage->E164."\n";
+        }
     }
 }
