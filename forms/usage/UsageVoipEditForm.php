@@ -517,12 +517,11 @@ class UsageVoipEditForm extends UsageVoipForm
                                         dest_group,minpayment_group,
                                         minpayment_local_mob,minpayment_russia,minpayment_intern
                                     ) VALUES '.
-            '("'.$service.'",'.$id.','.Yii::$app->user->id.',NOW(),"'.addslashes($dateActivation).'","",'.
+            '("'.$service.'",'.$id.',"'.(Yii::$app->user->id?:0).'",NOW(),"'.addslashes($dateActivation).'","",'.
             intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
             intval($dest_group).','.intval($minpayment_group).','.
             intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
-
     }
 
     private function setDisconnectionDate()
