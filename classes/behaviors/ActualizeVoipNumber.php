@@ -13,7 +13,7 @@ class ActualizeVoipNumber extends Behavior
     {
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => "actualizeNumberBeforeAdd",
-            ActiveRecord::EVENT_BEFORE_UPDATE => "actualizeNumberBeforeUpdate"
+            ActiveRecord::EVENT_AFTER_UPDATE => "actualizeNumberBeforeUpdate"
         ];
     }
 
@@ -24,8 +24,11 @@ class ActualizeVoipNumber extends Behavior
 
     public function actualizeNumberBeforeUpdate($event)
     {
-        if ($event->changedAttributes)
-        {
+        if (
+            isset($event->changedAttributes['E164'])
+                &&
+            $event->changedAttributes['E164'] != $event->sender->E164
+        ) {
             Event::go('actualize_number', ['number' => $event->sender->E164]);
         }
     }
