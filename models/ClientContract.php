@@ -49,6 +49,7 @@ class ClientContract extends HistoryActiveRecord
             'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
         ];
     }
 
@@ -78,19 +79,23 @@ class ClientContract extends HistoryActiveRecord
 
     public function getBusinessProcess()
     {
-        $m = $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id'])->one();
-        return ($m) ? $m->name : $this->business_process_id;
+        /** @var BusinessProcess $model */
+        $model = $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id'])->one();
+        return ($model ? $model->name : $this->business_process_id);
     }
 
     public function getContractType()
     {
-        $m = ContractType::findOne($this->contract_type_id);
-        return $m ? $m->name : $this->contract_type_id;
+        /** @var ContractType $model */
+        $model = ContractType::findOne($this->contract_type_id);
+        return ($model ? $model->name : $this->contract_type_id);
     }
 
     public function getBusinessProcessStatus()
     {
-        return BusinessProcessStatus::findOne($this->business_process_status_id);
+        /** @var BusinessProcessStatus $model */
+        $model = BusinessProcessStatus::findOne($this->business_process_status_id);
+        return ($model ? $model->name : $this->business_process_status_id);
     }
 
     /**

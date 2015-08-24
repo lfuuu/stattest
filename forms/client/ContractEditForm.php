@@ -111,16 +111,6 @@ class ContractEditForm extends Form
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
-    public function getCurrentContractType()
-    {
-        return ContractType::findOne($this->contract_type_id);
-    }
-
-    public function getCurrentBusinessProcess()
-    {
-        return BusinessProcess::findOne($this->business_process_id);
-    }
-
     public function getCurrentBusinessProcessStatus()
     {
         return BusinessProcessStatus::findOne($this->business_process_status_id);
@@ -144,36 +134,6 @@ class ContractEditForm extends Form
             if ($this->comment) {
                 $comment = new ClientContractComment();
                 $comment->comment = $this->comment;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
-                $comment->contract_id = $this->id;
-                $comment->save();
-            }
-
-            if ($contract->contract_type_id != $this->contract_type_id) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_CONTRACT_TYPE . $this->currentContractType->name;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
-                $comment->contract_id = $this->id;
-                $comment->save();
-            }
-
-            if ($contract->business_process_id != $this->business_process_id) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS . $this->currentBusinessProcess->name;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
-                $comment->contract_id = $this->id;
-                $comment->save();
-            }
-
-            if ($contract->business_process_status_id != $this->business_process_status_id) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS_STATUS . $this->currentBusinessProcessStatus->name;
                 $comment->user = Yii::$app->user->identity->user;
                 $comment->ts = date('Y-m-d H:i:s');
                 $comment->is_publish = 0;

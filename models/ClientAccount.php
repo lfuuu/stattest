@@ -217,6 +217,7 @@ class ClientAccount extends HistoryActiveRecord
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
         ];
     }
 

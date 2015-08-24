@@ -624,13 +624,6 @@ class ClientAccountDao extends Singleton
         if ($clientAccount->is_active != $newIsActive) {
             $clientAccount->is_active = $newIsActive;
             $clientAccount->save();
-
-            $cs = new ClientContractComment();
-
-            $cs->ts = date("Y-m-d H:i:s");
-            $cs->contract_id = $clientAccount->contract_id;
-            $cs->user = \Yii::$app->user->getIdentity()->user;
-            $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
 
