@@ -95,7 +95,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->type_id = $this->type_id;
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;
-        $usage->no_of_lines = $this->no_of_lines;
+        $usage->no_of_lines = (int) $this->no_of_lines;
         $usage->status = $this->status;
         $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
@@ -145,7 +145,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->status = $this->status;
         $this->usage->address = $this->address;
         $this->usage->allowed_direction = $this->allowed_direction;
-        $this->usage->no_of_lines = $this->no_of_lines;
+        $this->usage->no_of_lines = (int) $this->no_of_lines;
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(Usage::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
