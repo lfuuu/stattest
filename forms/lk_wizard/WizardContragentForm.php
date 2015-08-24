@@ -21,7 +21,7 @@ class WizardContragentForm extends Form
         $kpp = "",
         $position = "",
         $fio = "",
-        $tax_regime = 1,
+        $tax_regime = 'russia_full_price_vat',
         $opf_id = 0,
         $okpo = "",
         $okvd = "",
