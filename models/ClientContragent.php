@@ -20,8 +20,8 @@ class ClientContragent extends HistoryActiveRecord
 
     public static $taxRegtimeTypes = [
         self::TAX_REGTIME_UNDEFINED => 'Не определен',
-        self::TAX_REGTIME_RUSSIA_FULL_WITH_PRICE_VAT => 'Полный (НДС 18%)',
-        self::TAX_REGTIME_WITHOUT_PRICE_VAT => 'Без НДС',
+        self::TAX_REGTIME_RUSSIA_FULL_WITH_PRICE_VAT => 'Общая система налогообложения (ОСН)',
+        self::TAX_REGTIME_WITHOUT_PRICE_VAT => 'Упрощенная система налогообложения (УСН)',
     ];
 
     public static function tableName()
