@@ -3,6 +3,9 @@
 use app\classes\Event;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
+use app\models\TariffVoip;
+use app\models\TariffNumber;
+use app\forms\usage\UsageVoipEditForm;
 
 class VoipReservNumber
 {
@@ -15,10 +18,13 @@ class VoipReservNumber
         if ($tarifId !== null)
             $tarifId = $db->escape($tarifId);
 
-        $region = $db->GetValue("select region from voip_numbers where number = '".$number."'");
+        $voipNumber = $db->GetRow("select region,city_id,did_group_id from voip_numbers where number = '".$number."'");
 
-        if (!$region)
+        if (!$voipNumber)
             throw new Exception("Номер не найден");
+
+        $region = $voipNumber["region"];
+
 
 
         $u = $db->GetValue("select id from usage_voip where 
@@ -32,7 +38,6 @@ class VoipReservNumber
 
 
         $client = ClientAccount::findOne(["id" => $clientId]);
-
 
         if (!$client)
             throw new Exception("Клиент не найден");
@@ -48,6 +53,7 @@ class VoipReservNumber
             throw new Exception("Тариф не найден");
 
 
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             //Создаем запись услуги
@@ -56,45 +62,26 @@ class VoipReservNumber
             $form->initModel($client);
 
             $form->tariff_main_id = $tarifId;
-
             $form->connecting_date = ($isForceStart ? date("Y-m-d") : "4000-01-01");
-            $form->connection_point_id = $region;
-
             $form->did = $number;
-            $from->no_of_lines = $lineCount;
-            $form->status      = "connecting";
+            $form->no_of_lines = $lineCount;
 
-            if (!$model->validate() || $model->add()) 
+            $form->prepareAdd();
+
+            if (!$form->validate() || !$form->add()) 
             {
                 if ($form->errors)
                 {
-                    throw new Exception($form->errors[0], 500);
+                    \Yii::error($form);
+                    $errorKeys = array_keys($form->errors);
+                    throw new Exception($form->errors[$errorKeys[0]], 500);
                 } else {
                     throw new Exception("Unknown error", 500);
                 }
             }
 
             $usageVoipId = $form->id;
-/*
-            //Создаем запись тарифов
-            $db->QueryInsert("log_tarif", array(
-                "service"             => "usage_voip",
-                "id_service"          => $usageVoipId,
-                "id_tarif"            => $tarifId,
-                "id_tarif_local_mob"  => $tarif['id_tarif_local_mob'],
-                "id_tarif_russia"     => $tarif['id_tarif_russia'],
-                "id_tarif_russia_mob" => $tarif['id_tarif_russia'],
-                "id_tarif_intern"     => $tarif['id_tarif_intern'],
-                "ts"                  => array("NOW()"),
-                "date_activation"     => array("NOW()"),
-                "dest_group"          => '0',
-                "minpayment_group"    => '0',
-                "minpayment_local_mob"=> '0',
-                "minpayment_russia"   => '0',
-                "minpayment_intern"   => '0',
-            )
-        );
-*/
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -128,7 +115,7 @@ class VoipReservNumber
                 status='public' and
                 connection_point_id='".$regionId."' and
                 currency_id='".$currency."'
-            " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
+            " . (($regionId == '99') ? "AND name LIKE('%Базовый%')" : '')
         );
         foreach ($tarifs as $r) {
             switch ($r['dest']) {

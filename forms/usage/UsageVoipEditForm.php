@@ -560,4 +560,58 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    public function prepareAdd()
+    {
+        if ($this->did)
+        {
+            $this->type_id = "number";
+
+            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
+                $this->type_id = "line";
+            } else if (substr($this->did, 0, 4) == "7800") {
+                $this->type_id = "7800";
+            }
+
+            if ($this->type_id != "number")
+            {
+                $this->number_tariff_id = null;
+            } else {
+                $number = Number::findOne(["number" => $this->did]);
+
+                if ($number)
+                {
+                    $tarifNumber = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
+
+                    if ($tarifNumber)
+                    {
+                        $this->connection_point_id = $number->region;
+                        $this->number_tariff_id = $tarifNumber->id;
+                        $this->city_id = $number->city_id;
+                    } else {
+                        $this->did = null;
+                    }
+                } else {
+                    $this->did = null;
+                }
+            }
+        }
+
+        if (!$this->connecting_date)
+            $this->connecting_date = date("Y-m-d");
+
+        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id)
+        {
+            $whereTariffVoip = [
+                "status"              => "public", 
+                "connection_point_id" => $this->connection_point_id, 
+                "currency_id"         => $this->clientAccount->currency
+            ];
+
+            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
+            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
+            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
+            $this->tariff_russia_mob_id = $this->tariff_russia_id;
+        }
+    }
+
 }
