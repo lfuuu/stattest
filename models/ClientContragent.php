@@ -10,14 +10,18 @@ class ClientContragent extends HistoryActiveRecord
     const PERSON_TYPE = 'person';
     const IP_TYPE = 'ip';
 
+    const TAX_REGTIME_UNDEFINED = 'undefined';
+    const TAX_REGTIME_RUSSIA_FULL_WITH_PRICE_VAT = 'russia_full_price_vat';
+    const TAX_REGTIME_WITHOUT_PRICE_VAT = 'without_price_vat';
+
     public $cPerson = null;
     public $historyVersionDate = null;
     public $hasChecked;
 
     public static $taxRegtimeTypes = [
-        '0' => 'Не определен',
-        '1' => 'Полный (НДС 18%)',
-        '2' => 'Без НДС',
+        self::TAX_REGTIME_UNDEFINED => 'Не определен',
+        self::TAX_REGTIME_RUSSIA_FULL_WITH_PRICE_VAT => 'Полный (НДС 18%)',
+        self::TAX_REGTIME_WITHOUT_PRICE_VAT => 'Без НДС',
     ];
 
     public static function tableName()
