@@ -76,9 +76,9 @@ function do_events()
                                      NewBill::setLkShowForAll();
                                  }
                                  if(WorkDays::isWorkDayFromMonthEnd(time(), 4)) { //за 4 дня предупреждаем о списании абонентки аваносовым клиентам
-                                     $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
-                                     echo " exec: ".$execStr;
-                                     exec($execStr);
+                                     //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                                     //echo " exec: ".$execStr;
+                                     //exec($execStr);
                                  }
                                  Bill::cleanOldPrePayedBills(); echo "... clear prebilled bills";
                                  EventQueue::clean();echo "...EventQueue::clean()";
