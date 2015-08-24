@@ -42,16 +42,10 @@ class VoipReservNumber
         if (!$client)
             throw new Exception("Клиент не найден");
 
-        $tarif = self::getDefaultTarif($region, $client->currency);
+        $tarifId = self::getDefaultTarifId($region, $client->currency);
 
-        if ($tarifId === null)
-            $tarifId = $tarif['id_tarif'];
-        
-        $tarif = $db->GetRow("select * from tarifs_voip where id = '".$tarifId."' and connection_point_id = '".$region."'");
-
-        if (!$tarif)
+        if (!$tarifId)
             throw new Exception("Тариф не найден");
-
 
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -92,56 +86,24 @@ class VoipReservNumber
 
     }
 
-    private static function getDefaultTarif($regionId, $currency)
+    private static function getDefaultTarifId($regionId, $currency)
     {
         global $db;
 
 
-        $def = array(
-            'id_tarif_local_mob'=>0,
-            'id_tarif_russia'=>0,
-            'id_tarif_intern'=>0,
-            'id_tarif'=>0
-        );
+        $tarifId = $db->GetValue("select id from tarifs_voip where status='test' and connection_point_id = '".$regionId."' and currency_id='".$currency."'");
 
-        $def["id_tarif"] = $db->GetValue("select id from tarifs_voip where status='test' and connection_point_id = '".$regionId."' and currency_id='".$currency."'");
-
-        $tarifs = $db->AllRecords($q = "
-            select
-                id, dest
-            from
-                tarifs_voip
-            where
-                status='public' and
-                connection_point_id='".$regionId."' and
-                currency_id='".$currency."'
-            " . (($regionId == '99') ? "AND name LIKE('%Базовый%')" : '')
-        );
-        foreach ($tarifs as $r) {
-            switch ($r['dest']) {
-                case '1':
-                    $def['id_tarif_russia'] = $r['id'];break;
-                case '2':
-                    $def['id_tarif_intern'] = $r['id'];break;
-                case '5':
-                    $def['id_tarif_local_mob'] = $r['id'];break;
-            }
-        }
-
-        foreach($def as $v)
+        if (!$tarifId)
         {
-            if (!$v)
+            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
             {
-                if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
-                {
-                    mail(ADMIN_EMAIL, "VoipReservNumber", "Тариф не установлен. region: ".$regionId. ", currency: ".$currency);
-                }
-
-                throw new Exception("Тариф не установлен");
+                mail(ADMIN_EMAIL, "VoipReservNumber", "Тариф не установлен. region: ".$regionId. ", currency: ".$currency);
             }
+
+            throw new Exception("Тариф не установлен");
         }
 
 
-        return $def;
+        return $tarifId;
     }
 }
