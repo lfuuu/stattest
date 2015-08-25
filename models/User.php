@@ -55,6 +55,10 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             'trouble_redirect' => 'Перенаправление траблов',
             'photo' => 'Фотография',
             'show_troubles_on_every_page' => 'Показывать заявки на каждой странице',
+
+            'password' => 'Пароль',
+            'passwordRepeat' => 'Повтор пароля',
+            'passwordCurrent' => 'Старый пароль (для подтверждения)',
         ];
     }
 
