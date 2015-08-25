@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers;
+namespace app\controllers\user;
 
 use Yii;
 use yii\web\Response;

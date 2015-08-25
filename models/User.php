@@ -37,6 +37,25 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return new UserQuery(get_called_class());
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'user' => 'Логин',
+            'name' => 'Полное имя',
+            'language' => 'Язык',
+            'city_id' => 'Город',
+            'usergroup' => 'Группа',
+            'depart_id' => 'Отдел',
+            'email' => 'E-mail',
+            'phone_work' => 'Внутренний номер (логин в comcenter)',
+            'phone_mobile' => 'Мобильный телефон',
+            'icq' => 'ICQ',
+            'trouble_redirect' => 'Перенаправление траблов',
+            'photo_file_name' => 'Фотография',
+            'show_troubles_on_every_page' => 'Показывать заявки на каждой странице',
+        ];
+    }
+
     public static function findIdentity($id)
     {
         return static::findOne(['id' => $id, 'enabled' => 'yes']);

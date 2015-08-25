@@ -2,6 +2,7 @@
 
 namespace app\classes;
 
+use Yii;
 use app\models\Country;
 
 class Language
@@ -11,19 +12,19 @@ class Language
     public static function setCurrentLanguage($lang = null)
     {
         if (!self::languageExists($lang)) {
-            if (\Yii::$app->session->has('language') && self::languageExists(\Yii::$app->session->get('language')))
-                $lang = \Yii::$app->session->get('language');
+            if (Yii::$app->session->has('language') && self::languageExists(Yii::$app->session->get('language')))
+                $lang = Yii::$app->session->get('language');
             else
                 $lang = static::DEFAULT_LANGUAGE;
         }
 
-        \Yii::$app->session->set('language', $lang);
+        Yii::$app->session->set('language', $lang);
         self::setAppLanguage($lang);
     }
 
     public static function getCurrentLanguage()
     {
-        return \Yii::$app->language;
+        return Yii::$app->language;
     }
 
     public static function getLanguageByCountryId($id)
@@ -46,6 +47,6 @@ class Language
 
     private static function setAppLanguage($lang)
     {
-        \Yii::$app->language = $lang;
+        Yii::$app->language = $lang;
     }
 }
