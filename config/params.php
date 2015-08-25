@@ -14,4 +14,5 @@ return [
     'SIGNATURE_DIR' => '/images/signature/',
     'STAMP_DIR' => '/images/stamp/',
     'ORGANIZATION_LOGO_DIR' => '/images/logo/',
+    'USER_PHOTO_DIR' => '/images/users/',
 ];

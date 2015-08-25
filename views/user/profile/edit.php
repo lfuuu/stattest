@@ -1,10 +1,10 @@
-<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
-
 <?php
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use kartik\file\FileInput;
 use yii\helpers\Html;
+use app\helpers\MediaFileHelper;
 use app\models\Language;
 use app\models\City;
 
@@ -12,14 +12,28 @@ use app\models\City;
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
+    'options' => ['enctype'=>'multipart/form-data'],
 ]);
 
 $cities = ['' => '-- Выберите город --'];
 foreach (City::find()->orderBy('country_id desc')->all() as $city) {
     $cities[ $city->id ] = $city->country->name . ' / ' . $city->name;
 }
+
+$photoPreview = [];
+if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $model->id . '.' . $model->photo)) {
+    $photoPreview = [
+        Html::img(
+            Yii::$app->params['USER_PHOTO_DIR'] . $model->id . '.' . $model->photo . '?rnd=' . mt_rand(0, 99),
+            [
+                'class' => 'file-preview-image',
+            ]
+        ),
+    ];
+}
 ?>
 
+<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
 <div class="row">
     <div class="col-sm-12">
         <h2>Профайл пользователя</h2>
@@ -66,12 +80,24 @@ foreach (City::find()->orderBy('country_id desc')->all() as $city) {
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'photo_file_name' => [
-                    'type' => Form::INPUT_FILE,
-                    'value' =>
-                        '<div class="file_upload form-control input-sm">
-                            Выбрать файл<input class="media-manager" type="file" name="tt_files[]" />
-                        </div>'
+                'photo' => [
+                    'type' => Form::INPUT_WIDGET,
+                    'widgetClass' => FileInput::className(),
+                    'options' => [
+                        'options' => [
+                            'multiple' => false,
+                            'accept' => 'image/*',
+                        ],
+                        'pluginOptions' => [
+                            'showCaption' => false,
+                            'showRemove' => false,
+                            'showUpload' => false,
+                            'browseClass' => 'btn btn-default btn-block',
+                            'browseIcon' => '<i></i> ',
+                            'browseLabel' =>  'Выбрать файл',
+                            'initialPreview' => $photoPreview,
+                        ],
+                    ],
                 ],
                 'show_troubles_on_every_page' => [
                     'type' => Form::INPUT_CHECKBOX,

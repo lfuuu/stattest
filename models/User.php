@@ -27,6 +27,8 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const DEPART_SALES = 28;
     const DEPART_PURCHASE = 29;
 
+    const PHOTO_SIZE_OF_SQUARE_SIDE = 250;
+
     public static function tableName()
     {
         return 'user_users';
@@ -51,7 +53,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             'phone_mobile' => 'Мобильный телефон',
             'icq' => 'ICQ',
             'trouble_redirect' => 'Перенаправление траблов',
-            'photo_file_name' => 'Фотография',
+            'photo' => 'Фотография',
             'show_troubles_on_every_page' => 'Показывать заявки на каждой странице',
         ];
     }
