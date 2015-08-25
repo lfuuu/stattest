@@ -372,7 +372,7 @@ class ClientDocumentDao extends Singleton
     {
         $contragent = $account->contract->contragent;
 
-        $result = 'Адрес: ' . (
+        $result = $contragent->name_full . '<br />Адрес: ' . (
             $contragent->legal_type == 'person'
                 ? $contragent->person->registration_address
                 : $account->address_jur
@@ -397,7 +397,10 @@ class ClientDocumentDao extends Singleton
         } else {
             return
                 $result .
-                'Банковские реквизиты: ' . $account->bank_properties .
+                'Банковские реквизиты: ' .
+                'р/с ' . ($account->pay_acc ?: '') . '<br />' .
+                $account->bank_name . ' ' . $account->bank_city  .
+                ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
                 ', ИНН ' . $contragent->inn .
                 ', КПП ' . $contragent->kpp .
@@ -483,7 +486,7 @@ class ClientDocumentDao extends Singleton
             'organization_email' => $firm['email'],
             'organization_pay_acc' => $firm['acc'],
 
-            'firm_detail_block' => $this->generateFirmDetail($firm, ($account->bik && $account->bank_properties)),
+            'firm_detail_block' => $this->generateFirmDetail($firm, $account->bik),
             'payment_info' => $this->prepareContragentPaymentInfo($account),
         ];
     }
