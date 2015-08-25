@@ -86,6 +86,15 @@ $config = [
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
             'useFileTransport' => true,
+            'transport' => [
+                'class' => 'Swift_MailTransport', // standard php mail() function
+                'plugins' => [
+                    [
+                        'class' => 'Swift_Plugins_LoggerPlugin',
+                        'constructArgs' => [new Swift_Plugins_Loggers_ArrayLogger],
+                    ],
+                ],
+            ],
         ],
         'log' => $log,
         'db' => $db,

@@ -62,12 +62,14 @@ class UserPasswordForm extends Form
             throw $e;
         }*/
 
+        print $user->email;
         Yii::$app->mailer->compose('user/change-password', ['form' => $this])
             ->setFrom('support@mcn.ru')
             ->setTo($user->email)
             ->setSubject('MCN.ru - ваш новый пароль | your new password')
             ->send();
 
+        exit;
         return true;
     }
 
