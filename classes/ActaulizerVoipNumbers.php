@@ -334,13 +334,10 @@ class ActaulizerVoipNumbers
 
             if ($new["is_blocked"])
             {
-                $new["direction"] = "blocked";
                 Event::go("ats3__blocked", $new);
             } else {
                 Event::go("ats3__unblocked", $new);
             }
-            
-            $changedFields["direction"] = 1;
 
             unset($changedFields["is_blocked"]);
         }
