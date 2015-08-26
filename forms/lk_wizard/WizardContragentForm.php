@@ -4,6 +4,7 @@ namespace app\forms\lk_wizard;
 
 use app\classes\Form;
 
+use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\ClientAccount;
 use app\models\ClientContract;
@@ -21,7 +22,7 @@ class WizardContragentForm extends Form
         $kpp = "",
         $position = "",
         $fio = "",
-        $tax_regime = 'russia_full_price_vat',
+        $tax_regime = ClientContragent::TAX_REGTIME_OCH_VAT18,
         $opf_id = 0,
         $okpo = "",
         $okvd = "",
