@@ -16,4 +16,5 @@ return [
     'STAMP_DIR' => '/images/stamp/',
     'ORGANIZATION_LOGO_DIR' => '/images/logo/',
     'USER_PHOTO_DIR' => '/images/users/',
+    'PROTOCOL_STRING' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://',
 ];

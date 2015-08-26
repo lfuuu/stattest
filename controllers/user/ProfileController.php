@@ -36,7 +36,8 @@ class ProfileController extends BaseController
         $model = (new UserProfileForm)->initModel();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save(Yii::$app->user->identity)) {
-            $this->redirect('/user/profile');
+            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            return $this->redirect(Yii::$app->request->referrer);
         }
 
         return $this->render('edit', [
@@ -49,7 +50,8 @@ class ProfileController extends BaseController
         $model = new UserPasswordForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect('/user/profile/change-password');
+            Yii::$app->session->setFlash('success', true);
+            return $this->redirect(Yii::$app->request->referrer);
         }
 
         $this->layout = 'minimal';

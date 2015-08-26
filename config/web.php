@@ -85,15 +85,11 @@ $config = [
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'useFileTransport' => false,
             'transport' => [
-                'class' => 'Swift_MailTransport', // standard php mail() function
-                'plugins' => [
-                    [
-                        'class' => 'Swift_Plugins_LoggerPlugin',
-                        'constructArgs' => [new Swift_Plugins_Loggers_ArrayLogger],
-                    ],
-                ],
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'mail.mcn.ru',
+                'port' => '25',
             ],
         ],
         'log' => $log,

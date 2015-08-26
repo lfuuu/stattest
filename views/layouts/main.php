@@ -88,7 +88,7 @@ if (isset($fixclient_data['id'])) {
                             <ul class="user-menu" style="display: none;">
                                 <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
                                 <li><a href="/user/profile/">Изменить профайл</a></li>
-                                <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="return showIframePopup(this)">Изменить пароль</a></li>
+                                <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="$(this).parents('ul').prev('a').trigger('click'); return showIframePopup(this);">Изменить пароль</a></li>
                                 <li><a href="/site/logout">Выход</a></li>
                             </ul>
                             <?php if ($myTroublesCount > 0): ?>
@@ -143,6 +143,14 @@ if (isset($fixclient_data['id'])) {
         <div style="text-align: center;" class="alert alert-danger fade in">
             <div style="font-weight: bold;">
                 <?= Yii::$app->session->getFlash('error'); ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <div style="text-align: center;" class="alert alert-success fade in">
+            <div style="font-weight: bold;">
+                <?= Yii::$app->session->getFlash('success'); ?>
             </div>
         </div>
     <?php endif; ?>

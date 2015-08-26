@@ -51,7 +51,7 @@ class UserPasswordForm extends Form
         if ($this->hasErrors())
             return false;
 
-        /*$user->pass = AuthManager::getPasswordHash($this->password);
+        $user->pass = AuthManager::getPasswordHash($this->password);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -60,16 +60,14 @@ class UserPasswordForm extends Form
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
-        }*/
+        }
 
-        print $user->email;
         Yii::$app->mailer->compose('user/change-password', ['form' => $this])
             ->setFrom('support@mcn.ru')
             ->setTo($user->email)
             ->setSubject('MCN.ru - ваш новый пароль | your new password')
             ->send();
 
-        exit;
         return true;
     }
 
