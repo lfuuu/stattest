@@ -339,6 +339,8 @@ class ActaulizerVoipNumbers
             } else {
                 Event::go("ats3__unblocked", $new);
             }
+            
+            $changedFields["direction"] = 1;
 
             unset($changedFields["is_blocked"]);
         }
