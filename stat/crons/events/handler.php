@@ -97,6 +97,8 @@ function do_events()
                         break;
 
                     case 'admin_changed':
+                        if (is_array($param))
+                            $param = $param["account_id"];
                         SyncCore::adminChanged($param);
                         break;
 
