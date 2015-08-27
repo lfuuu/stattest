@@ -13,6 +13,7 @@ use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
+use app\models\Business;
 
 class m_newaccounts extends IModule
 {
@@ -173,7 +174,7 @@ class m_newaccounts extends IModule
         global $design, $db, $user, $fixclient, $fixclient_data;
 
         $account = ClientAccount::findOne($fixclient);
-        $isMulty = $account->contract->business_id == \app\models\Business::INTERNET_SHOP;
+        $isMulty = $account->contract->business_id == Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -267,7 +268,7 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->business_id == \app\models\Business::INTERNET_SHOP;
+        $isMulty = ClientAccount::findOne($fixclient)->contract->business_id == Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -731,12 +732,12 @@ class m_newaccounts extends IModule
             $r["client_orig"] = $r["client"];
             $BusinessId = ClientAccount::findOne($r['id'])->contract->business_id;
             if (access("clients", "read_multy"))
-                if ($BusinessId != \app\models\Business::INTERNET_SHOP) {
+                if ($BusinessId != Business::INTERNET_SHOP) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($BusinessId == \app\models\Business::INTERNET_SHOP && isset($_GET["bill"])) {
+            if ($BusinessId == Business::INTERNET_SHOP && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";

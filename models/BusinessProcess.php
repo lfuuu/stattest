@@ -8,33 +8,27 @@ class BusinessProcess extends ActiveRecord
 {
 
     const TELECOM_SUPPORT = 1;
-    // �������
-    const TELECOM_MAINTENANCE = 1; // �������������
-    const TELECOM_REPORTS = 16; // ������
-    const TELECOM_SALES = 2; // �������
 
-    // �������� �������
-    const INTERNET_SHOP_ORDERS = 3; // ������ ��������
-    const INTERNET_SHOP_MAINTENANCE = 4; // �������������
+    const TELECOM_MAINTENANCE = 1;
+    const TELECOM_REPORTS = 16;
+    const TELECOM_SALES = 2;
 
-    // ���������
-    const PROVIDER_ORDERS = 5; // ������
-    const PROVIDER_MAINTENANCE = 6; // �������������
+    const INTERNET_SHOP_ORDERS = 3;
+    const INTERNET_SHOP_MAINTENANCE = 4;
 
-    // �������
-    const PARTNER_MAINTENANCE = 8; // �������������
+    const PROVIDER_ORDERS = 5;
+    const PROVIDER_MAINTENANCE = 6;
 
-    // ���������� ����
-    const INTERNAL_OFFICE = 10; // ���������� ����
+    const PARTNER_MAINTENANCE = 8;
 
-    // ��������
-    const OPERATOR_OPERATORS = 11; // ���������
-    const OPERATOR_CLIENTS = 12; // �������
-    const OPERATOR_INFRASTRUCTURE = 13; // ��������������
-    const OPERATOR_FORMAL = 14; // ����������
+    const INTERNAL_OFFICE = 10;
 
-    // Welltime
-    const WELLTIME_MAINTENANCE = 15; // �������������
+    const OPERATOR_OPERATORS = 11;
+    const OPERATOR_CLIENTS = 12;
+    const OPERATOR_INFRASTRUCTURE = 13;
+    const OPERATOR_FORMAL = 14;
+
+    const WELLTIME_MAINTENANCE = 15;
 
     public static function tableName()
     {

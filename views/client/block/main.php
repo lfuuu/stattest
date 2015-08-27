@@ -61,7 +61,7 @@ use \app\models\ClientContract;
                                 </div>
                                 <div class="col-sm-3">
                                     <?php $bps = $contract->businessProcessStatus; ?>
-                                    <span><?= $contract->Business ?></span>&nbsp;
+                                    <span><?= $contract->business ?></span>&nbsp;
                                     <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/?>
                                     /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>

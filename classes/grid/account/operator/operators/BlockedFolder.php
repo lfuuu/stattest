@@ -22,9 +22,12 @@ class BlockedFolder extends AccountGridFolder
             'company',
             'created',
             'currency',
-            'sale_channel',
             'manager',
+            'account_manager',
             'region',
+            'federal_district',
+            'contract_type',
+            'financial_type'
         ];
     }
 

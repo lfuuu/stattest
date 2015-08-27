@@ -507,5 +507,4 @@ $formFolderName = Language::getLanguageExtension($language);
 
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
 <script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>
-<script type="text/javascript" src="/js/behaviors/contract-is-external.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>

@@ -29,7 +29,7 @@ class SetFieldTypeHelper
 
     public static function getFieldValue(ActiveRecord $model, $fieldName)
     {
-        return self::pareseValue($model->$fieldName);
+        return self::parseValue($model->$fieldName);
     }
 
     public static function generateFieldValue(ActiveRecord $model, $fieldName, array $values, $validate = true)
@@ -58,7 +58,7 @@ class SetFieldTypeHelper
             if(strpos($values, ',') === false)
                 $values = [$values];
             else
-                $values = self::pareseValue($values);
+                $values = self::parseValue($values);
         }
 
         $diffs = array_diff($values, $validValues);
@@ -73,7 +73,7 @@ class SetFieldTypeHelper
         return false;
     }
 
-    private static function pareseValue($value)
+    public static function parseValue($value)
     {
         return explode(',', $value);
     }

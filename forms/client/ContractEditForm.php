@@ -61,24 +61,7 @@ class ContractEditForm extends Form
                 SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
             }],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
-            ['state', function($attribute){
-                if(!array_key_exists($this->$attribute, $this->getModel()->statusesForChange()))
-                    $this->addError($attribute, 'Вы не можете менять статус');
-
-                if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
-                    $contragent = ClientContragent::findOne($this->contragent_id);
-                    if(!$contragent->getIsNewRecord())
-                        $contragent->hasChecked = true;
-                    if (!$contragent->validate()) {
-                        if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
-                            $this->addError('state', 'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                        elseif (isset($contragent->errors['inn']))
-                            $this->addError('state', 'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                        elseif (isset($contragent->errors['kpp']))
-                            $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                    }
-                }
-            }],
+            ['state', 'validateState'],
             [['business_process_id', 'business_process_status_id'], function($attribute){
                 if(!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute)
                     $this->addError('state', 'Вы не можете менять бизнес процесс');
@@ -193,5 +176,25 @@ class ContractEditForm extends Form
     public function getIsNewRecord()
     {
         return $this->id ? false : true;
+    }
+
+    public function validateState($attribute)
+    {
+        if(!array_key_exists($this->$attribute, $this->getModel()->statusesForChange()))
+            $this->addError($attribute, 'Вы не можете менять статус');
+
+        if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
+            $contragent = ClientContragent::findOne($this->contragent_id);
+            if(!$contragent->getIsNewRecord())
+                $contragent->hasChecked = true;
+            if (!$contragent->validate()) {
+                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
+                    $this->addError('state', 'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                elseif (isset($contragent->errors['inn']))
+                    $this->addError('state', 'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                elseif (isset($contragent->errors['kpp']))
+                    $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@
  *      [name*="manager"], [name*="account_manager"] - изменяемые списки
  *      [name*="business_id"] - список типов договора
  *   при необходимости селекторы полей можно изменить на строках №21, №22
- *   Зависимость типа договора и отдела задаается на строке №23 в массиве $BusinessDepts
+ *   Зависимость типа договора и отдела задаается на строке №23 в массиве $businessDepts
  *
  * Подключение:
  *   <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
@@ -18,9 +18,9 @@ jQuery(document).ready(function () {
 
     var
         $managerList = '[name*="manager"], [name*="account_manager"]',
-        $Business = '[name*="business_id"]',
+        $business = '[name*="business_id"]',
         /** BusinessId -> DeptId */
-        $BusinessDepts = {
+        $businessDepts = {
             '4': 29, // Закупки
             '5': 29, // Закупки
             'default': 28  // Sales
@@ -57,16 +57,16 @@ jQuery(document).ready(function () {
         };
 
     function loadManagersByDepts() {
-        var value = $($Business).val();
-        if ($BusinessDepts[value])
-            $getManagers($BusinessDepts[value]);
+        var value = $($business).val();
+        if ($businessDepts[value])
+            $getManagers($businessDepts[value]);
         else
-            $getManagers($BusinessDepts['default']);
+            $getManagers($businessDepts['default']);
     }
 
     loadManagersByDepts();
 
-    $($Business).on('change', function () {
+    $($business).on('change', function () {
         loadManagersByDepts();
     });
 
