@@ -476,8 +476,26 @@ $formFolderName = Language::getLanguageExtension($language);
                 generateTmplList($(this).data('type'), $(this).val());
             });
 
+
+            if($('#contracteditform-business_id').val() == 3)
+                $('#change-external').val(1);
+            else
+                $('#change-external').val(0);
+
+            $('#change-external').trigger('change');
+
+            $('#contracteditform-business_id').on('change', function(){
+                if($('#contracteditform-business_id').val() == 3)
+                    $('#change-external').val(1);
+                else
+                    $('#change-external').val(0);
+
+                $('#change-external').trigger('change');
+            });
+
             $('#change-external').on('change', function () {
                 var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"]');
+
                 if($(this).val() == 0)
                     fields.show();
                 else
