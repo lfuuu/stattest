@@ -31,38 +31,38 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         'user' => [
-            'class' => 'app\classes\grid\column\NameColumn',
+            'class' => 'app\classes\grid\column\user\UserNameColumn',
+            'value' => 'user',
             'attribute' => 'user',
             'label' => 'Логин',
             'width' => '10%',
         ],
         'usergroup' => [
-            'attribute' => 'usergroup',
+            'class' => 'app\classes\grid\column\user\UserGroupColumn',
+            'label' => 'Группа',
             'width' => '10%',
         ],
         'depart_id' => [
             'class' => 'app\classes\grid\column\user\UserDepartColumn',
+            'label' => 'Отдел',
             'width' => '10%',
         ],
         'name' => [
-            'class' => 'app\classes\grid\column\NameColumn',
-            'attribute' => 'name',
+            'class' => 'app\classes\grid\column\user\UserNameColumn',
             'label' => 'Полное имя',
             'width' => '45%',
         ],
         'trouble_redirect' => [
-            'attribute' => 'trouble_redirect',
+            'class' => 'app\classes\grid\column\user\UserNameColumn',
+            'value' => 'trouble_redirect',
+            'label' => 'Редирект',
             'width' => '200px',
-        ],
-        'photo' => [
-            'attribute' => 'photo',
-            'width' => '100px',
         ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',
             'template' => '<div style="text-align: center;">{delete}</div>',
             'buttons' => $recordBtns,
-            'hAlign' => 'left',
+            'hAlign' => 'center',
             'width' => '90px',
         ]
     ],

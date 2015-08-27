@@ -105,6 +105,11 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return $this->hasMany(UserGrantUsers::className(), ['name' => 'user']);
     }
 
+    public function getGroup()
+    {
+        return $this->hasOne(UserGroups::className(), ['usergroup' => 'usergroup']);
+    }
+
     public function getDepartment()
     {
         return $this->hasOne(UserDeparts::className(), ['id' => 'depart_id']);

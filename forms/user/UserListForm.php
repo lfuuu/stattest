@@ -10,21 +10,42 @@ use app\models\User;
 class UserListForm extends UserForm
 {
 
+    public
+        $depart_id,
+        $usergroup,
+        $user,
+        $name;
+
+    public function attributeLabels()
+    {
+        return [
+            'depart_id' => 'Отдел',
+        ];
+        //return parent::attributeLabels();
+    }
+
     /**
      * @return Query
      */
     public function spawnQuery()
     {
-        //'select u.*, d.name as depart_name from user_users u left join user_departs d on (d.id = u.depart_id)'.($group?' where usergroup in ("'.implode("\",\"",$group).'")':'').' and enabled = "yes" order by u.name'
-
         return User::find()->orderBy('name asc');
     }
 
     public function applyFilter(Query $query)
     {
-        /*if ($this->cityId) {
-            $query->andWhere(['voip_numbers.city_id' => $this->cityId]);
-        }*/
+        if ($this->depart_id) {
+            $query->andWhere(['depart_id' => $this->depart_id]);
+        }
+        if ($this->usergroup) {
+            $query->andWhere(['usergroup' => $this->usergroup]);
+        }
+        if ($this->name) {
+            $query->andWhere(['depart_id' => $this->depart_id]);
+        }
+        if ($this->depart_id) {
+            $query->andWhere(['depart_id' => $this->depart_id]);
+        }
     }
 
 }
