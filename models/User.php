@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use app\dao\user\UserDao;
 
 /**
  * @property integer $id
@@ -34,32 +35,14 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return 'user_users';
     }
 
+    public static function dao()
+    {
+        return UserDao::me();
+    }
+
     public static function find()
     {
         return new UserQuery(get_called_class());
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'user' => 'Логин',
-            'name' => 'Полное имя',
-            'language' => 'Язык',
-            'city_id' => 'Город',
-            'usergroup' => 'Группа',
-            'depart_id' => 'Отдел',
-            'email' => 'E-mail',
-            'phone_work' => 'Внутренний номер (логин в comcenter)',
-            'phone_mobile' => 'Мобильный телефон',
-            'icq' => 'ICQ',
-            'trouble_redirect' => 'Перенаправление траблов',
-            'photo' => 'Фотография',
-            'show_troubles_on_every_page' => 'Показывать заявки на каждой странице',
-
-            'password' => 'Пароль',
-            'passwordRepeat' => 'Повтор пароля',
-            'passwordCurrent' => 'Старый пароль (для подтверждения)',
-        ];
     }
 
     public static function findIdentity($id)
@@ -110,6 +93,21 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->pass === md5($password);
+    }
+
+    public function getGroupRights()
+    {
+        return $this->hasMany(UserGrantGroups::className(), ['name' => 'usergroup']);
+    }
+
+    public function getUserRights()
+    {
+        return $this->hasMany(UserGrantUsers::className(), ['name' => 'user']);
+    }
+
+    public function getDepartment()
+    {
+        return $this->hasOne(UserDeparts::className(), ['id' => 'depart_id']);
     }
 
     public static function getAccountManagerList()

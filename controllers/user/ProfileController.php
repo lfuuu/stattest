@@ -33,9 +33,10 @@ class ProfileController extends BaseController
 
     public function actionIndex()
     {
-        $model = (new UserProfileForm)->initModel();
+        $user = Yii::$app->user->identity;
+        $model = (new UserProfileForm)->initModel($user);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save(Yii::$app->user->identity)) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             return $this->redirect(Yii::$app->request->referrer);
         }
@@ -49,13 +50,13 @@ class ProfileController extends BaseController
     {
         $model = new UserPasswordForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save(Yii::$app->user->identity)) {
             Yii::$app->session->setFlash('success', true);
             return $this->redirect(Yii::$app->request->referrer);
         }
 
         $this->layout = 'minimal';
-        return $this->render('passwd_edit', [
+        return $this->render('//user/passwd_edit', [
             'model' => $model,
         ]);
     }

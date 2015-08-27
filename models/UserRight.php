@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\dao\user\UserRightDao;
 
 /**
  * @property string $resource
@@ -13,8 +14,15 @@ use yii\db\ActiveRecord;
  */
 class UserRight extends ActiveRecord
 {
+
     public static function tableName()
     {
         return 'user_rights';
     }
+
+    public static function dao()
+    {
+        return UserRightDao::me();
+    }
+
 }

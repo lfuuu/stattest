@@ -32,14 +32,15 @@ class UserPasswordForm extends Form
 
     public function attributeLabels()
     {
-        return (new User())->attributeLabels();
+        return [
+            'password' => 'Пароль',
+            'passwordRepeat' => 'Повтор пароля',
+            'passwordCurrent' => 'Старый пароль (для подтверждения)',
+        ];
     }
 
-    public function save()
+    public function save(User $user)
     {
-        /** @var User $user */
-        $user = Yii::$app->user->identity;
-
         if (AuthManager::getPasswordHash($this->passwordCurrent) !== $user->pass) {
             $this->addError('passwordCurrent', 'Старый пароль указан неверно');
         }
