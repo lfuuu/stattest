@@ -140,7 +140,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
-        if ($actualFrom < Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
+        if ($actualFrom != Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
             Yii::$app->session->setFlash('error', 'Услуга уже отключена');
             return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
         }
