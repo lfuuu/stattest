@@ -13,15 +13,15 @@ use app\classes\grid\account\telecom\maintenance\TrashFolder;
 use app\classes\grid\account\telecom\maintenance\UnlinkFolder;
 use app\classes\grid\account\telecom\maintenance\WorkFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class TelecomMaintenance extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::TELEKOM;
+        return Business::TELEKOM;
     }
 
     public function getBusinessProcessId()

@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\Business;
 use app\models\ClientContract;
 use app\models\ClientContractComment;
 use Yii;
@@ -242,7 +243,7 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->contract->contract_subdivision_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
+        if ($clientAccount->contract->business_id != Business::INTERNET_SHOP){ // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {

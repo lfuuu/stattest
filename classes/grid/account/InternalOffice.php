@@ -4,15 +4,15 @@ namespace app\classes\grid\account;
 use app\classes\grid\account\internaloffice\internaloffice\ClosedFolder;
 use app\classes\grid\account\internaloffice\internaloffice\InternalOfficeFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class InternalOffice extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::INTERNAL_OFFICE;
+        return Business::INTERNAL_OFFICE;
     }
 
     public function getBusinessProcessId()

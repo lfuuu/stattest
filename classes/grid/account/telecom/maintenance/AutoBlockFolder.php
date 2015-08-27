@@ -42,7 +42,7 @@ class AutoBlockFolder extends AccountGridFolder
                 GROUP BY `client_id`
             ) AS ab',
             'ab.`client_id` = c.`id`');
-        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere([
             'not in',
             'cr.business_process_status_id',

@@ -32,7 +32,7 @@ class Sync1CServerHandler
         $cg->save();
 
         $cr = new ContractEditForm(['contragent_id' => $cg->id]);
-        $cr->contract_subdivision_id = 5; //Интернет-магазин
+        $cr->business_id = 5; //Интернет-магазин
         $cr->business_process_id = 3; //Интернет-магазин
         $cr->business_process_status_id = 33; //Интернет-магазин
         $cr->save();

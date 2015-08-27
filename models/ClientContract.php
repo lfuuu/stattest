@@ -14,13 +14,23 @@ class ClientContract extends HistoryActiveRecord
 {
     const CONTRACT_TYPE_MULTY = 5;
 
+    const STATE_UNCHECKED = 'unchecked';
+    const STATE_OFFER = 'offer';
+    const STATE_CHECKED_ORIGINAL = 'checked_original';
+    const STATE_CHECKED_COPY = 'checked_copy';
+
+    const FINANCIAL_TYPE_EMPTY = '';
+    const FINANCIAL_TYPE_PROFITABLE = 'profitable';
+    const FINANCIAL_TYPE_CONSUMABLES= 'consumables';
+    const FINANCIAL_TYPE_YIELD_CONSUMABLE = 'yield-consumable';
+
     public $newClient = null;
 
     public static $states = [
-        'unchecked' => 'Не проверено',
-        'checked_original' => 'Оригинал',
-        'checked_copy' => 'Копия',
-        'offer' => 'Оферта',
+        self::STATE_UNCHECKED => 'Не проверено',
+        self::STATE_OFFER => 'Оферта',
+        self::STATE_CHECKED_ORIGINAL => 'Оригинал',
+        self::STATE_CHECKED_COPY => 'Копия',
     ];
 
     public static $districts = [
@@ -34,9 +44,10 @@ class ClientContract extends HistoryActiveRecord
     ];
 
     public static $financialTypes = [
-        'profitable' => 'Доходный',
-        'consumables' => 'Расходный',
-        'yield-consumable' => 'Доходно-расходный',
+        self::FINANCIAL_TYPE_EMPTY => 'Не задано',
+        self::FINANCIAL_TYPE_PROFITABLE => 'Доходный',
+        self::FINANCIAL_TYPE_CONSUMABLES => 'Расходный',
+        self::FINANCIAL_TYPE_YIELD_CONSUMABLE => 'Доходно-расходный',
     ];
 
     public static function tableName()
@@ -53,13 +64,12 @@ class ClientContract extends HistoryActiveRecord
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
             'business_process_status_id' => 'Статус бизнес процесса',
-            'contract_subdivision_id' => 'Подразделение',
+            'business_id' => 'Подразделение',
             'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
             'financial_type' => 'Финансовый тип договора',
             'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
-            'is_external' => 'Внешний договор',
         ];
     }
 
@@ -103,10 +113,10 @@ class ClientContract extends HistoryActiveRecord
         return ($m) ? $m->name : $this->business_process_id;
     }
 
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        $m = ContractSubdivision::findOne($this->contract_subdivision_id);
-        return $m ? $m->name : $this->contract_subdivision_id;
+        $m = Business::findOne($this->business_id);
+        return $m ? $m->name : $this->business_id;
     }
 
     public function getBusinessProcessStatus()
@@ -236,23 +246,23 @@ class ClientContract extends HistoryActiveRecord
 
     public function statusesForChange()
     {
-        if (!$this->state || $this->state == 'unchecked' || \Yii::$app->user->can('clients.changeback_contract_state'))
+        if (!$this->state || $this->state == self::STATE_UNCHECKED || \Yii::$app->user->can('clients.changeback_contract_state'))
             return self::$states;
 
-        if ($this->state == 'checked_original')
-            return ['checked_original' => self::$states['checked_original']];
+        if ($this->state == self::STATE_CHECKED_ORIGINAL)
+            return [self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL]];
 
-        if ($this->state == 'checked_copy')
+        if ($this->state == self::STATE_CHECKED_COPY)
             return [
-                'checked_copy' => self::$states['checked_copy'],
-                'checked_original' => self::$states['checked_original'],
+                self::STATE_CHECKED_COPY => self::$states[self::STATE_CHECKED_COPY],
+                self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL],
             ];
 
-        if ($this->state == 'offer')
+        if ($this->state == self::STATE_OFFER)
             return [
-                'offer' => self::$states['offer'],
-                'checked_copy' => self::$states['checked_copy'],
-                'checked_original' => self::$states['checked_original'],
+                self::STATE_OFFER => self::$states[self::STATE_OFFER],
+                self::STATE_CHECKED_COPY => self::$states[self::STATE_CHECKED_COPY],
+                self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL],
             ];
 
         return [];

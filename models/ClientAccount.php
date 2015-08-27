@@ -16,7 +16,7 @@ use app\queries\ClientAccountQuery;
  * @property string $client
  * @property string $currency
  * @property string $nal
- * @property int $contract_subdivision_id
+ * @property int $business_id
  * @property int $price_include_vat
 
  * @property ClientSuper $superClient
@@ -114,9 +114,9 @@ class ClientAccount extends HistoryActiveRecord
         return $this->contract->business_process_status_id;
     }
 
-    public function getContractSubdivisionId()
+    public function getBusinessId()
     {
-        return $this->contract->contract_subdivision_id;
+        return $this->contract->business_id;
     }
 
     public function getAccount_manager()
@@ -286,9 +286,9 @@ class ClientAccount extends HistoryActiveRecord
         return $contract;
     }
 
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return $this->hasOne(ContractSubdivision::className(), ['id' => 'contract_subdivision_id']);
+        return $this->hasOne(Business::className(), ['id' => 'business_id']);
     }
 
     public function getRegionName()

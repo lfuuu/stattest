@@ -8,6 +8,7 @@ use app\models\TariffVoip;
 use app\models\City;
 use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
+use app\models\ClientContract;
 
 class ApiLk
 {
@@ -370,7 +371,7 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        if ($clientAccount->contract->state != 'unchecked') {
+        if ($clientAccount->contract->state != ClientContract::STATE_UNCHECKED) {
             $tariffs =
                 TariffVoip::find()
                     ->andWhere(['status' => 'public'])

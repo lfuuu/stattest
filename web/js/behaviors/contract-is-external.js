@@ -1,5 +1,5 @@
 jQuery(document).ready(function() {
-
+/*
     var $isExternal = $('[name*="is_external"]')
         $contractNo = $('.unchecked-contract-no'),
         $notExternalBlocks = $('[data-not-external]'),
@@ -19,5 +19,5 @@ jQuery(document).ready(function() {
     $isExternal
         .on('input', $isExternalAction)
         .trigger('input');
-
+*/
 });

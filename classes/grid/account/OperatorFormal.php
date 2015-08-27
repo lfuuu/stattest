@@ -12,15 +12,15 @@ use app\classes\grid\account\operator\formal\TerminatedFolder;
 use app\classes\grid\account\operator\formal\TestingFolder;
 use app\classes\grid\account\operator\formal\TrashFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class OperatorFormal extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::OPERATOR;
+        return Business::OPERATOR;
     }
 
     public function getBusinessProcessId()

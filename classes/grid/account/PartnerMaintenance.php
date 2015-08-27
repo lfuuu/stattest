@@ -5,15 +5,15 @@ use app\classes\grid\account\partner\maintenance\ClosedFolder;
 use app\classes\grid\account\partner\maintenance\ActingFolder;
 use app\classes\grid\account\partner\maintenance\NegotationsFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class PartnerMaintenance extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::PARTNER;
+        return Business::PARTNER;
     }
 
     public function getBusinessProcessId()

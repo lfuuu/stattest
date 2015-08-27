@@ -5,13 +5,13 @@ class m150818_121131_card_contract extends \app\classes\Migration
     public function up()
     {
         $this->execute("
-            RENAME TABLE `client_contract_type` TO `client_contract_subdivision`;
+            RENAME TABLE `client_contract_type` TO `client_contract_business`;
 
             ALTER TABLE `client_contract`
-                CHANGE COLUMN `contract_type_id` `contract_subdivision_id` TINYINT(4) NOT NULL AFTER `business_process_status_id`;
+                CHANGE COLUMN `contract_type_id` `business_id` TINYINT(4) NOT NULL AFTER `business_process_status_id`;
 
             ALTER TABLE `client_contract_business_process`
-                CHANGE COLUMN `contract_type_id` `contract_subdivision_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+                CHANGE COLUMN `contract_type_id` `business_id` INT(11) NULL DEFAULT NULL AFTER `id`;
 
             CREATE TABLE `client_contract_type` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -24,14 +24,14 @@ class m150818_121131_card_contract extends \app\classes\Migration
             ;
 
             ALTER TABLE `client_contract`
-                CHANGE COLUMN `contract_subdivision_id` `contract_subdivision_id` TINYINT(4) NOT NULL DEFAULT '0' AFTER `account_manager`,
+                CHANGE COLUMN `business_id` `business_id` TINYINT(4) NOT NULL DEFAULT '0' AFTER `account_manager`,
                 ADD COLUMN `contract_type_id` TINYINT(4) NOT NULL DEFAULT '0' AFTER `business_process_status_id`,
                 CHANGE COLUMN `state` `state` ENUM('unchecked','checked_copy','checked_original', 'offer') NOT NULL DEFAULT 'unchecked' AFTER `contract_type_id`,
-                ADD COLUMN `financial_type` ENUM('profitable','consumables','yield-consumable') NULL AFTER `state`,
+                ADD COLUMN `financial_type` ENUM('', 'profitable','consumables','yield-consumable') NOT NULL DEFAULT '' AFTER `state`,
                 ADD COLUMN `federal_district` SET('cfd','sfd','nwfd','dfo','sfo','ufo','pfo') NOT NULL DEFAULT '' AFTER `financial_type`;
 
 
-            INSERT INTO `nispd`.`client_contract_type` (`name`, `business_process_id`) VALUES
+            INSERT INTO `client_contract_type` (`name`, `business_process_id`) VALUES
                 ('Местное присоединение', 11),
                 ('Агентский на МГ МН', 11),
                 ('Присоединение Зоновых сетей', 11),
@@ -57,6 +57,13 @@ class m150818_121131_card_contract extends \app\classes\Migration
                 ('Агентский на МГ МН', 12),
                 ('Другой', 12),
             ;
+
+            ALTER TABLE `client_contract`
+                DROP COLUMN `is_external`;
+
+            ALTER TABLE `client_document`
+            	ADD COLUMN `is_external` TINYINT(1) NOT NULL DEFAULT 0 AFTER `type`;
+
         ");
     }
 

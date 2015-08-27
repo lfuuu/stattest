@@ -32,7 +32,7 @@ class AutoBlockedFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS]);
 
         $pg_query = new Query();

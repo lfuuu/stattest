@@ -37,7 +37,7 @@ class TrashFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['in', 'c.status', ['double', 'trash']]);
     }
 

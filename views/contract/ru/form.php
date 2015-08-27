@@ -2,8 +2,8 @@
 use yii\helpers\Html;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
+use app\models\ClientContract;
 
-$disableParam = ['disabled' => $model->state != 'unckecked'];
 ?>
 
 <div class="row" style="width: 1100px;">
@@ -20,10 +20,10 @@ $disableParam = ['disabled' => $model->state != 'unckecked'];
             'type' => Form::INPUT_TEXT
         ],
         'attributes' => array_merge([
-                'contract_subdivision_id' => [
+                'business_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ContractSubdivision::getList(),
-                    'options' => ['disabled' => $model->state != 'unckecked' && !Yii::$app->user->can('clients.client_type_change')]
+                    'items' => \app\models\Business::getList(),
+                    'options' => ['disabled' => $model->state != ClientContract::STATE_UNCHECKED && !Yii::$app->user->can('clients.client_type_change')]
                 ],
                 ['type' => Form::INPUT_RAW],
                 ['type' => Form::INPUT_RAW],
@@ -31,7 +31,11 @@ $disableParam = ['disabled' => $model->state != 'unckecked'];
                 'business_process_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\BusinessProcess::getList(),
-                    'options' => ['disabled' => $model->state != 'unckecked' && !Yii::$app->user->can('clients.restatus')]
+                    'options' => ['disabled' =>
+                        $model->state != ClientContract::STATE_UNCHECKED
+                        && !Yii::$app->user->can('clients.restatus')
+                        && !Yii::$app->user->can('clients.client_type_change')
+                    ]
                 ],
                 'manager' => [
                     'type' => Form::INPUT_RAW,
@@ -77,20 +81,20 @@ $disableParam = ['disabled' => $model->state != 'unckecked'];
                 'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
             ]
             , (
-                (isset($contragents) && isset($contragentsOptions))
+            (isset($contragents) && isset($contragentsOptions))
                 ? ['contragent_id' =>
-                    [
-                        'type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => $contragents,
-                        'options' => [
-                            'options' => $contragentsOptions,
-                        ],
-                        'columnOptions' => ['colspan' => 3],
-
+                [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $contragents,
+                    'options' => [
+                        'options' => $contragentsOptions,
                     ],
-                    ['type' => Form::INPUT_RAW],
-                    ['type' => Form::INPUT_RAW],
-                ]
+                    'columnOptions' => ['colspan' => 3],
+
+                ],
+                ['type' => Form::INPUT_RAW],
+                ['type' => Form::INPUT_RAW],
+            ]
                 : []
             )
             , [
@@ -115,56 +119,47 @@ $disableParam = ['disabled' => $model->state != 'unckecked'];
                 ],
             ]
             , (
-                ($model->contract_subdivision_id == \app\models\ContractSubdivision::OPERATOR)
-                    ? [
-                    'contract_type_id' => [
-                        'type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => \app\models\ContractType::getList(),
+            ($model->business_id == \app\models\Business::OPERATOR)
+                ? [
+                'contract_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ContractType::getList(),
 
-                    ],
-                    'financial_type' => [
-                        'type' => Form::INPUT_DROPDOWN_LIST,
-                        'items' => \app\models\ClientContract::$financialTypes,
-                        'options' => ['disabled' => $model->state != 'unckecked']
-                    ],
-                    [
-                        'type' => Form::INPUT_RAW,
-                        'columnOptions' => ['colspan' => 2],
-                        'value' =>
-                            '<div class=col-sm-12>'
-                            . $f->field($model, 'federal_district')->checkboxButtonGroup(
-                                \app\models\ClientContract::$districts,
-                                ['style' => 'width:100%;','class' => 'btn-disabled']
-                            )
-                            . '</div>'
-                    ],
-                    ['type' => Form::INPUT_RAW],
-                ]
-                    : [
-
-                    ['type' => Form::INPUT_RAW],
-                    ['type' => Form::INPUT_RAW],
-                ]
-            )
-            , [
-                'is_external' => [
-                    'type' => Form::INPUT_CHECKBOX,
-                    'options' => [
-                        'container' => ['style' => 'margin-top: 25px;'],
-                    ],
                 ],
+                'financial_type' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ClientContract::$financialTypes,
+                    'options' => ['disabled' => $model->state != ClientContract::STATE_UNCHECKED && !Yii::$app->user->can('clients.client_type_change')]
+                ],
+                [
+                    'type' => Form::INPUT_RAW,
+                    'columnOptions' => ['colspan' => 2],
+                    'value' =>
+                        '<div class=col-sm-12>'
+                        . $f->field($model, 'federal_district')->checkboxButtonGroup(
+                            \app\models\ClientContract::$districts,
+                            ['style' => 'width:100%;', 'class' => 'btn-disabled']
+                        )
+                        . '</div>'
+                ],
+                ['type' => Form::INPUT_RAW],
+            ]
+                : [
 
-
-            ])
+                ['type' => Form::INPUT_RAW],
+                ['type' => Form::INPUT_RAW],
+            ]
+            )
+        )
     ]);
     ?>
 
 </div>
 
 <script>
-    $(function(){
+    $(function () {
         var statuses = <?= json_encode(\app\models\BusinessProcessStatus::getTree()) ?>;
-        var s1 = $('#contracteditform-contract_subdivision_id');
+        var s1 = $('#contracteditform-business_id');
         var s2 = $('#contracteditform-business_process_id');
         var s3 = $('#contracteditform-business_process_status_id');
 
@@ -196,7 +191,7 @@ $disableParam = ['disabled' => $model->state != 'unckecked'];
             });
         });
 
-        $('.btn-disabled').on('click', function(e){
+        $('.btn-disabled').on('click', function (e) {
             return false;
         })
     });

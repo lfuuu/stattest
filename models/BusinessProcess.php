@@ -47,4 +47,9 @@ class BusinessProcess extends ActiveRecord
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
+    public function getBusinessProcessStatuses()
+    {
+        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id']);
+    }
+
 }

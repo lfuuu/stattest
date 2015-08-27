@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
  * @property int $sort
  * @property
  */
-class ContractSubdivision extends ActiveRecord
+class Business extends ActiveRecord
 {
     const TELEKOM = 2;
     const OPERATOR = 3;
@@ -22,7 +22,7 @@ class ContractSubdivision extends ActiveRecord
 
     public static function tableName()
     {
-        return 'client_contract_subdivision';
+        return 'client_contract_business';
     }
 
     public static function getList()
@@ -33,6 +33,6 @@ class ContractSubdivision extends ActiveRecord
 
     public function getBusinessProcesses()
     {
-        return $this->hasMany(BusinessProcess::className(), ['contract_subdivision_id' => 'id'])->orderBy(['sort' => SORT_ASC]);
+        return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
     }
 }

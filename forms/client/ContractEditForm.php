@@ -31,12 +31,11 @@ class ContractEditForm extends Form
         $account_manager,
         $business_process_id,
         $business_process_status_id,
-        $contract_subdivision_id,
+        $business_id,
         $state,
         $contract_type_id,
         $financial_type,
         $federal_district,
-        $is_external,
 
         $save_comment_stage = false,
         $public_comment = [];
@@ -50,23 +49,23 @@ class ContractEditForm extends Form
     {
         $rules = [
             [['date', 'manager', 'account_manager', 'comment', 'historyVersionStoredDate',], 'string'],
-            [['contragent_id', 'contract_subdivision_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id', 'is_external',
-                'contract_type_id'], 'integer'],
-            [['contract_type_id', 'is_external'], 'default', 'value' => 0],
+            [['contragent_id', 'business_id', 'business_process_id', 'business_process_status_id', 'super_id',
+                'organization_id', 'contract_type_id'], 'integer'],
+            [['contract_type_id'], 'default', 'value' => 0],
             ['business_process_id', 'default', 'value' => BusinessProcess::TELECOM_MAINTENANCE],
             ['number', 'default', 'value' => ''],
             ['business_process_status_id', 'default', 'value' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
             [['public_comment', 'save_comment_stage'], 'safe'],
             ['financial_type', 'in', 'range' => array_keys(ClientContract::$financialTypes)],
-            ['federal_district', function($attribute, $pararms){
+            ['federal_district', function($attribute){
                 SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
             }],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
-            ['state', function($attribute, $pararms){
+            ['state', function($attribute){
                 if(!array_key_exists($this->$attribute, $this->getModel()->statusesForChange()))
                     $this->addError($attribute, 'Вы не можете менять статус');
 
-                if ($this->getModel()->$attribute !== $this->state && $this->state != 'unchecked') {
+                if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
                     $contragent = ClientContragent::findOne($this->contragent_id);
                     if(!$contragent->getIsNewRecord())
                         $contragent->hasChecked = true;
@@ -80,11 +79,11 @@ class ContractEditForm extends Form
                     }
                 }
             }],
-            [['business_process_id', 'business_process_status_id'], function($attribute, $pararms){
+            [['business_process_id', 'business_process_status_id'], function($attribute){
                 if(!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute)
                     $this->addError('state', 'Вы не можете менять бизнес процесс');
             }],
-            ['contract_subdivision_id', function($attribute, $pararms){
+            ['business_id', function($attribute){
                 if( !$this->getIsNewRecord() &&  $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus'))
                     $this->addError('state', 'Вы не можете менять тип договора');
             }],

@@ -4,15 +4,15 @@ namespace app\classes\grid\account;
 use app\classes\grid\account\provider\orders\ActingFolder;
 use app\classes\grid\account\provider\orders\NegotationStageFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class ProviderOrders extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::PROVIDER;
+        return Business::PROVIDER;
     }
 
     public function getBusinessProcessId()

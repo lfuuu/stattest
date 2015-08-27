@@ -5,9 +5,9 @@
  * Использование:
  *   В форме должны существовать поля соответствующие селекторам:
  *      [name*="manager"], [name*="account_manager"] - изменяемые списки
- *      [name*="contract_subdivision_id"] - список типов договора
+ *      [name*="business_id"] - список типов договора
  *   при необходимости селекторы полей можно изменить на строках №21, №22
- *   Зависимость типа договора и отдела задаается на строке №23 в массиве $ContractSubdivisionDepts
+ *   Зависимость типа договора и отдела задаается на строке №23 в массиве $BusinessDepts
  *
  * Подключение:
  *   <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
@@ -18,9 +18,9 @@ jQuery(document).ready(function () {
 
     var
         $managerList = '[name*="manager"], [name*="account_manager"]',
-        $ContractSubdivision = '[name*="contract_subdivision_id"]',
-        /** ContractSubdivisionId -> DeptId */
-        $ContractSubdivisionDepts = {
+        $Business = '[name*="business_id"]',
+        /** BusinessId -> DeptId */
+        $BusinessDepts = {
             '4': 29, // Закупки
             '5': 29, // Закупки
             'default': 28  // Sales
@@ -57,16 +57,16 @@ jQuery(document).ready(function () {
         };
 
     function loadManagersByDepts() {
-        var value = $($ContractSubdivision).val();
-        if ($ContractSubdivisionDepts[value])
-            $getManagers($ContractSubdivisionDepts[value]);
+        var value = $($Business).val();
+        if ($BusinessDepts[value])
+            $getManagers($BusinessDepts[value]);
         else
-            $getManagers($ContractSubdivisionDepts['default']);
+            $getManagers($BusinessDepts['default']);
     }
 
     loadManagersByDepts();
 
-    $($ContractSubdivision).on('change', function () {
+    $($Business).on('change', function () {
         loadManagersByDepts();
     });
 

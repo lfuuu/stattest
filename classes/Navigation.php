@@ -2,7 +2,8 @@
 namespace app\classes;
 
 use app\models\billing\Pricelist;
-use app\models\ContractSubdivision;
+use app\models\BusinessProcess;
+use app\models\Business;
 use Yii;
 use yii\helpers\Url;
 
@@ -166,21 +167,27 @@ class Navigation
             3 => '?module=tt&action=view_type&type_pk=4',
             5 => '/?module=tt&action=view_type&type_pk=7',
         ];
-        $blocks_rows = ContractSubdivision::find()->orderBy(['sort' => SORT_ASC])->all();
+        $businesses = Business::find()
+            ->innerJoinWith('businessProcesses')
+            ->orderBy([
+                Business::tableName().'.sort' => SORT_ASC,
+                BusinessProcess::tableName().'.sort' => SORT_ASC,
+            ])
+            ->all();
 
-        foreach($blocks_rows as $block_row)
+        foreach($businesses as $business)
         {
             $block = NavigationBlock::create()
-                ->setId('client_'.$block_row->id)
+                ->setId('client_'.$business->id)
                 ->setRights(['clients.read'])
-                ->setTitle($block_row->name);
+                ->setTitle($business->name);
 
-            foreach($block_row->businessProcesses as $item)
+            foreach($business->businessProcesses as $process)
             {
-                $block->addItem($item->name,
-                    isset($exclusion[$item->id])
-                    ? $exclusion[$item->id]
-                    : Url::toRoute(['client/grid', 'businessProcessId' => $item->id])
+                $block->addItem($process->name,
+                    isset($exclusion[$process->id])
+                    ? $exclusion[$process->id]
+                    : Url::toRoute(['client/grid', 'businessProcessId' => $process->id])
                 );
             }
 

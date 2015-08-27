@@ -85,7 +85,7 @@ $rows['telecom.sales.income'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="income"',
+				cr.business_id=2 AND cl.status="income"',
     'sortable' => [
             'status',
             'id',
@@ -151,7 +151,7 @@ $rows['telecom.sales.negotiations'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="negotiations"',
+				cr.business_id=2 AND cl.status="negotiations"',
     'sortable' => [
             'status',
             'id',
@@ -217,7 +217,7 @@ $rows['telecom.sales.testing'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="testing"',
+				cr.business_id=2 AND cl.status="testing"',
     'sortable' => [
             'status',
             'id',
@@ -283,7 +283,7 @@ $rows['telecom.sales.connecting'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="connecting"',
+				cr.business_id=2 AND cl.status="connecting"',
     'sortable' => [
             'status',
             'id',
@@ -349,7 +349,7 @@ $rows['telecom.sales.tech_deny'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="tech_deny"',
+				cr.business_id=2 AND cl.status="tech_deny"',
     'sortable' => [
             'status',
             'id',
@@ -415,7 +415,7 @@ $rows['telecom.sales.deny'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="deny"',
+				cr.business_id=2 AND cl.status="deny"',
     'sortable' => [
             'status',
             'id',
@@ -480,7 +480,7 @@ $rows['telecom.sales.trash'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status in ("trash","double")',
+				cr.business_id=2 AND cl.status in ("trash","double")',
     'sortable' => [
             'status',
             'id',
@@ -575,7 +575,7 @@ $rows['telecom.accounting.work'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="work"',
+				cr.business_id=2 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',
@@ -632,7 +632,7 @@ $rows['telecom.accounting.closed'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="closed"',
+				cr.business_id=2 AND cl.status="closed"',
     'sortable' => [
             'status',
             'id',
@@ -689,7 +689,7 @@ $rows['telecom.accounting.debt'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="debt"',
+				cr.business_id=2 AND cl.status="debt"',
     'sortable' => [
             'status',
             'id',
@@ -746,7 +746,7 @@ $rows['telecom.accounting.blocked'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="blocked"',
+				cr.business_id=2 AND cl.status="blocked"',
     'sortable' => [
             'status',
             'id',
@@ -803,7 +803,7 @@ $rows['telecom.accounting.reserved'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="reserved"',
+				cr.business_id=2 AND cl.status="reserved"',
     'sortable' => [
             'status',
             'id',
@@ -860,7 +860,7 @@ $rows['telecom.accounting.suspended'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=2 AND cl.status="suspended"',
+				cr.business_id=2 AND cl.status="suspended"',
     'sortable' => [
             'status',
             'id',
@@ -982,7 +982,7 @@ $rows['operators.accounting.work'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=3 AND cl.status="work"',
+				cr.business_id=3 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',
@@ -1047,7 +1047,7 @@ $rows['operators.accounting.deny'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=3 AND cl.status="deny"',
+				cr.business_id=3 AND cl.status="deny"',
     'sortable' => [
             'status',
             'id',
@@ -1112,7 +1112,7 @@ $rows['operators.accounting.testing'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=3 AND cl.status="testing"',
+				cr.business_id=3 AND cl.status="testing"',
     'sortable' => [
             'status',
             'id',
@@ -1669,7 +1669,7 @@ $rows['procurement.accounting.work'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cr.contract_subdivision_id=4 AND cl.status="work"',
+				cr.business_id=4 AND cl.status="work"',
     'sortable' => [
             'status',
             'id',

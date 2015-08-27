@@ -173,7 +173,7 @@ class m_newaccounts extends IModule
         global $design, $db, $user, $fixclient, $fixclient_data;
 
         $account = ClientAccount::findOne($fixclient);
-        $isMulty = $account->contract->contract_subdivision_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = $account->contract->business_id == \app\models\Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -267,7 +267,7 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_subdivision_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = ClientAccount::findOne($fixclient)->contract->business_id == \app\models\Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -729,14 +729,14 @@ class m_newaccounts extends IModule
 
         if ($r) {
             $r["client_orig"] = $r["client"];
-            $ContractSubdivisionId = ClientAccount::findOne($r['id'])->contract->contract_subdivision_id;
+            $BusinessId = ClientAccount::findOne($r['id'])->contract->business_id;
             if (access("clients", "read_multy"))
-                if ($ContractSubdivisionId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
+                if ($BusinessId != \app\models\Business::INTERNET_SHOP) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($ContractSubdivisionId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
+            if ($BusinessId == \app\models\Business::INTERNET_SHOP && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";

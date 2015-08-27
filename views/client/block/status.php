@@ -96,9 +96,9 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'contract_subdivision_id' => [
+                'business_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ContractSubdivision::getList(),
+                    'items' => \app\models\Business::getList(),
                     'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
                 ],
                 'business_process_id' => [
@@ -157,7 +157,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
         <?php endif; ?>
 
         var statuses = <?= json_encode(\app\models\BusinessProcessStatus::getTree()) ?>;
-        var s1 = $('#contracteditform-contract_subdivision_id');
+        var s1 = $('#contracteditform-business_id');
         var s2 = $('#contracteditform-business_process_id');
         var s3 = $('#contracteditform-business_process_status_id');
 

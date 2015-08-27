@@ -13,15 +13,15 @@ use app\classes\grid\account\operator\clients\TerminatedFolder;
 use app\classes\grid\account\operator\clients\TestingFolder;
 use app\classes\grid\account\operator\clients\TrashFolder;
 use app\models\BusinessProcess;
-use app\models\ContractSubdivision;
+use app\models\Business;
 use Yii;
 
 
 class OperatorClients extends AccountGrid
 {
-    public function getContractSubdivision()
+    public function getBusiness()
     {
-        return ContractSubdivision::OPERATOR;
+        return Business::OPERATOR;
     }
 
     public function getBusinessProcessId()

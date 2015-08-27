@@ -8,7 +8,7 @@ include PATH_TO_ROOT."conf_yii.php";
 $clients = app\models\ClientAccount::find()->where(
         [
             "firma" => 'mcn_telekom',
-            "contract_subdivision_id" => 2,
+            "business_id" => 2,
             "business_process_id" => 1,
             "business_process_status_id" => [8 ,9, 11, 19, 21],
             "type" => ['priv', 'ip']

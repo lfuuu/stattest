@@ -31,7 +31,7 @@ class NegotationsFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_subdivision_id' => $this->grid->getContractSubdivision()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['c.status' => 'negotiations']);
     }
 

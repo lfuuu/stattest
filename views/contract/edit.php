@@ -6,6 +6,8 @@ use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Language;
+use app\models\ClientContract;
+use app\models\ClientDocument;
 
 $contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;
 $contragentsOptions = [];
@@ -106,7 +108,8 @@ $formFolderName = Language::getLanguageExtension($language);
             <div class="col-sm-12">Договор</div>
         </div>
         <div class="row head3" style=" padding: 5px 0;">
-            <div class="col-sm-2">№</div>
+            <div class="col-sm-1">Внут/Внеш</div>
+            <div class="col-sm-1">№</div>
             <div class="col-sm-2">Дата</div>
             <div class="col-sm-2">Комментарий</div>
             <div class="col-sm-2">Кто добавил</div>
@@ -118,14 +121,15 @@ $formFolderName = Language::getLanguageExtension($language);
             <?php $hasContract = true; ?>
             <div class="row"
                  style=" border-top: 1px solid black; padding: 5px 0; <?= !$doc->is_active ? 'color:#CCC;' : '' ?>">
-                <div class="col-sm-2"><?= $doc->contract_no ?></div>
+                <div class="col-sm-1"><b><?= ClientDocument::$external[$doc->is_external] ?></b></div>
+                <div class="col-sm-1"><?= $doc->contract_no ?></div>
                 <div class="col-sm-2"><?= $doc->contract_date ?></div>
                 <div class="col-sm-2"><?= $doc->comment ?></div>
                 <div class="col-sm-2"><?= $doc->user->name ?></div>
                 <div class="col-sm-2"><?= $doc->ts ?></div>
                 <div class="col-sm-2">
                     <?php if (!empty($doc->getFileContent())): ?>
-                        <?php if ($model->state == 'unchecked') : ?>
+                        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
                             <a href="/document/edit?id=<?= $doc->id ?>" target="_blank">
                                 <img class="icon" src="/images/icons/edit.gif">
                             </a>
@@ -135,7 +139,7 @@ $formFolderName = Language::getLanguageExtension($language);
                         <a href="/document/send?id=<?= $doc->id ?>" target="_blank">
                             <img class="icon" src="/images/icons/contract.gif">
                         </a>
-                        <?php if ($model->state == 'unchecked') : ?>
+                        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
                             <?php if ($doc->is_active) : ?>
                                 <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon"
@@ -154,12 +158,18 @@ $formFolderName = Language::getLanguageExtension($language);
                 </div>
             </div>
         <?php endif; ?>
-        <?php if ($model->state == 'unchecked') : ?>
+        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
             <div class="row" style="padding-top: 5px;">
                 <form action="/document/create" method="post">
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                         <input type="hidden" name="ClientDocument[type]" value="contract">
+                        <select class="form-control input-sm" id="change-external" name="ClientDocument[is_external]">
+                            <option value=<?=ClientDocument::IS_NOT_EXTERNAL?>><?=ClientDocument::$external[ClientDocument::IS_NOT_EXTERNAL]?></option>
+                            <option value=<?=ClientDocument::IS_EXTERNAL?>><?=ClientDocument::$external[ClientDocument::IS_EXTERNAL]?></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
                         <input class="form-control input-sm unchecked-contract-no" type="text" name="ClientDocument[contract_no]" value="<?= $model->number ?>" />
                     </div>
                     <div class="col-sm-2">
@@ -464,7 +474,15 @@ $formFolderName = Language::getLanguageExtension($language);
 
             $('.tmpl-group').on('change', function () {
                 generateTmplList($(this).data('type'), $(this).val());
-            })
+            });
+
+            $('#change-external').on('change', function () {
+                var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"]');
+                if($(this).val() == 0)
+                    fields.show();
+                else
+                    fields.hide();
+            }).trigger('change');
         });
     </script>
 </div>
