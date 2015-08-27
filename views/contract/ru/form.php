@@ -138,7 +138,7 @@ use app\models\ClientContract;
                         '<div class=col-sm-12>'
                         . $f->field($model, 'federal_district')->checkboxButtonGroup(
                             \app\models\ClientContract::$districts,
-                            ['style' => 'width:100%;', 'class' => 'btn-disabled']
+                            ['style' => 'width:100%;', 'class' => $model->state != ClientContract::STATE_UNCHECKED && !Yii::$app->user->can('clients.client_type_change') ? 'btn-disabled' : '']
                         )
                         . '</div>'
                 ],

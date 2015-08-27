@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\helpers;
+namespace app\helpers;
 
 
 use yii\base\Model;

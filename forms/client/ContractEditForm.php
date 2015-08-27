@@ -2,7 +2,7 @@
 namespace app\forms\client;
 
 use app\classes\Event;
-use app\classes\helpers\SetFieldTypeHelper;
+use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
 use app\models\ClientContragent;

@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\classes\helpers\SetFieldTypeHelper;
+use app\helpers\SetFieldTypeHelper;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\models\media\ClientFiles;
