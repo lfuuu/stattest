@@ -50,7 +50,6 @@ class Navigation
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
         $this->addBlockForStatModule('users');
-        $this->addBlockForStatModule('usercontrol');
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');

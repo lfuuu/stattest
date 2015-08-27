@@ -497,11 +497,16 @@ class m_tt extends IModule{
             }
             $S.=$S2.' as '.$k;
         }
-        $R = $db->AllRecords('select V.user_main as user '.
-                        $S.' FROM tt_troubles as T '.
-                        'INNER JOIN tt_stages as S ON S.stage_id = T.cur_stage_id '.
-                        'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.            //все этапы
-                        'WHERE '.MySQLDatabase::Generate($W).' GROUP BY V.user_main HAVING V.user_main!=""');
+        $R = $db->AllRecords("
+            SELECT
+                U.`id` AS user_id,
+                V.`user_main` AS user " . $S . "
+            FROM
+                `tt_troubles` AS T
+                    INNER JOIN `tt_stages` S ON S.`stage_id` = T.`cur_stage_id`
+                    INNER JOIN `tt_stages` V ON V.`trouble_id` = T.`id` # //все этапы
+                    LEFT JOIN `user_users` U ON U.`user` = V.`user_main`
+            WHERE " . MySQLDatabase::Generate($W) . " GROUP BY V.`user_main` HAVING V.`user_main` != ''");
 
         $design->assign('tt_report',$R);
         $design->AddMain('tt/report.tpl');
