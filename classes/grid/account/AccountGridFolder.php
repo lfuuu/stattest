@@ -508,7 +508,7 @@ abstract class AccountGridFolder extends Model
                 },
                 'filter' => function () {
                     return \yii\helpers\Html::dropDownList(
-                        'regionId',
+                        'contract_type',
                         \Yii::$app->request->get('contract_type'),
                         ContractType::getList(),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-']
