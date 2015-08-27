@@ -63,7 +63,7 @@ class SyncCoreHelper
             }
         }
 
-        $data["admin"] = array("email" => $adminEmail, "password" => $password ?: password_gen(), "active" => true);
+        $data["admin"] = array("email" => $adminEmail, "password" => $password ?: password_gen(), "active" => false);
         /*
         if ($emails && $password)
         {
