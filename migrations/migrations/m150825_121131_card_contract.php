@@ -55,7 +55,7 @@ class m150825_121131_card_contract extends \app\classes\Migration
                 ('Присоединение сетей', 12),
                 ('Местное присоединение', 12),
                 ('Агентский на МГ МН', 12),
-                ('Другой', 12),
+                ('Другой', 12)
             ;
 
             ALTER TABLE `client_contract`
