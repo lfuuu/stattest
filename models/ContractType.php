@@ -20,6 +20,6 @@ class ContractType extends ActiveRecord
     public static function getList()
     {
         $arr = self::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+        return array_merge(ArrayHelper::map($arr, 'id', 'name'), [0 => 'Не выбрано']);
     }
 }

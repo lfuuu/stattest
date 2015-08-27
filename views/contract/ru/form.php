@@ -124,7 +124,6 @@ use app\models\ClientContract;
                 'contract_type_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\ContractType::getList(),
-                    'options' => ['prompt' => '-- Не выбрано --']
 
                 ],
                 'financial_type' => [
