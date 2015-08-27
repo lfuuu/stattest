@@ -1,4 +1,4 @@
-{if count($voip_conn) || !isset($is_secondary_output)}
+{if count($voip_conn) || count($numbers) || !isset($is_secondary_output)}
     {if !isset($is_secondary_output)}
         <h2>Услуги</h2>
         <h3>IP-телефония</h3>
@@ -11,7 +11,51 @@
     {else}
         <h3><a href='?module=services&action=vo_view'>IP-телефония</a></h3>
     {/if}
-    
+
+    <br />
+    {if count($numbers)}
+        <table class="table table-bordered table-striped table-condensed table-hover">
+            <colgroup>
+                <col width="30%" />
+                <col width="30%" />
+                <col width="30%" />
+            </colgroup>
+            <tr>
+                <th>Номер</th>
+                <th>Группа</th>
+                <th>Состояние</th>
+            </tr>
+            {foreach from=$numbers item=item}
+                <tr>
+                    <td><a href="/usage/number/view?did={$item.number}" target="_blank">{$item.number}</a></td>
+                    <td>{$item.didGroup.name}</td>
+                    <td>
+                        {if ($item.status == 'instock')}
+                            <span style="color: green; font-weight: bold">Свободен</span>
+                        {elseif ($item.status == 'reserved')}
+                            <span style="color: #c40000; font-weight: bold">В резерве</span>
+                            {if $item.reserve_from}
+                                с {$item.reserve_from|mdate:"Y-m-d"}
+                            {/if}
+                            {if $item.reserve_till}
+                                по {$item.reserve_till|mdate:"Y-m-d"}
+                            {/if}
+                        {elseif ($item.status == 'active')}
+                            <span style="color: gray;">Используется</span>
+                        {elseif ($item.status == 'hold')}
+                            <span style="color: blue;">В отстойнике</span>
+                            {if $item.hold_from}
+                                с {$item.hold_from|mdate:"Y-m-d"}
+                            {/if}
+                        {elseif ($item.status == 'notsell')}
+                            <span>Не продается</span>
+                        {/if}
+                    </td>
+                </tr>
+            {/foreach}
+        </table>
+    {/if}
+
     {if isset($is_secondary_output)}
         <table border=0 width=99%>
             <tr>
@@ -68,24 +112,24 @@
                 <td nowrap><a href="/usage/voip/edit?id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to<'3000-01-01'}{$item.actual_to}{/if}</a></td>
                 <td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
                 <td style="font-size: 8pt;">{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
-                    {if $item.tarif.dest_group != 0}
+                    {if $item.logTarif.dest_group != 0}
                         / Набор:
-                        {if strpos($item.tarif.dest_group, '5') !== false}Моб{/if}
-                        {if strpos($item.tarif.dest_group, '1') !== false}МГ{/if}
-                        {if strpos($item.tarif.dest_group, '2') !== false}МН{/if}
-                        ({$item.tarif.minpayment_group})
+                        {if strpos($item.logTarif.dest_group, '5') !== false}Моб{/if}
+                        {if strpos($item.logTarif.dest_group, '1') !== false}МГ{/if}
+                        {if strpos($item.logTarif.dest_group, '2') !== false}МН{/if}
+                        ({$item.logTarif.minpayment_group})
                     {/if}
-                    {if strpos($item.tarif.dest_group, '5') === false}
-                        / Моб {$item.tarif.tarif_local_mob_name} {if $item.tarif.minpayment_local_mob > 0}({$item.tarif.minpayment_local_mob}){/if}
+                    {if strpos($item.logTarif.dest_group, '5') === false}
+                        / Моб {$item.tarifs.local_mob.name} {if $item.logTarif.minpayment_local_mob > 0}({$item.logTarif.minpayment_local_mob}){/if}
                     {/if}
-                    {if strpos($item.tarif.dest_group, '1') === false}
-                        / МГ {$item.tarif.tarif_russia_name} {if $item.tarif.minpayment_russia > 0}({$item.tarif.minpayment_russia}){/if}
+                    {if strpos($item.logTarif.dest_group, '1') === false}
+                        / МГ {$item.tarifs.russia.name} {if $item.logTarif.minpayment_russia > 0}({$item.logTarif.minpayment_russia}){/if}
                     {/if}
-                    {if strpos($item.tarif.dest_group, '1') === false}
-                        / МГ {$item.tarif.tarif_russia_mob_name}
+                    {if strpos($item.logTarif.dest_group, '1') === false}
+                        / МГ {$item.tarifs.russia_mob.name}
                     {/if}
-                    {if strpos($item.tarif.dest_group, '2') === false}
-                        / МН {$item.tarif.tarif_intern_name} {if $item.tarif.minpayment_intern > 0}({$item.tarif.minpayment_intern}){/if}
+                    {if strpos($item.logTarif.dest_group, '2') === false}
+                        / МН {$item.tarifs.intern.name} {if $item.logTarif.minpayment_intern > 0}({$item.logTarif.minpayment_intern}){/if}
                     {/if}
                     {if isset($item.permit)}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}
                 </td>

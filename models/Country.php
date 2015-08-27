@@ -34,7 +34,7 @@ class Country extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::findAll(['in_use' => 1]);
+        $arr = self::find()->where(['in_use' => 1])->orderBy('code DESC')->all();
         return ArrayHelper::map($arr, 'code', 'name');
     }
 

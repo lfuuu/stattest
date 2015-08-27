@@ -72,6 +72,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $actualFrom = $this->connecting_date;
 
+        /*
         if ($tariffMain->is_testing) {
             $actualTo = new DateTime($this->connecting_date, $this->timezone);
             $actualTo->modify('+10 days');
@@ -79,11 +80,11 @@ class UsageVoipEditForm extends UsageVoipForm
         } else {
             $actualTo = Usage::MAX_POSSIBLE_DATE;
         }
+         */
+        $actualTo = Usage::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-
-        $city = City::findOne($this->city_id);
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -94,16 +95,9 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->type_id = $this->type_id;
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;
-        $usage->no_of_lines = $this->no_of_lines;
+        $usage->no_of_lines = (int) $this->no_of_lines;
         $usage->status = $this->status;
-        if (!$this->address) {
-            $usage->address = $city->region->datacenter->address;
-            $usage->address_from_datacenter_id = $city->region->datacenter->id;
-        }
-        else {
-            $usage->address = $this->address;
-            $usage->address_from_datacenter_id = null;
-        }
+        $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
@@ -121,13 +115,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $usage->save();
 
             $this->saveTariff($usage, $this->connecting_date);
-
-            if ($usage->type_id == 'number') {
-                Number::dao()->actualizeStatusByE164($usage->E164);
-            }
-
-            Event::go('update_phone_product', ['account_id' => $this->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -150,24 +137,20 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
-        $region = Region::findOne($this->usage->region);
-
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
+        if ($actualFrom != Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
+            Yii::$app->session->setFlash('error', 'Услуга уже отключена');
+            return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
+        }
 
         $this->usage->actual_from = $actualFrom;
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
-        if (!$this->address) {
-            $this->usage->address = $region->datacenter->address;
-            $this->usage->address_from_datacenter_id = $region->datacenter->id;
-        }
-        else {
-            $this->usage->address = $this->address;
-            $this->usage->address_from_datacenter_id = null;
-        }
+        $this->usage->address = $this->address;
         $this->usage->allowed_direction = $this->allowed_direction;
-        $this->usage->no_of_lines = $this->no_of_lines;
+        $this->usage->no_of_lines = (int) $this->no_of_lines;
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(Usage::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
@@ -188,10 +171,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
 
             $this->usage->save();
-
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -250,7 +229,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $line7800->E164;
             }
 
-            $currentTariff = $usage->getCurrentLogTariff();
+            if (!($currentTariff = $usage->getCurrentLogTariff()))
+                $currentTariff = $usage->getCurrentLogTariff($usage->actual_from);
 
             if ($currentTariff) {
                 $this->tariff_main_id = $currentTariff->id_tarif;
@@ -542,18 +522,15 @@ class UsageVoipEditForm extends UsageVoipForm
                                         dest_group,minpayment_group,
                                         minpayment_local_mob,minpayment_russia,minpayment_intern
                                     ) VALUES '.
-            '("'.$service.'",'.$id.','.Yii::$app->user->id.',NOW(),"'.addslashes($dateActivation).'","",'.
+            '("'.$service.'",'.$id.',"'.(Yii::$app->user->id?:0).'",NOW(),"'.addslashes($dateActivation).'","",'.
             intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
             intval($dest_group).','.intval($minpayment_group).','.
             intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
-
     }
 
     private function setDisconnectionDate()
     {
-        Assert::isTrue($this->usage->isActive(), 'Услуга уже отключена');
-
         $timezone = $this->usage->clientAccount->timezone;
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
 
@@ -578,15 +555,66 @@ class UsageVoipEditForm extends UsageVoipForm
                 $nextHistoryItem->delete();
             }
 
-            Number::dao()->actualizeStatusByE164($this->usage->E164);
-
-            Event::go('update_phone_product', ['account_id' => $this->usage->clientAccount->id]);
-            Event::go('actualize_number', ['number' => $this->usage->E164]);
-
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
+        }
+
+        return true;
+    }
+
+    public function prepareAdd()
+    {
+        if ($this->did)
+        {
+            $this->type_id = "number";
+
+            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
+                $this->type_id = "line";
+            } else if (substr($this->did, 0, 4) == "7800") {
+                $this->type_id = "7800";
+            }
+
+            if ($this->type_id != "number")
+            {
+                $this->number_tariff_id = null;
+            } else {
+                $number = Number::findOne(["number" => $this->did]);
+
+                if ($number)
+                {
+                    $tarifNumber = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
+
+                    if ($tarifNumber)
+                    {
+                        $this->connection_point_id = $number->region;
+                        $this->number_tariff_id = $tarifNumber->id;
+                        $this->city_id = $number->city_id;
+                    } else {
+                        $this->did = null;
+                    }
+                } else {
+                    $this->did = null;
+                }
+            }
+        }
+
+        if (!$this->connecting_date)
+            $this->connecting_date = date("Y-m-d");
+
+        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id)
+        {
+            $whereTariffVoip = [
+                "status"              => "public", 
+                "connection_point_id" => $this->connection_point_id, 
+                "currency_id"         => $this->clientAccount->currency
+            ];
+
+            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
+            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
+            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
+            $this->tariff_russia_mob_id = $this->tariff_russia_id;
         }
     }
 

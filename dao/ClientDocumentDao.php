@@ -7,6 +7,7 @@ use app\models\ClientDocument;
 use Yii;
 use app\classes\Singleton;
 use app\models\Contract;
+use app\models\TariffVoip;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -163,7 +164,9 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
-            $data['voip'][] = [
+            $currentTariff = $usage->getCurrentLogTariff();
+
+            $row = [
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
                 'description' => "Телефонный номер: " . $usage->E164,
@@ -176,8 +179,70 @@ class ClientDocumentDao extends Singleton
                 'per_month_without_tax' => round($sum_without_tax, 2),
                 'month_min_payment' => $usage->currentTariff->month_min_payment,
             ];
+
             if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
                 $data['has8800'] = true;
+
+            if (
+                $currentTariff->id_tarif_local_mob
+                && ($tarifLocalMob = TariffVoip::findOne($currentTariff->id_tarif_local_mob)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifLocalMob */
+                $row['voip_current_tariff']['tarif_local_mob'] = $tarifLocalMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia_mob
+                && ($tarifRussiaMob = TariffVoip::findOne($currentTariff->id_tarif_russia_mob)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifRussiaMob */
+                $row['voip_current_tariff']['tarif_russia_mob'] = $tarifRussiaMob->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_russia
+                && ($tarifRussia = TariffVoip::findOne($currentTariff->id_tarif_russia)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifRussia */
+                $row['voip_current_tariff']['tarif_russia'] = $tarifRussia->name;
+            }
+
+            if (
+                $currentTariff->id_tarif_intern
+                && ($tarifIntern = TariffVoip::findOne($currentTariff->id_tarif_intern)) instanceof TariffVoip
+            ) {
+                /** @var TariffVoip $tarifIntern */
+                $row['voip_current_tariff']['tarif_intern'] = $tarifIntern->name;
+            }
+
+            if ($currentTariff->dest_group != 0 && $currentTariff->minpayment_group) {
+                $group = preg_split('//', $currentTariff->dest_group, -1, PREG_SPLIT_NO_EMPTY);
+                $minpayment = ['value' => $currentTariff->minpayment_group, 'variants' => [0, 0, 0, 0,]];
+                for ($i=0, $s=sizeof($group); $i<$s; $i++) {
+                    switch ($group[$i]) {
+                        case 1:
+                            $minpayment['variants'][1] = 1;
+                            $minpayment['variants'][2] = 1;
+                            break;
+                        case 2:
+                            $minpayment['variants'][3] = 1;
+                            break;
+                        case 5:
+                            $minpayment['variants'][0] = 1;
+                            break;
+                    }
+                }
+                $row['minpayments'][] = $minpayment;
+            }
+
+            if ($currentTariff->minpayment_local_mob > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_local_mob, 'variants' => [1, 0, 0, 0,]];
+            if ($currentTariff->minpayment_russia > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_russia, 'variants' => [0, 1, 1, 0,]];
+            if ($currentTariff->minpayment_intern > 0)
+                $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
+
+            $data['voip'][] = $row;
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
@@ -307,7 +372,7 @@ class ClientDocumentDao extends Singleton
     {
         $contragent = $account->contract->contragent;
 
-        $result = 'Адрес: ' . (
+        $result = $contragent->name_full . '<br />Адрес: ' . (
             $contragent->legal_type == 'person'
                 ? $contragent->person->registration_address
                 : $account->address_jur
@@ -332,7 +397,10 @@ class ClientDocumentDao extends Singleton
         } else {
             return
                 $result .
-                'Банковские реквизиты: ' . $account->bank_properties .
+                'Банковские реквизиты: ' .
+                'р/с ' . ($account->pay_acc ?: '') . '<br />' .
+                $account->bank_name . ' ' . $account->bank_city  .
+                ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
                 ', ИНН ' . $contragent->inn .
                 ', КПП ' . $contragent->kpp .
@@ -418,7 +486,7 @@ class ClientDocumentDao extends Singleton
             'organization_email' => $firm['email'],
             'organization_pay_acc' => $firm['acc'],
 
-            'firm_detail_block' => $this->generateFirmDetail($firm, ($account->bik && $account->bank_properties)),
+            'firm_detail_block' => $this->generateFirmDetail($firm, $account->bik),
             'payment_info' => $this->prepareContragentPaymentInfo($account),
         ];
     }

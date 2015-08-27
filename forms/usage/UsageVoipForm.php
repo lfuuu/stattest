@@ -47,6 +47,8 @@ class UsageVoipForm extends Form
             [['tariff_main_status'], 'string'],
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
             [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
+            ['status', 'default', 'value' => 'connecting'],
+            ['allowed_direction', 'default', 'value' => 'full']
         ];
     }
 

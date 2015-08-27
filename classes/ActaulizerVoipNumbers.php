@@ -6,6 +6,7 @@ use app\classes\api\ApiPhone;
 use app\models\ActualNumber;
 use app\models\UsageVoip;
 use app\models\Region;
+use app\classes\Event;
 
 class ActaulizerVoipNumbers
 {
@@ -29,19 +30,24 @@ class ActaulizerVoipNumbers
         $this->checkSync($number);
     }
 
+    public function actualizeByClientId($clientId)
+    {
+        $this->checkSync(null, $clientId);
+    }
+
     public function actualizeAll()
     {
         $this->checkSync();
     }
 
-    private function checkSync($number = null)
+    private function checkSync($number = null, $clientId = null)
     {
         \l::ll(__CLASS__,__FUNCTION__, $number);
 
         if(
             $diff = $this->checkDiff(
-                ActualNumber::dao()->loadSaved($number),
-                ActualNumber::dao()->collectFromUsages($number)
+                ActualNumber::dao()->loadSaved($number, $clientId),
+                ActualNumber::dao()->collectFromUsages($number, $clientId)
             )
         )
         {
@@ -89,7 +95,7 @@ class ActaulizerVoipNumbers
 
                 if ($line)
                 {
-                    $this->event_go("actualize_number", ["number" => $line->E164]);
+                    Event::go("actualize_number", ["number" => $line->E164]);
                     return true;
                 }
             }
@@ -130,7 +136,7 @@ class ActaulizerVoipNumbers
     {
         foreach($diff as $data)
         {
-            $this->event_go("ats3__sync", $data);       
+            Event::go("ats3__sync", $data);
         }
     }
 
@@ -326,7 +332,12 @@ class ActaulizerVoipNumbers
                 "number" => $number
             ];
 
-            $this->event_go("ats3__blocked_number");
+            if ($new["is_blocked"])
+            {
+                Event::go("ats3__blocked", $new);
+            } else {
+                Event::go("ats3__unblocked", $new);
+            }
 
             unset($changedFields["is_blocked"]);
         }
@@ -339,7 +350,7 @@ class ActaulizerVoipNumbers
                 "number" => $number
             ];
 
-            $this->event_go("ats3__disabled_number", $s);
+            Event::go("ats3__disabled_number", $s);
 
             unset($changedFields["is_disabled"]);
         }
@@ -389,19 +400,6 @@ class ActaulizerVoipNumbers
         return 'Europe/Moscow';
     }
 
-    private function event_go($event, $data = null)
-    {
-        \l::ll(__CLASS__,__FUNCTION__, $event, $data);
-
-        $code = md5($event."|||".json_encode($data));
-
-        $row = UsageVoip::getDb()->createCommand("select id from event_queue where code=:code and status not in ('ok', 'stop')", [":code" => $code])->queryOne();
-
-        if (!$row)
-        {
-            UsageVoip::getDb()->createCommand()->insert("event_queue", ["event" => $event, "param" => json_encode($data), "code" => $code])->execute();
-        }
-    }
 
     private function execQuery($action, $data)
     {

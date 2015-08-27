@@ -296,7 +296,7 @@ $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
 
                                 Платежные реквизиты контрагента: <br/>
                                 <pre>
-                                $result = 'Адрес: ' . (
+                                $result = $contragent->name_full . '<br />Адрес: ' . (
                                     $contragent->legal_type == 'person'
                                     ? $contragent->person->registration_address
                                     : $account->address_jur
@@ -316,7 +316,10 @@ $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
                                 else {
                                     return
                                         $result .
-                                        'Банковские реквизиты: ' . $account->bank_properties .
+                                        'Банковские реквизиты: ' .
+                                        'р/с ' . ($account->pay_acc ?: '') . '<br />' .
+                                        $account->bank_name . ' ' . $account->bank_city  .
+                                        ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                                         ', БИК ' . $account->bik .
                                         ', ИНН ' . $contragent->inn .
                                         ', КПП ' . $contragent->kpp .
@@ -359,7 +362,8 @@ $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
     {literal}
 
     document.onready = function() {
-        document.getElementById('contract_template_group').onchange();
+        if (!document.getElementById("contract_template").options.length)
+            document.getElementById('contract_template_group').onchange();
     };
 
     function do_change_template_group(o) {

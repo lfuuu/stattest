@@ -957,7 +957,10 @@ class ApiLk
                 LEFT JOIN clients c ON (c.id = a.client_id)
                 HAVING status IN ('free')
             ")
-                ->queryAll();
+            ->queryAll();
+
+        $skipFrom = 1;
+        $areaLen = 3;
         
         foreach($numbers as $number)
         {
@@ -1017,19 +1020,12 @@ class ApiLk
         $model = new UsageVoipEditForm();
         $model->scenario = 'add';
         $model->initModel($clientAccount);
-        $model->type_id = 'number';
-        $model->number_tariff_id = $numberTariff->id;
+
         $model->tariff_main_id = $mainTariff->id;
-        $model->connection_point_id = $numberTariff->connection_point_id;
-        $model->city_id = $numberTariff->city_id;
         $model->no_of_lines = $linesCount;
         $model->did = $number->number;
-        $model->connecting_date = $connectingDate->format('Y-m-d');
 
-        $model->tariff_local_mob_id = TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 5])->scalar();
-        $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->scalar();
-        $model->tariff_russia_mob_id = $model->tariff_russia_id;
-        $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->scalar();
+        $model->prepareAdd();
 
         if (!$model->validate()) {
             Yii::error($model->errors);

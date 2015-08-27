@@ -13,6 +13,7 @@ use DateTime;
 use app\models\ClientAccount;
 use yii\console\Controller;
 use yii\db\ActiveQuery;
+use app\forms\usage\UsageVoipEditForm;
 
 
 class UsageController extends Controller
@@ -71,5 +72,84 @@ class UsageController extends Controller
             Yii::error($e);
             return 1;
         }
+    }
+
+    public function actionVoipTestClean()
+    {
+        $info = [];
+
+        $now     =  new DateTime("now");
+
+        echo "\nstart ".$now->format("Y-m-d H:i:s")."\n";
+
+        $blockDate = (new DateTime("now"))->modify("-10 day");
+        $offDate   = (new DateTime("now"))->modify("-40 day");
+
+        echo $now->format("Y-m-d").": block: ".$blockDate->format("Y-m-d")."\n";
+        echo $now->format("Y-m-d").": off: ".$offDate->format("Y-m-d")."\n";
+
+        $infoBlock =$this->cleanUsages($blockDate, "set block");
+        $infoOff = $this->cleanUsages($offDate, "set off");
+
+        if ($infoBlock)
+            $info = array_merge($info, $infoBlock);
+
+        if ($infoOff)
+            $info = array_merge($info, $infoOff);
+
+        if ($info)
+        {
+            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
+            {
+                mail(ADMIN_EMAIL, "voip clean processor", implode("\n", $info));
+            }
+
+            echo implode("\n", $info);
+        }
+
+    }
+
+    private function cleanUsages($date, $action)
+    {
+        $now = new DateTime("now");
+
+        $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format("Y-m-d")])->all();
+
+        $info = [];
+
+        foreach ($usages as $usage)
+        {
+            $tarif = $usage->currentTariff;
+            $account = $usage->clientAccount;
+
+            if (!$tarif || $tarif->status == "test") // тестовый тариф, или без тарифа вообще
+            {
+                if ($usage->actual_to != $now->format("Y-m-d")) // не выключенные сегодня
+                {
+                    if ($action == "set block")
+                    {
+                        if (!$account->is_blocked)
+                        {
+                            $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set block ".$tarif->status;
+
+                            $account->is_blocked = 1;
+                            $account->save();
+                        }
+                    }
+
+                    if ($action == "set off")
+                    {
+                        $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set off";
+
+                        $model = new UsageVoipEditForm();
+                        $model->initModel($usage->clientAccount, $usage);
+                        $model->disconnecting_date = $now->format("Y-m-d");
+                        $model->edit();
+                    }
+                }
+            }
+        }
+
+        return $info;
     }
 }
