@@ -12,8 +12,6 @@ use app\models\media\ClientFiles;
  */
 class ClientContract extends HistoryActiveRecord
 {
-    const CONTRACT_TYPE_MULTY = 5;
-
     const STATE_UNCHECKED = 'unchecked';
     const STATE_OFFER = 'offer';
     const STATE_CHECKED_ORIGINAL = 'checked_original';
