@@ -49,7 +49,13 @@ class Navigation
         );
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
-        $this->addBlockForStatModule('users');
+        //$this->addBlockForStatModule('users');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Управление доступом')
+                ->addItem('Операторы', ['user/control'], ['users.r'])
+                ->addStatModuleItems('users')
+        );
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
