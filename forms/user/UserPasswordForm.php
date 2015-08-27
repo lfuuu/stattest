@@ -27,7 +27,15 @@ class UserPasswordForm extends Form
                 ['password', 'passwordRepeat','passwordCurrent',],
                 'string'
             ],
+            ['password', 'validatePasswordCompare'],
         ];
+    }
+
+    public function validatePasswordCompare()
+    {
+        if ($this->password != $this->passwordRepeat) {
+            $this->addError('passwordRepeat', 'Пароли не совпадают');
+        }
     }
 
     public function attributeLabels()
@@ -43,10 +51,6 @@ class UserPasswordForm extends Form
     {
         if (AuthManager::getPasswordHash($this->passwordCurrent) !== $user->pass) {
             $this->addError('passwordCurrent', 'Старый пароль указан неверно');
-        }
-
-        if ($this->password != $this->passwordRepeat) {
-            $this->addError('passwordRepeat', 'Пароли не совпадают');
         }
 
         if ($this->hasErrors())
