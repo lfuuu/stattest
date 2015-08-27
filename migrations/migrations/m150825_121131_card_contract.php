@@ -1,6 +1,6 @@
 <?php
 
-class m150818_121131_card_contract extends \app\classes\Migration
+class m150825_121131_card_contract extends \app\classes\Migration
 {
     public function up()
     {
