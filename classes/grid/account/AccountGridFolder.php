@@ -164,7 +164,7 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
         if($this->federal_district)
             $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district', $this->federal_district));
-        $query->andFilterWhere(['cr.contract_type' => $this->contract_type]);
+        $query->andFilterWhere(['cr.contract_type_id' => $this->contract_type]);
 
         if ($this->currency) {
             $query->andWhere(['c.currency' => $this->currency]);
