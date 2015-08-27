@@ -30,33 +30,24 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
-        'user' => [
+        'name' => [
             'class' => 'app\classes\grid\column\user\UserNameColumn',
-            'value' => 'user',
-            'attribute' => 'user',
-            'label' => 'Логин',
-            'width' => '10%',
+            'label' => 'Полное имя',
         ],
         'usergroup' => [
             'class' => 'app\classes\grid\column\user\UserGroupColumn',
             'label' => 'Группа',
-            'width' => '10%',
+            'width' => '20%',
         ],
         'depart_id' => [
             'class' => 'app\classes\grid\column\user\UserDepartColumn',
             'label' => 'Отдел',
             'width' => '10%',
         ],
-        'name' => [
-            'class' => 'app\classes\grid\column\user\UserNameColumn',
-            'label' => 'Полное имя',
-            'width' => '45%',
-        ],
-        'trouble_redirect' => [
-            'class' => 'app\classes\grid\column\user\UserNameColumn',
-            'value' => 'trouble_redirect',
-            'label' => 'Редирект',
-            'width' => '200px',
+        'enabled' => [
+            'class' => 'app\classes\grid\column\user\UserEnabledColumn',
+            'label' => 'Активность',
+            'width' => '5%',
         ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',

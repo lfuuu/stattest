@@ -22,6 +22,9 @@ class UserNameColumn extends DataColumn
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        return Html::a(parent::getDataCellValue($model, $key, $index), ['edit', 'id' => $model->id]);
+        $value =
+            parent::getDataCellValue($model, $key, $index) .
+            ' (' . $model->user . ')';
+        return Html::a($value, ['edit', 'id' => $model->id]);
     }
 }

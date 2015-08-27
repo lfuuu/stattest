@@ -14,14 +14,14 @@ class UserListForm extends UserForm
         $depart_id,
         $usergroup,
         $user,
-        $name;
+        $enabled;
 
-    public function attributeLabels()
+    public function rules()
     {
         return [
-            'depart_id' => 'Отдел',
+            [['user', 'usergroup', 'enabled',],'string'],
+            [['depart_id', ], 'integer'],
         ];
-        //return parent::attributeLabels();
     }
 
     /**
@@ -40,11 +40,8 @@ class UserListForm extends UserForm
         if ($this->usergroup) {
             $query->andWhere(['usergroup' => $this->usergroup]);
         }
-        if ($this->name) {
-            $query->andWhere(['depart_id' => $this->depart_id]);
-        }
-        if ($this->depart_id) {
-            $query->andWhere(['depart_id' => $this->depart_id]);
+        if ($this->user) {
+            $query->andWhere(['user' => $this->user]);
         }
     }
 
