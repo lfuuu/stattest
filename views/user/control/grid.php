@@ -10,7 +10,7 @@ $recordBtns = [
     'delete' => function($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            '#' . $model->user,
+            ['delete', 'id' => $model->id],
             [
                 'title' => Yii::t('kvgrid', 'Delete'),
                 'data-pjax' => 0,
@@ -67,6 +67,9 @@ echo GridView::widget([
                     [
                         'data-pjax' => 0,
                         'class' => 'btn btn-success btn-sm form-lnk',
+                        'onClick' => 'return showIframePopup(this);',
+                        'data-width' => 400,
+                        'data-height' => 450,
                     ]
                 ),
         ]

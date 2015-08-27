@@ -8,9 +8,11 @@ use app\classes\BaseController;
 use yii\web\Response;
 use yii\filters\AccessControl;
 use app\models\User;
-use app\forms\user\UserListForm;
 use app\forms\user\UserForm;
+use app\forms\user\UserListForm;
+use app\forms\user\UserCreateForm;
 use app\forms\user\UserPasswordForm;
+use yii\helpers\Json;
 
 class ControlController extends BaseController
 {
@@ -27,7 +29,7 @@ class ControlController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['edit', 'change-password'],
+                        'actions' => ['add', 'edit', 'delete', 'change-password'],
                         'roles' => ['users.change'],
                     ],
                 ],
@@ -49,6 +51,25 @@ class ControlController extends BaseController
         ]);
     }
 
+    public function actionAdd()
+    {
+        $model = new UserCreateForm;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            Yii::$app->session->set(
+                'user_created',
+                Json::encode($model)
+            );
+            return $this->redirect(Yii::$app->request->referrer);
+        }
+
+        $this->layout = 'minimal';
+        return $this->render('add', [
+            'model' => $model,
+        ]);
+    }
+
     public function actionEdit($id)
     {
         $user = User::findOne($id);
@@ -64,6 +85,23 @@ class ControlController extends BaseController
         return $this->render('edit', [
             'model' => $model,
         ]);
+    }
+
+    public function actionDelete($id)
+    {
+        $user = User::findOne($id);
+        Assert::isObject($user);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $user->delete();
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $this->redirect(['index']);
     }
 
     public function actionChangePassword($id)

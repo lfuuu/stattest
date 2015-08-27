@@ -23,7 +23,7 @@ class UserForm extends Form
         $phone_work,
         $phone_mobile,
         $icq,
-        $language,
+        $language = Language::DEFAULT_LANGUAGE,
         $city_id,
         $photo,
         $show_troubles_on_every_page = 0,
