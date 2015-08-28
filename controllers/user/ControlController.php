@@ -144,6 +144,7 @@ class ControlController extends BaseController
         $authManager = new \app\classes\AuthManager();
         $authManager->updateDatabase();
         Yii::$app->session->addFlash('success', 'Права обновлены');
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
 }
