@@ -3,6 +3,7 @@
 namespace app\forms\user;
 
 use Yii;
+use app\classes\AuthManager;
 use app\models\User;
 
 class UserCreateForm extends UserForm
@@ -44,6 +45,7 @@ class UserCreateForm extends UserForm
 
         $user = new User;
         $user->setAttributes($this->getAttributes(), false);
+        $user->pass = AuthManager::getPasswordHash($this->pass);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
