@@ -54,6 +54,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Управление доступом')
                 ->addItem('Операторы', ['user/control'], ['users.r'])
+                ->addItem('Группы', ['user/group'], ['users.r'])
                 ->addStatModuleItems('users')
         );
         $this->addBlockForStatModule('send');
