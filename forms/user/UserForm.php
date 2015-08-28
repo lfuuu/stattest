@@ -28,7 +28,7 @@ class UserForm extends Form
         $photo,
         $show_troubles_on_every_page = 0,
         $usergroup,
-        $depart_id = 0,
+        $depart_id,
         $trouble_redirect,
         $courier_id = 0,
         $enabled = 'yes';

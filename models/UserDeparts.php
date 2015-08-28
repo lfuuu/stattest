@@ -17,4 +17,14 @@ class UserDeparts extends ActiveRecord
         return UserDepartsDao::me();
     }
 
+    public function getUsers()
+    {
+        return $this->hasMany(User::className(), ['depart_id' => 'id']);
+    }
+
+    public function getUsersCount()
+    {
+        return count($this->users);
+    }
+
 }

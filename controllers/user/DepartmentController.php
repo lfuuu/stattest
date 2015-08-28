@@ -7,10 +7,10 @@ use yii\helpers\Json;
 use app\classes\Assert;
 use app\classes\BaseController;
 use yii\filters\AccessControl;
-use app\models\UserGroups;
-use app\forms\user\GroupForm;
+use app\models\UserDeparts;
+use app\forms\user\DepartmentForm;
 
-class GroupController extends BaseController
+class DepartmentController extends BaseController
 {
 
     public function behaviors()
@@ -35,7 +35,7 @@ class GroupController extends BaseController
 
     public function actionIndex()
     {
-        $model = new GroupForm;
+        $model = new DepartmentForm;
         $model->load(Yii::$app->request->getQueryParams());
 
         $dataProvider = $model->spawnDataProvider();
@@ -48,12 +48,12 @@ class GroupController extends BaseController
 
     public function actionAdd()
     {
-        $model = new GroupForm;
+        $model = new DepartmentForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             Yii::$app->session->set(
-                'group_created',
+                'department_created',
                 Json::encode($model)
             );
             return $this->redirect(Yii::$app->request->referrer);
@@ -65,29 +65,12 @@ class GroupController extends BaseController
         ]);
     }
 
-    public function actionEdit($id)
-    {
-        $group = UserGroups::findOne($id);
-        Assert::isObject($group);
-
-        $model = (new GroupForm)->initModel($group);
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($group)) {
-            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-            return $this->redirect(Yii::$app->request->referrer);
-        }
-
-        return $this->render('edit', [
-            'model' => $model,
-        ]);
-    }
-
     public function actionDelete($id)
     {
-        $group = UserGroups::findOne($id);
+        $group = UserDeparts::findOne($id);
         Assert::isObject($group);
 
-        (new GroupForm)->delete($group);
+        (new DepartmentForm)->delete($group);
 
         return $this->redirect(['index']);
     }
