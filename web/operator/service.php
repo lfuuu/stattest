@@ -4,7 +4,7 @@ use app\models\Number;
 use app\classes\StatModule;
 use app\models\Trouble;
 use app\models\LkWizardState;
-use app\models\ContractType;
+use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
 use app\models\ClientAccount;
@@ -72,7 +72,7 @@ if ($action=='add_client') {
     Yii::info($cg);
 
     $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-    $cr->contract_type_id = ContractType::TELEKOM;
+    $cr->business_id = Business::TELEKOM;
     $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
     $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->organization_id = Organization::MCN_TELEKOM;
@@ -181,7 +181,7 @@ if ($action=='add_client') {
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->server_pbx_id = 2; // vpbx-msk
+                $vats->region = \app\models\Region::MOSCOW; // vpbx-msk
                 $vats->save();
                 $logTarif = new LogTarif;
                 $logTarif->service = "usage_virtpbx";

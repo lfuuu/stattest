@@ -53,7 +53,7 @@ use \app\models\ClientContract;
                                         </span>
                                         &nbsp;
                                         <span>
-                                            <i class="<?= $contract->state == 'unchecked' ? 'uncheck' : 'check' ?>"></i>
+                                            <i class="<?= $contract->state == ClientContract::STATE_UNCHECKED ? 'uncheck' : 'check' ?>"></i>
                                             <?php $states = ClientContract::$states;
                                             echo $states[$contract->state]; ?>
                                         </span>
@@ -61,7 +61,7 @@ use \app\models\ClientContract;
                                 </div>
                                 <div class="col-sm-3">
                                     <?php $bps = $contract->businessProcessStatus; ?>
-                                    <span><?= $contract->contractType ?></span>&nbsp;
+                                    <span><?= $contract->business ?></span>&nbsp;
                                     <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/?>
                                     /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>

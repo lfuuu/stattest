@@ -31,7 +31,7 @@ class DisconnectedDebtFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 1]);
     }

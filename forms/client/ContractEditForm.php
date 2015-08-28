@@ -2,6 +2,7 @@
 namespace app\forms\client;
 
 use app\classes\Event;
+use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
 use app\models\ClientContragent;
@@ -22,7 +23,7 @@ class ContractEditForm extends Form
         $id,
         $super_id,
         $contragent_id,
-        $number = '',
+        $number,
         $date,
         $organization_id,
         $manager,
@@ -30,9 +31,11 @@ class ContractEditForm extends Form
         $account_manager,
         $business_process_id,
         $business_process_status_id,
-        $contract_type_id,
+        $business_id,
         $state,
-        $is_external = 0,
+        $contract_type_id,
+        $financial_type,
+        $federal_district,
 
         $save_comment_stage = false,
         $public_comment = [];
@@ -46,11 +49,27 @@ class ContractEditForm extends Form
     {
         $rules = [
             [['date', 'manager', 'account_manager', 'comment', 'historyVersionStoredDate',], 'string'],
-            [['contragent_id', 'contract_type_id', 'business_process_id', 'business_process_status_id', 'super_id', 'organization_id', 'is_external'], 'integer'],
-            ['state', 'in', 'range' => ['unchecked', 'checked_copy', 'checked_original',]],
-            ['business_process_id', 'default', 'value' => 1],
-            ['business_process_status_id', 'default', 'value' => 19],
+            [['contragent_id', 'business_id', 'business_process_id', 'business_process_status_id', 'super_id',
+                'organization_id', 'contract_type_id'], 'integer'],
+            [['contract_type_id'], 'default', 'value' => 0],
+            ['business_process_id', 'default', 'value' => BusinessProcess::TELECOM_MAINTENANCE],
+            ['number', 'default', 'value' => ''],
+            ['business_process_status_id', 'default', 'value' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
             [['public_comment', 'save_comment_stage'], 'safe'],
+            ['financial_type', 'in', 'range' => array_keys(ClientContract::$financialTypes)],
+            ['federal_district', function($attribute){
+                SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
+            }],
+            [['federal_district', 'financial_type'], 'default', 'value' => ''],
+            ['state', 'validateState'],
+            [['business_process_id', 'business_process_status_id'], function($attribute){
+                if(!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute)
+                    $this->addError('state', 'Вы не можете менять бизнес процесс');
+            }],
+            ['business_id', function($attribute){
+                if( !$this->getIsNewRecord() &&  $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus'))
+                    $this->addError('state', 'Вы не можете менять тип договора');
+            }],
         ];
         return $rules;
     }
@@ -60,6 +79,9 @@ class ContractEditForm extends Form
         return (new ClientContract())->attributeLabels() + ['comment' => 'Комментарий'];
     }
 
+    /**
+     * @return ClientContract
+     */
     public function getModel()
     {
         return $this->contract;
@@ -96,23 +118,6 @@ class ContractEditForm extends Form
             ->andWhere(['>=', 'actual_to', $date])
             ->all();
         return ArrayHelper::map($organizations, 'organization_id', 'name');
-    }
-
-    public function getBusinessProcessesList()
-    {
-        $arr = BusinessProcess::find()->andWhere(['show_as_status' => '1'])->all();
-        return ArrayHelper::map($arr, 'id', 'name');
-    }
-
-    public function getBusinessProcessStatusesList()
-    {
-        $arr = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();;
-        return ArrayHelper::map($arr, 'id', 'name');
-    }
-
-    public function getCurrentBusinessProcessStatus()
-    {
-        return BusinessProcessStatus::findOne($this->business_process_status_id);
     }
 
     public function save()
@@ -168,29 +173,19 @@ class ContractEditForm extends Form
         return false;
     }
 
-    public function getContragentListBySuperId()
+    public function getIsNewRecord()
     {
-        $superId = $this->super_id;
-        return ClientContragent::find()->andWhere(['super_id' => $superId])->all();
+        return $this->id ? false : true;
     }
 
-    public function validate($attributeNames = null, $clearErrors = false)
+    public function validateState($attribute)
     {
-        if (!$this->getIsNewRecord() && !array_key_exists($this->state, $this->getModel()->statusesForChange()))
-            $this->addError('state', 'Вы не можете менять статус');
+        if(!array_key_exists($this->$attribute, $this->getModel()->statusesForChange()))
+            $this->addError($attribute, 'Вы не можете менять статус');
 
-        if (!$this->getIsNewRecord() && $this->contract_type_id != $this->getModel()->contract_type_id && !Yii::$app->user->can('clients.restatus'))
-            $this->addError('state', 'Вы не можете менять тип договора');
-
-        if (
-            ($this->business_process_id != $this->getModel()->business_process_id || $this->business_process_status_id != $this->getModel()->business_process_status_id)
-            && !Yii::$app->user->can('clients.restatus')
-        )
-            $this->addError('state', 'Вы не можете менять бизнес процесс');
-
-        if ($this->contract->attributes['state'] !== $this->state && $this->state != 'unchecked') {
+        if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
             $contragent = ClientContragent::findOne($this->contragent_id);
-            if (!$contragent->getIsNewRecord())
+            if(!$contragent->getIsNewRecord())
                 $contragent->hasChecked = true;
             if (!$contragent->validate()) {
                 if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
@@ -201,12 +196,5 @@ class ContractEditForm extends Form
                     $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
             }
         }
-
-        return parent::validate($attributeNames, $clearErrors);
-    }
-
-    public function getIsNewRecord()
-    {
-        return $this->id ? false : true;
     }
 }

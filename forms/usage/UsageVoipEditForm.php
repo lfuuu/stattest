@@ -137,7 +137,7 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
-        if (!$this->usage->isActive()) {
+        if ($this->usage->actual_from != Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
             Yii::$app->session->setFlash('error', 'Услуга уже отключена');
             return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
         }

@@ -197,7 +197,7 @@ class LkDocsController extends ApiController
             ->contractId($contractId)
             ->active()
             ->andWhere(["id" => $form->id])
-            ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date", "client_id"])
+            ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date"])
             ->one();
 
 

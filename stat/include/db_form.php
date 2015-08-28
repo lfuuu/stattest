@@ -310,7 +310,6 @@ class HelpDbForm {
             'ip'=>'ip',
             'router'=>'роутер',
             'amount'=>'количество',
-            'server_pbx_id'=>'Сервер АТС',
         );
         return isset($names[$fld]) ? $names[$fld] : $fld;
     }
@@ -465,7 +464,6 @@ class DbFormUsageVoip extends DbForm {
         $regions = array();
         foreach($db->AllRecords('select * from regions') as $item)
             $regions[$item['id']] = $item['code'].' - '.$item['name'];
-
 
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
@@ -1322,7 +1320,12 @@ class DbFormUsageVirtpbx extends DbForm{
     public function __construct() {
         global $db;
 
+        $regions = array();
+        foreach($db->AllRecords('select * from regions') as $item)
+            $regions[$item['id']] = $item['code'].' - '.$item['name'];
+
         DbForm::__construct('usage_virtpbx');
+        $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'), 'add'=>"onchange='optools.voip.check_e164.move_checking();' ");
         $this->fields['actual_to']=array('default'=>'01-01-4000');
@@ -1330,7 +1333,7 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['expire_dt']=array('type'=>'hidden');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);
-        $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"), 'default' => 2);
+        //$this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"), 'default' => 2);
         $this->fields['amount']=array("default" => 1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
@@ -2133,7 +2136,6 @@ $GLOBALS['translate_arr']=array(
     '*.is_web_call' => 'Звонки с сайта',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
-    '*.server_pbx_id' => 'Сервер АТС',
     '*.number' => 'Номер',
     '*.per_month_price' => 'Абонентская плата (с НДС)',
     '*.per_sms_price' => 'за 1 СМС (с НДС)',

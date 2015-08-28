@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\forms\client\ContractEditForm;
 use app\classes\BaseController;
+use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
 use \Yii;
 use yii\base\Exception;
@@ -50,8 +51,9 @@ class ContractController extends BaseController
     public function actionCreate($parentId, $childId = null)
     {
         $model = new ContractEditForm(['contragent_id' => $parentId]);
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        $request = Yii::$app->request->post();
+        $notSave = (isset($request['notSave']) && $request['notSave']);
+        if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
             return $this->redirect(['contract/edit','id'=>$model->id, 'childId'=>$childId, 'showLastChanges'=>1]);
         }
 
@@ -81,7 +83,9 @@ class ContractController extends BaseController
             Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        $request = Yii::$app->request->post();
+        $notSave = (isset($request['notSave']) && $request['notSave']);
+        if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
             $returnTo =
                 Yii::$app->request->get('returnTo')
                     ?:['contract/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $model->historyVersionStoredDate];

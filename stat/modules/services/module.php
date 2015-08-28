@@ -1929,13 +1929,14 @@ class m_services extends IModule{
                 S.*,
 
                 S.id as id,
-                sp.name as server_pbx,
+                r.name as regionName,
                 c.status as client_status,
                 c.id as client_id,
                 IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
-            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
+            LEFT JOIN datacenter d ON d.region = S.region
+            LEFT JOIN regions r ON r.id = d.region
             LEFT JOIN clients c ON (c.client = S.client)
 
             HAVING actual
@@ -1970,11 +1971,12 @@ class m_services extends IModule{
                 
                 S.*,
                 S.id as id,
-                sp.name as server_pbx,
+                r.name as regionName,
                 IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
-            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
+            LEFT JOIN datacenter d ON d.region = S.region
+            LEFT JOIN regions r ON r.id = d.region
             
             WHERE S.client="'.$clientNick.'"'
         );

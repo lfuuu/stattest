@@ -1,11 +1,9 @@
 <?php
 
 $rights = require(__DIR__ . '/rights.php');
-$clientGrid = require(__DIR__ . '/client_grid.php');
 
 return [
     'rights' => $rights,
-    'clientGrid' => $clientGrid,
     'adminEmail' => 'admin@example.com',
     'USE_MD5' => 1,
     'STORE_PATH' => realpath("../../store")."/",
