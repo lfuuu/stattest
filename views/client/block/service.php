@@ -463,7 +463,7 @@ if ($has) :
                                 </td>
                                 <td><?= $service->currentTariff->description ?></td>
                                 <td><?= $service->currentTariff->price ?></td>
-                                <td><?= $service->serverPbx->name ?></td>
+                                <td><?php $service->getRegionName() ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

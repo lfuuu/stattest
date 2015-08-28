@@ -6,7 +6,7 @@ use Yii;
 
 interface AccountGridInterface
 {
-    function getContractType();
+    function getBusiness();
 
     function getBusinessProcessId();
 

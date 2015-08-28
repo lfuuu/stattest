@@ -32,7 +32,7 @@ class ActingFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING]);
     }
 }

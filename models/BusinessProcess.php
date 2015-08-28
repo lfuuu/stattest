@@ -2,42 +2,48 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 class BusinessProcess extends ActiveRecord
 {
 
     const TELECOM_SUPPORT = 1;
-    // Òåëåêîì
-    const TELECOM_MAINTENANCE = 1; // Ñîïğîâîæäåíèå
-    const TELECOM_REPORTS = 16; // Îò÷åòû
-    const TELECOM_SALES = 2; // Ïğîäàæè
 
-    // Èíòåğíåò ìàãàçèí
-    const INTERNET_SHOP_ORDERS = 3; // Çàêàçû ìàãàçèíà
-    const INTERNET_SHOP_MAINTENANCE = 4; // Ñîïğîâîæäåíèå
+    const TELECOM_MAINTENANCE = 1;
+    const TELECOM_REPORTS = 16;
+    const TELECOM_SALES = 2;
 
-    // Ïîñòàâùèê
-    const PROVIDER_ORDERS = 5; // Çàêàçû
-    const PROVIDER_MAINTENANCE = 6; // Ñîïğîâîæäåíèå
+    const INTERNET_SHOP_ORDERS = 3;
+    const INTERNET_SHOP_MAINTENANCE = 4;
 
-    // Ïàğòíåğ
-    const PARTNER_MAINTENANCE = 8; // Ñîïğîâîæäåíèå
+    const PROVIDER_ORDERS = 5;
+    const PROVIDER_MAINTENANCE = 6;
 
-    // Âíóòğåííèé îôèñ
-    const INTERNAL_OFFICE = 10; // Âíóòğåííèé îôèñ
+    const PARTNER_MAINTENANCE = 8;
 
-    // Îïåğàòîğ
-    const OPERATOR_OPERATORS = 11; // Îïåğàòîğû
-    const OPERATOR_CLIENTS = 12; // Êëèåíòû
-    const OPERATOR_INFRASTRUCTURE = 13; // Èíôğàñòğóêòóğà
-    const OPERATOR_FORMAL = 14; // Ôîğìàëüíûå
+    const INTERNAL_OFFICE = 10;
 
-    // Welltime
-    const WELLTIME_MAINTENANCE = 15; // Ñîïğîâîæäåíèå
+    const OPERATOR_OPERATORS = 11;
+    const OPERATOR_CLIENTS = 12;
+    const OPERATOR_INFRASTRUCTURE = 13;
+    const OPERATOR_FORMAL = 14;
+
+    const WELLTIME_MAINTENANCE = 15;
 
     public static function tableName()
     {
         return 'client_contract_business_process';
+    }
+
+    public static function getList()
+    {
+        $arr = self::find()->andWhere(['show_as_status' => '1'])->all();
+        return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public function getBusinessProcessStatuses()
+    {
+        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id']);
     }
 
 }
