@@ -24,7 +24,7 @@ use app\models\ClientContract;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\Business::getList(),
                     'options' => ['disabled' =>
-                        !$model->isNewRecord()
+                        !$model->getIsNewRecord()
                         && $model->state != ClientContract::STATE_UNCHECKED
                         && !Yii::$app->user->can('clients.client_type_change')
                     ]
@@ -36,7 +36,7 @@ use app\models\ClientContract;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\BusinessProcess::getList(),
                     'options' => ['disabled' =>
-                        !$model->isNewRecord()
+                        !$model->getIsNewRecord()
                         && $model->state != ClientContract::STATE_UNCHECKED
                         && !Yii::$app->user->can('clients.restatus')
                         && !Yii::$app->user->can('clients.client_type_change')
@@ -135,7 +135,7 @@ use app\models\ClientContract;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\ClientContract::$financialTypes,
                     'options' => ['disabled' =>
-                        !$model->isNewRecord()
+                        !$model->getIsNewRecord()
                         && $model->state != ClientContract::STATE_UNCHECKED
                         && !Yii::$app->user->can('clients.client_type_change')]
                 ],
@@ -148,7 +148,7 @@ use app\models\ClientContract;
                             \app\models\ClientContract::$districts,
                             ['style' => 'width:100%;',
                                 'class' =>
-                                    !$model->isNewRecord()
+                                    !$model->getIsNewRecord()
                                     && $model->state != ClientContract::STATE_UNCHECKED
                                     && !Yii::$app->user->can('clients.client_type_change')
                                         ? 'btn-disabled'
