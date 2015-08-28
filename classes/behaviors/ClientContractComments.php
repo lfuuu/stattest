@@ -26,12 +26,12 @@ class ClientContractComments extends Behavior
 
         if ($contract instanceof ClientContract) {
             if (
-                isset($event->changedAttributes['contract_type_id'])
+                isset($event->changedAttributes['business_id'])
                     &&
-                $event->changedAttributes['contract_type_id'] != $contract->contract_type_id
+                $event->changedAttributes['business_id'] != $contract->business_id
             ) {
                 $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_CONTRACT_TYPE . $contract->contractType;
+                $comment->comment = ClientContractComment::SET_BUSINESS . $contract->business;
                 $comment->user = Yii::$app->user->identity->user;
                 $comment->ts = date('Y-m-d H:i:s');
                 $comment->is_publish = 0;
@@ -45,7 +45,7 @@ class ClientContractComments extends Behavior
                 $event->changedAttributes['business_process_id'] != $contract->business_process_id
             ) {
                 $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS . $contract->businessProcess;
+                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS . $contract->businessProcess->name;
                 $comment->user = Yii::$app->user->identity->user;
                 $comment->ts = date('Y-m-d H:i:s');
                 $comment->is_publish = 0;
@@ -59,7 +59,7 @@ class ClientContractComments extends Behavior
                 $event->changedAttributes['business_process_status_id'] != $contract->business_process_status_id
             ) {
                 $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS_STATUS . $contract->businessProcessStatus;
+                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS_STATUS . $contract->businessProcessStatus->name;
                 $comment->user = Yii::$app->user->identity->user;
                 $comment->ts = date('Y-m-d H:i:s');
                 $comment->is_publish = 0;
