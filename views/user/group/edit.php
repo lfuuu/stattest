@@ -33,7 +33,7 @@ use yii\helpers\Html;
         'model' => $model,
         'form' => $form,
         'attributes' => [
-            'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'usergroup')],
+            'id' => ['type' => Form::INPUT_RAW, 'value' => Html::hiddenInput($model->formName() . '[id]', $model->usergroup)],
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>

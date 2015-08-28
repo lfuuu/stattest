@@ -60,10 +60,11 @@ class GroupForm extends Form
 
     public function validateExistsGroup($model)
     {
-        print $this->id;
-        $group = UserGroups::findOne(['usergroup' => $this->{$model}]);
-        if ($group instanceof UserGroups && $group->usergroup && !$this->id)
-            $this->addError($model, 'Группа уже существует');
+        if ($this->{$model} != $this->id) {
+            $group = UserGroups::findOne(['usergroup' => $this->{$model}]);
+            if ($group instanceof UserGroups && $group->usergroup)
+                $this->addError($model, 'Группа уже существует');
+        }
     }
 
     public function save($group = false)
