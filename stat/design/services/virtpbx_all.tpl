@@ -24,7 +24,7 @@
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{$item.actual_from}</a>&nbsp;</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a>&nbsp;</td>
 	<td>{$item.tarif.price}</td>
-	<td>{$item.server_pbx}</td>
+	<td>{$item.regionName}</td>
 </tr>
 {/foreach}
 </tbody>

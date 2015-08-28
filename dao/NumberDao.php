@@ -1,14 +1,15 @@
 <?php
 namespace app\dao;
 
-use app\models\UsageVoip;
 use Yii;
-use app\classes\Assert;
-use app\models\ClientAccount;
 use DateTime;
 use DateTimeZone;
+use app\classes\Assert;
 use app\classes\Singleton;
 use app\models\Number;
+use app\models\UsageVoip;
+use app\models\TariffVoip;
+use app\models\ClientAccount;
 
 /**
  * @method static NumberDao me($args = null)
@@ -74,12 +75,33 @@ class NumberDao extends Singleton
 
     public function stopActive(Number $number)
     {
+
+        $setStatus = Number::STATUS_HOLD;
+
         $now = new DateTime('now', new DateTimeZone('UTC'));
+
+        // Если тариф тестовый, то выкладываем номер минуя отстойник.
+        $usage = UsageVoip::find()
+            ->andWhere(['E164' => $number->number])
+            ->andWhere(['<', 'actual_to', $now->format('Y-m-d')])
+            ->orderBy('actual_to desc')
+            ->limit(1)
+            ->one();
+
+        if (
+            $usage
+            && ($log = $usage->getCurrentLogTariff($usage->actual_from))
+            && ($currentTariff = TariffVoip::findOne($log->id_tarif))
+            && ($currentTariff->status == "test")
+        ) {
+            $setStatus = Number::STATUS_INSTOCK;
+        }
+
 
         $number->client_id = null;
         $number->usage_id = null;
         $number->hold_from = $now->format('Y-m-d H:i:s');
-        $number->status = Number::STATUS_HOLD;
+        $number->status = $setStatus;
         $number->save();
 
         Number::dao()->log($number, 'invertReserved', 'N');
@@ -149,7 +171,7 @@ class NumberDao extends Singleton
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
-            ->andWhere('actual_from<=DATE(now()) and  actual_to >= DATE(now())')
+            ->andWhere('actual_from<=DATE(now()) and actual_to >= DATE(now())')
             ->one();
         
         if ($usage) {

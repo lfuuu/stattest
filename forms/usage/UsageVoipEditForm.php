@@ -95,7 +95,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->type_id = $this->type_id;
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;
-        $usage->no_of_lines = $this->no_of_lines;
+        $usage->no_of_lines = (int) $this->no_of_lines;
         $usage->status = $this->status;
         $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
@@ -137,6 +137,11 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
+        if ($this->usage->actual_from != Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
+            Yii::$app->session->setFlash('error', 'Услуга уже отключена');
+            return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
+        }
+
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
@@ -145,7 +150,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->status = $this->status;
         $this->usage->address = $this->address;
         $this->usage->allowed_direction = $this->allowed_direction;
-        $this->usage->no_of_lines = $this->no_of_lines;
+        $this->usage->no_of_lines = (int) $this->no_of_lines;
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(Usage::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
@@ -517,18 +522,15 @@ class UsageVoipEditForm extends UsageVoipForm
                                         dest_group,minpayment_group,
                                         minpayment_local_mob,minpayment_russia,minpayment_intern
                                     ) VALUES '.
-            '("'.$service.'",'.$id.','.Yii::$app->user->id.',NOW(),"'.addslashes($dateActivation).'","",'.
+            '("'.$service.'",'.$id.',"'.(Yii::$app->user->id?:0).'",NOW(),"'.addslashes($dateActivation).'","",'.
             intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
             intval($dest_group).','.intval($minpayment_group).','.
             intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
             ')')->execute();
-
     }
 
     private function setDisconnectionDate()
     {
-        Assert::isTrue($this->usage->isActive(), 'Услуга уже отключена');
-
         $timezone = $this->usage->clientAccount->timezone;
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
 
@@ -557,6 +559,62 @@ class UsageVoipEditForm extends UsageVoipForm
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
+        }
+
+        return true;
+    }
+
+    public function prepareAdd()
+    {
+        if ($this->did)
+        {
+            $this->type_id = "number";
+
+            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
+                $this->type_id = "line";
+            } else if (substr($this->did, 0, 4) == "7800") {
+                $this->type_id = "7800";
+            }
+
+            if ($this->type_id != "number")
+            {
+                $this->number_tariff_id = null;
+            } else {
+                $number = Number::findOne(["number" => $this->did]);
+
+                if ($number)
+                {
+                    $tarifNumber = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
+
+                    if ($tarifNumber)
+                    {
+                        $this->connection_point_id = $number->region;
+                        $this->number_tariff_id = $tarifNumber->id;
+                        $this->city_id = $number->city_id;
+                    } else {
+                        $this->did = null;
+                    }
+                } else {
+                    $this->did = null;
+                }
+            }
+        }
+
+        if (!$this->connecting_date)
+            $this->connecting_date = date("Y-m-d");
+
+        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id)
+        {
+            $whereTariffVoip = [
+                "status"              => "public", 
+                "connection_point_id" => $this->connection_point_id, 
+                "currency_id"         => $this->clientAccount->currency
+            ];
+
+            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
+            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
+            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
+            $this->tariff_russia_mob_id = $this->tariff_russia_id;
         }
     }
 

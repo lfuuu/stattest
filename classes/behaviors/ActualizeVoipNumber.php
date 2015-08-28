@@ -12,20 +12,19 @@ class ActualizeVoipNumber extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => "actualizeNumberBeforeAdd",
-            ActiveRecord::EVENT_BEFORE_UPDATE => "actualizeNumberBeforeUpdate"
+            ActiveRecord::EVENT_AFTER_INSERT => 'actualizeNumberAfterInsert',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'actualizeNumberAfterUpdate',
         ];
     }
 
-    public function actualizeNumberBeforeAdd($event)
+    public function actualizeNumberAfterInsert($event)
     {
         Event::go('actualize_number', ['number' => $event->sender->E164]);
     }
 
-    public function actualizeNumberBeforeUpdate($event)
+    public function actualizeNumberAfterUpdate($event)
     {
-        if ($event->changedAttributes)
-        {
+        if (count($event->changedAttributes)) {
             Event::go('actualize_number', ['number' => $event->sender->E164]);
         }
     }

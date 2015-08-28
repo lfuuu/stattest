@@ -29,6 +29,8 @@ class JSONQuery
             $defaults[CURLOPT_URL] .= "?".http_build_query($data);
         }
 
+        //Event::go("json", [$url, $data], true);
+
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
         if( ! $result = curl_exec($ch))

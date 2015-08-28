@@ -15,7 +15,7 @@
           <TD><a href='{$LINK_START}module=routers&action=server_pbx_apply&id={$item.id}'>{$item.name}</a>{if $fixclient} &nbsp; <a href="./?module=tt&clients_client={$fixclient}&server_id={$item.id}&action=view_type&type_pk=1&show_add_form=true"><img  src="{$IMAGES_PATH}icons/tt_new.gif" alt="Создать заявку"></a>{/if}</TD>
           <TD>{$item.ip}</TD>
           <TD>{$item.datacenter}</TD>
-          <TD>{if $item.count == 0}<a href='{$LINK_START}module=routers&action=server_pbx_apply&dbform_action=delete&dbform[id]={$item.id}'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>удалить</a>{else}&nbsp;{/if}</TD>
+          <TD><a href='{$LINK_START}module=routers&action=server_pbx_apply&dbform_action=delete&dbform[id]={$item.id}'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>удалить</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>

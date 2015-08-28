@@ -1,7 +1,6 @@
 <?php
 
 use app\classes\ActaulizerVoipNumbers;
-use app\models\Number;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -76,9 +75,9 @@ function do_events()
                                      NewBill::setLkShowForAll();
                                  }
                                  if(WorkDays::isWorkDayFromMonthEnd(time(), 4)) { //за 4 дня предупреждаем о списании абонентки аваносовым клиентам
-                                     $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
-                                     echo " exec: ".$execStr;
-                                     exec($execStr);
+                                     //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                                     //echo " exec: ".$execStr;
+                                     //exec($execStr);
                                  }
                                  Bill::cleanOldPrePayedBills(); echo "... clear prebilled bills";
                                  EventQueue::clean();echo "...EventQueue::clean()";
@@ -98,6 +97,8 @@ function do_events()
                         break;
 
                     case 'admin_changed':
+                        if (is_array($param))
+                            $param = $param["account_id"];
                         SyncCore::adminChanged($param);
                         break;
 
@@ -125,7 +126,6 @@ function do_events()
 
                     case 'ats3__sync':
                         ActaulizerVoipNumbers::me()->sync($param["number"]);
-                        Number::dao()->actualizeStatusByE164($param["number"]);
                         SyncCore::checkProductState('phone', $param['client_id']);
                         break;
                 }

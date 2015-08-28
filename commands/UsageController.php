@@ -74,13 +74,19 @@ class UsageController extends Controller
         }
     }
 
-    public function actionVoipCleanProcessing()
+    public function actionVoipTestClean()
     {
         $info = [];
 
         $now     =  new DateTime("now");
-        $blockDate = (new DateTime("now"))->modify("-13 day");
+
+        echo "\nstart ".$now->format("Y-m-d H:i:s")."\n";
+
+        $blockDate = (new DateTime("now"))->modify("-10 day");
         $offDate   = (new DateTime("now"))->modify("-40 day");
+
+        echo $now->format("Y-m-d").": block: ".$blockDate->format("Y-m-d")."\n";
+        echo $now->format("Y-m-d").": off: ".$offDate->format("Y-m-d")."\n";
 
         $infoBlock =$this->cleanUsages($blockDate, "set block");
         $infoOff = $this->cleanUsages($offDate, "set off");
@@ -95,8 +101,10 @@ class UsageController extends Controller
         {
             if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
             {
-                mail(ADMIN_EMAIL, "voip clean processor", explode("\n", $info));
+                mail(ADMIN_EMAIL, "voip clean processor", implode("\n", $info));
             }
+
+            echo implode("\n", $info);
         }
 
     }
@@ -106,6 +114,8 @@ class UsageController extends Controller
         $now = new DateTime("now");
 
         $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format("Y-m-d")])->all();
+
+        $info = [];
 
         foreach ($usages as $usage)
         {
@@ -120,7 +130,7 @@ class UsageController extends Controller
                     {
                         if (!$account->is_blocked)
                         {
-                            echo $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set block ".$tarif->status."\n";
+                            $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set block ".$tarif->status;
 
                             $account->is_blocked = 1;
                             $account->save();
@@ -129,7 +139,7 @@ class UsageController extends Controller
 
                     if ($action == "set off")
                     {
-                        echo $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set off\n";
+                        $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set off";
 
                         $model = new UsageVoipEditForm();
                         $model->initModel($usage->clientAccount, $usage);
@@ -139,5 +149,7 @@ class UsageController extends Controller
                 }
             }
         }
+
+        return $info;
     }
 }

@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 class BusinessProcessStatus extends ActiveRecord
 {
@@ -107,6 +108,43 @@ class BusinessProcessStatus extends ActiveRecord
     public static function tableName()
     {
         return 'client_contract_business_process_status';
+    }
+
+    public static function getList()
+    {
+        $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();;
+        return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public static function getTree()
+    {
+        $processes = [];
+        $statuses = [];
+        $businessProcesses = BusinessProcess::find()
+            ->joinWith('businessProcessStatuses')
+            ->andWhere([BusinessProcess::tableName().'.show_as_status' => '1'])
+            ->orderBy([
+                BusinessProcess::tableName() . '.sort' => SORT_ASC,
+                BusinessProcessStatus::tableName() . '.business_process_id' => SORT_ASC,
+                BusinessProcessStatus::tableName() . '.sort' => SORT_ASC,
+                BusinessProcessStatus::tableName() . '.id' => SORT_ASC,
+            ])
+            ->all();
+        foreach ($businessProcesses as $businessProcess) {
+            $processes[] = [
+                'id' => $businessProcess->id,
+                'up_id' => $businessProcess->business_id,
+                'name' => $businessProcess->name
+            ];
+            foreach ($businessProcess->businessProcessStatuses as $status)
+                $statuses[] = [
+                    'id' => $status->id,
+                    'name' => $status->name,
+                    'up_id' => $status->business_process_id
+                ];
+
+        }
+        return ["processes" => $processes, "statuses" => $statuses];
     }
 
 }

@@ -139,6 +139,14 @@ if (isset($fixclient_data['id'])) {
 </div>
 
 <div class="layout_main col-sm-10 col-md-push-2">
+    <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <div style="text-align: center;" class="alert alert-danger fade in">
+            <div style="font-weight: bold;">
+                <?= Yii::$app->session->getFlash('error'); ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div style="min-height: 70%">
 
         <?= $this->render('widgets/messages') ?>

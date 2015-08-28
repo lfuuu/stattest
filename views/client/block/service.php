@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Usage;
 use app\models\TechCpe;
 use yii\helpers\Html;
 use app\models\TariffVoip;
@@ -8,7 +10,7 @@ $actual = function ($from, $to) {
 };
 
 $renderDate = function ($from, $to) {
-    if(strtotime($to) >= strtotime('2029-01-01') && strtotime($from) >= strtotime('2029-01-01')){
+    if(strtotime($to) >= strtotime(Usage::MAX_POSSIBLE_DATE) && strtotime($from) >= strtotime(Usage::MAX_POSSIBLE_DATE)){
         return 'Не был включен';
     }
 
@@ -461,7 +463,7 @@ if ($has) :
                                 </td>
                                 <td><?= $service->currentTariff->description ?></td>
                                 <td><?= $service->currentTariff->price ?></td>
-                                <td><?= $service->serverPbx->name ?></td>
+                                <td><?php $service->getRegionName() ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

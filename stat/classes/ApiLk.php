@@ -8,6 +8,7 @@ use app\models\TariffVoip;
 use app\models\City;
 use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
+use app\models\ClientContract;
 
 class ApiLk
 {
@@ -370,7 +371,7 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        if ($clientAccount->contract->state != 'unchecked') {
+        if ($clientAccount->contract->state != ClientContract::STATE_UNCHECKED) {
             $tariffs =
                 TariffVoip::find()
                     ->andWhere(['status' => 'public'])
@@ -560,7 +561,7 @@ class ApiLk
                         `u`.`actual_to`,
                         IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
                         `u`.`status`,
-                        `d`.`name` AS city,
+                        `r`.`name` AS city,
                         (SELECT id_tarif FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1) AS cur_tarif_id,
                         (SELECT date_activation FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<now() ORDER BY date_activation DESC, id DESC LIMIT 1) AS actual_from
                     FROM
@@ -568,11 +569,8 @@ class ApiLk
                     INNER JOIN `clients` ON (
                         `u`.`client` = `clients`.`client`
                     )
-                    LEFT JOIN `server_pbx` AS `s` ON (
-                        `u`.`server_pbx_id` = `s`.`id`
-                    )
-                    LEFT JOIN `datacenter` AS `d` ON (
-                        `s`.`datacenter_id` = `d`.`id`
+                    LEFT JOIN `regions` AS `r` ON (
+                        `u`.`region` = `r`.`id`
                     )
                     WHERE
                         `clients`.`id`= ?
@@ -1022,19 +1020,12 @@ class ApiLk
         $model = new UsageVoipEditForm();
         $model->scenario = 'add';
         $model->initModel($clientAccount);
-        $model->type_id = 'number';
-        $model->number_tariff_id = $numberTariff->id;
+
         $model->tariff_main_id = $mainTariff->id;
-        $model->connection_point_id = $numberTariff->connection_point_id;
-        $model->city_id = $numberTariff->city_id;
         $model->no_of_lines = $linesCount;
         $model->did = $number->number;
-        $model->connecting_date = $connectingDate->format('Y-m-d');
 
-        $model->tariff_local_mob_id = TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 5])->scalar();
-        $model->tariff_russia_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 1])->scalar();
-        $model->tariff_russia_mob_id = $model->tariff_russia_id;
-        $model->tariff_intern_id =    TariffVoip::find()->select('id')->andWhere(['status' => 'public'])->andWhere(['dest' => 2])->scalar();
+        $model->prepareAdd();
 
         if (!$model->validate()) {
             Yii::error($model->errors);
@@ -1093,7 +1084,7 @@ class ApiLk
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
-                            "server_pbx_id" => $account->getServerPbxId($region)
+                            "region"        => $region_id
                             )
                         );
 
