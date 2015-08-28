@@ -23,7 +23,11 @@ use app\models\ClientContract;
                 'business_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\Business::getList(),
-                    'options' => ['disabled' => $model->state != ClientContract::STATE_UNCHECKED && !Yii::$app->user->can('clients.client_type_change')]
+                    'options' => ['disabled' =>
+                        !$model->getIsNewRecord()
+                        && $model->state != ClientContract::STATE_UNCHECKED
+                        && !Yii::$app->user->can('clients.client_type_change')
+                    ]
                 ],
                 ['type' => Form::INPUT_RAW],
                 ['type' => Form::INPUT_RAW],
@@ -32,7 +36,8 @@ use app\models\ClientContract;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\BusinessProcess::getList(),
                     'options' => ['disabled' =>
-                        $model->state != ClientContract::STATE_UNCHECKED
+                        !$model->getIsNewRecord()
+                        && $model->state != ClientContract::STATE_UNCHECKED
                         && !Yii::$app->user->can('clients.restatus')
                         && !Yii::$app->user->can('clients.client_type_change')
                     ]
@@ -129,7 +134,10 @@ use app\models\ClientContract;
                 'financial_type' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\ClientContract::$financialTypes,
-                    'options' => ['disabled' => $model->state != ClientContract::STATE_UNCHECKED && !Yii::$app->user->can('clients.client_type_change')]
+                    'options' => ['disabled' =>
+                        !$model->getIsNewRecord()
+                        && $model->state != ClientContract::STATE_UNCHECKED
+                        && !Yii::$app->user->can('clients.client_type_change')]
                 ],
                 [
                     'type' => Form::INPUT_RAW,
@@ -138,7 +146,14 @@ use app\models\ClientContract;
                         '<div class=col-sm-12>'
                         . $f->field($model, 'federal_district')->checkboxButtonGroup(
                             \app\models\ClientContract::$districts,
-                            ['style' => 'width:100%;', 'class' => 'btn-disabled']
+                            ['style' => 'width:100%;',
+                                'class' =>
+                                    !$model->getIsNewRecord()
+                                    && $model->state != ClientContract::STATE_UNCHECKED
+                                    && !Yii::$app->user->can('clients.client_type_change')
+                                        ? 'btn-disabled'
+                                        : ''
+                            ]
                         )
                         . '</div>'
                 ],
