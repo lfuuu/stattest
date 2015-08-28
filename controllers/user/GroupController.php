@@ -2,19 +2,17 @@
 
 namespace app\controllers\user;
 
+
 use Yii;
+use yii\helpers\Json;
 use app\classes\Assert;
 use app\classes\BaseController;
-use yii\web\Response;
 use yii\filters\AccessControl;
-use app\models\User;
-use app\forms\user\UserForm;
-use app\forms\user\UserListForm;
-use app\forms\user\UserCreateForm;
-use app\forms\user\UserPasswordForm;
-use yii\helpers\Json;
+use app\models\UserGroups;
+use app\forms\user\GroupForm;
 
-class ControlController extends BaseController
+
+class GroupController extends BaseController
 {
 
     public function behaviors()
@@ -29,7 +27,7 @@ class ControlController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'delete', 'change-password'],
+                        'actions' => ['add', 'edit', 'delete'],
                         'roles' => ['users.change'],
                     ],
                 ],
@@ -39,7 +37,7 @@ class ControlController extends BaseController
 
     public function actionIndex()
     {
-        $model = new UserListForm;
+        $model = new GroupForm;
         $model->load(Yii::$app->request->getQueryParams());
 
         $dataProvider = $model->spawnDataProvider();
@@ -47,18 +45,17 @@ class ControlController extends BaseController
 
         return $this->render('grid', [
             'dataProvider' => $dataProvider,
-            'filterModel' => $model,
         ]);
     }
 
     public function actionAdd()
     {
-        $model = new UserCreateForm;
+        $model = new GroupForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             Yii::$app->session->set(
-                'user_created',
+                'group_created',
                 Json::encode($model)
             );
             return $this->redirect(Yii::$app->request->referrer);
@@ -72,12 +69,12 @@ class ControlController extends BaseController
 
     public function actionEdit($id)
     {
-        $user = User::findOne($id);
-        Assert::isObject($user);
+        $group = UserGroups::findOne($id);
+        Assert::isObject($group);
 
-        $model = (new UserForm)->initModel($user);
+        $model = (new GroupForm)->initModel($group);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($group)) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             return $this->redirect(Yii::$app->request->referrer);
         }
@@ -89,49 +86,12 @@ class ControlController extends BaseController
 
     public function actionDelete($id)
     {
-        $user = User::findOne($id);
-        Assert::isObject($user);
+        $group = UserGroups::findOne($id);
+        Assert::isObject($group);
 
-        (new UserForm)->delete($user);
+        (new GroupForm)->delete($group);
 
         return $this->redirect(['index']);
-    }
-
-    public function actionChangePassword($id)
-    {
-        $user = User::findOne($id);
-        Assert::isObject($user);
-
-        $model = new UserPasswordForm;
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
-            Yii::$app->session->setFlash('success', true);
-            return $this->redirect(Yii::$app->request->referrer);
-        }
-
-        $this->layout = 'minimal';
-        return $this->render('//user/passwd_edit', [
-            'model' => $model,
-        ]);
-    }
-
-    public function actionAjaxDeptUsers($id)
-    {
-        if (!Yii::$app->request->isAjax)
-            return;
-
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $usersList = User::getUserListByDepart($id, ['enabled' => true, 'primary' => 'user']);
-        $output = [];
-
-        foreach ($usersList as $user => $name) {
-            $output[] = [
-                'id' => $user,
-                'text' => $name,
-            ];
-        }
-
-        return $output;
     }
 
 }

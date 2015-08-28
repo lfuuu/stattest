@@ -17,4 +17,14 @@ class UserGroups extends ActiveRecord
         return UserGroupsDao::me();
     }
 
+    public function getRights()
+    {
+        return $this->hasMany(UserGrantGroups::className(), ['name' => 'usergroup']);
+    }
+
+    public function getUsersCount()
+    {
+        return User::find()->where(['usergroup' => $this->usergroup])->count();
+    }
+
 }

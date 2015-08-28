@@ -38,6 +38,7 @@ class UserForm extends Form
     public function rules()
     {
         return [
+            [['user', 'usergroup', 'name',], 'required'],
             [
                 ['name', 'language','email', 'phone_work', 'phone_mobile', 'icq', 'trouble_redirect', 'usergroup', 'enabled'],
                 'string'
@@ -104,6 +105,23 @@ class UserForm extends Form
         }
 
         Language::setCurrentLanguage($this->language);
+
+        return true;
+    }
+
+    public function delete(User $user)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            UserGrantUsers::deleteAll(['name' => $user->user]);
+
+            $user->delete();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
 
         return true;
     }
