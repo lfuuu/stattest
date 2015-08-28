@@ -32,6 +32,11 @@ class ControlController extends BaseController
                         'actions' => ['add', 'edit', 'delete', 'change-password'],
                         'roles' => ['users.change'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['update-rights'],
+                        'roles' => ['users.grant'],
+                    ],
                 ],
             ],
         ];
@@ -132,6 +137,13 @@ class ControlController extends BaseController
         }
 
         return $output;
+    }
+
+    public function actionUpdateRights()
+    {
+        $authManager = new \app\classes\AuthManager();
+        $authManager->updateDatabase();
+        Yii::$app->session->addFlash('success', 'Права обновлены');
     }
 
 }
