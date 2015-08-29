@@ -2,19 +2,16 @@
 namespace app\dao;
 
 use app\models\Business;
-use app\models\ClientContract;
 use app\models\ClientContractComment;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\classes\api\ApiPhone;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\GoodsIncomeOrder;
 use app\models\PaymentOrder;
 use app\models\Saldo;
-use app\models\Datacenter;
-use app\models\ServerPbx;
-use app\models\Region;
 use DateTime;
 use DateTimeZone;
 
@@ -24,6 +21,8 @@ use DateTimeZone;
  */
 class ClientAccountDao extends Singleton
 {
+
+    private $voipNumbers = null;
 
     public function getLastBillDate(ClientAccount $clientAccount)
     {
@@ -634,4 +633,13 @@ class ClientAccountDao extends Singleton
             $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
+
+    public function getClientVoipNumbers(ClientAccount $clientAccount)
+    {
+        if (is_null($this->voipNumbers)) {
+            $this->voipNumbers = ApiPhone::exec('numbers_info', ['account_id' => $clientAccount->id]);
+        }
+        return $this->voipNumbers;
+    }
+
 }

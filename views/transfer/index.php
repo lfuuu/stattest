@@ -29,7 +29,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
         </thead>
     </table>
 
-    <div style="overflow: auto; max-height: 400px;">
+    <div style="overflow: auto; max-height: 500px;">
         <table border="0" width="95%" align="center">
             <col width="40%" />
             <col width="40%" />
@@ -100,7 +100,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                                 <?php
                                 /** @var \app\models\Usage[] $services */
                                 foreach ($services as $service):
-                                    $fulltext = $service->getTypeDescription();
+                                    list($fulltext, $description, $checkboxOptions) = (array) $service->getTypeDescription();
 
                                     if (mb_strlen($fulltext, 'UTF-8') > 30):
                                         $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
@@ -113,9 +113,19 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                                         <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?= implode($model->servicesErrors[$service->id], "\n"); ?>' />
                                     <?php endif; ?>
 
-                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>" checked="checked" />
+                                    <input
+                                        type="checkbox"
+                                        name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>"
+                                        checked="checked"
+                                        <?= implode(' ', $checkboxOptions); ?> />
                                     &nbsp;<?= $service->id;?>: <abbr title="<?= $service->id . ': ' . $fulltext; ?>"><?= $text; ?></abbr><br />
+                                    <?php if (!empty($description)): ?>
+                                        <div style="font-size: 10px; padding-left: 20px;">
+                                            <?= $description; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
+                                <?= $serviceType::getTypeHelpBlock(); ?>
                                 <br />
                             <?php endforeach; ?>
                         </div>

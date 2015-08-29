@@ -4,30 +4,30 @@ namespace app\classes\api;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
+use app\models\Usage;
 use app\models\UsageVirtpbx;
 use app\models\ClientAccount;
 
 class ApiVpbx
 {
-    public static function isAvailable() 
+    public static function isAvailable()
     {
         return self::getVpbxHost() && self::getApiUrl();
     }
 
-    public static function getVpbxHost($usageId)
+    public static function getVpbxHost()
     {
         return defined("PHONE_SERVER") ? PHONE_SERVER : false;
     }
 
-    public static function getApiUrl() 
+    public static function getApiUrl()
     {
         return defined('VIRTPBX_URL') && VIRTPBX_URL ? VIRTPBX_URL : false;
     }
 
-    public static function exec($action, $data) 
+    public static function exec($action, $data)
     {
-        if (!self::isAvailable()) 
-        {
+        if (!self::isAvailable()) {
             throw new Exception('API Vpbx was not configured');
         }
 
@@ -54,29 +54,47 @@ class ApiVpbx
 
         $regionId = 99;
 
-        try{
+        try {
             $u = UsageVirtpbx::findOne($usageId);
             if ($u) {
                 $regionId = $u->region;
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
         }
 
         ApiVpbx::exec(
             'create',
             [
-                "client_id"  => (int)$clientId,
-                "stat_product_id"  => (int)$usageId,
-                "numbers"    => [],
-                "phones"     => $tariff["num_ports"],
-                "faxes"      => (int)$tariff["is_fax"] ? 5 : 0,
-                "record"     => (bool)$tariff["is_record"],
+                "client_id" => (int)$clientId,
+                "stat_product_id" => (int)$usageId,
+                "numbers" => [],
+                "phones" => $tariff["num_ports"],
+                "faxes" => (int)$tariff["is_fax"] ? 5 : 0,
+                "record" => (bool)$tariff["is_record"],
                 "enable_web_call" => (bool)$tariff["is_web_call"],
                 "disk_space" => (int)$tariff["space"],
-                "timezone"   => ClientAccount::findOne($clientId)->timezone_name,
-                "region"     => $regionId
+                "timezone" => ClientAccount::findOne($clientId)->timezone_name,
+                "region" => $regionId
             ]
         );
+    }
+
+    public static function transfer($usageId)
+    {
+        if (!($toUsage = UsageVirtpbx::findOne($usageId) instanceof Usage))
+            return;
+
+        if(!($fromUsage = UsageVirtpbx::findOne($toUsage->prev_usage_id) instanceof Usage))
+            return;
+
+        $query = [
+            'from_account_id' => $fromUsage->clientAccount->id,
+            'from_stat_product_id' => $fromUsage->id,
+            'to_account_id' => $toUsage->clientAccount->id,
+            'to_stat_product_id' => $toUsage->id,
+        ];
+
+        ApiVpbx::exec('transfer', $query);
     }
 
     public static function stop($clientId, $usageId)

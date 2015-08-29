@@ -113,6 +113,10 @@ class UsageIpPorts extends ActiveRecord implements Usage
         return 'Интернет';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->address;

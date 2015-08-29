@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Event;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
@@ -98,7 +99,6 @@ class VirtPbx3
         l::ll(__CLASS__,__FUNCTION__);
         VirtPbx3Checker::check($usageId);
     }
-
 
     public static function getNumberTypes($clientId)
     {
@@ -209,6 +209,7 @@ class VirtPbx3Action
             try {
 
                 ApiVpbx::create($l["client_id"], $l["usage_id"]);
+                ApiVpbx::transfer($l["usage_id"]);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;

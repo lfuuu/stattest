@@ -58,6 +58,10 @@ class UsageVoipPackage extends ActiveRecord implements Usage
         return 'Телефония пакет';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public static function getTypeTitle()
     {
         return 'Телефония пакет';

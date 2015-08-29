@@ -72,6 +72,10 @@ class UsageExtra extends ActiveRecord implements Usage
         return 'Доп. услуги';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->tariff ? $this->tariff->description : 'Описание';

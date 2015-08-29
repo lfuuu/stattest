@@ -33,6 +33,7 @@ interface Usage
     public function getClientAccount();
 
     public static function getTypeTitle();
+    public static function getTypeHelpBlock();
     public function getTypeDescription();
 
 }
