@@ -237,7 +237,7 @@ class WizardMcnController extends /*BaseController*/ApiController
         } else {
             $content = $contract->fileContent;
 
-            if ($agreement && $agreement->content)
+            if ($agreement && $agreement->fileContent)
             {
                 $content .= "<p style=\"page-break-after: always;\"></p>";
                 $content .= $agreement->fileContent;
