@@ -87,8 +87,8 @@ if (isset($fixclient_data['id'])) {
                             <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
                             <ul class="user-menu" style="display: none;">
                                 <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
-                                <li><a href="/?module=usercontrol&action=edit">Изменить профайл</a></li>
-                                <li><a href="/?module=usercontrol&amp;action=edit_pass">Изменить пароль</a></li>
+                                <li><a href="/user/profile/">Изменить профайл</a></li>
+                                <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="$(this).parents('ul').prev('a').trigger('click'); return showIframePopup(this);">Изменить пароль</a></li>
                                 <li><a href="/site/logout">Выход</a></li>
                             </ul>
                             <?php if ($myTroublesCount > 0): ?>
@@ -139,18 +139,9 @@ if (isset($fixclient_data['id'])) {
 </div>
 
 <div class="layout_main col-sm-10 col-md-push-2">
-    <?php if (Yii::$app->session->hasFlash('error')): ?>
-        <div style="text-align: center;" class="alert alert-danger fade in">
-            <div style="font-weight: bold;">
-                <?= Yii::$app->session->getFlash('error'); ?>
-            </div>
-        </div>
-    <?php endif; ?>
+    <?= $this->render('widgets/messages') ?>
 
     <div style="min-height: 70%">
-
-        <?= $this->render('widgets/messages') ?>
-
         <?= $content ?>
 
         <div class="row">

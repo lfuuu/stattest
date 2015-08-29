@@ -206,6 +206,8 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     public function initModel(ClientAccount $clientAccount, UsageVoip $usage = null) {
+        $this->city_id = Yii::$app->user->identity->city_id;
+
         $this->clientAccount = $clientAccount;
         $this->client_account_id = $clientAccount->id;
         $this->timezone = $clientAccount->timezone;

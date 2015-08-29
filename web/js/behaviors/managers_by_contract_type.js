@@ -27,7 +27,7 @@ jQuery(document).ready(function () {
         },
         $getManagers = function (deptId) {
             $.ajax({
-                url: '/user/ajax-dept-users?id=' + deptId,
+                url: '/user/control/ajax-dept-users?id=' + deptId,
                 dataType: 'json',
                 success: function (result) {
                     $($managerList).each(function () {

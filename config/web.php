@@ -151,6 +151,10 @@ $config = [
     'params' => $params,
 ];
 
+if (file_exists($file = __DIR__ . '/web.local.php')) {
+    $config = ArrayHelper::merge($config, require($file));
+}
+
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
 }

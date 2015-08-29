@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use app\dao\user\UserDao;
 
 /**
  * @property integer $id
@@ -27,9 +28,16 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const DEPART_SALES = 28;
     const DEPART_PURCHASE = 29;
 
+    const PHOTO_SIZE_OF_SQUARE_SIDE = 250;
+
     public static function tableName()
     {
         return 'user_users';
+    }
+
+    public static function dao()
+    {
+        return UserDao::me();
     }
 
     public static function find()
@@ -85,6 +93,26 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->pass === md5($password);
+    }
+
+    public function getGroupRights()
+    {
+        return $this->hasMany(UserGrantGroups::className(), ['name' => 'usergroup']);
+    }
+
+    public function getUserRights()
+    {
+        return $this->hasMany(UserGrantUsers::className(), ['name' => 'user']);
+    }
+
+    public function getGroup()
+    {
+        return $this->hasOne(UserGroups::className(), ['usergroup' => 'usergroup']);
+    }
+
+    public function getDepartment()
+    {
+        return $this->hasOne(UserDeparts::className(), ['id' => 'depart_id']);
     }
 
     public static function getAccountManagerList()

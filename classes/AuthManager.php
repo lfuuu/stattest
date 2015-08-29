@@ -311,4 +311,10 @@ class AuthManager extends BaseManager
             }
         }
     }
+
+    public static function getPasswordHash($password)
+    {
+        return md5($password);
+    }
+
 }

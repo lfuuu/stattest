@@ -50,8 +50,14 @@ class Navigation
         );
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
-        $this->addBlockForStatModule('users');
-        $this->addBlockForStatModule('usercontrol');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Управление доступом')
+                ->addItem('Операторы', ['user/control'], ['users.r'])
+                ->addItem('Группы', ['user/group'], ['users.r'])
+                ->addItem('Отделы', ['user/department'], ['users.r'])
+                ->addItem('Обновить права в БД', ['user/control/update-rights'], ['users.r'])
+        );
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
