@@ -215,11 +215,6 @@ class WizardMcnController extends /*BaseController*/ApiController
                 $clientDocument->template = 'Zakaz_Uslug';
                 $clientDocument->save();
 
-                $agreement = ClientDocument::findOne([
-                    "contract_id" => $this->account->contract->id,
-                    "user_id" => User::CLIENT_USER_ID,
-                    "type" => "agreement"
-                    ]);
             }
         }
 
@@ -236,6 +231,13 @@ class WizardMcnController extends /*BaseController*/ApiController
             $content = "Ошибка в данных";
         } else {
             $content = $contract->fileContent;
+
+            $agreement = ClientDocument::findOne([
+                "contract_id" => $this->account->contract->id,
+                "user_id" => User::CLIENT_USER_ID,
+                "type" => "agreement"
+                ]);
+
 
             if ($agreement && $agreement->fileContent)
             {
