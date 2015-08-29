@@ -314,12 +314,7 @@ class AuthManager extends BaseManager
 
     public static function getPasswordHash($password)
     {
-        if (isset(Yii::$app->params['USE_MD5']) && Yii::$app->params['USE_MD5'] == 1) {
-            return md5($password);
-        }
-        else {
-            return $password;
-        }
+        return md5($password);
     }
 
 }

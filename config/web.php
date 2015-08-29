@@ -85,12 +85,7 @@ $config = [
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => false,
-            'transport' => [
-                'class' => 'Swift_SmtpTransport',
-                'host' => 'mail.mcn.ru',
-                'port' => '25',
-            ],
+            'useFileTransport' => true,
         ],
         'log' => $log,
         'db' => $db,
@@ -155,6 +150,10 @@ $config = [
     ],
     'params' => $params,
 ];
+
+if (file_exists($file = __DIR__ . '/web.local.php')) {
+    $config = ArrayHelper::merge($config, require($file));
+}
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
