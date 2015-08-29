@@ -1,6 +1,5 @@
 <?php
 
-use app\classes\Event;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
