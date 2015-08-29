@@ -68,6 +68,7 @@ class ClientContract extends HistoryActiveRecord
             'financial_type' => 'Финансовый тип договора',
             'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
+            'is_external' => 'Внешний договор',
         ];
     }
 
@@ -78,6 +79,7 @@ class ClientContract extends HistoryActiveRecord
             'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
         ];
     }
 

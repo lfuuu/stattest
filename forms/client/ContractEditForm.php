@@ -13,6 +13,7 @@ use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
+use app\models\ContractType;
 use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
@@ -122,6 +123,9 @@ class ContractEditForm extends Form
 
     public function save()
     {
+        /** @var ClientContract $contract */
+        $contract = $this->contract;
+
         if($this->save_comment_stage) {
             $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
             foreach ($comments as $comment) {
@@ -142,8 +146,6 @@ class ContractEditForm extends Form
                 $comment->save();
             }
         }
-
-        $contract = $this->contract;
 
         $attributes = $this->getAttributes();
         unset($attributes['public_comment'], $attributes['comment']);
