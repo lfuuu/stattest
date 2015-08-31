@@ -2612,7 +2612,7 @@ class m_services extends IModule{
         $Res = array();
 
         $account = ClientAccount::findOne($fixclient);
-        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency="'.$account['currency'].'" and connection_point_id="'.$region.'" and status != "archive"'.
+        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency_id="'.$account['currency'].'" and connection_point_id="'.$region.'" and status != "archive"'.
                 'order by status, month_line, month_min_payment', 'id');
         foreach ($R as $r) {
             $Res[$r['id']] = array(
