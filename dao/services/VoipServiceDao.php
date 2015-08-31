@@ -12,8 +12,6 @@ class VoipServiceDao extends Singleton implements ServiceDao
 
     public function getPossibleToTransfer(ClientAccount $client)
     {
-        $now = new \DateTime();
-
         return
             UsageVoip::find()
                 ->client($client->client)

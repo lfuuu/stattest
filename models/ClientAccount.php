@@ -10,7 +10,6 @@ use yii\base\Exception;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 
-
 /**
  * @property int $id
  * @property string $client
@@ -479,6 +478,11 @@ class ClientAccount extends HistoryActiveRecord
     public function getVoipWarnings()
     {
         return VoipStatus::create($this)->getWarnings();
+    }
+
+    public function getVoipNumbers()
+    {
+        return self::dao()->getClientVoipNumbers($this);
     }
 
 }

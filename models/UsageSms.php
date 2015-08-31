@@ -73,6 +73,10 @@ class UsageSms extends ActiveRecord implements Usage
         return 'SMS';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->tariff ? $this->tariff->description : 'Описание';

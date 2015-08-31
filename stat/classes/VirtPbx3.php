@@ -99,7 +99,6 @@ class VirtPbx3
         VirtPbx3Checker::check($usageId);
     }
 
-
     public static function getNumberTypes($clientId)
     {
         if (ApiPhone::isAvailable()) {
@@ -209,6 +208,7 @@ class VirtPbx3Action
             try {
 
                 ApiVpbx::create($l["client_id"], $l["usage_id"]);
+                //ApiVpbx::transfer($l["usage_id"]);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;

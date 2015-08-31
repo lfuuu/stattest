@@ -51,7 +51,7 @@ class ServiceTransferForm extends Form
             UsageVoip::dao(),
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
-            //UsageVirtpbx::dao(),
+            UsageVirtpbx::dao(),
             TechCpe::dao(),
         ];
     }

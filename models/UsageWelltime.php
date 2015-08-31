@@ -72,6 +72,10 @@ class UsageWelltime extends ActiveRecord implements Usage
         return 'Welltime';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->tariff ? $this->tariff->description : 'Описание';

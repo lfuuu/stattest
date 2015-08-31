@@ -2,15 +2,12 @@
 namespace app\models;
 
 use app\classes\bill\VoipBiller;
+use app\classes\Html;
 use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
-use app\models\TariffVoip;
-use app\models\VoipNumber;
-use app\models\Datacenter;
-use app\classes\behaviors\ActualizeVoipNumber;
 
 /**
  * @property int $id
@@ -145,9 +142,34 @@ class UsageVoip extends ActiveRecord implements Usage
         return 'Телефония номера';
     }
 
+    public static function getTypeHelpBlock()
+    {
+        return Html::tag(
+            'div',
+            'Заблокированные номера подключены на ВАТС,<br >' .
+            'перенос возможен только совместно с ВАТС.<br />' .
+            'Отключить номер от ВАТС можно в ЛК',
+            [
+                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px; white-space: nowrap;',
+            ]
+        );
+    }
+
     public function getTypeDescription()
     {
-        return $this->E164 . 'x' . $this->no_of_lines;
+        $value = $this->E164 . ' (линий ' . $this->no_of_lines . ')';
+        $description = '';
+        $checkboxOptions = [];
+
+        $numbers = $this->clientAccount->voipNumbers;
+        if (isset($numbers[ $this->E164 ]) && $numbers[ $this->E164]['type'] == 'vpbx') {
+            if (($usage = UsageVirtpbx::findOne($numbers[ $this->E164 ]['stat_product_id'])) instanceof Usage) {
+                $description = $usage->currentTariff->description . ' (' . $usage->id . ')';
+            }
+            $checkboxOptions['disabled'] = 'disabled';
+        }
+
+        return [$value, $description, $checkboxOptions];
     }
 
     public function getAbonPerMonth()
