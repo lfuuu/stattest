@@ -32,8 +32,17 @@ use app\forms\transfer\ServiceTransferForm;
                                 <b><?= $services[0]->getTypeTitle() ?></b>
                                 <ul>
                                     <?php foreach($services as $service): ?>
+                                        <?php
+                                        list($fulltext, $description, $checkboxOptions) = (array) $service->getTypeDescription();
+
+                                        if (mb_strlen($fulltext, 'UTF-8') > 30):
+                                            $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
+                                        else:
+                                            $text = $fulltext;
+                                        endif;
+                                        ?>
                                         <li>
-                                            <?= $service->prev_usage_id; ?>: <?= $service->getTypeDescription(); ?>
+                                            <?= $service->prev_usage_id; ?>: <abbr title="<?= $service->prev_usage_id . ': ' . $fulltext; ?>"><?= $text; ?></abbr>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
