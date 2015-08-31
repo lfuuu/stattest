@@ -175,7 +175,7 @@ use \app\models\ClientContract;
             e.stopPropagation();
             var id = $(this).data('id');
             t = $(this);
-            if (confirm('Вы уверены, что хотите ' + t.text().toLowerCase().trim() + ' ЛС № ' + id + '?')) {
+            if (confirm(t.hasClass('btn-danger') ? 'Разблокировать локальную блокировку' : 'Локальная блокировка')) {
                 if (t.hasClass('btn-danger')) {
                     t.addClass('btn-success').removeClass('btn-danger').text('Лок. блок.');
                 } else {
