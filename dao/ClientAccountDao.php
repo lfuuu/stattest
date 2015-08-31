@@ -637,7 +637,7 @@ class ClientAccountDao extends Singleton
     public function getClientVoipNumbers(ClientAccount $clientAccount)
     {
         if (is_null($this->voipNumbers)) {
-            $this->voipNumbers = ApiPhone::exec('numbers_info', ['account_id' => $clientAccount->id]);
+            $this->voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
         }
         return $this->voipNumbers;
     }

@@ -49,6 +49,10 @@ class TechCpe extends ActiveRecord
         return 'Клиентские устройства';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->model->vendor . ' ' . $this->model->model;
