@@ -397,13 +397,13 @@ class ClientDocumentDao extends Singleton
         } else {
             return
                 $result .
+                'ИНН ' . $contragent->inn .
+                ', КПП ' . $contragent->kpp .
                 'Банковские реквизиты: ' .
                 'р/с ' . ($account->pay_acc ?: '') . '<br />' .
                 $account->bank_name . ' ' . $account->bank_city  .
                 ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
-                ', ИНН ' . $contragent->inn .
-                ', КПП ' . $contragent->kpp .
                 (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
         }
     }
