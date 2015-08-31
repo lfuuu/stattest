@@ -50,13 +50,3 @@ $groupRights = ArrayHelper::map($model->initModel->rights, 'resource', 'access')
         </table>
     <?php endforeach; ?>
 </div>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('.active-element')
-        .on('click', function() {
-            var next = $(this).next('div').length ? $(this).next('div') : $(this).next('table');
-            next.toggle();
-        });
-});
-</script>

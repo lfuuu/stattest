@@ -83,12 +83,6 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
 jQuery(document).ready(function() {
     var $groupRights = $.parseJSON('<?= json_encode($groupRights); ?>');
 
-    $('.active-element')
-        .on('click', function() {
-            var next = $(this).next('div').length ? $(this).next('div') : $(this).next('table');
-            next.toggle();
-        });
-
     $('.rights_mode')
         .on('click', function() {
             var mode = $(this).val(),
