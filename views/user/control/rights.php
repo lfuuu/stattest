@@ -11,24 +11,20 @@ $userRights = ArrayHelper::map($model->initModel->userRights, 'resource', 'acces
 $realRights = ArrayHelper::merge($groupRights, $userRights);
 ?>
 
-<legend class="active-element">
-    <span style="border-bottom: 1px dashed;">Права доступа</span>
+<legend>
+    <span>Права доступа</span>
 </legend>
 
-<div style="display: none;">
+<div>
     <?php foreach (UserRight::dao()->getList() as $groupKey => $group): ?>
-        <legend style="font-size: 16px;" class="active-element">
-            <span style="margin-left: 15px; border-bottom: 1px dashed;">
-                <?= $groupKey; ?>
-            </span>
-        </legend>
-        <table width="98%" align="center" style="display: none;">
+        <table width="98%" align="center">
             <colgroup>
                 <col width="40%" />
                 <col width="60%" />
             </colgroup>
             <?php foreach ($group as $groupItemKey => $item): ?>
-                <tr>
+                <tr><td colspan="2" style="padding-top: 20px;"></td></tr>
+                <tr style="border-bottom: 1px solid #E5E5E5;">
                     <td valign="top">
                         <span style="font-weight: bold; font-size: 14px; padding-left: 15px;"><?= $item['comment'] . ' (' . $groupItemKey . ')'; ?></span>
                     </td>
@@ -79,10 +75,6 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
 </div>
 
 <style type="text/css">
-.active-element {
-    cursor: pointer;
-    border: 0;
-}
 .disabled-label {
     color: #CCCCCC;
 }

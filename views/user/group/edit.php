@@ -8,8 +8,12 @@ use yii\helpers\Html;
 ?>
 
 <legend>
-    <?= Html::a('Группы', '/user/group'); ?> -> <?= $model->usergroup; ?>
+    <span>Редактирование группы - <?= $model->usergroup; ?></span>
 </legend>
+
+<div class="breadcrumb">
+    <?= Html::a('Группы', '/user/group'); ?> -> <?= $model->usergroup; ?>
+</div>
 
 <div class="well">
     <?php
