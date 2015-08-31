@@ -208,7 +208,7 @@ class VirtPbx3Action
             try {
 
                 ApiVpbx::create($l["client_id"], $l["usage_id"]);
-                ApiVpbx::transfer($l["usage_id"]);
+                //ApiVpbx::transfer($l["usage_id"]);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
