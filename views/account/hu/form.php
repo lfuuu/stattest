@@ -57,11 +57,6 @@ use app\models\Currency;
             'price_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => PriceType::getList()],
             'empty1' => ['type' => Form::INPUT_RAW,],
 
-            'voip_disabled' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3],],
-            'empty15' => ['type' => Form::INPUT_RAW,],
-            'empty16' => ['type' => Form::INPUT_RAW,],
-            'empty17' => ['type' => Form::INPUT_RAW,],
-
             'credit' => ['type' => Form::INPUT_CHECKBOX, 'options' => ['id' => 'credit'], 'columnOptions' => ['style' => 'margin-top: 20px;']],
             'credit_size' => ['columnOptions' => ['id' => 'credit-size', 'style' => $model->credit > 0 ? '' : 'display:none;']],
             'empty13' => ['type' => Form::INPUT_RAW,],
