@@ -116,19 +116,20 @@ use \app\models\ClientContract;
                                             </span>
                                             <div class="btn-group" style="float: right;">
                                                 <?php if($contractAccount->hasVoip): ?>
-                                            <button type="button" class="btn btn-sm set-voip-disabled
-                                            <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
-                                                    style="width: 120px;padding: 3px 10px;"
-                                                    data-id="<?= $contractAccount->id ?>">
-                                                <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
-                                            </button>
-                                                <?php endif; ?>
-                                            <button type="button" class="btn btn-sm set-block
-                                            <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                    style="width: 120px;padding: 3px 10px;"
-                                                    data-id="<?= $contractAccount->id ?>">
-                                                <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
-                                            </button>
+                                                <button type="button" class="btn btn-sm set-voip-disabled
+                                                <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                        style="width: 120px;padding: 3px 10px;"
+                                                        data-id="<?= $contractAccount->id ?>"
+                                                    title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
+                                                    <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
+                                                </button>
+                                                    <?php endif; ?>
+                                                <button type="button" class="btn btn-sm set-block
+                                                <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                        style="width: 120px;padding: 3px 10px;"
+                                                        data-id="<?= $contractAccount->id ?>">
+                                                    <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
+                                                </button>
                                             </div>
                                             <?php
                                             if ($account && $account->id == $contractAccount->id && $voipWarnings = $account->getVoipWarnings()): ?>
@@ -175,11 +176,11 @@ use \app\models\ClientContract;
             e.stopPropagation();
             var id = $(this).data('id');
             t = $(this);
-            if (confirm(t.hasClass('btn-danger') ? 'Разблокировать локальную блокировку' : 'Локальная блокировка')) {
+            if (confirm(t.hasClass('btn-danger') ? 'Выключить локальную блокировку' : 'Включить локальную блокировку')) {
                 if (t.hasClass('btn-danger')) {
-                    t.addClass('btn-success').removeClass('btn-danger').text('Лок. блок.');
+                    t.addClass('btn-success').removeClass('btn-danger').text('Лок. блок.').attr('title', 'Включить локальную блокировку');
                 } else {
-                    t.addClass('btn-danger').removeClass('btn-success').text('Лок. разблок.');
+                    t.addClass('btn-danger').removeClass('btn-success').text('Лок. разблок.').attr('title', 'Выключить локальную блокировку');
                 }
 
                 location.href = '/account/set-voip-disable?id=' + id;
