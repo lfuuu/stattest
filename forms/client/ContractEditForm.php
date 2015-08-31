@@ -37,6 +37,7 @@ class ContractEditForm extends Form
         $contract_type_id,
         $financial_type,
         $federal_district,
+        $is_external,
 
         $save_comment_stage = false,
         $public_comment = [];
@@ -61,6 +62,7 @@ class ContractEditForm extends Form
             ['federal_district', function($attribute){
                 SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
             }],
+            ['is_external', 'in', 'range' => ClientContract::$externalType],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
             ['state', 'validateState'],
             [['business_process_id', 'business_process_status_id'], function($attribute){
@@ -71,6 +73,7 @@ class ContractEditForm extends Form
                 if( !$this->getIsNewRecord() &&  $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus'))
                     $this->addError('state', 'Вы не можете менять тип договора');
             }],
+            ['is_external', 'default', 'value' => ClientContract::IS_INTERNAL],
         ];
         return $rules;
     }
