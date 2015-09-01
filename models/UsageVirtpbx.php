@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\transfer\VirtpbxServiceTransfer;
 use app\dao\services\VirtpbxServiceDao;
@@ -84,9 +85,34 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return 'Виртуальная АТС';
     }
 
+    public static function getTypeHelpBlock()
+    {
+        return Html::tag(
+            'div',
+            'ВАТС переносится только с подключенными номерами. ' .
+            'Отключить номера можно в настройках ВАТС',
+            [
+                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px;',
+            ]
+        );
+    }
+
     public function getTypeDescription()
     {
-        return $this->tariff ? $this->tariff->description : 'Описание';
+        $value = $this->currentTariff ? $this->currentTariff->description : 'Описание';
+        $description = [];
+        $checkboxOptions = [];
+
+        $numbers = $this->clientAccount->voipNumbers;
+
+        foreach ($numbers as $number => $options) {
+            if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->id) {
+                continue;
+            }
+            $description[] = $number;
+        }
+
+        return [$value, implode(', ', $description), $checkboxOptions];
     }
 
 }

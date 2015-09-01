@@ -59,6 +59,10 @@ class Emails extends ActiveRecord implements Usage
         return 'E-mail';
     }
 
+    public static function getTypeHelpBlock()
+    {
+    }
+
     public function getTypeDescription()
     {
         return $this->local_part . '@' . $this->domain;
