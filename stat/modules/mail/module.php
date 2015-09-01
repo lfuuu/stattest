@@ -1,5 +1,5 @@
 <?php
-use app\classes\StatModule;
+use app\models\User;
 
 class m_mail{
 	var $is_active = 0;
@@ -282,7 +282,7 @@ class m_mail{
 									$W[] = "LT.service = 'usage_voip'";
 									$W[] = "CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to";
 								}
-								$W[] = "TV.region IN ('" . implode("', '", $p) . "')";
+								$W[] = "TV.connection_point_id IN ('" . implode("', '", $p) . "')";
 							}
 						}
 						break;
@@ -323,18 +323,8 @@ class m_mail{
         $design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
-
-		$m=array();
-        StatModule::users()->d_users_get($m,'manager');
-
-		$design->assign(
-			'f_manager',
-			$m
-        );
-
-
+		$design->assign('f_manager', User::dao()->getListByDepartments('manager'));
         $design->assign('f_organization', \app\models\Organization::find()->actual()->all());
-
 		$design->assign('f_status', \app\models\ClientAccount::$statuses);
 		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
 		$f_tarifs = array();
@@ -345,7 +335,7 @@ class m_mail{
 				from 
 					tarifs_voip 
 				WHERE 
-					region = " . $v['id'] . " AND 
+					connection_point_id = " . $v['id'] . " AND
 					status != 'archive' 
 				order by 
 					name asc");

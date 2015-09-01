@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use app\models\User;
 
 class m_logs extends IModule{
 
@@ -60,9 +61,7 @@ class m_logs extends IModule{
 		
 		$manager = get_param_raw('manager', '');
 		$design->assign('manager', $manager);
-		$m=array();
-        StatModule::users()->d_users_get($m,'manager');
-		$design->assign('f_manager', $m);
+		$design->assign('f_manager', User::dao()->getListByDepartments('manager'));
 		
 		list($logs, $pages) = $this->getLogs($client_id, $from, $to, $events, $manager, $page);
 		$design->assign('pages', $pages);

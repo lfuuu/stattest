@@ -1373,8 +1373,7 @@ class m_stats extends IModule{
 	function stats_report_traff_less() {
 		global $db,$design;
 		$managers=array('anyone'=>'Все');
-		$mtmp = array();
-        StatModule::users()->d_users_get($mtmp,'manager');
+		$mtmp = User::dao()->getListByDepartments('manager');
 		foreach($mtmp as $key=>$val){
 			$managers[$key] = $val['name']." (".$key.")";
 		}
