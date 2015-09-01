@@ -4,6 +4,7 @@ namespace app\forms\comment;
 
 use Yii;
 use DateTime;
+use DateTimeZone;
 use app\classes\Form;
 use app\models\ClientContractComment;
 
@@ -37,8 +38,8 @@ class ClientContractCommentForm extends Form
         $comment = new ClientContractComment;
         $comment->setAttributes($this->getAttributes(), false);
 
-        $comment->user = $this->user ?: Yii::$app->user->identity->user;
-        $comment->ts = (new DateTime('now'))->format('Y-m-d H:i:s');
+        $comment->user = $this->user ?: (Yii::$app->user->identity->user ?: 'auto');
+        $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $comment->is_publish = 0;
 
         $transaction = Yii::$app->db->beginTransaction();
