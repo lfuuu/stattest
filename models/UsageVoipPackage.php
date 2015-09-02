@@ -43,7 +43,7 @@ class UsageVoipPackage extends ActiveRecord implements Usage
     /**
      * @return ServiceTransfer
      */
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
         return new VoipServiceTransfer($this);
     }
