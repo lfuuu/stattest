@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\transfer\VirtpbxServiceTransfer;
 use app\dao\services\VirtpbxServiceDao;
@@ -74,19 +75,9 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new VirtpbxServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Виртуальная АТС';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->tariff ? $this->tariff->description : 'Описание';
+        return new VirtpbxServiceTransfer($usage);
     }
 
 }

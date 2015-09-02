@@ -6,7 +6,6 @@ class m_users {
 					'add'			=> array('users','change'),
 					'delete'		=> array('users','change'),
 				);
-
 	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
 	var $menu=array(
 					array('Операторы',	'default',	'&m=users'),
@@ -14,12 +13,8 @@ class m_users {
 					array('Отделы',		'default',	'&m=departs'),
 					array('Обновить права в БД', 'default', '&m=update_rights'),
 				);
-
 	function m_users(){
-
-
 	}
-
 	function GetPanel($fixclient){
 		$R=array();
 		foreach($this->menu as $val){
@@ -30,24 +25,20 @@ class m_users {
             return array('Управление доступом',$R);
 		}
 	}
-
 	function GetMain($action,$fixclient){
 		global $design,$db,$user;
 		if (!isset($this->actions[$action])) return;
 		$act=$this->actions[$action];
 		if (!access($act[0],$act[1])) return;
-
 		$m=get_param_raw('m','users');
 		if (!in_array($m,array('users','user','groups','group','depart','departs','update_rights'))) return;
 		$design->assign('CUR','?module=users&m='.$m);
-
 		//внимание! - не .$action, а .$m, для того, чтобы не копировать общий код
 		//проверка на доступ к такому action у нас уже вставлена выше
 		//особенность - для разных m одинаковые action должны использовать одинаковые rights
 		call_user_func(array($this,'users_'.$m),$action);
 //		call_user_func(array($this,'tt_'.$action),$fixclient) - так выглядит обычная строка вызова, взятая из модуля tt
 	}
-
 	//просмотр списка пользователей
 	function users_users($action) {
 		global $design,$db,$user;
@@ -55,7 +46,6 @@ class m_users {
 		$design->assign_by_ref("users",$d_users);
 		$this->d_groups_get($d_groups);
 		$id=get_param_protected('id');
-
 		if ($action=='delete'){
 			if (!isset($d_users[$id])) {
 				trigger_error2('Такого оператора не существует');
@@ -68,7 +58,6 @@ class m_users {
 		}
 		$design->AddMain('users/main_users.tpl');
 	}
-
 	//работа со одним пользователем
 	function users_user($action) {
 		global $design,$db,$user;
@@ -77,7 +66,6 @@ class m_users {
 		$this->d_groups_get($d_groups);
 		$this->d_departs_get($d_depart);
 		$id=get_param_protected('id');
-
 		if ($action=='add'){
 			$f=array(
 				'user'			=> get_param_protected('user'),
@@ -125,7 +113,6 @@ class m_users {
 			}
 			unset($v);
 			if(!$f["enabled"]) $f["enabled"] = "no";
-
 			if (!$f['user']) {
 				trigger_error2('Оператор должен иметь имя');
 			} else if (($f['user']!=$id) && isset($d_users[$f['user']])){
@@ -138,9 +125,7 @@ class m_users {
 						trigger_error2('Пароль изменён');
 					} else trigger_error2('Пароли не совпадают');
 				}
-
 				$q_photo=\app\classes\StatModule::usercontrol()->process_photo($id);
-
 				$db->Query('update user_users set '.$add.
 								'user="'.$f['user'].'",' .
 								'usergroup="'.$f['usergroup'].'",'.
@@ -161,7 +146,6 @@ class m_users {
 					while ($r=$db->NextRecord()) {
 						$R[$r['resource']]=$r['access'];
 					}
-
 					$this->d_rights_get($d_rights);
 					foreach ($d_rights as $i=>$v){
 						if (isset($f['rights_radio'][$i]) && $f['rights_radio'][$i]){
@@ -181,14 +165,11 @@ class m_users {
 				$design->assign_by_ref("users",$d_users);
 			}
 		}
-
 		if (!$id) return;
 		if (!isset($d_users[$id])) return;
-
 		$d_groups[$d_users[$id]['usergroup']]['selected']=" selected";
 		$design->assign_by_ref("user",$d_users[$id]);
 		$design->assign_by_ref("usergroup",$d_users[$id]['usergroup']);
-
 		if (!isset($d_rights)) $this->d_rights_get($d_rights);
 		$R=array();
 		$db->Query('select * from user_grant_groups where (name="'. $d_users[$id]['usergroup']. '")');
@@ -196,34 +177,27 @@ class m_users {
 			$R[$r['resource']]=$r['access'];
 		}
 		$design->assign("rights_group",$R);
-
 		$R2=array();
 		$db->Query('select * from user_grant_users where (name="'. $id. '")');
 		while ($r=$db->NextRecord()) {
 			$R[$r['resource']]=$r['access'];
 			$R2[$r['resource']]=$r['access'];
 		}
-
 		$design->assign_by_ref("rights_real",$R);
 		$design->assign("rights_user",$R2);
-
 		$couriers = array();
 		foreach($db->AllRecords('select id, name, depart from courier order by name') as $c) {
 			if (!isset($couriers[$c['depart']])) $couriers[$c['depart']] = array();
 			$couriers[$c['depart']][$c['id']] = $c['name'];
 		}
-
         $design->assign("couriers", $couriers);
-
 		$design->AddMain('users/main_user.tpl');
 	}
-
 	//работа со списком групп
 	function users_groups($action){
 		global $design,$db,$user;
 		$this->d_groups_get($d_groups);
 		$id=get_param_protected('id');
-
 		if ($action=='delete'){
 			if (!isset($d_groups[$id])) {
 				trigger_error2('Такого оператора не существует');
@@ -234,10 +208,8 @@ class m_users {
 				$design->assign_by_ref("users",$d_users);
 			}
 		}
-
 		$design->AddMain('users/main_groups.tpl');
 	}
-
 	//работа с выбранной группой
 	function users_group($action) {
 		global $design,$db,$user;
@@ -298,30 +270,21 @@ class m_users {
 				$design->assign_by_ref("users",$d_users);
 			}
 		}
-
 		if (!$id) return;
 		if (!isset($d_groups[$id])) return;
-
 		$design->assign_by_ref("usergroup",$d_groups[$id]);
-
 		if (!isset($d_rights)) $this->d_rights_get($d_rights);
-
 		$R=array();
 		$db->Query('select * from user_grant_groups where (name="'. $id. '")');
 		while ($r=$db->NextRecord()) {
 			$R[$r['resource']]=$r['access'];
 		}
 		$design->assign("rights_group",$R);
-
 		$design->AddMain('users/main_group.tpl');
 	}
-
-
 	//работа со списком отделов
 	function users_departs($action){
 		global $design,$db,$user;
-
-
         if($action == "add")
         {
             $name = get_param_protected("name", "");
@@ -347,9 +310,7 @@ class m_users {
             }else{
 				trigger_error2('Отдел не задан!');
             }
-
         }
-
         if ($action=='delete'){
             $id=get_param_protected('id');
             if ($id) {
@@ -359,30 +320,21 @@ class m_users {
             }
         }
 		$this->d_departs_get($d_departs, false);
-
-
 		$design->AddMain('users/main_departs.tpl');
 	}
-
 	function d_users_get(&$d_users,$group=''){
 		global $db,$design;
-
         if(!is_array($group)) {
             if($group)
             $group = array($group);
         }
-
         if(!is_array($d_users))
             $d_users = array();
-
         if($group && in_array("manager", $group))
             $group[] = "account_managers";
-
 		//$d_users=array();
 		$db->Query('select u.*, d.name as depart_name from user_users u left join user_departs d on (d.id = u.depart_id)'.($group?' where usergroup in ("'.implode("\",\"",$group).'")':'').' and enabled = "yes" order by u.name');
 		while ($r=$db->NextRecord()) $d_users[$r['user']]=$r;
-
-
 	}
 	function d_departs_get(&$d_groups, $widthZero = true){
 		global $db,$design;
@@ -423,7 +375,6 @@ class m_users {
 		}
 		return implode(',',$G);
 	}
-
     public function users_update_rights()
     {
         if (access('users','grant')) {
@@ -433,5 +384,3 @@ class m_users {
         }
     }
 }
-
-?>

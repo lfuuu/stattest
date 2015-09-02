@@ -62,9 +62,9 @@ class VoipStatus {
         $warnings = [];
 
         if ($this->auto_disabled_local)
-            $warnings[] = "ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Местная связь)";
-        if ($this->auto_disabled)
             $warnings[] = "ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)";
+        if ($this->auto_disabled)
+            $warnings[] = "ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)";
         if ($need_lock_limit_day)
             $warnings[] = 'Превышен дневной лимит: '.(-$this->amount_day_sum).' > '.$this->account->voip_credit_limit_day;
         if ($need_lock_limit_month)

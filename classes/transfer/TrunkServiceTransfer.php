@@ -36,7 +36,7 @@ class TrunkServiceTransfer extends ServiceTransfer
         $settings =
             UsageTrunkSettings::find()
                 ->andWhere(['usage_id' => $this->service->id])
-                -all();
+                ->all();
 
         foreach ($settings as $setting) {
             $dbTransaction = Yii::$app->db->beginTransaction();
@@ -99,6 +99,16 @@ class TrunkServiceTransfer extends ServiceTransfer
             }
         }
 
+    }
+
+    public function getTypeTitle()
+    {
+        return 'Телефония транки';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->service->tariff ? $this->service->tariff->description : 'Описание';
     }
 
 }

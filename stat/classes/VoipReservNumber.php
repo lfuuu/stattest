@@ -1,6 +1,11 @@
 <?php 
 
 use app\classes\Event;
+use app\models\UsageVoip;
+use app\models\ClientAccount;
+use app\models\TariffVoip;
+use app\models\TariffNumber;
+use app\forms\usage\UsageVoipEditForm;
 
 class VoipReservNumber
 {
@@ -13,10 +18,13 @@ class VoipReservNumber
         if ($tarifId !== null)
             $tarifId = $db->escape($tarifId);
 
-        $region = $db->GetValue("select region from voip_numbers where number = '".$number."'");
+        $voipNumber = $db->GetRow("select region,city_id,did_group_id from voip_numbers where number = '".$number."'");
 
-        if (!$region)
+        if (!$voipNumber)
             throw new Exception("Номер не найден");
+
+        $region = $voipNumber["region"];
+
 
 
         $u = $db->GetValue("select id from usage_voip where 
@@ -29,95 +37,73 @@ class VoipReservNumber
             throw new Exception("Номер уже используется");
 
 
-        $client = $db->GetValue("select client from clients where id='".$clientId."'");
+        $client = ClientAccount::findOne(["id" => $clientId]);
 
         if (!$client)
             throw new Exception("Клиент не найден");
 
-        $tarifs = self::getDefaultTarifs();
+        $tarifId = self::getDefaultTarifId($region, $client->currency);
 
-        if ($tarifId === null)
-            $tarifId = $tarifs[$region]['id_tarif'];
-        
-        $tarif = $db->GetRow("select * from tarifs_voip where id = '".$tarifId."' and connection_point_id = '".$region."'");
-
-        if (!$tarif)
+        if (!$tarifId)
             throw new Exception("Тариф не найден");
 
 
-        //Создаем запись услуги
-        $usageVoipId = $db->QueryInsert("usage_voip", array(
-                    "client"        => $client,
-                    "region"        => $region,
-                    "E164"          => $number,
-                    "no_of_lines"   => $lineCount,
-                    "actual_from"   => ($isForceStart ? date("Y-m-d") : "4000-01-01"),
-                    "actual_to"     => "4000-01-01",
-                    "status"        => "connecting"
-                    )
-                );
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            //Создаем запись услуги
+            $form = new UsageVoipEditForm;
+            $form->scenario = 'add';
+            $form->initModel($client);
 
-        //Создаем запись тарифов
-        $db->QueryInsert("log_tarif", array(
-                    "service"             => "usage_voip",
-                    "id_service"          => $usageVoipId,
-                    "id_tarif"            => $tarifId,
-                    "id_tarif_local_mob"  => $tarifs[$region]['id_tarif_local_mob'],
-                    "id_tarif_russia"     => $tarifs[$region]['id_tarif_russia'],
-                    "id_tarif_russia_mob" => $tarifs[$region]['id_tarif_russia'],
-                    "id_tarif_intern"     => $tarifs[$region]['id_tarif_intern'],
-                    "ts"                  => array("NOW()"),
-                    "date_activation"     => array("NOW()"),
-                    "dest_group"          => '0',
-                    "minpayment_group"    => '0',
-                    "minpayment_local_mob"=> '0',
-                    "minpayment_russia"   => '0',
-                    "minpayment_intern"   => '0',
-                    )
-                );
-        
-        Event::go("actualize_number", ["number" => $number]);
+            $form->tariff_main_id = $tarifId;
+            $form->connecting_date = ($isForceStart ? date("Y-m-d") : "4000-01-01");
+            $form->did = $number;
+            $form->no_of_lines = $lineCount;
+
+            $form->prepareAdd();
+
+            if (!$form->validate() || !$form->add()) 
+            {
+                if ($form->errors)
+                {
+                    \Yii::error($form);
+                    $errorKeys = array_keys($form->errors);
+                    throw new Exception($form->errors[$errorKeys[0]], 500);
+                } else {
+                    throw new Exception("Unknown error", 500);
+                }
+            }
+
+            $usageVoipId = $form->id;
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
 
         return array("tarif" => $tarif, "usage_id" => $usageVoipId);
 
     }
 
-    private static function getDefaultTarifs()
+    private static function getDefaultTarifId($regionId, $currency)
     {
         global $db;
-        $res = array('99'=>'156','97'=>'60','98'=>'112','96'=>'412','82'=>'0','95'=>'195','94'=>'178','87'=>'240','88'=>'278','89'=>314,'93'=>'302');
 
-        foreach ($res as $region_id=>$v) {
-            $def = array(
-                    'id_tarif_local_mob'=>0,
-                    'id_tarif_russia'=>0,
-                    'id_tarif_intern'=>0,
-                    'id_tarif'=>$v
-                    );
 
-            $tarifs = $db->AllRecords($q = "
-                    select
-                        id, dest
-                    from
-                        tarifs_voip
-                    where
-                        status='public' and
-                        connection_point_id='".$region_id."' and
-                        currency_id='RUB'
-                    " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
-                    );
-            foreach ($tarifs as $r) {
-                switch ($r['dest']) {
-                    case '1':
-                        $def['id_tarif_russia'] = $r['id'];break;
-                    case '2':
-                        $def['id_tarif_intern'] = $r['id'];break;
-                    case '5':
-                        $def['id_tarif_local_mob'] = $r['id'];break;
-                }
+        $tarifId = $db->GetValue("select id from tarifs_voip where status='test' and connection_point_id = '".$regionId."' and currency_id='".$currency."'");
+
+        if (!$tarifId)
+        {
+            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
+            {
+                mail(ADMIN_EMAIL, "VoipReservNumber", "Тариф не установлен. region: ".$regionId. ", currency: ".$currency);
             }
-            $res[$region_id] = $def;
+
+            throw new Exception("Тариф не установлен");
         }
-        return $res;
+
+
+        return $tarifId;
     }
 }

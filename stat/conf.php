@@ -27,11 +27,13 @@ $config = array(
     'MONGO_PASS' => '',
     'MONGO_DB' => '',
 
-// sync with 1c
+    // sync with 1c
+   /*
     'SYNC1C_UT_SOAP_URL'  => '',
     'SYNC1C_UT_LOGIN'     => '',
     'SYNC1C_UT_PASSWORD'  => '',
     'SYNC1C_STAT_TOKEN'   => '',
+    */
 
 
     'SERVER'            =>    'tiberis',

@@ -2,6 +2,7 @@
 namespace app\forms\client;
 
 use app\classes\DoubleAttributeLabelTrait;
+use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
@@ -62,7 +63,7 @@ class ContragentEditForm extends Form
         $rules = [
             [['legal_type', 'super_id'], 'required'],
             [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'string'],
+                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment', 'tax_regime'], 'string'],
             [['name', 'name_full', 'address_jur', 'inn',
                 'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'default', 'value' => ''],
 
@@ -73,11 +74,12 @@ class ContragentEditForm extends Form
                 'passport_number', 'passport_issued', 'registration_address',
                 'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
-            [['tax_regime', 'opf_id'], 'default', 'value' => '0'],
+            [['opf_id'], 'default', 'value' => '0'],
+            [['tax_regime'], 'default', 'value' => ClientContragent::TAX_REGTIME_UNDEFINED],
             ['country_id', 'default', 'value' => Country::RUSSIA],
 
             ['legal_type', 'in', 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]],
-            [['super_id', 'country_id', 'tax_regime', 'opf_id'], 'integer'],
+            [['super_id', 'country_id', 'opf_id'], 'integer'],
 
         ];
         return $rules;
@@ -214,7 +216,7 @@ class ContragentEditForm extends Form
         $contragent->comment = $this->comment;
 
         if ($contragent->legal_type == 'person')
-            $contragent->tax_regime = 0;
+            $contragent->tax_regime = ClientContragent::TAX_REGTIME_UNDEFINED;
         else
             $contragent->tax_regime = $this->tax_regime;
 
@@ -236,5 +238,8 @@ class ContragentEditForm extends Form
         $person->passport_number = $this->passport_number;
         $person->passport_issued = $this->passport_issued;
         $person->registration_address = $this->registration_address;
+        $person->birthplace = $this->birthplace;
+        $person->birthday = $this->birthday;
+        $person->mother_maiden_name = $this->mother_maiden_name;
     }
 }

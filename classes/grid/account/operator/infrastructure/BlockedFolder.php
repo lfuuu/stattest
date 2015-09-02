@@ -22,9 +22,12 @@ class BlockedFolder extends AccountGridFolder
             'company',
             'created',
             'currency',
-            'sale_channel',
             'manager',
+            'account_manager',
             'region',
+            'federal_district',
+            'contract_type',
+            'financial_type'
         ];
     }
 
@@ -32,7 +35,7 @@ class BlockedFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_BLOCKED]);
     }
 }

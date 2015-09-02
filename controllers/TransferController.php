@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\ClientContragent;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;

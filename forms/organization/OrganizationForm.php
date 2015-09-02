@@ -99,6 +99,7 @@ class OrganizationForm extends Form
     {
         $record = clone $organization;
         unset($record->actual_from);
+        unset($record->id);
         $this->setAttributes($record->getAttributes());
 
         return $this;

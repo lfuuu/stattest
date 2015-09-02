@@ -32,7 +32,7 @@ class IncomingFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->andWhere(['cr.contract_type_id' => $this->grid->getContractType()]);
+        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['c.status' => 'income']);
     }
 

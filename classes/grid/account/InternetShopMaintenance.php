@@ -4,15 +4,15 @@ namespace app\classes\grid\account;
 use app\classes\grid\account\internetshop\maintenance\ActingFolder;
 use app\classes\grid\account\internetshop\maintenance\TrashFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\Business;
 use Yii;
 
 
 class InternetShopMaintenance extends AccountGrid
 {
-    public function getContractType()
+    public function getBusiness()
     {
-        return ContractType::INTERNET_SHOP;
+        return Business::INTERNET_SHOP;
     }
 
     public function getBusinessProcessId()

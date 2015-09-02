@@ -4,13 +4,13 @@ use app\models\Number;
 use app\classes\StatModule;
 use app\models\Trouble;
 use app\models\LkWizardState;
-use app\models\ContractType;
+use app\models\Business;
 use app\models\BusinessProcessStatus;
-use app\models\ClientContractComment;
 use app\models\ClientAccount;
 use app\models\TariffVirtpbx;
 use app\models\User;
 use app\models\Organization;
+use app\forms\comment\ClientContractCommentForm;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -72,7 +72,7 @@ if ($action=='add_client') {
     Yii::info($cg);
 
     $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-    $cr->contract_type_id = ContractType::TELEKOM;
+    $cr->business_id = Business::TELEKOM;
     $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
     $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
     $cr->organization_id = Organization::MCN_TELEKOM;
@@ -282,7 +282,7 @@ if ($action=='add_client') {
         return 0;
 
 
-    $c = new ClientContractComment();
+    $c = new ClientContractCommentForm;
     $c->contract_id = $account->contract_id;
     $c->user = 'auto';
     $c->comment = $comment;

@@ -6,7 +6,7 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use \yii\helpers\Url;
 
-$currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
+$currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($contractForm->business_process_status_id);;
 ?>
 <div class="status-block">
     <?php
@@ -96,19 +96,19 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'contract_type_id' => [
+                'business_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ContractType::getList(),
+                    'items' => \app\models\Business::getList(),
                     'options' => ['disabled' => !Yii::$app->user->can('clients.client_type_change')]
                 ],
                 'business_process_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $contractForm->businessProcessesList,
+                    'items' => \app\models\BusinessProcess::getList(),
                     'options' => ['disabled' => !Yii::$app->user->can('clients.restatus')]
                 ],
                 'business_process_status_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $contractForm->businessProcessStatusesList,
+                    'items' => \app\models\BusinessProcessStatus::getList(),
                     'options' => ['disabled' => !Yii::$app->user->can('clients.restatus')]
                 ],
             ],
@@ -156,8 +156,8 @@ $currentBusinessProcessStatus = $contractForm->currentBusinessProcessStatus;
         $('.status-block-toggle').click();
         <?php endif; ?>
 
-        var statuses = <?= json_encode($account->getBpStatuses()) ?>;
-        var s1 = $('#contracteditform-contract_type_id');
+        var statuses = <?= json_encode(\app\models\BusinessProcessStatus::getTree()) ?>;
+        var s1 = $('#contracteditform-business_id');
         var s2 = $('#contracteditform-business_process_id');
         var s3 = $('#contracteditform-business_process_status_id');
 

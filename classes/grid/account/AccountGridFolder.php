@@ -2,8 +2,12 @@
 namespace app\classes\grid\account;
 
 use app\classes\grid\account\telecom\maintenance\AutoBlockFolder;
+use app\helpers\SetFieldTypeHelper;
 use app\models\ClientAccount;
 use app\models\BusinessProcessStatus;
+use app\models\ClientContact;
+use app\models\ClientContract;
+use app\models\ContractType;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -25,6 +29,9 @@ abstract class AccountGridFolder extends Model
     public $service;
     public $regionId;
     public $sale_channel;
+    public $financial_type;
+    public $contract_type;
+    public $federal_district;
 
     public function getName()
     {
@@ -39,8 +46,9 @@ abstract class AccountGridFolder extends Model
     public function rules()
     {
         return [
-            [['id', 'regionId', 'sale_channel'], 'integer'],
-            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency', 'service', 'block_date'], 'string'],
+            [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
+            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
+                'service', 'block_date', 'financial_type', 'federal_district'], 'string'],
         ];
     }
 
@@ -49,7 +57,7 @@ abstract class AccountGridFolder extends Model
     {
         return (new ClientAccount())->attributeLabels() +
         [
-            'id' => 'ИД',
+            'id' => 'ID',
             'company' => 'Компания',
             'created' => 'Заведен',
             'inn' => 'ИНН',
@@ -68,6 +76,9 @@ abstract class AccountGridFolder extends Model
             'abondiff' => 'Абон.(diff)',
             'overdiff' => 'Прев.(diff)',
             'block_date' => 'Дата блокировки',
+            'federal_district' => 'ФО',
+            'contract_type' => 'Тип договора',
+            'financial_type' => 'Финансовый тип договора',
         ];
     }
 
@@ -109,10 +120,14 @@ abstract class AccountGridFolder extends Model
             'c.currency',
             'c.region',
             'reg.name as region_name',
+            'cr.federal_district',
+            'ct.name as contract_type',
+            'cr.financial_type',
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
         $query->join('INNER JOIN', 'client_contragent cg', 'cr.contragent_id = cg.id');
+        $query->join('LEFT JOIN', 'client_contract_type ct', 'ct.id = cr.contract_type_id');
         $query->join('LEFT JOIN', 'user_users amu', 'amu.user = cr.account_manager');
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
@@ -145,6 +160,11 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
         $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
+
+        $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
+        if($this->federal_district)
+            $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district', $this->federal_district));
+        $query->andFilterWhere(['cr.contract_type_id' => $this->contract_type]);
 
         if ($this->currency) {
             $query->andWhere(['c.currency' => $this->currency]);
@@ -221,7 +241,7 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function(){
-                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" />';
+                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" style="width:50px;" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
@@ -235,7 +255,9 @@ abstract class AccountGridFolder extends Model
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['company'] . '</a>';
                 },
                 'filter' => function() {
-                    return '<input name="companyName" id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '" class="form-control" />';
+                    return '<input name="companyName"
+                        id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '"
+                        class="form-control" style="min-width:150px" />';
                 },
             ],
             'created' => [
@@ -254,7 +276,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -276,7 +298,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -302,7 +324,7 @@ abstract class AccountGridFolder extends Model
                             'usage_voip' => 'usage_voip',
                             'usage_welltime' => 'usage_welltime',
                         ],
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
                     );
                 },
             ],
@@ -371,7 +393,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -388,10 +410,14 @@ abstract class AccountGridFolder extends Model
                         'name' => 'manager',
                         'data' => \app\models\User::getManagerList(),
                         'value' => \Yii::$app->request->get('manager'),
-                        'options' => ['placeholder' => 'Начните вводить фамилию'],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'style' => 'width:100px;',
+                        ],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
+
                     ]);
                 },
             ],
@@ -406,7 +432,10 @@ abstract class AccountGridFolder extends Model
                         'name' => 'account_manager',
                         'value' => \Yii::$app->request->get('account_manager'),
                         'data' => \app\models\User::getAccountManagerList(),
-                        'options' => ['placeholder' => 'Начните вводить фамилию'],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'style' => 'width:100px;',
+                        ],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
@@ -424,7 +453,7 @@ abstract class AccountGridFolder extends Model
                         'currency',
                         \Yii::$app->request->get('currency'),
                         \app\models\Currency::map(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
                     );
                 },
             ],
@@ -439,7 +468,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'account_manager',
                         'data' => \app\models\SaleChannel::getList(),
                         'value' => \Yii::$app->request->get('sale_channel'),
-                        'options' => ['placeholder' => 'Начните вводить название'],
+                        'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100px;',],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
@@ -457,7 +486,56 @@ abstract class AccountGridFolder extends Model
                         'regionId',
                         \Yii::$app->request->get('regionId'),
                         \app\models\Region::getList(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
+                    );
+                },
+            ],
+            'federal_district' => [
+                'attribute' => 'federal_district',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    $arr = SetFieldTypeHelper::parseValue($data['federal_district']);
+                    array_walk($arr, function(&$item){
+                        $item = ClientContract::$districts[$item];
+                    });
+                    return implode('<br>', $arr);
+                },
+                'filter' => function () {
+                    return \yii\helpers\Html::dropDownList(
+                        'federal_district',
+                        \Yii::$app->request->get('federal_district'),
+                        ClientContract::$districts,
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width:50px;']
+                    );
+                },
+            ],
+            'contract_type' => [
+                'attribute' => 'contract_type',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return $data['contract_type'];
+                },
+                'filter' => function () {
+                    return \yii\helpers\Html::dropDownList(
+                        'contract_type',
+                        \Yii::$app->request->get('contract_type'),
+                        ContractType::getList(),
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:100px;']
+                    );
+                },
+            ],
+            'financial_type' => [
+                'attribute' => 'financial_type',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return ClientContract::$financialTypes[$data['financial_type']];
+                },
+                'filter' => function () {
+                    return \yii\helpers\Html::dropDownList(
+                        'financial_type',
+                        \Yii::$app->request->get('financial_type'),
+                        ClientContract::$financialTypes,
+                        ['class' => 'form-control', 'style' => 'max-width:100px;']
                     );
                 },
             ],

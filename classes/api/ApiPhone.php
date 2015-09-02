@@ -2,6 +2,7 @@
 namespace app\classes\api;
 
 use app\classes\JSONQuery;
+use app\models\ClientAccount;
 use yii\base\Exception;
 
 class ApiPhone
@@ -28,9 +29,6 @@ class ApiPhone
         return $data;
     }
 
-
-
-
     public static function exec($action, $data) {
         if (!self::isAvailable()) {
             throw new Exception('API Phone was not configured');
@@ -47,4 +45,10 @@ class ApiPhone
 
         return $result;
     }
+
+    public static function getNumbersInfo(ClientAccount $client)
+    {
+        return self::exec('numbers_info', ['account_id' => $client->id]);
+    }
+
 }

@@ -16,6 +16,8 @@ use yii\db\ActiveRecord;
  */
 class City extends ActiveRecord
 {
+    const DEFAULT_USER_CITY_ID = 7495; // Moscow
+
     public static function tableName()
     {
         return 'city';

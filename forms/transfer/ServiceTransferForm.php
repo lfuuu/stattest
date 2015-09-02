@@ -51,7 +51,7 @@ class ServiceTransferForm extends Form
             UsageVoip::dao(),
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
-            //UsageVirtpbx::dao(),
+            UsageVirtpbx::dao(),
             TechCpe::dao(),
         ];
     }
@@ -93,8 +93,7 @@ class ServiceTransferForm extends Form
 
         foreach ($services as $service) {
             $serviceTransfer =
-                $service
-                    ->getTransferHelper()
+                $service::getTransferHelper($service)
                         ->setTargetAccount($this->targetAccount)
                         ->setActivationDate(
                             $this->actual_from == 'custom'
@@ -166,6 +165,7 @@ class ServiceTransferForm extends Form
                 $total++;
             }
 
+        //print_r($result);
         return array(
             'total' => $total,
             'items' => $result

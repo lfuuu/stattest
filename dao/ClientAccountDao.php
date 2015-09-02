@@ -1,19 +1,17 @@
 <?php
 namespace app\dao;
 
-use app\models\ClientContract;
+use app\models\Business;
 use app\models\ClientContractComment;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\classes\api\ApiPhone;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\GoodsIncomeOrder;
 use app\models\PaymentOrder;
 use app\models\Saldo;
-use app\models\Datacenter;
-use app\models\ServerPbx;
-use app\models\Region;
 use DateTime;
 use DateTimeZone;
 
@@ -23,6 +21,8 @@ use DateTimeZone;
  */
 class ClientAccountDao extends Singleton
 {
+
+    private $voipNumbers = null;
 
     public function getLastBillDate(ClientAccount $clientAccount)
     {
@@ -242,7 +242,7 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->contract->contract_type_id != ClientContract::CONTRACT_TYPE_MULTY){ // не магазин
+        if ($clientAccount->contract->business_id != Business::INTERNET_SHOP){ // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {
@@ -624,13 +624,15 @@ class ClientAccountDao extends Singleton
         if ($clientAccount->is_active != $newIsActive) {
             $clientAccount->is_active = $newIsActive;
             $clientAccount->save();
-
-            $cs = new ClientContractComment();
-
-            $cs->ts = date("Y-m-d H:i:s");
-            $cs->contract_id = $clientAccount->contract_id;
-            $cs->user = \Yii::$app->user->getIdentity()->user;
-            $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
+
+    public function getClientVoipNumbers(ClientAccount $clientAccount)
+    {
+        if (is_null($this->voipNumbers)) {
+            $this->voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
+        }
+        return $this->voipNumbers;
+    }
+
 }

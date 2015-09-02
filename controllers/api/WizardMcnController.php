@@ -215,11 +215,6 @@ class WizardMcnController extends /*BaseController*/ApiController
                 $clientDocument->template = 'Zakaz_Uslug';
                 $clientDocument->save();
 
-                $agreement = ClientDocument::findOne([
-                    "contract_id" => $this->account->contract->id,
-                    "user_id" => User::CLIENT_USER_ID,
-                    "type" => "agreement"
-                    ]);
             }
         }
 
@@ -237,7 +232,14 @@ class WizardMcnController extends /*BaseController*/ApiController
         } else {
             $content = $contract->fileContent;
 
-            if ($agreement && $agreement->content)
+            $agreement = ClientDocument::findOne([
+                "contract_id" => $this->account->contract->id,
+                "user_id" => User::CLIENT_USER_ID,
+                "type" => "agreement"
+                ]);
+
+
+            if ($agreement && $agreement->fileContent)
             {
                 $content .= "<p style=\"page-break-after: always;\"></p>";
                 $content .= $agreement->fileContent;

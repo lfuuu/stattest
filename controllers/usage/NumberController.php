@@ -82,7 +82,7 @@ class NumberController extends BaseController
 
     public function actionDetailReport()
     {
-        $cityId = Yii::$app->request->post('cityId', 0);
+        $cityId = Yii::$app->request->post('cityId', Yii::$app->user->identity->city_id);
         $didGroups = Yii::$app->request->post('didGroups');
         $statuses = Yii::$app->request->post('statuses');
         $prefix = Yii::$app->request->post('prefix');

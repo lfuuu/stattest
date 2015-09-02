@@ -14,15 +14,15 @@ use app\classes\grid\account\telecom\sales\TechFailureFolder;
 use app\classes\grid\account\telecom\sales\TestingFolder;
 use app\classes\grid\account\telecom\sales\TrashFolder;
 use app\models\BusinessProcess;
-use app\models\ContractType;
+use app\models\Business;
 use Yii;
 
 
 class TelecomSales extends AccountGrid
 {
-    public function getContractType()
+    public function getBusiness()
     {
-        return ContractType::TELEKOM;
+        return Business::TELEKOM;
     }
 
     public function getBusinessProcessId()

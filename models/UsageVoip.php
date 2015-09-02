@@ -7,9 +7,6 @@ use app\dao\services\VoipServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
-use app\models\TariffVoip;
-use app\models\VoipNumber;
-use app\models\Datacenter;
 
 /**
  * @property int $id
@@ -28,6 +25,15 @@ class UsageVoip extends ActiveRecord implements Usage
         'blocked' => 'Заблокированы',
         'local' => 'Внутр.',
     ];
+
+    public function behaviors()
+    {
+        return [
+            'UsageVoipAddress' => \app\classes\behaviors\UsageVoipAddress::className(),
+            'ActualizeNumberByStatus' => \app\classes\behaviors\ActualizeNumberByStatus::className(),
+            'ActualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
+        ];
+    }
 
     public static function tableName()
     {
@@ -125,19 +131,9 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
     
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new VoipServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Телефония номера';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->E164 . 'x' . $this->no_of_lines;
+        return new VoipServiceTransfer($usage);
     }
 
     public function getAbonPerMonth()
@@ -150,17 +146,5 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
     }
 
-    public function getCurrenyTariff()
-    {
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_voip'])
-                ->andWhere(['id_service' => $this->id])
-                ->andWhere('date_activation<=NOW()')
-                ->andWhere('id_tarif!=0')
-                ->orderBy('date_activation desc, ts desc, id desc')
-                ->limit(1)
-                ->one();
-    }
 }
 

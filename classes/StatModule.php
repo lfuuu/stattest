@@ -119,11 +119,4 @@ class StatModule
         return self::getModule('monitoring');
     }
 
-    /**
-     * @return \m_usercontrol
-     */
-    public static function usercontrol()
-    {
-        return self::getModule('usercontrol');
-    }
 }

@@ -12,14 +12,6 @@ use yii\helpers\ArrayHelper;
  */
 class ContractType extends ActiveRecord
 {
-    const TELEKOM = 2;
-    const OPERATOR = 3;
-    const PROVIDER = 4;
-    const INTERNET_SHOP = 5;
-    const INTERNAL_OFFICE = 6;
-    const PARTNER = 7;
-    const WELLTIME = 8;
-
     public static function tableName()
     {
         return 'client_contract_type';
@@ -28,11 +20,6 @@ class ContractType extends ActiveRecord
     public static function getList()
     {
         $arr = self::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
-    }
-
-    public function getBusinessProcesses()
-    {
-        return $this->hasMany(BusinessProcess::className(), ['contract_type_id' => 'id'])->orderBy(['sort' => SORT_ASC]);
+        return array_merge([0 => 'Не задано'], ArrayHelper::map($arr, 'id', 'name'));
     }
 }

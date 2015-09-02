@@ -10,13 +10,12 @@ use yii\base\Exception;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 
-
 /**
  * @property int $id
  * @property string $client
  * @property string $currency
  * @property string $nal
- * @property int $contract_type_id
+ * @property int $business_id
  * @property int $price_include_vat
 
  * @property ClientSuper $superClient
@@ -114,9 +113,9 @@ class ClientAccount extends HistoryActiveRecord
         return $this->contract->business_process_status_id;
     }
 
-    public function getContract_type_id()
+    public function getBusinessId()
     {
-        return $this->contract->contract_type_id;
+        return $this->contract->business_id;
     }
 
     public function getAccount_manager()
@@ -217,6 +216,9 @@ class ClientAccount extends HistoryActiveRecord
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'SetAdminContact' => \app\classes\behaviors\SetAdminContact::className(),
+            'ActaulizeClientVoip' => \app\classes\behaviors\ActaulizeClientVoip::className(),
+            'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
         ];
     }
 
@@ -286,9 +288,9 @@ class ClientAccount extends HistoryActiveRecord
         return $contract;
     }
 
-    public function getContractType()
+    public function getBusiness()
     {
-        return $this->hasOne(ContractType::className(), ['id' => 'contract_type_id']);
+        return $this->hasOne(Business::className(), ['id' => 'business_id']);
     }
 
     public function getRegionName()
@@ -401,22 +403,6 @@ class ClientAccount extends HistoryActiveRecord
         return $result;
     }
 
-    public function getBpStatuses()
-    {
-        $processes = [];
-        foreach (BusinessProcess::find()->andWhere(['show_as_status' => '1'])->orderBy("sort")->all() as $b) {
-            $processes[] = ["id" => $b->id, "up_id" => $b->contract_type_id, "name" => $b->name];
-        }
-
-        $statuses = [];
-        $bpStatuses = BusinessProcessStatus::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
-        foreach ($bpStatuses as $s) {
-            $statuses[] = ["id" => $s['id'], "name" => $s['name'], "up_id" => $s['business_process_id']];
-        }
-
-        return ["processes" => $processes, "statuses" => $statuses];
-    }
-
     public function getAdditionalInn($isActive = true)
     {
         return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int) $isActive])->all();
@@ -460,7 +446,9 @@ class ClientAccount extends HistoryActiveRecord
         {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
-
+        if (!defined("NO_WEB"))
+            define("NO_WEB", 1);
+            
         require_once PATH_TO_ROOT . 'conf.php';
 
         if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
@@ -490,6 +478,11 @@ class ClientAccount extends HistoryActiveRecord
     public function getVoipWarnings()
     {
         return VoipStatus::create($this)->getWarnings();
+    }
+
+    public function getVoipNumbers()
+    {
+        return self::dao()->getClientVoipNumbers($this);
     }
 
 }

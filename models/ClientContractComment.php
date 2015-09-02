@@ -13,8 +13,10 @@ use yii\db\ActiveRecord;
  */
 class ClientContractComment extends ActiveRecord
 {
+
     public static function tableName()
     {
         return 'client_contract_comment';
     }
+
 }

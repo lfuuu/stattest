@@ -13,6 +13,8 @@ use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
+use app\models\Business;
+use app\models\User;
 
 class m_newaccounts extends IModule
 {
@@ -173,7 +175,7 @@ class m_newaccounts extends IModule
         global $design, $db, $user, $fixclient, $fixclient_data;
 
         $account = ClientAccount::findOne($fixclient);
-        $isMulty = $account->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = $account->contract->business_id == Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -267,7 +269,7 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->contract_type_id == \app\models\ClientContract::CONTRACT_TYPE_MULTY;
+        $isMulty = ClientAccount::findOne($fixclient)->contract->business_id == Business::INTERNET_SHOP;
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -729,14 +731,14 @@ class m_newaccounts extends IModule
 
         if ($r) {
             $r["client_orig"] = $r["client"];
-            $contractTypeId = ClientAccount::findOne($r['id'])->contract->contract_type_id;
+            $BusinessId = ClientAccount::findOne($r['id'])->contract->business_id;
             if (access("clients", "read_multy"))
-                if ($contractTypeId != \app\models\ClientContract::CONTRACT_TYPE_MULTY) {
+                if ($BusinessId != Business::INTERNET_SHOP) {
                     trigger_error2('Доступ к клиенту ограничен');
                     return;
                 }
 
-            if ($contractTypeId == \app\models\ClientContract::CONTRACT_TYPE_MULTY && isset($_GET["bill"])) {
+            if ($BusinessId == Business::INTERNET_SHOP && isset($_GET["bill"])) {
                 $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
@@ -3593,8 +3595,9 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
         $design->assign('totalBonus',$totalBonus);
     }
 
-    $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
-    if (isset($R[$manager])) $R[$manager]['selected']=' selected';
+    $R = User::dao()->getListByDepartments(['manager', 'marketing']);
+    if (isset($R[$manager]))
+        $R[$manager]['selected']=' selected';
     $design->assign('users_manager',$R);
     $design->assign('action',$_GET["action"]);
     $design->AddMain('newaccounts/balance_bill.tpl');
@@ -3802,9 +3805,7 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
             $design->assign('totalAmount',$totalAmount);
             $design->assign('totalSaldo',$totalSaldo);
         }
-        $m=array();
-        StatModule::users()->d_users_get($m,'manager');
-
+        $m = User::dao()->getListByDepartments('manager');
         $R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
@@ -3929,8 +3930,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             $design->assign('balance',$balances);
         }
-        $R=array(); StatModule::users()->d_users_get($R,'manager');
-        if (isset($R[$manager])) $R[$manager]['selected']=' selected';
+        $R = User::dao()->getListByDepartments('manager');
+        if (isset($R[$manager]))
+            $R[$manager]['selected']=' selected';
         $design->assign('users_manager',$R);
         $design->AddMain('newaccounts/balance_client.tpl');
     }
@@ -5140,7 +5142,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         }
 
 
-        $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
+        $R = User::dao()->getListByDepartments(['manager', 'marketing']);
         $userSelect = array(0 => "--- Не установлен ---");
         foreach($R as $u) {
             $userSelect[$u["id"]] = $u["name"]." (".$u["user"].")";

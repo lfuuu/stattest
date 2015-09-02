@@ -62,19 +62,9 @@ class UsageWelltime extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new WelltimeServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Welltime';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->tariff ? $this->tariff->description : 'Описание';
+        return new WelltimeServiceTransfer($usage);
     }
 
 }

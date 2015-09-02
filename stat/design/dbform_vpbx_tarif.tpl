@@ -64,6 +64,38 @@
 		<td></td>
 	</tr>
 </table><br>
+
 <script type="text/javascript">
-	change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}');
+{literal}
+    jQuery(document).ready(function() {
+        $('#region')
+            .off('change')
+            .on('change', function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/data/get-usage-tariffs',
+                    data: 'type=virtpbx&region=',
+                    success: function(data) {
+                        var result = [],
+                            target = $('#t_id_tarif_public');
+
+                        try {
+                            result = $.parseJSON(data);
+                        } catch(e) {}
+
+                        target.find('option:gt(0)').detach();
+                        $.each(result, function() {
+                            target.append(
+                                $('<option />')
+                                    .text(this.description)
+                                    .val(this.id)
+                            );
+                        });
+                    }
+                });
+            });
+        $('#s_tarif_type option[value="public"]').prop('selected', true).trigger('change');
+    });
+    change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}');
+{/literal}
 </script>

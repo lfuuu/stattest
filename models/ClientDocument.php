@@ -15,6 +15,9 @@ class ClientDocument extends ActiveRecord
     const DOCUMENT_CONTRACT_TYPE = 'contract';
     const DOCUMENT_AGREEMENT_TYPE = 'agreement';
 
+    const IS_EXTERNAL = 1;
+    const IS_NOT_EXTERNAL = 0;
+
     public $content;
     public $group;
     public $template;
@@ -22,7 +25,13 @@ class ClientDocument extends ActiveRecord
     public static $types = [
         'contract' => 'Контракт',
         'agreement' => 'Дополнительное соглашение',
-        'blank' => 'Бланк заказа'
+        'blank' => 'Бланк заказа',
+        'is_external' => 'Внешний договор',
+    ];
+
+    public static $external = [
+        self::IS_EXTERNAL => 'Внешний',
+        self::IS_NOT_EXTERNAL => 'Внутренний',
     ];
 
     public static function tableName()
@@ -43,10 +52,12 @@ class ClientDocument extends ActiveRecord
     {
         return [
             [['contract_id', 'contract_no'], 'required'],
-            [['contract_id', 'is_active', 'account_id'], 'integer'],
+            [['contract_id', 'is_active', 'account_id'], 'integer', 'integerOnly' => true],
             [['contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
+            ['is_external', 'in', 'range' => array_keys(static::$external)],
             ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
+            ['is_external', 'default', 'value' => self::IS_NOT_EXTERNAL],
             ['is_active', 'default', 'value' => 1],
             ['user_id', 'default', 'value' => Yii::$app->user->id],
         ];
@@ -173,10 +184,8 @@ class ClientDocument extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $contract = ClientContract::findOne($this->contract_id);
-
         if ($insert && $this->group && $this->template) {
-            if (!($this->type == self::DOCUMENT_CONTRACT_TYPE && $contract->is_external)) {
+            if ($this->is_external == self::IS_NOT_EXTERNAL) {
                 $this->dao()->generateFile($this, $this->group, $this->template);
             }
         } elseif ($this->content !== null) {
