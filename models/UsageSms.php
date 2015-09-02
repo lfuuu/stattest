@@ -63,22 +63,9 @@ class UsageSms extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new SmsServiceTransfer($this);
+        return new SmsServiceTransfer($usage);
     }
 
-    public static function getTypeTitle()
-    {
-        return 'SMS';
-    }
-
-    public static function getTypeHelpBlock()
-    {
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->tariff ? $this->tariff->description : 'Описание';
-    }
 }

@@ -6,6 +6,7 @@ use Yii;
 use app\classes\Singleton;
 use app\models\TariffVirtpbx;
 use app\models\ClientAccount;
+use app\models\UsageVirtpbx;
 
 class VirtpbxServiceDao extends Singleton implements ServiceDao
 {

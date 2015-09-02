@@ -25,15 +25,10 @@ interface Usage
     /**
      * @return ServiceTransfer
      */
-    public function getTransferHelper();
+    public static function getTransferHelper($usage);
 
     /**
      * @return ClientAccount
      */
     public function getClientAccount();
-
-    public static function getTypeTitle();
-    public static function getTypeHelpBlock();
-    public function getTypeDescription();
-
 }

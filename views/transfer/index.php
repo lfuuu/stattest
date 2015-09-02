@@ -95,38 +95,43 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
 
                         <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
                             <?php foreach ($possibleServices['items'] as $serviceType => $services): ?>
-                                <b><?= $serviceType::getTypeTitle(); ?></b><br />
+                                <b><?= $services[0]::getTransferHelper()->getTypeTitle(); ?></b>
+                                <div class="service-usages">
 
-                                <?php
-                                /** @var \app\models\Usage[] $services */
-                                foreach ($services as $service):
-                                    list($fulltext, $description, $checkboxOptions) = (array) $service->getTypeDescription();
+                                    <?php
+                                    /** @var \app\models\Usage[] $services */
+                                    foreach ($services as $service):
+                                        list($fulltext, $description, $checkboxOptions) = (array) $service::getTransferHelper($service)->getTypeDescription();
 
-                                    if (mb_strlen($fulltext, 'UTF-8') > 30):
-                                        $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
-                                    else:
-                                        $text = $fulltext;
-                                    endif;
-                                    ?>
+                                        if (mb_strlen($fulltext, 'UTF-8') > 30):
+                                            $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
+                                        else:
+                                            $text = $fulltext;
+                                        endif;
+                                        ?>
 
-                                    <?php if (array_key_exists($service->id, $model->servicesErrors)):?>
-                                        <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?= implode($model->servicesErrors[$service->id], "\n"); ?>' />
-                                    <?php endif; ?>
+                                        <div class="service-usage">
+                                            <?php if (array_key_exists($service->id, $model->servicesErrors)):?>
+                                                <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?= implode($model->servicesErrors[$service->id], "\n"); ?>' />
+                                            <?php endif; ?>
 
-                                    <input
-                                        type="checkbox"
-                                        name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>"
-                                        checked="checked"
-                                        <?= implode(' ', $checkboxOptions); ?> />
-                                    &nbsp;<?= $service->id;?>: <abbr title="<?= $service->id . ': ' . $fulltext; ?>"><?= $text; ?></abbr><br />
-                                    <?php if (!empty($description)): ?>
-                                        <div style="font-size: 10px; padding-left: 20px;">
-                                            <?= $description; ?>
+                                            <input
+                                                type="checkbox"
+                                                name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>"
+                                                checked="checked"
+                                                <?= implode(' ', $checkboxOptions); ?> />
+                                            &nbsp;<?= $service->id;?>: <abbr title="<?= $service->id . ': ' . $fulltext; ?>"><?= $text; ?></abbr><br />
+                                            <?php if (!empty($description)): ?>
+                                                <div class="usage-description" style="font-size: 10px; padding-left: 20px;">
+                                                    <?= $description; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                                <?= $serviceType::getTypeHelpBlock(); ?>
-                                <br />
+                                    <?php endforeach; ?>
+                                    <?= $services[0]::getTransferHelper()->getTypeHelpBlock(); ?>
+                                    <br />
+
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     </td>
@@ -174,6 +179,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                     <td valign="top">
                         <?php
                         $firstRow = (boolean) !$model->actual_from;
+                        $firstRowValue = 'now';
 
                         foreach ($model->getActualDateVariants() as $date):
                             $date = new DateTime($date);
@@ -182,10 +188,13 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                             <div class="radio">
                                 <label>
                                     <input type="radio" name="transfer[actual_from]" value="<?= $dateValue; ?>" data-action="date-choose"<?= ($firstRow || $model->actual_from == $dateValue ? 'checked="checked"' : ''); ?> />
-                                    <?= $date->format('d.m.Y'); ?>
+                                    <?= $dateValue; ?>
                                 </label>
                             </div>
                             <?php
+                            if ($firstRow):
+                                $firstRowValue = $dateValue;
+                            endif;
                             $firstRow = false;
                         endforeach;
                         ?>
@@ -198,26 +207,20 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                         <?php
                         echo DatePicker::widget([
                             'type' => DatePicker::TYPE_INPUT,
-                            'value' => (new DateTime($model->actual_custom?:"now"))->format("d.m.Y"),
-                            'name' => 'actual_from_datepicker',
+                            'value' => (new DateTime($model->actual_custom ?: $firstRowValue))->format('Y-m-d'),
+                            'name' => 'transfer[actual_custom]',
                             'language' => 'ru',
                             'options' => [
-                                'style' => 'margin-left: 20px; width: 100px'
+                                'style' => 'margin-left: 20px; width: 100px; visibility: hidden;',
                             ],
                             'pluginOptions' => [
                                 'autoclose' => true,
-                                'format' => 'dd.mm.yyyy',
+                                'format' => 'yyyy-mm-dd',
                                 'orientation' => 'top right',
-                                'startDate' =>  'today'
+                                'startDate' => 'today',
                             ],
-                            'pluginEvents' => [
-                                'changeDate' => "function(e) {
-                                    $('input[name=\"transfer[actual_custom]\"]').val(e.format(0, 'yyyy-mm-dd'));
-                                }"
-                            ]
                         ]);
                         ?>
-                        <input type="hidden" name="transfer[actual_custom]" value="<?=$model->actual_custom?>" />
 
                     </td>
                 </tr>
@@ -249,7 +252,7 @@ jQuery(document).ready(function() {
                 }
             },
             'date-choose': function(element) {
-                var extend_block = $('input[name="actual_from_datepicker"]');
+                var extend_block = $('input[name*="actual_custom"]');
                 element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
             },
             'account-choose': function(element) {
@@ -296,6 +299,19 @@ jQuery(document).ready(function() {
                 .append('<a title="' + item.full + '">' + item.label + '</a>')
                 .appendTo(ul);
         };
+
+    /** THIS IS DOG-NAIL **/
+    $('input[name*="UsageVirtpbx"]')
+        .on('click', function() {
+            var descr = $(this).parent('.service-usage').find('.usage-description'),
+                numbers = descr.text().replace(/[^0-9,]/g, '').split(',');
+            for (var i=0,s=numbers.length; i<s; i++) {
+                $('input[name*="UsageVoip"]')
+                    .next('abbr[title*="' + numbers[i] + '"]')
+                    .prev('input').prop('checked', $(this).is(':checked'));
+            }
+        });
+    /** THIS IS DOG-NAIL **/
 
     $(document).on('change', 'input[data-action]', function() {
         if ($(this).has(':checked') && $.isFunction($actions[$(this).data('action')]))
