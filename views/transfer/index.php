@@ -95,13 +95,13 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
 
                         <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
                             <?php foreach ($possibleServices['items'] as $serviceType => $services): ?>
-                                <b><?= $serviceType::getTypeTitle(); ?></b>
+                                <b><?= $services[0]::getTransferHelper()->getTypeTitle(); ?></b>
                                 <div class="service-usages">
 
                                     <?php
                                     /** @var \app\models\Usage[] $services */
                                     foreach ($services as $service):
-                                        list($fulltext, $description, $checkboxOptions) = (array) $service->getTypeDescription();
+                                        list($fulltext, $description, $checkboxOptions) = (array) $service::getTransferHelper($service)->getTypeDescription();
 
                                         if (mb_strlen($fulltext, 'UTF-8') > 30):
                                             $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
@@ -128,7 +128,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                                             <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
-                                    <?= $serviceType::getTypeHelpBlock(); ?>
+                                    <?= $services[0]::getTransferHelper()->getTypeHelpBlock(); ?>
                                     <br />
 
                                 </div>

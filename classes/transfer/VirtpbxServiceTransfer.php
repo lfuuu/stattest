@@ -3,6 +3,7 @@
 namespace app\classes\transfer;
 
 use Yii;
+use app\classes\Html;
 use app\models\Usage;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
@@ -87,5 +88,39 @@ class VirtpbxServiceTransfer extends ServiceTransfer
         }
     }
 
+    public function getTypeTitle()
+    {
+        return 'Виртуальная АТС';
+    }
+
+    public function getTypeHelpBlock()
+    {
+        return Html::tag(
+            'div',
+            'ВАТС переносится только с подключенными номерами. ' .
+            'Отключить номера можно в настройках ВАТС',
+            [
+                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px;',
+            ]
+        );
+    }
+
+    public function getTypeDescription()
+    {
+        $value = $this->service->currentTariff ? $this->service->currentTariff->description : 'Описание';
+        $description = [];
+        $checkboxOptions = [];
+
+        $numbers = $this->service->clientAccount->voipNumbers;
+
+        foreach ($numbers as $number => $options) {
+            if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->service->id) {
+                continue;
+            }
+            $description[] = $number;
+        }
+
+        return [$value, implode(', ', $description), $checkboxOptions];
+    }
 
 }

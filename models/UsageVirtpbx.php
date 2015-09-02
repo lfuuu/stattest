@@ -75,44 +75,9 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new VirtpbxServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Виртуальная АТС';
-    }
-
-    public static function getTypeHelpBlock()
-    {
-        return Html::tag(
-            'div',
-            'ВАТС переносится только с подключенными номерами. ' .
-            'Отключить номера можно в настройках ВАТС',
-            [
-                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px;',
-            ]
-        );
-    }
-
-    public function getTypeDescription()
-    {
-        $value = $this->currentTariff ? $this->currentTariff->description : 'Описание';
-        $description = [];
-        $checkboxOptions = [];
-
-        $numbers = $this->clientAccount->voipNumbers;
-
-        foreach ($numbers as $number => $options) {
-            if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->id) {
-                continue;
-            }
-            $description[] = $number;
-        }
-
-        return [$value, implode(', ', $description), $checkboxOptions];
+        return new VirtpbxServiceTransfer($usage);
     }
 
 }

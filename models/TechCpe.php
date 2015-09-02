@@ -39,23 +39,9 @@ class TechCpe extends ActiveRecord
         return TechCpeDao::me();
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new TechCpeTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Клиентские устройства';
-    }
-
-    public static function getTypeHelpBlock()
-    {
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->model->vendor . ' ' . $this->model->model;
+        return new TechCpeTransfer($usage);
     }
 
 }
