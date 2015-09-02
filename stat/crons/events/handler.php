@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\Event;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -79,22 +80,26 @@ function do_events()
 
                 case 'midnight': {
                     /* проверка необходимости включить или выключить услугу UsageVoip */
-                    \app\classes\Event::go('midnight__voip_numbers');
+                    Event::go('midnight__voip_numbers');
 
                     /* проверка необходимости включить или выключить услугу UsageVirtPbx */
-                    \app\classes\Event::go('midnight__virtpbx3');
+                    Event::go('midnight__virtpbx3');
 
                     /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
-                    \app\classes\Event::go('midnight__lk_bills4all');
+                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+                        Event::go('midnight__lk_bills4all');
+                    }
 
                     /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
-                    \app\classes\Event::go('midnight__monthly_fee_msg');
+                    if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
+                        Event::go('midnight__monthly_fee_msg');
+                    }
 
                     /* очистка предоплаченных счетов */
-                    \app\classes\Event::go('midnight__clean_pre_payed_bills');
+                    Event::go('midnight__clean_pre_payed_bills');
 
                     /* очистка очереди событий */
-                    \app\classes\Event::go('midnight__clean_event_queue');
+                    Event::go('midnight__clean_event_queue');
 
                     break;
                 }
@@ -115,19 +120,15 @@ function do_events()
 
                 /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
                 case 'midnight__lk_bills4all': {
-                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-                        NewBill::setLkShowForAll();
-                    }
+                    NewBill::setLkShowForAll();
                     break;
                 }
 
                 /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
                 case 'midnight__monthly_fee_msg': {
-                    if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
-                        //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
-                        //echo " exec: ".$execStr;
-                        //exec($execStr);
-                    }
+                    //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                    //echo " exec: ".$execStr;
+                    //exec($execStr);
                     break;
                 }
 
