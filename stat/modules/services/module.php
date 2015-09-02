@@ -746,6 +746,8 @@ class m_services extends IModule{
 
                 $r['cpe'] = get_cpe_history('usage_voip',$r['id']);
                 $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
+
+                $r['number_status'] = VoipNumber::$statuses[$usage->voipNumber->status];
             }
 
             $numbers =
