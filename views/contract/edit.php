@@ -164,10 +164,10 @@ $formFolderName = Language::getLanguageExtension($language);
                     <div class="col-sm-1">
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                         <input type="hidden" name="ClientDocument[type]" value="contract">
-                        <select class="form-control input-sm" id="change-external" name="ClientDocument[is_external]">
-                            <option value=<?=ClientContract::IS_INTERNAL?>><?=ClientContract::$externalType[ClientContract::IS_INTERNAL]?></option>
-                            <option value=<?=ClientContract::IS_EXTERNAL?>><?=ClientContract::$externalType[ClientContract::IS_EXTERNAL]?></option>
-                        </select>
+                        <?=Html::dropDownList('ClientDocument[is_external]', ClientContract::IS_INTERNAL, ClientContract::$externalType, [
+                            'id' =>'change-external',
+                            'class' => 'form-control input-sm',
+                        ])?>
                     </div>
                     <div class="col-sm-1">
                         <input class="form-control input-sm unchecked-contract-no" type="text" name="ClientDocument[contract_no]" value="<?= $model->number ?>" />

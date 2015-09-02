@@ -181,8 +181,10 @@ class ClientDocument extends ActiveRecord
             }
 
             $contract = $this->getContract();
-            $contract->is_external = $this->is_external;
-            $contract->save();
+            if($contract->is_external != $this->is_external) {
+                $contract->is_external = $this->is_external;
+                $contract->save();
+            }
         } elseif ($this->content !== null) {
             $this->dao()->updateFile($this);
         }
