@@ -57,7 +57,7 @@ abstract class AccountGridFolder extends Model
     {
         return (new ClientAccount())->attributeLabels() +
         [
-            'id' => 'ИД',
+            'id' => 'ID',
             'company' => 'Компания',
             'created' => 'Заведен',
             'inn' => 'ИНН',
@@ -241,7 +241,7 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function(){
-                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" />';
+                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" style="width:50px;" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
@@ -255,7 +255,9 @@ abstract class AccountGridFolder extends Model
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['company'] . '</a>';
                 },
                 'filter' => function() {
-                    return '<input name="companyName" id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '" class="form-control" />';
+                    return '<input name="companyName"
+                        id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '"
+                        class="form-control" style="min-width:150px" />';
                 },
             ],
             'created' => [
@@ -274,7 +276,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -296,7 +298,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -322,7 +324,7 @@ abstract class AccountGridFolder extends Model
                             'usage_voip' => 'usage_voip',
                             'usage_welltime' => 'usage_welltime',
                         ],
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
                     );
                 },
             ],
@@ -391,7 +393,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:300px;',
+                            'style' => 'width:50px;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -408,10 +410,14 @@ abstract class AccountGridFolder extends Model
                         'name' => 'manager',
                         'data' => \app\models\User::getManagerList(),
                         'value' => \Yii::$app->request->get('manager'),
-                        'options' => ['placeholder' => 'Начните вводить фамилию'],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'style' => 'width:100px;',
+                        ],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
+
                     ]);
                 },
             ],
@@ -426,7 +432,10 @@ abstract class AccountGridFolder extends Model
                         'name' => 'account_manager',
                         'value' => \Yii::$app->request->get('account_manager'),
                         'data' => \app\models\User::getAccountManagerList(),
-                        'options' => ['placeholder' => 'Начните вводить фамилию'],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'style' => 'width:100px;',
+                        ],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
@@ -444,7 +453,7 @@ abstract class AccountGridFolder extends Model
                         'currency',
                         \Yii::$app->request->get('currency'),
                         \app\models\Currency::map(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
                     );
                 },
             ],
@@ -459,7 +468,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'account_manager',
                         'data' => \app\models\SaleChannel::getList(),
                         'value' => \Yii::$app->request->get('sale_channel'),
-                        'options' => ['placeholder' => 'Начните вводить название'],
+                        'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100px;',],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
@@ -477,7 +486,7 @@ abstract class AccountGridFolder extends Model
                         'regionId',
                         \Yii::$app->request->get('regionId'),
                         \app\models\Region::getList(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
                     );
                 },
             ],
@@ -496,7 +505,7 @@ abstract class AccountGridFolder extends Model
                         'federal_district',
                         \Yii::$app->request->get('federal_district'),
                         ClientContract::$districts,
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width:50px;']
                     );
                 },
             ],
@@ -511,7 +520,7 @@ abstract class AccountGridFolder extends Model
                         'contract_type',
                         \Yii::$app->request->get('contract_type'),
                         ContractType::getList(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:100px;']
                     );
                 },
             ],
@@ -526,7 +535,7 @@ abstract class AccountGridFolder extends Model
                         'financial_type',
                         \Yii::$app->request->get('financial_type'),
                         ClientContract::$financialTypes,
-                        ['class' => 'form-control']
+                        ['class' => 'form-control', 'style' => 'max-width:100px;']
                     );
                 },
             ],
