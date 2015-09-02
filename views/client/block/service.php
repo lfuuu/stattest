@@ -4,6 +4,7 @@ use app\models\Usage;
 use app\models\TechCpe;
 use yii\helpers\Html;
 use app\models\TariffVoip;
+use app\models\VoipNumber;
 
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
@@ -297,6 +298,7 @@ if ($has) :
                                     }
                                     ?>
                                 </td>
+                                <td><?= VoipNumber::$statuses[$service->voipNumber->status]; ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

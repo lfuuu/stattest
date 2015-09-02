@@ -371,16 +371,12 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        if ($clientAccount->contract->state != ClientContract::STATE_UNCHECKED) {
-            $tariffs =
-                TariffVoip::find()
-                    ->andWhere(['status' => 'public'])
-                    ->andWhere(['dest' => 4])
-                    ->andWhere(['is_testing' => 0])
-                    ->all();
-        } else {
-            $tariffs = [];
-        }
+        $tariffs =
+            TariffVoip::find()
+                ->andWhere(['status' => 'public'])
+                ->andWhere(['dest' => 4])
+                ->andWhere(['is_testing' => 0])
+                ->all();
 
         $resultTariffsByConnectionPointId = [];
 

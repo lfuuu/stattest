@@ -63,19 +63,9 @@ class UsageTrunk extends ActiveRecord
         return $activationDt <= $now and $expireDt >= $now;
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new TrunkServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Телефония транки';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->tariff ? $this->tariff->description : 'Описание';
+        return new TrunkServiceTransfer($usage);
     }
 
 }

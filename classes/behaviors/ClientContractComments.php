@@ -6,7 +6,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\base\Behavior;
 use app\models\ClientContract;
-use app\models\ClientContractComment;
+use app\forms\comment\ClientContractCommentForm;
 
 class ClientContractComments extends Behavior
 {
@@ -30,11 +30,8 @@ class ClientContractComments extends Behavior
                     &&
                 $event->changedAttributes['business_id'] != $contract->business_id
             ) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS . $contract->business;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
+                $comment = new ClientContractCommentForm;
+                $comment->comment = ClientContractCommentForm::SET_BUSINESS . $contract->business;
                 $comment->contract_id = $contract->id;
                 $comment->save();
             }
@@ -44,11 +41,8 @@ class ClientContractComments extends Behavior
                     &&
                 $event->changedAttributes['business_process_id'] != $contract->business_process_id
             ) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS . $contract->businessProcess->name;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
+                $comment = new ClientContractCommentForm;
+                $comment->comment = ClientContractCommentForm::SET_BUSINESS_PROCESS . $contract->businessProcess;
                 $comment->contract_id = $contract->id;
                 $comment->save();
             }
@@ -58,11 +52,8 @@ class ClientContractComments extends Behavior
                     &&
                 $event->changedAttributes['business_process_status_id'] != $contract->business_process_status_id
             ) {
-                $comment = new ClientContractComment;
-                $comment->comment = ClientContractComment::SET_BUSINESS_PROCESS_STATUS . $contract->businessProcessStatus->name;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
+                $comment = new ClientContractCommentForm;
+                $comment->comment = ClientContractCommentForm::SET_BUSINESS_PROCESS_STATUS . $contract->businessProcessStatus->name;
                 $comment->contract_id = $contract->id;
                 $comment->save();
             }

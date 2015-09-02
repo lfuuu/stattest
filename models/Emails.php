@@ -49,19 +49,9 @@ class Emails extends ActiveRecord implements Usage
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new EmailServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'E-mail';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->local_part . '@' . $this->domain;
+        return new EmailServiceTransfer($usage);
     }
 
 }

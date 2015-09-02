@@ -64,8 +64,8 @@ $translate = [
                             <?php endif ?>
                         </div>
                         <div class="col-sm-1"><?= $contact->type ?></div>
-                        <div class="col-sm-2"><?= $contact->data ?></div>
-                        <div class="col-sm-2"><?= $contact->comment ?></div>
+                        <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
+                        <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
                         <div class="col-sm-2"><?= $contact->userUser->name ?></div>
                         <div class="col-sm-2"><?= $contact->ts ?></div>
                         <div class="col-sm-1">

@@ -1,10 +1,10 @@
 <?php
 use yii\helpers\Html;
 use kartik\builder\Form;
+use app\models\ClientContragent;
 use app\models\Country;
 
 ?>
-
 
 <div class="row" style="width: 1100px;">
     <div class="col-sm-6">
@@ -16,6 +16,7 @@ use app\models\Country;
     <div id="type-select">
         <div class="btn-group">
             <button type="button" class="btn btn-default"  data-tab="#legal"><?=$model->getAttributeLabel('legalTypeLegal')?></button>
+            <button type="button" class="btn btn-default" data-tab="#ip"><?=$model->getAttributeLabel('legalTypeIp')?></button>
             <button type="button" class="btn btn-default" data-tab="#person"><?=$model->getAttributeLabel('legalTypePerson')?></button>
         </div>
     </div>
@@ -51,13 +52,14 @@ use app\models\Country;
         ],
         'attributes' => [
             'inn' => [],
+            'kpp' => [],
+            'okvd' => [],
             'ogrn' => [],
             'opf_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => \app\models\CodeOpf::getList(),
             ],
-
-            'signer_passport' => [],
+            'okpo' => [],
         ],
     ]);
     echo Form::widget([
@@ -69,8 +71,83 @@ use app\models\Country;
             'type' => Form::INPUT_TEXT
         ],
         'attributes' => [
+            'tax_regime' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ClientContragent::$taxRegtimeTypes,
+                'container' => ['style' => 'width:50%;']
+            ],
             'position' => [],
             'fio' => [],
+        ],
+    ]);
+    echo '</div>';
+
+    echo '<div id="ip" class="tab-pane col-sm-12">';
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 1,
+        'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
+        'attributeDefaults' => [
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
+            'last_name' => [],
+            'first_name' => [],
+            'middle_name' => [],
+        ],
+    ]);
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 1,
+        'columnOptions' => ['class' => 'col-sm-12'],
+        'options' => ['style' => 'width:50%; padding-left: 15px;'],
+        'attributeDefaults' => [
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
+            'address_jur' => [],
+        ],
+    ]);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 1,
+        'columnOptions' => ['class' => 'col-sm-12'],
+        'options' => ['style' => 'width:50%; padding-left: 15px;'],
+        'attributeDefaults' => [
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
+            'tax_regime' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ClientContragent::$taxRegtimeTypes,
+                'container' => ['style' => 'width:50%;']
+            ],
+        ],
+    ]);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 2,
+        'options' => ['style' => 'clear:both; width:50%; padding-right: 15px;'],
+        'columnOptions' => ['class' => 'col-sm-6'],
+        'attributeDefaults' => [
+            'container' => [
+                'type' => Form::INPUT_TEXT
+            ],
+        ],
+        'attributes' => [
+            'inn' => [],
+            'ogrn' => [],
+            'opf_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => \app\models\CodeOpf::getList(),
+            ],
+            'okpo' => [],
         ],
     ]);
 
@@ -88,36 +165,61 @@ use app\models\Country;
         'attributes' => [
             'last_name' => [],
             'first_name' => [],
-            'mother_maiden_name' => [],
+            'middle_name' => [],
         ],
     ]);
     echo Form::widget([
         'model' => $model,
         'form' => $f,
-        'columns' => 1,
+        'columns' => 2,
+        'columnOptions' => ['class' => 'col-sm-6'],
+        'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
+        'attributeDefaults' => [
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
+            'passport_serial' => [],
+            'passport_number' => [],
+        ],
+    ]);
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 2,
         'columnOptions' => ['class' => 'col-sm-12'],
         'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
         'attributeDefaults' => [
             'type' => Form::INPUT_TEXT
         ],
         'attributes' => [
-            'birthday' => [
+            'passport_date_issued' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => '\kartik\widgets\DatePicker',
-                'columnOptions' => ['class' => 'col-sm-6'],
+                'widgetClass' => 'app\widgets\DateControl',
+                'convertFormat' => true,
                 'options' => [
-                    'removeButton' => false,
                     'pluginOptions' => [
                         'autoclose' => true,
-                        'format' => 'yyyy-mm-dd',
-                        'startDate' => '-100y',
+                        'startDate' => '-40y',
                         'endDate' => '+1y',
                     ],
                 ],
             ],
-            'birthplace' => [],
-            'passport_number' => [],
-            'other_document' => [],
+            'birthday' => [
+                'type' => Form::INPUT_WIDGET,
+                'widgetClass' => 'app\widgets\DateControl',
+                'convertFormat' => true,
+                'options' => [
+                    'pluginOptions' => [
+                        'autoclose' => true,
+                        'startDate' => '-100y',
+                        'endDate' => '0y',
+                    ],
+                ],
+            ],
+            'passport_issued' => ['columnOptions' => ['colspan' => 2]],
+            ['type' => Form::INPUT_RAW],
+            'registration_address' => ['columnOptions' => ['colspan' => 2]],
+            ['type' => Form::INPUT_RAW],
         ],
     ]);
     echo '</div>';
@@ -125,8 +227,8 @@ use app\models\Country;
     <div class="col-sm-6">
         <?= $f->field($model, 'comment')->textarea(['style' => 'height: 100px;']) ?>
     </div>
-</div>
 
+</div>
 
 
 <script>

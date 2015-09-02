@@ -9,24 +9,20 @@ use app\models\UserRight;
 $groupRights = ArrayHelper::map($model->initModel->rights, 'resource', 'access');
 ?>
 
-<legend class="active-element">
-    <span style="border-bottom: 1px dashed;">Права доступа</span>
+<legend>
+    <span>Права доступа</span>
 </legend>
 
-<div style="display: none;">
+<div>
     <?php foreach (UserRight::dao()->getList() as $groupKey => $group): ?>
-        <legend style="font-size: 16px;" class="active-element">
-            <span style="margin-left: 15px; border-bottom: 1px dashed;">
-                <?= $groupKey; ?>
-            </span>
-        </legend>
-        <table width="98%" align="center" style="display: none;">
+        <table width="98%" align="center">
             <colgroup>
                 <col width="40%" />
                 <col width="60%" />
             </colgroup>
             <?php foreach ($group as $groupItemKey => $item): ?>
-                <tr>
+                <tr><td colspan="2" style="padding-top: 20px;"></td></tr>
+                <tr style="border-bottom: 1px solid #E5E5E5;">
                     <td valign="top">
                         <span style="font-weight: bold; font-size: 14px; padding-left: 15px;"><?= $item['comment'] . ' (' . $groupItemKey . ')'; ?></span>
                     </td>
@@ -54,19 +50,3 @@ $groupRights = ArrayHelper::map($model->initModel->rights, 'resource', 'access')
         </table>
     <?php endforeach; ?>
 </div>
-
-<style type="text/css">
-.active-element {
-    cursor: pointer;
-    border: 0;
-}
-</style>
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('.active-element')
-        .on('click', function() {
-            var next = $(this).next('div').length ? $(this).next('div') : $(this).next('table');
-            next.toggle();
-        });
-});
-</script>

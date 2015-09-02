@@ -8,13 +8,12 @@ use app\models\ClientContractComment;
 use app\models\ClientContragent;
 use app\models\BusinessProcess;
 use app\models\Organization;
-use app\models\UserDepart;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
-use app\models\ContractType;
 use yii\helpers\ArrayHelper;
+use app\forms\comment\ClientContractCommentForm;
 
 class ContractEditForm extends Form
 {
@@ -140,11 +139,8 @@ class ContractEditForm extends Form
             }
 
             if ($this->comment) {
-                $comment = new ClientContractComment();
+                $comment = new ClientContractCommentForm;
                 $comment->comment = $this->comment;
-                $comment->user = Yii::$app->user->identity->user;
-                $comment->ts = date('Y-m-d H:i:s');
-                $comment->is_publish = 0;
                 $comment->contract_id = $this->id;
                 $comment->save();
             }

@@ -194,12 +194,11 @@ use app\models\Country;
         'attributes' => [
             'passport_date_issued' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => '\kartik\widgets\DatePicker',
+                'widgetClass' => 'app\widgets\DateControl',
+                'convertFormat' => true,
                 'options' => [
-                    'removeButton' => false,
                     'pluginOptions' => [
                         'autoclose' => true,
-                        'format' => 'yyyy-mm-dd',
                         'startDate' => '-40y',
                         'endDate' => '+1y',
                     ],
@@ -207,12 +206,11 @@ use app\models\Country;
             ],
             'birthday' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => '\kartik\widgets\DatePicker',
+                'widgetClass' => 'app\widgets\DateControl',
+                'convertFormat' => true,
                 'options' => [
-                    'removeButton' => false,
                     'pluginOptions' => [
                         'autoclose' => true,
-                        'format' => 'yyyy-mm-dd',
                         'startDate' => '-100y',
                         'endDate' => '0y',
                     ],

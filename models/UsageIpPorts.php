@@ -103,18 +103,9 @@ class UsageIpPorts extends ActiveRecord implements Usage
             ->all();
     }
 
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new IpPortsServiceTransfer($this);
+        return new IpPortsServiceTransfer($usage);
     }
 
-    public static function getTypeTitle()
-    {
-        return 'Интернет';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->address;
-    }
 }

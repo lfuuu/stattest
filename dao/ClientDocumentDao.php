@@ -398,7 +398,7 @@ class ClientDocumentDao extends Singleton
             return
                 $result .
                 'ИНН ' . $contragent->inn .
-                ', КПП ' . $contragent->kpp .
+                ', КПП ' . $contragent->kpp .'<br/>' .
                 'Банковские реквизиты: ' .
                 'р/с ' . ($account->pay_acc ?: '') . '<br />' .
                 $account->bank_name . ' ' . $account->bank_city  .

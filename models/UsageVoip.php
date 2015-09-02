@@ -7,10 +7,6 @@ use app\dao\services\VoipServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
-use app\models\TariffVoip;
-use app\models\VoipNumber;
-use app\models\Datacenter;
-use app\classes\behaviors\ActualizeVoipNumber;
 
 /**
  * @property int $id
@@ -135,19 +131,9 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
     
-    public function getTransferHelper()
+    public static function getTransferHelper($usage)
     {
-        return new VoipServiceTransfer($this);
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Телефония номера';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->E164 . 'x' . $this->no_of_lines;
+        return new VoipServiceTransfer($usage);
     }
 
     public function getAbonPerMonth()
