@@ -28,8 +28,6 @@ class ClientDocumentDao extends Singleton
 
         'welltime' => 'WellTime',
         'arhiv' => 'Arhiv',
-
-        'MCM' => 'MCM',
     ];
 
     public static function templateList($isWithType = false)
