@@ -38,7 +38,7 @@ class ClientContractCommentForm extends Form
         $comment = new ClientContractComment;
         $comment->setAttributes($this->getAttributes(), false);
 
-        $comment->user = $this->user ?: (Yii::$app->user->identity->user ?: 'auto');
+        $comment->user = $this->user ?: (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
         $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $comment->is_publish = 0;
 
