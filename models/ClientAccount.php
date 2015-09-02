@@ -480,9 +480,14 @@ class ClientAccount extends HistoryActiveRecord
         return VoipStatus::create($this)->getWarnings();
     }
 
+
     public function getVoipNumbers()
     {
         return self::dao()->getClientVoipNumbers($this);
+
+    public function getHasVoip()
+    {
+        return UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists();
     }
 
 }

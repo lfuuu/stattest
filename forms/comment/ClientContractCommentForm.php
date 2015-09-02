@@ -18,6 +18,8 @@ class ClientContractCommentForm extends Form
     const SET_CLIENT_BLOCKED_FALSE = 'Лицевой счет разблокирован';
     const SET_CLIENT_ACTIVE_TRUE = 'Лицевой счет открыт';
     const SET_CLIENT_ACTIVE_FALSE = 'Лицевой счет закрыт';
+    const SET_CLIENT_VOIP_DISABLED_TRUE = 'Локальная блокировка включена';
+    const SET_CLIENT_VOIP_DISABLED_FALSE = 'Локальная блокировка выключена';
 
     public
         $contract_id,

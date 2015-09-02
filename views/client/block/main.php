@@ -114,12 +114,23 @@ use \app\models\ClientContract;
                                             <span class="col-sm-2">
                                                 <?= $contractAccount->credit >= 0 ? '(Кредит: ' . $contractAccount->credit . ')': '' ?>
                                             </span>
-                                            <button type="button" class="btn btn-sm set-block
-                                            <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                    style="width: 120px;float: right;padding: 3px 10px;"
-                                                    data-id="<?= $contractAccount->id ?>">
-                                                <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
-                                            </button>
+                                            <div class="btn-group" style="float: right;">
+                                                <?php if($contractAccount->hasVoip): ?>
+                                                <button type="button" class="btn btn-sm set-voip-disabled
+                                                <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                        style="width: 120px;padding: 3px 10px;"
+                                                        data-id="<?= $contractAccount->id ?>"
+                                                    title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
+                                                    <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
+                                                </button>
+                                                    <?php endif; ?>
+                                                <button type="button" class="btn btn-sm set-block
+                                                <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                        style="width: 120px;padding: 3px 10px;"
+                                                        data-id="<?= $contractAccount->id ?>">
+                                                    <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
+                                                </button>
+                                            </div>
                                             <?php
                                             if ($account && $account->id == $contractAccount->id && $voipWarnings = $account->getVoipWarnings()): ?>
                                                 <div class="col-sm-12">
@@ -158,6 +169,21 @@ use \app\models\ClientContract;
                 }
 
                 location.href = '/account/set-block?id=' + id;
+            }
+        });
+
+        $('.set-voip-disabled').click(function (e) {
+            e.stopPropagation();
+            var id = $(this).data('id');
+            t = $(this);
+            if (confirm(t.hasClass('btn-danger') ? 'Выключить локальную блокировку' : 'Включить локальную блокировку')) {
+                if (t.hasClass('btn-danger')) {
+                    t.addClass('btn-success').removeClass('btn-danger').text('Лок. блок.').attr('title', 'Включить локальную блокировку');
+                } else {
+                    t.addClass('btn-danger').removeClass('btn-success').text('Лок. разблок.').attr('title', 'Выключить локальную блокировку');
+                }
+
+                location.href = '/account/set-voip-disable?id=' + id;
             }
         });
     })
