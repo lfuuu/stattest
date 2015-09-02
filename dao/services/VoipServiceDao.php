@@ -6,6 +6,7 @@ use Yii;
 use app\classes\Singleton;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
+use app\models\UsageVoip;
 
 class VoipServiceDao extends Singleton implements ServiceDao
 {

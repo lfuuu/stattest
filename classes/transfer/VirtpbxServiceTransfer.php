@@ -3,7 +3,6 @@
 namespace app\classes\transfer;
 
 use Yii;
-use app\classes\Event;
 use app\models\Usage;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
@@ -71,6 +70,13 @@ class VirtpbxServiceTransfer extends ServiceTransfer
                     $usage->next_usage_id = $targetUsage->id;
 
                     $usage->save();
+
+                    $usageTransfer =
+                        $usage
+                            ->getTransferHelper()
+                            ->setActivationDate($usage->actual_from);
+
+                    LogTarifTransfer::process($usageTransfer, $targetUsage->id);
 
                     $dbTransaction->commit();
                 } catch (\Exception $e) {
