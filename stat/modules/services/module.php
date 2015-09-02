@@ -11,6 +11,7 @@ use app\classes\Assert;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
 use app\models\VoipNumber;
+use app\models\User;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -77,9 +78,7 @@ class m_services extends IModule{
         $show_off = get_param_raw('show_off',false);
         $design->assign('show_off',$show_off);
 
-        $R=array();
-        StatModule::users()->d_users_get($R,'manager');
-        $design->assign('managers',$R);
+        $design->assign('managers', User::dao()->getListByDepartments('manager'));
 
         $connections=array();
 
@@ -2113,9 +2112,7 @@ class m_services extends IModule{
                 if ($items[$i]['period'] == 'month')
                     $items[$i]['period_rus'] = 'ежемесячно';
             }
-            $manager = array();
-            StatModule::users()->d_users_get($manager, 'manager');
-            $design->assign('f_manager', $manager);
+            $design->assign('f_manager', User::dao()->getListByDepartments('manager'));
             $design->assign('services_sms', $items);
             $design->AddMain('services/sms.tpl');
             return $items;

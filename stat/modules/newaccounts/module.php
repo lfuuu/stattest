@@ -14,6 +14,7 @@ use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
 use app\models\Business;
+use app\models\User;
 
 class m_newaccounts extends IModule
 {
@@ -3594,8 +3595,9 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
         $design->assign('totalBonus',$totalBonus);
     }
 
-    $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
-    if (isset($R[$manager])) $R[$manager]['selected']=' selected';
+    $R = User::dao()->getListByDepartments(['manager', 'marketing']);
+    if (isset($R[$manager]))
+        $R[$manager]['selected']=' selected';
     $design->assign('users_manager',$R);
     $design->assign('action',$_GET["action"]);
     $design->AddMain('newaccounts/balance_bill.tpl');
@@ -3803,9 +3805,7 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
             $design->assign('totalAmount',$totalAmount);
             $design->assign('totalSaldo',$totalSaldo);
         }
-        $m=array();
-        StatModule::users()->d_users_get($m,'manager');
-
+        $m = User::dao()->getListByDepartments('manager');
         $R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
@@ -3930,8 +3930,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             $design->assign('balance',$balances);
         }
-        $R=array(); StatModule::users()->d_users_get($R,'manager');
-        if (isset($R[$manager])) $R[$manager]['selected']=' selected';
+        $R = User::dao()->getListByDepartments('manager');
+        if (isset($R[$manager]))
+            $R[$manager]['selected']=' selected';
         $design->assign('users_manager',$R);
         $design->AddMain('newaccounts/balance_client.tpl');
     }
@@ -5141,7 +5142,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         }
 
 
-        $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
+        $R = User::dao()->getListByDepartments(['manager', 'marketing']);
         $userSelect = array(0 => "--- Не установлен ---");
         foreach($R as $u) {
             $userSelect[$u["id"]] = $u["name"]." (".$u["user"].")";
