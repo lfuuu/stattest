@@ -35,8 +35,12 @@ if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $mod
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" />
 
 <legend>
-    <?= Html::a('Операторы', '/user/control'); ?> -> <?= $model->name; ?>
+    <span>Редактирование оператора - <?= $model->name; ?></span>
 </legend>
+
+<div class="breadcrumb">
+    <?= Html::a('Операторы', '/user/control'); ?> -> <?= $model->name; ?>
+</div>
 
 <div class="well">
     <?php

@@ -25,6 +25,10 @@ class ControlController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['ajax-dept-users'],
+                    ],
+                    [
+                        'allow' => true,
                         'roles' => ['users.r'],
                     ],
                     [
