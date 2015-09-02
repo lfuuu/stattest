@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\Event;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -61,27 +62,90 @@ function do_events()
                 case 'client_set_status':
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
-                case 'usage_voip__delete':  //ats2Numbers::check();
-                                            break;
+                case 'usage_voip__delete': {
+                    //ats2Numbers::check();
+                    break;
+                }
 
-                case 'add_payment':    EventHandler::updateBalance($param[1]);
-                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
-                                       break;
-                case 'update_balance': EventHandler::updateBalance($param); break;
+                case 'add_payment': {
+                    EventHandler::updateBalance($param[1]);
+                    LkNotificationContact::createBalanceNotifacation($param[1], $param[0]);
+                    break;
+                }
 
-                case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
-                                 VirtPbx3::check();echo "...VirtPbx3::check()";
-                                 if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
-                                     NewBill::setLkShowForAll();
-                                 }
-                                 if(WorkDays::isWorkDayFromMonthEnd(time(), 4)) { //за 4 дня предупреждаем о списании абонентки аваносовым клиентам
-                                     //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
-                                     //echo " exec: ".$execStr;
-                                     //exec($execStr);
-                                 }
-                                 Bill::cleanOldPrePayedBills(); echo "... clear prebilled bills";
-                                 EventQueue::clean();echo "...EventQueue::clean()";
-                                 break;
+                case 'update_balance': {
+                    EventHandler::updateBalance($param);
+                    break;
+                }
+
+                case 'midnight': {
+                    /* проверка необходимости включить или выключить услугу UsageVoip */
+                    Event::go('midnight__voip_numbers');
+
+                    /* проверка необходимости включить или выключить услугу UsageVirtPbx */
+                    Event::go('midnight__virtpbx3');
+
+                    /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
+                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+                        Event::go('midnight__lk_bills4all');
+                    }
+
+                    /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
+                    if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
+                        Event::go('midnight__monthly_fee_msg');
+                    }
+
+                    /* очистка предоплаченных счетов */
+                    Event::go('midnight__clean_pre_payed_bills');
+
+                    /* очистка очереди событий */
+                    Event::go('midnight__clean_event_queue');
+
+                    break;
+                }
+
+                /* проверка необходимости включить или выключить услугу UsageVoip */
+                case 'midnight__voip_numbers': {
+                    voipNumbers::check();
+                    echo "...voipNumbers::check()";
+                    break;
+                }
+
+                /* проверка необходимости включить или выключить услугу UsageVirtPbx */
+                case 'midnight__virtpbx3': {
+                    VirtPbx3::check();
+                    echo "...VirtPbx3::check()";
+                    break;
+                }
+
+                /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
+                case 'midnight__lk_bills4all': {
+                    NewBill::setLkShowForAll();
+                    break;
+                }
+
+                /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
+                case 'midnight__monthly_fee_msg': {
+                    //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                    //echo " exec: ".$execStr;
+                    //exec($execStr);
+                    break;
+                }
+
+                /* очистка предоплаченных счетов */
+                case 'midnight__clean_pre_payed_bills': {
+                    Bill::cleanOldPrePayedBills();
+                    echo "... clear prebilled bills";
+                    break;
+                }
+
+                /* очистка очереди событий */
+                case 'midnight__clean_event_queue': {
+                    EventQueue::clean();
+                    echo "...EventQueue::clean()";
+                    break;
+                }
+
             }
 
             if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'])
