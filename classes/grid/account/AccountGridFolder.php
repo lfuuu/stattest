@@ -57,7 +57,7 @@ abstract class AccountGridFolder extends Model
     {
         return (new ClientAccount())->attributeLabels() +
         [
-            'id' => 'ИД',
+            'id' => 'ID',
             'company' => 'Компания',
             'created' => 'Заведен',
             'inn' => 'ИНН',
