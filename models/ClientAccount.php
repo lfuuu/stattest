@@ -484,6 +484,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getVoipNumbers()
     {
         return self::dao()->getClientVoipNumbers($this);
+    }
 
     public function getHasVoip()
     {
