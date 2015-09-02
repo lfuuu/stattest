@@ -17,9 +17,11 @@ class ContractType extends ActiveRecord
         return 'client_contract_type';
     }
 
-    public static function getList()
+    public static function getList($businessProcessId = null)
     {
-        $arr = self::find()->all();
+        $arr = self::find()
+            ->andFilterWhere(['business_process_id' => $businessProcessId])
+            ->all();
         return array_merge([0 => 'Не задано'], ArrayHelper::map($arr, 'id', 'name'));
     }
 }
