@@ -126,7 +126,6 @@ class ControlController extends BaseController
         $this->layout = 'minimal';
         return $this->render('//user/passwd_edit', [
             'model' => $model,
-            'scenario'
         ]);
     }
 
