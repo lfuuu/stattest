@@ -429,7 +429,9 @@ class ClientDocumentDao extends Singleton
                         ->where(['contragent_id' => $document->getContract()->getContragent()->id])
                         ->orderBy('id ASC')
                         ->one();
-                $contractId = $originContract->id;
+                if ($originContract->id) {
+                    $contractId = $originContract->id;
+                }
             }
 
             $contractDocument =
