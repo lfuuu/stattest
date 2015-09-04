@@ -421,7 +421,7 @@ class ClientDocumentDao extends Singleton
                 'contract_date' => $document->contract_date,
             ];
         } else {
-            $contractId  =$account->contract_id;
+            $contractId = $account->contract_id;
 
             if ($document->getContract()->state == ClientContract::STATE_CHECKED_COPY) {
                 $originContract =
