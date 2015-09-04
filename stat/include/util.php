@@ -940,7 +940,7 @@ class IPList{
                 `R`.`net`,
                 `clients`.`client`,
                 `clients`.`status`,
-                `clients`.`manager`,
+                `client_contract`.`manager`,
                 `R`.`id`,
                 `R`.`gpon_reserv`
             FROM
@@ -953,6 +953,10 @@ class IPList{
                 `clients`
             ON
                 `clients`.`client`=`P`.`client`
+            INNER JOIN
+                `client_contract`
+            ON
+                `client_contract`.`id` = `clients`.`contract_id`
             INNER JOIN
                 `tech_ports`
             ON
@@ -978,7 +982,7 @@ class IPList{
                         die("usage_ip_routes id=".$r['id']." is WROONG!");
                     for($i = $v[0];$i<$v[0]+$v[1];$i++){
 
-                        //cast - если была введена сеть в техотказ, а потоом она выдалась, и их даты совапдают, то сеть из техотказа не уходит.
+                        //cast - если была введена сеть в техотказ, а потом она выдалась, и их даты совпадают, то сеть из техотказа не уходит.
                         if(isset($this->data[$i]) && $this->data[$i][0] == "tech" && ($r["status"] == "work" || $r["status"] == "testing") &&
                                 $this->data[$i][1]==$r['actual_to'])
                             $this->data[$i][1]--;
