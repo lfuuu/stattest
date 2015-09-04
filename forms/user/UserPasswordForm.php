@@ -70,14 +70,14 @@ class UserPasswordForm extends Form
 
         $user->pass = AuthManager::getPasswordHash($this->password);
 
-        /*$transaction = Yii::$app->db->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
         try {
             $user->save();
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
-        }*/
+        }
 
         /*
         Yii::$app->mailer->compose('user/change-password', ['form' => $this])
