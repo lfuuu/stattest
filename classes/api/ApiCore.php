@@ -43,4 +43,24 @@ class ApiCore
 
         return $result;
     }
+
+    public static function addProduct($product, $clientId, $productId = 0)
+    {
+        $newState = ["mnemonic" => $product];
+
+        if ($productId)
+            $newState["stat_product_id"] = $productId;
+
+        ApiCore::exec('add_products_from_stat', \SyncCoreHelper::getAddProductStruct($clientId, $newState));
+    }
+
+    public static function remoteProduct($product, $clientId, $productId = 0)
+    {
+        $state = \SyncCoreHelper::getRemoveProductStruct($clientId, $product);
+
+        if ($productId) 
+            $state["stat_product_id"] = $productId;
+
+        ApiCore::exec('remove_product', $state);
+    }
 }

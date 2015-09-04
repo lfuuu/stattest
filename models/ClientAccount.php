@@ -214,11 +214,11 @@ class ClientAccount extends HistoryActiveRecord
     {
         return [
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
-            'SetAdminContact' => \app\classes\behaviors\SetAdminContact::className(),
-            'ActaulizeClientVoip' => \app\classes\behaviors\ActaulizeClientVoip::className(),
-            'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
+            'HistoryChanges' =>         \app\classes\behaviors\HistoryChanges::className(),
+            'SetOldStatus' =>           \app\classes\behaviors\SetOldStatus::className(),
+            'SetAdminContact' =>        \app\classes\behaviors\SetAdminContact::className(),
+            'ActaulizeClientVoip' =>    \app\classes\behaviors\ActaulizeClientVoip::className(),
+            'ClientAccountComments' =>  \app\classes\behaviors\ClientAccountComments::className(),
         ];
     }
 

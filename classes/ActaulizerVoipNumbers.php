@@ -400,6 +400,15 @@ class ActaulizerVoipNumbers
         return 'Europe/Moscow';
     }
 
+    public function transferNumberWithVpbx($number, $toClientId)
+    {
+        $actual = ActualNumber::findOne(["number" => $number]);
+        if ($actual) {
+            $actual->client_id = $toClientId;
+            $actual->save();
+        }
+    }
+
 
     private function execQuery($action, $data)
     {
