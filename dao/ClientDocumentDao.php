@@ -316,6 +316,20 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
+        foreach(\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage)
+        {
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price * $usage->amount, $taxRate);
+
+            $data['welltime'][] = [
+                'from' => $usage->actual_from,
+                'tarif_name' => $usage->currentTariff->description,
+                'amount' => $usage->amount,
+                'pay_once' => 0,
+                'per_month' => round($sum, 2),
+                'per_month_without_tax' => round($sum_without_tax, 2)
+            ];
+        }
+
         $design->assign("blank_data", $data);
         return $design->fetch("tarifs/blank.htm");
     }
