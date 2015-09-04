@@ -3,6 +3,10 @@
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use yii\helpers\Html;
+use yii\helpers\Json;
+
+$session = Yii::$app->session;
+$userData = Json::decode($session->get('user_data'));
 
 /** @var User $model */
 $form = ActiveForm::begin([
@@ -15,10 +19,10 @@ $form = ActiveForm::begin([
 </legend>
 
 <div class="well">
-    <?php if (Yii::$app->session->hasFlash('success')): ?>
+    <?php if ($session->hasFlash('success')): ?>
         <div style="text-align: center;" class="alert alert-success">
             <div style="font-weight: bold;">
-                 Письмо с уведомлением отправлено на <?= Yii::$app->user->identity->email; ?>
+                 Письмо с уведомлением отправлено на <?= $userData['email']; ?>
             </div>
         </div>
         <div style="text-align: center;" class="alert alert-info">
@@ -35,7 +39,7 @@ $form = ActiveForm::begin([
             'attributes' => [
                 'password' => ['type' => Form::INPUT_PASSWORD],
                 'passwordRepeat' => ['type' => Form::INPUT_PASSWORD],
-                'passwordCurrent' => ['type' => Form::INPUT_PASSWORD],
+                'passwordCurrent' => ['type' => ($model->scenario == 'profile' ? Form::INPUT_PASSWORD : Form::INPUT_RAW)],
             ],
         ]);
         ?>

@@ -7,12 +7,12 @@ use app\classes\Assert;
 use app\classes\BaseController;
 use yii\web\Response;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
 use app\models\User;
 use app\forms\user\UserForm;
 use app\forms\user\UserListForm;
 use app\forms\user\UserCreateForm;
 use app\forms\user\UserPasswordForm;
-use yii\helpers\Json;
 
 class ControlController extends BaseController
 {
@@ -112,15 +112,21 @@ class ControlController extends BaseController
         Assert::isObject($user);
 
         $model = new UserPasswordForm;
+        $model->scenario = 'control';
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
             Yii::$app->session->setFlash('success', true);
+            Yii::$app->session->set(
+                'user_data',
+                Json::encode($user)
+            );
             return $this->redirect(Yii::$app->request->referrer);
         }
 
         $this->layout = 'minimal';
         return $this->render('//user/passwd_edit', [
             'model' => $model,
+            'scenario'
         ]);
     }
 
