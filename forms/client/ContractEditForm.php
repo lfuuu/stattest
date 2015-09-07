@@ -71,8 +71,9 @@ class ContractEditForm extends Form
                 if( !$this->getIsNewRecord() &&  $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus'))
                     $this->addError('state', 'Вы не можете менять тип договора');
             }],
+            ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
             ['is_external', 'default', 'value' => ClientContract::IS_INTERNAL],
-            ['is_external', 'in', 'range' => ClientContract::$externalType, 'when' => function() { return !$this->save_comment_stage; }],
+
         ];
         return $rules;
     }
