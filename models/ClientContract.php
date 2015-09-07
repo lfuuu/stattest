@@ -22,6 +22,9 @@ class ClientContract extends HistoryActiveRecord
     const FINANCIAL_TYPE_CONSUMABLES= 'consumables';
     const FINANCIAL_TYPE_YIELD_CONSUMABLE = 'yield-consumable';
 
+    const IS_EXTERNAL = 'external';
+    const IS_INTERNAL = 'internal';
+
     public $newClient = null;
 
     public static $states = [
@@ -46,6 +49,11 @@ class ClientContract extends HistoryActiveRecord
         self::FINANCIAL_TYPE_PROFITABLE => 'Доходный',
         self::FINANCIAL_TYPE_CONSUMABLES => 'Расходный',
         self::FINANCIAL_TYPE_YIELD_CONSUMABLE => 'Доходно-расходный',
+    ];
+
+    public static $externalType = [
+        self::IS_EXTERNAL => 'Внешний',
+        self::IS_INTERNAL => 'Внутренний',
     ];
 
     public static function tableName()
