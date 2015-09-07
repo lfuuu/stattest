@@ -2,17 +2,18 @@
 
 namespace app\controllers\api;
 
+use Yii;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\TicketIdValidator;
+use app\classes\ApiController;
+use app\classes\DynamicModel;
 use app\exceptions\FormValidationException;
 use app\forms\support\SubmitTicketCommentForm;
 use app\forms\support\SubmitTicketForm;
 use app\forms\support\TicketListForm;
 use app\models\support\Ticket;
 use app\models\support\TicketComment;
-use Yii;
-use app\classes\ApiController;
-use app\classes\DynamicModel;
+use app\models\Trouble;
 
 class TicketController extends ApiController
 {
@@ -73,6 +74,7 @@ class TicketController extends ApiController
     {
         $model = new SubmitTicketForm();
         $model->load(Yii::$app->request->bodyParams, '');
+        $model->author = Trouble::DEDAULT_API_AUTHOR;
         if ($model->save()) {
             return ['ticket_id' => $model->id];
         } else {

@@ -48,7 +48,7 @@ class TroubleDao extends Singleton
                 ->queryAll();
     }
 
-    public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId)
+    public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId, $author = false)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
@@ -68,7 +68,7 @@ class TroubleDao extends Singleton
             $trouble->trouble_type = Trouble::TYPE_TROUBLE;
             $trouble->trouble_subtype = Trouble::SUBTYPE_TROUBLE;
             $trouble->client = $clientAccount->client;
-            $trouble->user_author = $supportUser;
+            $trouble->user_author = $author ?: $supportUser;
             $trouble->date_creation = (new \DateTime())->format(\DateTime::ATOM);
             $trouble->problem = $problem;
             $trouble->folder = Trouble::DEFAULT_SUPPORT_FOLDER;
