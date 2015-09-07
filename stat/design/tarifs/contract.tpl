@@ -77,6 +77,7 @@
                             $(document).ready(function () {
                                 tinymce.init({
                                     selector: "textarea",
+                                    convert_urls: false,
                                     plugins: [
                                         "advlist autolink lists link image charmap print preview anchor",
                                         "searchreplace visualblocks code fullscreen",

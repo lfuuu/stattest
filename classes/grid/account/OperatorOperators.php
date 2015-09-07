@@ -41,7 +41,6 @@ class OperatorOperators extends AccountGrid
             TerminatedFolder::create($this),
             BlockedFolder::create($this),
             FailureFolder::create($this),
-            AutoBlockedFolder::create($this),
             TrashFolder::create($this),
         ];
     }

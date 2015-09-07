@@ -5233,7 +5233,7 @@ where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
 
             if (get_param_raw('priceType', 'NO') != 'NO')
             {
-                $priceType =  ClientAccount::findOne($fixclient)->price_type;
+                //$priceType =  ClientAccount::findOne($fixclient)->price_type;
             } else {
                 $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "'. $storeId.'"');
             }

@@ -44,7 +44,7 @@ use \app\models\ClientContract;
                     <div class="col-sm-12">
                         <?php $contracts = $contragent->contracts;
                         foreach ($contracts as $contract): ?>
-                            <div class="row" style="margin-left: 0px;">
+                            <div class="row contract-block" style="margin-left: 0px;">
                                 <div class="col-sm-5">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">

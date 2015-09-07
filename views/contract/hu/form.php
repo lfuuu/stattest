@@ -174,9 +174,11 @@ use app\models\ClientContract;
 <script>
     $(function () {
         var statuses = <?= json_encode(\app\models\BusinessProcessStatus::getTree()) ?>;
+        var contractTypes = <?= json_encode(\app\models\ContractType::find()->asArray()->all()) ?>;
         var s1 = $('#contracteditform-business_id');
         var s2 = $('#contracteditform-business_process_id');
         var s3 = $('#contracteditform-business_process_status_id');
+        var s4 = $('#contracteditform-contract_type_id');
 
         var vals2 = s2.val();
         s2.empty();
@@ -192,6 +194,14 @@ use app\models\ClientContract;
                 s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
         });
 
+        if(s4){
+            s4.empty();
+            $(contractTypes).each(function (k, v) {
+                if (s2.val() == v['business_process_id'])
+                    s4.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+            });
+        }
+
         s1.on('change', function () {
             var form = $(this).closest('form');
             $('<input type="hidden" name="notSave" value="1">').appendTo(form);
@@ -204,6 +214,13 @@ use app\models\ClientContract;
                 if (s2.val() == v['up_id'])
                     s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
             });
+            if(s4){
+                s4.empty();
+                $(contractTypes).each(function (k, v) {
+                    if (s2.val() == v['business_process_id'])
+                        s4.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+                });
+            }
         });
 
         $('.btn-disabled').on('click', function (e) {
