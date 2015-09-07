@@ -37,6 +37,10 @@ $urlParams = Yii::$app->request->get();
                 'dataProvider' => $dataProvider,
                 'filterModel' => $activeFolder,
                 'columns' => $activeFolder->getPreparedColumns(),
+                'toolbar' => [],
+                'panel'=>[
+                    'type' => GridView::TYPE_DEFAULT,
+                ],
             ]
         );
         ?>
