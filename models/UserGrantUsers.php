@@ -16,6 +16,15 @@ class UserGrantUsers extends ActiveRecord
     {
         $baseRights = UserRight::find()->all();
 
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            self::deleteAll(['name' => $user->user]);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
         foreach ($rights as $resource => $actions) {
             foreach ($baseRights as $baseRight) {
                 if ($resource != $baseRight->resource)
@@ -28,13 +37,8 @@ class UserGrantUsers extends ActiveRecord
                         $userRights[] = $actions[$i];
                 }
 
-                $currentRights = self::findOne(['resource' => $resource, 'name' => $user->user]);
-
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
-                    if ($currentRights instanceof UserGrantUsers)
-                        $currentRights->delete();
-
                     $rights = new self;
                     $rights->resource = $resource;
                     $rights->name = $user->user;
