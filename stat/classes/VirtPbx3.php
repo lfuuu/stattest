@@ -27,10 +27,7 @@ class VirtPbx3Checker
                     actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
                 AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
                 AND u.client = c.client 
-                AND (   
-                           c.status IN ('work','negotiations','connecting','testing','debt','blocked','suspended') 
-                        OR c.client = 'id9130'
-                        )
+
             ORDER BY u.id";
 
     private static $sqlSaved=
