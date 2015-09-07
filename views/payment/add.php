@@ -1,5 +1,6 @@
 <?php
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\ClientAccount;
@@ -9,10 +10,16 @@ use app\models\Payment;
 use kartik\widgets\DatePicker;
 /** @var $client ClientAccount */
 /** @var $model PaymentForm */
+
+echo Html::formLabel('Новый платеж');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Новый платеж'
+    ],
+]);
 ?>
 
 <div class="well">
-    <legend>Новый платеж</legend>
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
     echo Form::widget([
@@ -71,9 +78,16 @@ use kartik\widgets\DatePicker;
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-12">' .
-                    Html::submitButton('Добавить платеж', ['class'=>'btn btn-primary']) .
-                    '</div>'
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
+                            'style' => 'margin-right: 15px;',
+                            'onClick' => 'history.back();',
+                        ]) .
+                        Html::button('Добавить платеж', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);
