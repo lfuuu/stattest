@@ -61,7 +61,7 @@ echo Breadcrumbs::widget([
             'label' => $clientAccount->company,
             'url' => ['client/view', 'id' => $clientAccount->id]
         ],
-        ['label' => 'Телефония номера', 'url' => ['usage/voip']],
+        ['label' => 'Телефония Номера', 'url' => Url::toRoute(['/', 'module' => 'services', 'action' => 'vo_view'])],
         'Редактирование номера'
     ],
 ]);
