@@ -30,19 +30,4 @@ class Html extends \yii\helpers\Html
         return parent::tag('legend', $text, $options);
     }
 
-    public static function renderFormBtns($backUrl = '')
-    {
-        return
-            parent::tag(
-                'div',
-                parent::button('Отменить', [
-                    'class' => 'btn btn-link',
-                    'style' => 'margin-right: 15px;',
-                    'onClick' => 'self.location = "' . ($backUrl ?: '/') . '";',
-                ]) .
-                parent::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']),
-                ['style' => 'text-align: right; padding-right: 0px;']
-            );
-    }
-
 }

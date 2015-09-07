@@ -44,7 +44,17 @@ echo Breadcrumbs::widget([
             'attributes' => [
                 'actions' => [
                     'type' => Form::INPUT_RAW,
-                    'value' => Html::renderFormBtns($backUrl = '/sale-channel')
+                    'value' =>
+                        Html::tag(
+                            'div',
+                            Html::button('Отменить', [
+                                'class' => 'btn btn-link',
+                                'style' => 'margin-right: 15px;',
+                                'onClick' => 'self.location = "/sale-channel";',
+                            ]) .
+                            Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']),
+                            ['style' => 'text-align: right; padding-right: 0px;']
+                        )
                 ],
             ],
         ]);
