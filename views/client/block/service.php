@@ -202,7 +202,7 @@ if ($has) :
             <?php endif; ?>
 
 
-            <?php if ($services['voip']) : ?>
+            <?php if ($services['voip'] || $services['voip_reserve']) : ?>
                 <div id="voip">
                     <h3><a href="?module=services&action=vo_view">IP-телефония</a> <a
                             href="?module=services&action=vo_view">(актуальное состояние)</a></h3>
@@ -226,83 +226,85 @@ if ($has) :
                         </table>
                     <?php endif; ?>
 
-                    <table class="table table-condensed">
-                        <tbody>
-                        <?php foreach ($services['voip'] as $service): ?>
-                            <?php
-                            /** @var TariffVoip $currentTariff */
-                            /** @var \app\models\LogTarif $log */
-                            $currentTariff = $log = null;
-                            if (!($currentTariff = $service->currentTariff)) {
-                                $log = $service->getCurrentLogTariff($service->actual_from);
-                                $currentTariff = TariffVoip::findOne($log->id_tarif);
-                            }
-                            else {
-                                $log = $service->currentLogTariff;
-                            }
-                            ?>
-                            <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
-                                <td width="10%">
-                                    <a href="/usage/voip/edit?id=<?= $service->id ?>"
-                                       target="_blank"><?= $service->id ?></a>
-                                    <a href="index.php?module=stats&action=voip&phone=<?= $service->region ?>_<?= $service->E164 ?>"
-                                       style="float:right;">
-                                        <img class="icon" src="/images/icons/stats.gif">
-                                    </a>
-                                    <a href="index.php?module=tt&clients_client=<?= $service['client'] ?>&service=usage_voip&service_id=<?= $service['id'] ?>&action=view_type&type_pk=1&show_add_form=true"
-                                       style="float:right;">
-                                        <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
-                                    </a>
-                                </td>
-                                <td width="10%"><?= $service->regionName->name ?></td>
-                                <td style="font-size: 8pt;" width="15%">
-                                    <a href="/usage/voip/edit?id=<?= $service->id ?>"
-                                       target="_blank"><?= $service->address ?></a>
-                                </td>
-                                <td>
-                                    <a href="/usage/voip/edit?id=<?= $service->id ?>" target="_blank">
-                                        <?= $renderDate($service->actual_from, $service->actual_to); ?>
-                                    </a>
-                                </td>
-                                <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
-                                <td style="font-size: 8pt;">
-                                    <?= $currentTariff->name ?> (<?= $currentTariff->month_line . '-' . $currentTariff->month_number ?>)
-                                    <?php
-                                    if ($log->dest_group != '0') {
-                                        echo '/ Набор:';
-                                        if (strpos($log->dest_group, '5') !== false)
-                                            echo ' Моб';
-                                        if (strpos($log->dest_group, '1') !== false)
-                                            echo ' МГ';
-                                        if (strpos($log->dest_group, '2') !== false)
-                                            echo ' МН';
-                                        if (strpos($log->dest_group, '3') !== false)
-                                            echo ' СНГ';
-                                        echo $log->minpayment_group;
-                                    }
-                                    /** @var TariffVoip $tariff */
-                                    $tariff = null;
-                                    if (strpos($log->dest_group, '5') === false) {
-                                        $tariff = TariffVoip::findOne($log->id_tarif_local_mob);
-                                        echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($log->minpayment_local_mob > 0 ? '(' . $log->minpayment_local_mob . ')' : '');
-                                    }
-                                    if (strpos($log->dest_group, '1') === false) {
-                                        $tariff = TariffVoip::findOne($log->id_tarif_russia);
-                                        echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
-                                        $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
-                                        echo '/ МГ ' . ($tariff ? $tariff->name : '');
-                                    }
-                                    if (strpos($log->dest_group, '2') === false) {
-                                        $tariff = TariffVoip::findOne($log->id_tarif_intern);
-                                        echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
-                                    }
-                                    ?>
-                                </td>
-                                <td><?= VoipNumber::$statuses[$service->voipNumber->status]; ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                    <?php if (!empty($services['voip'])): ?>
+                        <table class="table table-condensed">
+                            <tbody>
+                            <?php foreach ($services['voip'] as $service): ?>
+                                <?php
+                                /** @var TariffVoip $currentTariff */
+                                /** @var \app\models\LogTarif $log */
+                                $currentTariff = $log = null;
+                                if (!($currentTariff = $service->currentTariff)) {
+                                    $log = $service->getCurrentLogTariff($service->actual_from);
+                                    $currentTariff = TariffVoip::findOne($log->id_tarif);
+                                }
+                                else {
+                                    $log = $service->currentLogTariff;
+                                }
+                                ?>
+                                <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
+                                    <td width="10%">
+                                        <a href="/usage/voip/edit?id=<?= $service->id ?>"
+                                           target="_blank"><?= $service->id ?></a>
+                                        <a href="index.php?module=stats&action=voip&phone=<?= $service->region ?>_<?= $service->E164 ?>"
+                                           style="float:right;">
+                                            <img class="icon" src="/images/icons/stats.gif">
+                                        </a>
+                                        <a href="index.php?module=tt&clients_client=<?= $service['client'] ?>&service=usage_voip&service_id=<?= $service['id'] ?>&action=view_type&type_pk=1&show_add_form=true"
+                                           style="float:right;">
+                                            <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
+                                        </a>
+                                    </td>
+                                    <td width="10%"><?= $service->regionName->name ?></td>
+                                    <td style="font-size: 8pt;" width="15%">
+                                        <a href="/usage/voip/edit?id=<?= $service->id ?>"
+                                           target="_blank"><?= $service->address ?></a>
+                                    </td>
+                                    <td>
+                                        <a href="/usage/voip/edit?id=<?= $service->id ?>" target="_blank">
+                                            <?= $renderDate($service->actual_from, $service->actual_to); ?>
+                                        </a>
+                                    </td>
+                                    <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
+                                    <td style="font-size: 8pt;">
+                                        <?= $currentTariff->name ?> (<?= $currentTariff->month_line . '-' . $currentTariff->month_number ?>)
+                                        <?php
+                                        if ($log->dest_group != '0') {
+                                            echo '/ Набор:';
+                                            if (strpos($log->dest_group, '5') !== false)
+                                                echo ' Моб';
+                                            if (strpos($log->dest_group, '1') !== false)
+                                                echo ' МГ';
+                                            if (strpos($log->dest_group, '2') !== false)
+                                                echo ' МН';
+                                            if (strpos($log->dest_group, '3') !== false)
+                                                echo ' СНГ';
+                                            echo $log->minpayment_group;
+                                        }
+                                        /** @var TariffVoip $tariff */
+                                        $tariff = null;
+                                        if (strpos($log->dest_group, '5') === false) {
+                                            $tariff = TariffVoip::findOne($log->id_tarif_local_mob);
+                                            echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($log->minpayment_local_mob > 0 ? '(' . $log->minpayment_local_mob . ')' : '');
+                                        }
+                                        if (strpos($log->dest_group, '1') === false) {
+                                            $tariff = TariffVoip::findOne($log->id_tarif_russia);
+                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
+                                            $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
+                                            echo '/ МГ ' . ($tariff ? $tariff->name : '');
+                                        }
+                                        if (strpos($log->dest_group, '2') === false) {
+                                            $tariff = TariffVoip::findOne($log->id_tarif_intern);
+                                            echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
+                                        }
+                                        ?>
+                                    </td>
+                                    <td><?= VoipNumber::$statuses[$service->voipNumber->status]; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
