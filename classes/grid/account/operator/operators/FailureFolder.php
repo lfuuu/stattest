@@ -1,5 +1,5 @@
 <?php
-namespace app\classes\grid\account\operator\clients;
+namespace app\classes\grid\account\operator\operators;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class TechFailureFolder extends AccountGridFolder
+class FailureFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Техотказ';
+        return 'Отказ';
     }
 
     public function getColumns()
@@ -36,6 +36,6 @@ class TechFailureFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_TECH_FAILURE]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_TECH_FAILURE]);
     }
 }

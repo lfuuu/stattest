@@ -7,7 +7,7 @@ use app\classes\grid\account\operator\infrastructure\BlockedFolder;
 use app\classes\grid\account\operator\infrastructure\IncomingFolder;
 use app\classes\grid\account\operator\infrastructure\NegotiationsFolder;
 use app\classes\grid\account\operator\infrastructure\SuspendedFolder;
-use app\classes\grid\account\operator\infrastructure\TechFailureFolder;
+use app\classes\grid\account\operator\infrastructure\FailureFolder;
 use app\classes\grid\account\operator\infrastructure\TerminatedFolder;
 use app\classes\grid\account\operator\infrastructure\TestingFolder;
 use app\classes\grid\account\operator\infrastructure\TrashFolder;
@@ -38,7 +38,7 @@ class OperatorInfrastructure extends AccountGrid
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
             BlockedFolder::create($this),
-            TechFailureFolder::create($this),
+            FailureFolder::create($this),
             TrashFolder::create($this),
         ];
     }

@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class TechFailureFolder extends AccountGridFolder
+class FailureFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Техотказ';
+        return 'Отказ';
     }
 
     public function getColumns()

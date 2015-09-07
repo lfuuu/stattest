@@ -34,7 +34,7 @@ class m_voipreports_reconciliation_report
                                                     r.dst_number::varchar like '7800%' as is7800,
                                                     g.name as destination,
                                                     count(*) as count,
-                                                    sum(billed_time) / 60 as minutes,
+                                                    sum(billed_time) as seconds,
                                                     rate as price,
                                                     sum(cost) as amount,
                                                     case i.region_id @> ARRAY[g.region]::varchar[]
