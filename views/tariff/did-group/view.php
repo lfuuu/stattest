@@ -1,12 +1,21 @@
 <?php
-use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
+use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\DidGroup;
+
+echo Html::formLabel('DID группа');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'DID группы', 'url' => Url::toRoute(['list'])],
+        Html::encode($model->name)
+    ],
+]);
 ?>
 
 <div class="well">
-    <legend>DID группа -> <?=Html::encode($model->name)?></legend>
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_HORIZONTAL]);
     echo Form::widget([
@@ -20,9 +29,15 @@ use app\models\DidGroup;
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-offset-2 col-md-10">' .
-                    Html::a('Назад', ['list'], ['class'=>'btn btn-default btn-sm']) .
-                    '</div>'
+                    Html::tag(
+                        'div',
+                        Html::button('Вернуться', [
+                            'class' => 'btn btn-default',
+                            'style' => 'margin-right: 15px;',
+                            'onClick' => 'self.location = "' . Url::toRoute(['list']) . '";',
+                        ]),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);

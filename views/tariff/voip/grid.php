@@ -2,13 +2,9 @@
 
 use kartik\grid\GridView;
 use app\classes\Html;
-?>
 
-<legend>
-    Тарифы IP Телефонии
-</legend>
+echo Html::formLabel('Тарифы IP Телефонии');
 
-<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,

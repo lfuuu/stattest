@@ -1,7 +1,9 @@
 <?php
 
+use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\Currency;
@@ -40,12 +42,15 @@ foreach ($priceLists as $priceList) {
     ];
 }
 $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceLists, 'id', 'name');
-?>
 
-<legend>
-    <?= Html::a('Тарифы IP Телефонии - Пакеты', '/tariff/voip-package'); ?> ->
-    <?= ($model->name ? Html::encode($model->name) : 'Новый тариф'); ?>
-</legend>
+echo Html::formLabel($model->name ? 'Редактирование пакета' : 'Новый пакет');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Тарифы IP Телефонии - Пакеты', 'url' => Url::toRoute(['tariff/voip-package'])],
+        $model->name ? 'Редактирование пакета' : 'Новый пакет'
+    ],
+]);
+?>
 
 <div class="well">
     <?php
@@ -119,17 +124,16 @@ $priceLists = ['0' => '-- Прайс-лист --'] + ArrayHelper::map($priceList
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-offset-2 col-md-10" style="text-align: right;">' .
-                    Html::a(
-                        'Отмена',
-                        ['index'],
-                        [
-                            'class' => 'btn btn-default btn-sm',
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
                             'style' => 'margin-right: 15px;',
-                        ]
-                    ) .
-                    Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                            'onClick' => 'self.location = "' . Url::toRoute(['index']) . '";',
+                        ]) .
+                        Html::button('Сохранить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);
