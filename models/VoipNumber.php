@@ -6,10 +6,10 @@ use yii\db\ActiveRecord;
 class VoipNumber extends ActiveRecord
 {
 
-    const NUMBER_STATUS_INSTOCK = 'В наличии';
-    const NUMBER_STATUS_HOLD = 'Удержание';
-    const NUMBER_STATUS_ACTIVE = 'Активен';
-    const NUMBER_STATUS_RESERVED = 'Резерв';
+    const NUMBER_STATUS_INSTOCK = 'Свободен';
+    const NUMBER_STATUS_HOLD = 'В отстойнике';
+    const NUMBER_STATUS_ACTIVE = 'Используется';
+    const NUMBER_STATUS_RESERVED = 'В резерве';
     const NUMBER_STATUS_NOTSELL = 'Не продается';
 
     public static $statuses = [
