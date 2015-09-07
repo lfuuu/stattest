@@ -112,9 +112,6 @@ class MailJob {
                 $this->get_object_link('new_director_info', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
         }elseif($match[1] == "DOGOVOR") {
             $T = BillContract::getString($this->client["id"], time());
-        }elseif($match[1] == "SOGL_MCM") {
-            $T = "Соглашение о передаче прав и обязанностей по договору №".BillContract::getString($this->client["id"], time()).": " . 
-                $this->get_object_link('sogl_mcm_telekom', $this->client["id"]);
         }elseif($match[1] == "NOTICE_MCM") {
             $T = "Уведомление о передаче прав и обязанностей по договору №".BillContract::getString($this->client["id"], time()).": " . 
                 $this->get_object_link('notice_mcm_telekom', $this->client["id"]);
