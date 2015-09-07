@@ -16,13 +16,9 @@ $recordBtns = [
         );
     },
 ];
-?>
 
-<legend>
-    Направления
-</legend>
+echo Html::formLabel('Направления');
 
-<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
@@ -60,4 +56,3 @@ echo GridView::widget([
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);
-?>

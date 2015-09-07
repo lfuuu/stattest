@@ -1,18 +1,23 @@
 <?php
 
+use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\voip\Prefixlist;
 
 $prefixes = ArrayHelper::map(Prefixlist::find()->all(), 'id', 'name');
-?>
 
-<legend>
-    <?= Html::a('Направления', '/voip/destination'); ?> ->
-    <?= ($model->name ? Html::encode($model->name) : 'Новое направление'); ?>
-</legend>
+echo Html::formLabel($model->name ? 'Редактирование направления' : 'Новое направление');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Направления', 'url' => Url::toRoute(['voip/destination'])],
+        $model->name ? 'Редактирование направления' : 'Новое направление'
+    ],
+]);
+?>
 
 <div class="well">
     <?php
@@ -49,17 +54,16 @@ $prefixes = ArrayHelper::map(Prefixlist::find()->all(), 'id', 'name');
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-offset-2 col-md-10" style="text-align: right;">' .
-                    Html::a(
-                        'Отмена',
-                        ['index'],
-                        [
-                            'class' => 'btn btn-default btn-sm',
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
                             'style' => 'margin-right: 15px;',
-                        ]
-                    ) .
-                    Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                            'onClick' => 'self.location = "' . Url::toRoute(['voip/destination']) . '";',
+                        ]) .
+                        Html::button('Сохранить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);
