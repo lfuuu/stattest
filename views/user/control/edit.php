@@ -3,7 +3,9 @@
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\file\FileInput;
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 use app\helpers\MediaFileHelper;
 use app\models\Language;
 use app\models\City;
@@ -30,17 +32,17 @@ if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $mod
         ),
     ];
 }
+
+echo Html::formLabel('Редактирование оператора');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Операторы', 'url' => Url::toRoute(['user/control'])],
+        'Редактирование оператора'
+    ],
+]);
 ?>
 
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" />
-
-<legend>
-    <span>Редактирование оператора - <?= $model->name; ?></span>
-</legend>
-
-<div class="breadcrumb">
-    <?= Html::a('Операторы', '/user/control'); ?> -> <?= $model->name; ?>
-</div>
 
 <div class="well">
     <?php
@@ -168,6 +170,10 @@ if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $mod
 
     echo $this->render('rights', ['model' => $model]);
 
+    ?>
+    <br />
+
+    <?php
     echo Form::widget([
         'model' => $model,
         'form' => $form,
@@ -176,9 +182,16 @@ if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $mod
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-12" style="text-align: right; padding-right: 0px;">' .
-                        Html::submitButton('Изменить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
+                            'style' => 'margin-right: 15px;',
+                            'onClick' => 'self.location = "' . Url::toRoute(['user/control']) . '";',
+                        ]) .
+                        Html::button('Изменить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);

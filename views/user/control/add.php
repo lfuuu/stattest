@@ -2,19 +2,17 @@
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use yii\helpers\Html;
+use app\classes\Html;
 use yii\helpers\Json;
 use app\models\UserGroups;
+
+echo Html::formLabel('Создание оператора');
 
 /** @var User $model */
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
 ?>
-
-<legend>
-    Создание пользователя
-</legend>
 
 <div class="well">
     <?php if (Yii::$app->session->hasFlash('success')): ?>
@@ -23,7 +21,7 @@ $form = ActiveForm::begin([
         ?>
         <div style="text-align: center;" class="alert alert-success">
             <div style="font-weight: bold;">
-                Пользователь
+                Оператор
                 <a href="/user/control/edit/?id=<?= $data['id']; ?>" onClick="window.parent.location.href = this.href; return false;">
                     <?= $data['name']; ?> (<?= $data['user']; ?>)
                 </a><br /><br />
