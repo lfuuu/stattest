@@ -2,6 +2,9 @@
 use app\models\billing\Pricelist;
 use app\models\billing\PricelistFile;
 use app\classes\voip\BasePricelistLoader;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 /** @var Pricelist $pricelist */
 /** @var PricelistFile $file */
@@ -12,14 +15,14 @@ use app\classes\voip\BasePricelistLoader;
 
 $overrideSettings = $parser->overrideSettings();
 
-?>
-<h2>
-    <a href="/voip/network-config/list">Местные Префиксы</a>
-    -> <?=$networkConfig->name?>
-    -> Загрузка файла <?=$file->file_name?>
-</h2>
-
-<?php
+echo Html::formLabel('Загрузка файла');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Местные префиксы', 'url' => Url::toRoute(['voip/network-config/list'])],
+        ['label' => $networkConfig->name, 'url' => Url::toRoute(['voip/network-config/edit', 'id' => $networkConfig->id])],
+        'Загрузка файла'
+    ],
+]);
 
 $columnTypes = [
     'prefix1'       => 'Префикс 1',
