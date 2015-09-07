@@ -1,15 +1,31 @@
 <?php
 use app\models\billing\Pricelist;
 use app\models\billing\PricelistFile;
+use yii\helpers\Url;
+use kartik\grid\GridView;
+use yii\widgets\Breadcrumbs;
+use app\classes\Html;
 
 /** @var Pricelist $pricelist */
 /** @var PricelistFile[] $files */
+
+echo Html::formLabel('Файлы');
+echo Breadcrumbs::widget([
+    'links' => [
+        [
+            'label' => 'Прайс-листы',
+            'url' => Url::toRoute([
+                'voip/pricelist/list',
+                'type' => $model->type,
+                'orig' => $model->orig,
+                'connectionPointId' => $model->connection_point_id,
+            ])
+        ],
+        ['label' => $pricelist->name, 'url' => Url::toRoute(['voip/pricelist/edit', 'id' => $pricelist->id])],
+        'Файлы'
+    ],
+]);
 ?>
-<h2>
-    <a href="/voip/pricelist/list?type=<?=$pricelist->type?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
-    -> <?=$pricelist->name?>
-    -> Файлы
-</h2>
 
 <table align="right">
     <tr>

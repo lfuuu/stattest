@@ -1,4 +1,5 @@
 <?php
+use yii\helpers\Url;
 use kartik\grid\GridView;
 use app\classes\Html;
 
@@ -18,21 +19,21 @@ echo GridView::widget([
             'label' => 'Ид',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data->id, '/voip/network-config/edit?id=' . $data->id);
+                return Html::a($data->id, Url::toRoute(['voip/network-config/edit', 'id' => $data->id]));
             },
         ],
         [
             'label' => 'Название',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data->name, '/voip/network-config/edit?id=' . $data->id);
+                return Html::a($data->name, Url::toRoute(['/voip/network-config/edit', 'id' => $data->id]));
             },
         ],
         [
             'label' => 'Файлы',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a('файлы', '/voip/network-config/files?networkConfigId=' . $data->id);
+                return Html::a('файлы', Url::toRoute(['voip/network-config/files', 'networkConfigId' => $data->id]));
             },
         ],
     ],
