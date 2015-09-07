@@ -519,7 +519,7 @@ abstract class AccountGridFolder extends Model
                     return \yii\helpers\Html::dropDownList(
                         'contract_type',
                         \Yii::$app->request->get('contract_type'),
-                        ContractType::getList(),
+                        ContractType::getList($this->grid->getBusinessProcessId()),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:100px;']
                     );
                 },
