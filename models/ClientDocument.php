@@ -176,7 +176,8 @@ class ClientDocument extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && $this->group && $this->template) {
-            if ($this->is_external == ClientContract::IS_INTERNAL) {
+            if ($this->type == self::DOCUMENT_CONTRACT_TYPE && $this->is_external == ClientContract::IS_EXTERNAL) {
+            } else {
                 $this->dao()->generateFile($this, $this->group, $this->template);
             }
 
