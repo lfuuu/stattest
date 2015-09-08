@@ -427,6 +427,7 @@ class ClientDocumentDao extends Singleton
                 $originContract =
                     ClientContract::find()
                         ->where(['contragent_id' => $document->getContract()->getContragent()->id])
+                        ->andWhere(['state' => ClientContract::STATE_CHECKED_ORIGINAL])
                         ->orderBy('id ASC')
                         ->one();
                 if ($originContract->id) {
