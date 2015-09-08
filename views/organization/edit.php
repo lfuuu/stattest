@@ -1,8 +1,9 @@
 <?php
 
 use app\classes\Html;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 use yii\bootstrap\Tabs;
-use app\models\Organization;
 use app\forms\organization\OrganizationForm;
 
 /** @var $model OrganizationForm */
@@ -24,10 +25,14 @@ foreach ($history as $record):
     endif;
 endforeach;
 
+echo Html::formLabel('История изменений ' . $model->name);
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Организации', 'url' => Url::toRoute(['/organization'])],
+        'История изменений ' . $model->name
+    ],
+]);
 ?>
-<h2>
-История изменений <?= $model->name; ?>
-</h2>
 
 <div style="float: right;">
     <?= Html::a(
