@@ -8,9 +8,11 @@ use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\TariffVirtpbx;
+use app\models\TariffVoip;
 use app\models\User;
 use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
+use app\forms\usage\UsageVoipEditForm;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -318,6 +320,63 @@ if ($action=='add_client') {
         }
     }
     echo $isOk ? 1 : 0;
+
+} elseif ($action == "connect_line")
+{
+    $clientId = get_param_raw("client_id", 0);
+    $tarifId = get_param_raw("tarif_id", 0);
+
+    try{
+        $client = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$client)
+            throw new Exception("Клиент не найден");
+
+        $tarif = TariffVoip::findOne(
+            [
+                "connection_point_id" => $client->region,
+                "currency_id" => $client->currency,
+
+                "id" => $tarifId
+            ]
+        );
+
+        if (!$tarif)
+            throw new Exception("Тариф не найден");
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $form = new UsageVoipEditForm;
+            $form->scenario = 'add';
+            $form->initModel($client);
+
+            $form->tariff_main_id = $tarif->id;
+            $form->type_id = "line";
+
+            $form->prepareAdd();
+
+            if (!$form->validate() || !$form->add()) 
+            {
+                if ($form->errors)
+                {
+                    \Yii::error($form);
+                    $errorKeys = array_keys($form->errors);
+                    throw new \Exception($form->errors[$errorKeys[0]][0], 500);
+                } else {
+                    throw new \Exception("Unknown error", 500);
+                }
+            }
+            $transaction->commit();
+
+            echo "ok:".$form->did;
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    } catch(\Exception $e) {
+        echo "error:".$e->GetMessage();
+    }
 
 }elseif($action == "stat_voip")
 {
