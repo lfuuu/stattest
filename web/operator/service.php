@@ -350,6 +350,7 @@ if ($action=='add_client') {
             $form->scenario = 'add';
             $form->initModel($client);
 
+            $form->city_id = $client->region;
             $form->tariff_main_id = $tarif->id;
             $form->type_id = "line";
 
