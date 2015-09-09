@@ -557,8 +557,7 @@ class ApiLk
                         `u`.`actual_to`,
                         IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
                         `u`.`status`,
-                        `r`.`name` AS city,
-                        `r`.`id` AS city_id,
+                        `r`.`id` AS region_id,
                         (SELECT id_tarif FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1) AS cur_tarif_id,
                         (SELECT date_activation FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<now() ORDER BY date_activation DESC, id DESC LIMIT 1) AS actual_from
                     FROM
@@ -578,7 +577,7 @@ class ApiLk
                 LEFT JOIN `tarifs_virtpbx` AS `t` ON (`t`.`id` = cur_tarif_id)
             ', array($clientId)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city","city_id"), $v);
+            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","region_id"), $v);
             $line["price"] = number_format($line["price"], 2, ".", " ");
             $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
