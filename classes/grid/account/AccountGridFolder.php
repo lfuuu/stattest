@@ -55,31 +55,33 @@ abstract class AccountGridFolder extends Model
 
     public function attributeLabels()
     {
-        return (new ClientAccount())->attributeLabels() +
-        [
-            'id' => 'ID',
-            'company' => 'Компания',
-            'created' => 'Заведен',
-            'inn' => 'ИНН',
-            'managerName' => 'Менеджер',
-            'channelName' => 'Канал продаж',
-            'contractNo' => '№ договора',
-            'status' => '#',
-            'lastComment' => 'Комментарий',
-            'service' => 'Услуга',
-            'bill_date' => 'Дата платежа',
-            'abon' => 'Абон.(пред.)',
-            'over' => 'Прев.(пред.)',
-            'total' => 'Всего',
-            'abon1' => 'Абон.(тек.)',
-            'over1' => 'Прев.(тек.)',
-            'abondiff' => 'Абон.(diff)',
-            'overdiff' => 'Прев.(diff)',
-            'block_date' => 'Дата блокировки',
-            'federal_district' => 'ФО',
-            'contract_type' => 'Тип договора',
-            'financial_type' => 'Финансовый тип договора',
-        ];
+        return array_merge(
+            (new ClientAccount())->attributeLabels(),
+            [
+                'id' => 'ID',
+                'company' => 'Контрагент',
+                'region' => 'Регион ЛС',
+                'created' => 'Заведен',
+                'inn' => 'ИНН',
+                'managerName' => 'Менеджер',
+                'channelName' => 'Канал продаж',
+                'contractNo' => '№ договора',
+                'status' => '#',
+                'lastComment' => 'Комментарий',
+                'service' => 'Услуга',
+                'bill_date' => 'Дата платежа',
+                'abon' => 'Абон.(пред.)',
+                'over' => 'Прев.(пред.)',
+                'total' => 'Всего',
+                'abon1' => 'Абон.(тек.)',
+                'over1' => 'Прев.(тек.)',
+                'abondiff' => 'Абон.(diff)',
+                'overdiff' => 'Прев.(diff)',
+                'block_date' => 'Дата блокировки',
+                'federal_district' => 'ФО',
+                'contract_type' => 'Тип договора',
+                'financial_type' => 'Финансовый тип договора',
+            ]);
     }
 
     public static function create(AccountGrid $grid)
@@ -89,7 +91,7 @@ abstract class AccountGridFolder extends Model
 
     public function __construct($grid = null)
     {
-        if($grid && $grid instanceof AccountGrid) {
+        if ($grid && $grid instanceof AccountGrid) {
             $this->grid = $grid;
         }
         parent::__construct();
@@ -154,7 +156,7 @@ abstract class AccountGridFolder extends Model
         ]);
 
         $query->andFilterWhere(['c.id' => $this->id]);
-        $query->andFilterWhere(['or', ['cg.name' => $this->companyName],['cg.name_full' => $this->companyName]]);
+        $query->andFilterWhere(['or', ['cg.name' => $this->companyName], ['cg.name_full' => $this->companyName]]);
         $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
@@ -162,7 +164,7 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['c.region' => $this->regionId]);
 
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
-        if($this->federal_district)
+        if ($this->federal_district)
             $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district', $this->federal_district));
         $query->andFilterWhere(['cr.contract_type_id' => $this->contract_type]);
 
@@ -240,12 +242,12 @@ abstract class AccountGridFolder extends Model
             ],
             'id' => [
                 'attribute' => 'id',
-                'filter' => function(){
-                    return '<input name="id" class="form-control" value="'.\Yii::$app->request->get('id').'" style="width:50px;" />';
+                'filter' => function () {
+                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" style="width:50px;" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return '<a href="/client/view?id=' . $data['id'] . '">' .$data['id'] . '</a>';
+                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['id'] . '</a>';
                 }
             ],
             'company' => [
@@ -254,7 +256,7 @@ abstract class AccountGridFolder extends Model
                 'value' => function ($data) {
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['company'] . '</a>';
                 },
-                'filter' => function() {
+                'filter' => function () {
                     return '<input name="companyName"
                         id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '"
                         class="form-control" style="min-width:150px" />';
@@ -495,7 +497,7 @@ abstract class AccountGridFolder extends Model
                 'format' => 'raw',
                 'value' => function ($data) {
                     $arr = SetFieldTypeHelper::parseValue($data['federal_district']);
-                    array_walk($arr, function(&$item){
+                    array_walk($arr, function (&$item) {
                         $item = ClientContract::$districts[$item];
                     });
                     return implode('<br>', $arr);
