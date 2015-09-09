@@ -79,7 +79,7 @@ class AccountEditForm extends Form
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
                     'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties',
-                    'admin_email', 'historyVersionStoredDate',
+                    'historyVersionStoredDate',
                 ],
                 'string'
             ],
@@ -87,7 +87,7 @@ class AccountEditForm extends Form
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
                     'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
-                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties'
+                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties', 'admin_email'
                 ],
                 'default', 'value' => ''
             ],
@@ -106,7 +106,8 @@ class AccountEditForm extends Form
                 ],
                 'default', 'value' => 0
             ],
-            [['voip_is_day_calc'], 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
+            ['admin_email', 'email'],
+            ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
