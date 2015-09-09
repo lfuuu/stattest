@@ -283,6 +283,37 @@ class UsageVoipEditForm extends UsageVoipForm
     public function processDependenciesNumber()
     {
         if ($this->type_id == 'number') {
+
+            if ($this->city_id && $this->number_tariff_id && !$this->did) {
+                $numberTariff = TariffNumber::findOne($this->number_tariff_id);
+                $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
+                if ($number) {
+                    $this->did = $number->number;
+                }
+            } else {
+                if ($this->did) {
+                    $number = Number::findOne($this->did);
+
+                    if (!$number) {
+                        $this->did = null;
+                    } else {
+
+                        $numberTariff = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
+
+                        if ($numberTariff) {
+                            if ($this->city_id != $number->city_id || $this->number_tariff_id != $numberTariff->id) {
+                                $this->city_id = $number->city_id;
+                                $this->number_tariff_id = $numberTariff->id;
+                            }
+                        } else {
+                            $this->did = null;
+                        }
+                    }
+                }
+            }
+
+
+            /*
             if ($this->number_tariff_id) {
                 $numberTariff = TariffNumber::findOne($this->number_tariff_id);
                 if ($numberTariff->city_id != $this->city_id) {
@@ -308,6 +339,7 @@ class UsageVoipEditForm extends UsageVoipForm
             } else {
                 $this->did = null;
             }
+             */
         }
         if ($this->type_id == 'line') {
             $this->number_tariff_id = null;

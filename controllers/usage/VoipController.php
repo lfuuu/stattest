@@ -41,6 +41,7 @@ class VoipController extends BaseController
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->scenario == 'add' && $model->validate() && $model->add()) {
+                Yii::$app->session->addFlash('success', 'Запись добавлена');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
@@ -60,11 +61,13 @@ class VoipController extends BaseController
 
         $form = new UsageVoipDeleteHistoryForm();
         if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
+            Yii::$app->session->addFlash('success', 'Тариф удален');
             return $this->redirect(['edit', 'id' => $id]);
         }
 
         $form = new UsageVoipAddPackageForm;
         if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
+            Yii::$app->session->addFlash('success', 'пакет добавлен');
             return $this->redirect(['edit', 'id' => $id, 'rnd' => time()]);
         }
 
@@ -74,9 +77,11 @@ class VoipController extends BaseController
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->scenario == 'edit' && $model->validate() && $model->edit()) {
+                Yii::$app->session->addFlash('success', 'Запись обновлена');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
             if ($model->scenario == 'change-tariff' && $model->validate() && $model->changeTariff()) {
+                Yii::$app->session->addFlash('success', 'Тариф тариф сохранен');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
