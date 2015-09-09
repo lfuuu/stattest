@@ -1,6 +1,7 @@
 <?php
 
 use app\models\CoreSyncIds;
+use app\models\ClientAccount;
 use app\classes\api\ApiCore;
 use app\classes\Event;
 
@@ -32,7 +33,7 @@ class SyncCore
 
     public static function addAccount($clientId, $isResetProductState = false)
     {
-        $account = \app\models\ClientAccount::findOne($clientId);
+        $account = ClientAccount::findOne($clientId);
 
         if (!$account)
             throw new Exception("Клиент не найден");
@@ -101,7 +102,7 @@ class SyncCore
 
         if ($email->is_official)
         {
-            $account = \app\models\ClientAccount::findOne($param["client_id"]);
+            $account = ClientAccount::findOne($param["client_id"]);
             $struct = SyncCoreHelper::getEmailStruct($email->data, $account->password);
         }
 
@@ -117,7 +118,7 @@ class SyncCore
     {
         if ($product == "phone" && !isset(\Yii::$app->params['PHONE_SERVER']) || !\Yii::$app->params['PHONE_SERVER']) return;
 
-        $account = \app\models\ClientAccount::findOne($accountId);
+        $account = ClientAccount::findOne($accountId);
 
         if (!$account) return false;
 
@@ -151,7 +152,7 @@ class SyncCore
     {
         $action = "update_admin_from_stat";
 
-        $account = \app\models\ClientAccount::findOne($clientId);
+        $account = ClientAccount::findOne($clientId);
 
         if (strpos($account->client, "/") !== false) {
             echo "\n not main card";
@@ -171,9 +172,6 @@ class SyncCore
             {
                 ApiCore::exec($action, $struct);
             }
-
         }
-
-
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use app\models\ClientContragent;
+
 class SyncCoreHelper
 {
 
@@ -7,7 +9,6 @@ class SyncCoreHelper
 
     static function getFullClientStruct($superId) // only super client && conragent
     {
-        echo "\n" . __FUNCTION__;
         global $db;
 
         $super = $db->GetRow("select id, name from client_super where id = '" . $superId . "'");
@@ -20,7 +21,7 @@ class SyncCoreHelper
 
         $data = array("client" => array("id" => $super["id"], "name" => $super["name"]), "contragents" => array());
 
-        $contragents = \app\models\ClientContragent::findAll(['super_id' => $superId]);
+        $contragents = ClientContragent::findAll(['super_id' => $superId]);
         foreach ($contragents as $contr) {
             $dataContragent = [
                 'id' => $contr->id,
@@ -80,8 +81,6 @@ class SyncCoreHelper
 
     public static function getAccountStruct(\app\models\ClientAccount $cl)
     {
-        echo "\n" . __FUNCTION__;
-
         if (!in_array($cl->status, self::$allowClientStatusSQL)) return false;
 
         return array(
@@ -97,7 +96,6 @@ class SyncCoreHelper
 
     static function loadEmails(&$emails, $clientId)
     {
-        echo "\n" . __FUNCTION__;
         global $db;
         foreach ($db->AllRecords(
             "SELECT data

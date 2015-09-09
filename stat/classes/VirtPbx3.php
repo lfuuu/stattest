@@ -3,6 +3,9 @@
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
+use app\classes\ActaulizerVoipNumbers;
+use app\models\UsageVirtpbx;
+use app\classes\Event;
 
 class VirtPbx3Checker
 {
@@ -20,7 +23,9 @@ class VirtPbx3Checker
             SELECT
                 u.id as usage_id,
                 c.id as client_id,
-                IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id
+                IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
+                prev_usage_id,
+                next_usage_id
             FROM
                 usage_virtpbx u, clients c
             WHERE
@@ -65,9 +70,10 @@ class VirtPbx3Checker
         l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 
         $d = array(
-                "added" => array(), 
-                "deleted" => array(), 
-                "changed_tarif" => array(), 
+                "added" => [],
+                "deleted" => [],
+                "changed_tarif" => [],
+                "changed_client" => []
                 );
 
         foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
@@ -76,9 +82,25 @@ class VirtPbx3Checker
         foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
             $d["added"][$l] = $actual[$l];
 
+        if ($d["added"] && $d["deleted"])
+        {
+            foreach($d["added"] as $addId => $add)
+            {
+                if ($add["prev_usage_id"] && isset($d["deleted"][$add["prev_usage_id"]]))
+                {
+                    $d["changed_client"][$addId] = $add;
+                    unset($d["added"][$addId], $d["deleted"][$add["prev_usage_id"]]);
+                }
+            }
+        }
+
+
         foreach($actual as $usageId => $l)
-            if(isset($saved[$usageId]) && $saved[$usageId]["tarif_id"] != $l["tarif_id"]) 
-                $d["changed_tarif"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
+            if(isset($saved[$usageId])) {
+                if ($saved[$usageId]["tarif_id"] != $l["tarif_id"]) {
+                    $d["changed_tarif"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
+                }
+            }
 
         foreach($d as $k => $v)
             if($v)
@@ -125,6 +147,9 @@ class VirtPbx3Diff
         if($diff["deleted"])
             self::del($diff["deleted"], $exception);
 
+        if($diff["changed_client"])
+            self::clientChanged($diff["changed_client"], $exception);
+
         if($diff["changed_tarif"])
             self::tarifChanged($diff["changed_tarif"], $exception);
 
@@ -161,6 +186,19 @@ class VirtPbx3Diff
         }
     }
 
+    private function clientChanged(&$d, &$exception)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $l) {
+            try {
+                VirtPbx3Action::clientChanged($l);
+            } catch (Exception $e) {
+                if (!$exception) $exception = $e;
+            }
+        }
+    }
+
     private function tarifChanged(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
@@ -193,9 +231,7 @@ class VirtPbx3Action
             $exceptionProduct = null;
             try {
 
-                $newState = ["mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]];
-
-                ApiCore::exec('add_products_from_stat', SyncCoreHelper::getAddProductStruct($l["client_id"], $newState));
+                ApiCore::addProduct('vpbx', $l["client_id"], $l["usage_id"]);
 
             } catch (Exception $e) {
                 $exceptionProduct = $e;
@@ -205,7 +241,6 @@ class VirtPbx3Action
             try {
 
                 ApiVpbx::create($l["client_id"], $l["usage_id"]);
-                //ApiVpbx::transfer($l["usage_id"]);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
@@ -235,13 +270,14 @@ class VirtPbx3Action
 
         l::ll(__CLASS__,__FUNCTION__, $l);
 
-        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX) {
+        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::isAvailable()) {
             return null;
         }
 
         try {
 
-            ApiCore::exec('remove_product', SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]);
+            ApiVpbx::stop($l["client"], $l["usage_id"]);
+            ApiCore::remoteProduct('vpbx', $l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS)
@@ -255,6 +291,71 @@ class VirtPbx3Action
             )
         );
 
+    }
+
+    public static function clientChanged($l)
+    {
+        global $db;
+
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+
+        $toUsage = UsageVirtpbx::findOne($l["usage_id"]);
+        if (!$toUsage)
+            return;
+
+        $fromUsage = UsageVirtpbx::findOne($toUsage->prev_usage_id);
+
+        if(!$fromUsage)
+            return;
+
+        $dbTransaction = Yii::$app->db->beginTransaction();
+
+        try {
+
+            if (ApiVpbx::isAvailable()) {
+
+                $numInfo = ApiPhone::getNumbersInfo($fromUsage->clientAccount);
+
+                ApiVpbx::transfer(
+                    $fromUsage->clientAccount->id,
+                    $fromUsage->id,
+                    $toUsage->clientAccount->id,
+                    $toUsage->id
+                );
+            }
+
+            $data = Yii::$app->db->createCommand()->update("actual_virtpbx", 
+                [
+                    "usage_id" => $toUsage->id,
+                    "client_id" => $toUsage->clientAccount->id
+                ],
+                [
+                    "usage_id" => $fromUsage->id,
+                    "client_id" => $fromUsage->clientAccount->id
+                ]
+            )->execute();
+
+            foreach($numInfo as $number => $info)
+            {
+                if ($info["stat_product_id"] == $fromUsage->id)
+                {
+                    ActaulizerVoipNumbers::transferNumberWithVpbx($number, $toUsage->clientAccount->id);
+                }
+            }
+
+            Event::go("update_products", ["account_id" => $toUsage->clientAccount->id]);
+            Event::go("update_products", ["account_id" => $fromUsage->clientAccount->id]);
+
+            ApiCore::addProduct(   'vpbx', $toUsage->clientAccount->id,   $toUsage->id);
+            ApiCore::remoteProduct('vpbx', $fromUsage->clientAccount->id, $fromUsage->id);
+
+            $dbTransaction->commit();
+
+        } catch (\Exception $e) {
+            $dbTransaction->rollBack();
+            throw $e;
+        }
     }
 
     public static function tarifChanged($l)

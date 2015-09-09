@@ -48,10 +48,10 @@ class ServiceTransferForm extends Form
             UsageExtra::dao(),
             UsageSms::dao(),
             UsageWelltime::dao(),
+            UsageVirtpbx::dao(),
             UsageVoip::dao(),
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
-            UsageVirtpbx::dao(),
             TechCpe::dao(),
         ];
     }

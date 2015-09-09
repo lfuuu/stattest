@@ -7,6 +7,7 @@ use app\classes\Html;
 use app\models\Usage;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
+use app\models\LogTarif;
 
 /**
  * Класс переноса услуг типа "Виртуальная АТС"
