@@ -199,12 +199,22 @@ class ClientController extends BaseController
         if (Yii::$app->request->isAjax) {
             $res = [];
             foreach ($dataProvider->models as $model)
-                $res[] = [
-                    'url' => Url::toRoute(['client/view', 'id' => $model->id]),
-                    'value' => $model->contract->contragent->name ? $model->contract->contragent->name : $model->contract->contragent->name_full,
-                    'color' => $model->contract->getBusinessProcessStatus()['color'],
-                    'id' => $model->id,
-                ];
+                if(isset(Yii::$app->request->queryParams['contractNo']))
+                {
+                    $res[] = [
+                        'url' => Url::toRoute(['client/view', 'id' => $model->id]),
+                        'value' => $model->contract->number,
+                        'color' => $model->contract->getBusinessProcessStatus()['color'],
+                        'id' => $model->id,
+                    ];
+                } else {
+                    $res[] = [
+                        'url' => Url::toRoute(['client/view', 'id' => $model->id]),
+                        'value' => $model->contract->contragent->name ? $model->contract->contragent->name : $model->contract->contragent->name_full,
+                        'color' => $model->contract->getBusinessProcessStatus()['color'],
+                        'id' => $model->id,
+                    ];
+                }
             Yii::$app->response->format = Response::FORMAT_JSON;
             return $res;
         } else {

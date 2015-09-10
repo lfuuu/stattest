@@ -32,6 +32,8 @@ abstract class AccountGridFolder extends Model
     public $financial_type;
     public $contract_type;
     public $federal_district;
+    public $contractNo;
+    public $contract_created;
 
     public function getName()
     {
@@ -48,7 +50,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district'], 'string'],
+                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo'], 'string'],
         ];
     }
 
@@ -64,6 +66,7 @@ abstract class AccountGridFolder extends Model
             'managerName' => 'Менеджер',
             'channelName' => 'Канал продаж',
             'contractNo' => '№ договора',
+            'contract_created' => 'Дата договора',
             'status' => '#',
             'lastComment' => 'Комментарий',
             'service' => 'Услуга',
@@ -110,6 +113,7 @@ abstract class AccountGridFolder extends Model
             'cg.name AS company',
             'cr.manager',
             'cr.account_manager',
+            'cr.number AS contractNo',
             'mu.name as manager_name',
             'amu.name as account_manager_name',
             'c.support',
@@ -157,6 +161,7 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['or', ['cg.name' => $this->companyName],['cg.name_full' => $this->companyName]]);
         $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
         $query->andFilterWhere(['cr.manager' => $this->manager]);
+        $query->andFilterWhere(['cr.number' => $this->contractNo]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
         $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
@@ -260,6 +265,18 @@ abstract class AccountGridFolder extends Model
                         class="form-control" style="min-width:150px" />';
                 },
             ],
+            'contractNo' => [
+                'attribute' => 'contractNo',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['contractNo'] . '</a>';
+                },
+                'filter' => function() {
+                    return '<input name="contractNo"
+                        id="searchByContractNo" value="' . \Yii::$app->request->get('contractNo') . '"
+                        class="form-control" style="min-width:150px" />';
+                },
+            ],
             'created' => [
                 'attribute' => 'created',
                 'format' => 'raw',
@@ -281,6 +298,22 @@ abstract class AccountGridFolder extends Model
                         ]
                     ]);
                 }
+            ],
+            'contract_created' => [
+                'attribute' => 'created',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    $account = ClientAccount::findOne($data['id']);
+                    if(!$account)
+                        return null;
+                    $contract = $account->contract;
+                    if(!$contract)
+                        return null;
+                    $document = $contract->document;
+                    if(!$document)
+                        return null;
+                    return $document->contract_date;
+                },
             ],
             'block_date' => [
                 'attribute' => 'block_date',
