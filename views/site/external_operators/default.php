@@ -37,52 +37,78 @@ use kartik\daterange\DateRangePicker;
         <br />
         <table id="repart_table" border="1" cellspacing="2" style="border-collapse: collapse;">
             <tbody>
-                <tr id="tr_head">
+                <!--tr id="tr_head">
                     <td rowspan="2" width="1%">#</td>
                     <td rowspan="2" width="10%">Оператор</td>
                     <td colspan="2" width="10%">Номер счета</td>
                     <td rowspan="2" width="10%">Дата<br>создания заказа</td>
-                    <td colspan="<?= count($operator->products) + 1; ?>" width="1%">Кол-во</td>
-                    <td colspan="1" width="10%">Номер купона</td>
+                    <td colspan="<?= count($operator->products); ?>" width="1%">Кол-во</td>
                     <td rowspan="2" width="30%">Клиент <br>(ФИО, телефон, адрес)</td>
                     <td colspan="2" width="10%">Дата доставки</td>
                     <td rowspan="2" width="20%">Этапы</td>
+                </tr-->
+                <tr>
+                    <td rowspan="2">#</td>
+                    <td rowspan="2">Оператор</td>
+                    <td colspan="2">Номер счета</td>
+                    <td rowspan="2">Дата<br />создания заказа</td>
+                    <td colspan="<?= count($operator->products); ?>">Кол-во</td>
+                    <td rowspan="2">Клиент <br />(ФИО, телефон, адрес)</td>
+                    <td rowspan="2">Серийный номер</td>
+                    <td colspan="2">Дата доставки</td>
+                    <td rowspan="2">Этапы</td>
                 </tr>
-                <tr id="tr_head">
+                <tr>
                     <td>OnLime</td>
                     <td>Маркомнет Сервис</td>
-                    <?php foreach ($operator->products as $product) :?>
-                        <td><?= $product['name']; ?></td>
+                    <?php foreach ($operator->products as $i => $product): ?>
+                        <td align="center"><?= $product['name']; ?></td>
                     <?php endforeach; ?>
-                    <td>Серийный номер</td>
                     <td>Желаемая</td>
                     <td>Фактическая</td>
                 </tr>
                 <?php foreach ($operator->report->getList($dateFrom, $dateTo, $filter) as $number => $item): ?>
                     <tr>
-                        <td rowspan=2><?= $number; ?>.</td>
-                        <td rowspan=2><?= $item['fio_oper']; ?></td>
-                        <td rowspan=2><?= $item['req_no']; ?></td>
-                        <td rowspan=2><?= $item['bill_no']; ?></td>
-                        <td rowspan=2><?= $item['date_creation']; ?></td>
+                        <td><?= ($number + 1); ?>.</td>
+                        <td><?= $item['fio_oper']; ?></td>
+                        <td><?= $item['req_no']; ?></td>
+                        <td><?= $item['bill_no']; ?></td>
+                        <td><?= $item['date_creation']; ?></td>
                         <?php foreach ($operator->products as $i => $product): ?>
-                            <td rowspan=2 align=center><?= $item['group_' . ($i +1 )]; ?></td>
+                            <td align="center"><?= $item['group_' . ($i +1 )]; ?></td>
                         <?php endforeach; ?>
-                        <td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
-                        <td rowspan=2>
+                        <td>
                             <p><?= $item['fio']; ?></p>
                             <p><?= $item['$i.phone']; ?></p>
                             <p><?= $item['address']; ?></p>
                         </td>
-                        <td rowspan=2><?= $item['date_deliv']; ?></td>
-                        <td rowspan=2><?= $item['date_delivered']; ?></td>
-                        <td rowspan=2>
+                        <td>
+                        </td>
+                        <td><?= $item['date_deliv']; ?></td>
+                        <td><?= $item['date_delivered']; ?></td>
+                        <td>
                         </td>
                     </tr>
-                    <tr>
-                        <td>{$i.serials|replace:",":",<br>"}</td>
-                    </tr>
                 <?php endforeach;?>
+                <tr>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>10</td>
+                    <td>11</td>
+                    <td>12</td>
+                    <td>13</td>
+                    <td>14</td>
+                    <td>15</td>
+                </tr>
+
             </tbody>
         </table>
     </div>

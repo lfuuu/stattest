@@ -284,7 +284,6 @@ class ReportOnlimeDao extends Singleton
                     ':dateTo' => $this->dateTo,
                 ])->queryAll();
             }
-            print_r($list);
 
             foreach($list as &$l)
             {
