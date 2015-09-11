@@ -48,15 +48,15 @@ use kartik\daterange\DateRangePicker;
                     <td rowspan="2" width="20%">Этапы</td>
                 </tr-->
                 <tr>
-                    <td rowspan="2">#</td>
-                    <td rowspan="2">Оператор</td>
-                    <td colspan="2">Номер счета</td>
+                    <td rowspan="2" width="1%">#</td>
+                    <td rowspan="2" width="10%">Оператор</td>
+                    <td colspan="2" width="10%">Номер счета</td>
                     <td rowspan="2">Дата<br />создания заказа</td>
-                    <td colspan="<?= count($operator->products); ?>">Кол-во</td>
-                    <td rowspan="2">Клиент <br />(ФИО, телефон, адрес)</td>
+                    <td colspan="<?= count($operator->products); ?>" width="1%">Кол-во</td>
+                    <td rowspan="2" width="30%">Клиент <br />(ФИО, телефон, адрес)</td>
                     <td rowspan="2">Серийный номер</td>
-                    <td colspan="2">Дата доставки</td>
-                    <td rowspan="2">Этапы</td>
+                    <td colspan="2" width="10%">Дата доставки</td>
+                    <td rowspan="2" width="20%">Состояние</td>
                 </tr>
                 <tr>
                     <td>OnLime</td>
@@ -82,34 +82,17 @@ use kartik\daterange\DateRangePicker;
                             <p><?= $item['$i.phone']; ?></p>
                             <p><?= $item['address']; ?></p>
                         </td>
-                        <td>
-                        </td>
+                        <td><?= $item['serials']; ?></td>
                         <td><?= $item['date_deliv']; ?></td>
                         <td><?= $item['date_delivered']; ?></td>
                         <td>
+                            <?php $last_stage = array_pop($item['stages']); ?>
+                            <span style="font-size: 8pt;"><?= $last_stage['date_finish_desired']; ?></span>
+                            <b><?= $last_stage['state_name']; ?></b> <?= $last_stage['user_edit']; ?>: <span style="background-color: #cfffcf;"> <?= $last_stage['comment']; ?> </span>
                         </td>
                     </tr>
                 <?php endforeach;?>
-                <tr>
-                    <td>0</td>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>4</td>
-                    <td>5</td>
-                    <td>6</td>
-                    <td>7</td>
-                    <td>8</td>
-                    <td>9</td>
-                    <td>10</td>
-                    <td>11</td>
-                    <td>12</td>
-                    <td>13</td>
-                    <td>14</td>
-                    <td>15</td>
-                </tr>
-
-            </tbody>
+             </tbody>
         </table>
     </div>
 </div>
