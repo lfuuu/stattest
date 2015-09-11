@@ -196,6 +196,7 @@ use app\models\ClientContract;
 
         if(s4){
             s4.empty();
+            s4.append('<option value="0"><?= Yii::t('contract', 'notDefined') ?></option>');
             $(contractTypes).each(function (k, v) {
                 if (s2.val() == v['business_process_id'])
                     s4.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
