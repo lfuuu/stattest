@@ -14,193 +14,6 @@ class ReportOnlimeDao extends Singleton
         $dateFrom,
         $dateTo;
 
-    /*
-    public function getCount($dateFrom, $dateTo, $filter = [])
-    {
-
-
-        $deliveryList = Yii::$app->getDb()->createCommand($query = "
-            SELECT
-                t.`id` AS trouble_id, req_no, fio, phone, t.bill_no, date_creation
-            FROM
-                (
-                    SELECT
-                        s.`trouble_id`, MAX(s.`stage_id`) AS max_stage_id
-                    FROM
-                        `tt_stages` s, `tt_doers` d,
-                        (
-                            SELECT
-                                t.`id` AS trouble_id
-                            FROM
-                                `tt_troubles` t, `tt_stages` s, `tt_doers` d
-                            WHERE
-                                `date_start` BETWEEN :dateFrom AND :dateTo
-                                AND t.`id` = s.`trouble_id`
-                                AND t.`client` = :client
-                                AND d.`stage_id` = s.`stage_id`
-                            GROUP BY
-                                t.`id`
-                        ) ts
-                    WHERE
-                        s.`stage_id` = d.`stage_id`
-                        AND s.`trouble_id` = ts.`trouble_id`
-                    GROUP BY
-                        s.`trouble_id`
-                ) m, `tt_stages` s, `tt_stages` s2, `tt_troubles` t, `newbills_add_info` a
-            WHERE
-                m.`max_stage_id` = s.`stage_id`
-                AND s.`date_start` BETWEEN :dateFrom AND :dateTo
-                AND t.`id` = m.`trouble_id`
-                AND t.`bill_no` = a.`bill_no`
-                AND s2.`stage_id` = t.`cur_stage_id`
-                AND s2.`state_id` IN (2, 20)
-        ", [
-            ':client' => self::OPERATOR_CLIENT,
-            ':dateFrom' => $dateFrom,
-            ':dateTo' => $dateTo,
-        ])->queryAll();
-
-        $addWhere = $addJoin = '';
-
-        if ($filter['action'] == 'promo') {
-            $addWhere = "AND coupon != ''";
-            $addJoin = "LEFT JOIN `onlime_order` oo ON (oo.`bill_no` = b.`bill_no`)";
-        }
-        else if ($filter['action'] == 'no_promo') {
-            $addWhere = "AND (coupon = '' OR coupon IS NULL)";
-            $addJoin = "LEFT JOIN `onlime_order` oo ON (oo.`bill_no` = b.`bill_no`)";
-        }
-
-        $productsFilter = [];
-        foreach (self::getGroups() as $groupName => $products) {
-            $productsFilter[] = "
-                (
-                    SELECT SUM(`amount`)
-                    FROM `newbill_lines` nl
-                    WHERE
-                        `item_id` IN ('" . implode('\',\'', $products) . "')
-                        AND nl.`bill_no` = t.`bill_no`
-                ) AS " . $groupName;
-        }
-
-        $result = Yii::$app->getDb()->createCommand($query = "
-            SELECT
-                SUM(`is_rollback`) AS rollback,
-                SUM(IF(`is_rollback` =0 AND `state_id` IN (2,20), 1, 0)) AS close,
-                SUM(IF(`is_rollback` = 0 AND `state_id` = 21, 1, 0)) AS reject,
-                SUM(IF(`is_rollback` = 0 AND `state_id` NOT IN (2, 20, 21), 1, 0)) AS work,
-                COUNT(1) AS count
-            FROM
-                `tt_troubles` t, `tt_stages` s, `newbills` b
-                " . $addJoin . "
-            WHERE
-                t.`client` = :client
-                AND b.`bill_no` = t.`bill_no`
-                AND s.`stage_id` = t.`cur_stage_id`
-                AND `date_creation` BETWEEN :dateFrom AND :dateTo
-                " . $addWhere
-        , [
-            ':client' => self::OPERATOR_CLIENT,
-            ':dateFrom' => $dateFrom,
-            ':dateTo' => $dateTo,
-        ])->queryAll() + ['delivery' => count($deliveryList)];
-
-        $result['close'] = count($closeList);
-
-        return [$result, $closeList, $deliveryList];
-    }
-    */
-
-    public function getDeliveryList($dateFrom, $dateTo)
-    {
-        return Yii::$app->getDb()->createCommand("
-            SELECT
-                t.`id` AS trouble_id, req_no, fio, phone, t.bill_no, date_creation
-            FROM
-                (
-                    SELECT
-                        s.`trouble_id`, MAX(s.`stage_id`) AS max_stage_id
-                    FROM
-                        `tt_stages` s, `tt_doers` d,
-                        (
-                            SELECT
-                                t.`id` AS trouble_id
-                            FROM
-                                `tt_troubles` t, `tt_stages` s, `tt_doers` d
-                            WHERE
-                                `date_start` BETWEEN :dateFrom AND :dateTo
-                                AND t.`id` = s.`trouble_id`
-                                AND t.`client` = :client
-                                AND d.`stage_id` = s.`stage_id`
-                            GROUP BY
-                                t.`id`
-                        ) ts
-                    WHERE
-                        s.`stage_id` = d.`stage_id`
-                        AND s.`trouble_id` = ts.`trouble_id`
-                    GROUP BY
-                        s.`trouble_id`
-                ) m, `tt_stages` s, `tt_stages` s2, `tt_troubles` t, `newbills_add_info` a
-            WHERE
-                m.`max_stage_id` = s.`stage_id`
-                AND s.`date_start` BETWEEN :dateFrom AND :dateTo
-                AND t.`id` = m.`trouble_id`
-                AND t.`bill_no` = a.`bill_no`
-                AND s2.`stage_id` = t.`cur_stage_id`
-                AND s2.`state_id` IN (2, 20)
-        ", [
-            ':client' => OperatorOnlime::OPERATOR_CLIENT,
-            ':dateFrom' => $dateFrom,
-            ':dateTo' => $dateTo,
-        ])->queryAll();
-    }
-
-    public function getClosedList($dateFrom, $dateTo, $filter = [])
-    {
-        $this->prepateDates($dateFrom, $dateTo);
-
-        $addWhere = $addJoin = '';
-
-        if ($filter['action'] == 'promo') {
-            $addWhere = "AND coupon != ''";
-            $addJoin = "LEFT JOIN `onlime_order` oo ON (oo.`bill_no` = b.`bill_no`)";
-        }
-        else if ($filter['action'] == 'no_promo') {
-            $addWhere = "AND (coupon = '' OR coupon IS NULL)";
-            $addJoin = "LEFT JOIN `onlime_order` oo ON (oo.`bill_no` = b.`bill_no`)";
-        }
-
-        return Yii::$app->getDb()->createCommand("
-            SELECT
-                t.`id` AS trouble_id, `req_no`, `fio`, `phone`, `address`, t.`bill_no`, `date_creation`,
-                (
-                    SELECT `date_start`
-                    FROM `tt_stages` s, `tt_doers` d
-                    WHERE s.`stage_id` = d.`stage_id` AND s.`trouble_id` = t.`id`
-                    ORDER BY s.`stage_id` DESC LIMIT 1) AS date_delivered,
-                    " . implode(', ', $this->prepareProducts()) . ",
-                    a.`comment1` AS date_deliv,
-                    a.`comment2` AS fio_oper
-            FROM
-                `tt_stages` s, `tt_troubles` t, `newbills_add_info` a, `newbills` b
-                " . $addJoin . "
-            WHERE
-                s.`trouble_id` = t.`id`
-                AND s.`date_start` BETWEEN :dateFrom AND :dateTo
-                AND t.`client` = :client
-                AND s.`state_id` IN (2,20)
-                AND t.`bill_no` = a.`bill_no`
-                AND b.`bill_no` = t.`bill_no`
-                AND `is_rollback` = 0
-                " . $addWhere . "
-            GROUP BY s.`trouble_id`
-        ", [
-            ':client' => OperatorOnlime::OPERATOR_CLIENT,
-            ':dateFrom' => $this->dateFrom,
-            ':dateTo' => $this->dateTo,
-        ])->queryAll();
-    }
-
     public function getList($dateFrom, $dateTo, $filter = [])
     {
         $this->prepateDates($dateFrom, $dateTo);
@@ -215,75 +28,47 @@ class ReportOnlimeDao extends Singleton
             $addJoin = "LEFT JOIN `onlime_order` oo ON (oo.`bill_no` = b.`bill_no`)";
         }
 
-        $sTypes = [
-            'work'   => [
-                'sql' => '`is_rollback` = 0 AND `state_id` NOT IN (2,20,21)',
-                'title' => 'В Обработке',
-            ],
-            'close'  => [
-                'sql' => '`is_rollback` = 0 AND `state_id` IN (2,20)',
-                'title' => 'Доставлен'
-            ],
-            'reject' => [
-                'sql' => '`is_rollback` = 0 AND `state_id` = 21',
-                'title' => 'Отказ',
-            ],
-            'delivery' => [
-                'title' => 'Доставка',
-            ],
-            'rollback' => [
-                'sql' => '`is_rollback` = 1',
-                'title' => 'Возврат',
-            ],
-        ];
+        $sTypes = OperatorOnlime::$requestModes;
 
         $list = [];
         if (isset($sTypes[ $filter['mode'] ])) {
-            if($filter['mode'] == 'close') {
-                $list = $this->getClosedList($dateFrom, $dateTo, $filter);
-            }
-            else if($filter['mode'] == 'delivery') {
-                $list = $this->getDeliveryList($dateFrom, $dateTo, $filter);
-            }
-            else {
-                $list = Yii::$app->getDb()->createCommand("
-                    SELECT
-                        t.`id` AS trouble_id,
-                        t.`bill_no`,
-                        t.`problem`,
-                        `req_no`, `fio`, `phone`, `address`, `date_creation`,
-                        " . implode(', ', $this->prepareProducts()) . ",
-                        (
-                            SELECT `date_start`
-                            FROM `tt_stages` s, `tt_doers` d
-                            WHERE
-                                s.`stage_id` = d.`stage_id`
-                                AND s.`trouble_id` = t.`id`
-                            ORDER BY
-                                s.`stage_id` DESC
-                            LIMIT 1
-                        ) AS date_delivered,
-                        i.`comment1` AS date_deliv,
-                        i.`comment2` AS fio_oper
-                    FROM
-                        `tt_troubles` t, `tt_stages` s, `newbills_add_info` i, `newbills` b
-                        " . $addJoin . "
-                    WHERE
-                        t.`client` = :client
-                        AND s.`stage_id` = t.`cur_stage_id`
-                        AND `date_creation` BETWEEN :dateFrom AND :dateTo
-                        AND i.`bill_no` = t.`bill_no`
-                        AND t.`bill_no` = b.`bill_no`
-                        AND " . $sTypes[ $filter['mode'] ]['sql'] . "
-                        " . $addWhere . "
-                    ORDER BY
-                        date_creation
-                ", [
-                    ':client' => OperatorOnlime::OPERATOR_CLIENT,
-                    ':dateFrom' => $this->dateFrom,
-                    ':dateTo' => $this->dateTo,
-                ])->queryAll();
-            }
+            $list = Yii::$app->getDb()->createCommand("
+                SELECT
+                    t.`id` AS trouble_id,
+                    t.`bill_no`,
+                    t.`problem`,
+                    `req_no`, `fio`, `phone`, `address`, `date_creation`,
+                    " . implode(', ', $this->prepareProducts()) . ",
+                    (
+                        SELECT `date_start`
+                        FROM `tt_stages` s, `tt_doers` d
+                        WHERE
+                            s.`stage_id` = d.`stage_id`
+                            AND s.`trouble_id` = t.`id`
+                        ORDER BY
+                            s.`stage_id` DESC
+                        LIMIT 1
+                    ) AS date_delivered,
+                    i.`comment1` AS date_deliv,
+                    i.`comment2` AS fio_oper
+                FROM
+                    `tt_troubles` t, `tt_stages` s, `newbills_add_info` i, `newbills` b
+                    " . $addJoin . "
+                WHERE
+                    t.`client` = :client
+                    AND s.`stage_id` = t.`cur_stage_id`
+                    AND `date_creation` BETWEEN :dateFrom AND :dateTo
+                    AND i.`bill_no` = t.`bill_no`
+                    AND t.`bill_no` = b.`bill_no`
+                    AND " . $sTypes[ $filter['mode'] ]['sql'] . "
+                    " . $addWhere . "
+                ORDER BY
+                    date_creation
+            ", [
+                ':client' => OperatorOnlime::OPERATOR_CLIENT,
+                ':dateFrom' => $this->dateFrom,
+                ':dateTo' => $this->dateTo,
+            ])->queryAll();
 
             foreach($list as &$l)
             {

@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Object;
 use app\dao\reports\ReportOnlimeDao;
 use app\forms\external_operators\RequestOnlimeForm;
+use app\forms\external_operators\RequestOnlimeStateForm;
 
 if (!defined('PATH_TO_ROOT'))
     define('PATH_TO_ROOT', Yii::$app->basePath . '/stat/');
@@ -58,9 +59,45 @@ class OperatorOnlime extends Object
         ],
     ];
 
+    public static $requestModes = [
+        'new' => [
+            'sql' => '`state_id` IN (15,35,32,33)',
+            'title' => 'Новый',
+        ],
+        'work' => [
+            'sql' => '`state_id` NOT IN (2,20,21)',
+            'title' => 'В работе',
+        ],
+        'intake' => [
+            'sql' => '`state_id` = 17',
+            'title' => 'К поступлению',
+        ],
+        'deferred' => [
+            'sql' => '`state_id` IN (24,31)',
+            'title' => 'Отложенный',
+        ],
+        'close' => [
+            'sql' => '`state_id` IN (2,20)',
+            'title' => 'Закрыт',
+        ],
+        'done' => [
+            'sql' => '`state_id` = 7',
+            'title' => 'Выполнен',
+        ],
+        'reject' => [
+            'sql' => '`state_id` = 21',
+            'title' => 'Отказ',
+        ],
+    ];
+
     public function getRequestForm()
     {
         return new RequestOnlimeForm;
+    }
+
+    public function getRequestStateForm()
+    {
+        return new RequestOnlimeStateForm;
     }
 
     public function getReport()
@@ -79,6 +116,11 @@ class OperatorOnlime extends Object
             if ($id == $product['id'])
                 return $product;
         }
+    }
+
+    public function getModes()
+    {
+        return self::$requestModes;
     }
 
     public static function saveOrder1C(array $data)
