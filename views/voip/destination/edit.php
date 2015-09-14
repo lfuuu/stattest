@@ -61,7 +61,7 @@ echo Breadcrumbs::widget([
                             'style' => 'margin-right: 15px;',
                             'onClick' => 'self.location = "' . Url::toRoute(['voip/destination']) . '";',
                         ]) .
-                        Html::button('Сохранить', ['class' => 'btn btn-primary']),
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
                         ['style' => 'text-align: right; padding-right: 0px;']
                     )
             ],

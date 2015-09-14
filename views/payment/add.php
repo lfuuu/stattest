@@ -85,7 +85,7 @@ echo Breadcrumbs::widget([
                             'style' => 'margin-right: 15px;',
                             'onClick' => 'history.back();',
                         ]) .
-                        Html::button('Добавить платеж', ['class' => 'btn btn-primary']),
+                        Html::submitButton('Добавить платеж', ['class' => 'btn btn-primary']),
                         ['style' => 'text-align: right; padding-right: 0px;']
                     )
             ],

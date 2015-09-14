@@ -69,7 +69,7 @@ echo Breadcrumbs::widget([
                                     'connectionPointId' => $model->connection_point_id,
                                 ]) . '";',
                         ]) .
-                        Html::button('Сохранить', ['class' => 'btn btn-primary']),
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
                         ['style' => 'text-align: right; padding-right: 0px;']
                     )
             ],
