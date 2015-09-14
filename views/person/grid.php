@@ -30,6 +30,8 @@ $recordBtns = [
     },
 ];
 
+echo Html::formLabel('Ответственные лица');
+
 echo GridView::widget([
     'id' => 'PersonList',
     'dataProvider' => $dataProvider,
@@ -80,7 +82,6 @@ echo GridView::widget([
     'hover' => true,
     'panel'=>[
         'type' => GridView::TYPE_DEFAULT,
-        'heading' => 'Ответственные лица',
     ],
 ]);
 ?>

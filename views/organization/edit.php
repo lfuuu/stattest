@@ -34,20 +34,22 @@ echo Breadcrumbs::widget([
 ]);
 ?>
 
-<div style="float: right;">
-    <?= Html::a(
-        '<i class="glyphicon glyphicon-plus"></i> Добавить',
-        ['duplicate', 'id' => $model->organization_id, 'date' => $model->actual_from],
-        [
-            'data-pjax' => 0,
-            'class' => 'btn btn-success btn-sm form-lnk',
-        ]
-    );
+<div class="well">
+    <div style="float: right;">
+        <?= Html::a(
+            '<i class="glyphicon glyphicon-plus"></i> Добавить',
+            ['duplicate', 'id' => $model->organization_id, 'date' => $model->actual_from],
+            [
+                'data-pjax' => 0,
+                'class' => 'btn btn-success btn-sm form-lnk',
+            ]
+        );
+        ?>
+    </div>
+
+    <?= Tabs::widget([
+        'id' => 'tabs-' . $model->id,
+        'items' => $items
+    ]);
     ?>
 </div>
-
-<?= Tabs::widget([
-    'id' => 'tabs-' . $model->id,
-    'items' => $items
-]);
-?>
