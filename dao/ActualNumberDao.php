@@ -72,7 +72,6 @@ class ActualNumberDao extends Singleton
                             (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
                             AND u.client = c.client 
                             AND ct.id = c.contract_id
-                            AND ((c.status in ('negotiations','work','connecting','testing')) or c.id = 9130 or ct.business_process_status_id in (8, 9, 19))
                             AND LENGTH(e164) > 3
                             ".($number ? "and e164 = :number" : "")."
                             ".($clientId ? "and c.id = :client_id" : "")."

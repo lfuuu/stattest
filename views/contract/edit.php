@@ -121,7 +121,7 @@ $formFolderName = Language::getLanguageExtension($language);
             <?php $hasContract = true; ?>
             <div class="row"
                  style=" border-top: 1px solid black; padding: 5px 0; <?= !$doc->is_active ? 'color:#CCC;' : '' ?>">
-                <div class="col-sm-1"><b><?= ClientDocument::$external[$doc->is_external] ?></b></div>
+                <div class="col-sm-1"><b><?= ClientContract::$externalType[$doc->contract->is_external] ?></b></div>
                 <div class="col-sm-1"><?= $doc->contract_no ?></div>
                 <div class="col-sm-2"><?= $doc->contract_date ?></div>
                 <div class="col-sm-2"><?= $doc->comment ?></div>
@@ -164,10 +164,10 @@ $formFolderName = Language::getLanguageExtension($language);
                     <div class="col-sm-1">
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
                         <input type="hidden" name="ClientDocument[type]" value="contract">
-                        <select class="form-control input-sm" id="change-external" name="ClientDocument[is_external]">
-                            <option value=<?=ClientDocument::IS_NOT_EXTERNAL?>><?=ClientDocument::$external[ClientDocument::IS_NOT_EXTERNAL]?></option>
-                            <option value=<?=ClientDocument::IS_EXTERNAL?>><?=ClientDocument::$external[ClientDocument::IS_EXTERNAL]?></option>
-                        </select>
+                        <?=Html::dropDownList('ClientDocument[is_external]', ClientContract::IS_INTERNAL, ClientContract::$externalType, [
+                            'id' =>'change-external',
+                            'class' => 'form-control input-sm',
+                        ])?>
                     </div>
                     <div class="col-sm-1">
                         <input class="form-control input-sm unchecked-contract-no" type="text" name="ClientDocument[contract_no]" value="<?= $model->number ?>" />
@@ -478,17 +478,15 @@ $formFolderName = Language::getLanguageExtension($language);
 
 
             if($('#contracteditform-business_id').val() == 3)
-                $('#change-external').val(1);
+                $('#change-external').val('external');
             else
-                $('#change-external').val(0);
-
-            $('#change-external').trigger('change');
+                $('#change-external').val('internal');
 
             $('#contracteditform-business_id').on('change', function(){
                 if($('#contracteditform-business_id').val() == 3)
-                    $('#change-external').val(1);
+                    $('#change-external').val('external');
                 else
-                    $('#change-external').val(0);
+                    $('#change-external').val('internal');
 
                 $('#change-external').trigger('change');
             });
@@ -496,7 +494,7 @@ $formFolderName = Language::getLanguageExtension($language);
             $('#change-external').on('change', function () {
                 var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"]');
 
-                if($(this).val() == 0)
+                if($(this).val() == 'internal')
                     fields.show();
                 else
                     fields.hide();

@@ -8,6 +8,8 @@ use app\models\Trouble;
 
 class SubmitTicketForm extends TicketForm
 {
+    public $author;
+
     public function rules()
     {
         $rules = parent::rules();
@@ -44,7 +46,8 @@ class SubmitTicketForm extends TicketForm
                         $this->department,
                         $this->subject,
                         $this->description,
-                        $ticket->id
+                        $ticket->id,
+                        $this->author
                     );
 
                   $transaction->commit();

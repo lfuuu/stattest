@@ -91,5 +91,9 @@
     .row-ls:hover{
         background: rgb(213, 241, 255);
     }
+
+    .contract-block:nth-child(even) {
+        background: #ECECEC;
+    }
 </style>
 

@@ -1,5 +1,5 @@
 <?php
-namespace app\classes\grid\account\operator\operators;
+namespace app\classes\grid\account\operator\infrastructure;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class AutoBlockedFolder extends AccountGridFolder
+class FailureFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Автоблокировка';
+        return 'Отказ';
     }
 
     public function getColumns()
@@ -36,13 +36,6 @@ class AutoBlockedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_OPERATORS_AUTO_BLOCKED]);
-
-        $pg_query = new Query();
-        $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
-        $ids = $pg_query->column(\Yii::$app->dbPg);
-        if (!empty($ids)) {
-            $query->andWhere(['in', 'c.id', $ids]);
-        }
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_INFRASTRUCTURE_TECH_FAILURE]);
     }
 }

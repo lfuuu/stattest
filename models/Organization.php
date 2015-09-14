@@ -145,6 +145,8 @@ class Organization extends ActiveRecord
             'director_'         => $director->name_genitive,
             'director_post'     => $director->post_nominative,
             'director_post_'    => $director->post_genitive,
+            'firma'             => $this->firma,
+            'is_simple_tax_system' => $this->is_simple_tax_system,
             'logo'              => str_replace('/images/', '', \Yii::$app->params['ORGANIZATION_LOGO_DIR']) . $this->logo_file_name,
             'site'              => $this->contact_site,
             'src'               => str_replace('/images/', '', \Yii::$app->params['STAMP_DIR']) . $this->stamp_file_name,

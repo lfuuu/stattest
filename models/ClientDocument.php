@@ -15,23 +15,15 @@ class ClientDocument extends ActiveRecord
     const DOCUMENT_CONTRACT_TYPE = 'contract';
     const DOCUMENT_AGREEMENT_TYPE = 'agreement';
 
-    const IS_EXTERNAL = 1;
-    const IS_NOT_EXTERNAL = 0;
-
     public $content;
     public $group;
     public $template;
+    public $is_external;
 
     public static $types = [
         'contract' => 'Контракт',
         'agreement' => 'Дополнительное соглашение',
         'blank' => 'Бланк заказа',
-        'is_external' => 'Внешний договор',
-    ];
-
-    public static $external = [
-        self::IS_EXTERNAL => 'Внешний',
-        self::IS_NOT_EXTERNAL => 'Внутренний',
     ];
 
     public static function tableName()
@@ -55,9 +47,8 @@ class ClientDocument extends ActiveRecord
             [['contract_id', 'is_active', 'account_id'], 'integer', 'integerOnly' => true],
             [['contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
-            ['is_external', 'in', 'range' => array_keys(static::$external)],
+            ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
             ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
-            ['is_external', 'default', 'value' => self::IS_NOT_EXTERNAL],
             ['is_active', 'default', 'value' => 1],
             ['user_id', 'default', 'value' => Yii::$app->user->id],
         ];
@@ -185,8 +176,15 @@ class ClientDocument extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && $this->group && $this->template) {
-            if ($this->is_external == self::IS_NOT_EXTERNAL) {
+            if ($this->type == self::DOCUMENT_CONTRACT_TYPE && $this->is_external == ClientContract::IS_EXTERNAL) {
+            } else {
                 $this->dao()->generateFile($this, $this->group, $this->template);
+            }
+
+            $contract = $this->getContract();
+            if($contract->is_external != $this->is_external) {
+                $contract->is_external = $this->is_external;
+                $contract->save();
             }
         } elseif ($this->content !== null) {
             $this->dao()->updateFile($this);

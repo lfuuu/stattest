@@ -27,6 +27,7 @@ class ApiVpbx
 
     public static function exec($action, $data)
     {
+
         if (!self::isAvailable()) {
             throw new Exception('API Vpbx was not configured');
         }
@@ -79,19 +80,16 @@ class ApiVpbx
         );
     }
 
-    public static function transfer($usageId)
+    public static function transfer(
+        $fromAccountId, $fromUsageId,
+        $toAccountId, $toUsageId
+    )
     {
-        if (!($toUsage = UsageVirtpbx::findOne($usageId) instanceof Usage))
-            return;
-
-        if(!($fromUsage = UsageVirtpbx::findOne($toUsage->prev_usage_id) instanceof Usage))
-            return;
-
         $query = [
-            'from_account_id' => $fromUsage->clientAccount->id,
-            'from_stat_product_id' => $fromUsage->id,
-            'to_account_id' => $toUsage->clientAccount->id,
-            'to_stat_product_id' => $toUsage->id,
+            'from_account_id' => $fromAccountId,
+            'from_stat_product_id' => $fromUsageId,
+            'to_account_id' => $toAccountId,
+            'to_stat_product_id' => $toUsageId
         ];
 
         ApiVpbx::exec('transfer', $query);

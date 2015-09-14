@@ -366,3 +366,49 @@
         {/foreach}
     </table>
 {/if}
+
+{if $blank_data.welltime}
+<p>
+    <strong>
+        <em>
+            <span>
+                WellTime:
+            </span>
+        </em>
+    </strong>
+</p>
+
+<table style="border-collapse: collapse;" border="1" class="service_table">
+    <tr>
+        <th>
+            <p><span><b>Наименование услуги</b></span></p>
+        </th>
+        <th>
+            <p><span><b>Количество</b></span></p>
+        </th>
+        <th>
+            <p><span><b>Абонентская плата,<br />руб./мес.</b></span></p>
+        </th>
+        <th>
+            <p><span><b>Дата<br />подключения</b></span></p>
+        </th>
+    </tr>
+    {foreach from=$blank_data.welltime item=i}
+    <tr>
+        <td>
+            <p><span>{$i.tarif_name}</span></p>
+        </td>
+        <td align="center">
+            <p><span>{$i.amount|round:2}</span></p>
+        </td>
+        <td align="center">
+            <p><span>{$i.per_month|round:2}</span></p>
+        </td>
+        <td>
+            <p><span>{$i.from|mdate:"Y-m-d"}</span></p>
+        </td>
+    </tr>
+    {/foreach}
+</table>
+<p><span style="font-size: 8pt;">&nbsp;Тарифы указаны с учетом всех налогов и сборов.</span></p>
+{/if}

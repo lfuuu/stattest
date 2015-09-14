@@ -152,4 +152,35 @@ class UsageController extends Controller
 
         return $info;
     }
+
+    public function actionCheckVoipDayDisable()
+    {
+        $now     =  new DateTime("now");
+        echo "\nstart ".$now->format("Y-m-d H:i:s");
+
+        $ress = Yii::$app->dbPg->createCommand("
+            SELECT cc.client_id
+            FROM billing.clients c
+            LEFT JOIN billing.counters cc ON c.id=cc.client_id
+            LEFT JOIN billing.locks cl ON c.id=cl.client_id
+            WHERE cl.voip_auto_disabled AND not c.voip_disabled 
+            AND (
+                (voip_limit_day != 0 AND amount_day_sum > voip_limit_day) OR
+                (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
+            )  
+            ")->queryAll();
+
+        foreach($ress as $res)
+        {
+            $client = ClientAccount::findOne($res["client_id"]);
+
+            if ($client->is_blocked == 0)
+            {
+                echo "\n...".$res["client_id"];
+                $client->is_blocked = 1;
+                $client->save();
+            }
+        }
+    }
+
 }

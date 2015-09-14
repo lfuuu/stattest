@@ -1,5 +1,5 @@
 <?php
-namespace app\classes\grid\account\operator\infrastructure;
+namespace app\classes\grid\account\operator\formal;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class AutoBlockedFolder extends AccountGridFolder
+class FailureFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Автоблокировка';
+        return 'Отказ';
     }
 
     public function getColumns()
@@ -36,6 +36,6 @@ class AutoBlockedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_TECH_FAILURE]);
     }
 }

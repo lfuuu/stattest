@@ -7,7 +7,7 @@ use app\classes\grid\account\operator\formal\BlockedFolder;
 use app\classes\grid\account\operator\formal\IncomingFolder;
 use app\classes\grid\account\operator\formal\NegotiationsFolder;
 use app\classes\grid\account\operator\formal\SuspendedFolder;
-use app\classes\grid\account\operator\formal\TechFailureFolder;
+use app\classes\grid\account\operator\formal\FailureFolder;
 use app\classes\grid\account\operator\formal\TerminatedFolder;
 use app\classes\grid\account\operator\formal\TestingFolder;
 use app\classes\grid\account\operator\formal\TrashFolder;
@@ -38,8 +38,7 @@ class OperatorFormal extends AccountGrid
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
             BlockedFolder::create($this),
-            TechFailureFolder::create($this),
-            AutoBlockedFolder::create($this),
+            FailureFolder::create($this),
             TrashFolder::create($this),
         ];
     }

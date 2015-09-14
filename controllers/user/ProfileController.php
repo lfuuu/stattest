@@ -5,6 +5,7 @@ namespace app\controllers\user;
 use Yii;
 use app\classes\BaseController;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
 use app\forms\user\UserProfileForm;
 use app\forms\user\UserPasswordForm;
 
@@ -49,9 +50,14 @@ class ProfileController extends BaseController
     public function actionChangePassword()
     {
         $model = new UserPasswordForm;
+        $model->scenario = 'profile';
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save(Yii::$app->user->identity)) {
             Yii::$app->session->setFlash('success', true);
+            Yii::$app->session->set(
+                'user_data',
+                Json::encode(Yii::$app->user->identity)
+            );
             return $this->redirect(Yii::$app->request->referrer);
         }
 

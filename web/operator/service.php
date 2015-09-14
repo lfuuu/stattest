@@ -8,9 +8,11 @@ use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\TariffVirtpbx;
+use app\models\TariffVoip;
 use app\models\User;
 use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
+use app\forms\usage\UsageVoipEditForm;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -50,128 +52,135 @@ if ($action=='add_client') {
     Yii::info($P);
     Yii::info($c);
 
+    $clientId = null;
 	if($c)
-	{
-		die("ok:".$c->client_id);
-	}
+    {
+        $clientId = $c->client_id;
+    } else {
 
-    $s = new \app\models\ClientSuper();
-    $s->name = $P['company'];
-    $s->validate();
-    $s->save();
+        $s = new \app\models\ClientSuper();
+        $s->name = $P['company'];
+        $s->validate();
+        $s->save();
 
-    Yii::info($s);
+        Yii::info($s);
 
-    $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
-    $cg->name = $cg->name_full = $P['company'];
-    $cg->address_jur = $P['address'];
-    $cg->legal_type = 'legal';
-    $cg->validate();
-    $cg->save();
+        $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
+        $cg->name = $cg->name_full = $P['company'];
+        $cg->address_jur = $P['address'];
+        $cg->legal_type = 'legal';
+        $cg->validate();
+        $cg->save();
 
-    Yii::info($cg);
+        Yii::info($cg);
 
-    $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-    $cr->business_id = Business::TELEKOM;
-    $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
-    $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
-    $cr->organization_id = Organization::MCN_TELEKOM;
-    $cr->validate();
+        $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
+        $cr->business_id = Business::TELEKOM;
+        $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
+        $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+        $cr->organization_id = Organization::MCN_TELEKOM;
+        $cr->validate();
 
-    $cr->save();
+        $cr->save();
 
-    Yii::info($cr);
+        Yii::info($cr);
 
-    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
-    $ca->address_post = $P['address'];
-    $ca->address_post_real = $P['address'];
-    $ca->address_connect = $P['address'];
-    $ca->sale_channel = $P['market_chanel'];
-    $ca->status = "income";
+        $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
+        $ca->address_post = $P['address'];
+        $ca->address_post_real = $P['address'];
+        $ca->address_connect = $P['address'];
+        $ca->sale_channel = $P['market_chanel'];
+        $ca->status = "income";
 
-	if($P["phone_connect"])
-        $ca->phone_connect = $P["phone_connect"];
+        if($P["phone_connect"])
+            $ca->phone_connect = $P["phone_connect"];
 
-    $ca->validate();
+        $ca->validate();
 
-    if ($ca->save()) {
-        Yii::info($ca);
-        $contactId = 0;
-		if($P['contact']){
-            $c = new \app\models\ClientContact();
-            $c->client_id = $ca->id;
-            $c->type = 'phone';
-            $c->data = $P['contact'];
-            $c->comment = $P["fio"];
-            $c->user_id = User::CLIENT_USER_ID;
-            $c->is_active = 1;
-            $c->is_official = 0;
-            $c->save();
+        if ($ca->save()) {
+
+            $clientId = $ca->id;
+
+            Yii::info($ca);
+            $contactId = 0;
+            if($P['contact']){
+                $c = new \app\models\ClientContact();
+                $c->client_id = $ca->id;
+                $c->type = 'phone';
+                $c->data = $P['contact'];
+                $c->comment = $P["fio"];
+                $c->user_id = User::CLIENT_USER_ID;
+                $c->is_active = 1;
+                $c->is_official = 0;
+                $c->save();
+            }
+            if($P['phone']){
+                $c = new \app\models\ClientContact();
+                $c->client_id = $ca->id;
+                $c->type = 'phone';
+                $c->data = $P['phone'];
+                $c->comment = $P["fio"];
+                $c->user_id = User::CLIENT_USER_ID;
+                $c->is_active = 1;
+                $c->is_official = 1;
+                $c->save();
+            }
+            if($P['fax']){
+                $c = new \app\models\ClientContact();
+                $c->client_id = $ca->id;
+                $c->type = 'fax';
+                $c->data = $P['fax'];
+                $c->comment = $P["fio"];
+                $c->user_id = User::CLIENT_USER_ID;
+                $c->is_active = 1;
+                $c->is_official = 1;
+                $c->save();
+            }
+            if($P['email']){
+                $c = new \app\models\ClientContact();
+                $c->client_id = $ca->id;
+                $c->type = 'email';
+                $c->data = $P['email'];
+                $c->comment = $P["fio"];
+                $c->user_id = User::CLIENT_USER_ID;
+                $c->is_active = 1;
+                $c->is_official = 1;
+                $c->save();
+                $contactId = $c->id;
+            }
+            if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
+            {
+                $ca->admin_contact_id = $contactId;
+                $ca->admin_is_active = 0;
+                $ca->save();
+            }
+
+            $R = array(
+                'trouble_type' => 'connect',
+                'trouble_subtype' => 'connect',
+                'client' => "id".$ca->id,
+                'date_start' => date('Y-m-d H:i:s'),
+                'date_finish_desired' => date('Y-m-d H:i:s'),
+                'problem' => "Входящие клиент с сайта: ".$P["company"],
+                'user_author' => "system",
+                'first_comment' => $P["client_comment"]
+            );
+
+            $troubleId = StatModule::tt()->createTrouble($R, "system");
+            LkWizardState::create($cr->id, $troubleId);
         }
-		if($P['phone']){
-            $c = new \app\models\ClientContact();
-            $c->client_id = $ca->id;
-            $c->type = 'phone';
-            $c->data = $P['phone'];
-            $c->comment = $P["fio"];
-            $c->user_id = User::CLIENT_USER_ID;
-            $c->is_active = 1;
-            $c->is_official = 1;
-            $c->save();
-        }
-		if($P['fax']){
-            $c = new \app\models\ClientContact();
-            $c->client_id = $ca->id;
-            $c->type = 'fax';
-            $c->data = $P['fax'];
-            $c->comment = $P["fio"];
-            $c->user_id = User::CLIENT_USER_ID;
-            $c->is_active = 1;
-            $c->is_official = 1;
-            $c->save();
-        }
-		if($P['email']){
-            $c = new \app\models\ClientContact();
-            $c->client_id = $ca->id;
-            $c->type = 'email';
-            $c->data = $P['email'];
-            $c->comment = $P["fio"];
-            $c->user_id = User::CLIENT_USER_ID;
-            $c->is_active = 1;
-            $c->is_official = 1;
-            $c->save();
-            $contactId = $c->id;
-        }
-        if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
-        {
-            $ca->admin_contact_id = $contactId;
-            $ca->admin_is_active = 0;
-            $ca->save();
-        }
+    }
 
-        $R = array(
-            'trouble_type' => 'connect',
-            'trouble_subtype' => 'connect',
-            'client' => "id".$ca->id,
-            'date_start' => date('Y-m-d H:i:s'),
-            'date_finish_desired' => date('Y-m-d H:i:s'),
-            'problem' => "Входящие клиент с сайта: ".$P["company"],
-            'user_author' => "system",
-            'first_comment' => $P["client_comment"]
-        );
-
-        $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($cr->id, $troubleId);
-
-
+    if ($clientId)
+    {
         if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
         {
-            $client = ClientAccount::findOne(["id" => $ca->id]);
+            $client = ClientAccount::findOne(["id" => $clientId]);
             $tarif = TariffVirtpbx::find()->where(["and", ["id" => $vatsTarifId], ["!=", "status", "archive"]])->one();
 
             if ($client && $tarif)
             {
-                $actual_from = "4000-01-01";
+                $actual_from = date("Y-m-d");
                 $actual_to = "4000-01-01";
                 $vats = new UsageVirtpbx;
                 $vats->client = $client->client;
@@ -181,7 +190,7 @@ if ($action=='add_client') {
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->region = \app\models\Region::MOSCOW; // vpbx-msk
+                $vats->region = \app\models\Region::MOSCOW;
                 $vats->save();
                 $logTarif = new LogTarif;
                 $logTarif->service = "usage_virtpbx";
@@ -193,12 +202,14 @@ if ($action=='add_client') {
                 $logTarif->save();
             }
         }
+    }
 
-
-		echo 'ok:'.$ca->id;
-	} else {
-		echo 'error:';
-	}
+    if ($clientId)
+    {
+        die("ok:".$clientId);
+    } else {
+        die("error:");
+    }
 }elseif($action == "set_active")
 {
 
@@ -318,6 +329,64 @@ if ($action=='add_client') {
         }
     }
     echo $isOk ? 1 : 0;
+
+} elseif ($action == "connect_line")
+{
+    $clientId = get_param_raw("client_id", 0);
+    $tarifId = get_param_raw("tarif_id", 0);
+
+    try{
+        $client = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$client)
+            throw new Exception("Клиент не найден");
+
+        $tarif = TariffVoip::findOne(
+            [
+                "connection_point_id" => $client->region,
+                "currency_id" => $client->currency,
+
+                "id" => $tarifId
+            ]
+        );
+
+        if (!$tarif)
+            throw new Exception("Тариф не найден");
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $form = new UsageVoipEditForm;
+            $form->scenario = 'add';
+            $form->initModel($client);
+
+            $form->city_id = $client->region;
+            $form->tariff_main_id = $tarif->id;
+            $form->type_id = "line";
+
+            $form->prepareAdd();
+
+            if (!$form->validate() || !$form->add()) 
+            {
+                if ($form->errors)
+                {
+                    \Yii::error($form);
+                    $errorKeys = array_keys($form->errors);
+                    throw new \Exception($form->errors[$errorKeys[0]][0], 500);
+                } else {
+                    throw new \Exception("Unknown error", 500);
+                }
+            }
+            $transaction->commit();
+
+            echo "ok:".$form->did;
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    } catch(\Exception $e) {
+        echo "error:".$e->GetMessage();
+    }
 
 }elseif($action == "stat_voip")
 {

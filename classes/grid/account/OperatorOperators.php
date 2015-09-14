@@ -8,7 +8,7 @@ use app\classes\grid\account\operator\operators\IncomingFolder;
 use app\classes\grid\account\operator\operators\ManualBillFolder;
 use app\classes\grid\account\operator\operators\NegotiationsFolder;
 use app\classes\grid\account\operator\operators\SuspendedFolder;
-use app\classes\grid\account\operator\operators\TechFailureFolder;
+use app\classes\grid\account\operator\operators\FailureFolder;
 use app\classes\grid\account\operator\operators\TerminatedFolder;
 use app\classes\grid\account\operator\operators\TestingFolder;
 use app\classes\grid\account\operator\operators\TrashFolder;
@@ -40,8 +40,7 @@ class OperatorOperators extends AccountGrid
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
             BlockedFolder::create($this),
-            TechFailureFolder::create($this),
-            AutoBlockedFolder::create($this),
+            FailureFolder::create($this),
             TrashFolder::create($this),
         ];
     }

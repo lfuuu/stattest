@@ -39,6 +39,7 @@ class UsageVoipEditForm extends UsageVoipForm
     public function rules()
     {
         $rules = parent::rules();
+        $rules[] = [['no_of_lines'], 'default', 'value' => 1];
         $rules[] = [[
             'type_id', 'city_id', 'client_account_id',
             'no_of_lines', 'did',
@@ -283,6 +284,37 @@ class UsageVoipEditForm extends UsageVoipForm
     public function processDependenciesNumber()
     {
         if ($this->type_id == 'number') {
+
+            if ($this->city_id && $this->number_tariff_id && !$this->did) {
+                $numberTariff = TariffNumber::findOne($this->number_tariff_id);
+                $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
+                if ($number) {
+                    $this->did = $number->number;
+                }
+            } else {
+                if ($this->did) {
+                    $number = Number::findOne($this->did);
+
+                    if (!$number) {
+                        $this->did = null;
+                    } else {
+
+                        $numberTariff = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
+
+                        if ($numberTariff) {
+                            if ($this->city_id != $number->city_id || $this->number_tariff_id != $numberTariff->id) {
+                                $this->city_id = $number->city_id;
+                                $this->number_tariff_id = $numberTariff->id;
+                            }
+                        } else {
+                            $this->did = null;
+                        }
+                    }
+                }
+            }
+
+
+            /*
             if ($this->number_tariff_id) {
                 $numberTariff = TariffNumber::findOne($this->number_tariff_id);
                 if ($numberTariff->city_id != $this->city_id) {
@@ -308,14 +340,12 @@ class UsageVoipEditForm extends UsageVoipForm
             } else {
                 $this->did = null;
             }
+             */
         }
         if ($this->type_id == 'line') {
             $this->number_tariff_id = null;
             if (strlen($this->did) < 4 || strlen($this->did) > 5) {
-                $this->did =
-                    Yii::$app->db->createCommand("
-                        select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)>=4 and LENGTH(E164)<=5 and E164 not in ('7495', '7499')
-                    ")->queryScalar();
+                $this->did = UsageVoip::dao()->getNextLineNumber();
             }
         }
         if ($this->type_id == '7800') {
@@ -568,8 +598,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function prepareAdd()
     {
-        if ($this->did)
-        {
+        if ($this->did) {
             $this->type_id = "number";
 
             if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
@@ -578,18 +607,15 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->type_id = "7800";
             }
 
-            if ($this->type_id != "number")
-            {
+            if ($this->type_id != "number") {
                 $this->number_tariff_id = null;
             } else {
                 $number = Number::findOne(["number" => $this->did]);
 
-                if ($number)
-                {
+                if ($number) {
                     $tarifNumber = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
 
-                    if ($tarifNumber)
-                    {
+                    if ($tarifNumber) {
                         $this->connection_point_id = $number->region;
                         $this->number_tariff_id = $tarifNumber->id;
                         $this->city_id = $number->city_id;
@@ -600,13 +626,21 @@ class UsageVoipEditForm extends UsageVoipForm
                     $this->did = null;
                 }
             }
+        } else {
+            if ($this->type_id == "line") {
+                $this->did = UsageVoip::dao()->getNextLineNumber();
+            }
         }
 
-        if (!$this->connecting_date)
-            $this->connecting_date = date("Y-m-d");
+        if ($this->clientAccount && !$this->connection_point_id) {
+            $this->connection_point_id = $this->clientAccount->region;
+        }
 
-        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id)
-        {
+        if (!$this->connecting_date) {
+            $this->connecting_date = date("Y-m-d");
+        }
+
+        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id) {
             $whereTariffVoip = [
                 "status"              => "public", 
                 "connection_point_id" => $this->connection_point_id, 

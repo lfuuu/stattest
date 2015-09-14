@@ -169,7 +169,7 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                        VirtPbx3::check($param[0]);
+                        VirtPbx3::check();//$param[0]);
                         break;
 
                     case 'actualize_number':
@@ -180,7 +180,7 @@ function do_events()
                         ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
                         break;
 
-                    case 'update_phone_product':
+                    case 'update_products':
                         SyncCore::checkProductState('phone', $param['account_id']);
                         break;
 

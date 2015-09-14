@@ -117,7 +117,7 @@ class NumberController extends BaseController
             ])->queryAll();
 
         $city = City::findOne($cityId);
-        if ($city && $city->connection_point_id && in_array('hold', $statuses)) {
+        if ($city && $city->connection_point_id && (in_array('hold', $statuses) || in_array('instock', $statuses))) {
             $callsCount =
                 Yii::$app->dbPg->createCommand("
                     select dst_number as usage_num, count(*) / 3 as count_avg3m

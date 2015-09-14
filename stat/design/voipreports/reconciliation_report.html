@@ -54,7 +54,7 @@
 <tr class="{cycle values='even,odd'}">
 	<td>{$r.destination}</td>
     <td align=right>{$r.count}</td>
-	<td align=right>{$r.minutes}</td>
+	<td align=right>{$r.seconds/60|floor}<span style="color: #B7B7B7;">:{if $r.seconds%60<10}0{$r.seconds%60}{else}{$r.seconds%60}{/if}</span></td>
     <td align=right>{$r.price}</td>
     <td align=right>{$r.amount}</td>
     <td align=right>{$r.nds}</td>

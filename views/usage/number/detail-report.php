@@ -1,5 +1,6 @@
 <?php
-use app\classes\Html;
+use yii\helpers\Html;
+use app\models\VoipNumber;
 
 echo Html::formLabel('Детальный отчет по номерам');
 ?>
@@ -65,19 +66,19 @@ echo Html::formLabel('Детальный отчет по номерам');
                 <td><?= $didGroupList[$n['did_group_id']] ?></td>
                 <td>
                     <?php if ($n['status'] == 'instock'): ?>
-                        <span style="color: green; font-weight: bold">Свободен</span>
+                        <span style="color: green; font-weight: bold"><?= VoipNumber::NUMBER_STATUS_INSTOCK; ?></span>
                     <?php elseif ($n['status'] == 'reserved'): ?>
-                        <span style="color: #c40000; font-weight: bold">В резерве</span>
+                        <span style="color: #c40000; font-weight: bold"><?= VoipNumber::NUMBER_STATUS_RESERVED; ?></span>
                         <?= $n['reserve_from'] ? 'с ' . substr($n['reserve_from'], 0, 10) : '' ?>
                         <?= $n['reserve_till'] ? 'по ' . substr($n['reserve_till'], 0, 10) : ''?>
                     <?php elseif ($n['status'] == 'active'): ?>
-                        <span style="color: gray;">Используется</span>
+                        <span style="color: gray;"><?= VoipNumber::NUMBER_STATUS_ACTIVE; ?></span>
 
                     <?php elseif ($n['status'] == 'hold'): ?>
-                        <span style="color: blue;">В отстойнике</span>
+                        <span style="color: blue;"><?= VoipNumber::NUMBER_STATUS_HOLD; ?></span>
                         <?= $n['hold_from'] ? 'с ' . substr($n['hold_from'], 0, 10) : '' ?>
                     <?php elseif ($n['status'] == 'notsell'): ?>
-                        <span>Не продается</span>
+                        <span><?= VoipNumber::NUMBER_STATUS_NOTSELL; ?></span>
                     <?php endif; ?>
                 </td>
                 <td><a href="/client/view?id=<?= $n['client_id'] ?>"><?= $n['client'] . ' ' . $n['company'] ?></a></td>

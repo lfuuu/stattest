@@ -15,8 +15,8 @@
 			<td>Артикул</td>
 			<td>Наименование</td>
 			<td>Количество</td>
-			<td>Цена за шт. с НДС</td>
-			<td>Сумма с НДС</td>
+			<td>Цена за шт.{if !$firm.is_simple_tax_system} с НДС{/if}</td>
+			<td>Сумма{if !$firm.is_simple_tax_system} с НДС{/if}</td>
 		</tr>
 		{foreach from=$bill_lines item='l' key='k'}
 			{assign var='k' value=$k+1}
