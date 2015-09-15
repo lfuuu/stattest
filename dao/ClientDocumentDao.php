@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\ClientContract;
 use app\models\ClientDocument;
 use Yii;
 use app\classes\Singleton;
@@ -434,11 +435,26 @@ class ClientDocumentDao extends Singleton
                 'contract_date' => $document->contract_date,
             ];
         } else {
+            $contractId = $account->contract_id;
+
+            if ($document->getContract()->state == ClientContract::STATE_CHECKED_COPY) {
+                $originContract =
+                    ClientContract::find()
+                        ->where(['contragent_id' => $document->getContract()->getContragent()->id])
+                        ->andWhere(['state' => ClientContract::STATE_CHECKED_ORIGINAL])
+                        ->orderBy('id ASC')
+                        ->one();
+                if ($originContract->id) {
+                    $contractId = $originContract->id;
+                }
+            }
+
             $contractDocument =
                 ClientDocument::find()
-                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
+                    ->andWhere(['type' => 'contract', 'contract_id' => $contractId])
                     ->orderBy('is_active desc, contract_date desc, id desc')
                     ->one();
+
             $lastContract = [
                 'contract_no' => $contractDocument->contract_no,
                 'contract_date' => $contractDocument->contract_date,
