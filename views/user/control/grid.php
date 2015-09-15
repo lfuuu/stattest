@@ -19,13 +19,9 @@ $recordBtns = [
         );
     },
 ];
-?>
 
-<legend>
-    Операторы
-</legend>
+echo Html::formLabel('Операторы');
 
-<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -57,7 +53,6 @@ echo GridView::widget([
             'width' => '90px',
         ]
     ],
-    'pjax' => true,
     'toolbar'=> [
         [
             'content' =>
@@ -74,6 +69,7 @@ echo GridView::widget([
                 ),
         ]
     ],
+    'pjax' => true,
     'bordered' => true,
     'striped' => true,
     'condensed' => true,

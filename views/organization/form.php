@@ -6,18 +6,24 @@ use kartik\datecontrol\DateControl;
 use yii\helpers\ArrayHelper;
 use app\helpers\MediaFileHelper;
 use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 use app\forms\organization\OrganizationForm;
 use app\models\Country;
 use app\models\Person;
 
 /** @var $model OrganizationForm */
-?>
 
-<?php if (!empty($title)): ?>
-<h2>
-    <?= $title; ?>
-</h2>
-<?php endif; ?>
+if (!empty($title)) {
+    echo Html::formLabel($title);
+    echo Breadcrumbs::widget([
+        'links' => [
+            ['label' => 'Организации', 'url' => Url::toRoute(['/organization'])],
+            $title
+        ],
+    ]);
+}
+?>
 
 <link href="/css/behaviors/autocomplete-loading.css" type="text/css" rel="stylesheet" />
 <link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
@@ -26,7 +32,7 @@ use app\models\Person;
 <script type="text/javascript" src="/js/behaviors/organization.js"></script>
 <script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
 
-<div class="container" style="width: 100%; padding-top: 20px;">
+<div class="container<?= (!empty($title) ? ' well' : '')?>" style="width: 100%; padding-top: 20px;">
     <?php
     $form_options = [
         'type' => ActiveForm::TYPE_VERTICAL,
@@ -169,7 +175,7 @@ use app\models\Person;
                         )
                         ->label('Директор');
                     ?>
-                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 150px;">
+                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
                         <i class="glyphicon glyphicon-plus"></i>
                         Добавить
                     </a>
@@ -187,7 +193,7 @@ use app\models\Person;
                         )
                         ->label('Главный бухгалтер');
                     ?>
-                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 150px;">
+                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
                         <i class="glyphicon glyphicon-plus"></i>
                         Добавить
                     </a>
@@ -386,14 +392,16 @@ use app\models\Person;
                     'actions' => [
                         'type' => Form::INPUT_RAW,
                         'value' =>
-                            '<div class="col-md-12" style="text-align: right;">' .
-                            Html::button('Отменить', [
-                                'class' => 'btn btn-link modal-form-close',
-                                'style' => 'margin-right: 15px;',
-                                'onClick' => 'history.back(-1)',
-                            ]) .
-                            Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
-                            '</div>'
+                            Html::tag(
+                                'div',
+                                Html::button('Отменить', [
+                                    'class' => 'btn btn-link',
+                                    'style' => 'margin-right: 15px;',
+                                    'onClick' => 'self.location = "' . Url::toRoute(['/organization']) . '";',
+                                ]) .
+                                Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                                ['style' => 'text-align: right; padding-right: 0px;']
+                            )
                     ],
                 ],
             ]);

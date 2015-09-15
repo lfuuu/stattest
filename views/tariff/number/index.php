@@ -1,12 +1,15 @@
 <?php
+use kartik\grid\GridView;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\grid\column\CountryColumn;
 use app\classes\grid\column\CityColumn;
 use kartik\grid\DataColumn;
-use yii\helpers\Html;
+use app\classes\Html;
 
-echo \kartik\grid\GridView::widget([
+echo Html::formLabel('Телефония Номера');
+
+echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
@@ -25,6 +28,6 @@ echo \kartik\grid\GridView::widget([
         '{export}',
     ],
     'panel' => [
-        'heading' => 'Тарифы -> Телефония Номера',
+        'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

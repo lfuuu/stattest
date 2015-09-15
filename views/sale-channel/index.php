@@ -1,29 +1,38 @@
 <?php
-use \kartik\grid\GridView;
-?>
+use kartik\grid\GridView;
+use app\classes\Html;
 
-<h2>Каналы продаж</h2>
-<a href="/sale-channel/create">Добавить</a>
+echo Html::formLabel('Каналы продаж');
 
-<div class="row">
-    <div class="col-sm-12">
-        <?php
-        echo GridView::widget([
-            'dataProvider' => $dataProvider,
-            'columns' => [
-                [
-                    'label'=> (new $dataProvider->query->modelClass)->getAttributeLabel('name'),
-                    'format' => 'raw',
-                    'value'=>function ($data) {
-                        return \yii\helpers\Html::a($data->name,'/sale-channel/edit?id='.$data->id);
-                    },
-                ],
-                'dealer_id',
-                'is_agent',
-                'interest',
-                'courierName',
-            ],
-        ]);
-        ?>
-    </div>
-</div>
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'columns' => [
+        [
+            'label'=> (new $dataProvider->query->modelClass)->getAttributeLabel('name'),
+            'format' => 'raw',
+            'value'=>function ($data) {
+                return \yii\helpers\Html::a($data->name,'/sale-channel/edit?id='.$data->id);
+            },
+        ],
+        'dealer_id',
+        'is_agent',
+        'interest',
+        'courierName',
+    ],
+    'toolbar'=> [
+        [
+            'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
+                    ['create'],
+                    [
+                        'data-pjax' => 0,
+                        'class' => 'btn btn-success btn-sm form-lnk',
+                    ]
+                ),
+        ]
+    ],
+    'panel'=>[
+        'type' => GridView::TYPE_DEFAULT,
+    ],
+]);

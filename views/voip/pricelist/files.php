@@ -1,15 +1,31 @@
 <?php
 use app\models\billing\Pricelist;
 use app\models\billing\PricelistFile;
+use yii\helpers\Url;
+use kartik\grid\GridView;
+use yii\widgets\Breadcrumbs;
+use app\classes\Html;
 
 /** @var Pricelist $pricelist */
 /** @var PricelistFile[] $files */
+
+echo Html::formLabel('Файлы');
+echo Breadcrumbs::widget([
+    'links' => [
+        [
+            'label' => 'Прайс-листы',
+            'url' => Url::toRoute([
+                'voip/pricelist/list',
+                'type' => $model->type,
+                'orig' => $model->orig,
+                'connectionPointId' => $model->connection_point_id,
+            ])
+        ],
+        ['label' => $pricelist->name, 'url' => Url::toRoute(['voip/pricelist/edit', 'id' => $pricelist->id])],
+        'Файлы'
+    ],
+]);
 ?>
-<h2>
-    <a href="/voip/pricelist/list?type=<?=$pricelist->type?>&orig=<?=$pricelist->orig?>&connectionPointId=<?=$model->connection_point_id?>">Прайслисты</a>
-    -> <?=$pricelist->name?>
-    -> Файлы
-</h2>
 
 <table align="right">
     <tr>
@@ -22,32 +38,78 @@ use app\models\billing\PricelistFile;
         </td>
     </tr>
 </table>
+<div style="clear: both;"></div>
 
-<table class="table table-hover table-condensed table-striped">
-    <tr>
-        <th>Начало действия</th>
-        <th>Имя файла</th>
-        <th>&nbsp;</th>
-        <th>Тип</th>
-        <th>Дата загрузки</th>
-        <th>Количество строк</th>
-    </tr>
-    <?php foreach($files as $file): ?>
-        <tr>
-            <td <?=$file->active ? 'style="background-color: #9DEAAF"' : ''?> >
-                <a href='index.php?module=voipnew&action=view_raw_file&id=<?=$file->id?>'><?=$file->startdate?></a>
-            </td>
-            <td <?=$file->active ? 'style="background-color: #9DEAAF"' : ''?> >
-                <a href='index.php?module=voipnew&action=view_raw_file&id=<?=$file->id?>'><?=$file->filename?></a>
-            </td>
-            <td>
-                <?php if ($file->store_filename): ?>
-                    <a href='/voip/pricelist/file-download?fileId=<?=$file->id?>'>скачать</a>
-                <?php endif; ?>
-            </td>
-            <td><?=$file->full ? 'Полный' : 'Изменения'?></td>
-            <td><?=$file->date?></td>
-            <td><?=$file->rows?></td>
-        </tr>
-    <?php endforeach; ?>
-</table>
+<?php
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'columns' => [
+        [
+            'label' => 'Активность',
+            'format' => 'raw',
+            'value' => function ($data) {
+                if ($data->active) {
+                    return Html::tag('span', '&nbsp;', [
+                        'class' => 'btn btn-grid',
+                        'style' => 'background:#C4DF9B; cursor: default;',
+                        'title' => 'Активен',
+                    ]);
+                }
+            },
+            'width' => '50px',
+            'hAlign' => 'center',
+        ],
+        [
+            'label' => 'Начало действия',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->startdate, Url::toRoute(['/index.php?module=voipnew&action=network_file_show', 'id' => $data->id]));
+            },
+        ],
+        [
+            'label' => 'Имя файла',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->filename, Url::toRoute(['/index.php?module=voipnew&action=network_file_show', 'id' => $data->id]));
+            },
+        ],
+        [
+            'label' => '',
+            'format' => 'raw',
+            'value' => function ($data) {
+                if ($data->store_filename) {
+                    return Html::a('скачать', Url::toRoute(['/voip/network-config/file-download', 'fileId' => $data->id]));
+                }
+                return '';
+            },
+            'width' => '100px',
+            'hAlign' => 'center',
+        ],
+        [
+            'label' => 'Тип',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return ($data->full ? 'Полный' : 'Изменения');
+            },
+        ],
+        [
+            'label' => 'Дата загрузки',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return $data->date;
+            },
+        ],
+        [
+            'label' => 'Количество строк',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return $data->rows;
+            },
+        ],
+    ],
+    'toolbar'=> [],
+    'panel'=>[
+        'type' => GridView::TYPE_DEFAULT,
+    ],
+]);
+?>

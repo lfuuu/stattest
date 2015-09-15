@@ -1,10 +1,9 @@
 <?php
 use yii\helpers\Html;
 use app\models\VoipNumber;
-?>
-<h2>Детальный отчет по номерам</h2>
 
-<br><br>
+echo Html::formLabel('Детальный отчет по номерам');
+?>
 
 <form id="formVoipFreeStat" method=post>
     <table class="table table-bordered table-striped table-condensed">

@@ -1,6 +1,8 @@
 <?php
 
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 use app\helpers\MediaFileHelper;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
@@ -11,14 +13,20 @@ use app\forms\person\PersonForm;
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
+
+echo Html::formLabel('Редактирование ответственного лица');
+echo Breadcrumbs::widget([
+    'links' => [
+        [
+            'label' => 'Ответственные лица',
+            'url' => Url::toRoute(['/person'])
+        ],
+        'Редактирование ответственного лица'
+    ],
+]);
 ?>
 
-<h2>
-    Ответственное лицо
-</h2>
-
 <link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
-
 <script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
 
 <div class="container well" style="width: 100%; padding-top: 20px;">
@@ -98,14 +106,16 @@ $form = ActiveForm::begin([
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-12" style="text-align: right; padding-right: 0px;">' .
+                    Html::tag(
+                        'div',
                         Html::button('Отменить', [
                             'class' => 'btn btn-link modal-form-close',
                             'style' => 'margin-right: 15px;',
-                            'onClick' => 'self.location = "/person";',
+                            'onClick' => 'self.location = "' . Url::toRoute(['/person']) . '";',
                         ]) .
-                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);

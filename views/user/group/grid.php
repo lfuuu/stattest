@@ -27,13 +27,9 @@ $recordBtns = [
         );
     },
 ];
-?>
 
-<legend>
-    Группы
-</legend>
+echo Html::formLabel('Группы');
 
-<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
@@ -83,4 +79,3 @@ echo GridView::widget([
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);
-?>

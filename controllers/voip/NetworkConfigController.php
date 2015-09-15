@@ -1,22 +1,19 @@
 <?php
 namespace app\controllers\voip;
 
+use Yii;
 use app\classes\Assert;
+use app\classes\BaseController;
 use app\classes\voip\BasePricelistLoader;
 use app\classes\voip\MgtsNetworkLoader;
 use app\classes\voip\UniversalNetworkLoader;
 use app\forms\billing\NetworkConfigAddForm;
 use app\forms\billing\NetworkConfigEditForm;
-use app\forms\billing\PricelistAddForm;
 use app\models\billing\NetworkConfig;
 use app\models\billing\NetworkFile;
-use Yii;
-use app\classes\BaseController;
-use app\forms\billing\PricelistEditForm;
-use app\models\billing\Pricelist;
 use app\models\Region;
-use yii\base\Exception;
 use yii\filters\AccessControl;
+use yii\data\ActiveDataProvider;
 
 class NetworkConfigController extends BaseController
 {
@@ -43,15 +40,13 @@ class NetworkConfigController extends BaseController
 
     public function actionList()
     {
-        $query =
-            NetworkConfig::find()
-                ->orderBy('instance_id desc, name asc');
-
-        $list = $query->all();
+        $dataProvider = new ActiveDataProvider([
+            'query' => NetworkConfig::find()->orderBy('instance_id desc, name asc'),
+        ]);
         $connectionPoints = Region::dao()->getList();
 
         return $this->render("list", [
-            'list' => $list,
+            'dataProvider' => $dataProvider,
             'connectionPoints' => $connectionPoints,
         ]);
     }
@@ -102,9 +97,17 @@ class NetworkConfigController extends BaseController
                 ->orderBy('startdate desc, created_at desc')
                 ->all();
 
+        $dataProvider = new ActiveDataProvider([
+            'query' =>
+                NetworkFile::find()
+                    ->andWhere(['network_config_id' => $networkConfig->id])
+                    ->orderBy('startdate desc, created_at desc'),
+        ]);
+
         return $this->render("files", [
             'networkConfig' => $networkConfig,
             'pricelist' => $pricelist,
+            'dataProvider' => $dataProvider,
             'files' => $files,
         ]);
     }

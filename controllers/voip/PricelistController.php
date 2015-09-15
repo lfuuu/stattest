@@ -10,11 +10,13 @@ use app\models\billing\NetworkConfig;
 use app\models\billing\PricelistFile;
 use Yii;
 use app\classes\BaseController;
+use app\forms\billing\PricelistForm;
 use app\forms\billing\PricelistEditForm;
 use app\models\billing\Pricelist;
 use app\models\Region;
 use yii\base\Exception;
 use yii\filters\AccessControl;
+use yii\data\ActiveDataProvider;
 
 class PricelistController extends BaseController
 {
@@ -41,6 +43,8 @@ class PricelistController extends BaseController
 
     public function actionList($type, $orig, $connectionPointId = 0)
     {
+        $model = new PricelistForm;
+        $model->load(Yii::$app->request->getQueryParams());
         $query =
             Pricelist::find()
                 ->orderBy('region desc, name asc');
@@ -50,16 +54,23 @@ class PricelistController extends BaseController
         if ($connectionPointId > 0) {
             $query->andWhere(['region' => $connectionPointId]);
         }
+        if ($model->connection_point_id > 0) {
+            $connectionPointId = $model->connection_point_id;
+            $query->andWhere(['region' => $model->connection_point_id]);
+        }
 
-        $pricelists = $query->all();
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
 
         return $this->render("list", [
             'connectionPointId' => $connectionPointId,
-            'pricelists' => $pricelists,
             'connectionPoints' => Region::dao()->getList(),
             'networkConfigs' => NetworkConfig::dao()->getList(),
             'orig' => (int)$orig,
             'type' => $type,
+            'dataProvider' => $dataProvider,
+            'filterModel' => $model,
         ]);
     }
 
@@ -108,17 +119,18 @@ class PricelistController extends BaseController
     {
         $pricelist = Pricelist::findOne($pricelistId);
         Assert::isObject($pricelist);
-        $files =
-            PricelistFile::find()
-                ->andWhere(['pricelist_id' => $pricelistId])
-                ->orderBy('startdate desc, date desc')
-                ->all();
+
+        $dataProvider = new ActiveDataProvider([
+            'query' =>
+                PricelistFile::find()
+                    ->andWhere(['pricelist_id' => $pricelistId])
+                    ->orderBy('startdate desc, date desc'),
+        ]);
 
         return $this->render("files", [
             'pricelist' => $pricelist,
-            'files' => $files,
+            'dataProvider' => $dataProvider,
         ]);
-
     }
 
     public function actionFileUpload($pricelistId)

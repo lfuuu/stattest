@@ -1,12 +1,9 @@
 <?php
 
-use DateTime;
 use app\classes\Html;
-?>
 
-<h2>
-    Организации
-</h2>
+echo Html::formLabel('Организации');
+?>
 
 <div style="text-align: right; padding-bottom: 10px;">
     <?php

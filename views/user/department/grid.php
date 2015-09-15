@@ -19,13 +19,9 @@ $recordBtns = [
         );
     },
 ];
-?>
 
-<legend>
-    Отделы
-</legend>
+echo Html::formLabel('Отделы');
 
-<?php
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
@@ -71,4 +67,3 @@ echo GridView::widget([
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);
-?>

@@ -1,7 +1,9 @@
 <?php
 
+use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\voip\Prefixlist;
@@ -37,12 +39,15 @@ $operators = GeoOperator::dao()->getList();
 
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
 $model->type_id = $creatingMode ? 1 : $model->type_id;
-?>
 
-<legend>
-    <?= Html::a('Списки префиксов', '/voip/prefixlist'); ?> ->
-    <?= ($model->name ? Html::encode($model->name) : 'Новый список'); ?>
-</legend>
+echo Html::formLabel($model->name ? 'Редактирование списка' : 'Новый список');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Списки префиксов', 'url' => Url::toRoute(['voip/prefixlist'])],
+        $model->name ? 'Редактирование списка' : 'Новый список'
+    ],
+]);
+?>
 
 <div class="well">
     <?php
@@ -175,17 +180,16 @@ $model->type_id = $creatingMode ? 1 : $model->type_id;
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-offset-2 col-md-10" style="text-align: right;">' .
-                    Html::a(
-                        'Отмена',
-                        ['index'],
-                        [
-                            'class' => 'btn btn-default btn-sm',
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
                             'style' => 'margin-right: 15px;',
-                        ]
-                    ) .
-                    Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                            'onClick' => 'self.location = "' . Url::toRoute(['voip/prefixlist']) . '";',
+                        ]) .
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);
