@@ -1,8 +1,9 @@
 <?php
 
 use app\classes\Html;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 use yii\bootstrap\Tabs;
-use app\models\Organization;
 use app\forms\organization\OrganizationForm;
 
 /** @var $model OrganizationForm */
@@ -24,25 +25,31 @@ foreach ($history as $record):
     endif;
 endforeach;
 
-?>
-<h2>
-История изменений <?= $model->name; ?>
-</h2>
-
-<div style="float: right;">
-    <?= Html::a(
-        '<i class="glyphicon glyphicon-plus"></i> Добавить',
-        ['duplicate', 'id' => $model->organization_id, 'date' => $model->actual_from],
-        [
-            'data-pjax' => 0,
-            'class' => 'btn btn-success btn-sm form-lnk',
-        ]
-    );
-    ?>
-</div>
-
-<?= Tabs::widget([
-    'id' => 'tabs-' . $model->id,
-    'items' => $items
+echo Html::formLabel('История изменений ' . $model->name);
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Организации', 'url' => Url::toRoute(['/organization'])],
+        'История изменений ' . $model->name
+    ],
 ]);
 ?>
+
+<div class="well">
+    <div style="float: right;">
+        <?= Html::a(
+            '<i class="glyphicon glyphicon-plus"></i> Добавить',
+            ['duplicate', 'id' => $model->organization_id, 'date' => $model->actual_from],
+            [
+                'data-pjax' => 0,
+                'class' => 'btn btn-success btn-sm form-lnk',
+            ]
+        );
+        ?>
+    </div>
+
+    <?= Tabs::widget([
+        'id' => 'tabs-' . $model->id,
+        'items' => $items
+    ]);
+    ?>
+</div>

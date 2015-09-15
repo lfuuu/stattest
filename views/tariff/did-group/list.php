@@ -1,9 +1,12 @@
 <?php
 use kartik\grid\GridView;
+use app\classes\Html;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\grid\column\CityColumn;
 use app\classes\grid\column\BeautyLevelColumn;
+
+echo Html::formLabel('DID группы');
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
@@ -19,6 +22,6 @@ echo GridView::widget([
         '{export}',
     ],
     'panel' => [
-        'heading' => 'DID группы',
+        'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

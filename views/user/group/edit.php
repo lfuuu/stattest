@@ -2,18 +2,20 @@
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use yii\helpers\Html;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 /** @var UsersGroup $model */
+
+echo Html::formLabel('Редактирование группы');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Группы', 'url' => Url::toRoute(['user/group'])],
+        'Редактирование группы'
+    ],
+]);
 ?>
-
-<legend>
-    <span>Редактирование группы - <?= $model->usergroup; ?></span>
-</legend>
-
-<div class="breadcrumb">
-    <?= Html::a('Группы', '/user/group'); ?> -> <?= $model->usergroup; ?>
-</div>
 
 <div class="well">
     <?php
@@ -33,6 +35,9 @@ use yii\helpers\Html;
 
     echo $this->render('rights', ['model' => $model]);
 
+    ?>
+    <br />
+    <?php
     echo Form::widget([
         'model' => $model,
         'form' => $form,
@@ -41,9 +46,16 @@ use yii\helpers\Html;
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-12" style="text-align: right; padding-right: 0px;">' .
-                        Html::submitButton('Изменить', ['class' => 'btn btn-primary']) .
-                    '</div>'
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
+                            'style' => 'margin-right: 15px;',
+                            'onClick' => 'self.location = "' . Url::toRoute(['user/group']) . '";',
+                        ]) .
+                        Html::submitButton('Изменить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);

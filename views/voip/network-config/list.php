@@ -1,23 +1,56 @@
+<?php
+use yii\helpers\Url;
+use kartik\grid\GridView;
+use app\classes\Html;
 
+echo Html::formLabel('Местные Префиксы');
 
-<h2>
-    Местные Префиксы:
-    <a href="/voip/network-config/add">Добавить</a>
-</h2>
-
-<table class="table table-condensed table-hover table-striped">
-    <tr>
-        <th>Точка присоединения</th>
-        <th>Ид</th>
-        <th>Название</th>
-        <th>Файлы</th>
-    </tr>
-    <?php foreach ($list as $item): ?>
-    <tr>
-        <td><?= $connectionPoints[$item->instance_id] ?></td>
-        <td><a href='/voip/network-config/edit?id=<?=$item->id?>'><?=$item->id?></a></td>
-        <td><a href='/voip/network-config/edit?id=<?=$item->id?>'><?=$item->name?></a></td>
-        <td><a href='/voip/network-config/files?networkConfigId=<?=$item->id?>'>файлы</a></td>
-    </tr>
-    <?php endforeach; ?>
-</table>
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'columns' => [
+        [
+            'label' => 'Точка присоединения',
+            'format' => 'raw',
+            'value' => function ($data) use ($connectionPoints) {
+                return $connectionPoints[ $data->instance_id ];
+            },
+        ],
+        [
+            'label' => 'Ид',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->id, Url::toRoute(['voip/network-config/edit', 'id' => $data->id]));
+            },
+        ],
+        [
+            'label' => 'Название',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->name, Url::toRoute(['/voip/network-config/edit', 'id' => $data->id]));
+            },
+        ],
+        [
+            'label' => 'Файлы',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a('файлы', Url::toRoute(['voip/network-config/files', 'networkConfigId' => $data->id]));
+            },
+        ],
+    ],
+    'toolbar'=> [
+        [
+            'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
+                    ['add'],
+                    [
+                        'data-pjax' => 0,
+                        'class' => 'btn btn-success btn-sm form-lnk',
+                    ]
+                ),
+        ]
+    ],
+    'panel'=>[
+        'type' => GridView::TYPE_DEFAULT,
+    ],
+]);

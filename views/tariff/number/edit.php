@@ -1,5 +1,7 @@
 <?php
-use yii\helpers\Html;
+use yii\helpers\Url;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\Currency;
@@ -20,12 +22,18 @@ $periods = [
     'month' => 'Месяц',
 ];
 
-
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
+
+echo Html::formLabel($model->name ? 'Редактирование тарифа номера' : 'Добавление тарифа номера');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Телефония Номера', 'url' => Url::toRoute(['tariff/number'])],
+        $model->name ? 'Редактирование тарифа номера' : 'Добавление тарифа номера'
+    ],
+]);
 ?>
 
 <div class="well">
-    <legend>Тарифы -> Телефония Номер -> <?=Html::encode($model->name)?></legend>
     <?php
 
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
@@ -63,10 +71,16 @@ $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
-                    '<div class="col-md-offset-2 col-md-10">' .
-                    Html::button('Сохранить', ['class'=>'btn btn-primary', 'onclick' => "submitForm('save')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' .
-                    Html::a('Отмена', ['index'], ['class'=>'btn btn-default btn-sm']) .
-                    '</div>'
+                    Html::tag(
+                        'div',
+                        Html::button('Отменить', [
+                            'class' => 'btn btn-link',
+                            'style' => 'margin-right: 15px;',
+                            'onClick' => 'self.location = "' . Url::toRoute(['tariff/number']) . '";',
+                        ]) .
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
             ],
         ],
     ]);

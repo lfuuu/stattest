@@ -3,7 +3,7 @@
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\file\FileInput;
-use yii\helpers\Html;
+use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\Language;
 use app\models\City;
@@ -26,13 +26,11 @@ if (!empty($model->photo) && MediaFileHelper::checkExists('USER_PHOTO_DIR', $mod
         ),
     ];
 }
+
+echo Html::formLabel('Профайл пользователя');
 ?>
 
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" />
-
-<legend>
-    Профайл пользователя
-</legend>
 
 <div class="well">
     <?php

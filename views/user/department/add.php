@@ -2,19 +2,16 @@
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use yii\helpers\Html;
+use app\classes\Html;
 use yii\helpers\Json;
-use app\models\UserGroups;
+
+echo Html::formLabel('Создание отдела');
 
 /** @var User $model */
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
 ?>
-
-<legend>
-    Создание отдела
-</legend>
 
 <div class="well">
     <?php if (Yii::$app->session->hasFlash('success')): ?>
