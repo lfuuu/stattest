@@ -7,6 +7,8 @@ use yii\base\Object;
 use app\dao\reports\ReportOnlimeDao;
 use app\forms\external_operators\RequestOnlimeForm;
 use app\forms\external_operators\RequestOnlimeStateForm;
+use app\models\Bill;
+use app\models\TroubleState;
 
 if (!defined('PATH_TO_ROOT'))
     define('PATH_TO_ROOT', Yii::$app->basePath . '/stat/');
@@ -77,7 +79,7 @@ class OperatorOnlime extends Object
             'title' => 'Закрыт',
         ],
         'done' => [
-            'sql' => '`state_id` = 7',
+            'sql' => '`state_id` IN (4,18,28)',
             'title' => 'Выполнен',
         ],
         'reject' => [
@@ -102,6 +104,15 @@ class OperatorOnlime extends Object
         'Этап'                                          => 'stages_text',
     ];
 
+    public static $availableRequestStatuses = [
+        15 => 'Новый',
+        17 => 'В работе',
+        24 => 'Отложен',
+        20 => 'Закрыт',
+        18 => 'Выполнен',
+        21 => 'Отказ',
+    ];
+
     public function getOperator()
     {
         return self::OPERATOR_CLIENT;
@@ -117,9 +128,6 @@ class OperatorOnlime extends Object
         return new RequestOnlimeStateForm;
     }
 
-    /**
-     * @return \app\classes\Singleton
-     */
     public function getReport()
     {
         return ReportOnlimeDao::me();
@@ -161,23 +169,14 @@ class OperatorOnlime extends Object
         return self::$requestModes;
     }
 
+    public function getAvailableRequestStatuses()
+    {
+        return self::$availableRequestStatuses;
+    }
+
     public static function saveOrder1C(array $data)
     {
-        if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
-            return false;
-
-        $wsdl = \Sync1C::me()->utWsdlUrl;
-        $login = \Sync1C::me()->utLogin;
-        $pass = \Sync1C::me()->utPassword;
-        $params = [
-            'encoding' => 'UTF-8',
-            'trace' => 1,
-        ];
-        if ($login && $pass) {
-            $params['login'] = $login;
-            $params['password'] = $pass;
-        }
-        $soap = new \SoapClient($wsdl,$params);
+        $soap = self::initSoap1C();
 
         $items_list = array();
         if ($data['items_list'] !== false) {
@@ -219,6 +218,42 @@ class OperatorOnlime extends Object
             $response->{'ДопИнформацияЗаказа'} = null;
 
         return $response;
+    }
+
+    public static function saveOrderState1C(Bill $bill, TroubleState $state)
+    {
+        $soap = self::initSoap1C();
+
+        try {
+            $soap->utSetOrderStatus([
+                'НомерЗаказа' => $bill->bill_no,
+                'Статус' => $state->state_1c,
+                'Пользователь' => (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system'),
+                'ЭтоВозврат' => (bool) $bill->is_rollback
+            ])->return;
+        }
+        catch (\SoapFault $e) {
+            throw new \Exception('Не удалось обновить статус заказа:', 1000);
+        }
+    }
+
+    private static function initSoap1C()
+    {
+        if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
+            return false;
+
+        $wsdl = \Sync1C::me()->utWsdlUrl;
+        $login = \Sync1C::me()->utLogin;
+        $pass = \Sync1C::me()->utPassword;
+        $params = [
+            'encoding' => 'UTF-8',
+            'trace' => 1,
+        ];
+        if ($login && $pass) {
+            $params['login'] = $login;
+            $params['password'] = $pass;
+        }
+        return new \SoapClient($wsdl,$params);
     }
 
     private function GenerateExcel($head, $list)

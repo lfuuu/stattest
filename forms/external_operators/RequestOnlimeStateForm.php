@@ -3,9 +3,18 @@
 namespace app\forms\external_operators;
 
 use Yii;
+use DateTime;
+use DateTimeZone;
 use app\classes\Form;
 use app\models\Trouble;
 use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\TroubleState;
+use app\models\TroubleStage;
+use app\classes\operators\OperatorOnlime;
+use app\classes\StatModule;
+
+require_once Yii::$app->basePath . '/stat/include/1c_integration.php';
 
 class RequestOnlimeStateForm extends Form
 {
@@ -31,88 +40,125 @@ class RequestOnlimeStateForm extends Form
         ];
     }
 
-    public function save(Trouble $trouble)
+    public function save(Bill $bill, Trouble $trouble)
     {
-        if ($trouble->bill_no && preg_match("#\d{6}\/\d{4}#", $trouble->bill_no)) {
-            $bill = Bill::findOne(['bill_no' => $trouble->bill_no]);
-            $newstate = TroubleState::findOne($R['state_id']);
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($trouble->bill_no && preg_match("#\d{6}\/\d{4}#", $trouble->bill_no)) {
+                $newstate = TroubleState::findOne($this->state_id);
 
-            if ($newstate->state_1c <> $bill->state_1c) {
-                require_once(INCLUDE_PATH.'1c_integration.php');
-                $bs = new \_1c\billMaker($db);
-                $fault = null;
-                $f = $bs->setOrderStatus($bill['bill_no'], $newstate['state_1c'], $fault);
-                if(!$f){
-                    echo "Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />";
-                    echo "<br /><br />";
-                    echo "<a href='index.php?module=tt&action=view&id=".$trouble['id']."'>Вернуться к заявке</a>";
-                    exit();
-                }
-                if($f){
-                    if (strcmp($newstate['state_1c'],'Отказ') == 0){
-                        $db->Query($q="update newbills set sum=0, sum_with_unapproved = 0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
-                        event::setReject($bill, $newstate);
-                    }else{
-                        $db->Query($q="update newbills set state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
+                if ($newstate->state_1c <> $bill->state_1c) {
+                    OperatorOnlime::saveOrderState1C($bill, $newstate);
+
+                    if (strcmp($newstate->state_1c, 'Отказ') == 0) {
+                        $bill->sum = 0;
+                        $bill->sum_with_unapproved = 0;
+                        $bill->state_1c = $newstate->state_1c;
+                    } else {
+                        $bill->state_1c = $newstate->state_1c;
                     }
+                    $bill->save();
                 }
             }
-        }
 
-        $this->createStage(
-            $trouble['id'],
-            $R,
-            array(
-                'comment'=>$comment,
-                'stage_id'=>$trouble['stage_id']
-            )
-        );
+            $nowDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
-        // todo: переделать на bill::getDocumentType
-        if($trouble["bill_no"] && $trouble["trouble_type"] == "shop_orders")
-        {
-            $bill = \app\models\Bill::findOne(['bill_no' => $trouble["bill_no"]]);
+            $trouble->currentStage->date_edit = $nowDateTime;
+            $trouble->currentStage->comment = $this->comment;
+            $trouble->currentStage->user_edit = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
+            $trouble->currentStage->save();
 
-            if($trouble['state_id'] == 15){
-                $bill->dao()->setManager($bill->bill_no, Yii::$app->user->getId());
+            $state = TroubleState::findOne($trouble->currentStage->state_id);
+            $dateStart = Yii::$app->getDb()->createCommand("
+                SELECT
+                    GREATEST(`date_start`, NOW()) AS date_start
+                FROM
+                    `tt_stages`
+                WHERE
+                    `stage_id` = :stage_id
+            ", [
+                ':stage_id' => $trouble->currentStage->stage_id
+            ])->queryOne();
+
+            $dateFinishDesired = Yii::$app->getDb()->createCommand("
+                SELECT
+                    GREATEST(`date_finish_desired`, NOW() + INTERVAL :time_delta HOUR) AS date_finish_desired
+                FROM
+                    `tt_stages`
+                WHERE
+                    `trouble_id` = :trouble_id
+                    AND `state_id` != 4
+                ORDER BY
+                    `stage_id` DESC
+                LIMIT 1
+            ", [
+                'trouble_id' => $trouble->id,
+                'time_delta' => $state->time_delta,
+            ])->queryOne();
+
+            $stage = new TroubleStage;
+            $stage->trouble_id = $trouble->id;
+            $stage->comment = $this->comment;
+            $stage->stage_id = $this->state_id;
+
+            $stage->date_start = $dateStart['date_start'];
+            $stage->date_finish_desired = $dateFinishDesired['date_finish_desired'];
+
+            if (in_array($this->state_id, [2, 20, 21, 39, 40, 48])) {
+                $stage->date_finish_desired = $nowDateTime;
+                $stage->date_edit = $nowDateTime;
+                $stage->user_edit = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
             }
 
-            // проводим если новая стадия: закрыт, отгружен, к отгрузке
-            if(in_array($R['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                $bill->is_approved = 1;
-                $bill->sum = $bill->sum_with_unapproved;
-            }else{
-                $bill->is_approved = 0;
-                $bill->sum = 0;
+            $stageId = $stage->save();
+
+            $trouble->cur_stage_id = $stageId;
+            $trouble->save();
+
+            Yii::$app->getDb()->createCommand("
+                UPDATE `tt_troubles`
+                SET
+                    `cur_stage_id` = :stage_id,
+                    `folder` = (SELECT `folder` FROM `tt_states` WHERE id = :state_id)
+                    WHERE
+                      `id` = :trouble_id
+            ", [
+                ':trouble_id' => $trouble->id,
+                ':stage_id' => $stageId,
+                ':state_id' => $this->state_id,
+            ]);
+
+            if (in_array($this->state_id, [2, 20, 7, 8, 48], null)) {
+                Trouble::updateAll(
+                    ['date_close' => $nowDateTime],
+                    ['id' => $trouble->id, 'date_close' => '0000-00-00 00:00:00']
+                );
             }
-            $bill->save();
-            $bill->dao()->recalcBill($bill);
-            ClientAccount::dao()->updateBalance($bill->client_id);
 
-        }
-        if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
-        {
-            $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
-            if($onlimeOrder)
-                $onlimeId = $onlimeOrder->external_id;
+            Trouble::dao()->updateSupportTicketByTrouble($trouble->id);
+            StatModule::tt()->checkTroubleToSend($trouble->id);
 
-            if($onlimeId)
-            {
-                $status = null;
-                if($trouble["state_id"] == 21)//reject
-                {
-                    $status = OnlimeRequest::STATUS_REJECT;
-                }elseif(in_array($trouble["state_id"], array(2,20))) // normal close, delivered
-                {
-                    $status = OnlimeRequest::STATUS_DELIVERY;
+            /** TODO: переделать на bill::getDocumentType */
+            if ($trouble->bill_no && $trouble->trouble_type == 'shop_orders') {
+                if (in_array($this->state_id, [28, 23, 18, 7, 4, 17, 2, 20], null)) {
+                    $bill->is_approved = 1;
+                    $bill->sum = $bill->sum_with_unapproved;
+                } else {
+                    $bill->is_approved = 0;
+                    $bill->sum = 0;
                 }
+                $bill->save();
+                $bill->dao()->recalcBill($bill);
+                ClientAccount::dao()->updateBalance($bill->client_id);
 
-                if($status)
-                    OnlimeRequest::post($onlimeId, $trouble["bill_no"], $status, $comment);
             }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
 
-        return false;
+        return true;
     }
 
 }

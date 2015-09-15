@@ -84,13 +84,8 @@ $report = $operator->report->getList($dateFrom, $dateTo, $filter);
                             <td><?= $item['fio_oper']; ?></td>
                             <td><?= $item['req_no']; ?></td>
                             <td>
-                                <a
-                                    href="index_external_operators.php/site/set-state?id=<?= $item['trouble_id']; ?>"
-                                    onClick="return showIframePopup(this);"
-                                    data-width="400"
-                                    data-height="450"
-                                    title="Изменить статус">
-                                        <?= $item['bill_no']; ?>
+                                <a href="index_external_operators.php/site/set-state?bill_no=<?= $item['bill_no']; ?>" title="Просмотр заказа">
+                                    <?= $item['bill_no']; ?>
                                 </a>
                             </td>
                             <td><?= $item['date_creation']; ?></td>

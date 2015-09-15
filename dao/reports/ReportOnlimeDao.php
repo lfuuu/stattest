@@ -83,7 +83,16 @@ class ReportOnlimeDao extends Singleton
                 $l['address'] = $this->prepareAddress($l['address']);
                 $l['phone'] = $this->preparePhone($l['phone']);
 
-                $l['stages'] = Yii::$app->getDb()->createCommand("
+                $l['stages'] = $this->getTroubleStages($l['trouble_id']);
+            }
+        }
+
+        return $list;
+    }
+
+    public function getTroubleStages($troubleId)
+    {
+        $stages = Yii::$app->getDb()->createCommand("
                     SELECT
                         S.*,
                         IF(S.`date_edit` = 0, NULL, `date_edit`) AS date_edit,
@@ -95,11 +104,11 @@ class ReportOnlimeDao extends Singleton
                     ORDER BY
                         `stage_id` ASC
                 ",[
-                    ':trouble_id' => $l['trouble_id'],
-                ])->queryAll();
+            ':trouble_id' => $troubleId,
+        ])->queryAll();
 
-                foreach($l['stages'] as &$s) {
-                    $s['doers'] = Yii::$app->getDb()->createCommand("
+        foreach ($stages as &$stage) {
+            $stage['doers'] = Yii::$app->getDb()->createCommand("
                         SELECT
                             `td`.`doer_id`,
                             `cr`.`name`,
@@ -112,13 +121,11 @@ class ReportOnlimeDao extends Singleton
                             `cr`.`depart`,
                             `cr`.`name`
                     ", [
-                        ':stage_id' => $s['stage_id'],
-                    ])->queryAll();
-                }
-            }
+                ':stage_id' => $stage['stage_id'],
+            ])->queryAll();
         }
 
-        return $list;
+        return $stages;
     }
 
     private function prepateDates($dateFrom, $dateTo)

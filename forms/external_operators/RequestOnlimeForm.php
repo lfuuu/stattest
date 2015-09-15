@@ -95,77 +95,78 @@ class RequestOnlimeForm extends Form
 
     public function save()
     {
-        $account = ClientAccount::findOne(['client' => OperatorOnlime::OPERATOR_CLIENT]);
-        $storeId = '8e5c7b22-8385-11df-9af5-001517456eb1';
-
-        $positions = [
-            'bill_no' => '',
-            'client_id' => $account->id,
-            'list' => [],
-            'sum' => 0,
-            'number' => '',
-            'comment' => $this->comment,
-            'is_rollback' => 1,
-        ];
-
-        for ($i=0, $s=count($this->products); $i<$s; $i++) {
-            $product = OperatorOnlime::getProductById($this->products[$i]);
-            $positions['list'][] = [
-                'id' => $product['id_1c'] . ':',
-                'code_1c' => 0,
-                'quantity_saved' => $this->products_counts[$i],
-                'name' => $product['nameFull'],
-                'quantity' => $this->products_counts[$i],
-                'price' => 0,
-                'sum' => 0,
-            ];
-        }
-
-        $addInfo = [];
-        foreach (self::$fields1C as $field => $field_key) {
-            $addInfo[ $field ] = $this->convertField($field_key);
-        }
-
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-            $response = OperatorOnlime::saveOrder1C([
-                'client_tid'    => $account->client,
-                'order_number'  => $positions['bill_no'],
-                'items_list'    => (isset($positions['list']) ? $positions['list'] : false),
-                'order_comment' => $positions['comment'],
-                'is_rollback'   => $positions['is_rollback'],
-                'add_info'      => $addInfo,
-                'store_id'      => $storeId,
+            $account = ClientAccount::findOne(['client' => OperatorOnlime::OPERATOR_CLIENT]);
+            $storeId = '8e5c7b22-8385-11df-9af5-001517456eb1';
+
+            $positions = [
+                'bill_no' => '',
+                'client_id' => $account->id,
+                'list' => [],
+                'sum' => 0,
+                'number' => '',
+                'comment' => $this->comment,
+                'is_rollback' => 1,
+            ];
+
+            for ($i = 0, $s = count($this->products); $i < $s; $i++) {
+                $product = OperatorOnlime::getProductById($this->products[$i]);
+                $positions['list'][] = [
+                    'id' => $product['id_1c'] . ':',
+                    'code_1c' => 0,
+                    'quantity_saved' => $this->products_counts[$i],
+                    'name' => $product['nameFull'],
+                    'quantity' => $this->products_counts[$i],
+                    'price' => 0,
+                    'sum' => 0,
+                ];
+            }
+
+            $addInfo = [];
+            foreach (self::$fields1C as $field => $field_key) {
+                $addInfo[$field] = $this->convertField($field_key);
+            }
+
+            try {
+                $response = OperatorOnlime::saveOrder1C([
+                    'client_tid' => $account->client,
+                    'order_number' => $positions['bill_no'],
+                    'items_list' => (isset($positions['list']) ? $positions['list'] : false),
+                    'order_comment' => $positions['comment'],
+                    'is_rollback' => $positions['is_rollback'],
+                    'add_info' => $addInfo,
+                    'store_id' => $storeId,
+                ]);
+            } catch (\Exception $e) {
+                $this->addError('1C_error', str_replace('|||', '', $e->getMessage()));
+                $this->addError('1C_order', 'Не удалось создать заказ в 1С');
+                return false;
+            }
+
+            $class = new \stdClass;
+            $class->order = $response;
+            $class->isRollback = $positions['is_rollback'];
+
+            $error = '';
+            $bill_no = $response->{'Номер'};
+
+            $soap = new \_1c\SoapHandler;
+            $soap->statSaveOrder($class, $bill_no, $error, []);
+
+            StatModule::tt()->createTrouble([
+                'user_author' => 'system',
+                'trouble_type' => 'shop_orders',
+                'trouble_subtype' => 'shop',
+                'client' => $account->client,
+                'problem' => $positions['comment'],
+                'bill_no' => $bill_no,
+                'time' => (new DateTime('now'))->format('Y-m-d'),
             ]);
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-        catch (\Exception $e) {
-            $this->addError('1C_error', str_replace('|||', '', $e->getMessage()));
-            $this->addError('1C_order', 'Не удалось создать заказ в 1С');
-            return false;
-        }
-
-        $class = new \stdClass;
-        $class->order = $response;
-        $class->isRollback = $positions['is_rollback'];
-
-        $error = '';
-        $bill_no = $response->{'Номер'};
-
-        $soap = new \_1c\SoapHandler;
-        $soap->statSaveOrder($class, $bill_no, $error, []);
-
-        $troubleId = StatModule::tt()->createTrouble([
-            'user_author'       => 'system',
-            'trouble_type'      => 'shop_orders',
-            'trouble_subtype'   => 'shop',
-            'client'            => $account->client,
-            'problem'           => $positions['comment'],
-            'bill_no'           => $bill_no,
-            'time'              => (new DateTime('now'))->format('Y-m-d'),
-        ]);
-
-        print $troubleId;
-        exit;
-        $this->addError('requestId', 'Заявка№' . $troubleId);
 
         return $this->hasErrors() ? false : true;
     }

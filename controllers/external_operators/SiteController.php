@@ -7,6 +7,7 @@ use DateTime;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\models\Trouble;
+use app\models\Bill;
 use yii\filters\AccessControl;
 use app\models\LoginForm;
 use app\classes\operators\OperatorOnlime;
@@ -119,26 +120,27 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionSetState($id)
+    public function actionSetState($bill_no)
     {
-        $trouble = Trouble::findOne($id);
-        Assert::isObject($trouble);
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+        Assert::isObject($bill);
+        $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($trouble)) {
-            print 'aaaa';
-            exit;
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($bill, $trouble)) {
             return $this->redirect('/');
         }
 
-        $this->layout = 'minimal';
+        $this->layout = 'external_operators/main';
         return $this->render('external_operators/form', [
             'action' => 'set-state',
             'operator' => $operator,
             'model' => $model,
+            'bill' => $bill,
+            'trouble' => $trouble,
         ]);
     }
 
