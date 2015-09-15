@@ -12,7 +12,6 @@ class m_tarifs_head extends IModuleHead{
             'itpark'              => array('services_itpark','full'),
             'welltime'            => array('services_welltime','full'),
             'wellsystem'          => array('services_wellsystem','full'),
-            'contracts'           => array('tarifs','read'),
             'voip'                => array('tarifs','read'),
             'voip_edit'           => array('tarifs','edit'),
             'price_tel'           => array('tarifs','edit'),

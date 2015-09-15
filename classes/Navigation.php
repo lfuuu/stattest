@@ -40,6 +40,7 @@ class Navigation
                 ->addStatModuleItems('tarifs')
                 ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+                ->addItem('Шаблоны', ['document/template/edit'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(
