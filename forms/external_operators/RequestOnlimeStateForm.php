@@ -4,6 +4,8 @@ namespace app\forms\external_operators;
 
 use Yii;
 use app\classes\Form;
+use app\models\Trouble;
+use app\models\Bill;
 
 class RequestOnlimeStateForm extends Form
 {
@@ -29,13 +31,13 @@ class RequestOnlimeStateForm extends Form
         ];
     }
 
-    public function save()
+    public function save(Trouble $trouble)
     {
-        if($trouble['bill_no'] && preg_match("/\d{6}\/\d{4}/", $trouble['bill_no'])){
+        if ($trouble->bill_no && preg_match("#\d{6}\/\d{4}#", $trouble->bill_no)) {
+            $bill = Bill::findOne(['bill_no' => $trouble->bill_no]);
+            $newstate = TroubleState::findOne($R['state_id']);
 
-            $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($trouble['bill_no'],"\\'")."'");
-            $newstate = $db->GetRow("select * from tt_states where id=".(int)$R['state_id']);
-            if($newstate['state_1c']<>$bill['state_1c']){
+            if ($newstate->state_1c <> $bill->state_1c) {
                 require_once(INCLUDE_PATH.'1c_integration.php');
                 $bs = new \_1c\billMaker($db);
                 $fault = null;

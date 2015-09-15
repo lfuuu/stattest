@@ -68,10 +68,6 @@ class OperatorOnlime extends Object
             'sql' => '`state_id` NOT IN (2,20,21)',
             'title' => 'В работе',
         ],
-        'intake' => [
-            'sql' => '`state_id` = 17',
-            'title' => 'К поступлению',
-        ],
         'deferred' => [
             'sql' => '`state_id` IN (24,31)',
             'title' => 'Отложенный',
@@ -90,6 +86,27 @@ class OperatorOnlime extends Object
         ],
     ];
 
+    public static $reportFields = [
+        'Оператор'                                      => 'fio_oper',
+        'Номер счета OnLime'                            => 'req_no',
+        'Номер счета Маркомнет Сервис'                  => 'bill_no',
+        'Дата создания заказа'                          => 'date_creation',
+        'Кол-во'                                        => 'products',
+        'Серийный номер'                                => 'serials',
+        'Номер купона'                                  => 'coupon',
+        'ФИО клиента'                                   => 'fio',
+        'Телефон клиента'                               => 'phone',
+        'Адрес'                                         => 'address',
+        'Дата доставки желаемая'                        => 'date_deliv',
+        'Дата доставки фактическая'                     => 'date_delivered',
+        'Этап'                                          => 'stages_text',
+    ];
+
+    public function getOperator()
+    {
+        return self::OPERATOR_CLIENT;
+    }
+
     public function getRequestForm()
     {
         return new RequestOnlimeForm;
@@ -100,9 +117,30 @@ class OperatorOnlime extends Object
         return new RequestOnlimeStateForm;
     }
 
+    /**
+     * @return \app\classes\Singleton
+     */
     public function getReport()
     {
         return ReportOnlimeDao::me();
+    }
+
+    public function downloadReport($dateFrom, $dateTo, $filter = [])
+    {
+        $list = $this->report->getList($dateFrom, $dateTo, $filter);
+        $sTypes = self::$requestModes;
+
+        $reportName =
+            'OnLime__' .
+            str_replace(' ', '_', $sTypes[ $filter['mode'] ]['title']) .
+            '__' . $dateFrom .
+            '__' . $dateTo;
+
+        Yii::$app->response->sendContentAsFile(
+            $this->GenerateExcel(self::$reportFields, $list),
+            $reportName . '.xls'
+        );
+        Yii::$app->end();
     }
 
     public function getProducts()
@@ -181,6 +219,72 @@ class OperatorOnlime extends Object
             $response->{'ДопИнформацияЗаказа'} = null;
 
         return $response;
+    }
+
+    private function GenerateExcel($head, $list)
+    {
+        $objPHPExcel = new \PHPExcel;
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        $sheet = $objPHPExcel->getActiveSheet();
+
+        foreach ([10, 12, 21, 11, 29, 35, 33, 14, 14, 88] as $columnIndex => $width) {
+            $sheet->getColumnDimensionByColumn($columnIndex + 1)->setWidth($width);
+        }
+
+        $idx = 0;
+        foreach ($head as $title => $field) {
+            if ($field == 'products') {
+                foreach (self::$requestProducts as $product) {
+                    $sheet->setCellValueByColumnAndRow($idx++, 2, $product['name']);
+                }
+            }
+            else {
+                $sheet->setCellValueByColumnAndRow($idx++, 2, $title);
+            }
+        }
+
+        foreach ($list as $rowIdx => $item) {
+            $colIdx = 0;
+            foreach($head as $title => $field) {
+                if ($field == 'products') {
+                    foreach (self::$requestProducts as $i => $product) {
+                        $sheet->setCellValueByColumnAndRow(
+                            $colIdx++,
+                            3 + $rowIdx,
+                            isset($item['group_' . ($i + 1)]) ? strip_tags($item['group_' . ($i + 1)]) : ''
+                        );
+                    }
+                }
+                else if ($field == 'stages_text') {
+                    $last_stage = array_pop($item['stages']);
+
+                    $sheet->setCellValueByColumnAndRow(
+                        $colIdx++,
+                        3 + $rowIdx,
+                        $last_stage['date_finish_desired'] . "\n" .
+                        $last_stage['state_name'] . "\n" .
+                        $last_stage['user_edit'] . "\n" .
+                        $last_stage['comment']
+                    );
+                }
+                else {
+                    $sheet->setCellValueByColumnAndRow(
+                        $colIdx++,
+                        3 + $rowIdx,
+                        isset($item[$field]) ? strip_tags($item[$field]) : ''
+                    );
+                }
+            }
+        }
+
+        $oeWriter = new \PHPExcel_Writer_Excel5($objPHPExcel);
+        ob_start();
+        $oeWriter->save('php://output');
+        $content = ob_get_contents();
+        ob_clean();
+
+        return $content;
     }
 
 }

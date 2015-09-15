@@ -4,8 +4,10 @@ namespace app\controllers\external_operators;
 
 use Yii;
 use DateTime;
-use yii\filters\AccessControl;
+use app\classes\Assert;
 use app\classes\BaseController;
+use app\models\Trouble;
+use yii\filters\AccessControl;
 use app\models\LoginForm;
 use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorsFactory;
@@ -25,7 +27,7 @@ class SiteController extends BaseController
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index', 'create-request', 'set-state'],
+                        'actions' => ['logout', 'index', 'create-request', 'set-state', 'download-report'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -53,6 +55,8 @@ class SiteController extends BaseController
         if ($filter['range']) {
             list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
         }
+        $getFile = Yii::$app->request->get('get-file');
+
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
 
@@ -68,6 +72,10 @@ class SiteController extends BaseController
         if (isset($filter['range']))
             $currentRange = $filter['range'];
 
+        if ($getFile) {
+            $operator->downloadReport();
+        }
+
         $this->layout = 'external_operators/main';
         $this->menuItem = 'indexReport';
         return $this->render('external_operators/default', [
@@ -77,6 +85,19 @@ class SiteController extends BaseController
             'dateTo' => $dateTo,
             'filter' => $filter,
         ]);
+    }
+
+    public function actionDownloadReport()
+    {
+        $filter = Yii::$app->request->get('filter');
+        $dateFrom = $dateTo = '';
+        if ($filter['range']) {
+            list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
+        }
+
+        /** TODO: определять оператора от авторизованного пользователя */
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator->downloadReport($dateFrom, $dateTo, $filter);
     }
 
     public function actionCreateRequest()
@@ -91,7 +112,8 @@ class SiteController extends BaseController
 
         $this->layout = 'external_operators/main';
         $this->menuItem = 'createRequest';
-        return $this->render('external_operators/forms/create-request', [
+        return $this->render('external_operators/form', [
+            'action' => 'create-request',
             'operator' => $operator,
             'model' => $model,
         ]);
@@ -99,18 +121,22 @@ class SiteController extends BaseController
 
     public function actionSetState($id)
     {
+        $trouble = Trouble::findOne($id);
+        Assert::isObject($trouble);
+
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($trouble)) {
             print 'aaaa';
             exit;
             return $this->redirect('/');
         }
 
         $this->layout = 'minimal';
-        return $this->render('external_operators/forms/set-state', [
+        return $this->render('external_operators/form', [
+            'action' => 'set-state',
             'operator' => $operator,
             'model' => $model,
         ]);
