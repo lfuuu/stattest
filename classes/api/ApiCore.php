@@ -63,4 +63,15 @@ class ApiCore
 
         ApiCore::exec('remove_product', $state);
     }
+
+    public static function transferContragent($contragentId, $fromClientId, $toClientId)
+    {
+        self::exec('transfer_contragent', [
+            'from_client_id'            => $fromClientId,
+            'to_client_id'              => $toClientId,
+            'from_stat_contragent_id'   => $contragentId, // Заменено на contragent_id, во избежании путаницы
+            //'contragent_id'   => $contragentId,
+        ]);
+    }
+
 }

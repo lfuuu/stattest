@@ -10,7 +10,11 @@ $model->formLang = $language;
 ?>
 <div class="row">
     <div class="col-sm-12">
-        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h2>
+
+        <h2 style="display: inline-block; width: 62%;"><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h2>
+        <?php if (!$model->isNewRecord): ?>
+            <a href="/contragent/transfer?id=<?= $model->id; ?>" onClick="return showIframePopup(this)" data-height="500">Переместить</a>
+        <?php endif; ?>
 
         <?php $f = ActiveForm::begin(); ?>
         <?= $this->render($formFolderName.'/form', ['model' => $model, 'f' => $f]); ?>
