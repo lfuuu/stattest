@@ -44,8 +44,8 @@ $form = ActiveForm::begin([
                                                     </span>
                                                 </a>
                                             </div>
-                                            <div class="col-sm-2">
-                                                <span><?= $contract->contractType; ?></span>
+                                            <div class="col-sm-2" style="white-space: nowrap;">
+                                                <span><?= $contract->business; ?> / <?= $contract->businessProcessStatus->name; ?></span>
                                             </div>
                                             <div class="col-sm-4">
                                                 <?php if ($contract->managerName) : ?>
