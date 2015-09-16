@@ -29,7 +29,7 @@ class Currency extends ActiveRecord
         return 'currency';
     }
 
-    public function dao()
+    public static function dao()
     {
         return CurrencyDao::me();
     }
