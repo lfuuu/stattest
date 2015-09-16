@@ -108,7 +108,7 @@ class TrunkServiceTransfer extends ServiceTransfer
 
     public function getTypeDescription()
     {
-        return $this->service->tariff ? $this->service->tariff->description : 'Описание';
+        return $this->description ?: 'Описание отсутствует';
     }
 
 }
