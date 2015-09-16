@@ -29,6 +29,12 @@ AppAsset::register($this);
 
 <?php $this->endBody() ?>
 
+<script type="text/javascript">
+jQuery(document).ready(function () {
+    $('.select2').select2();
+});
+</script>
+
 </body>
 </html>
 <?php $this->endPage() ?>

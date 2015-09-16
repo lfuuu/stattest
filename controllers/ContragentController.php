@@ -6,7 +6,10 @@ use app\forms\client\ContragentEditForm;
 use app\classes\BaseController;
 use \Yii;
 use yii\filters\AccessControl;
-
+use app\models\ClientSuper;
+use app\models\ClientContragent;
+use app\forms\contragent\ContragentTransferForm;
+use app\classes\Assert;
 
 class ContragentController extends BaseController
 {
@@ -18,7 +21,7 @@ class ContragentController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['edit', 'create'],
+                        'actions' => ['edit', 'create', 'transfer', 'transfer-success'],
                         'roles' => ['clients.edit'],
                     ],
                 ],
@@ -80,4 +83,43 @@ class ContragentController extends BaseController
         ]);
 
     }
+
+    public function actionTransfer($id)
+    {
+        $contragent = ClientContragent::findOne($id);
+        Assert::isObject($contragent);
+
+        $client = ClientSuper::findOne($contragent->super_id);
+
+        $model = new ContragentTransferForm;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
+            $contragent = ClientContragent::find()->where(['super_id' => $model->targetClientAccount])->limit(1)->one();
+            Assert::isObject($contragent);
+
+            $this->redirect([
+                'contragent/transfer-success',
+                'id' => $contragent->id,
+            ]);
+        }
+
+        $this->layout = 'minimal';
+        return $this->render('transfer', [
+            'contragent' => $contragent,
+            'client' => $client,
+            'model' => $model,
+        ]);
+    }
+
+    public function actionTransferSuccess($id)
+    {
+        $contragent = ClientContragent::findOne($id);
+        Assert::isObject($contragent);
+
+        $this->layout = 'minimal';
+        return $this->render('transfer_success', [
+            'contragent' => $contragent,
+        ]);
+    }
+
 }

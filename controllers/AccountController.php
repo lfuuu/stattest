@@ -14,6 +14,7 @@ use yii\base\Exception;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
 use app\models\ClientAccount;
+use app\models\ClientSuper;
 
 
 class AccountController extends BaseController
@@ -154,6 +155,29 @@ class AccountController extends BaseController
         return $this->render("superClientEdit", [
             'model' => $model
         ]);
+    }
+
+    public function actionSuperClientSearch($query)
+    {
+        if (!Yii::$app->request->isAjax)
+            return;
+
+        $result =
+            ClientSuper::find()
+                ->where('name LIKE "%' . preg_replace('#[\'"\-~!@\#$%\^&\*()_=\+\[\]{};:\s]#u', '%', $query) . '%"')
+                ->limit(20)
+                ->all();
+        $output = [];
+
+        foreach ($result as $client) {
+            $output[] = [
+                'id' => $client->id,
+                'text' => $client->name . ' (#' . $client->id . ')',
+            ];
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $output;
     }
 
     public function actionUnfix()
