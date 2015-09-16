@@ -3,11 +3,14 @@
 namespace app\forms\contragent;
 
 use Yii;
+use yii\base\Exception;
 use app\classes\Assert;
 use app\classes\Form;
+use app\classes\api\ApiCore;
 use app\models\ClientContragent;
 use app\models\ClientContract;
 use app\models\ClientAccount;
+use app\models\ClientSuper;
 
 class ContragentTransferForm extends Form
 {
@@ -48,6 +51,10 @@ class ContragentTransferForm extends Form
         $clients = ClientAccount::find()->where(['id' => $this->clients])->all();
         Assert::isArray($clients);
 
+        $super = ClientSuper::findOne($contragent->super_id);
+
+        ApiCore::transferContragent($contragent->id, $super->id, $this->targetClientAccount);
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             foreach ($clients as $client) {
@@ -64,7 +71,8 @@ class ContragentTransferForm extends Form
             $contragent->save();
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
