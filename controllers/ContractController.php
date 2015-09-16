@@ -88,7 +88,7 @@ class ContractController extends BaseController
         if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
             $returnTo =
                 Yii::$app->request->get('returnTo')
-                    ?:['contract/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $model->historyVersionStoredDate];
+                    ?:['contract/edit', 'id'=>$id, 'childId'=>$childId, 'showLastChanges'=>1, 'date' => $date ? $model->historyVersionStoredDate : null];
 
             return $this->redirect($returnTo);
         }
