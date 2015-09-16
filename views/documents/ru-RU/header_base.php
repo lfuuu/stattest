@@ -1,18 +1,22 @@
 <?php
 use app\models\ClientContact;
+use yii\helpers\ArrayHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
-$contact = ClientContact::dao()->GetContact($document->bill->clientAccount->id, true);
+$contacts = ClientContact::find()->andWhere([
+    'client_id' => $document->bill->clientAccount->id,
+    'is_official' => 1,
+    'is_active' => 1,
+    'type' => ClientContact::TYPE_FAX,
+]);
+$contacts = ArrayHelper::map($contacts, 'id', 'data');
 ?>
 
 <p>
-Адрес доставки счета: <?= $payer_company['address_post']; ?><br />
-Факс для отправки счета:
-<?php foreach ($contact['fax'] as $position => $item ): ?>
-    <?php if ($position > 0): ?>; <?php endif; ?>
-    <?= $item['data']; ?>
-<?php endforeach; ?>
+    Адрес доставки счета: <?= $payer_company['address_post']; ?><br />
+    Факс для отправки счета:
+    <?= implode('; ', $contacts); ?>
 </p>
 
 <p>
