@@ -94,7 +94,8 @@ class ContragentController extends BaseController
         $model = new ContragentTransferForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
-            $contragent = ClientContragent::find()->where(['super_id' => $model->targetClientAccount])->limit(1)->one();
+            print_r($model);
+            $contragent = ClientContragent::findOne($model->sourceClientAccount);
             Assert::isObject($contragent);
 
             $this->redirect([
@@ -119,6 +120,7 @@ class ContragentController extends BaseController
         $this->layout = 'minimal';
         return $this->render('transfer_success', [
             'contragent' => $contragent,
+            'superClient' => ClientSuper::findOne($contragent->super_id),
         ]);
     }
 

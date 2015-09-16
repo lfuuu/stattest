@@ -166,6 +166,7 @@ class AccountController extends BaseController
         $result =
             ClientSuper::find()
                 ->where('name LIKE "%' . preg_replace('#[\'"\-~!@\#$%\^&\*()_=\+\[\]{};:\s]#u', '%', $query) . '%"')
+                ->orWhere(['id' => preg_replace('#\D#', '', $query)])
                 ->limit(20)
                 ->all();
         $output = [];
