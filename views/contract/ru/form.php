@@ -194,11 +194,12 @@ use app\models\ClientContract;
                 s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
         });
 
-        if(s4){
+        var vals4 = s4.val();
+        if (s4) {
             s4.empty();
             $(contractTypes).each(function (k, v) {
                 if (s2.val() == v['business_process_id'])
-                    s4.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+                    s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
             });
         }
 
@@ -212,13 +213,13 @@ use app\models\ClientContract;
             s3.empty();
             $(statuses.statuses).each(function (k, v) {
                 if (s2.val() == v['up_id'])
-                    s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+                    s3.append('<option value="' + v['id'] + '" ' + (v['id'] == vals3 ? 'selected' : '') + '>' + v['name'] + '</option>');
             });
-            if(s4){
+            if (s4) {
                 s4.empty();
                 $(contractTypes).each(function (k, v) {
                     if (s2.val() == v['business_process_id'])
-                        s4.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+                        s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
                 });
             }
         });

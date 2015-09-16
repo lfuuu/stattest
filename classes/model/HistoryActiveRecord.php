@@ -98,7 +98,7 @@ class HistoryActiveRecord extends ActiveRecord
             'model' => substr(get_class($this), 11),
             'model_id' => $this->primaryKey,
             'date' => $date,
-            'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
+            'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT | JSON_NUMERIC_CHECK),
         ];
 
         $model = HistoryVersion::findOne([
@@ -110,7 +110,7 @@ class HistoryActiveRecord extends ActiveRecord
         if (!$model)
             $model = new \app\models\HistoryVersion($queryData);
 
-        $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
+        $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT | JSON_NUMERIC_CHECK);
         $model->save();
     }
 }
