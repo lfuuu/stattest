@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.41, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.38, for debian-linux-gnu (x86_64)
 --
--- Host: stat.mcn.ru    Database: nispd
+-- Host: localhost    Database: test_all
 -- ------------------------------------------------------
--- Server version	5.1.73
+-- Server version	5.5.38-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,95 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `_client_contract_business_process_status`
+--
+
+DROP TABLE IF EXISTS `_client_contract_business_process_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `_client_contract_business_process_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `business_process_id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  `oldstatus` varchar(20) NOT NULL DEFAULT '',
+  `color` varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `_voip_numbers`
+--
+
+DROP TABLE IF EXISTS `_voip_numbers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `_voip_numbers` (
+  `number` varchar(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `status` enum('notsell','instock','reserved','active','hold') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'instock',
+  `reserve_from` datetime DEFAULT NULL,
+  `reserve_till` datetime DEFAULT NULL,
+  `hold_from` datetime DEFAULT NULL,
+  `beauty_level` tinyint(4) NOT NULL DEFAULT '0',
+  `price` int(11) DEFAULT '0',
+  `region` smallint(6) NOT NULL,
+  `client_id` int(11) DEFAULT NULL,
+  `usage_id` int(11) DEFAULT NULL,
+  `reserved_free_date` datetime DEFAULT NULL,
+  `used_until_date` datetime DEFAULT NULL,
+  `edit_user_id` int(11) DEFAULT NULL,
+  `site_publish` enum('N','Y') NOT NULL DEFAULT 'N',
+  `city_id` int(11) NOT NULL,
+  `did_group_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`number`),
+  KEY `region` (`region`),
+  KEY `fk_voip_number__city_id` (`city_id`),
+  KEY `fk_voip_number__did_group_id` (`did_group_id`),
+  CONSTRAINT `_voip_numbers_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `_voip_numbers_ibfk_2` FOREIGN KEY (`did_group_id`) REFERENCES `did_group` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `actual_number`
+--
+
+DROP TABLE IF EXISTS `actual_number`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actual_number` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(11) NOT NULL,
+  `number` char(16) NOT NULL,
+  `region` int(11) NOT NULL DEFAULT '99',
+  `call_count` int(11) NOT NULL,
+  `number_type` enum('vnumber','nonumber','number') NOT NULL DEFAULT 'number',
+  `direction` enum('localmob','local','full','blocked','russia') NOT NULL DEFAULT 'full',
+  `is_blocked` tinyint(4) NOT NULL DEFAULT '0',
+  `is_disabled` tinyint(4) NOT NULL DEFAULT '0',
+  `number7800` char(13) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `number` (`number`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=21880 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `actual_virtpbx`
+--
+
+DROP TABLE IF EXISTS `actual_virtpbx`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actual_virtpbx` (
+  `usage_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT '0',
+  `tarif_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`usage_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `adsl_speed`
@@ -74,7 +163,7 @@ CREATE TABLE `bill_currency_rate` (
   `rate` decimal(10,4) NOT NULL DEFAULT '0.0000',
   PRIMARY KEY (`id`),
   KEY `date` (`date`,`currency`)
-) ENGINE=InnoDB AUTO_INCREMENT=8183 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8408 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,6 +244,25 @@ CREATE TABLE `bill_monthlyadd_reference` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `city`
+--
+
+DROP TABLE IF EXISTS `city`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `city` (
+  `id` int(10) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `country_id` int(11) NOT NULL,
+  `connection_point_id` int(11) DEFAULT NULL,
+  `voip_number_format` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_city__country_id` (`country_id`),
+  CONSTRAINT `fk_city__country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `client_contacts`
 --
 
@@ -167,14 +275,112 @@ CREATE TABLE `client_contacts` (
   `type` enum('email','phone','fax','sms') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `data` text NOT NULL,
   `user_id` int(11) NOT NULL DEFAULT '0',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ts` datetime DEFAULT NULL,
   `comment` text NOT NULL,
   `is_active` tinyint(1) NOT NULL,
   `is_official` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   KEY `type_data` (`type`,`data`(32),`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=96549 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=104529 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contract`
+--
+
+DROP TABLE IF EXISTS `client_contract`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contract` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `super_id` int(11) DEFAULT NULL,
+  `contragent_id` int(11) DEFAULT NULL,
+  `number` varchar(100) NOT NULL,
+  `organization_id` int(11) NOT NULL DEFAULT '0',
+  `manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `account_manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `business_id` tinyint(4) NOT NULL DEFAULT '0',
+  `business_process_id` int(11) NOT NULL DEFAULT '0',
+  `business_process_status_id` int(11) NOT NULL DEFAULT '0',
+  `contract_type_id` tinyint(4) NOT NULL DEFAULT '0',
+  `state` enum('unchecked','checked_copy','checked_original','offer') NOT NULL DEFAULT 'unchecked',
+  `financial_type` enum('','profitable','consumables','yield-consumable') NOT NULL DEFAULT '',
+  `federal_district` set('cfd','sfd','nwfd','dfo','sfo','ufo','pfo') NOT NULL DEFAULT '',
+  `is_external` enum('internal','external') NOT NULL DEFAULT 'internal',
+  PRIMARY KEY (`id`),
+  KEY `contragent_id` (`contragent_id`),
+  KEY `super_id` (`super_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=35802 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contract_business`
+--
+
+DROP TABLE IF EXISTS `client_contract_business`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contract_business` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL DEFAULT '',
+  `sort` tinyint(4) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contract_business_process`
+--
+
+DROP TABLE IF EXISTS `client_contract_business_process`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contract_business_process` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `business_id` int(11) DEFAULT NULL,
+  `name` varchar(50) NOT NULL,
+  `show_as_status` enum('0','1') NOT NULL DEFAULT '1',
+  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contract_business_process_status`
+--
+
+DROP TABLE IF EXISTS `client_contract_business_process_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contract_business_process_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `business_process_id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  `oldstatus` varchar(20) NOT NULL DEFAULT '',
+  `color` varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contract_comment`
+--
+
+DROP TABLE IF EXISTS `client_contract_comment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contract_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_id` int(11) NOT NULL DEFAULT '0',
+  `comment` text NOT NULL,
+  `user` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ts` datetime DEFAULT NULL,
+  `is_publish` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `id_client` (`contract_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=117422 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,32 +392,10 @@ DROP TABLE IF EXISTS `client_contract_type`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_contract_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(32) NOT NULL DEFAULT '',
-  `sort` tinyint(4) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `business_process_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `client_document`
---
-
-DROP TABLE IF EXISTS `client_contracts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_contracts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_id` int(11) NOT NULL,
-  `contract_no` varchar(100) NOT NULL,
-  `contract_date` date NOT NULL,
-  `contract_dop_date` date NOT NULL DEFAULT '2012-01-01',
-  `user_id` int(11) NOT NULL DEFAULT '0',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `comment` text NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30528 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -224,10 +408,55 @@ DROP TABLE IF EXISTS `client_contragent`;
 CREATE TABLE `client_contragent` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `super_id` int(11) NOT NULL,
+  `country_id` int(4) DEFAULT '643',
   `name` varchar(255) NOT NULL,
+  `legal_type` enum('person','ip','legal') NOT NULL DEFAULT 'legal',
+  `name_full` varchar(255) NOT NULL,
+  `address_jur` varchar(255) NOT NULL DEFAULT '',
+  `inn` varchar(16) NOT NULL DEFAULT '',
+  `inn_euro` varchar(16) NOT NULL DEFAULT '',
+  `kpp` varchar(16) NOT NULL DEFAULT '',
+  `position` varchar(128) NOT NULL DEFAULT '',
+  `fio` varchar(128) NOT NULL DEFAULT '',
+  `positionV` varchar(128) NOT NULL DEFAULT '',
+  `fioV` varchar(128) NOT NULL DEFAULT '',
+  `signer_passport` varchar(20) NOT NULL DEFAULT '',
+  `tax_regime` enum('undefined','OCH-VAT18','YCH-VAT0') NOT NULL DEFAULT 'OCH-VAT18',
+  `opf_id` int(11) NOT NULL DEFAULT '0',
+  `okpo` varchar(16) NOT NULL DEFAULT '',
+  `okvd` varchar(16) NOT NULL DEFAULT '',
+  `ogrn` varchar(16) NOT NULL,
+  `comment` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `super_client_id` (`super_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=76830 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=79289 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_contragent_person`
+--
+
+DROP TABLE IF EXISTS `client_contragent_person`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contragent_person` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contragent_id` int(11) NOT NULL,
+  `last_name` varchar(64) DEFAULT '',
+  `first_name` varchar(64) DEFAULT '',
+  `middle_name` varchar(64) DEFAULT '',
+  `passport_date_issued` date DEFAULT '1970-01-01',
+  `passport_serial` varchar(6) DEFAULT '',
+  `passport_number` varchar(10) DEFAULT '',
+  `passport_issued` varchar(1024) DEFAULT '',
+  `registration_address` varchar(255) DEFAULT '',
+  `mother_maiden_name` varchar(64) DEFAULT NULL,
+  `birthplace` varchar(255) DEFAULT NULL,
+  `birthday` date DEFAULT NULL,
+  `other_document` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `contragent_id` (`contragent_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2309 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,6 +479,31 @@ CREATE TABLE `client_counters` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `client_document`
+--
+
+DROP TABLE IF EXISTS `client_document`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_id` int(11) NOT NULL,
+  `account_id` int(11) DEFAULT NULL,
+  `contract_no` varchar(100) NOT NULL,
+  `contract_date` date NOT NULL,
+  `contract_dop_date` date NOT NULL DEFAULT '2012-01-01',
+  `contract_dop_no` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT '0',
+  `ts` datetime DEFAULT NULL,
+  `comment` text NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `type` enum('blank','agreement','contract') NOT NULL DEFAULT 'contract',
+  PRIMARY KEY (`id`),
+  KEY `client_id` (`contract_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=35860 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `client_files`
 --
 
@@ -258,28 +512,14 @@ DROP TABLE IF EXISTS `client_files`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_id` int(11) NOT NULL,
+  `contract_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL DEFAULT '0',
   `ts` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `comment` text NOT NULL,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=77053 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `client_grid_statuses`
---
-
-DROP TABLE IF EXISTS `client_grid_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_grid_statuses` (
-  `grid_status_id` int(11) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  PRIMARY KEY (`grid_status_id`,`client_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+  KEY `client_id` (`contract_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=86520 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -299,7 +539,7 @@ CREATE TABLE `client_inn` (
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1195 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1365 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -318,26 +558,7 @@ CREATE TABLE `client_pay_acc` (
   PRIMARY KEY (`id`),
   KEY `k_pay_acc` (`pay_acc`),
   KEY `k_client` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=949 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `client_statuses`
---
-
-DROP TABLE IF EXISTS `client_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_statuses` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_client` int(11) NOT NULL DEFAULT '0',
-  `status` enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','suspended','operator','distr','blocked','') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `comment` text NOT NULL,
-  `user` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `id_client` (`id_client`)
-) ENGINE=InnoDB AUTO_INCREMENT=98466 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=974 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -364,8 +585,9 @@ DROP TABLE IF EXISTS `client_super`;
 CREATE TABLE `client_super` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `financial_manager_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=76828 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=79276 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -379,29 +601,19 @@ CREATE TABLE `clients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `super_id` int(4) NOT NULL DEFAULT '0',
-  `contragent_id` int(4) NOT NULL DEFAULT '0',
+  `contract_id` int(4) NOT NULL DEFAULT '0',
+  `country_id` int(4) NOT NULL DEFAULT '643',
   `password` varchar(16) NOT NULL,
   `password_type` enum('plaintext','MD5') NOT NULL DEFAULT 'plaintext',
-  `company` varchar(250) NOT NULL,
   `comment` varchar(250) NOT NULL DEFAULT '',
-  `address_jur` varchar(128) NOT NULL DEFAULT '',
   `status` enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','suspended','operator','distr','blocked') NOT NULL DEFAULT 'income',
   `usd_rate_percent` decimal(4,1) NOT NULL DEFAULT '0.0',
-  `company_full` varchar(250) NOT NULL DEFAULT '',
   `address_post` varchar(128) NOT NULL DEFAULT '',
   `address_post_real` varchar(128) NOT NULL DEFAULT '',
-  `type` enum('org','priv','office','multi','distr','operator') NOT NULL DEFAULT 'org',
-  `manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `support` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `login` varchar(32) NOT NULL DEFAULT '',
-  `inn` varchar(12) NOT NULL DEFAULT '',
-  `kpp` varchar(12) NOT NULL DEFAULT '',
   `bik` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `bank_properties` varchar(255) NOT NULL DEFAULT '',
-  `signer_name` varchar(128) NOT NULL DEFAULT '',
-  `signer_position` varchar(128) NOT NULL DEFAULT '',
-  `signer_nameV` varchar(128) NOT NULL DEFAULT '',
-  `firma` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'mcn',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `currency_bill` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `stamp` enum('0','1') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0',
@@ -410,7 +622,6 @@ CREATE TABLE `clients` (
   `sale_channel` int(11) NOT NULL,
   `uid` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `site_req_no` varchar(20) NOT NULL DEFAULT '',
-  `signer_positionV` varchar(128) NOT NULL DEFAULT '',
   `hid_rtsaldo_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `hid_rtsaldo_RUB` decimal(11,2) NOT NULL DEFAULT '0.00',
   `hid_rtsaldo_USD` decimal(11,2) NOT NULL DEFAULT '0.00',
@@ -424,7 +635,6 @@ CREATE TABLE `clients` (
   `dealer_comment` varchar(255) NOT NULL DEFAULT '',
   `form_type` enum('manual','payment','bill') NOT NULL DEFAULT 'manual',
   `metro_id` int(4) NOT NULL DEFAULT '0',
-  `payment_comment` varchar(255) NOT NULL DEFAULT '',
   `previous_reincarnation` int(11) DEFAULT NULL,
   `cli_1c` varchar(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `con_1c` varchar(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -437,36 +647,39 @@ CREATE TABLE `clients` (
   `voip_credit_limit` int(11) NOT NULL DEFAULT '0',
   `voip_disabled` int(1) NOT NULL DEFAULT '0',
   `voip_credit_limit_day` int(11) NOT NULL DEFAULT '0',
-  `nds_zero` smallint(1) NOT NULL DEFAULT '0',
   `balance` decimal(12,2) NOT NULL DEFAULT '0.00',
   `balance_usd` decimal(12,2) NOT NULL DEFAULT '0.00',
   `voip_is_day_calc` int(1) NOT NULL DEFAULT '1',
   `region` smallint(6) DEFAULT '99',
-  `last_account_date` date DEFAULT NULL,
+  `last_account_date` datetime DEFAULT NULL,
   `last_payed_voip_month` date DEFAULT NULL,
   `mail_print` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'yes',
   `mail_who` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `head_company` varchar(255) NOT NULL DEFAULT '',
   `head_company_address_jur` varchar(255) NOT NULL DEFAULT '',
-  `okpo` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `bill_rename1` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no',
   `nds_calc_method` tinyint(4) NOT NULL DEFAULT '1',
   `admin_contact_id` int(11) NOT NULL DEFAULT '0',
   `admin_is_active` tinyint(4) NOT NULL DEFAULT '1',
-  `account_manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `is_agent` varchar(1) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'N',
   `is_bill_only_contract` smallint(1) NOT NULL DEFAULT '0',
   `is_bill_with_refund` smallint(1) NOT NULL DEFAULT '0',
   `is_with_consignee` smallint(1) NOT NULL DEFAULT '0',
   `consignee` varchar(255) NOT NULL,
   `is_upd_without_sign` smallint(1) NOT NULL DEFAULT '0',
-  `contract_type_id` int(11) NOT NULL DEFAULT '1',
+  `price_include_vat` tinyint(1) DEFAULT '1',
+  `is_active` tinyint(4) NOT NULL DEFAULT '1',
+  `is_blocked` tinyint(4) NOT NULL DEFAULT '0',
+  `is_closed` tinyint(4) NOT NULL DEFAULT '0',
+  `timezone_name` varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
   PRIMARY KEY (`id`),
   UNIQUE KEY `_1c_uk` (`cli_1c`,`con_1c`),
   KEY `client` (`client`),
-  KEY `status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=33221 DEFAULT CHARSET=utf8;
+  KEY `status` (`status`),
+  KEY `super_id` (`super_id`),
+  KEY `contract_id` (`contract_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=35807 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -477,32 +690,9 @@ CREATE TABLE `clients` (
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `create_super_client` BEFORE INSERT ON `clients`
-FOR EACH ROW begin
-call log ('new');
-call create_super_client(NEW.client,NEW.company, NEW.super_id, NEW.contragent_id);
-call log('end');
-end */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_ins_tr` AFTER INSERT ON `clients`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_ins_tr` AFTER INSERT ON `clients`
 FOR EACH ROW BEGIN
      call z_sync_postgres('clients', NEW.id);
-     call z_sync_auth('clients', NEW.id);
-     call z_sync_1c('clientCard', NEW.id);
 
      call add_event('add_account', NEW.id);
 END */;;
@@ -511,8 +701,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -522,7 +710,7 @@ ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `client_status` BEFORE UPDATE ON `clients` FOR EACH ROW begin
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `client_status` BEFORE UPDATE ON `clients` FOR EACH ROW begin
 if NEW.status='' then
 SET NEW.status=OLD.status;
 end if;
@@ -532,8 +720,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -543,98 +729,58 @@ ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_upd_tr` AFTER UPDATE ON `clients`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_upd_tr` AFTER UPDATE ON `clients`
 FOR EACH ROW BEGIN
-    if NEW.voip_credit_limit <> OLD.voip_credit_limit 
-        or
-       NEW.voip_credit_limit_day <> OLD.voip_credit_limit_day 
-        or
-       NEW.voip_disabled <> OLD.voip_disabled
-        or
-       NEW.balance <> OLD.balance
-        or
-       NEW.credit <> OLD.credit
-        or
-       ifnull(NEW.last_account_date, '2000-01-01') <> ifnull(OLD.last_account_date,'2000-01-01')
-        or
-       ifnull(NEW.last_payed_voip_month, '2000-01-01') <> ifnull(OLD.last_payed_voip_month,'2000-01-01')
-  then
-     call z_sync_postgres('clients', NEW.id);
-  end if;
-
-    if NEW.client <> OLD.client 
-        or
-       NEW.status <> OLD.status
-        or
-       NEW.password <> OLD.password
-        or
-       NEW.balance <> OLD.balance
-  then
-     call z_sync_auth('clients', NEW.id);
-  end if;
+                if NEW.voip_credit_limit <> OLD.voip_credit_limit
+                    or
+                   NEW.voip_credit_limit_day <> OLD.voip_credit_limit_day
+                    or
+                   NEW.voip_disabled <> OLD.voip_disabled
+                    or
+                   NEW.balance <> OLD.balance
+                    or
+                   NEW.credit <> OLD.credit
+                    or
+                   NEW.is_blocked <> OLD.is_blocked
+                    or
+                   ifnull(NEW.last_account_date, '2000-01-01') <> ifnull(OLD.last_account_date,'2000-01-01')
+                    or
+                   ifnull(NEW.last_payed_voip_month, '2000-01-01') <> ifnull(OLD.last_payed_voip_month,'2000-01-01')
+              then
+                 call z_sync_postgres('clients', NEW.id);
+              end if;
 
 
-    if NEW.client <> OLD.client 
-        or
-       NEW.company <> OLD.company
-        or
-       NEW.company_full <> OLD.company_full
-        or
-       NEW.inn <> OLD.inn
-        or
-       NEW.kpp <> OLD.kpp
-        or
-       NEW.type <> OLD.type
-        or
-       NEW.firma <> OLD.firma
-        or
-       NEW.currency <> OLD.currency
-        or
-       NEW.price_type <> OLD.price_type
-  then
-     call z_sync_1c('clientCard', NEW.id);
-  end if;
 
-if OLD.password <> NEW.password THEN
-     call add_event('password_changed', NEW.id);
-end if;
+            if OLD.admin_contact_id <> NEW.admin_contact_id THEN
+                 call add_event('admin_changed', NEW.id);
+            end if;
 
-if OLD.admin_contact_id <> NEW.admin_contact_id THEN
-     call add_event('admin_changed', NEW.id);
-end if;
-
-if OLD.company <> NEW.company THEN
-     call add_event('company_changed', NEW.id);
-end if;
-
-END */;;
+            END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_del_tr` AFTER DELETE ON `clients`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_clients_after_del_tr` AFTER DELETE ON `clients`
 FOR EACH ROW BEGIN
      call z_sync_postgres('clients', OLD.id);
-     call z_sync_auth('clients', OLD.id);
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `clients_contracts_yota`
@@ -651,88 +797,49 @@ CREATE TABLE `clients_contracts_yota` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `clients_select`
+-- Table structure for table `code_opf`
 --
 
-DROP TABLE IF EXISTS `clients_select`;
-/*!50001 DROP VIEW IF EXISTS `clients_select`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `clients_select` (
-  `id` tinyint NOT NULL,
-  `client` tinyint NOT NULL,
-  `company` tinyint NOT NULL,
-  `password` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `clients_test`
---
-
-DROP TABLE IF EXISTS `clients_test`;
+DROP TABLE IF EXISTS `code_opf`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `clients_test` (
+CREATE TABLE `code_opf` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client` varchar(32) CHARACTER SET koi8r NOT NULL,
-  `password` varbinary(16) NOT NULL,
-  `password_type` enum('plaintext','MD5') CHARACTER SET binary NOT NULL DEFAULT 'plaintext',
-  `company` varchar(1024) CHARACTER SET koi8r NOT NULL,
-  `comment` varbinary(255) NOT NULL DEFAULT '',
-  `address_jur` varbinary(128) NOT NULL DEFAULT '',
-  `status` enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','blocked') CHARACTER SET binary NOT NULL DEFAULT 'income',
-  `usd_rate_percent` decimal(4,1) NOT NULL DEFAULT '0.0',
-  `company_full` varbinary(1024) NOT NULL DEFAULT '',
-  `address_post` varbinary(128) NOT NULL DEFAULT '',
-  `address_post_real` varbinary(128) NOT NULL DEFAULT '',
-  `type` enum('org','priv','office') CHARACTER SET binary NOT NULL DEFAULT 'org',
-  `manager` varbinary(100) NOT NULL DEFAULT '',
-  `support` varbinary(64) NOT NULL DEFAULT '',
-  `login` varbinary(32) NOT NULL DEFAULT '',
-  `inn` varchar(12) COLLATE koi8r_bin NOT NULL DEFAULT '0',
-  `kpp` varchar(12) COLLATE koi8r_bin NOT NULL DEFAULT '0',
-  `bik` varbinary(20) NOT NULL DEFAULT '',
-  `bank_properties` varbinary(255) NOT NULL DEFAULT '',
-  `signer_name` varbinary(128) NOT NULL DEFAULT '',
-  `signer_position` varbinary(128) NOT NULL DEFAULT '',
-  `signer_nameV` varbinary(128) NOT NULL DEFAULT '',
-  `firma` varbinary(128) NOT NULL DEFAULT 'mcn',
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
-  `currency_bill` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
-  `stamp` enum('0','1') CHARACTER SET binary NOT NULL DEFAULT '0',
-  `nal` enum('nal','beznal','prov') CHARACTER SET binary NOT NULL DEFAULT 'beznal',
-  `telemarketing` varbinary(30) NOT NULL DEFAULT '',
-  `sale_channel` int(11) NOT NULL,
-  `uid` varbinary(255) DEFAULT NULL,
-  `site_req_no` varbinary(20) NOT NULL DEFAULT '',
-  `signer_positionV` varbinary(128) NOT NULL DEFAULT '',
-  `hid_rtsaldo_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `hid_rtsaldo_RUB` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `hid_rtsaldo_USD` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `credit_USD` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `credit_RUB` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `user_impersonate` varchar(50) COLLATE koi8r_bin NOT NULL DEFAULT 'client',
-  `address_connect` varchar(128) COLLATE koi8r_bin NOT NULL DEFAULT '',
-  `phone_connect` varchar(128) COLLATE koi8r_bin NOT NULL DEFAULT '',
-  `id_all4net` int(11) NOT NULL DEFAULT '0',
-  `dealer_comment` varchar(255) COLLATE koi8r_bin NOT NULL DEFAULT '',
-  `form_type` enum('manual','payment','bill') COLLATE koi8r_bin NOT NULL DEFAULT 'manual',
-  `metro_id` int(4) NOT NULL DEFAULT '0',
-  `payment_comment` varchar(255) COLLATE koi8r_bin NOT NULL DEFAULT '',
-  `previous_reincarnation` int(11) DEFAULT NULL,
-  `cli_1c` varchar(36) COLLATE koi8r_bin DEFAULT NULL,
-  `con_1c` varchar(36) COLLATE koi8r_bin DEFAULT NULL,
-  `corr_acc` varchar(64) COLLATE koi8r_bin DEFAULT NULL,
-  `pay_acc` varchar(64) COLLATE koi8r_bin DEFAULT NULL,
-  `bank_name` varchar(255) COLLATE koi8r_bin DEFAULT NULL,
-  `bank_city` varchar(255) COLLATE koi8r_bin DEFAULT NULL,
-  `sync_1c` enum('no','yes') COLLATE koi8r_bin NOT NULL DEFAULT 'no',
+  `code` varchar(10) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `contract`
+--
+
+DROP TABLE IF EXISTS `contract`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contract` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `type` enum('blank','agreement','contract') NOT NULL DEFAULT 'contract',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `_1c_uk` (`cli_1c`,`con_1c`),
-  KEY `client` (`client`),
-  KEY `status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=9103 DEFAULT CHARSET=koi8r COLLATE=koi8r_bin;
+  KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `core_sync_ids`
+--
+
+DROP TABLE IF EXISTS `core_sync_ids`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `core_sync_ids` (
+  `id` int(4) NOT NULL,
+  `type` enum('account','contragent','super_client') NOT NULL DEFAULT 'account',
+  `external_id` varchar(32) NOT NULL,
+  KEY `type_id` (`id`,`type`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -744,9 +851,12 @@ DROP TABLE IF EXISTS `country`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `country` (
   `code` int(4) NOT NULL DEFAULT '0',
+  `alpha_3` varchar(3) DEFAULT NULL,
   `name` varchar(100) NOT NULL DEFAULT '',
-  `is_main` int(1) NOT NULL DEFAULT '0',
-  KEY `code` (`code`)
+  `in_use` tinyint(4) NOT NULL DEFAULT '0',
+  `lang` varchar(5) DEFAULT 'ru',
+  PRIMARY KEY (`code`),
+  KEY `in_use` (`in_use`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -796,9 +906,28 @@ CREATE TABLE `datacenter` (
   `name` varchar(128) DEFAULT NULL,
   `address` varchar(256) DEFAULT NULL,
   `comment` varchar(256) DEFAULT NULL,
+  `region` int(4) NOT NULL DEFAULT '99',
   PRIMARY KEY (`id`),
   KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `did_group`
+--
+
+DROP TABLE IF EXISTS `did_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `did_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `city_id` int(11) NOT NULL,
+  `beauty_level` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `fk_did_group__city_id` (`city_id`),
+  CONSTRAINT `fk_did_group__city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -810,8 +939,8 @@ DROP TABLE IF EXISTS `domains`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `domains` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `actual_from` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `actual_to` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `actual_from` date NOT NULL DEFAULT '0000-00-00',
+  `actual_to` date NOT NULL DEFAULT '0000-00-00',
   `domain` varchar(64) NOT NULL DEFAULT '',
   `client` varchar(32) NOT NULL DEFAULT '',
   `primary_mx` varchar(64) NOT NULL DEFAULT '',
@@ -822,7 +951,7 @@ CREATE TABLE `domains` (
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `domain` (`domain`)
-) ENGINE=InnoDB AUTO_INCREMENT=347 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=349 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -835,14 +964,14 @@ DROP TABLE IF EXISTS `e164_stat`;
 CREATE TABLE `e164_stat` (
   `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `e164` varchar(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `action` enum('create','fix','unfix','invertReserved','invertSpecial','invertOur','nullCall') NOT NULL,
+  `action` varchar(50) NOT NULL,
   `client` int(10) unsigned DEFAULT NULL,
   `user` int(10) unsigned DEFAULT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `addition` text,
   PRIMARY KEY (`pk`),
   KEY `work` (`e164`)
-) ENGINE=InnoDB AUTO_INCREMENT=82715 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=88678 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -863,9 +992,8 @@ CREATE TABLE `email_whitelist` (
   `rbl_enabled` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `domain` (`domain`)
-) ENGINE=InnoDB AUTO_INCREMENT=2796 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2798 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -875,7 +1003,7 @@ ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `email_whitelist_chck` BEFORE INSERT ON `email_whitelist` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `email_whitelist_chck` BEFORE INSERT ON `email_whitelist` FOR EACH ROW BEGIN
  IF (
    (NEW.local_part IS NULL OR NEW.local_part='')
  AND
@@ -896,7 +1024,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `emailaliases`
@@ -935,11 +1062,13 @@ CREATE TABLE `emails` (
   `enabled` tinyint(1) NOT NULL DEFAULT '1',
   `spam_act` enum('pass','mark','discard') NOT NULL DEFAULT 'pass',
   `smtp_auth` tinyint(1) NOT NULL DEFAULT '0',
-  `status` enum('connecting','working') NOT NULL DEFAULT 'working',
+  `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `local_part` (`local_part`,`domain`)
-) ENGINE=InnoDB AUTO_INCREMENT=3277 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3344 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -962,7 +1091,7 @@ CREATE TABLE `event_queue` (
   PRIMARY KEY (`id`),
   KEY `is_handled` (`status`) USING BTREE,
   KEY `code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=268744 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=58247 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1151,7 +1280,7 @@ CREATE TABLE `g_income_document` (
   KEY `fk_organization` (`organization_id`) USING BTREE,
   KEY `idx_order` (`order_id`) USING BTREE,
   CONSTRAINT `client_card` FOREIGN KEY (`client_card_id`) REFERENCES `clients` (`id`),
-  CONSTRAINT `organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`),
+  CONSTRAINT `organization` FOREIGN KEY (`organization_id`) REFERENCES `g_organization` (`id`),
   CONSTRAINT `store` FOREIGN KEY (`store_id`) REFERENCES `g_store` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1179,7 +1308,7 @@ CREATE TABLE `g_income_document_lines` (
   KEY `idx_document` (`document_id`) USING BTREE,
   KEY `order` (`order_id`) USING BTREE,
   CONSTRAINT `document` FOREIGN KEY (`document_id`) REFERENCES `g_income_document` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16608 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=20979 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1214,6 +1343,7 @@ CREATE TABLE `g_income_order` (
   KEY `fk_store` (`store_id`) USING BTREE,
   KEY `fk_organization` (`organization_id`) USING BTREE,
   KEY `fk_manager` (`manager_id`) USING BTREE,
+  KEY `number` (`number`),
   CONSTRAINT `client_card_id` FOREIGN KEY (`client_card_id`) REFERENCES `clients` (`id`),
   CONSTRAINT `fk_manager` FOREIGN KEY (`manager_id`) REFERENCES `user_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
@@ -1240,7 +1370,7 @@ CREATE TABLE `g_income_order_lines` (
   PRIMARY KEY (`id`),
   KEY `idx_order` (`order_id`) USING BTREE,
   CONSTRAINT `fk_order` FOREIGN KEY (`order_id`) REFERENCES `g_income_order` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44481 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=55483 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1287,7 +1417,7 @@ CREATE TABLE `g_income_store_lines` (
   KEY `idx_document` (`document_id`) USING BTREE,
   KEY `idx_order_id` (`order_id`) USING BTREE,
   CONSTRAINT `fk_document` FOREIGN KEY (`document_id`) REFERENCES `g_income_store` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44779 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=53438 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1320,6 +1450,22 @@ CREATE TABLE `g_order_free_goods` (
   `last_free` int(11) NOT NULL,
   UNIQUE KEY `pk` (`bill_no`,`good_id`,`descr_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `g_organization`
+--
+
+DROP TABLE IF EXISTS `g_organization`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `g_organization` (
+  `id` char(36) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `jur_name` varchar(200) DEFAULT NULL,
+  `jur_name_full` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1397,55 +1543,54 @@ CREATE TABLE `g_unit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `grid_business_process`
+-- Table structure for table `history_changes`
 --
 
-DROP TABLE IF EXISTS `grid_business_process`;
+DROP TABLE IF EXISTS `history_changes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `grid_business_process` (
+CREATE TABLE `history_changes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_contract_id` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sort` tinyint(4) DEFAULT NULL,
-  `link` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+  `model` varchar(50) NOT NULL,
+  `model_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `action` enum('insert','update','delete') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `data_json` text NOT NULL,
+  `prev_data_json` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `history_changes__model_model_id` (`model`,`model_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=934581 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `grid_business_process_statuses`
+-- Table structure for table `history_version`
 --
 
-DROP TABLE IF EXISTS `grid_business_process_statuses`;
+DROP TABLE IF EXISTS `history_version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `grid_business_process_statuses` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `grid_business_process_id` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+CREATE TABLE `history_version` (
+  `model` varchar(50) NOT NULL,
+  `model_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `data_json` text NOT NULL,
+  PRIMARY KEY (`model`,`model_id`,`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `grid_settings`
+-- Table structure for table `language`
 --
 
-DROP TABLE IF EXISTS `grid_settings`;
+DROP TABLE IF EXISTS `language`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `grid_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `grid_business_process_id` int(11) DEFAULT NULL,
-  `sort` tinyint(4) DEFAULT NULL,
-  `sql` text,
-  `default` tinyint(4) DEFAULT '0',
-  `config` text,
-  `show_as_status` tinyint(4) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+CREATE TABLE `language` (
+  `code` varchar(5) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1486,7 +1631,7 @@ CREATE TABLE `lk_notice` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `contact_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1995 DEFAULT CHARSET=koi8r ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=3343 DEFAULT CHARSET=koi8r ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1509,7 +1654,7 @@ CREATE TABLE `lk_notice_log` (
   PRIMARY KEY (`id`),
   KEY `client_id` (`date`,`client_id`) USING BTREE,
   KEY `date` (`date`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=6261 DEFAULT CHARSET=koi8r ROW_FORMAT=FIXED;
+) ENGINE=MyISAM AUTO_INCREMENT=14636 DEFAULT CHARSET=koi8r ROW_FORMAT=FIXED;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1532,6 +1677,25 @@ CREATE TABLE `lk_notice_settings` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `lk_wizard_state`
+--
+
+DROP TABLE IF EXISTS `lk_wizard_state`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lk_wizard_state` (
+  `contract_id` int(11) NOT NULL,
+  `step` tinyint(4) NOT NULL DEFAULT '0',
+  `state` enum('rejected','review','approve','process') NOT NULL DEFAULT 'process',
+  `trouble_id` int(11) NOT NULL DEFAULT '0',
+  `type` enum('t2t','mcn') NOT NULL DEFAULT 'mcn',
+  `is_bonus_added` tinyint(4) NOT NULL DEFAULT '0',
+  `is_on` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`contract_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `log`
 --
 
@@ -1543,7 +1707,7 @@ CREATE TABLE `log` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32293 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=51473 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1565,7 +1729,7 @@ CREATE TABLE `log_block` (
   PRIMARY KEY (`id`),
   KEY `k_service` (`id_service`,`service`),
   KEY `ts` (`ts`)
-) ENGINE=InnoDB AUTO_INCREMENT=89371 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=98666 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1578,6 +1742,7 @@ DROP TABLE IF EXISTS `log_client`;
 CREATE TABLE `log_client` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL DEFAULT '0',
+  `super_id` int(11) NOT NULL DEFAULT '0',
   `user_id` int(11) NOT NULL DEFAULT '0',
   `ts` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `comment` text NOT NULL,
@@ -1588,25 +1753,7 @@ CREATE TABLE `log_client` (
   `comment2` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=84210 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `log_client_fields`
---
-
-DROP TABLE IF EXISTS `log_client_fields`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `log_client_fields` (
-  `id` int(4) NOT NULL AUTO_INCREMENT,
-  `ver_id` int(4) NOT NULL DEFAULT '0',
-  `field` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `value_from` varchar(255) DEFAULT '',
-  `value_to` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `ver_id` (`ver_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=93823 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=92589 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1643,7 +1790,7 @@ CREATE TABLE `log_newbills` (
   PRIMARY KEY (`id`),
   KEY `bill_no` (`bill_no`),
   KEY `ts` (`ts`)
-) ENGINE=InnoDB AUTO_INCREMENT=1632039 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1822274 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1661,7 +1808,7 @@ CREATE TABLE `log_newbills_static` (
   `comment` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `bill_no` (`bill_no`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17169 DEFAULT CHARSET=koi8r;
+) ENGINE=InnoDB AUTO_INCREMENT=18294 DEFAULT CHARSET=koi8r;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1680,7 +1827,7 @@ CREATE TABLE `log_send_voip_settings` (
   `phones` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `client` (`client`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=3049 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3794 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1692,8 +1839,6 @@ DROP TABLE IF EXISTS `log_tarif`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_tarif` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `actual_from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `actual_to` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `service` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `id_service` int(11) NOT NULL DEFAULT '0',
   `id_tarif` int(11) DEFAULT '0',
@@ -1715,77 +1860,68 @@ CREATE TABLE `log_tarif` (
   PRIMARY KEY (`id`),
   KEY `ts` (`ts`),
   KEY `id_service` (`id_service`,`service`)
-) ENGINE=InnoDB AUTO_INCREMENT=30644 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38599 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_ins_tr` AFTER INSERT ON `log_tarif`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_ins_tr` AFTER INSERT ON `log_tarif`
 FOR EACH ROW BEGIN
      IF NEW.service = 'usage_voip' THEN
-	     call z_sync_postgres('log_tarif', NEW.id);
+         call z_sync_postgres('log_tarif', NEW.id);
      END IF;
-     call add_event('log_tarif__insert', concat(NEW.id, '|', NEW.service,'|', NEW.id_service));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_upd_tr` AFTER UPDATE ON `log_tarif`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_upd_tr` AFTER UPDATE ON `log_tarif`
 FOR EACH ROW BEGIN
      IF NEW.service = 'usage_voip' THEN
-	     call z_sync_postgres('log_tarif', NEW.id);
+         call z_sync_postgres('log_tarif', NEW.id);
      END IF;
-     call add_event('log_tarif__update', concat(NEW.id, '|', NEW.service,'|', NEW.id_service));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_del_tr` AFTER DELETE ON `log_tarif`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_log_tarif_after_del_tr` AFTER DELETE ON `log_tarif`
 FOR EACH ROW BEGIN
      IF OLD.service = 'usage_voip' THEN
-	     call z_sync_postgres('log_tarif', OLD.id);
+         call z_sync_postgres('log_tarif', OLD.id);
      END IF;
-     call add_event('log_tarif__del', concat(OLD.id, '|', OLD.service,'|', OLD.id_service));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `log_tech_cpe`
@@ -1801,7 +1937,7 @@ CREATE TABLE `log_tech_cpe` (
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `tech_cpe_id` (`tech_cpe_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26254 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27109 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1819,7 +1955,7 @@ CREATE TABLE `log_usage_history` (
   `service` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `service_id` (`service`,`service_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7724 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14773 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1837,7 +1973,7 @@ CREATE TABLE `log_usage_history_fields` (
   `value_to` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `log_usage_history_id` (`log_usage_history_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11183 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25535 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1857,7 +1993,7 @@ CREATE TABLE `log_usage_ip_routes` (
   `net` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `usage_ip_routes_id` (`usage_ip_routes_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18346 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18834 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1874,7 +2010,7 @@ CREATE TABLE `mail_files` (
   `type` varchar(30) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `job_id` (`job_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1892,7 +2028,7 @@ CREATE TABLE `mail_job` (
   `user_edit` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `job_state` enum('stop','ready','test','news','PM') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stop',
   PRIMARY KEY (`job_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1115 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1923,7 +2059,7 @@ CREATE TABLE `mail_object` (
   `object_id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
-  `object_type` enum('bill','PM','assignment','order','notice','invoice','akt','new_director_info','upd','lading') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bill',
+  `object_type` enum('bill','PM','assignment','order','notice','invoice','akt','new_director_info','upd','lading','notice_mcm_telekom') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bill',
   `object_param` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `source` int(4) NOT NULL DEFAULT '2',
   `view_count` tinyint(4) NOT NULL DEFAULT '0',
@@ -1931,7 +2067,7 @@ CREATE TABLE `mail_object` (
   PRIMARY KEY (`object_id`),
   KEY `job_id` (`job_id`,`client_id`),
   KEY `object_type` (`object_type`,`object_param`)
-) ENGINE=InnoDB AUTO_INCREMENT=624654 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=722053 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1950,6 +2086,39 @@ CREATE TABLE `mcn_client_may` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_id` int(11) NOT NULL,
+  `subject` varchar(250) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `date` (`created_at`),
+  KEY `account_id` (`account_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `message_text`
+--
+
+DROP TABLE IF EXISTS `message_text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message_text` (
+  `message_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`message_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `metro`
 --
 
@@ -1961,6 +2130,20 @@ CREATE TABLE `metro` (
   `name` varchar(35) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `migration`
+--
+
+DROP TABLE IF EXISTS `migration`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migration` (
+  `version` varchar(180) NOT NULL,
+  `apply_time` int(11) DEFAULT NULL,
+  PRIMARY KEY (`version`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1981,26 +2164,6 @@ CREATE TABLE `mod_traf_1d` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `mod_traf_5m`
---
-
-DROP TABLE IF EXISTS `mod_traf_5m`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `mod_traf_5m` (
-  `datetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `sysuptime` int(11) NOT NULL DEFAULT '0',
-  `rx_octets` bigint(11) NOT NULL DEFAULT '0',
-  `tx_octets` bigint(11) NOT NULL DEFAULT '0',
-  `transfer_rx` bigint(11) NOT NULL DEFAULT '0',
-  `transfer_tx` bigint(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ip_int`,`datetime`),
-  KEY `ktime` (`datetime`)
-) ENGINE=InnoDB DEFAULT CHARSET=koi8r;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `modules`
 --
 
@@ -2014,42 +2177,6 @@ CREATE TABLE `modules` (
   PRIMARY KEY (`module`),
   KEY `is_installed` (`is_installed`,`load_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `monitor_1h`
---
-
-DROP TABLE IF EXISTS `monitor_1h`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `monitor_1h` (
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `time3600` int(11) unsigned NOT NULL DEFAULT '0',
-  `bad_count` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `good_sum` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ip_int`,`time3600`)
-) ENGINE=InnoDB DEFAULT CHARSET=koi8r
-/*!50100 PARTITION BY RANGE (`time3600`)
-(PARTITION p7 VALUES LESS THAN (390306) ENGINE = InnoDB,
- PARTITION p8 VALUES LESS THAN (399066) ENGINE = InnoDB,
- PARTITION p9 VALUES LESS THAN (407826) ENGINE = InnoDB,
- PARTITION p10 VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `monitor_5min`
---
-
-DROP TABLE IF EXISTS `monitor_5min`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `monitor_5min` (
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `time300` int(11) unsigned NOT NULL DEFAULT '0',
-  `value` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ip_int`,`time300`)
-) ENGINE=InnoDB DEFAULT CHARSET=koi8r;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2161,7 +2288,7 @@ CREATE TABLE `newbill_change_log` (
   `item` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `k_bill_no` (`bill_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=81479 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=88069 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2179,7 +2306,7 @@ CREATE TABLE `newbill_change_log_fields` (
   `to` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `k_change_id` (`change_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71426 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=77823 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2201,10 +2328,8 @@ CREATE TABLE `newbill_lines` (
   `dispatch` int(4) NOT NULL DEFAULT '0',
   `price` decimal(13,4) DEFAULT '0.0000',
   `sum` decimal(11,2) DEFAULT NULL,
-  `discount` decimal(11,4) NOT NULL DEFAULT '0.0000',
   `discount_set` decimal(11,4) NOT NULL DEFAULT '0.0000',
   `discount_auto` decimal(11,4) NOT NULL DEFAULT '0.0000',
-  `all4net_price` decimal(11,2) NOT NULL DEFAULT '0.00',
   `service` varchar(20) NOT NULL DEFAULT '',
   `id_service` int(11) DEFAULT '0',
   `date_from` date NOT NULL DEFAULT '0000-00-00',
@@ -2213,72 +2338,15 @@ CREATE TABLE `newbill_lines` (
   `gtd` varchar(255) NOT NULL DEFAULT '',
   `contry_maker` varchar(255) NOT NULL DEFAULT '',
   `country_id` int(4) NOT NULL DEFAULT '0',
-  `is_price_includes_tax` tinyint(4) DEFAULT NULL,
-  `tax_type_id` int(11) DEFAULT NULL,
+  `tax_rate` int(11) DEFAULT NULL,
   `sum_without_tax` decimal(11,2) DEFAULT NULL,
   `sum_tax` decimal(11,2) DEFAULT NULL,
-  `sum_with_tax` decimal(11,2) DEFAULT NULL,
-  `doc_sum_without_tax` decimal(11,2) DEFAULT NULL,
-  `doc_sum_tax` decimal(11,2) DEFAULT NULL,
-  `doc_sum_with_tax` decimal(11,2) DEFAULT NULL,
-  `xxx` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`pk`),
   UNIQUE KEY `bill_sort` (`bill_no`,`sort`),
   KEY `service` (`service`,`id_service`),
   CONSTRAINT `newbill_lines__bill_no` FOREIGN KEY (`bill_no`) REFERENCES `newbills` (`bill_no`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1471569 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1605425 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `newbill_lines_bill_move` BEFORE UPDATE ON `newbill_lines` FOR EACH ROW lbl: begin
-declare v_NewBillSortMax int default 0;
-if NEW.bill_no <> OLD.bill_no then
-update
-`newbills_overprice_aggregate`
-set
-`bill_no` = NEW.bill_no
-where
-`bill_line_pk` = OLD.`pk`;
-select ifnull(max(`sort`),0) into v_NewBillSortMax from `newbill_lines` where `bill_no` = NEW.bill_no;
-set NEW.sort = v_NewBillSortMax + 1;
-update `newbills` set `sum` = `sum` - NEW.price*NEW.amount*1.18 where `bill_no` = OLD.bill_no;
-update `newbills` set `sum` = `sum` + NEW.price*NEW.amount*1.18 where `bill_no` = NEW.bill_no;
-end if;
-end */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `newbill_lines_delete` BEFORE DELETE ON `newbill_lines` FOR EACH ROW lbl: begin
-delete d from  `newbills_overprice_additions` d, newbills_overprice_aggregate g where d.overprice_pk = g.pk and `bill_line_pk` = OLD.pk;
-delete from `newbills_overprice_aggregate` where `bill_line_pk` = OLD.pk;
-end */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `newbill_owner`
@@ -2292,8 +2360,7 @@ CREATE TABLE `newbill_owner` (
   `owner_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`bill_no`),
   KEY `k_owner` (`owner_id`),
-  KEY `k_owner_bill` (`owner_id`,`bill_no`),
-  CONSTRAINT `fk_newbill_owner__bill_no` FOREIGN KEY (`bill_no`) REFERENCES `newbills` (`bill_no`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `k_owner_bill` (`owner_id`,`bill_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2359,45 +2426,33 @@ CREATE TABLE `newbills` (
   `bill_date` date NOT NULL DEFAULT '0000-00-00',
   `client_id` int(11) NOT NULL DEFAULT '0',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
+  `is_approved` tinyint(4) DEFAULT NULL,
   `sum` decimal(11,2) DEFAULT '0.00',
+  `sum_with_unapproved` decimal(11,2) DEFAULT NULL,
+  `price_include_vat` tinyint(4) NOT NULL DEFAULT '0',
   `is_payed` tinyint(1) DEFAULT '0' COMMENT '0 - ?????????, 1 - ????????? ???????, 2 - ?? ?????????, 3 - ???? ?????? ???? ??????',
   `inv2to1` tinyint(1) NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
-  `inv_rub` decimal(11,2) DEFAULT '0.00',
-  `inv1_rate` decimal(9,4) DEFAULT NULL,
-  `inv1_date` date NOT NULL,
-  `inv2_rate` decimal(9,4) DEFAULT NULL,
-  `inv2_date` date NOT NULL,
-  `inv3_rate` decimal(9,4) DEFAULT NULL,
-  `inv3_date` date NOT NULL,
-  `gen_bill_rub` decimal(11,2) DEFAULT '0.00',
-  `gen_bill_rate` decimal(9,4) DEFAULT NULL,
-  `gen_bill_date` date NOT NULL,
   `postreg` date NOT NULL DEFAULT '0000-00-00',
   `courier_id` int(4) unsigned NOT NULL DEFAULT '0',
   `nal` enum('beznal','nal','prov') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `cleared_sum` decimal(11,2) DEFAULT '0.00',
-  `cleared_flag` tinyint(4) DEFAULT '1',
   `sync_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'no',
   `push_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'yes',
   `state_1c` varchar(32) NOT NULL DEFAULT 'Новый',
   `is_rollback` tinyint(4) NOT NULL DEFAULT '0',
-  `payed_ya` decimal(8,2) NOT NULL DEFAULT '0.00',
   `editor` enum('stat','admin') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stat',
   `is_lk_show` tinyint(4) NOT NULL DEFAULT '1',
   `doc_date` date NOT NULL DEFAULT '0000-00-00',
   `is_user_prepay` tinyint(4) NOT NULL DEFAULT '0',
   `bill_no_ext` varchar(32) NOT NULL DEFAULT '',
   `bill_no_ext_date` date NOT NULL,
-  `sum_total` decimal(11,2) DEFAULT NULL,
-  `sum_total_with_unapproved` decimal(11,2) DEFAULT NULL,
-  `doc_sum_total` decimal(11,2) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `bill_no` (`bill_no`) USING BTREE,
   KEY `client_id` (`client_id`),
   KEY `bill_date` (`bill_date`),
-  KEY `courier_id` (`courier_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=338571 DEFAULT CHARSET=utf8;
+  KEY `courier_id` (`courier_id`),
+  KEY `is_user_prepay` (`is_user_prepay`)
+) ENGINE=InnoDB AUTO_INCREMENT=396266 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -2408,7 +2463,7 @@ CREATE TABLE `newbills` (
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `insert_newbills_after` AFTER INSERT ON `newbills`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `insert_newbills_after` AFTER INSERT ON `newbills`
 FOR EACH ROW call add_event('newbills__insert', NEW.bill_no) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2424,7 +2479,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `update_newbills_after` AFTER UPDATE ON `newbills`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `update_newbills_after` AFTER UPDATE ON `newbills`
 FOR EACH ROW begin 
 call add_event('newbills__update', NEW.bill_no);
 if OLD.doc_date <> NEW.doc_date THEN
@@ -2445,7 +2500,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `delete_newbills` BEFORE DELETE ON `newbills`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `delete_newbills` BEFORE DELETE ON `newbills`
 FOR EACH ROW call add_event('newbills__delete', OLD.bill_no) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2519,74 +2574,8 @@ CREATE TABLE `newbills_documents` (
   `i7` tinyint(2) DEFAULT '0',
   `ia1` tinyint(2) DEFAULT '0',
   `ia2` tinyint(2) DEFAULT '0',
-  PRIMARY KEY (`bill_no`),
-  CONSTRAINT `fk_newbills_documents__bill_no` FOREIGN KEY (`bill_no`) REFERENCES `newbills` (`bill_no`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (`bill_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `newbills_overprice_additions`
---
-
-DROP TABLE IF EXISTS `newbills_overprice_additions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `newbills_overprice_additions` (
-  `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `overprice_pk` int(10) unsigned NOT NULL,
-  `key` varchar(16) NOT NULL,
-  `value` varchar(64) NOT NULL,
-  PRIMARY KEY (`pk`),
-  KEY `overprice_pk` (`overprice_pk`)
-) ENGINE=InnoDB AUTO_INCREMENT=659783 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `newbills_overprice_aggregate`
---
-
-DROP TABLE IF EXISTS `newbills_overprice_aggregate`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `newbills_overprice_aggregate` (
-  `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Номер счета',
-  `rate_id` int(10) unsigned NOT NULL COMMENT 'Идентификатор тарифа',
-  `rate_currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Валюта тарифа',
-  `rate_price` double unsigned NOT NULL COMMENT 'Стоимость превышения тарифа',
-  `rate_limit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Лимит тарифа',
-  `quantity` double unsigned NOT NULL DEFAULT '0' COMMENT 'Количество превышенного',
-  `quantity_by_rate` int(10) unsigned DEFAULT NULL COMMENT 'Сумма тарифицированных минут',
-  `msk_length` int(10) unsigned NOT NULL DEFAULT '0',
-  `total_price` double unsigned NOT NULL DEFAULT '0' COMMENT 'Цена на превышение',
-  `bill_price` double unsigned NOT NULL DEFAULT '0' COMMENT 'Цена, выставленная в счет',
-  `index` enum('voip','internet') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Тип тарифа - телефония/интернет',
-  `bill_line_pk` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`pk`),
-  KEY `bill_no` (`bill_no`),
-  KEY `index` (`index`),
-  KEY `bill_line_pk` (`bill_line_pk`)
-) ENGINE=InnoDB AUTO_INCREMENT=202891 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `newbills_rtsaldo_changes`
---
-
-DROP TABLE IF EXISTS `newbills_rtsaldo_changes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `newbills_rtsaldo_changes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_id` int(11) NOT NULL,
-  `delta_RUB` decimal(11,2) NOT NULL,
-  `delta_USD` decimal(11,2) NOT NULL,
-  `sum_RUB` decimal(11,2) NOT NULL,
-  `sum_USD` decimal(11,2) NOT NULL,
-  `ts` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=223635 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2597,32 +2586,31 @@ DROP TABLE IF EXISTS `newpayments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newpayments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL DEFAULT '0',
-  `payment_no` bigint(20) NOT NULL DEFAULT '0',
+  `payment_no` varchar(32) NOT NULL DEFAULT '0',
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `bill_vis_no` varchar(32) NOT NULL DEFAULT '',
   `payment_date` date NOT NULL DEFAULT '0000-00-00',
   `oper_date` date NOT NULL DEFAULT '0000-00-00',
   `payment_rate` decimal(8,4) NOT NULL DEFAULT '0.0000',
   `type` enum('bank','prov','ecash','neprov') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank',
-  `ecash_operator` enum('uniteller','cyberplat','yandex') DEFAULT NULL,
-  `sum_rub` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `ecash_operator` enum('uniteller','cyberplat','paypal','yandex') DEFAULT NULL,
+  `sum` decimal(11,2) NOT NULL DEFAULT '0.00',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
+  `original_sum` decimal(11,2) DEFAULT NULL,
+  `original_currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `comment` varchar(255) NOT NULL,
   `add_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `add_user` int(11) NOT NULL DEFAULT '0',
-  `push_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'yes',
-  `sync_1c` enum('yes','no') DEFAULT 'no',
-  `bank` enum('citi','mos','ural','sber') NOT NULL DEFAULT 'mos',
+  `bank` enum('citi','mos','ural','sber','raiffeisen') NOT NULL DEFAULT 'mos',
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`,`payment_no`),
   KEY `bill_no_2` (`bill_no`,`bill_vis_no`),
   KEY `bill_no` (`bill_no`),
   KEY `bill_vis_no` (`bill_vis_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=267373 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=292559 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -2632,7 +2620,7 @@ ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `add_pay_notif` AFTER INSERT ON `newpayments` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `add_pay_notif` AFTER INSERT ON `newpayments` FOR EACH ROW BEGIN
      call add_event('add_payment', concat(NEW.id, "|", NEW.client_id));
 END */;;
 DELIMITER ;
@@ -2640,7 +2628,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `newpayments_orders`
@@ -2650,39 +2637,34 @@ DROP TABLE IF EXISTS `newpayments_orders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newpayments_orders` (
+  `client_id` int(11) NOT NULL,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `payment_id` varchar(32) NOT NULL,
   `sum` decimal(11,2) NOT NULL,
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `sum_rub` decimal(11,2) NOT NULL,
-  `sync_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no',
-  `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_id`,`bill_no`,`payment_id`),
   KEY `payment_id` (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `newpayments_webmoney`
+-- Table structure for table `news`
 --
 
-DROP TABLE IF EXISTS `newpayments_webmoney`;
+DROP TABLE IF EXISTS `news`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `newpayments_webmoney` (
+CREATE TABLE `news` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `keyword` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `client_id` int(11) NOT NULL,
-  `status` enum('reserved','check','payed','error_payed','error') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'reserved',
-  `sum` decimal(11,2) NOT NULL,
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
-  `payment_id` int(11) NOT NULL,
-  `extra` text NOT NULL,
-  `ts` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `to_user_id` int(11) DEFAULT '0',
+  `date` datetime NOT NULL,
+  `priority` enum('unimportant','usual','important') NOT NULL DEFAULT 'usual',
   PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`),
-  KEY `payment_id` (`payment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+  KEY `date` (`date`),
+  KEY `to_user_id` (`to_user_id`),
+  KEY `priority` (`priority`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2703,7 +2685,7 @@ CREATE TABLE `newsaldo` (
   `edit_time` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1437 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1468 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2767,27 +2749,108 @@ DROP TABLE IF EXISTS `organization`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `organization` (
-  `id` char(36) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `jur_name` varchar(200) DEFAULT NULL,
-  `jur_name_full` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `organization_id` int(11) NOT NULL DEFAULT '0',
+  `actual_from` date NOT NULL DEFAULT '2000-01-01',
+  `actual_to` date NOT NULL DEFAULT '4000-01-01',
+  `firma` varchar(128) DEFAULT NULL COMMENT 'ÐšÐ»ÑŽÑ‡ Ð´Ð»Ñ ÑÐ²ÑÐ·Ð¸ Ñ clients',
+  `country_id` int(4) NOT NULL DEFAULT '643',
+  `lang_code` varchar(5) NOT NULL DEFAULT 'ru',
+  `is_simple_tax_system` tinyint(1) NOT NULL DEFAULT '0',
+  `vat_rate` smallint(6) NOT NULL DEFAULT '0',
+  `name` varchar(250) NOT NULL,
+  `full_name` varchar(250) DEFAULT NULL,
+  `legal_address` varchar(250) DEFAULT NULL,
+  `post_address` varchar(250) DEFAULT NULL,
+  `registration_id` varchar(250) DEFAULT NULL,
+  `tax_registration_id` varchar(32) DEFAULT NULL,
+  `tax_registration_reason` varchar(12) DEFAULT NULL,
+  `bank_account` varchar(128) DEFAULT NULL,
+  `bank_name` varchar(255) DEFAULT NULL,
+  `bank_correspondent_account` varchar(64) DEFAULT NULL,
+  `bank_bik` varchar(20) DEFAULT NULL,
+  `bank_swift` varchar(11) DEFAULT NULL,
+  `contact_phone` varchar(148) DEFAULT NULL,
+  `contact_fax` varchar(148) DEFAULT NULL,
+  `contact_email` varchar(128) DEFAULT NULL,
+  `contact_site` varchar(250) DEFAULT NULL,
+  `logo_file_name` varchar(50) DEFAULT NULL,
+  `stamp_file_name` varchar(50) DEFAULT NULL,
+  `director_id` int(11) DEFAULT NULL,
+  `accountant_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `organization_id_actual_from` (`organization_id`,`actual_from`),
+  KEY `fk_organization__director_id` (`director_id`),
+  KEY `fk_organization__accountant_id` (`accountant_id`),
+  CONSTRAINT `fk_organization__accountant_id` FOREIGN KEY (`accountant_id`) REFERENCES `person` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_organization__director_id` FOREIGN KEY (`director_id`) REFERENCES `person` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_organization_after_ins_tr` AFTER INSERT ON `organization`
+FOR EACH ROW BEGIN
+     call z_sync_postgres('organization', NEW.id);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_organization_after_upd_tr` AFTER UPDATE ON `organization`
+FOR EACH ROW BEGIN
 
---
--- Table structure for table `organizations`
---
+  if NEW.actual_from <> OLD.actual_from 
+        or
+       NEW.actual_to <> OLD.actual_to 
+        or
+       NEW.vat_rate <> OLD.vat_rate
+        or
+       NEW.organization_id <> OLD.organization_id
+  then
+     call z_sync_postgres('organization', NEW.id);
+  end if;
 
-DROP TABLE IF EXISTS `organizations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `organizations` (
-  `id` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `name` varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_organization_after_del_tr` AFTER DELETE ON `organization`
+FOR EACH ROW BEGIN
+     call z_sync_postgres('organization', OLD.id);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `params`
@@ -2825,6 +2888,47 @@ CREATE TABLE `payments_orders` (
   `bill_payment_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1048 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `paypal_payment`
+--
+
+DROP TABLE IF EXISTS `paypal_payment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `paypal_payment` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `token` varchar(64) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  `sum` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `payer_id` varchar(64) NOT NULL,
+  `payment_id` varchar(64) NOT NULL,
+  `data1` text NOT NULL,
+  `data2` text NOT NULL,
+  `data3` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `token` (`token`)
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `person`
+--
+
+DROP TABLE IF EXISTS `person`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `person` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name_nominative` varchar(250) NOT NULL,
+  `name_genitive` varchar(150) NOT NULL,
+  `post_nominative` varchar(150) NOT NULL,
+  `post_genitive` varchar(250) NOT NULL,
+  `signature_file_name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `full_info` (`name_nominative`,`post_nominative`,`signature_file_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2995,51 +3099,7 @@ CREATE TABLE `qr_code` (
   `doc_type` char(2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `k_client` (`client_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=36352 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `radacct`
---
-
-DROP TABLE IF EXISTS `radacct`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `radacct` (
-  `RadAcctId` bigint(21) NOT NULL AUTO_INCREMENT,
-  `AcctSessionId` varbinary(32) NOT NULL DEFAULT '',
-  `AcctUniqueId` varbinary(32) NOT NULL DEFAULT '',
-  `UserName` varbinary(64) NOT NULL DEFAULT '',
-  `Realm` varbinary(64) DEFAULT '',
-  `NASIPAddress` varbinary(15) NOT NULL DEFAULT '',
-  `NASPortId` int(12) DEFAULT NULL,
-  `NASPortType` varbinary(32) DEFAULT NULL,
-  `AcctStartTime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `AcctStopTime` datetime DEFAULT NULL,
-  `AcctSessionTime` int(12) DEFAULT NULL,
-  `AcctAuthentic` varbinary(32) DEFAULT NULL,
-  `ConnectInfo_start` varbinary(32) DEFAULT NULL,
-  `ConnectInfo_stop` varbinary(32) DEFAULT NULL,
-  `AcctInputOctets` bigint(12) DEFAULT NULL,
-  `AcctOutputOctets` bigint(12) DEFAULT NULL,
-  `CalledStationId` varbinary(50) NOT NULL DEFAULT '',
-  `CallingStationId` varbinary(50) NOT NULL DEFAULT '',
-  `AcctTerminateCause` varbinary(32) NOT NULL DEFAULT '',
-  `ServiceType` varbinary(32) DEFAULT NULL,
-  `FramedProtocol` varbinary(32) DEFAULT NULL,
-  `FramedIPAddress` varbinary(15) NOT NULL DEFAULT '',
-  `AcctStartDelay` int(12) DEFAULT NULL,
-  `AcctStopDelay` int(12) DEFAULT NULL,
-  `xascendsessionsvrkey` varbinary(10) DEFAULT NULL,
-  PRIMARY KEY (`RadAcctId`),
-  UNIQUE KEY `AcctUniqueId` (`AcctUniqueId`),
-  KEY `NASIPAddress` (`NASIPAddress`),
-  KEY `FramedIPAddress` (`FramedIPAddress`),
-  KEY `AcctSessionId` (`AcctSessionId`),
-  KEY `UserName` (`UserName`),
-  KEY `AcctStopTime` (`AcctStopTime`),
-  KEY `AcctStartTime` (`AcctStartTime`)
-) ENGINE=InnoDB AUTO_INCREMENT=1733717 DEFAULT CHARSET=binary;
+) ENGINE=InnoDB AUTO_INCREMENT=52975 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3144,29 +3204,10 @@ CREATE TABLE `regions` (
   `short_name` varchar(10) NOT NULL,
   `code` int(11) DEFAULT NULL,
   `timezone_name` varchar(50) NOT NULL,
+  `country_id` int(10) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary table structure for view `saas_status`
---
-
-DROP TABLE IF EXISTS `saas_status`;
-/*!50001 DROP VIEW IF EXISTS `saas_status`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `saas_status` (
-  `client_id` tinyint NOT NULL,
-  `client` tinyint NOT NULL,
-  `is_block` tinyint NOT NULL,
-  `id` tinyint NOT NULL,
-  `num_ports` tinyint NOT NULL,
-  `overrun_per_port` tinyint NOT NULL,
-  `space` tinyint NOT NULL,
-  `overrun_per_mb` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `saldo`
@@ -3202,7 +3243,7 @@ CREATE TABLE `sale_channels` (
   `interest` decimal(5,2) NOT NULL DEFAULT '0.00',
   `courier_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3284,7 +3325,7 @@ CREATE TABLE `server_pbx` (
   `datacenter_id` int(11) NOT NULL DEFAULT '0',
   `trunk_vpbx_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3302,7 +3343,22 @@ CREATE TABLE `sms_stat` (
   PRIMARY KEY (`pk`),
   UNIQUE KEY `sender_hour` (`sender`,`date_hour`),
   KEY `sender` (`sender`)
-) ENGINE=InnoDB AUTO_INCREMENT=1553 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3103 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stat_voip_free_cache`
+--
+
+DROP TABLE IF EXISTS `stat_voip_free_cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stat_voip_free_cache` (
+  `number` varchar(16) NOT NULL,
+  `month` tinyint(4) NOT NULL,
+  `calls` smallint(6) NOT NULL,
+  KEY `number` (`number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3355,13 +3411,14 @@ CREATE TABLE `support_ticket` (
   `user_id` char(24) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `subject` varchar(1000) NOT NULL,
   `status` enum('open','done','closed') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `service_type` enum('virtual_ats','internet','voip') DEFAULT NULL,
+  `is_with_new_comment` tinyint(4) NOT NULL DEFAULT '0',
+  `department` enum('sales','accounting','technical') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'technical',
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `status` (`status`),
   KEY `client_account_id` (`client_account_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=405 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3378,7 +3435,7 @@ CREATE TABLE `support_ticket_comment` (
   `text` text NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=953 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3498,26 +3555,6 @@ CREATE TABLE `tariffication_subscription` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `tarifs_8800`
---
-
-DROP TABLE IF EXISTS `tarifs_8800`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tarifs_8800` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` enum('public','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public',
-  `description` varchar(100) NOT NULL DEFAULT '',
-  `period` enum('month') DEFAULT 'month',
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
-  `price` decimal(13,4) NOT NULL DEFAULT '0.0000',
-  `edit_user` int(11) NOT NULL DEFAULT '0',
-  `edit_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `tarifs_extra`
 --
 
@@ -3537,36 +3574,10 @@ CREATE TABLE `tarifs_extra` (
   `edit_user` int(11) NOT NULL DEFAULT '0',
   `edit_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `okvd_code` int(4) NOT NULL DEFAULT '0',
+  `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=371 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tarifs_hosting`
---
-
-DROP TABLE IF EXISTS `tarifs_hosting`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tarifs_hosting` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `pay_month` decimal(5,2) NOT NULL DEFAULT '0.00',
-  `mb_disk` int(11) NOT NULL DEFAULT '0',
-  `has_dns` tinyint(1) NOT NULL DEFAULT '0',
-  `has_ftp` tinyint(1) NOT NULL DEFAULT '0',
-  `has_ssh` tinyint(1) NOT NULL DEFAULT '0',
-  `has_ssi` tinyint(1) NOT NULL DEFAULT '0',
-  `has_php` tinyint(1) NOT NULL DEFAULT '0',
-  `has_perl` tinyint(1) NOT NULL DEFAULT '0',
-  `has_mysql` tinyint(1) NOT NULL DEFAULT '0',
-  `status` enum('public','special','archive') CHARACTER SET koi8r DEFAULT 'public',
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
-  `edit_user` int(11) DEFAULT NULL,
-  `edit_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=385 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3599,25 +3610,34 @@ CREATE TABLE `tarifs_internet` (
   `edit_user` int(11) DEFAULT NULL,
   `edit_time` datetime DEFAULT NULL,
   `adsl_speed` varchar(11) DEFAULT '768/6144',
+  `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=541 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=560 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `tarifs_saas`
+-- Table structure for table `tarifs_number`
 --
 
-DROP TABLE IF EXISTS `tarifs_saas`;
+DROP TABLE IF EXISTS `tarifs_number`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tarifs_saas` (
+CREATE TABLE `tarifs_number` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `num_ports` int(4) NOT NULL DEFAULT '0',
-  `overrun_per_port` decimal(13,4) NOT NULL DEFAULT '0.0000',
-  `space` int(4) NOT NULL DEFAULT '0',
-  `overrun_per_mb` decimal(13,4) DEFAULT '0.0000',
+  `country_id` int(11) NOT NULL,
+  `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `city_id` int(11) NOT NULL,
+  `connection_point_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `status` enum('public','special','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `activation_fee` decimal(10,2) NOT NULL,
+  `periodical_fee` decimal(10,2) NOT NULL,
+  `period` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `did_group_id` int(11) DEFAULT NULL,
+  `old_beauty_level` int(11) DEFAULT NULL,
+  `old_prefix` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=342 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3637,8 +3657,9 @@ CREATE TABLE `tarifs_sms` (
   `per_sms_price` decimal(13,2) NOT NULL DEFAULT '0.00',
   `edit_user` int(11) NOT NULL DEFAULT '0',
   `edit_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3664,8 +3685,9 @@ CREATE TABLE `tarifs_virtpbx` (
   `is_fax` tinyint(4) NOT NULL DEFAULT '0',
   `edit_user` int(11) NOT NULL DEFAULT '0',
   `edit_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3677,27 +3699,28 @@ DROP TABLE IF EXISTS `tarifs_voip`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tarifs_voip` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `country_id` int(11) NOT NULL DEFAULT '643',
+  `connection_point_id` int(11) DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
   `name_short` varchar(50) NOT NULL DEFAULT '',
   `sum_deposit` decimal(11,4) NOT NULL DEFAULT '0.0000',
-  `month_line` int(11) NOT NULL DEFAULT '0',
-  `month_number` int(11) NOT NULL DEFAULT '0',
-  `once_line` int(11) NOT NULL DEFAULT '0',
-  `once_number` int(11) NOT NULL DEFAULT '0',
+  `month_line` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `month_number` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `once_line` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `once_number` decimal(11,2) NOT NULL DEFAULT '0.00',
   `type_count` enum('all','unlim_r','unlim_all') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `status` enum('public','special','archive','operator') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public',
+  `status` enum('public','special','archive','7800','test','operator','transit') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public',
   `period` enum('immediately','day','week','month','6months','year') NOT NULL DEFAULT 'month',
   `free_local_min` int(11) DEFAULT '0',
   `freemin_for_number` tinyint(1) NOT NULL DEFAULT '0',
-  `month_min_payment` int(11) NOT NULL DEFAULT '0',
+  `month_min_payment` decimal(11,2) NOT NULL DEFAULT '0.00',
   `dest` smallint(6) NOT NULL,
-  `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
+  `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `priceid` int(11) NOT NULL,
   `edit_user` int(11) DEFAULT NULL,
   `edit_time` datetime DEFAULT NULL,
   `is_clientSelectable` tinyint(1) NOT NULL DEFAULT '0',
   `tarif_group` int(10) unsigned NOT NULL DEFAULT '5',
-  `region` int(11) NOT NULL,
   `pricelist_id` smallint(6) NOT NULL,
   `paid_redirect` tinyint(1) NOT NULL DEFAULT '0',
   `tariffication_by_minutes` tinyint(4) NOT NULL DEFAULT '0',
@@ -3705,11 +3728,12 @@ CREATE TABLE `tarifs_voip` (
   `tariffication_free_first_seconds` tinyint(4) NOT NULL DEFAULT '0',
   `tmp` int(11) DEFAULT NULL,
   `is_virtual` tinyint(4) NOT NULL DEFAULT '0',
+  `is_testing` tinyint(4) NOT NULL DEFAULT '0',
+  `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `tarif_group` (`tarif_group`)
-) ENGINE=InnoDB AUTO_INCREMENT=371 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -3719,7 +3743,7 @@ ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_ins_tr` AFTER INSERT ON `tarifs_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_ins_tr` AFTER INSERT ON `tarifs_voip`
   FOR EACH ROW
 BEGIN
 	call z_sync_postgres('tarifs_voip', NEW.id);
@@ -3729,8 +3753,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -3740,7 +3762,7 @@ ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_upd_tr` AFTER UPDATE ON `tarifs_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_upd_tr` AFTER UPDATE ON `tarifs_voip`
   FOR EACH ROW
 BEGIN
 	call z_sync_postgres('tarifs_voip', NEW.id);
@@ -3750,8 +3772,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -3761,7 +3781,7 @@ ALTER DATABASE `nispd` CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_del_tr` AFTER DELETE ON `tarifs_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_tarifs_voip_after_del_tr` AFTER DELETE ON `tarifs_voip`
   FOR EACH ROW
 BEGIN
 	call z_sync_postgres('tarifs_voip', OLD.id);
@@ -3771,7 +3791,31 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
+
+--
+-- Table structure for table `tarifs_voip_package`
+--
+
+DROP TABLE IF EXISTS `tarifs_voip_package`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tarifs_voip_package` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `country_id` int(11) NOT NULL DEFAULT '643',
+  `connection_point_id` int(11) DEFAULT '0',
+  `currency_id` char(3) NOT NULL DEFAULT 'USD',
+  `destination_id` int(11) DEFAULT '0',
+  `pricelist_id` smallint(6) DEFAULT '0',
+  `name` varchar(255) NOT NULL,
+  `price_include_vat` tinyint(1) DEFAULT '1',
+  `periodical_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `min_payment` int(11) NOT NULL DEFAULT '0',
+  `minutes_count` smallint(6) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `fk_tariff_voip_package__destination_id` (`destination_id`),
+  CONSTRAINT `fk_tariff_voip_package__destination_id` FOREIGN KEY (`destination_id`) REFERENCES `voip_destination` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `tech_cpe`
@@ -3805,11 +3849,13 @@ CREATE TABLE `tech_cpe` (
   `deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT '0.00',
   `snmp` tinyint(1) NOT NULL DEFAULT '0',
   `ast_autoconf` tinyint(1) NOT NULL DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `id_model` (`id_model`),
   KEY `service` (`service`,`id_service`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=16881 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17334 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3843,38 +3889,7 @@ CREATE TABLE `tech_cpe_models` (
   `default_deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT '0.00',
   `type` enum('','voip','router','adsl','wireless','pon') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tech_devices`
---
-
-DROP TABLE IF EXISTS `tech_devices`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tech_devices` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `actual_from` date NOT NULL DEFAULT '9999-00-00',
-  `actual_to` date NOT NULL DEFAULT '9999-00-00',
-  `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `manufacturer` varchar(100) NOT NULL DEFAULT '',
-  `model` varchar(100) NOT NULL DEFAULT '',
-  `serial` varchar(32) NOT NULL DEFAULT '',
-  `mac` varchar(12) NOT NULL DEFAULT '',
-  `ip` varchar(100) NOT NULL DEFAULT '',
-  `ip_nat` varchar(15) NOT NULL DEFAULT '',
-  `ip_cidr` varchar(100) NOT NULL DEFAULT '',
-  `ip_gw` varchar(100) NOT NULL DEFAULT '',
-  `admin_login` varchar(100) NOT NULL DEFAULT '',
-  `admin_pass` varchar(100) NOT NULL DEFAULT '',
-  `numbers` varchar(100) NOT NULL DEFAULT '',
-  `logins` varchar(100) NOT NULL DEFAULT '',
-  `type` enum('','voip','router') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `owner` enum('','mcn','client','mgts') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `node` varchar(100) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=282 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3906,7 +3921,7 @@ CREATE TABLE `tech_ports` (
   `trafcounttype` enum('','flows','counter_smnp','counter_web') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'flows',
   `address` varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8670 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8687 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3927,7 +3942,7 @@ CREATE TABLE `tech_routers` (
   `net` varchar(100) NOT NULL DEFAULT '',
   `adsl_modem_serial` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3950,110 +3965,76 @@ CREATE TABLE `tech_voip_numbers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `traf_flows_1d`
+-- Table structure for table `transaction`
 --
 
-DROP TABLE IF EXISTS `traf_flows_1d`;
+DROP TABLE IF EXISTS `transaction`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `traf_flows_1d` (
-  `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `ip_int` int(11) unsigned NOT NULL DEFAULT '0',
-  `router` enum('rubicon') NOT NULL DEFAULT 'rubicon',
-  `in_r` bigint(20) DEFAULT '0',
-  `out_r` bigint(20) DEFAULT '0',
-  `in_r2` bigint(20) DEFAULT '0',
-  `out_r2` bigint(20) DEFAULT '0',
-  `in_f` bigint(20) DEFAULT '0',
-  `out_f` bigint(20) DEFAULT '0',
-  PRIMARY KEY (`time`,`ip_int`)
-) ENGINE=InnoDB DEFAULT CHARSET=binary
-/*!50100 PARTITION BY RANGE ( YEAR(`time`))
-(PARTITION y2014 VALUES LESS THAN (2015) COMMENT = '2014' ENGINE = InnoDB,
- PARTITION y2015 VALUES LESS THAN (2016) COMMENT = '2015' ENGINE = InnoDB) */;
+CREATE TABLE `transaction` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_account_id` int(11) NOT NULL,
+  `source` enum('stat','bill','payment') NOT NULL,
+  `billing_period` date DEFAULT NULL,
+  `service_type` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `service_id` int(10) unsigned DEFAULT NULL,
+  `package_id` int(10) unsigned DEFAULT NULL,
+  `transaction_type` enum('connecting','periodical','resource') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `transaction_date` datetime NOT NULL,
+  `period_from` datetime DEFAULT NULL,
+  `period_to` datetime DEFAULT NULL,
+  `name` varchar(200) DEFAULT NULL,
+  `price` decimal(13,4) DEFAULT NULL,
+  `amount` decimal(13,6) DEFAULT NULL,
+  `tax_rate` int(11) DEFAULT NULL,
+  `sum` decimal(11,2) NOT NULL,
+  `sum_tax` decimal(11,2) DEFAULT NULL,
+  `sum_without_tax` decimal(11,2) DEFAULT NULL,
+  `is_partial_write_off` tinyint(4) NOT NULL,
+  `effective_amount` decimal(13,6) DEFAULT NULL,
+  `effective_sum` decimal(11,2) NOT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
+  `bill_id` int(10) unsigned DEFAULT NULL,
+  `bill_line_id` int(10) unsigned DEFAULT NULL,
+  `deleted` tinyint(4) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_source_payment_id` (`source`,`payment_id`),
+  KEY `idx_client_account_id_source_billing_period` (`client_account_id`,`source`,`billing_period`),
+  KEY `idx_client_account_id_source_transaction_date` (`client_account_id`,`source`,`transaction_date`),
+  KEY `fk_transaction__bill_id` (`bill_id`),
+  KEY `fk_transaction__payment_id` (`payment_id`),
+  CONSTRAINT `fk_transaction__bill_id` FOREIGN KEY (`bill_id`) REFERENCES `newbills` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_transaction__payment_id` FOREIGN KEY (`payment_id`) REFERENCES `newpayments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1471169 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `traf_flows_1h`
+-- Table structure for table `transaction_service`
 --
 
-DROP TABLE IF EXISTS `traf_flows_1h`;
+DROP TABLE IF EXISTS `transaction_service`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `traf_flows_1h` (
-  `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `ip_int` int(11) unsigned NOT NULL DEFAULT '0',
-  `router` enum('rubicon') NOT NULL DEFAULT 'rubicon',
-  `in_r` bigint(20) DEFAULT '0',
-  `out_r` bigint(20) DEFAULT '0',
-  `in_r2` bigint(20) DEFAULT '0',
-  `out_r2` bigint(20) DEFAULT '0',
-  `in_f` bigint(20) DEFAULT '0',
-  `out_f` bigint(20) DEFAULT '0',
-  PRIMARY KEY (`time`,`ip_int`)
-) ENGINE=InnoDB DEFAULT CHARSET=binary
-/*!50100 PARTITION BY RANGE (TO_DAYS(`time`))
-(PARTITION y2014m01 VALUES LESS THAN (735630) COMMENT = '2014-01' ENGINE = InnoDB,
- PARTITION y2014m02 VALUES LESS THAN (735658) COMMENT = '2014-02' ENGINE = InnoDB,
- PARTITION y2014m03 VALUES LESS THAN (735689) COMMENT = '2014-03' ENGINE = InnoDB,
- PARTITION y2014m04 VALUES LESS THAN (735719) COMMENT = '2014-04' ENGINE = InnoDB,
- PARTITION y2014m05 VALUES LESS THAN (735750) COMMENT = '2014-05' ENGINE = InnoDB,
- PARTITION y2014m06 VALUES LESS THAN (735780) COMMENT = '2014-06' ENGINE = InnoDB,
- PARTITION y2014m07 VALUES LESS THAN (735811) COMMENT = '2014-07' ENGINE = InnoDB,
- PARTITION y2014m08 VALUES LESS THAN (735842) COMMENT = '2014-08' ENGINE = InnoDB,
- PARTITION y2014m09 VALUES LESS THAN (735872) COMMENT = '2014-09' ENGINE = InnoDB,
- PARTITION y2014m10 VALUES LESS THAN (735903) COMMENT = '2014-10' ENGINE = InnoDB,
- PARTITION y2014m11 VALUES LESS THAN (735933) COMMENT = '2014-11' ENGINE = InnoDB,
- PARTITION y2014m12 VALUES LESS THAN (735964) COMMENT = '2014-12' ENGINE = InnoDB,
- PARTITION y2015m01 VALUES LESS THAN (735995) COMMENT = '2015-01' ENGINE = InnoDB,
- PARTITION y2015m02 VALUES LESS THAN (736023) COMMENT = '2015-02' ENGINE = InnoDB,
- PARTITION y2015m03 VALUES LESS THAN (736054) COMMENT = '2015-03' ENGINE = InnoDB,
- PARTITION y2015m04 VALUES LESS THAN (736084) COMMENT = '2015-04' ENGINE = InnoDB,
- PARTITION y2015m05 VALUES LESS THAN (736115) COMMENT = '2015-05' ENGINE = InnoDB,
- PARTITION y2015m06 VALUES LESS THAN (736145) COMMENT = '2015-06' ENGINE = InnoDB,
- PARTITION y2015m07 VALUES LESS THAN (736176) COMMENT = '2015-07' ENGINE = InnoDB,
- PARTITION y2015m08 VALUES LESS THAN (736207) COMMENT = '2015-08' ENGINE = InnoDB,
- PARTITION y2015m09 VALUES LESS THAN (736237) COMMENT = '2015-09' ENGINE = InnoDB,
- PARTITION y2015m10 VALUES LESS THAN (736268) COMMENT = '2015-10' ENGINE = InnoDB,
- PARTITION y2015m11 VALUES LESS THAN (736298) COMMENT = '2015-11' ENGINE = InnoDB) */;
-/*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `ins2traf1h` BEFORE INSERT ON `traf_flows_1h` FOR EACH ROW BEGIN
-    IF (NEW.time IS NULL OR NEW.time=0) THEN
-        SET NEW.time = now();
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-
---
--- Table structure for table `traf_flows_report`
---
-
-DROP TABLE IF EXISTS `traf_flows_report`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `traf_flows_report` (
-  `id_port` int(11) NOT NULL,
-  `date` date NOT NULL DEFAULT '0000-00-00',
-  `in_bytes` bigint(20) NOT NULL,
-  `out_bytes` bigint(20) NOT NULL,
-  PRIMARY KEY (`date`,`id_port`),
-  KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `transaction_service` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_account_id` int(11) NOT NULL,
+  `source` enum('stat','jerasoft') NOT NULL,
+  `service_type` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `service_id` int(10) unsigned DEFAULT NULL,
+  `service_subtype` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `period_from` datetime DEFAULT NULL,
+  `period_to` datetime DEFAULT NULL,
+  `name` varchar(200) NOT NULL,
+  `price` decimal(13,4) DEFAULT NULL,
+  `amount` decimal(13,6) NOT NULL,
+  `sum` decimal(11,2) DEFAULT NULL,
+  `effective_amount` decimal(13,6) DEFAULT NULL,
+  `effective_sum` decimal(11,2) DEFAULT NULL,
+  `transaction_date` datetime NOT NULL,
+  `is_partial_write_off` tinyint(4) DEFAULT NULL,
+  `is_in_bill` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4089,7 +4070,26 @@ CREATE TABLE `tt_doers` (
   PRIMARY KEY (`id`),
   KEY `stage_doer` (`stage_id`,`doer_id`),
   KEY `stage_id` (`stage_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45734 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=48393 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tt_files`
+--
+
+DROP TABLE IF EXISTS `tt_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tt_files` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `trouble_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL DEFAULT '0',
+  `ts` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `comment` text NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `trouble_id` (`trouble_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4119,7 +4119,7 @@ CREATE TABLE `tt_send` (
   `user` varchar(100) NOT NULL DEFAULT '',
   `text` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14950 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12349 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4157,8 +4157,9 @@ CREATE TABLE `tt_stages` (
   PRIMARY KEY (`stage_id`),
   KEY `id_trouble` (`trouble_id`),
   KEY `date_start` (`date_start`),
-  KEY `user_main` (`user_main`)
-) ENGINE=InnoDB AUTO_INCREMENT=836549 DEFAULT CHARSET=utf8;
+  KEY `user_main` (`user_main`),
+  CONSTRAINT `fk_tt_stages__trouble_id` FOREIGN KEY (`trouble_id`) REFERENCES `tt_troubles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=943421 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4180,7 +4181,7 @@ CREATE TABLE `tt_states` (
   `oso` tinyint(4) NOT NULL DEFAULT '0',
   `omo` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4248,6 +4249,7 @@ CREATE TABLE `tt_troubles` (
   `trouble_subtype` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `date_close` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `support_ticket_id` int(11) DEFAULT NULL,
+  `server_id` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `service_id` (`service_id`),
@@ -4255,8 +4257,9 @@ CREATE TABLE `tt_troubles` (
   KEY `bill_no` (`bill_no`),
   KEY `date_creation` (`date_creation`),
   KEY `bill_id` (`bill_id`),
-  KEY `support_ticket_id` (`support_ticket_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=198058 DEFAULT CHARSET=utf8;
+  KEY `support_ticket_id` (`support_ticket_id`) USING BTREE,
+  KEY `server_id` (`server_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=219452 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4275,28 +4278,6 @@ CREATE TABLE `tt_types` (
   PRIMARY KEY (`pk`),
   KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `usage_8800`
---
-
-DROP TABLE IF EXISTS `usage_8800`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `usage_8800` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `actual_from` date NOT NULL DEFAULT '2029-01-01',
-  `actual_to` date NOT NULL DEFAULT '2029-01-01',
-  `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
-  `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
-  `comment` varchar(255) NOT NULL DEFAULT '',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
-  `number` varchar(16) NOT NULL DEFAULT '7800',
-  PRIMARY KEY (`id`),
-  KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4327,6 +4308,8 @@ DROP TABLE IF EXISTS `usage_extra`;
 CREATE TABLE `usage_extra` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `param_value` varchar(100) NOT NULL DEFAULT '',
@@ -4335,9 +4318,11 @@ CREATE TABLE `usage_extra` (
   `comment` varchar(255) NOT NULL DEFAULT '',
   `tarif_id` int(11) NOT NULL DEFAULT '0',
   `code` varchar(20) NOT NULL DEFAULT '',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=3638 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3821 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4350,6 +4335,8 @@ DROP TABLE IF EXISTS `usage_ip_ports`;
 CREATE TABLE `usage_ip_ports` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '9999-00-00',
   `actual_to` date NOT NULL DEFAULT '9999-00-00',
   `address` varchar(255) NOT NULL DEFAULT '',
@@ -4359,9 +4346,11 @@ CREATE TABLE `usage_ip_ports` (
   `speed_mgts` varchar(32) NOT NULL DEFAULT '',
   `speed_update` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `amount` int(4) NOT NULL DEFAULT '1',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=7770 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7933 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4381,6 +4370,8 @@ CREATE TABLE `usage_ip_ppp` (
   `user_editable` tinyint(1) NOT NULL DEFAULT '1',
   `enabled` tinyint(1) NOT NULL DEFAULT '1',
   `client` varchar(100) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL DEFAULT '',
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `ip` varchar(15) NOT NULL DEFAULT '',
   `nat_to_ip` varchar(15) NOT NULL DEFAULT '',
   `enabled_local_ports` varchar(100) NOT NULL DEFAULT '',
@@ -4412,6 +4403,8 @@ DROP TABLE IF EXISTS `usage_ip_routes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `usage_ip_routes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '9999-00-00',
   `actual_to` date NOT NULL DEFAULT '9999-00-00',
   `port_id` int(11) NOT NULL DEFAULT '0',
@@ -4426,7 +4419,7 @@ CREATE TABLE `usage_ip_routes` (
   PRIMARY KEY (`id`),
   KEY `net` (`net`),
   KEY `port_id` (`port_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7798 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7896 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4439,14 +4432,18 @@ DROP TABLE IF EXISTS `usage_sms`;
 CREATE TABLE `usage_sms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
   `tarif_id` int(11) NOT NULL DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4471,6 +4468,163 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `usage_trunk`
+--
+
+DROP TABLE IF EXISTS `usage_trunk`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usage_trunk` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_account_id` int(11) NOT NULL,
+  `connection_point_id` int(11) NOT NULL,
+  `trunk_id` int(11) NOT NULL,
+  `actual_from` date NOT NULL DEFAULT '9999-00-00',
+  `actual_to` date NOT NULL DEFAULT '9999-00-00',
+  `activation_dt` datetime NOT NULL,
+  `expire_dt` datetime NOT NULL,
+  `orig_enabled` tinyint(4) NOT NULL DEFAULT '0',
+  `term_enabled` tinyint(4) NOT NULL DEFAULT '0',
+  `orig_min_payment` int(11) NOT NULL DEFAULT '0',
+  `term_min_payment` int(11) NOT NULL DEFAULT '0',
+  `description` varchar(255) DEFAULT NULL,
+  `operator_id` int(11) DEFAULT NULL,
+  `tmp` int(11) DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `usage_trunk__connection_point_id_trunk_name` (`connection_point_id`) USING BTREE,
+  KEY `usage_trunk__client_account_id` (`client_account_id`) USING BTREE,
+  CONSTRAINT `usage_trunk__client_account_id` FOREIGN KEY (`client_account_id`) REFERENCES `clients` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `usage_trunk__connection_point_id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_after_ins_tr` AFTER INSERT ON `usage_trunk` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk', NEW.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_after_upd_tr` AFTER UPDATE ON `usage_trunk` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk', NEW.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_after_del_tr` AFTER DELETE ON `usage_trunk` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk', OLD.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `usage_trunk_settings`
+--
+
+DROP TABLE IF EXISTS `usage_trunk_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usage_trunk_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usage_id` int(11) NOT NULL,
+  `type` smallint(6) NOT NULL,
+  `order` smallint(6) NOT NULL,
+  `src_number_id` int(11) DEFAULT NULL,
+  `dst_number_id` int(11) DEFAULT NULL,
+  `pricelist_id` int(11) DEFAULT NULL,
+  `tmp` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `usage_id_type_order` (`usage_id`,`type`,`order`),
+  CONSTRAINT `usage_trunk_settings__usag_id` FOREIGN KEY (`usage_id`) REFERENCES `usage_trunk` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_settings_after_ins_tr` AFTER INSERT ON `usage_trunk_settings` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk_settings', NEW.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_settings_after_upd_tr` AFTER UPDATE ON `usage_trunk_settings` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk_settings', NEW.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_trunk_settings_after_del_tr` AFTER DELETE ON `usage_trunk_settings` FOR EACH ROW BEGIN
+                call z_sync_postgres('usage_trunk_settings', OLD.id);
+            END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
 -- Table structure for table `usage_virtpbx`
 --
 
@@ -4480,20 +4634,23 @@ DROP TABLE IF EXISTS `usage_virtpbx`;
 CREATE TABLE `usage_virtpbx` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `region` smallint(6) NOT NULL,
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
   `tarif_id` int(11) NOT NULL DEFAULT '0',
-  `server_pbx_id` int(11) NOT NULL DEFAULT '0',
   `is_moved` int(1) NOT NULL DEFAULT '0',
   `moved_from` int(11) NOT NULL,
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=3271 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3571 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -4503,15 +4660,13 @@ ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `vpbx_insert` AFTER INSERT ON `usage_virtpbx`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `vpbx_insert` AFTER INSERT ON `usage_virtpbx`
 FOR EACH ROW call add_event('usage_virtpbx__insert', concat(NEW.id,'|', NEW.client)) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -4521,15 +4676,13 @@ ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `vpbx_update` AFTER UPDATE ON `usage_virtpbx`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `vpbx_update` AFTER UPDATE ON `usage_virtpbx`
 FOR EACH ROW call add_event('usage_virtpbx__update', concat(NEW.id,'|', NEW.client)) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -4539,14 +4692,13 @@ ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `vpbx_delete` AFTER DELETE ON `usage_virtpbx`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `vpbx_delete` AFTER DELETE ON `usage_virtpbx`
 FOR EACH ROW call add_event('usage_virtpbx__delete', concat(OLD.id,'|', OLD.client)) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `usage_voip`
@@ -4562,96 +4714,112 @@ CREATE TABLE `usage_voip` (
   `actual_from` date NOT NULL DEFAULT '9999-00-00',
   `actual_to` date NOT NULL DEFAULT '9999-00-00',
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `type_id` enum('number','line','7800','operator') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `activation_dt` datetime NOT NULL,
+  `expire_dt` datetime NOT NULL,
   `E164` varchar(40) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `no_of_lines` int(11) NOT NULL DEFAULT '1',
-  `date_last_writeoff` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `address` text NOT NULL,
-  `no_of_callfwd` int(4) NOT NULL DEFAULT '0',
-  `tmp` int(11) DEFAULT NULL,
+  `address_from_datacenter_id` int(11) DEFAULT NULL,
   `edit_user_id` int(11) DEFAULT NULL,
   `is_trunk` enum('0','1') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0',
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `allowed_direction` enum('full','russia','localmob','local') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'full',
+  `allowed_direction` enum('full','russia','localmob','blocked','local') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'full',
   `one_sip` tinyint(4) NOT NULL DEFAULT '0',
   `line7800_id` int(11) NOT NULL DEFAULT '0',
   `is_moved` int(1) NOT NULL DEFAULT '0',
   `is_moved_with_pbx` int(1) NOT NULL DEFAULT '0',
   `create_params` varchar(1024) NOT NULL,
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `E164` (`E164`),
-  KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=10322 DEFAULT CHARSET=utf8;
+  KEY `client` (`client`),
+  KEY `fk_usage_voip__address_from_datacenter_id` (`address_from_datacenter_id`),
+  KEY `line7800_id` (`line7800_id`),
+  CONSTRAINT `fk_usage_voip__address_from_datacenter_id` FOREIGN KEY (`address_from_datacenter_id`) REFERENCES `datacenter` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14344 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_ins_tr` AFTER INSERT ON `usage_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_ins_tr` AFTER INSERT ON `usage_voip`
 FOR EACH ROW BEGIN
-	call z_sync_postgres('usage_voip', NEW.id);
+    call z_sync_postgres('usage_voip', NEW.id);
 
-                call update_voip_number(NEW.E164, NEW.edit_user_id);
-
-call add_event('usage_voip__insert', concat(NEW.id,'|', NEW.client));
-
+             call update_voip_number(NEW.E164, NEW.edit_user_id);
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_upd_tr` AFTER UPDATE ON `usage_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_upd_tr` AFTER UPDATE ON `usage_voip`
 FOR EACH ROW BEGIN
                 call z_sync_postgres('usage_voip', NEW.id);
                 call update_voip_number(NEW.E164, NEW.edit_user_id);
-                call add_event('usage_voip__update', concat(NEW.id,'|', NEW.client));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_del_tr` AFTER DELETE ON `usage_voip`
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `to_postgres_usage_voip_after_del_tr` AFTER DELETE ON `usage_voip`
 FOR EACH ROW BEGIN
                 call z_sync_postgres('usage_voip', OLD.id);
                 call update_voip_number(OLD.E164, OLD.edit_user_id);
-                call add_event('usage_voip__delete', concat(OLD.id,'|', OLD.client));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
+
+--
+-- Table structure for table `usage_voip_package`
+--
+
+DROP TABLE IF EXISTS `usage_voip_package`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usage_voip_package` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `client` varchar(100) NOT NULL DEFAULT '0',
+  `activation_dt` datetime NOT NULL,
+  `expire_dt` datetime NOT NULL DEFAULT '4000-01-01 23:59:59',
+  `actual_from` date NOT NULL,
+  `actual_to` date NOT NULL DEFAULT '4000-01-01',
+  `tariff_id` int(11) NOT NULL DEFAULT '0',
+  `usage_voip_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `client` (`client`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `usage_welltime`
@@ -4663,6 +4831,8 @@ DROP TABLE IF EXISTS `usage_welltime`;
 CREATE TABLE `usage_welltime` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `activation_dt` datetime DEFAULT NULL,
+  `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `ip` varchar(100) NOT NULL DEFAULT '',
@@ -4671,9 +4841,11 @@ CREATE TABLE `usage_welltime` (
   `comment` varchar(255) NOT NULL DEFAULT '',
   `tarif_id` int(11) NOT NULL DEFAULT '0',
   `router` varchar(255) NOT NULL DEFAULT '',
+  `prev_usage_id` int(11) DEFAULT '0',
+  `next_usage_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
-) ENGINE=InnoDB AUTO_INCREMENT=3125 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3166 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4687,7 +4859,7 @@ CREATE TABLE `user_departs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4766,7 +4938,7 @@ CREATE TABLE `user_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `pass` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `usergroup` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'client',
+  `usergroup` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'client',
   `name` varchar(100) NOT NULL DEFAULT '',
   `color` varchar(7) NOT NULL DEFAULT '',
   `trouble_redirect` varchar(50) DEFAULT NULL,
@@ -4777,13 +4949,22 @@ CREATE TABLE `user_users` (
   `phone_work` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `phone_mobile` varchar(100) DEFAULT NULL,
   `data_flags` text NOT NULL,
-  `depart_id` int(4) NOT NULL DEFAULT '0',
+  `depart_id` int(10) unsigned DEFAULT NULL,
   `enabled` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes',
   `courier_id` int(4) NOT NULL DEFAULT '0',
   `show_troubles_on_every_page` tinyint(4) NOT NULL DEFAULT '0',
   `restriction_client_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8;
+  `timezone_name` varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
+  `language` varchar(5) NOT NULL DEFAULT 'ru-RU',
+  `city_id` int(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_user_users__city_id` (`city_id`),
+  KEY `fk_user_users__user_group` (`usergroup`),
+  KEY `fk_user_users__user_department` (`depart_id`),
+  CONSTRAINT `fk_user_users__user_department` FOREIGN KEY (`depart_id`) REFERENCES `user_departs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_users__city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_users__user_group` FOREIGN KEY (`usergroup`) REFERENCES `user_groups` (`usergroup`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=219 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4804,6 +4985,37 @@ CREATE TABLE `virtpbx_stat` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `voip_destination`
+--
+
+DROP TABLE IF EXISTS `voip_destination`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `voip_destination` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `voip_destination_prefixes`
+--
+
+DROP TABLE IF EXISTS `voip_destination_prefixes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `voip_destination_prefixes` (
+  `destination_id` int(11) NOT NULL,
+  `prefixlist_id` int(11) NOT NULL,
+  KEY `destination_id` (`destination_id`),
+  KEY `prefixlist_id` (`prefixlist_id`),
+  CONSTRAINT `fk_destination_prefixes__destination_id` FOREIGN KEY (`destination_id`) REFERENCES `voip_destination` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_destination_prefixes__pricelist_id` FOREIGN KEY (`prefixlist_id`) REFERENCES `voip_prefixlist` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `voip_numbers`
 --
 
@@ -4812,10 +5024,10 @@ DROP TABLE IF EXISTS `voip_numbers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `voip_numbers` (
   `number` varchar(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `is_special` enum('Y','N') NOT NULL DEFAULT 'N',
-  `reserved` enum('Y','N') NOT NULL DEFAULT 'N',
-  `our` enum('Y','N') NOT NULL DEFAULT 'N',
-  `nullcalls_last_2_days` int(11) DEFAULT NULL,
+  `status` enum('notsell','instock','reserved','active','hold') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'instock',
+  `reserve_from` datetime DEFAULT NULL,
+  `reserve_till` datetime DEFAULT NULL,
+  `hold_from` datetime DEFAULT NULL,
   `beauty_level` tinyint(4) NOT NULL DEFAULT '0',
   `price` int(11) DEFAULT '0',
   `region` smallint(6) NOT NULL,
@@ -4825,70 +5037,16 @@ CREATE TABLE `voip_numbers` (
   `used_until_date` datetime DEFAULT NULL,
   `edit_user_id` int(11) DEFAULT NULL,
   `site_publish` enum('N','Y') NOT NULL DEFAULT 'N',
+  `city_id` int(11) NOT NULL,
+  `did_group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`number`),
-  KEY `autoget` (`is_special`,`reserved`),
-  KEY `region` (`region`)
+  KEY `region` (`region`),
+  KEY `fk_voip_number__city_id` (`city_id`),
+  KEY `fk_voip_number__did_group_id` (`did_group_id`),
+  CONSTRAINT `fk_voip_number__city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_voip_number__did_group_id` FOREIGN KEY (`did_group_id`) REFERENCES `did_group` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-ALTER DATABASE `nispd` CHARACTER SET koi8r COLLATE koi8r_general_ci ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`latyntsev`@`localhost`*/ /*!50003 TRIGGER `number_update` BEFORE UPDATE ON `voip_numbers`
-FOR EACH ROW BEGIN
-
-    IF (new.client_id is not null AND old.client_id is null and new.usage_id is null) THEN
-        
-        
-        SET new.reserved_free_date = NOW();
-
-        insert into `e164_stat` set `e164`=new.number, action='invertReserved', client=new.client_id, user=new.edit_user_id, addition='Y';
-
-    ELSEIF (new.client_id is null AND old.client_id is not null and old.usage_id is null) THEN
-        
-        SET new.reserved_free_date = NULL;
-
-        insert into `e164_stat` set `e164`=new.number, action='invertReserved', client=old.client_id, user=new.edit_user_id, addition='N';
-
-    END IF;
-
-    IF (new.usage_id is not null AND old.usage_id is null) THEN
-        
-        SET new.reserved_free_date = NULL;
-
-        insert into `e164_stat` set `e164`=new.number, action='fix', client=new.client_id, user=new.edit_user_id;
-
-    ELSEIF (new.usage_id is null AND old.usage_id is not null) THEN
-        
-        
-        SET new.reserved_free_date = NOW();
-        SET new.used_until_date = NOW();
-
-        insert into `e164_stat` set `e164`=new.number, action='unfix', client=new.client_id, user=new.edit_user_id;
-
-    ELSEIF (new.client_id <> old.client_id) THEN
-
-        insert into `e164_stat` set `e164`=old.number, action='unfix', client=old.client_id, user=new.edit_user_id;
-
-        insert into `e164_stat` set `e164`=new.number, action='fix', client=new.client_id, user=new.edit_user_id;
-
-    END IF;
-
-    SET new.edit_user_id = NULL;
-
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `nispd` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 --
 -- Table structure for table `voip_permit`
@@ -4905,6 +5063,28 @@ CREATE TABLE `voip_permit` (
   `enable` smallint(1) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`client`,`callerid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `voip_prefixlist`
+--
+
+DROP TABLE IF EXISTS `voip_prefixlist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `voip_prefixlist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `type_id` smallint(6) NOT NULL,
+  `sub_type` enum('all','fixed','mobile') NOT NULL DEFAULT 'all',
+  `prefixes` text,
+  `country_id` int(11) DEFAULT NULL,
+  `region_id` int(11) DEFAULT NULL,
+  `city_id` int(11) DEFAULT NULL,
+  `exclude_operators` tinyint(1) DEFAULT NULL,
+  `operators` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4965,7 +5145,7 @@ CREATE TABLE `z_sync_admin` (
   `comment` text NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `bill_no` (`bill_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=892 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1619 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4977,7 +5157,7 @@ DROP TABLE IF EXISTS `z_sync_postgres`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `z_sync_postgres` (
   `tbase` enum('nispd','auth','nispd_dev') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `tname` enum('clients','usage_voip','tarifs_voip','log_tarif') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `tname` enum('clients','usage_voip','tarifs_voip','log_tarif','usage_trunk','usage_trunk_settings','organization') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `tid` int(11) NOT NULL,
   `rnd` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`tbase`,`tname`,`tid`)
@@ -4985,7 +5165,7 @@ CREATE TABLE `z_sync_postgres` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'nispd'
+-- Dumping routines for database 'test_all'
 --
 /*!50003 DROP FUNCTION IF EXISTS `get_tarif_internet` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -5180,106 +5360,6 @@ BEGIN
   end if;
 
 END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `create_super_client` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `create_super_client`(in __client varchar(255), in __company varchar(255), out __super_id int, out __contragent_id int)
-BEGIN
-
-declare _client varchar(255);
-declare _company varchar(255);
-declare tmp varchar(255);
-declare main_client_id int;
-declare main_super_id int;
-declare main_contragent_id int;
-DECLARE CONTINUE HANDLER FOR NOT FOUND
-	call log('not found');
-
-call log('start');
-
-
-set _client = __client;
-set _company = __company;
-call log('1');
-select last_insert_id() into tmp;
-
-call log(tmp);
-
-
-    IF INSTR(_client, "/") = 0 THEN
-
-
-			insert into client_super (name) values (_company);
-			select last_insert_id() into __super_id;
-call log("superId:");
-call log(__super_id);
-			insert into client_contragent (super_id, name) values (__super_id, _company);
-			select last_insert_id() into __contragent_id;
-call log("contrId:");
-call log(__contragent_id);
-
-			
-call log('10');
-
-ELSE
-			select id, super_id, contragent_id into main_client_id, main_super_id, main_contragent_id 
-					from clients where client = SUBSTRING_INDEX(__client,"/",1);
-
-			
-		
-set __super_id = main_super_id;
-set __contragent_id = main_contragent_id;
-
-			call log( concat("Update: ", __client, ", super: ", main_super_id, ", contragent: ", main_contragent_id));
-
-    END IF;
-
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `e164_stat_append_nullcall` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `e164_stat_append_nullcall`(in vNumber varchar(20), in vTime date)
-lbl: begin
-declare vFlag int default 0;
-declare continue handler for 1329 set vFlag=0;
-
-select 1 into vFlag from `voip_numbers` where `number`=vNumber and `number` not in (select e164 from usage_voip where now() between actual_from and actual_to);
-if vFlag = 0 then
-	leave lbl;
-end if;
-
-select 1 into vFlag from `e164_stat` where `e164`=vNumber and `time`=vTime;
-if vFlag = 0 then
-	insert into `e164_stat` set `e164`=vNumber, `action`='nullCall', `time`=vTime, `addition`=1;
-else
-	update `e164_stat` set `addition`=`addition`+1 where `e164`=vNumber and `time`=vTime;
-end if;
-end ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -5493,46 +5573,6 @@ BEGIN
 	CLOSE cur;
 
 END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `switch_bill_cleared` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `switch_bill_cleared`(in v_bill_no varbinary(32))
-begin
-declare v_sum_buf decimal(11,2) default 0;
-declare v_csum_buf decimal(11,2) default 0;
-declare v_flag_buf decimal(11,2) default 0;
-declare v_client_id INTEGER(11) default 0;
-
-start transaction;
-select `sum`, `cleared_sum`, `cleared_flag`, client_id into v_sum_buf, v_csum_buf, v_flag_buf, v_client_id from newbills where bill_no = v_bill_no lock in share mode;
-if v_flag_buf>0 then
-set v_csum_buf = v_sum_buf;
-set v_flag_buf = 0;
-set v_sum_buf = 0;
-else
-set v_sum_buf = v_csum_buf;
-set v_flag_buf = 1;
-set v_csum_buf = 0;
-end if;
-update newbills set `sum` = v_sum_buf, `cleared_sum` = v_csum_buf, `cleared_flag` = v_flag_buf where bill_no = v_bill_no;
-commit;
-
-call add_event('update_balance', v_client_id);
-
-
-end ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -7054,50 +7094,13 @@ BEGIN
 
     INSERT INTO z_sync_postgres(tbase, tname, tid, rnd) VALUES ('nispd', p_table, p_id, RAND()*2000000000);
 
+    
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Final view structure for view `clients_select`
---
-
-/*!50001 DROP TABLE IF EXISTS `clients_select`*/;
-/*!50001 DROP VIEW IF EXISTS `clients_select`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `clients_select` AS select `clients`.`id` AS `id`,`clients`.`client` AS `client`,`clients`.`company` AS `company`,md5(`clients`.`password`) AS `password` from `clients` where ((`clients`.`status` in ('work','connecting')) or (`clients`.`id` = 9130)) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `saas_status`
---
-
-/*!50001 DROP TABLE IF EXISTS `saas_status`*/;
-/*!50001 DROP VIEW IF EXISTS `saas_status`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `saas_status` AS select `c`.`id` AS `client_id`,`c`.`client` AS `client`,if((`c`.`status` = 'debt'),1,0) AS `is_block`,`s`.`id` AS `id`,`s`.`num_ports` AS `num_ports`,`s`.`overrun_per_port` AS `overrun_per_port`,`s`.`space` AS `space`,`s`.`overrun_per_mb` AS `overrun_per_mb` from (((`usage_welltime` `u` join `clients` `c`) join `tarifs_extra` `t`) join `tarifs_saas` `s`) where ((((`u`.`actual_from` <= date_format(now(),'%Y-%m-%d')) and (`u`.`actual_to` >= date_format(now(),'%Y-%m-%d'))) or (`u`.`actual_from` >= '2029-01-01')) and (`u`.`client` = `c`.`client`) and (`c`.`status` in ('work','connecting','testing','debt')) and (`t`.`code` = 'welltime') and (`t`.`id` = `u`.`tarif_id`) and (`s`.`id` = `t`.`id`)) order by `c`.`id` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `tt_states_rb`
@@ -7166,4 +7169,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-01-28 20:56:09
+-- Dump completed on 2015-09-12 11:47:37

@@ -1,246 +1,242 @@
-INSERT INTO `country` (`code`, `name`) VALUES (4, 'АФГАНИСТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (8, 'АЛБАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (10, 'АНТАРКТИДА');
-INSERT INTO `country` (`code`, `name`) VALUES (12, 'АЛЖИР');
-INSERT INTO `country` (`code`, `name`) VALUES (16, 'АМЕРИКАНСКОЕ САМОА');
-INSERT INTO `country` (`code`, `name`) VALUES (20, 'АНДОРРА');
-INSERT INTO `country` (`code`, `name`) VALUES (24, 'АНГОЛА');
-INSERT INTO `country` (`code`, `name`) VALUES (28, 'АНТИГУА И БАРБУДА');
-INSERT INTO `country` (`code`, `name`) VALUES (31, 'АЗЕРБАЙДЖАН');
-INSERT INTO `country` (`code`, `name`) VALUES (32, 'АРГЕНТИНА');
-INSERT INTO `country` (`code`, `name`) VALUES (36, 'АВСТРАЛИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (40, 'АВСТРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (44, 'БАГАМЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (48, 'БАХРЕЙН');
-INSERT INTO `country` (`code`, `name`) VALUES (50, 'БАНГЛАДЕШ');
-INSERT INTO `country` (`code`, `name`) VALUES (51, 'АРМЕНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (52, 'БАРБАДОС');
-INSERT INTO `country` (`code`, `name`) VALUES (56, 'БЕЛЬГИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (60, 'БЕРМУДЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (64, 'БУТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (68, 'БОЛИВИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (70, 'БОСНИЯ И ГЕРЦЕГОВИНА');
-INSERT INTO `country` (`code`, `name`) VALUES (72, 'БОТСВАНА');
-INSERT INTO `country` (`code`, `name`) VALUES (74, 'ОСТРОВ БУВЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (76, 'БРАЗИЛИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (84, 'БЕЛИЗ');
-INSERT INTO `country` (`code`, `name`) VALUES (86, 'БРИТАНСКАЯ ТЕРРИТОРИЯ В ИНДИЙСКОМ ОКЕАНЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (90, 'СОЛОМОНОВЫ ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (92, 'ВИРГИНСКИЕ ОСТРОВА, БРИТАНСКИЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (96, 'БРУНЕЙ - ДАРУССАЛАМ');
-INSERT INTO `country` (`code`, `name`) VALUES (100, 'БОЛГАРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (104, 'МЬЯНМА');
-INSERT INTO `country` (`code`, `name`) VALUES (108, 'БУРУНДИ');
-INSERT INTO `country` (`code`, `name`) VALUES (112, 'БЕЛАРУСЬ');
-INSERT INTO `country` (`code`, `name`) VALUES (116, 'КАМБОДЖА');
-INSERT INTO `country` (`code`, `name`) VALUES (120, 'КАМЕРУН');
-INSERT INTO `country` (`code`, `name`) VALUES (124, 'КАНАДА');
-INSERT INTO `country` (`code`, `name`) VALUES (132, 'КАБО - ВЕРДЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (136, 'ОСТРОВА КАЙМАН');
-INSERT INTO `country` (`code`, `name`) VALUES (140, 'ЦЕНТРАЛЬНО - АФРИКАНСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (144, 'ШРИ - ЛАНКА');
-INSERT INTO `country` (`code`, `name`) VALUES (148, 'ЧАД');
-INSERT INTO `country` (`code`, `name`) VALUES (152, 'ЧИЛИ');
-INSERT INTO `country` (`code`, `name`) VALUES (156, 'КИТАЙ');
-INSERT INTO `country` (`code`, `name`) VALUES (158, 'ТАЙВАНЬ (КИТАЙ)');
-INSERT INTO `country` (`code`, `name`) VALUES (162, 'ОСТРОВ РОЖДЕСТВА');
-INSERT INTO `country` (`code`, `name`) VALUES (166, 'КОКОСОВЫЕ (КИЛИНГ) ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (170, 'КОЛУМБИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (174, 'КОМОРЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (175, 'МАЙОТТА');
-INSERT INTO `country` (`code`, `name`) VALUES (178, 'КОНГО');
-INSERT INTO `country` (`code`, `name`) VALUES (180, 'КОНГО, ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (184, 'ОСТРОВА КУКА');
-INSERT INTO `country` (`code`, `name`) VALUES (188, 'КОСТА - РИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (191, 'ХОРВАТИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (192, 'КУБА');
-INSERT INTO `country` (`code`, `name`) VALUES (196, 'КИПР');
-INSERT INTO `country` (`code`, `name`) VALUES (203, 'ЧЕШСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (204, 'БЕНИН');
-INSERT INTO `country` (`code`, `name`) VALUES (208, 'ДАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (212, 'ДОМИНИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (214, 'ДОМИНИКАНСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (218, 'ЭКВАДОР');
-INSERT INTO `country` (`code`, `name`) VALUES (222, 'САЛЬВАДОР');
-INSERT INTO `country` (`code`, `name`) VALUES (226, 'ЭКВАТОРИАЛЬНАЯ ГВИНЕЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (231, 'ЭФИОПИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (232, 'ЭРИТРЕЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (233, 'ЭСТОНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (234, 'ФАРЕРСКИЕ ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (238, 'ФОЛКЛЕНДСКИЕ ОСТРОВА (МАЛЬВИНСКИЕ)');
-INSERT INTO `country` (`code`, `name`) VALUES (239, 'ЮЖНАЯ ДЖОРДЖИЯ И ЮЖНЫЕ САНДВИЧЕВЫ ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (242, 'ФИДЖИ');
-INSERT INTO `country` (`code`, `name`) VALUES (246, 'ФИНЛЯНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (250, 'ФРАНЦИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (254, 'ФРАНЦУЗСКАЯ ГВИАНА');
-INSERT INTO `country` (`code`, `name`) VALUES (258, 'ФРАНЦУЗСКАЯ ПОЛИНЕЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (260, 'ФРАНЦУЗСКИЕ ЮЖНЫЕ ТЕРРИТОРИИ');
-INSERT INTO `country` (`code`, `name`) VALUES (262, 'ДЖИБУТИ');
-INSERT INTO `country` (`code`, `name`) VALUES (266, 'ГАБОН');
-INSERT INTO `country` (`code`, `name`) VALUES (268, 'ГРУЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (270, 'ГАМБИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (275, 'ПАЛЕСТИНСКАЯ ТЕРРИТОРИЯ, ОККУПИРОВАННАЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (276, 'ГЕРМАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (288, 'ГАНА');
-INSERT INTO `country` (`code`, `name`) VALUES (292, 'ГИБРАЛТАР');
-INSERT INTO `country` (`code`, `name`) VALUES (296, 'КИРИБАТИ');
-INSERT INTO `country` (`code`, `name`) VALUES (300, 'ГРЕЦИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (304, 'ГРЕНЛАНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (308, 'ГРЕНАДА');
-INSERT INTO `country` (`code`, `name`) VALUES (312, 'ГВАДЕЛУПА');
-INSERT INTO `country` (`code`, `name`) VALUES (316, 'ГУАМ');
-INSERT INTO `country` (`code`, `name`) VALUES (320, 'ГВАТЕМАЛА');
-INSERT INTO `country` (`code`, `name`) VALUES (324, 'ГВИНЕЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (328, 'ГАЙАНА');
-INSERT INTO `country` (`code`, `name`) VALUES (332, 'ГАИТИ');
-INSERT INTO `country` (`code`, `name`) VALUES (334, 'ОСТРОВ ХЕРД И ОСТРОВА МАКДОНАЛЬД');
-INSERT INTO `country` (`code`, `name`) VALUES (336, 'ПАПСКИЙ ПРЕСТОЛ (ГОСУДАРСТВО - ГОРОД ВАТИКАН)');
-INSERT INTO `country` (`code`, `name`) VALUES (340, 'ГОНДУРАС');
-INSERT INTO `country` (`code`, `name`) VALUES (344, 'ГОНКОНГ');
-INSERT INTO `country` (`code`, `name`) VALUES (348, 'ВЕНГРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (352, 'ИСЛАНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (356, 'ИНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (360, 'ИНДОНЕЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (364, 'ИРАН, ИСЛАМСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (368, 'ИРАК');
-INSERT INTO `country` (`code`, `name`) VALUES (372, 'ИРЛАНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (376, 'ИЗРАИЛЬ');
-INSERT INTO `country` (`code`, `name`) VALUES (380, 'ИТАЛИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (384, 'КОТ Д\'ИВУАР');
-INSERT INTO `country` (`code`, `name`) VALUES (388, 'ЯМАЙКА');
-INSERT INTO `country` (`code`, `name`) VALUES (392, 'ЯПОНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (398, 'КАЗАХСТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (400, 'ИОРДАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (404, 'КЕНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (408, 'КОРЕЯ, НАРОДНО - ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (410, 'КОРЕЯ, РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (414, 'КУВЕЙТ');
-INSERT INTO `country` (`code`, `name`) VALUES (417, 'КИРГИЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (418, 'ЛАОССКАЯ НАРОДНО - ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (422, 'ЛИВАН');
-INSERT INTO `country` (`code`, `name`) VALUES (426, 'ЛЕСОТО');
-INSERT INTO `country` (`code`, `name`) VALUES (428, 'ЛАТВИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (430, 'ЛИБЕРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (434, 'ЛИВИЙСКАЯ АРАБСКАЯ ДЖАМАХИРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (438, 'ЛИХТЕНШТЕЙН');
-INSERT INTO `country` (`code`, `name`) VALUES (440, 'ЛИТВА');
-INSERT INTO `country` (`code`, `name`) VALUES (442, 'ЛЮКСЕМБУРГ');
-INSERT INTO `country` (`code`, `name`) VALUES (446, 'МАКАО');
-INSERT INTO `country` (`code`, `name`) VALUES (450, 'МАДАГАСКАР');
-INSERT INTO `country` (`code`, `name`) VALUES (454, 'МАЛАВИ');
-INSERT INTO `country` (`code`, `name`) VALUES (458, 'МАЛАЙЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (462, 'МАЛЬДИВЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (466, 'МАЛИ');
-INSERT INTO `country` (`code`, `name`) VALUES (470, 'МАЛЬТА');
-INSERT INTO `country` (`code`, `name`) VALUES (474, 'МАРТИНИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (478, 'МАВРИТАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (480, 'МАВРИКИЙ');
-INSERT INTO `country` (`code`, `name`) VALUES (484, 'МЕКСИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (492, 'МОНАКО');
-INSERT INTO `country` (`code`, `name`) VALUES (496, 'МОНГОЛИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (498, 'МОЛДОВА, РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (500, 'МОНТСЕРРАТ');
-INSERT INTO `country` (`code`, `name`) VALUES (504, 'МАРОККО');
-INSERT INTO `country` (`code`, `name`) VALUES (508, 'МОЗАМБИК');
-INSERT INTO `country` (`code`, `name`) VALUES (512, 'ОМАН');
-INSERT INTO `country` (`code`, `name`) VALUES (516, 'НАМИБИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (520, 'НАУРУ');
-INSERT INTO `country` (`code`, `name`) VALUES (524, 'НЕПАЛ');
-INSERT INTO `country` (`code`, `name`) VALUES (528, 'НИДЕРЛАНДЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (530, 'НИДЕРЛАНДСКИЕ АНТИЛЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (533, 'АРУБА');
-INSERT INTO `country` (`code`, `name`) VALUES (540, 'НОВАЯ КАЛЕДОНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (548, 'ВАНУАТУ');
-INSERT INTO `country` (`code`, `name`) VALUES (554, 'НОВАЯ ЗЕЛАНДИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (558, 'НИКАРАГУА');
-INSERT INTO `country` (`code`, `name`) VALUES (562, 'НИГЕР');
-INSERT INTO `country` (`code`, `name`) VALUES (566, 'НИГЕРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (570, 'НИУЭ');
-INSERT INTO `country` (`code`, `name`) VALUES (574, 'ОСТРОВ НОРФОЛК');
-INSERT INTO `country` (`code`, `name`) VALUES (578, 'НОРВЕГИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (580, 'СЕВЕРНЫЕ МАРИАНСКИЕ ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (581, 'МАЛЫЕ ТИХООКЕАНСКИЕ ОТДАЛЕННЫЕ ОСТРОВА СОЕДИНЕННЫХ ШТАТОВ');
-INSERT INTO `country` (`code`, `name`) VALUES (583, 'МИКРОНЕЗИЯ, ФЕДЕРАТИВНЫЕ ШТАТЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (584, 'МАРШАЛЛОВЫ ОСТРОВА');
-INSERT INTO `country` (`code`, `name`) VALUES (585, 'ПАЛАУ');
-INSERT INTO `country` (`code`, `name`) VALUES (586, 'ПАКИСТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (591, 'ПАНАМА');
-INSERT INTO `country` (`code`, `name`) VALUES (598, 'ПАПУА - НОВАЯ ГВИНЕЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (600, 'ПАРАГВАЙ');
-INSERT INTO `country` (`code`, `name`) VALUES (604, 'ПЕРУ');
-INSERT INTO `country` (`code`, `name`) VALUES (608, 'ФИЛИППИНЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (612, 'ПИТКЕРН');
-INSERT INTO `country` (`code`, `name`) VALUES (616, 'ПОЛЬША');
-INSERT INTO `country` (`code`, `name`) VALUES (620, 'ПОРТУГАЛИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (624, 'ГВИНЕЯ - БИСАУ');
-INSERT INTO `country` (`code`, `name`) VALUES (626, 'ВОСТОЧНЫЙ ТИМОР');
-INSERT INTO `country` (`code`, `name`) VALUES (630, 'ПУЭРТО - РИКО');
-INSERT INTO `country` (`code`, `name`) VALUES (634, 'КАТАР');
-INSERT INTO `country` (`code`, `name`) VALUES (638, 'РЕЮНЬОН');
-INSERT INTO `country` (`code`, `name`) VALUES (642, 'РУМЫНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (643, 'РОССИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (646, 'РУАНДА');
-INSERT INTO `country` (`code`, `name`) VALUES (654, 'СВЯТАЯ ЕЛЕНА');
-INSERT INTO `country` (`code`, `name`) VALUES (659, 'СЕНТ - КИТС И НЕВИС');
-INSERT INTO `country` (`code`, `name`) VALUES (660, 'АНГИЛЬЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (662, 'СЕНТ - ЛЮСИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (666, 'СЕН - ПЬЕР И МИКЕЛОН');
-INSERT INTO `country` (`code`, `name`) VALUES (670, 'СЕНТ - ВИНСЕНТ И ГРЕНАДИНЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (674, 'САН - МАРИНО');
-INSERT INTO `country` (`code`, `name`) VALUES (678, 'САН - ТОМЕ И ПРИНСИПИ');
-INSERT INTO `country` (`code`, `name`) VALUES (682, 'САУДОВСКАЯ АРАВИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (686, 'СЕНЕГАЛ');
-INSERT INTO `country` (`code`, `name`) VALUES (690, 'СЕЙШЕЛЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (694, 'СЬЕРРА - ЛЕОНЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (702, 'СИНГАПУР');
-INSERT INTO `country` (`code`, `name`) VALUES (703, 'СЛОВАКИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (704, 'ВЬЕТНАМ');
-INSERT INTO `country` (`code`, `name`) VALUES (705, 'СЛОВЕНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (706, 'СОМАЛИ');
-INSERT INTO `country` (`code`, `name`) VALUES (710, 'ЮЖНАЯ АФРИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (716, 'ЗИМБАБВЕ');
-INSERT INTO `country` (`code`, `name`) VALUES (724, 'ИСПАНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (732, 'ЗАПАДНАЯ САХАРА');
-INSERT INTO `country` (`code`, `name`) VALUES (736, 'СУДАН');
-INSERT INTO `country` (`code`, `name`) VALUES (740, 'СУРИНАМ');
-INSERT INTO `country` (`code`, `name`) VALUES (744, 'ШПИЦБЕРГЕН И ЯН МАЙЕН');
-INSERT INTO `country` (`code`, `name`) VALUES (748, 'СВАЗИЛЕНД');
-INSERT INTO `country` (`code`, `name`) VALUES (752, 'ШВЕЦИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (756, 'ШВЕЙЦАРИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (760, 'СИРИЙСКАЯ АРАБСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (762, 'ТАДЖИКИСТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (764, 'ТАИЛАНД');
-INSERT INTO `country` (`code`, `name`) VALUES (768, 'ТОГО');
-INSERT INTO `country` (`code`, `name`) VALUES (772, 'ТОКЕЛАУ');
-INSERT INTO `country` (`code`, `name`) VALUES (776, 'ТОНГА');
-INSERT INTO `country` (`code`, `name`) VALUES (780, 'ТРИНИДАД И ТОБАГО');
-INSERT INTO `country` (`code`, `name`) VALUES (784, 'ОБЪЕДИНЕННЫЕ АРАБСКИЕ ЭМИРАТЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (788, 'ТУНИС');
-INSERT INTO `country` (`code`, `name`) VALUES (792, 'ТУРЦИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (795, 'ТУРКМЕНИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (796, 'ОСТРОВА ТЕРКС И КАЙКОС');
-INSERT INTO `country` (`code`, `name`) VALUES (798, 'ТУВАЛУ');
-INSERT INTO `country` (`code`, `name`) VALUES (800, 'УГАНДА');
-INSERT INTO `country` (`code`, `name`) VALUES (804, 'УКРАИНА');
-INSERT INTO `country` (`code`, `name`) VALUES (807, 'МАКЕДОНИЯ, БЫВШАЯ ЮГОСЛАВСКАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (818, 'ЕГИПЕТ');
-INSERT INTO `country` (`code`, `name`) VALUES (826, 'СОЕДИНЕННОЕ КОРОЛЕВСТВО');
-INSERT INTO `country` (`code`, `name`) VALUES (834, 'ТАНЗАНИЯ, ОБЪЕДИНЕННАЯ РЕСПУБЛИКА');
-INSERT INTO `country` (`code`, `name`) VALUES (840, 'СОЕДИНЕННЫЕ ШТАТЫ');
-INSERT INTO `country` (`code`, `name`) VALUES (850, 'ВИРГИНСКИЕ ОСТРОВА, США');
-INSERT INTO `country` (`code`, `name`) VALUES (854, 'БУРКИНА - ФАСО');
-INSERT INTO `country` (`code`, `name`) VALUES (858, 'УРУГВАЙ');
-INSERT INTO `country` (`code`, `name`) VALUES (860, 'УЗБЕКИСТАН');
-INSERT INTO `country` (`code`, `name`) VALUES (862, 'ВЕНЕСУЭЛА');
-INSERT INTO `country` (`code`, `name`) VALUES (876, 'УОЛЛИС И ФУТУНА');
-INSERT INTO `country` (`code`, `name`) VALUES (882, 'САМОА');
-INSERT INTO `country` (`code`, `name`) VALUES (887, 'ЙЕМЕН');
-INSERT INTO `country` (`code`, `name`) VALUES (891, 'ЮГОСЛАВИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (894, 'ЗАМБИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (895, 'АБХАЗИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (896, 'ЮЖНАЯ ОСЕТИЯ');
-INSERT INTO `country` (`code`, `name`) VALUES (630, 'ПУЭРТО-РИКО', 0);
-INSERT INTO `country` (`code`, `name`) VALUES (158, 'Тайвань', 0);
-INSERT INTO `country` (`code`, `name`) VALUES (203, 'Чехия', 0);
-INSERT INTO `country` (`code`, `name`) VALUES (410, 'Корея', 0);
-INSERT INTO `country` (`code`, `name`) VALUES (156, 'Китай', 0);
+INSERT INTO `country` VALUES 
+(4,'AFG','АФГАНИСТАН',0,'ru-RU'),
+(8,'ALB','АЛБАНИЯ',0,'ru-RU'),
+(10,'ATA','АНТАРКТИДА',0,'ru-RU'),
+(12,'DZA','АЛЖИР',0,'ru-RU'),
+(16,'ASM','АМЕРИКАНСКОЕ САМОА',0,'ru-RU'),
+(20,'AND','АНДОРРА',0,'ru-RU'),
+(24,'AGO','АНГОЛА',0,'ru-RU'),
+(28,'ATG','АНТИГУА И БАРБУДА',0,'ru-RU'),
+(31,'AZE','АЗЕРБАЙДЖАН',0,'ru-RU'),
+(32,'ARG','АРГЕНТИНА',0,'ru-RU'),
+(36,'AUS','АВСТРАЛИЯ',0,'ru-RU'),
+(40,'AUT','АВСТРИЯ',0,'ru-RU'),
+(44,'BHS','БАГАМЫ',0,'ru-RU'),
+(48,'BHR','БАХРЕЙН',0,'ru-RU'),
+(50,'BGD','БАНГЛАДЕШ',0,'ru-RU'),
+(51,'ARM','АРМЕНИЯ',0,'ru-RU'),
+(52,'BRB','БАРБАДОС',0,'ru-RU'),
+(56,'BEL','БЕЛЬГИЯ',0,'ru-RU'),
+(60,'BMU','БЕРМУДЫ',0,'ru-RU'),
+(64,'BTN','БУТАН',0,'ru-RU'),
+(68,'BOL','БОЛИВИЯ',0,'ru-RU'),
+(70,'BIH','БОСНИЯ И ГЕРЦЕГОВИНА',0,'ru-RU'),
+(72,'BWA','БОТСВАНА',0,'ru-RU'),
+(74,'BVT','ОСТРОВ БУВЕ',0,'ru-RU'),
+(76,'BRA','БРАЗИЛИЯ',0,'ru-RU'),
+(84,'BLZ','БЕЛИЗ',0,'ru-RU'),
+(86,'IOT','БРИТАНСКАЯ ТЕРРИТОРИЯ В ИНДИЙСКОМ ОКЕАНЕ',0,'ru-RU'),
+(90,'SLB','СОЛОМОНОВЫ ОСТРОВА',0,'ru-RU'),
+(92,'VGB','ВИРГИНСКИЕ ОСТРОВА, БРИТАНСКИЕ',0,'ru-RU'),
+(96,'BRN','БРУНЕЙ - ДАРУССАЛАМ',0,'ru-RU'),
+(100,'BGR','БОЛГАРИЯ',0,'ru-RU'),
+(104,'MMR','МЬЯНМА',0,'ru-RU'),
+(108,'BDI','БУРУНДИ',0,'ru-RU'),
+(112,'BLR','БЕЛАРУСЬ',0,'ru-RU'),
+(116,'KHM','КАМБОДЖА',0,'ru-RU'),
+(120,'CMR','КАМЕРУН',0,'ru-RU'),
+(124,'CAN','КАНАДА',0,'ru-RU'),
+(132,'CPV','КАБО - ВЕРДЕ',0,'ru-RU'),
+(136,'CYM','ОСТРОВА КАЙМАН',0,'ru-RU'),
+(140,'CAF','ЦЕНТРАЛЬНО - АФРИКАНСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(144,'LKA','ШРИ - ЛАНКА',0,'ru-RU'),
+(148,'TCD','ЧАД',0,'ru-RU'),
+(152,'CHL','ЧИЛИ',0,'ru-RU'),
+(156,'CHN','КИТАЙ',0,'ru-RU'),
+(158,'TWN','ТАЙВАНЬ (КИТАЙ)',0,'ru-RU'),
+(162,'CXR','ОСТРОВ РОЖДЕСТВА',0,'ru-RU'),
+(166,'CCK','КОКОСОВЫЕ (КИЛИНГ) ОСТРОВА',0,'ru-RU'),
+(170,'COL','КОЛУМБИЯ',0,'ru-RU'),
+(174,'COM','КОМОРЫ',0,'ru-RU'),
+(175,'MYT','МАЙОТТА',0,'ru-RU'),
+(178,'COG','КОНГО',0,'ru-RU'),
+(180,'COD','КОНГО, ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(184,'COK','ОСТРОВА КУКА',0,'ru-RU'),
+(188,'CRI','КОСТА - РИКА',0,'ru-RU'),
+(191,'HRV','ХОРВАТИЯ',0,'ru-RU'),
+(192,'CUB','КУБА',0,'ru-RU'),
+(196,'CYP','КИПР',0,'ru-RU'),
+(203,'CZE','ЧЕШСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(204,'BEN','БЕНИН',0,'ru-RU'),
+(208,'DNK','ДАНИЯ',0,'ru-RU'),
+(212,'DMA','ДОМИНИКА',0,'ru-RU'),
+(214,'DOM','ДОМИНИКАНСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(218,'ECU','ЭКВАДОР',0,'ru-RU'),
+(222,'SLV','САЛЬВАДОР',0,'ru-RU'),
+(226,'GNQ','ЭКВАТОРИАЛЬНАЯ ГВИНЕЯ',0,'ru-RU'),
+(231,'ETH','ЭФИОПИЯ',0,'ru-RU'),
+(232,'ERI','ЭРИТРЕЯ',0,'ru-RU'),
+(233,'EST','ЭСТОНИЯ',0,'ru-RU'),
+(234,'FRO','ФАРЕРСКИЕ ОСТРОВА',0,'ru-RU'),
+(238,'FLK','ФОЛКЛЕНДСКИЕ ОСТРОВА (МАЛЬВИНСКИЕ)',0,'ru-RU'),
+(239,'SGS','ЮЖНАЯ ДЖОРДЖИЯ И ЮЖНЫЕ САНДВИЧЕВЫ ОСТРОВА',0,'ru-RU'),
+(242,'FJI','ФИДЖИ',0,'ru-RU'),
+(246,'FIN','ФИНЛЯНДИЯ',0,'ru-RU'),
+(250,'FRA','ФРАНЦИЯ',0,'ru-RU'),
+(254,'GUF','ФРАНЦУЗСКАЯ ГВИАНА',0,'ru-RU'),
+(258,'PYF','ФРАНЦУЗСКАЯ ПОЛИНЕЗИЯ',0,'ru-RU'),
+(260,'ATF','ФРАНЦУЗСКИЕ ЮЖНЫЕ ТЕРРИТОРИИ',0,'ru-RU'),
+(262,'DJI','ДЖИБУТИ',0,'ru-RU'),
+(266,'GAB','ГАБОН',0,'ru-RU'),
+(268,'GEO','ГРУЗИЯ',0,'ru-RU'),
+(270,'GMB','ГАМБИЯ',0,'ru-RU'),
+(275,'PSE','ПАЛЕСТИНСКАЯ ТЕРРИТОРИЯ, ОККУПИРОВАННАЯ',0,'ru-RU'),
+(276,'DEU','ГЕРМАНИЯ',1,'ru-RU'),
+(288,'GHA','ГАНА',0,'ru-RU'),
+(292,'GIB','ГИБРАЛТАР',0,'ru-RU'),
+(296,'KIR','КИРИБАТИ',0,'ru-RU'),
+(300,'GRC','ГРЕЦИЯ',0,'ru-RU'),
+(304,'GRL','ГРЕНЛАНДИЯ',0,'ru-RU'),
+(308,'GRD','ГРЕНАДА',0,'ru-RU'),
+(312,'GLP','ГВАДЕЛУПА',0,'ru-RU'),
+(316,'GUM','ГУАМ',0,'ru-RU'),
+(320,'GTM','ГВАТЕМАЛА',0,'ru-RU'),
+(324,'GIN','ГВИНЕЯ',0,'ru-RU'),
+(328,'GUY','ГАЙАНА',0,'ru-RU'),
+(332,'HTI','ГАИТИ',0,'ru-RU'),
+(334,'HMD','ОСТРОВ ХЕРД И ОСТРОВА МАКДОНАЛЬД',0,'ru-RU'),
+(336,'VAT','ПАПСКИЙ ПРЕСТОЛ (ГОСУДАРСТВО - ГОРОД ВАТИКАН)',0,'ru-RU'),
+(340,'HND','ГОНДУРАС',0,'ru-RU'),
+(344,'HKG','ГОНКОНГ',0,'ru-RU'),
+(348,'HUN','ВЕНГРИЯ',1,'hu-HU'),
+(352,'ISL','ИСЛАНДИЯ',0,'ru-RU'),
+(356,'IND','ИНДИЯ',0,'ru-RU'),
+(360,'IDN','ИНДОНЕЗИЯ',0,'ru-RU'),
+(364,'IRN','ИРАН, ИСЛАМСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(368,'IRQ','ИРАК',0,'ru-RU'),
+(372,'IRL','ИРЛАНДИЯ',0,'ru-RU'),
+(376,'ISR','ИЗРАИЛЬ',0,'ru-RU'),
+(380,'ITA','ИТАЛИЯ',0,'ru-RU'),
+(384,'CIV','КОТ Д\'ИВУАР',0,'ru-RU'),
+(388,'JAM','ЯМАЙКА',0,'ru-RU'),
+(392,'JPN','ЯПОНИЯ',0,'ru-RU'),
+(398,'KAZ','КАЗАХСТАН',0,'ru-RU'),
+(400,'JOR','ИОРДАНИЯ',0,'ru-RU'),
+(404,'KEN','КЕНИЯ',0,'ru-RU'),
+(408,'PRK','КОРЕЯ, НАРОДНО - ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(410,'KOR','КОРЕЯ, РЕСПУБЛИКА',0,'ru-RU'),
+(414,'KWT','КУВЕЙТ',0,'ru-RU'),
+(417,'KGZ','КИРГИЗИЯ',0,'ru-RU'),
+(418,'LAO','ЛАОССКАЯ НАРОДНО - ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(422,'LBN','ЛИВАН',0,'ru-RU'),
+(426,'LSO','ЛЕСОТО',0,'ru-RU'),
+(428,'LVA','ЛАТВИЯ',0,'ru-RU'),
+(430,'LBR','ЛИБЕРИЯ',0,'ru-RU'),
+(434,'LBY','ЛИВИЙСКАЯ АРАБСКАЯ ДЖАМАХИРИЯ',0,'ru-RU'),
+(438,'LIE','ЛИХТЕНШТЕЙН',0,'ru-RU'),
+(440,'LTU','ЛИТВА',0,'ru-RU'),
+(442,'LUX','ЛЮКСЕМБУРГ',0,'ru-RU'),
+(446,'MAC','МАКАО',0,'ru-RU'),
+(450,'MDG','МАДАГАСКАР',0,'ru-RU'),
+(454,'MWI','МАЛАВИ',0,'ru-RU'),
+(458,'MYS','МАЛАЙЗИЯ',0,'ru-RU'),
+(462,'MDV','МАЛЬДИВЫ',0,'ru-RU'),
+(466,'MLI','МАЛИ',0,'ru-RU'),
+(470,'MLT','МАЛЬТА',0,'ru-RU'),
+(474,'MTQ','МАРТИНИКА',0,'ru-RU'),
+(478,'MRT','МАВРИТАНИЯ',0,'ru-RU'),
+(480,'MUS','МАВРИКИЙ',0,'ru-RU'),
+(484,'MEX','МЕКСИКА',0,'ru-RU'),
+(492,'MCO','МОНАКО',0,'ru-RU'),
+(496,'MNG','МОНГОЛИЯ',0,'ru-RU'),
+(498,'MDA','МОЛДОВА, РЕСПУБЛИКА',0,'ru-RU'),
+(500,'MSR','МОНТСЕРРАТ',0,'ru-RU'),
+(504,'MAR','МАРОККО',0,'ru-RU'),
+(508,'MOZ','МОЗАМБИК',0,'ru-RU'),
+(512,'OMN','ОМАН',0,'ru-RU'),
+(516,'NAM','НАМИБИЯ',0,'ru-RU'),
+(520,'NRU','НАУРУ',0,'ru-RU'),
+(524,'NPL','НЕПАЛ',0,'ru-RU'),
+(528,'NLD','НИДЕРЛАНДЫ',0,'ru-RU'),
+(530,'ANT','НИДЕРЛАНДСКИЕ АНТИЛЫ',0,'ru-RU'),
+(533,'ABW','АРУБА',0,'ru-RU'),
+(540,'NCL','НОВАЯ КАЛЕДОНИЯ',0,'ru-RU'),
+(548,'VUT','ВАНУАТУ',0,'ru-RU'),
+(554,'NZL','НОВАЯ ЗЕЛАНДИЯ',0,'ru-RU'),
+(558,'NIC','НИКАРАГУА',0,'ru-RU'),
+(562,'NER','НИГЕР',0,'ru-RU'),
+(566,'NGA','НИГЕРИЯ',0,'ru-RU'),
+(570,'NIU','НИУЭ',0,'ru-RU'),
+(574,'NFK','ОСТРОВ НОРФОЛК',0,'ru-RU'),
+(578,'NOR','НОРВЕГИЯ',0,'ru-RU'),
+(580,'MNP','СЕВЕРНЫЕ МАРИАНСКИЕ ОСТРОВА',0,'ru-RU'),
+(581,'UMI','МАЛЫЕ ТИХООКЕАНСКИЕ ОТДАЛЕННЫЕ ОСТРОВА СОЕДИНЕННЫХ ШТАТОВ',0,'ru-RU'),
+(583,'FSM','МИКРОНЕЗИЯ, ФЕДЕРАТИВНЫЕ ШТАТЫ',0,'ru-RU'),
+(584,'MHL','МАРШАЛЛОВЫ ОСТРОВА',0,'ru-RU'),
+(585,'PLW','ПАЛАУ',0,'ru-RU'),
+(586,'PAK','ПАКИСТАН',0,'ru-RU'),
+(591,'PAN','ПАНАМА',0,'ru-RU'),
+(598,'PNG','ПАПУА - НОВАЯ ГВИНЕЯ',0,'ru-RU'),
+(600,'PRY','ПАРАГВАЙ',0,'ru-RU'),
+(604,'PER','ПЕРУ',0,'ru-RU'),
+(608,'PHL','ФИЛИППИНЫ',0,'ru-RU'),
+(612,'PCN','ПИТКЕРН',0,'ru-RU'),
+(616,'POL','ПОЛЬША',0,'ru-RU'),
+(620,'PRT','ПОРТУГАЛИЯ',0,'ru-RU'),
+(624,'GNB','ГВИНЕЯ - БИСАУ',0,'ru-RU'),
+(626,'TLS','ВОСТОЧНЫЙ ТИМОР',0,'ru-RU'),
+(630,'PRI','ПУЭРТО - РИКО',0,'ru-RU'),
+(634,'QAT','КАТАР',0,'ru-RU'),
+(638,'REU','РЕЮНЬОН',0,'ru-RU'),
+(642,'ROU','РУМЫНИЯ',0,'ru-RU'),
+(643,'RUS','РОССИЯ',1,'ru-RU'),
+(646,'RWA','РУАНДА',0,'ru-RU'),
+(654,'SHN','СВЯТАЯ ЕЛЕНА',0,'ru-RU'),
+(659,'KNA','СЕНТ - КИТС И НЕВИС',0,'ru-RU'),
+(660,'AIA','АНГИЛЬЯ',0,'ru-RU'),
+(662,'LCA','СЕНТ - ЛЮСИЯ',0,'ru-RU'),
+(666,'SPM','СЕН - ПЬЕР И МИКЕЛОН',0,'ru-RU'),
+(670,'VCT','СЕНТ - ВИНСЕНТ И ГРЕНАДИНЫ',0,'ru-RU'),
+(674,'SMR','САН - МАРИНО',0,'ru-RU'),
+(678,'STP','САН - ТОМЕ И ПРИНСИПИ',0,'ru-RU'),
+(682,'SAU','САУДОВСКАЯ АРАВИЯ',0,'ru-RU'),
+(686,'SEN','СЕНЕГАЛ',0,'ru-RU'),
+(690,'SYC','СЕЙШЕЛЫ',0,'ru-RU'),
+(694,'SLE','СЬЕРРА - ЛЕОНЕ',0,'ru-RU'),
+(702,'SGP','СИНГАПУР',0,'ru-RU'),
+(703,'SVK','СЛОВАКИЯ',0,'ru-RU'),
+(704,'VNM','ВЬЕТНАМ',0,'ru-RU'),
+(705,'SVN','СЛОВЕНИЯ',0,'ru-RU'),
+(706,'SOM','СОМАЛИ',0,'ru-RU'),
+(710,'ZAF','ЮЖНАЯ АФРИКА',0,'ru-RU'),
+(716,'ZWE','ЗИМБАБВЕ',0,'ru-RU'),
+(724,'ESP','ИСПАНИЯ',0,'ru-RU'),
+(732,'ESH','ЗАПАДНАЯ САХАРА',0,'ru-RU'),
+(740,'SUR','СУРИНАМ',0,'ru-RU'),
+(744,'SJM','ШПИЦБЕРГЕН И ЯН МАЙЕН',0,'ru-RU'),
+(748,'SWZ','СВАЗИЛЕНД',0,'ru-RU'),
+(752,'SWE','ШВЕЦИЯ',0,'ru-RU'),
+(756,'CHE','ШВЕЙЦАРИЯ',0,'ru-RU'),
+(760,'SYR','СИРИЙСКАЯ АРАБСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(762,'TJK','ТАДЖИКИСТАН',0,'ru-RU'),
+(764,'THA','ТАИЛАНД',0,'ru-RU'),
+(768,'TGO','ТОГО',0,'ru-RU'),
+(772,'TKL','ТОКЕЛАУ',0,'ru-RU'),
+(776,'TON','ТОНГА',0,'ru-RU'),
+(780,'TTO','ТРИНИДАД И ТОБАГО',0,'ru-RU'),
+(784,'ARE','ОБЪЕДИНЕННЫЕ АРАБСКИЕ ЭМИРАТЫ',0,'ru-RU'),
+(788,'TUN','ТУНИС',0,'ru-RU'),
+(792,'TUR','ТУРЦИЯ',0,'ru-RU'),
+(795,'TKM','ТУРКМЕНИЯ',0,'ru-RU'),
+(796,'TCA','ОСТРОВА ТЕРКС И КАЙКОС',0,'ru-RU'),
+(798,'TUV','ТУВАЛУ',0,'ru-RU'),
+(800,'UGA','УГАНДА',0,'ru-RU'),
+(804,'UKR','УКРАИНА',0,'ru-RU'),
+(807,'MKD','МАКЕДОНИЯ, БЫВШАЯ ЮГОСЛАВСКАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(818,'EGY','ЕГИПЕТ',0,'ru-RU'),
+(826,'GBR','СОЕДИНЕННОЕ КОРОЛЕВСТВО',0,'ru-RU'),
+(834,'TZA','ТАНЗАНИЯ, ОБЪЕДИНЕННАЯ РЕСПУБЛИКА',0,'ru-RU'),
+(840,'USA','СОЕДИНЕННЫЕ ШТАТЫ',0,'ru-RU'),
+(850,'VIR','ВИРГИНСКИЕ ОСТРОВА, США',0,'ru-RU'),
+(854,'BFA','БУРКИНА - ФАСО',0,'ru-RU'),
+(858,'URY','УРУГВАЙ',0,'ru-RU'),
+(860,'UZB','УЗБЕКИСТАН',0,'ru-RU'),
+(862,'VEN','ВЕНЕСУЭЛА',0,'ru-RU'),
+(876,'WLF','УОЛЛИС И ФУТУНА',0,'ru-RU'),
+(882,'WSM','САМОА',0,'ru-RU'),
+(887,'YEM','ЙЕМЕН',0,'ru-RU'),
+(891,'YUG','ЮГОСЛАВИЯ',0,'ru-RU'),
+(894,'ZMB','ЗАМБИЯ',0,'ru-RU'),
+(895,'---','АБХАЗИЯ',0,'ru-RU'),
+(896,'---','ЮЖНАЯ ОСЕТИЯ',0,'ru-RU');
+

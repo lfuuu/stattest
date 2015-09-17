@@ -1,45 +1,46 @@
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (1, 'Все', 0);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (2, 'Новый', 10);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (4, 'Зарезервирован', 30);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (8, 'К отгрузке', 80);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (16, 'Отгружен', 90);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (32, 'Доставка', 70);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (64, 'Закрыт', 130);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (128, 'Отказ', 140);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (256, 'Открыт', 1);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (512, 'Закрыт', 2);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (1024, 'Выполнено', 110);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (2048, 'Тр УСПД', 5);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (4096, 'СПД', 6);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (8192, 'Выезд', 100);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (16384, 'коллТр', 8);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (32768, 'массТр', 9);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (65536, 'Отработано', 10);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (131072, 'Тех Поддержка', 11);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (262144, 'Выдача', 12);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (524288, 'Подготовка', 40);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (1048576, 'Доработка', 120);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (2097152, 'Отложен', 20);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (4194304, 'Подтвержден', 60);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (8388608, 'Распределение', 50);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (16777216, 'Активация', 105);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (33554432, 'WiMax', 15);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (67108864, 'Тестирование', 50);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (134217728, 'Отложанные', 60);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (268435456, 'NetByNet', 16);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (536870912, 'OnLime', 17);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (1073741824, 'MTS', 18);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (2147483648, 'Новый', 19);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (4294967296, 'Оплата', 20);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (8589934592, 'Доставка', 21);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (17179869184, 'Поступление', 22);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (68719476736, 'Отказ', 24);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (34359738368, 'Закрыт', 23);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (137438953472, 'Входящие', 25);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (274877906944, 'В стадии переговоров', 26);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (549755813888, 'Тестируемые', 27);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (1099511627776, 'Подключаемые', 28);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (2199023255552, 'Техотказ', 30);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (4398046511104, 'Отказ', 31);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (8796093022208, 'Мусор', 32);
-INSERT INTO `tt_folders` (`pk`, `name`, `order`) VALUES (17592186044416, 'Включено', 29);
+INSERT INTO `tt_folders` VALUES 
+(1,'Все',0),
+(2,'Новый',10),
+(4,'Зарезервирован',30),
+(8,'К отгрузке',80),
+(16,'Отгружен',90),
+(32,'Доставка',70),
+(64,'Закрыт',130),
+(128,'Отказ',140),
+(256,'Открыт',1),
+(512,'Закрыт',2),
+(1024,'Выполнено',110),
+(2048,'Тр УСПД',5),
+(4096,'СПД',6),
+(8192,'Выезд',100),
+(16384,'коллТр',8),
+(32768,'массТр',9),
+(65536,'Отработано',10),
+(131072,'Тех Поддержка',11),
+(262144,'Выдача',12),
+(524288,'Подготовка',40),
+(1048576,'Доработка',120),
+(2097152,'Отложен',20),
+(4194304,'Подтвержден',60),
+(8388608,'Распределение',50),
+(16777216,'Активация',105),
+(33554432,'WiMax',15),
+(67108864,'Тестирование',50),
+(134217728,'Отложанные',60),
+(268435456,'NetByNet',16),
+(536870912,'OnLime',17),
+(1073741824,'MTS',18),
+(2147483648,'Новый',19),
+(4294967296,'Оплата',20),
+(8589934592,'Доставка',21),
+(17179869184,'Поступление',22),
+(68719476736,'Отказ',24),
+(34359738368,'Закрыт',23),
+(137438953472,'Входящие',25),
+(274877906944,'В стадии переговоров',26),
+(1099511627776,'Подключаемые',28),
+(2199023255552,'Техотказ',29),
+(4398046511104,'Отказ',30),
+(8796093022208,'Мусор',31),
+(17592186044416,'Включено',32),
+(35184372088832,'Проверка документов',27);

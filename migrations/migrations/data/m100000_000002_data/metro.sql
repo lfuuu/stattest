@@ -1,171 +1,172 @@
-INSERT INTO `metro` (`id`, `name`) VALUES (2, 'Автозаводская');
-INSERT INTO `metro` (`id`, `name`) VALUES (3, 'Академическая');
-INSERT INTO `metro` (`id`, `name`) VALUES (4, 'Алексеевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (5, 'Алтуфьево');
-INSERT INTO `metro` (`id`, `name`) VALUES (6, 'Аннино');
-INSERT INTO `metro` (`id`, `name`) VALUES (7, 'Арбатская');
-INSERT INTO `metro` (`id`, `name`) VALUES (8, 'Аэропорт');
-INSERT INTO `metro` (`id`, `name`) VALUES (9, 'Бабушкинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (10, 'Багратионовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (12, 'Баррикадная');
-INSERT INTO `metro` (`id`, `name`) VALUES (13, 'Бауманская');
-INSERT INTO `metro` (`id`, `name`) VALUES (14, 'Беговая');
-INSERT INTO `metro` (`id`, `name`) VALUES (15, 'Белорусская');
-INSERT INTO `metro` (`id`, `name`) VALUES (16, 'Беляево');
-INSERT INTO `metro` (`id`, `name`) VALUES (17, 'Бибирево');
-INSERT INTO `metro` (`id`, `name`) VALUES (18, 'Библиотека им. Ленина');
-INSERT INTO `metro` (`id`, `name`) VALUES (19, 'Битцевский Парк');
-INSERT INTO `metro` (`id`, `name`) VALUES (21, 'Боровицкая');
-INSERT INTO `metro` (`id`, `name`) VALUES (22, 'Ботанический Сад');
-INSERT INTO `metro` (`id`, `name`) VALUES (24, 'Братиславская');
-INSERT INTO `metro` (`id`, `name`) VALUES (25, 'Варшавская');
-INSERT INTO `metro` (`id`, `name`) VALUES (26, 'ВДНХ');
-INSERT INTO `metro` (`id`, `name`) VALUES (27, 'Владыкино');
-INSERT INTO `metro` (`id`, `name`) VALUES (28, 'Водный Стадион');
-INSERT INTO `metro` (`id`, `name`) VALUES (29, 'Войковская');
-INSERT INTO `metro` (`id`, `name`) VALUES (30, 'Волгоградский Проспект');
-INSERT INTO `metro` (`id`, `name`) VALUES (31, 'Волжская');
-INSERT INTO `metro` (`id`, `name`) VALUES (32, 'Выхино');
-INSERT INTO `metro` (`id`, `name`) VALUES (33, 'Динамо');
-INSERT INTO `metro` (`id`, `name`) VALUES (34, 'Дмитровская');
-INSERT INTO `metro` (`id`, `name`) VALUES (35, 'Добрынинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (36, 'Домодедовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (37, 'Дубровка');
-INSERT INTO `metro` (`id`, `name`) VALUES (39, 'Измайловская');
-INSERT INTO `metro` (`id`, `name`) VALUES (40, 'Партизанская');
-INSERT INTO `metro` (`id`, `name`) VALUES (41, 'Калужская');
-INSERT INTO `metro` (`id`, `name`) VALUES (42, 'Кантемировская');
-INSERT INTO `metro` (`id`, `name`) VALUES (43, 'Каховская');
-INSERT INTO `metro` (`id`, `name`) VALUES (44, 'Каширская');
-INSERT INTO `metro` (`id`, `name`) VALUES (45, 'Киевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (46, 'Китай-Город');
-INSERT INTO `metro` (`id`, `name`) VALUES (47, 'Кожуховская');
-INSERT INTO `metro` (`id`, `name`) VALUES (48, 'Коломенская');
-INSERT INTO `metro` (`id`, `name`) VALUES (49, 'Комсомольская');
-INSERT INTO `metro` (`id`, `name`) VALUES (50, 'Коньково');
-INSERT INTO `metro` (`id`, `name`) VALUES (51, 'Красногвардейская');
-INSERT INTO `metro` (`id`, `name`) VALUES (52, 'Краснопресненская');
-INSERT INTO `metro` (`id`, `name`) VALUES (53, 'Красносельская');
-INSERT INTO `metro` (`id`, `name`) VALUES (54, 'Красные Ворота');
-INSERT INTO `metro` (`id`, `name`) VALUES (55, 'Крестьянская Застава');
-INSERT INTO `metro` (`id`, `name`) VALUES (56, 'Кропоткинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (57, 'Крылатское');
-INSERT INTO `metro` (`id`, `name`) VALUES (58, 'Кузнецкий Мост');
-INSERT INTO `metro` (`id`, `name`) VALUES (59, 'Кузьминки');
-INSERT INTO `metro` (`id`, `name`) VALUES (60, 'Кунцевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (61, 'Курская');
-INSERT INTO `metro` (`id`, `name`) VALUES (62, 'Кутузовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (63, 'Воробьевы Горы');
-INSERT INTO `metro` (`id`, `name`) VALUES (64, 'Ленинский Проспект');
-INSERT INTO `metro` (`id`, `name`) VALUES (65, 'Лубянка');
-INSERT INTO `metro` (`id`, `name`) VALUES (66, 'Люблино');
-INSERT INTO `metro` (`id`, `name`) VALUES (67, 'Марксистская');
-INSERT INTO `metro` (`id`, `name`) VALUES (68, 'Марьино');
-INSERT INTO `metro` (`id`, `name`) VALUES (69, 'Маяковская');
-INSERT INTO `metro` (`id`, `name`) VALUES (70, 'Медведково');
-INSERT INTO `metro` (`id`, `name`) VALUES (71, 'Менделеевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (72, 'Молодежная');
-INSERT INTO `metro` (`id`, `name`) VALUES (73, 'Нагатинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (74, 'Нагорная');
-INSERT INTO `metro` (`id`, `name`) VALUES (75, 'Нахимовский Проспект');
-INSERT INTO `metro` (`id`, `name`) VALUES (76, 'Новогиреево');
-INSERT INTO `metro` (`id`, `name`) VALUES (77, 'Новокузнецкая');
-INSERT INTO `metro` (`id`, `name`) VALUES (78, 'Новослободская');
-INSERT INTO `metro` (`id`, `name`) VALUES (79, 'Новые Черемушки');
-INSERT INTO `metro` (`id`, `name`) VALUES (80, 'Октябрьская');
-INSERT INTO `metro` (`id`, `name`) VALUES (81, 'Октябрьское Поле');
-INSERT INTO `metro` (`id`, `name`) VALUES (82, 'Орехово');
-INSERT INTO `metro` (`id`, `name`) VALUES (83, 'Отрадное');
-INSERT INTO `metro` (`id`, `name`) VALUES (84, 'Охотный Ряд');
-INSERT INTO `metro` (`id`, `name`) VALUES (85, 'Павелецкая');
-INSERT INTO `metro` (`id`, `name`) VALUES (86, 'Парк Культуры');
-INSERT INTO `metro` (`id`, `name`) VALUES (87, 'Парк Победы');
-INSERT INTO `metro` (`id`, `name`) VALUES (88, 'Первомайская');
-INSERT INTO `metro` (`id`, `name`) VALUES (89, 'Перово');
-INSERT INTO `metro` (`id`, `name`) VALUES (90, 'Петровско-Разумовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (91, 'Печатники');
-INSERT INTO `metro` (`id`, `name`) VALUES (92, 'Пионерская');
-INSERT INTO `metro` (`id`, `name`) VALUES (93, 'Планерная');
-INSERT INTO `metro` (`id`, `name`) VALUES (94, 'Площадь Ильича');
-INSERT INTO `metro` (`id`, `name`) VALUES (95, 'Площадь Революции');
-INSERT INTO `metro` (`id`, `name`) VALUES (96, 'Полежаевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (97, 'Полянка');
-INSERT INTO `metro` (`id`, `name`) VALUES (98, 'Пражская');
-INSERT INTO `metro` (`id`, `name`) VALUES (99, 'Преображенская Площадь');
-INSERT INTO `metro` (`id`, `name`) VALUES (100, 'Пролетарская');
-INSERT INTO `metro` (`id`, `name`) VALUES (101, 'Проспект Вернадского');
-INSERT INTO `metro` (`id`, `name`) VALUES (102, 'Проспект Мира');
-INSERT INTO `metro` (`id`, `name`) VALUES (103, 'Профсоюзная');
-INSERT INTO `metro` (`id`, `name`) VALUES (104, 'Пушкинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (105, 'Речной Вокзал');
-INSERT INTO `metro` (`id`, `name`) VALUES (106, 'Рижская');
-INSERT INTO `metro` (`id`, `name`) VALUES (107, 'Римская');
-INSERT INTO `metro` (`id`, `name`) VALUES (109, 'Рязанский Проспект');
-INSERT INTO `metro` (`id`, `name`) VALUES (110, 'Савеловская');
-INSERT INTO `metro` (`id`, `name`) VALUES (111, 'Свиблово');
-INSERT INTO `metro` (`id`, `name`) VALUES (112, 'Севастопольская');
-INSERT INTO `metro` (`id`, `name`) VALUES (113, 'Семеновская');
-INSERT INTO `metro` (`id`, `name`) VALUES (114, 'Серпуховская');
-INSERT INTO `metro` (`id`, `name`) VALUES (115, 'Смоленская');
-INSERT INTO `metro` (`id`, `name`) VALUES (116, 'Сокол');
-INSERT INTO `metro` (`id`, `name`) VALUES (117, 'Сокольники');
-INSERT INTO `metro` (`id`, `name`) VALUES (118, 'Спортивная');
-INSERT INTO `metro` (`id`, `name`) VALUES (119, 'Студенческая');
-INSERT INTO `metro` (`id`, `name`) VALUES (120, 'Сухаревская');
-INSERT INTO `metro` (`id`, `name`) VALUES (121, 'Сходненская');
-INSERT INTO `metro` (`id`, `name`) VALUES (122, 'Таганская');
-INSERT INTO `metro` (`id`, `name`) VALUES (123, 'Тверская');
-INSERT INTO `metro` (`id`, `name`) VALUES (124, 'Театральная');
-INSERT INTO `metro` (`id`, `name`) VALUES (125, 'Текстильщики');
-INSERT INTO `metro` (`id`, `name`) VALUES (126, 'Теплый Стан');
-INSERT INTO `metro` (`id`, `name`) VALUES (127, 'Тимирязевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (128, 'Третьяковская');
-INSERT INTO `metro` (`id`, `name`) VALUES (129, 'Тульская');
-INSERT INTO `metro` (`id`, `name`) VALUES (130, 'Тургеневская');
-INSERT INTO `metro` (`id`, `name`) VALUES (131, 'Тушинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (132, 'Ул. Академика Янгеля');
-INSERT INTO `metro` (`id`, `name`) VALUES (133, 'Улица 1905 года');
-INSERT INTO `metro` (`id`, `name`) VALUES (134, 'Улица Подбельского');
-INSERT INTO `metro` (`id`, `name`) VALUES (135, 'Университет');
-INSERT INTO `metro` (`id`, `name`) VALUES (136, 'Филевский Парк');
-INSERT INTO `metro` (`id`, `name`) VALUES (137, 'Фили');
-INSERT INTO `metro` (`id`, `name`) VALUES (138, 'Фрунзенская');
-INSERT INTO `metro` (`id`, `name`) VALUES (139, 'Царицыно');
-INSERT INTO `metro` (`id`, `name`) VALUES (140, 'Цветной Бульвар');
-INSERT INTO `metro` (`id`, `name`) VALUES (141, 'Черкизовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (142, 'Чертановская');
-INSERT INTO `metro` (`id`, `name`) VALUES (143, 'Чеховская');
-INSERT INTO `metro` (`id`, `name`) VALUES (144, 'Чистые Пруды');
-INSERT INTO `metro` (`id`, `name`) VALUES (145, 'Чкаловская');
-INSERT INTO `metro` (`id`, `name`) VALUES (146, 'Шаболовская');
-INSERT INTO `metro` (`id`, `name`) VALUES (147, 'Шипиловская');
-INSERT INTO `metro` (`id`, `name`) VALUES (148, 'Шоссе Энтузиастов');
-INSERT INTO `metro` (`id`, `name`) VALUES (149, 'Щелковская');
-INSERT INTO `metro` (`id`, `name`) VALUES (150, 'Щукинская');
-INSERT INTO `metro` (`id`, `name`) VALUES (151, 'Электрозаводская');
-INSERT INTO `metro` (`id`, `name`) VALUES (152, 'Юго-Западная');
-INSERT INTO `metro` (`id`, `name`) VALUES (153, 'Южная');
-INSERT INTO `metro` (`id`, `name`) VALUES (154, 'Ясенево');
-INSERT INTO `metro` (`id`, `name`) VALUES (160, 'Александровский Сад');
-INSERT INTO `metro` (`id`, `name`) VALUES (170, 'Авиамоторная');
-INSERT INTO `metro` (`id`, `name`) VALUES (171, 'Бульвар Дмитрия Донского');
-INSERT INTO `metro` (`id`, `name`) VALUES (172, 'Международная');
-INSERT INTO `metro` (`id`, `name`) VALUES (173, 'Деловой центр');
-INSERT INTO `metro` (`id`, `name`) VALUES (174, 'Трубная');
-INSERT INTO `metro` (`id`, `name`) VALUES (175, 'Улица Старокачаловская');
-INSERT INTO `metro` (`id`, `name`) VALUES (176, 'Улица Скобелевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (177, 'Бульвар адмирала Ушакова');
-INSERT INTO `metro` (`id`, `name`) VALUES (178, 'Улица Горчакова');
-INSERT INTO `metro` (`id`, `name`) VALUES (179, 'Бунинская аллея');
-INSERT INTO `metro` (`id`, `name`) VALUES (180, 'Солнцево');
-INSERT INTO `metro` (`id`, `name`) VALUES (181, 'Переделкино');
-INSERT INTO `metro` (`id`, `name`) VALUES (182, 'Внуково');
-INSERT INTO `metro` (`id`, `name`) VALUES (183, 'Достоевская');
-INSERT INTO `metro` (`id`, `name`) VALUES (184, 'Площадь суворова');
-INSERT INTO `metro` (`id`, `name`) VALUES (185, 'Марьина роща');
-INSERT INTO `metro` (`id`, `name`) VALUES (186, 'Новоясеневская');
-INSERT INTO `metro` (`id`, `name`) VALUES (187, 'Выставочная');
-INSERT INTO `metro` (`id`, `name`) VALUES (188, 'Славянский бульвар');
-INSERT INTO `metro` (`id`, `name`) VALUES (189, 'Митино');
-INSERT INTO `metro` (`id`, `name`) VALUES (190, 'Волоколамская');
-INSERT INTO `metro` (`id`, `name`) VALUES (191, 'Мякинино');
+INSERT INTO `metro` VALUES 
+(2,'Автозаводская'),
+(3,'Академическая'),
+(4,'Алексеевская'),
+(5,'Алтуфьево'),
+(6,'Аннино'),
+(7,'Арбатская'),
+(8,'Аэропорт'),
+(9,'Бабушкинская'),
+(10,'Багратионовская'),
+(12,'Баррикадная'),
+(13,'Бауманская'),
+(14,'Беговая'),
+(15,'Белорусская'),
+(16,'Беляево'),
+(17,'Бибирево'),
+(18,'Библиотека им. Ленина'),
+(19,'Битцевский Парк'),
+(21,'Боровицкая'),
+(22,'Ботанический Сад'),
+(24,'Братиславская'),
+(25,'Варшавская'),
+(26,'ВДНХ'),
+(27,'Владыкино'),
+(28,'Водный Стадион'),
+(29,'Войковская'),
+(30,'Волгоградский Проспект'),
+(31,'Волжская'),
+(32,'Выхино'),
+(33,'Динамо'),
+(34,'Дмитровская'),
+(35,'Добрынинская'),
+(36,'Домодедовская'),
+(37,'Дубровка'),
+(39,'Измайловская'),
+(40,'Партизанская'),
+(41,'Калужская'),
+(42,'Кантемировская'),
+(43,'Каховская'),
+(44,'Каширская'),
+(45,'Киевская'),
+(46,'Китай-Город'),
+(47,'Кожуховская'),
+(48,'Коломенская'),
+(49,'Комсомольская'),
+(50,'Коньково'),
+(51,'Красногвардейская'),
+(52,'Краснопресненская'),
+(53,'Красносельская'),
+(54,'Красные Ворота'),
+(55,'Крестьянская Застава'),
+(56,'Кропоткинская'),
+(57,'Крылатское'),
+(58,'Кузнецкий Мост'),
+(59,'Кузьминки'),
+(60,'Кунцевская'),
+(61,'Курская'),
+(62,'Кутузовская'),
+(63,'Воробьевы Горы'),
+(64,'Ленинский Проспект'),
+(65,'Лубянка'),
+(66,'Люблино'),
+(67,'Марксистская'),
+(68,'Марьино'),
+(69,'Маяковская'),
+(70,'Медведково'),
+(71,'Менделеевская'),
+(72,'Молодежная'),
+(73,'Нагатинская'),
+(74,'Нагорная'),
+(75,'Нахимовский Проспект'),
+(76,'Новогиреево'),
+(77,'Новокузнецкая'),
+(78,'Новослободская'),
+(79,'Новые Черемушки'),
+(80,'Октябрьская'),
+(81,'Октябрьское Поле'),
+(82,'Орехово'),
+(83,'Отрадное'),
+(84,'Охотный Ряд'),
+(85,'Павелецкая'),
+(86,'Парк Культуры'),
+(87,'Парк Победы'),
+(88,'Первомайская'),
+(89,'Перово'),
+(90,'Петровско-Разумовская'),
+(91,'Печатники'),
+(92,'Пионерская'),
+(93,'Планерная'),
+(94,'Площадь Ильича'),
+(95,'Площадь Революции'),
+(96,'Полежаевская'),
+(97,'Полянка'),
+(98,'Пражская'),
+(99,'Преображенская Площадь'),
+(100,'Пролетарская'),
+(101,'Проспект Вернадского'),
+(102,'Проспект Мира'),
+(103,'Профсоюзная'),
+(104,'Пушкинская'),
+(105,'Речной Вокзал'),
+(106,'Рижская'),
+(107,'Римская'),
+(109,'Рязанский Проспект'),
+(110,'Савеловская'),
+(111,'Свиблово'),
+(112,'Севастопольская'),
+(113,'Семеновская'),
+(114,'Серпуховская'),
+(115,'Смоленская'),
+(116,'Сокол'),
+(117,'Сокольники'),
+(118,'Спортивная'),
+(119,'Студенческая'),
+(120,'Сухаревская'),
+(121,'Сходненская'),
+(122,'Таганская'),
+(123,'Тверская'),
+(124,'Театральная'),
+(125,'Текстильщики'),
+(126,'Теплый Стан'),
+(127,'Тимирязевская'),
+(128,'Третьяковская'),
+(129,'Тульская'),
+(130,'Тургеневская'),
+(131,'Тушинская'),
+(132,'Ул. Академика Янгеля'),
+(133,'Улица 1905 года'),
+(134,'Улица Подбельского'),
+(135,'Университет'),
+(136,'Филевский Парк'),
+(137,'Фили'),
+(138,'Фрунзенская'),
+(139,'Царицыно'),
+(140,'Цветной Бульвар'),
+(141,'Черкизовская'),
+(142,'Чертановская'),
+(143,'Чеховская'),
+(144,'Чистые Пруды'),
+(145,'Чкаловская'),
+(146,'Шаболовская'),
+(147,'Шипиловская'),
+(148,'Шоссе Энтузиастов'),
+(149,'Щелковская'),
+(150,'Щукинская'),
+(151,'Электрозаводская'),
+(152,'Юго-Западная'),
+(153,'Южная'),
+(154,'Ясенево'),
+(160,'Александровский Сад'),
+(170,'Авиамоторная'),
+(171,'Бульвар Дмитрия Донского'),
+(172,'Международная'),
+(173,'Деловой центр'),
+(174,'Трубная'),
+(175,'Улица Старокачаловская'),
+(176,'Улица Скобелевская'),
+(177,'Бульвар адмирала Ушакова'),
+(178,'Улица Горчакова'),
+(179,'Бунинская аллея'),
+(180,'Солнцево'),
+(181,'Переделкино'),
+(182,'Внуково'),
+(183,'Достоевская'),
+(184,'Площадь суворова'),
+(185,'Марьина роща'),
+(186,'Новоясеневская'),
+(187,'Выставочная'),
+(188,'Славянский бульвар'),
+(189,'Митино'),
+(190,'Волоколамская'),
+(191,'Мякинино');

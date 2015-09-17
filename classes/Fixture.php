@@ -3,7 +3,6 @@ namespace app\classes;
 
 use Yii;
 use yii\console\Exception;
-use yii\db\Connection;
 use yii\db\TableSchema;
 
 
