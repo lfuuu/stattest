@@ -234,7 +234,7 @@ function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
     } else {
         $date = new DateTime($value, new DateTimeZone('UTC'));
     }
-    $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
+    $date->setTimezone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
 
     return dateReplaceMonth($date->format($format), $date->format('m'));
 }
