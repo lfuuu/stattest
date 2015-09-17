@@ -43,18 +43,20 @@ $report = $operator->report->getList($dateFrom, $dateTo, $filter);
         <br />
 
         <?php if (count($report)): ?>
-            <form method="GET" action="/site/download-report">
-                <input type="hidden" name="filter[range]" value="<?= $filter['range']; ?>" />
-                <input type="hidden" name="filter[mode]" value="<?= $filter['mode']; ?>" />
-                <div style="float: right;">
-                    <?=
-                    Html::submitButton('Экспорт в Excel', [
-                        'class' => 'btn btn-link',
-                    ]);
-                    ?>
-                </div>
-            </form>
-            <div style="clear: both;">
+            <?php if ($filter['mode'] == 'close'): ?>
+                <form method="GET" action="/site/download-report">
+                    <input type="hidden" name="filter[range]" value="<?= $filter['range']; ?>" />
+                    <input type="hidden" name="filter[mode]" value="<?= $filter['mode']; ?>" />
+                    <div style="float: right;">
+                        <?=
+                        Html::submitButton('Экспорт в Excel', [
+                            'class' => 'btn btn-link',
+                        ]);
+                        ?>
+                    </div>
+                </form>
+                <div style="clear: both;">
+            <?php endif; ?>
 
             <table id="repart_table" border="1" cellspacing="2" style="border-collapse: collapse;">
                 <tbody>
