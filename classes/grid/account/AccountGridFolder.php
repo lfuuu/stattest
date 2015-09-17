@@ -295,7 +295,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -333,7 +333,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -428,7 +428,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
