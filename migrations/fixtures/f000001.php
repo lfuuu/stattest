@@ -4,6 +4,7 @@ class f000001 extends app\classes\Migration
 {
     public function up()
     {
+        /*
         $this->applyFixture('user_groups');
         $this->applyFixture('user_users');
 
@@ -18,6 +19,7 @@ class f000001 extends app\classes\Migration
         ");
 
         $this->applyFixture('clients');
+         */
 
     }
 }

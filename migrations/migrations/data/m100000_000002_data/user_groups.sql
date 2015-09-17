@@ -1,0 +1,16 @@
+INSERT INTO `user_groups` VALUES 
+('account_managers','Аккаунт-менеджеры'),
+('accounts_department','Бухгалтерия'),
+('admin','Администраторы'),
+('base','Базовая'),
+('client','Клиенты'),
+('developer','Разработчик'),
+('manager','Менеджер'),
+('marketing','маркетинг'),
+('operator','Операторы'),
+('sklad','Склад'),
+('support','Тех. поддержка'),
+('telemarketing','Телемаркетинг'),
+('user','Менеджеры с Шухова / пользователи'),
+('virtual','Виртуальные пользователи'),
+('zakupshiki','Отдел закупки');
