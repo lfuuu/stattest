@@ -124,6 +124,7 @@ class Bill {
         $this->bill_ts=$this->bill['ts'];
         unset($this->bill['ts']);
         $this->client_id=$this->bill['client_id'];
+        $this->bill['tax_rate'] = ClientAccount::findOne($this->bill['client_id'])->getTaxRate();
         $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
         $this->changed=0;
     }
@@ -501,15 +502,15 @@ class Bill {
 					sort
 				','id');
 
-
         foreach($ret as &$r)
         {
             $r['amount'] = (float)$r['amount'];
             $r['price'] = (float)$r['price'];
+            $r['tax_rate'] = $this->bill['tax_rate'];
 
             $r['outprice'] =
-                $this->bill['price_include_vat']
-                    ? round($r['sum_without_tax'] / $r['amount'], 4)
+                !$this->bill['tax_rate']
+                    ? round($r['sum'] / $r['amount'], 4)
                     : round($r['sum_without_tax'] / $r['amount'], 4);
 
 
