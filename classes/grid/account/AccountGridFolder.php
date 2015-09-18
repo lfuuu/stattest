@@ -248,12 +248,13 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function () {
-                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" style="width:50px;" />';
+                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['id'] . '</a>';
-                }
+                },
+                'width' => '120px',
             ],
             'company' => [
                 'attribute' => 'company',
