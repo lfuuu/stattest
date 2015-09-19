@@ -47,7 +47,7 @@ class RequestOnlimeStateForm extends Form
             if ($trouble->bill_no && preg_match("#\d{6}\/\d{4}#", $trouble->bill_no)) {
                 $newstate = TroubleState::findOne($this->state_id);
 
-                if ($newstate->state_1c <> $bill->state_1c) {
+                if ($newstate->state_1c != $bill->state_1c) {
                     OperatorOnlime::saveOrderState1C($bill, $newstate);
 
                     if (strcmp($newstate->state_1c, 'Отказ') == 0) {
@@ -63,10 +63,11 @@ class RequestOnlimeStateForm extends Form
 
             $nowDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
-            $trouble->currentStage->date_edit = $nowDateTime;
-            $trouble->currentStage->comment = $this->comment;
-            $trouble->currentStage->user_edit = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
-            $trouble->currentStage->save();
+            $currentStage = TroubleStage::findOne($trouble->currentStage->stage_id);
+            $currentStage->date_edit = $nowDateTime;
+            $currentStage->comment = $this->comment;
+            $currentStage->user_edit = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
+            $currentStage->save();
 
             $state = TroubleState::findOne($trouble->currentStage->state_id);
             $dateStart = Yii::$app->getDb()->createCommand("
@@ -78,7 +79,7 @@ class RequestOnlimeStateForm extends Form
                     `stage_id` = :stage_id
             ", [
                 ':stage_id' => $trouble->currentStage->stage_id
-            ])->queryOne();
+            ])->queryScalar();
 
             $dateFinishDesired = Yii::$app->getDb()->createCommand("
                 SELECT
@@ -94,25 +95,24 @@ class RequestOnlimeStateForm extends Form
             ", [
                 'trouble_id' => $trouble->id,
                 'time_delta' => $state->time_delta,
-            ])->queryOne();
+            ])->queryScalar();
 
             $stage = new TroubleStage;
             $stage->trouble_id = $trouble->id;
-            $stage->comment = $this->comment;
-            $stage->stage_id = $this->state_id;
+            $stage->state_id = $this->state_id;
 
-            $stage->date_start = $dateStart['date_start'];
-            $stage->date_finish_desired = $dateFinishDesired['date_finish_desired'];
+            $stage->date_start = $dateStart;
+            $stage->date_finish_desired = $dateFinishDesired;
+            $stage->user_main = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
 
             if (in_array($this->state_id, [2, 20, 21, 39, 40, 48])) {
                 $stage->date_finish_desired = $nowDateTime;
                 $stage->date_edit = $nowDateTime;
-                $stage->user_edit = (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
             }
 
-            $stageId = $stage->save();
+            $stage->save();
 
-            $trouble->cur_stage_id = $stageId;
+            $trouble->cur_stage_id = $stage->stage_id;
             $trouble->save();
 
             Yii::$app->getDb()->createCommand("
@@ -124,7 +124,7 @@ class RequestOnlimeStateForm extends Form
                       `id` = :trouble_id
             ", [
                 ':trouble_id' => $trouble->id,
-                ':stage_id' => $stageId,
+                ':stage_id' => $stage->stage_id,
                 ':state_id' => $this->state_id,
             ]);
 

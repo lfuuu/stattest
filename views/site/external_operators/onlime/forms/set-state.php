@@ -31,7 +31,6 @@ $model->state_id = $trouble->currentStage->state_id;
                 <tr>
                     <th>№</th>
                     <th>Наименование</th>
-                    <th>Период</th>
                     <th>Количество</th>
                 </tr>
             </thead>
@@ -40,24 +39,6 @@ $model->state_id = $trouble->currentStage->state_id;
                     <tr>
                         <td><?= ($number + 1); ?></td>
                         <td><?= $item->item; ?></td>
-                        <td>
-                            <?php
-                            $dateFromView = $item->date_from;
-                            $dateToView = $item->date_to;
-
-                            if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateFromView)) {
-                                $dateFromView = new DateTime($dateFromView, new DateTimeZone($userTimeZone));
-                                $dateFromView = $dateFromView->format('Y-m-d');
-                            }
-                            if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateToView)) {
-                                $dateToView = new DateTime($dateToView, new DateTimeZone($userTimeZone));
-                                $dateToView = $dateToView->format('Y-m-d');
-                            }
-                            ?>
-
-                            <?= $dateFromView; ?><br />
-                            <?= $dateToView; ?>
-                        </td>
                         <td><?= (int) $item->amount; ?></td>
                     </tr>
                 <?php endforeach; ?>

@@ -105,7 +105,7 @@ $report = $operator->report->getList($dateFrom, $dateTo, $filter);
                             <td>
                                 <?php $last_stage = array_pop($item['stages']); ?>
                                 <span style="font-size: 8pt;"><?= $last_stage['date_finish_desired']; ?></span>
-                                <b><?= $last_stage['state_name']; ?></b> <?= $last_stage['user_edit']; ?>: <span style="background-color: #cfffcf;"> <?= $last_stage['comment']; ?> </span>
+                                <b><?= $last_stage['state_name']; ?></b> <?= $last_stage['user_main']; ?>: <span style="background-color: #cfffcf;"> <?= $last_stage['comment']; ?> </span>
                             </td>
                         </tr>
                     <?php endforeach;?>

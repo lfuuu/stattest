@@ -54,6 +54,9 @@ use kartik\builder\Form;
             <?php if ($model->hasErrors('products')): ?>
                 <div class="alert alert-danger" style="font-weight: bold; text-align: center;"><?= implode('', $model->getErrors('products')); ?></div>
             <?php endif; ?>
+            <?php if ($model->hasErrors('1C_order')): ?>
+                <div class="alert alert-danger" style="font-weight: bold; text-align: center;"><?= implode('', $model->getErrors('1C_error')); ?></div>
+            <?php endif; ?>
             <table class="table table-hover table-condensed table-striped" width="60%">
                 <colgroup>
                     <col width="40px" />

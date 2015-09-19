@@ -108,7 +108,7 @@ class SiteController extends BaseController
         $model = $operator->requestForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect('/');
+            return $this->redirect(['set-state', 'bill_no' => $model->bill_no]);
         }
 
         $this->layout = 'external_operators/main';
@@ -131,7 +131,7 @@ class SiteController extends BaseController
         $model = $operator->requestStateForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($bill, $trouble)) {
-            return $this->redirect('/');
+            return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
         }
 
         $this->layout = 'external_operators/main';

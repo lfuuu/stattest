@@ -24,6 +24,8 @@ class RequestOnlimeForm extends Form
         $products = [],
         $products_counts = [];
 
+    public $bill_no;
+
     private static $time_intervals = [
         '10-16' => 'с 10 до 16 часов',
         '16-21' => 'с 16 до 21 часа',
@@ -138,21 +140,24 @@ class RequestOnlimeForm extends Form
                     'add_info' => $addInfo,
                     'store_id' => $storeId,
                 ]);
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
                 $this->addError('1C_error', str_replace('|||', '', $e->getMessage()));
                 $this->addError('1C_order', 'Не удалось создать заказ в 1С');
                 return false;
             }
+
+            $transaction->commit();
 
             $class = new \stdClass;
             $class->order = $response;
             $class->isRollback = $positions['is_rollback'];
 
             $error = '';
-            $bill_no = $response->{'Номер'};
+            $this->bill_no = $response->{'Номер'};
 
             $soap = new \_1c\SoapHandler;
-            $soap->statSaveOrder($class, $bill_no, $error, []);
+            $soap->statSaveOrder($class, $this->bill_no, $error, []);
 
             StatModule::tt()->createTrouble([
                 'user_author' => 'system',
@@ -160,10 +165,11 @@ class RequestOnlimeForm extends Form
                 'trouble_subtype' => 'shop',
                 'client' => $account->client,
                 'problem' => $positions['comment'],
-                'bill_no' => $bill_no,
+                'bill_no' => $this->bill_no,
                 'time' => (new DateTime('now'))->format('Y-m-d'),
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
