@@ -86,7 +86,7 @@ $report = $operator->report->getList($dateFrom, $dateTo, $filter);
                             <td><?= $item['fio_oper']; ?></td>
                             <td><?= $item['req_no']; ?></td>
                             <td>
-                                <a href="index_external_operators.php/site/set-state?bill_no=<?= $item['bill_no']; ?>" title="Просмотр заказа">
+                                <a href="/site/set-state?bill_no=<?= $item['bill_no']; ?>" title="Просмотр заказа">
                                     <?= $item['bill_no']; ?>
                                 </a>
                             </td>
