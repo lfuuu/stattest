@@ -37,11 +37,13 @@ class Trouble extends ActiveRecord
     const DEFAULT_SUPPORT_STATE = 1;
     const TYPE_TROUBLE = 'trouble';
     const TYPE_TASK = 'task';
+    const TYPE_CONSULTATION = 'consultation';
+    const TYPE_MONITORING = 'monitoring';
     const SUBTYPE_TROUBLE = 'trouble';
 
     public $client_name = '';
 
-    public $typeLabels = [
+    public static $types = [
         'connect' => 'Подключение',
         'incomegoods' => 'Заказ поставщику',
         'mounting_orders' => '',
@@ -52,7 +54,7 @@ class Trouble extends ActiveRecord
         'trouble' => 'Трабл',
     ];
 
-    public $subTypeLabels = [
+    public static $subTypes = [
         'connect' => 'Подключение',
         'incomegoods' => 'Заказ поставщику',
         'monitoring' => 'Мониторинг',
@@ -61,7 +63,6 @@ class Trouble extends ActiveRecord
         'reminder' => 'Напоминание',
         'task' => 'Задание',
         'trouble' => 'Трабл',
-        'monitoring' => 'Мониторинг',
         'consultation' => 'Консультация',
     ];
 
