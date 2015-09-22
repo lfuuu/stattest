@@ -50,7 +50,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo'], 'string'],
+                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
     }
 
@@ -129,6 +129,7 @@ abstract class AccountGridFolder extends Model
             'cr.federal_district',
             'ct.name as contract_type',
             'cr.financial_type',
+            'doc.contract_date as contract_created'
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
@@ -138,6 +139,10 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
+        $query->join('LEFT JOIN', 'client_document doc',
+            '((ISNULL(doc.account_id) AND cr.id = doc.contract_id) OR c.id=doc.account_id)
+            AND doc.is_active=1 AND doc.type=\'contract\''
+        );
     }
 
     public function queryOrderBy()
@@ -185,6 +190,11 @@ abstract class AccountGridFolder extends Model
         if ($this->createdDate && !empty($this->createdDate)) {
             $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+        }
+
+        if ($this->contract_created && !empty($this->contract_created)) {
+            $createdDates = preg_split('/[\s+]\-[\s+]/', $this->contract_created);
+            $query->andWhere(['between', 'doc.contract_date', $createdDates[0], $createdDates[1]]);
         }
 
         if (isset($this->block_date) && !empty($this->block_date)) {
@@ -305,17 +315,23 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'created',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    $account = ClientAccount::findOne($data['id']);
-                    if(!$account)
-                        return null;
-                    $contract = $account->contract;
-                    if(!$contract)
-                        return null;
-                    $document = $contract->document;
-                    if(!$document)
-                        return null;
-                    return $document->contract_date;
+                    return $data['contract_created'];
                 },
+                'filter' => function () {
+                    return \kartik\daterange\DateRangePicker::widget([
+                        'name' => 'contract_created',
+                        'presetDropdown' => true,
+                        'hideInput' => true,
+                        'value' => \Yii::$app->request->get('contract_created'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
+                        'containerOptions' => [
+                            'style' => 'width:50px; overflow: hidden;',
+                            'class' => 'drp-container input-group',
+                        ]
+                    ]);
+                }
             ],
             'block_date' => [
                 'attribute' => 'block_date',
