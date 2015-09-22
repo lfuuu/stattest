@@ -6,9 +6,9 @@ class MySQLDatabase_yii {
     private $reader = null;
 
 
-    public function MySQLDatabase_yii(&$db) 
+    public function MySQLDatabase_yii($db) 
     {
-    	$this->db = &$db;
+    	$this->db = $db;
     }
 
     public function Connect() 
@@ -33,7 +33,7 @@ class MySQLDatabase_yii {
         if ($saveDefault && $reader) 
             $this->reader = $reader;
 
-       	return $req;
+       	return $reader;
     }
 
     public function GetInsertId() 
@@ -45,6 +45,7 @@ class MySQLDatabase_yii {
     {
         $res = $this->db->createCommand($query)->queryAll($this->_getType($return_type));
 
+        $R = [];
 		foreach ($res as $r) {
             if ($by_id && isset($r[$by_id])) {
                 $R[$r[$by_id]]=$r; 

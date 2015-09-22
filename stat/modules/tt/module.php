@@ -729,7 +729,7 @@ where c.client="'.$trouble['client_orig'].'"')
         $list = $db->QuerySelectAll("newbill_change_log", array("bill_no" => $billNo));
         $_list = array(); foreach($list as $l) $_list[$l["id"]] = $l;
         $list = $_list;
-        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".mysql_real_escape_string($billNo)."'");
+        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".$db->escape($billNo)."'");
         foreach($fList as $l)
             $list[$l["change_id"]]["fields"][] = $l;
 
@@ -744,7 +744,7 @@ where c.client="'.$trouble['client_orig'].'"')
             }
             $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
             $ff = array();
-            if($l["action"] == "change"){
+            if($l["action"] == "change" && isset($l["fields"])){
                 foreach($l["fields"] as $f)
                     $ff[] = (isset($fields[$f["field"]]) ? $fields[$f["field"]] : $f["field"]).": ".$f["from"]." => ".$f["to"];
             }

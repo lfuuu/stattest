@@ -3581,7 +3581,7 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
                 }
                 $totalAmount[$r['currency']] += $r['sum'];
             }
-            if ($r['bonus']) {
+            if (isset($r["bonus"]) && $r['bonus']) {
                 if (!isset($totalBonus[$r['currency']])) {
                     $totalBonus[$r['currency']] = 0;
                 }

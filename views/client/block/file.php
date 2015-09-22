@@ -25,7 +25,7 @@ use \yii\helpers\Url;
                         <?= $file->comment ?>
                     </div>
                     <div class="col-sm-2">
-                        <?= $file->user->name ?>
+                        <?= ($file->user ? $file->user->name :"")  ?>
                     </div>
                     <div class="col-sm-2">
                         <?= $file->ts ?>
