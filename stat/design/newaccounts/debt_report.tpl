@@ -135,7 +135,7 @@ function doSaveComment(billNo)
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=debt_report>
 <input type=hidden name=go value=yes>
-Менеджер: <SELECT name=manager>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select><br>
+Менеджер: <SELECT name=manager>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if $item.user == $manager}selected{/if}>{$item.name} ({$item.user})</option>{/foreach}</select><br>
 Курьер: <select name="courier" id="courier">{html_options options=$l_couriers selected=$courier}</select><br>
 Метро: <select name="metro" id="metro">{html_options options=$l_metro selected=$metro}</select><br>
 От <input type=text class=text id='date_from' name='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
