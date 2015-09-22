@@ -17,7 +17,7 @@
         <form method='POST'>
             {/if}
             <table id='timetable_cal_panel_frame' class="col-sm-12"
-                   style='position:absolute;visibility:hidden;background-color:silver;border:double'>
+                   style='position:absolute;visibility:hidden;background-color:silver;border:double; z-index: 10;     width: 200px;'>
                 <tr>
                     <td colspan='2'>
                         <div align='right'><a href='#' style='text-decoration:none' id='hide_cal'
