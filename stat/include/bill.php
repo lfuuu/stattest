@@ -124,7 +124,10 @@ class Bill {
         $this->bill_ts=$this->bill['ts'];
         unset($this->bill['ts']);
         $this->client_id=$this->bill['client_id'];
-        $this->bill['tax_rate'] = ClientAccount::findOne($this->bill['client_id'])->getTaxRate();
+        
+        if ($this->bill && isset($this->bill['client_id'])) {
+            $this->bill['tax_rate'] = ClientAccount::findOne($this->bill['client_id'])->getTaxRate();
+        }
         $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
         $this->changed=0;
     }
