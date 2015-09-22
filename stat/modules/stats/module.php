@@ -710,8 +710,7 @@ class m_stats extends IModule{
 				");
 			}
 
-			//printdbg($db->NumRows(), $q);
-			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+            $countRow = 0;
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
                 $r['is_total'] = 0;
@@ -729,8 +728,10 @@ class m_stats extends IModule{
 				} else {
 					$T['in_bytes']+=$r['in_bytes'];
 					$T['out_bytes']+=$r['out_bytes'];
-				}
+                }
+                $countRow++;
 			}
+            if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 		}
 		$T['ts']='<b>Итого</b>';
 		$T['tsf']='<b>Итого</b>';
@@ -791,13 +792,15 @@ class m_stats extends IModule{
 			$whsql= '(datetime>=FROM_UNIXTIME('.$from.') AND datetime<FROM_UNIXTIME('.$to.'+86400)) AND ('.$whsql.')';
 			$db->Query("select inet_ntoa(ip_int) as ip,sum(transfer_rx) as in_bytes,sum(transfer_tx) as out_bytes,UNIX_TIMESTAMP(datetime) as ts from $tbl where ".$whsql.$group." ORDER by ".$order." ASC LIMIT 5000");
 
-			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+            $countRow = 0;
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
 				$rt['in_bytes']+=$r['in_bytes'];
-				$rt['out_bytes']+=$r['out_bytes'];
+                $rt['out_bytes']+=$r['out_bytes'];
+                $countRow++;
 			}
+            if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 		}
 		$rt['ts']='<b>Итого</b>';
 		$rt['tsf']='<b>Итого</b>';
@@ -1116,8 +1119,9 @@ class m_stats extends IModule{
 				"INNER JOIN usage_nvoip_phone as PB ON PB.phone_id=B.phone_id ".
 				"where ".$whsql.$group." ORDER by C.ts ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-		$rt=array('price'=>0,'priceFrom'=>0,'priceTo'=>0, 'ts2'=>0);
+        $rt=array('price'=>0,'priceFrom'=>0,'priceTo'=>0, 'ts2'=>0);
+
+        $countRow = 0;
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
 			if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
@@ -1126,8 +1130,11 @@ class m_stats extends IModule{
 			$rt['price']+=$r['price'];
 			$rt['priceFrom']+=$r['priceFrom'];
 			$rt['priceTo']+=$r['priceTo'];
-			$rt['ts2']+=$r['ts2'];
-		}
+            $rt['ts2']+=$r['ts2'];
+            $countRow++;
+        }
+		if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+
 		$rt['ts1']='Итого';
 		$rt['tsf1']='<b>Итого</b>';
 		$rt['price']='<b>'.$rt['price'].'</b>';
@@ -1178,8 +1185,9 @@ class m_stats extends IModule{
 					($group?'sum':'')."(AcctSessionTime) as ts2 ".
 					"from radacct where ".$whsql.$group." ORDER by AcctStartTime ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-		$rt=array('ts2'=>0,'in_bytes'=>0,'out_bytes'=>0);
+        $rt=array('ts2'=>0,'in_bytes'=>0,'out_bytes'=>0);
+
+        $countRow = 0;
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
 			if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
@@ -1187,8 +1195,10 @@ class m_stats extends IModule{
 			$R[]=$r;
 			$rt['in_bytes']+=$r['in_bytes'];
 			$rt['out_bytes']+=$r['out_bytes'];
-			$rt['ts2']+=$r['ts2'];
+            $rt['ts2']+=$r['ts2'];
+            $countRow++;
 		}
+		if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 		$rt['ts1']='Итого';
 		$rt['tsf1']='<b>Итого</b>';
 		$rt['login']='&nbsp;';
