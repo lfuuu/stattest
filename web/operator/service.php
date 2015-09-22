@@ -221,7 +221,7 @@ if ($action=='add_client') {
 
     $bill_no = get_param_raw("bill_no", "");
 
-    if($b = $db->GetValue("select bill_no from newbills where bill_no = '".mysql_real_escape_string($bill_no)."'"))
+    if($b = $db->GetValue("select bill_no from newbills where bill_no = '".$db->escape($bill_no)."'"))
     {
         $db->Query("update newbills set editor = 'stat' where bill_no = '".$b."'");
         $t = $db->GetRow("select id, cur_stage_id from tt_troubles where bill_no = '".$b."'");
@@ -277,7 +277,7 @@ if ($action=='add_client') {
 }elseif($action == "reserve_number")
 {
     $client_id = get_param_integer("client_id", 0);
-    $numbers = mysql_real_escape_string( get_param_raw("number","") );
+    $numbers = get_param_protected("number","");
     $numbers = $_numbers = explode(',', $numbers);
     $numbers = "'".implode("','", $numbers)."'";
 
