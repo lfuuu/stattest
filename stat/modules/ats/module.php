@@ -52,9 +52,9 @@ class m_ats extends IModule
         $this->ats_sip_users($fixClient);
     }
 
-	public function ats_sip_users($fixClient)
+    public function ats_sip_users($fixClient)
     {
-
+        /*
         $region = \app\models\ClientAccount::findOne($fixClient)->region;
 
         if($fixClient && $region == 99)
@@ -65,6 +65,7 @@ class m_ats extends IModule
             trigger_error2("Настройки учетных записей SIP для данного региона недоступны");
             return;
         }
+        */
         $this->sip_users($fixClient);
         //$this->numbers($fixClient);
     }
