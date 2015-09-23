@@ -171,7 +171,7 @@ class ClientDocumentDao extends Singleton
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
                 'description' => "Телефонный номер: " . $usage->E164,
-                'number' => $usage->E164,
+                'number' => $usage->E164.' x '.$usage->no_of_lines,
                 'lines' => $usage->no_of_lines,
                 'free_local_min' => $usage->currentTariff->free_local_min * ($usage->currentTariff->freemin_for_number ? 1 : $usage->no_of_lines),
                 'connect_price' => (string)$usage->voipNumber->price,
