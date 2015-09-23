@@ -7,6 +7,8 @@ use app\dao\user\UserGroupsDao;
 class UserGroups extends ActiveRecord
 {
 
+    const ADMIN = 'admin';
+
     public static function tableName()
     {
         return 'user_groups';
