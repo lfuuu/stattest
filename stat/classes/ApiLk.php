@@ -1755,7 +1755,7 @@ class ApiLk
             return array('status'=>'error','message'=>'contact_add_error');
 
         $contact_cnt = $db->GetValue("SELECT COUNT(*) FROM client_contacts WHERE client_id='".$client_id."' AND user_id='".$lk_user["id"]."'");
-        if ($contact_cnt >= 5)
+        if ($contact_cnt > 6)
             return array('status'=>'error','message'=>'contact_max_length');
 
         if (!in_array($type, array('email', 'phone')))
