@@ -37,14 +37,15 @@ class Payment extends ActiveRecord
     const BANK_SBER = 'sber';
     const BANK_RAIFFEISEN = 'raiffeisen';
 
-    const ECASH_CYBERPLAT = 'Cyberplat';
-    const ECASH_YANDEX    = 'Yandex';
+    const ECASH_CYBERPLAT = 'cyberplat';
+    const ECASH_YANDEX    = 'yandex';
+    const ECASH_PAYPAL    = 'paypal';
 
     public static $types = [
-        self::TYPE_PROV => 'Проведенный нал.',
-        self::TYPE_NEPROV => 'Не проведенный нал.',
-        self::TYPE_BANK => 'Банк',
-        self::TYPE_ECASH => 'Электронные деньги',
+        self::TYPE_PROV => 'Check',
+        self::TYPE_NEPROV => 'Cash',
+        self::TYPE_BANK => 'Bank transfer',
+        self::TYPE_ECASH => 'Electronic money',
     ];
 
     public static $banks = [
@@ -52,12 +53,13 @@ class Payment extends ActiveRecord
         self::BANK_MOS  => 'Банк Москвы',
         self::BANK_URAL => 'УралСиб',
         self::BANK_SBER => 'Сбербанк',
-        self::BANK_RAIFFEISEN => 'Райфайзен Будапешт',
+        self::BANK_RAIFFEISEN => 'Raiffeisen Bank Zrt.',
     ];
 
     public static $ecash = [
         self::ECASH_CYBERPLAT => 'Cyberplat',
-        self::ECASH_YANDEX    => 'Яндекс.Деньги',
+        self::ECASH_YANDEX    => 'YandeMoney',
+        self::ECASH_PAYPAL    => 'PayPal',
     ];
 
     public static function tableName()

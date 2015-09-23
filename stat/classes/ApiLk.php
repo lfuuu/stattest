@@ -8,7 +8,7 @@ use app\models\TariffVoip;
 use app\models\City;
 use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
-use app\models\ClientContract;
+use app\models\Payment as PaymentModel;
 
 class ApiLk
 {
@@ -2120,25 +2120,16 @@ class ApiLk
         return true;
     }
 
-
     private static function _getPaymentTypeName($pay)
     {
-        switch ($pay["type"])
-        {
-        	case 'bank': $v = "Банк"; break;
-        	case 'prov': $v = "Наличные"; break;
-        	case 'neprov': $v = "Эл.деньги"; break;
-            case 'ecash': $v = "Эл.деньги";
-                switch($pay["ecash_operator"])
-                {
-                    case 'yandex': $v = "Яндекс.Деньги"; break;
-                    case 'paypal': $v = "PayPal"; break;
-                    case 'cyberplat': $v = "Cyberplat"; break;
-                }
-                break;
-        	default: $v = "Банк";
-        }
-
+        if (isset(PaymentModel::$types[$pay["type"]])) {
+            $v = PaymentModel::$types[$pay["type"]];
+            if (isset(PaymentModel::$banks[$pay["type"]]))
+                $v = PaymentModel::$banks[$pay["type"]];
+            elseif (isset(PaymentModel::$ecash[$pay["type"]]))
+                $v = PaymentModel::$ecash[$pay["type"]];
+        } else
+            $v = PaymentModel::TYPE_BANK;
         return $v;
     }
 
