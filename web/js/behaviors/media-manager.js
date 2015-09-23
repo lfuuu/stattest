@@ -127,7 +127,7 @@ if (window.jQuery)(function($) {
                     'value': ''
                 },
                 'editBlock': {
-                    'class': 'file_name_edit_block'
+                    'class': 'file_name_edit_block input-group'
                 },
                 'editLink': {
                     'class': 'file_name_edit',
@@ -135,11 +135,11 @@ if (window.jQuery)(function($) {
                 },
                 'editField': {
                     'namePrefix': 'custom_name',
-                    'class': 'edit_input'
+                    'class': 'edit_input form-control'
                 },
                 'editButton': {
                     'title': 'Ок',
-                    'class': 'edit_button'
+                    'class': 'edit_button btn btn-primary'
                 }
             }, options),
             $elements = {
@@ -165,11 +165,12 @@ if (window.jQuery)(function($) {
                         .val($settings.element.value.replace(/\.[^\.]+$/, ''))
                         .addClass($settings.editField['class']),
                 'button':
-                    $('<button>')
-                        .addClass($settings.editButton['class'])
-                        .attr('type', 'button')
-                        .text($settings.editButton['title'])
-                        .on('click', function() {
+                    $('<div>').addClass('input-group-btn').append(
+                        $('<button>')
+                            .addClass($settings.editButton['class'])
+                            .attr('type', 'button')
+                            .text($settings.editButton['title'])
+                    ).on('click', function() {
                             var parent = $(this).parent('div'),
                                 fileElement = parent.next('span').find('span.MultiFile-title'),
                                 newFileName = $(this).prev('input').val(),

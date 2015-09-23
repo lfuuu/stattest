@@ -13,6 +13,7 @@ use app\dao\TroubleDao;
 use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
+use yii\web\View;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -1397,6 +1398,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function    showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null, $server_ids = null){
 
+        $account = ClientAccount::findOne($fixclient);
+
         if($this->dont_again)
             return 0;
         global $db,$design;
@@ -1460,11 +1463,28 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             $design->assign('curtype',$this->curtype);
             if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
+                $design->assign('form',(new View())->render('@app/views/trouble/_form',[
+                    'account' => $account,
+                    'curtype' => $this->curtype,
+                    'ttServer' => $design->get_template_vars('tt_server'),
+                    'ttServerId' => $design->get_template_vars('tt_server_id'),
+                    'ttService' => $design->get_template_vars('tt_service'),
+                    'ttServiceId' => $design->get_template_vars('tt_service_id'),
+                    'ttShowAdd' => $design->get_template_vars('tt_show_add'),
+                    'troubleSubtypes' => $this->getTroubleSubTypes(),
+                    'ttUsers' => \app\models\UserGroups::dao()->getListWithUsers(),
+                    'billList' => $this->curtype && in_array($this->curtype['code'], ['shop_orders', 'mounting_orders', 'orders_kp'])
+                        ? \yii\helpers\ArrayHelper::map(\app\models\Bill::find()
+                            ->andWhere(['is_payed' => 0, 'client_id' => $account->id])
+                            ->select('bill_no')
+                            ->column(),
+                            'bill_no', 'bill_no')
+                        : [],
+                ]));
                 $design->AddMain('tt/trouble_form.tpl');
             }
             $this->showTimeTable();
         }
-
 
         /*
         if(!($mode>0 || isset($_REQUEST['filters_flag']))){
@@ -1627,7 +1647,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
         if (!$user_main) {
             $user_main = $R['user_author'];
-        } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
+        } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where "'.$user_main.'" IN (`user`,`id`)')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
         } else {trigger_error2('неверный пользователь'); return;}
 

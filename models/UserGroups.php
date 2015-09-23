@@ -29,4 +29,9 @@ class UserGroups extends ActiveRecord
         return User::find()->where(['usergroup' => $this->usergroup])->count();
     }
 
+    public function getUsers()
+    {
+        return $this->hasMany(User::className(),['usergroup' => 'usergroup']);
+    }
+
 }
