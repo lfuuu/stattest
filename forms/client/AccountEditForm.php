@@ -106,6 +106,7 @@ class AccountEditForm extends Form
                 ],
                 'default', 'value' => 0
             ],
+            [['voip_credit_limit_day'], 'default', 'value' => 1000],
             ['admin_email', 'email'],
             ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
