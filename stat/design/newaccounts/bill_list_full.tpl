@@ -139,7 +139,7 @@
 {else}
 {cycle values="even,odd" assign=class}
 {/if}
-<TR class={$class}>
+<TR class={$class} style="{if $op.isCanceled==1}text-decoration: line-through;{/if}">
 {if isset($op.bill) && $op.bill}
 	<TD rowspan={$rowspan}{if $op.bill.postreg!="0000-00-00"} style='background-color:#FFFFD0'{/if}>{$op.bill.bill_date}</TD>
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}><a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br>({$op.bill.bill_no_ext}){/if}</a></TD>

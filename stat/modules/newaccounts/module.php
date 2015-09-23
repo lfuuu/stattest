@@ -340,7 +340,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal,
+                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -348,32 +348,30 @@ class m_newaccounts extends IModule
                 ).' as in_sum
             from
                 newbills P
-            '.($isMulty && !$isViewCanceled ? "
                 left join tt_troubles t using (bill_no)
                 left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
-                " : "").'
             where
                 client_id='.$fixclient_data['id'].'
                 '.($isMulty && !$isViewCanceled? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
-                ) bills  ' . 
+                ) bills  ' .
                 (($get_income_goods_on_bill_list) ? 'union
                 (
                     ### incomegoods
-                 SELECT 
-                    number as bill_no, 
+                 SELECT
+                    number as bill_no,
                     "" as bill_no_ext,
-                    cast(date as date) as bill_date, 
-                    client_card_id as client_id, 
+                    cast(date as date) as bill_date,
+                    client_card_id as client_id,
                     if(currency = "RUB", "RUB", currency) as currency,
-                    sum, 
+                    sum,
                     is_payed,
-                    "" `comment`, 
-                    "0000-00-00" postreg , 
-                    "" nal, 
-                    1 in_sum 
+                    "" `comment`,
+                    "0000-00-00" postreg ,
+                    "" nal,
+                    1 in_sum
 
                   FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'"
-                )' : ' ' ) . 
+                )' : ' ' ) .
             'order by
                 bill_date desc,
                 bill_no desc
@@ -441,7 +439,8 @@ class m_newaccounts extends IModule
                 'date'=>$r['bill_date'],
                 'pays'=>array(),
                 'delta'=>-$r['sum'],
-                'delta2'=>-$r['sum']
+                'delta2'=>-$r['sum'],
+                'isCanceled' => $r['is_canceled']
             );
 
             foreach($R2 as $k2=>$r2){
