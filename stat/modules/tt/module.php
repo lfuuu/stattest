@@ -75,12 +75,17 @@ class m_tt extends IModule{
     function tt_add($fixclient){
         global $db,$design,$user;
 
+        $time = get_param_integer('time', 1);
+
         $date = new DateTime(get_param_protected('date_start',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
         $date->setTimezone(new DateTimeZone('UTC'));
         $dateStart = $date->format('Y-m-d H:i:s');
 
         $date = new DateTime(get_param_protected('date_finish_desired',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
         $date->setTimezone(new DateTimeZone('UTC'));
+        if ((int) $time) {
+            $date->modify('+ ' . $time . ' hours');
+        }
         $dateFinishDesired = $date->format('Y-m-d H:i:s');
 
         $R = array();
@@ -89,7 +94,7 @@ class m_tt extends IModule{
         #if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
         $R['client'] = get_param_protected('client' , null);
         if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error2('Такого клиента не существует'); return;}
-        $R['time']=get_param_integer('time',null);
+        $R['time']=$time;
         $R['date_start'] = $dateStart;
         $R['date_finish_desired']=$dateFinishDesired;
         $R['problem']=get_param_raw('problem','');
