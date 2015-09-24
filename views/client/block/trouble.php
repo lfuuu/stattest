@@ -2,6 +2,7 @@
 
 use app\models\User;
 use app\models\Bill;
+use app\models\Trouble;
 
 $troublesIsset = false;
 $serversTroubles = [];
@@ -57,7 +58,7 @@ if ($troublesIsset):
                         <td><?= $trouble->problem; ?></td>
                     </tr>
                     <tr style=" background: <?= ($trouble->is_important ? '#F4C0C0' : ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF')); ?>;">
-                        <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype]; ?></td>
+                        <td><?= Trouble::$subTypes[$trouble->trouble_subtype]; ?></td>
                         <td><?= ($trouble->stage->dif_time ? $trouble->stage->dif_time : '0'); ?></td>
                         <td><?= User::findOne(['user' => $trouble->user_author])->name; ?>(<?= $trouble->user_author; ?>)</td>
                         <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $is_payed == 1 ? ' background-color: #CCFFCC;' : ''); ?>">
@@ -119,7 +120,7 @@ if ($troublesIsset):
                         <td><?= $trouble->problem; ?></td>
                     </tr>
                     <tr style=" background: <?= ($trouble->is_important ? '#F4C0C0' : ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF')); ?>;">
-                        <td><?= $trouble->subTypeLabels[$trouble->trouble_subtype]; ?></td>
+                        <td><?=  Trouble::$subTypes[$trouble->trouble_subtype]; ?></td>
                         <td><?= ($trouble->stage->dif_time ? $trouble->stage->dif_time : '0'); ?></td>
                         <td><?= User::findOne(['user' => $trouble->user_author])->name; ?>(<?= $trouble->user_author; ?>)</td>
                         <td colspan="1" align="center" style="font-size:85%;<?= (!$trouble->service && $is_payed == 1 ? ' background-color: #CCFFCC;' :'' ); ?>">

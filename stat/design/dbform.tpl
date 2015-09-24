@@ -136,13 +136,13 @@
                 </tr>
             {/if}
         {/foreach}
-        
+
         {if $dbform_table == "usage_voip"}
             <script>
                 form_usagevoip_hide();
             </script>
         {/if}
-        
+
         {if $dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx"}
             <script>
                     optools.voip.check_e164.move_checking(1);
@@ -166,16 +166,16 @@
     {foreach from=$dbform_includesPre item=item name=outer}{include file=$item}{/foreach}
 
 <DIV align=center>
-    <input id=b_submit class=button 
-    {if $dbform_table=="usage_voip"}{literal} 
+    <input id=b_submit class=button
+    {if $dbform_table=="usage_voip"}{literal}
         type=button onclick="
             if(optools.check_submit() && ($('#voip_ats3_add').length ? checkVoipAts3Add() : true)) {
                 document.getElementById('dbform').submit();
             }
             "{/literal}
-    {elseif $dbform_table=="usage_virtpbx"} 
+    {elseif $dbform_table=="usage_virtpbx"}
         type=button onclick="
-            if(optools.check_vpbx_submit()) 
+            if(optools.check_vpbx_submit())
                 document.getElementById('dbform').submit();"
     {else}
         type=submit

@@ -7,7 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Language;
 use app\models\ClientContract;
-use app\models\ClientDocument;
+use app\models\UserGroups;
 
 $contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;
 $contragentsOptions = [];
@@ -68,8 +68,10 @@ $formFolderName = Language::getLanguageExtension($language);
             <?php if (!$model->isNewRecord): ?>
                 <div class="col-sm-12 form-group">
                     <a href="#" onclick="return showVersion({ClientContract:<?= $model->id ?>}, true);">Версии</a><br/>
-                    <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
-                    <span>История изменений</span>
+                    <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
+                        <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
+                        <span>История изменений</span>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>

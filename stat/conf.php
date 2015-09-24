@@ -166,8 +166,10 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'util.php');
     require_once(INCLUDE_PATH.'clCards.php');
 
+    require_once(INCLUDE_PATH.'sql_yii.php');
     require_once(INCLUDE_PATH.'sql.php');
-    $db        = new MySQLDatabase();
+    $db        = new MySQLDatabase_yii(Yii::$app->getDb("db"));
+    //$db        = new MySQLDatabase();
 
     if (defined("SQL_ATS2_DB") && SQL_ATS2_DB) {
         $db_ats = new MySQLDatabase(SQL_HOST, SQL_USER, SQL_PASS, SQL_ATS2_DB);

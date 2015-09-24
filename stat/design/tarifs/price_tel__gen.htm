@@ -1,0 +1,122 @@
+<script language="JavaScript" type="text/javascript" src="./js/jquery.js"></script>
+
+
+<table border=1 style='border-collapse: collapse; font: normal 7pt arial;' cellpadding=1 width=300 id='t1'>
+    <tr>
+        {if $region == 99}
+        <th width=72>Страна</th>
+        <th width=140>Префикс</th>
+        <th width=24>БАЗ</th>
+        <th width=24>ТП1</th>
+        <th width=24>ТП2</th>
+        {else}
+        <th width=96>Страна</th>
+        <th width=164>Префикс</th>
+        <th width=24>БАЗ</th>
+        {/if}
+    </tr>
+
+
+    {foreach from=$d key=idx item=l}
+    <tr>
+        {if $l.type == "title"}
+        <td valign=top colspan=5><b>{$l.title}</b></td>
+        {else}
+        <td valign=top>{$l.name}</td>
+        <td valign=top><b>{$l.code1}</b>{if $l.code2} <span style='font: normal 6pt arial'>{$l.code2}</span>{/if}</td>
+        <td valign=top>{$l.price1}</td>
+        {if $region == 99}
+        <td valign=top>{$l.price2}</td>
+        <td valign=top>{$l.price3}</td>
+        {/if}
+        {/if}
+    </tr>
+    {/foreach}
+</table>
+
+<div id='add_div'></div>
+<div id='add_div2'></div>
+
+
+<script>
+    {literal}
+    $(function(){
+
+        var t1 = $('#t1 tr');
+        var th = $("#t1 tr:first");
+        var prefOffTop = 0;
+        var newTableTmeplate = $("<table border=1 style='border-collapse: collapse; font: normal 7pt arial;' cellpadding=1 width=300>");
+        newTable = $(newTableTmeplate).clone();
+        $("#add_div").append($(newTable).append(th.clone()));
+        pageSize = 900;
+        {/literal}{if $region == '991'}{literal}pageSize = 1060;{/literal}{/if}{literal}
+            page = 0;
+            prevTr = null;
+            lastTr = 15;
+            t1.each(function(i,o)
+            {
+                console.log(i);
+                if(i == 0) return;
+                var offsetTop = $(o).offset().top;
+                v = offsetTop - prefOffTop;
+                if(page + v > pageSize)
+                {
+                    newTable = $(newTableTmeplate).clone();
+                    $("#add_div").append($(newTable).append(th.clone()));
+                    page = v;
+                    v += "+";
+                }else
+                    page += v;
+                if(i != 0)
+                {
+                    //$(prevTr).find("td:eq(2)").text(v);
+                    //$(prevTr).find("td:eq(3)").text(page);
+                    newTable.append($(prevTr).clone());
+                }
+                prefOffTop = offsetTop;
+                prevTr = o;
+                if(i == t1.length -1)
+                    newTable.append($(prevTr).clone());
+            });
+            //$(prevTr).find("td:last").text(lastTr);
+            $("#t1").remove();
+            var tables = $("table");
+            console.log("tables.length: "+tables.length);
+            console.log(tables.length % 2);
+            var nTables = Math.ceil(tables.length / 2);
+            var j = 1;
+            for(i = 1 ; i <= nTables; i++)
+            {
+                var tt = $("<table border=0 width=100%>");
+                var tr = $("<tr>")
+                for(k=1 ; k <=2 ; k++)
+                {
+                    var td = $("<td id='tt"+j+"' valign=top></td>");
+                    j++;
+                    tr.append(td);
+                }
+                tt.append(tr);
+                $("#add_div2").append(tt);
+                if(nTables != i)
+                    $("#add_div2").append($("<br style=\"mso-special-character:line-break;page-break-before: always\"\>"));
+            }
+            j = 1;
+            tables.each(function(i,o){
+                $("#tt"+j).append(o);
+                j++;
+            });
+            $("#add_div").remove();
+            $.ajax({
+                type: "post",
+                url: "./?module=tarifs&action=price_tel&save=true&region={/literal}{$region}{literal}",
+                data: {html: $("#add_div2").html()},
+                success: function(s){
+                    console.log(s);
+                    alert(s);
+                }
+
+            });
+
+        });
+        {/literal}
+</script>

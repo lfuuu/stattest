@@ -13,6 +13,7 @@ use app\dao\TroubleDao;
 use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
+use yii\web\View;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -75,12 +76,17 @@ class m_tt extends IModule{
     function tt_add($fixclient){
         global $db,$design,$user;
 
+        $time = get_param_integer('time', 1);
+
         $date = new DateTime(get_param_protected('date_start',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
         $date->setTimezone(new DateTimeZone('UTC'));
         $dateStart = $date->format('Y-m-d H:i:s');
 
         $date = new DateTime(get_param_protected('date_finish_desired',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
         $date->setTimezone(new DateTimeZone('UTC'));
+        if ((int) $time) {
+            $date->modify('+ ' . $time . ' hours');
+        }
         $dateFinishDesired = $date->format('Y-m-d H:i:s');
 
         $R = array();
@@ -89,7 +95,7 @@ class m_tt extends IModule{
         #if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
         $R['client'] = get_param_protected('client' , null);
         if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error2('Такого клиента не существует'); return;}
-        $R['time']=get_param_integer('time',null);
+        $R['time']=$time;
         $R['date_start'] = $dateStart;
         $R['date_finish_desired']=$dateFinishDesired;
         $R['problem']=get_param_raw('problem','');
@@ -729,7 +735,7 @@ where c.client="'.$trouble['client_orig'].'"')
         $list = $db->QuerySelectAll("newbill_change_log", array("bill_no" => $billNo));
         $_list = array(); foreach($list as $l) $_list[$l["id"]] = $l;
         $list = $_list;
-        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".mysql_real_escape_string($billNo)."'");
+        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".$db->escape($billNo)."'");
         foreach($fList as $l)
             $list[$l["change_id"]]["fields"][] = $l;
 
@@ -744,7 +750,7 @@ where c.client="'.$trouble['client_orig'].'"')
             }
             $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
             $ff = array();
-            if($l["action"] == "change"){
+            if($l["action"] == "change" && isset($l["fields"])){
                 foreach($l["fields"] as $f)
                     $ff[] = (isset($fields[$f["field"]]) ? $fields[$f["field"]] : $f["field"]).": ".$f["from"]." => ".$f["to"];
             }
@@ -1392,6 +1398,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function    showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null, $server_ids = null){
 
+        $account = ClientAccount::findOne($fixclient);
+
         if($this->dont_again)
             return 0;
         global $db,$design;
@@ -1455,11 +1463,28 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             $design->assign('curtype',$this->curtype);
             if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
+                $design->assign('form',(new View())->render('@app/views/trouble/_form',[
+                    'account' => $account,
+                    'curtype' => $this->curtype,
+                    'ttServer' => $design->get_template_vars('tt_server'),
+                    'ttServerId' => $design->get_template_vars('tt_server_id'),
+                    'ttService' => $design->get_template_vars('tt_service'),
+                    'ttServiceId' => $design->get_template_vars('tt_service_id'),
+                    'ttShowAdd' => $design->get_template_vars('tt_show_add'),
+                    'troubleSubtypes' => $this->getTroubleSubTypes(),
+                    'ttUsers' => \app\models\UserGroups::dao()->getListWithUsers(),
+                    'billList' => $this->curtype && in_array($this->curtype['code'], ['shop_orders', 'mounting_orders', 'orders_kp'])
+                        ? \yii\helpers\ArrayHelper::map(\app\models\Bill::find()
+                            ->andWhere(['is_payed' => 0, 'client_id' => $account->id])
+                            ->select('bill_no')
+                            ->column(),
+                            'bill_no', 'bill_no')
+                        : [],
+                ]));
                 $design->AddMain('tt/trouble_form.tpl');
             }
             $this->showTimeTable();
         }
-
 
         /*
         if(!($mode>0 || isset($_REQUEST['filters_flag']))){
@@ -1622,7 +1647,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
         if (!$user_main) {
             $user_main = $R['user_author'];
-        } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
+        } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where "'.$user_main.'" IN (`user`,`id`)')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
         } else {trigger_error2('неверный пользователь'); return;}
 

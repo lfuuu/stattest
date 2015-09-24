@@ -299,7 +299,7 @@ if ($has) :
                                         }
                                         ?>
                                     </td>
-                                    <td><?= VoipNumber::$statuses[$service->voipNumber->status]; ?></td>
+                                    <td><?= (isset(VoipNumber::$statuses[$service->voipNumber->status]) ? VoipNumber::$statuses[$service->voipNumber->status] : $service->voipNumber->status); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -447,7 +447,7 @@ if ($has) :
                             <th width="20%">Дата</th>
                             <th width="30%">Описание</th>
                             <th width="10%">Стоимость</th>
-                            <th width="40%">Сервер АТС</th>
+                            <th width="40%">Регион</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -467,7 +467,7 @@ if ($has) :
                                 </td>
                                 <td><?= $service->currentTariff->description ?></td>
                                 <td><?= $service->currentTariff->price ?></td>
-                                <td><?php $service->getRegionName() ?></td>
+                                <td><?= $service->regionName->name ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

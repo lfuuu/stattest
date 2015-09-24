@@ -67,9 +67,9 @@ class ApiCore
     public static function transferContragent($contragentId, $fromClientId, $toClientId)
     {
         self::exec('transfer_contragent', [
-            'from_client_id'  => $fromClientId,
-            'to_client_id'    => $toClientId,
-            'contragent_id'   => $contragentId,
+            'from_client_id' => $fromClientId,
+            'to_client_id'   => $toClientId,
+            'contragent_id'  => $contragentId,
         ]);
     }
 

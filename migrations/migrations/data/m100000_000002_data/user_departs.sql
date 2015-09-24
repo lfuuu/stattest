@@ -1,7 +1,11 @@
-INSERT INTO `user_departs` (`id`, `name`) VALUES (21, 'mcn');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (22, 'welltime');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (23, 'wellsystems');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (24, 'compapa');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (25, 'all4net');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (26, 'it.park');
-INSERT INTO `user_departs` (`id`, `name`) VALUES (27, 'mcntelecom');
+INSERT INTO `user_departs` VALUES 
+(21,'mcn'),
+(22,'welltime'),
+(23,'wellsystems'),
+(24,'compapa'),
+(25,'all4net'),
+(26,'it.park'),
+(27,'mcntelecom'),
+(28,'Sales'),
+(29,'Zakupki');
+

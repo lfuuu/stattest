@@ -133,9 +133,9 @@ class BaseController extends Controller
 
         $fixclient_data = ClientAccount::findOne($param);
 
-        $fixclient = $fixclient_data->id;
-
-        if ($fixclient_data === null) {
+        if ($fixclient_data) {
+            $fixclient = $fixclient_data->id;
+        } else {
             $fixclient_data = [];
         }
     }

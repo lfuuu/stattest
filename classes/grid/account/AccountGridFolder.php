@@ -32,6 +32,8 @@ abstract class AccountGridFolder extends Model
     public $financial_type;
     public $contract_type;
     public $federal_district;
+    public $contractNo;
+    public $contract_created;
 
     public function getName()
     {
@@ -48,7 +50,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district'], 'string'],
+                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
     }
 
@@ -66,6 +68,7 @@ abstract class AccountGridFolder extends Model
                 'managerName' => 'Менеджер',
                 'channelName' => 'Канал продаж',
                 'contractNo' => '№ договора',
+                'contract_created' => 'Дата договора',
                 'status' => '#',
                 'lastComment' => 'Комментарий',
                 'service' => 'Услуга',
@@ -112,6 +115,7 @@ abstract class AccountGridFolder extends Model
             'cg.name AS company',
             'cr.manager',
             'cr.account_manager',
+            'cr.number AS contractNo',
             'mu.name as manager_name',
             'amu.name as account_manager_name',
             'c.support',
@@ -125,6 +129,7 @@ abstract class AccountGridFolder extends Model
             'cr.federal_district',
             'ct.name as contract_type',
             'cr.financial_type',
+            'doc.contract_date as contract_created'
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
@@ -134,6 +139,10 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
+        $query->join('LEFT JOIN', 'client_document doc',
+            '((ISNULL(doc.account_id) AND cr.id = doc.contract_id) OR c.id=doc.account_id)
+            AND doc.is_active=1 AND doc.type=\'contract\''
+        );
     }
 
     public function queryOrderBy()
@@ -159,6 +168,7 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['or', ['cg.name' => $this->companyName], ['cg.name_full' => $this->companyName]]);
         $query->andFilterWhere(['cr.account_manager' => $this->account_manager]);
         $query->andFilterWhere(['cr.manager' => $this->manager]);
+        $query->andFilterWhere(['cr.number' => $this->contractNo]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
         $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
@@ -180,6 +190,11 @@ abstract class AccountGridFolder extends Model
         if ($this->createdDate && !empty($this->createdDate)) {
             $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+        }
+
+        if ($this->contract_created && !empty($this->contract_created)) {
+            $createdDates = preg_split('/[\s+]\-[\s+]/', $this->contract_created);
+            $query->andWhere(['between', 'doc.contract_date', $createdDates[0], $createdDates[1]]);
         }
 
         if (isset($this->block_date) && !empty($this->block_date)) {
@@ -243,12 +258,13 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function () {
-                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" style="width:50px;" />';
+                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['id'] . '</a>';
-                }
+                },
+                'width' => '120px',
             ],
             'company' => [
                 'attribute' => 'company',
@@ -259,6 +275,18 @@ abstract class AccountGridFolder extends Model
                 'filter' => function () {
                     return '<input name="companyName"
                         id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '"
+                        class="form-control" style="min-width:150px" />';
+                },
+            ],
+            'contractNo' => [
+                'attribute' => 'contractNo',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return '<a href="/client/view?id=' . $data['id'] . '">' . $data['contractNo'] . '</a>';
+                },
+                'filter' => function() {
+                    return '<input name="contractNo"
+                        id="searchByContractNo" value="' . \Yii::$app->request->get('contractNo') . '"
                         class="form-control" style="min-width:150px" />';
                 },
             ],
@@ -278,7 +306,29 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
+                            'class' => 'drp-container input-group',
+                        ]
+                    ]);
+                }
+            ],
+            'contract_created' => [
+                'attribute' => 'created',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return $data['contract_created'];
+                },
+                'filter' => function () {
+                    return \kartik\daterange\DateRangePicker::widget([
+                        'name' => 'contract_created',
+                        'presetDropdown' => true,
+                        'hideInput' => true,
+                        'value' => \Yii::$app->request->get('contract_created'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
+                        'containerOptions' => [
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -300,7 +350,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);
@@ -395,7 +445,7 @@ abstract class AccountGridFolder extends Model
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px;',
+                            'style' => 'width:50px; overflow: hidden;',
                             'class' => 'drp-container input-group',
                         ]
                     ]);

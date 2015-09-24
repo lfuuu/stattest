@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use app\classes\Language;
+use app\models\UserGroups;
 
 $language = Language::getLanguageByCountryId($model->country_id?:643);
 $formFolderName = Language::getLanguageExtension($language);
@@ -59,8 +60,10 @@ $model->formLang = $language;
     <?php if (!$model->isNewRecord): ?>
         <div class="col-sm-12 form-group">
             <a href="#" onclick="return showVersion({ClientContragent:<?= $model->id ?>}, true);">Версии</a><br/>
+        <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
             <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->getPersonId() . '})']); ?>
             <span>История изменений</span>
+        <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>

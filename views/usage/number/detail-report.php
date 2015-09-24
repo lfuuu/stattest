@@ -1,5 +1,5 @@
 <?php
-use yii\helpers\Html;
+use app\classes\Html;
 use app\models\VoipNumber;
 
 echo Html::formLabel('Детальный отчет по номерам');

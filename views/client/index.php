@@ -82,4 +82,35 @@ $urlParams = Yii::$app->request->get();
                 }
             });
     });
+    $(function () {
+        var substringMatcherC = function () {
+            return function findMatches(q, cb) {
+                $.getJSON('search/index', {
+                    search: $("#searchByContractNo").val(),
+                    searchType: 'contractNo'
+                }, function (matches) {
+                    searchs = true;
+                    cb(matches);
+                    //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
+                });
+            };
+        };
+
+        $('#searchByContractNo').typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 3,
+                async: true,
+            },
+            {
+                name: 'states',
+                source: substringMatcherC(),
+                templates: {
+                    suggestion: function (obj) {
+                        return '<div>' + obj['value'] + '</div>';
+
+                    }
+                }
+            });
+    });
 </script>
