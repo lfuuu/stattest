@@ -103,7 +103,7 @@ $columns[] = [
     'label' => 'Цены',
     'format' => 'raw',
     'value' => function ($data) {
-        return Html::a('цены', Url::toRoute(['/index.php?module=voipnew&action=defs', 'pricelist' => $data->id]));
+        return Html::a('цены', Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'defs', 'pricelist' => $data->id]));
     },
 ];
 
