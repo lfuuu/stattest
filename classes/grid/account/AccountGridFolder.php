@@ -129,7 +129,7 @@ abstract class AccountGridFolder extends Model
             'cr.federal_district',
             'ct.name as contract_type',
             'cr.financial_type',
-            'doc.contract_date as contract_created'
+            'MAX(doc.contract_date) as contract_created'
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
@@ -139,10 +139,8 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-        $query->join('LEFT JOIN', 'client_document doc',
-            '((ISNULL(doc.account_id) AND cr.id = doc.contract_id) OR c.id=doc.account_id)
-            AND doc.is_active=1 AND doc.type=\'contract\''
-        );
+        $query->join('LEFT JOIN', 'client_document doc', 'cr.id=doc.contract_id AND doc.is_active=1 AND doc.type=\'contract\'');
+        $query->groupBy('c.id');
     }
 
     public function queryOrderBy()
@@ -208,19 +206,8 @@ abstract class AccountGridFolder extends Model
     public function getCount()
     {
         $query = new Query();
-
         $this->queryParams($query);
         $query->orderBy = null;
-
-        if ($this instanceof AutoBlockFolder) {
-            $pg_query = new Query();
-            $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
-
-            $ids = $pg_query->column(\Yii::$app->dbPg);
-            if (!empty($ids)) {
-                $query->andFilterWhere(['in', 'c.id', $ids]);
-            }
-        }
         return $query->count();
     }
 

@@ -40,7 +40,7 @@ class AutoBlockedFolder extends AccountGridFolder
         $query->andWhere(['!=', 'cr.business_process_status_id', BusinessProcessStatus::STATE_NEGOTIATIONS]);
 
         $pg_query = new Query();
-        $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
+        $pg_query->select('client_id')->from('billing.locks')->where('true IN (voip_auto_disabled, voip_auto_disabled_local)');
         $ids = $pg_query->column(\Yii::$app->dbPg);
         if (!empty($ids)) {
             $query->andWhere(['in', 'c.id', $ids]);
