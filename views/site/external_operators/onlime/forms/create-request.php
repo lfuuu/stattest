@@ -68,7 +68,7 @@ use kartik\builder\Form;
                     <td style="background-color: #F0F0F0;"><b>Наименование</b></td>
                     <td style="background-color: #F0F0F0;"><b>Количество</b></td>
                 </tr>
-                <?php foreach ($operator::$requestProducts as $product): ?>
+                <?php foreach ($operator->products as $product): ?>
                     <tr>
                         <td valign="middle" align="center">
                             <input type="checkbox" name="<?= $model->formName(); ?>[products][]" value="<?= $product['id']; ?>" />

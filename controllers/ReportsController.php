@@ -1,8 +1,8 @@
 <?php
 namespace app\controllers;
 
-use app\classes\operators\OperatorOnlimeDevices;
 use Yii;
+use DateTime;
 use app\classes\BaseController;
 use app\classes\operators\OperatorsFactory;
 use app\classes\operators\OperatorOnlime;
@@ -14,9 +14,16 @@ class ReportsController extends BaseController
     {
         $filter = Yii::$app->request->get('filter', []);
 
-        $dateFrom = $dateTo = '';
         if (isset($filter['range']))
             list($dateFrom, $dateTo) = explode(' : ', $filter['range']);
+        else {
+            $today = new DateTime('now');
+            $firstDayThisMonth = clone $today;
+            $lastDayThisMonth = clone $today;
+
+            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format('Y-m-d');
+            $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
+        }
 
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);

@@ -6,7 +6,7 @@ use Yii;
 use DateTime;
 use app\classes\Form;
 use app\classes\StatModule;
-use app\classes\operators\OperatorOnlime;
+use app\classes\operators\Operators;
 use app\models\ClientAccount;
 
 require_once Yii::$app->basePath . '/stat/include/1c_integration.php';
@@ -68,7 +68,6 @@ class RequestOnlimeForm extends Form
             ['time_interval', 'in', 'range' => array_keys(self::getTimeIntervals())],
             ['products', 'required', 'message' => 'Выберите хотя бы один товар'],
             ['products_counts', 'required', 'message' => 'Выберите хотя бы один товар'],
-            ['account_id', 'validateAccountId'],
         ];
     }
 
@@ -84,22 +83,16 @@ class RequestOnlimeForm extends Form
         ];
     }
 
-    public function validateAccountId()
-    {
-        if (!($clientAccount = ClientAccount::findOne($this->account_id)) instanceof ClientAccount)
-            $this->addError('account_id', 'Лицевой счет не найден');
-    }
-
     public function getTimeIntervals()
     {
         return self::$time_intervals;
     }
 
-    public function save()
+    public function save(Operators $operator)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $account = ClientAccount::findOne(['client' => OperatorOnlime::OPERATOR_CLIENT]);
+            $account = ClientAccount::findOne(['client' => $operator->operatorClient]);
 
             $positions = [
                 'bill_no' => '',
@@ -112,7 +105,7 @@ class RequestOnlimeForm extends Form
             ];
 
             for ($i = 0, $s = count($this->products); $i < $s; $i++) {
-                $product = OperatorOnlime::getProductById($this->products[$i]);
+                $product = $operator->getProductById($this->products[$i]);
                 $positions['list'][] = [
                     'id' => $product['id_1c'] . ':',
                     'code_1c' => 0,
@@ -130,14 +123,14 @@ class RequestOnlimeForm extends Form
             }
 
             try {
-                $response = OperatorOnlime::saveOrder1C([
+                $response = $operator->saveOrder1C([
                     'client_tid' => $account->client,
                     'order_number' => $positions['bill_no'],
                     'items_list' => (isset($positions['list']) ? $positions['list'] : false),
                     'order_comment' => $positions['comment'],
                     'is_rollback' => $positions['is_rollback'],
                     'add_info' => $addInfo,
-                    'store_id' => OperatorOnlime::STORE_ID,
+                    'store_id' => $operator->storeId,
                 ]);
             }
             catch (\Exception $e) {

@@ -19,10 +19,8 @@ require_once PATH_TO_ROOT . 'conf.php';
 class OperatorOnlimeDevices extends Operators
 {
 
-    //const OPERATOR_CLIENT = 'id35559';
-    const OPERATOR_CLIENT = 'onlime';
-
-    const STORE_ID = '8e5c7b22-8385-11df-9af5-001517456eb1';
+    const OPERATOR = 'onlime';
+    const OPERATOR_CLIENT = 'id35559';
 
     protected static $requestProducts = [
         [
@@ -165,27 +163,9 @@ class OperatorOnlimeDevices extends Operators
         $query->andWhere(['state_id' => 21]);
     }
 
-    public function downloadReport($dateFrom, $dateTo, $filter = [])
+    public function saveOrder1C(array $data)
     {
-        $list = $this->report->getList($dateFrom, $dateTo, $filter);
-        $sTypes = self::$requestModes;
-
-        $reportName =
-            'OnLime__' .
-            str_replace(' ', '_', $sTypes[ $filter['mode'] ]['title']) .
-            '__' . $dateFrom .
-            '__' . $dateTo;
-
-        Yii::$app->response->sendContentAsFile(
-            $this->GenerateExcel(self::$reportFields, $list),
-            $reportName . '.xls'
-        );
-        Yii::$app->end();
-    }
-
-    public static function saveOrder1C(array $data)
-    {
-        $soap = self::initSoap1C();
+        $soap = $this->initSoap1C();
 
         $items_list = array();
         if ($data['items_list'] !== false) {
@@ -229,9 +209,9 @@ class OperatorOnlimeDevices extends Operators
         return $response;
     }
 
-    public static function saveOrderState1C(Bill $bill, TroubleState $state)
+    public function saveOrderState1C(Bill $bill, TroubleState $state)
     {
-        $soap = self::initSoap1C();
+        $soap = $this->initSoap1C();
 
         try {
             $soap->utSetOrderStatus([
@@ -246,7 +226,7 @@ class OperatorOnlimeDevices extends Operators
         }
     }
 
-    private static function initSoap1C()
+    private function initSoap1C()
     {
         if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
             return false;

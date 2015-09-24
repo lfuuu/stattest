@@ -1,8 +1,7 @@
 <?php
+
 use yii\helpers\Html;
 use kartik\daterange\DateRangePicker;
-
-$report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode']);
 ?>
 
 <div class="well" style="padding-top: 60px;">
@@ -16,7 +15,7 @@ $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['m
                     'name' => 'filter[range]',
                     'presetDropdown' => true,
                     'hideInput' => true,
-                    'value' => $currentRange,
+                    'value' => $filter['dateFrom'] . ' : ' . $filter['dateTo'],
                     'pluginOptions' => [
                         'format' => 'YYYY-MM-DD',
                         'separator'=>' : ',
@@ -41,6 +40,19 @@ $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['m
         </form>
 
         <br />
+
+        <?php if ($filter['mode']): ?>
+
+            <?php
+            print 'aaa';
+            echo $this->render('@view/reports/' . $operator->operator . '/table.php', [
+                'operator' => $operator,
+                'filter' => $filter,
+                'report' => $report,
+            ]);
+            ?>
+
+        <?php endif; ?>
 
         <?php if (count($report)): ?>
             <?php if ($filter['mode'] == 'close'): ?>

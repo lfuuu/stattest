@@ -10,7 +10,6 @@ use app\models\Trouble;
 use app\models\Bill;
 use yii\filters\AccessControl;
 use app\models\LoginForm;
-use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorsFactory;
 
 class SiteController extends BaseController
@@ -52,39 +51,33 @@ class SiteController extends BaseController
     public function actionIndex()
     {
         $filter = Yii::$app->request->get('filter');
-        $dateFrom = $dateTo = '';
+
         if ($filter['range']) {
             list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
         }
-        $getFile = Yii::$app->request->get('get-file');
+        else {
+            $today = new DateTime('now');
+            $firstDayThisMonth = clone $today;
+            $lastDayThisMonth = clone $today;
+
+            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format('Y-m-d');
+            $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
+        }
 
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator('onlime-devices');
-
-        $today = new DateTime('now');
-        $firstDayThisMonth = clone $today;
-        $lastDayThisMonth = clone $today;
-
-        $currentRange =
-            $firstDayThisMonth->modify('first day of this month')->format('Y-m-d') .
-            ' : ' .
-            $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
-
-        if (isset($filter['range']))
-            $currentRange = $filter['range'];
-
-        if ($getFile) {
-            $operator->downloadReport();
-        }
+        $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
         $this->layout = 'external_operators/main';
         $this->menuItem = 'indexReport';
         return $this->render('external_operators/default', [
-            'currentRange' => $currentRange,
             'operator' => $operator,
-            'dateFrom' => $dateFrom,
-            'dateTo' => $dateTo,
-            'filter' => $filter,
+            'report' => $report,
+            'filter' => [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'mode' => $filter['mode'],
+            ],
         ]);
     }
 
@@ -97,17 +90,17 @@ class SiteController extends BaseController
         }
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
         $operator->downloadReport($dateFrom, $dateTo, $filter);
     }
 
     public function actionCreateRequest()
     {
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
         $model = $operator->requestForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator)) {
             return $this->redirect(['set-state', 'bill_no' => $model->bill_no]);
         }
 
@@ -127,10 +120,10 @@ class SiteController extends BaseController
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
         $model = $operator->requestStateForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($bill, $trouble)) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
             return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
         }
 

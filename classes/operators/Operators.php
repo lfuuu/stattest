@@ -8,6 +8,8 @@ use app\dao\reports\ReportExtendsOperatorsDao;
 abstract class Operators extends Object
 {
 
+    const STORE_ID = '8e5c7b22-8385-11df-9af5-001517456eb1';
+
     protected static
         $requestProducts = [],
         $requestModes = [],
@@ -16,7 +18,7 @@ abstract class Operators extends Object
 
     public function getOperator()
     {
-        return 'onlime';
+        return static::OPERATOR;
     }
 
     public function getOperatorClient()
@@ -27,6 +29,11 @@ abstract class Operators extends Object
     public function getReport()
     {
         return ReportExtendsOperatorsDao::me()->setOperator($this);
+    }
+
+    public function getStoreId()
+    {
+        return static::STORE_ID;
     }
 
     public function getRequestModes()

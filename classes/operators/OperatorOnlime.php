@@ -8,9 +8,8 @@ use yii\db\Query;
 class OperatorOnlime extends Operators
 {
 
+    const OPERATOR = 'onlime';
     const OPERATOR_CLIENT = 'onlime';
-
-    const STORE_ID = '8e5c7b22-8385-11df-9af5-001517456eb1';
 
     public static $requestProducts = [
         'count_3' => [
