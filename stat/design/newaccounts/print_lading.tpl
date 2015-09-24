@@ -434,7 +434,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td align="right">{if $line.tax_rate}{$line.sum_without_tax|round:2}{else}{$line.sum|round:2}{/if}</td>
 <td align="right">{if $line.tax_rate}{$line.tax_rate|round:0}{else}без НДС{/if}</td>
 <td align="right">{if $line.tax_rate}{$line.sum_tax|round:2}{else}-{/if}</td>
-<td align="right">{if $line.tax_rate}{$line.sum|round:2}{else}-{/if}</td>
+<td align="right">{$line.sum|round:2}</td>
 </tr>
 {/foreach}
 
@@ -447,7 +447,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td align="right">{if $bill.tax_rate}{$bill.sum_without_tax|round:2}{else}{$bill.sum|round:2}{/if}</td>
 <td align="right">Х </td>
 <td align="right">{if $bill.tax_rate}{$bill.sum_tax|round:2}{else}-{/if}</td>
-<td align="right">{if $bill.tax_rate}{$bill.sum|round:2}{else}-{/if}</td>
+<td align="right">{$bill.sum|round:2}</td>
 </tr>
 <tr>
 <td colspan="7" align="right">Всего по накладной</td>
@@ -458,7 +458,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td align="right">{if $bill.tax_rate}{$bill.sum_without_tax|round:2}{else}{$bill.sum|round:2}{/if}</td>
 <td align="right">Х </td>
 <td align="right">{if $bill.tax_rate}{$bill.sum_tax|round:2}{else}-{/if}</td>
-<td align="right">{if $bill.tax_rate}{$bill.sum|round:2}{else}-{/if}</td>
+<td align="right">{$bill.sum|round:2}</td>
 </tr>
 </table>
 <hr>
