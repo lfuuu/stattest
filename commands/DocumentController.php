@@ -30,7 +30,7 @@ class DocumentController extends Controller
 
     public function actionMigrate()
     {
-        $tmplDir = Yii::$app->params['SMARTY_TEMPLATE_DIR'];
+        $tmplDir = Yii::$app->params['STORE_PATH'];
         echo "Check dir '$tmplDir'\n";
         if(!file_exists($tmplDir)){
             echo "Dir not exists\n";
