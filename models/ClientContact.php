@@ -47,4 +47,10 @@ class ClientContact extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
+
+    public function beforeValidate() {
+        $this->data = trim($this->data);
+        return parent::beforeValidate();
+    }
+
 }
