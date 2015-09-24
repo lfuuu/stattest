@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Language;
 use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\UserGroups;
 
 $contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;

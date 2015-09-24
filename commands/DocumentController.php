@@ -30,7 +30,7 @@ class DocumentController extends Controller
 
     public function actionMigrate()
     {
-        $tmplDir = Yii::$app->params['STORE_PATH'];
+        $tmplDir = Yii::$app->params['STORE_PATH']."contracts/";
         echo "Check dir '$tmplDir'\n";
         if(!file_exists($tmplDir)){
             echo "Dir not exists\n";
