@@ -18,7 +18,7 @@ $form = ActiveForm::begin([
             <tr>
                 <th>
                     <h2>Контрагент - <?= $contragent->name; ?></h2>
-                    <hr size="1" />
+                    <hr size="1" style="margin: 5px;" />
                 </th>
             </tr>
         </thead>
@@ -104,7 +104,15 @@ $form = ActiveForm::begin([
         </tbody>
     </table>
 
-    <div style="position: fixed; bottom: 0; right: 15px;">
+    <?php if ($model->hasErrors('transfer-error')): ?>
+        <div class="alert alert-danger" style="position: fixed; bottom: 0; left: 20px; margin-bottom: 0px; width: 50%;">
+            <?php foreach ($model->getErrors('transfer-error') as $error): ?>
+                <b><?= $error; ?></b>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <div style="position: fixed; bottom: 8px; right: 15px;">
         <button type="button" id="dialog-close" style="width: 100px; margin-right: 15px;" class="btn btn-link">Отмена</button>
         <button type="submit" style="width: 100px;" class="btn btn-primary">OK</button>
     </div>

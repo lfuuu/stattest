@@ -2579,11 +2579,6 @@ class m_services extends IModule{
         return 1;
         
     }
-    function client_ports_lock($client,$val){
-        global $db;
-        $db->Query('update usage_ip_ppp set enabled="'.$val.'" where client="'.$client.'"');
-        return (($db->AffectedRows()>0)?1:0);
-    }
     function routes_check($client){
         global $db;
         $db->Query("select count(*) from usage_ip_ports where (actual_to>NOW()) and (client=\"{$client}\")");

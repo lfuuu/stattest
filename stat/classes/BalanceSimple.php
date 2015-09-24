@@ -71,7 +71,7 @@ class BalanceSimple
 
         $R1 = $db->AllRecords($q='
             select
-                *,
+                *, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
                 '.(
                     $sum[$params['client_currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$params['client_currency']]['ts'].'",1,0)'
@@ -79,10 +79,10 @@ class BalanceSimple
                 ).' as in_sum
             from
                 newbills
-            '.($params["is_multy"] && !$params["is_view_canceled"] ? "
+
                 left join tt_troubles t using (bill_no)
                 left join tt_stages ts on (ts.stage_id = t. cur_stage_id)
-                " : "").'
+
             where
                 client_id='.$params['client_id'].'
                 '.($params["is_multy"] && !$params["is_view_canceled"] ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
@@ -123,7 +123,8 @@ class BalanceSimple
                 'bill'=>$r,
                 'date'=>$r['bill_date'],
                 'pays'=>array(),
-                'delta'=>-$r['sum']
+                'delta'=>-$r['sum'],
+                'isCanceled' => $r['is_canceled']
             );
             foreach($R2 as $k2=>$r2){
                 $r2['bill_vis_no'] = $r2['bill_no'];

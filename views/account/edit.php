@@ -5,6 +5,8 @@ use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use app\classes\Language;
+use app\models\ClientDocument;
+use app\models\UserGroups;
 
 $language = Language::getLanguageByCountryId(643);
 $formFolderName = Language::getLanguageExtension($language);
@@ -55,8 +57,10 @@ $formFolderName = Language::getLanguageExtension($language);
             <?php if (!$model->isNewRecord): ?>
                 <div class="col-sm-12 form-group">
                     <a href="#" onclick="return showVersion({ClientAccount:<?= $model->id ?>}, true);">Версии</a><br/>
+                <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
                     <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientAccount:' . $model->id . '})']); ?>
                     <span>История изменений</span>
+                <?php endif; ?>
                 </div>
             <?php endif; ?>
 
@@ -161,7 +165,7 @@ $formFolderName = Language::getLanguageExtension($language);
     </div>
 
 
-    <?php $docs = \app\models\ClientDocument::find()->accountId($model->id)->blank()->all(); ?>
+    <?php $docs = ClientDocument::find()->accountId($model->id)->blank()->all(); ?>
 
     <div class="col-sm-12">
         <div class="row"
@@ -211,7 +215,7 @@ $formFolderName = Language::getLanguageExtension($language);
                 <div class="col-sm-2">
                     <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->contract_id ?>">
                     <input type="hidden" name="ClientDocument[account_id]" value="<?= $model->id ?>">
-                    <input type="hidden" name="ClientDocument[type]" value="blank">
+                    <input type="hidden" name="ClientDocument[type]" value="<?=ClientDocument::DOCUMENT_BLANK_TYPE?>">
                     <input class="form-control" type="text" name="ClientDocument[contract_no]"
                            value="<?= isset($blnk) ? $blnk + 1 : 1 ?>">
                 </div>
@@ -230,12 +234,11 @@ $formFolderName = Language::getLanguageExtension($language);
                 </div>
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
-                            data-type="blank"></select>
+                    <select class="form-control input-sm tmpl-group" data-type="<?=ClientDocument::DOCUMENT_BLANK_TYPE?>"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl" name="ClientDocument[template]"
-                            data-type="blank"></select>
+                    <select class="form-control input-sm tmpl" name="ClientDocument[template_id]"
+                            data-type="<?=ClientDocument::DOCUMENT_BLANK_TYPE?>"></select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
@@ -245,43 +248,9 @@ $formFolderName = Language::getLanguageExtension($language);
     </div>
 
     <?php endif; ?>
-
-    <script>
-        var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
-        var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
-
-        function generateTmplList(type, selected) {
-            if (!selected)
-                selected = $('.tmpl-group[data-type="' + type + '"]').val();
-            var tmpl = $('.tmpl[data-type="' + type + '"]');
-            if (typeof folders[type] !== 'undefined' && typeof folders[type][selected] !== 'undefined') {
-                tmpl.empty();
-                $.each(folders[type][selected], function (k, v) {
-                    tmpl.append('<option value="' + v + '">' + v + '</option>');
-                });
-            }
-        }
-
-        $(function () {
-            $('.tmpl-group').each(function () {
-                var type = $(this).data('type');
-                var t = $(this);
-                var first = false;
-                $.each(folders[type], function (k, v) {
-                    t.append('<option value="' + k + '" ' + (first ? 'selected=selected' : '') + ' >' + folderTranslates[k] + '</option>');
-                    if (first == false) {
-                        first = k;
-                    }
-                });
-                generateTmplList(type, first);
-            });
-
-            $('.tmpl-group').on('change', function () {
-                generateTmplList($(this).data('type'), $(this).val());
-            })
-        });
-    </script>
 </div>
 
+<script> var templates = <?= json_encode(\app\dao\ClientDocumentDao::templateList()) ?>; </script>
 <script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
+<script type="text/javascript" src="/js/behaviors/change-doc-template.js"></script>

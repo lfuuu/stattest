@@ -2,6 +2,7 @@
 
 namespace app\controllers\api;
 
+use app\models\document\DocumentTemplate;
 use Yii;
 use app\classes\ApiController;
 use app\classes\BaseController;
@@ -186,8 +187,7 @@ class WizardMcnController extends /*BaseController*/ApiController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->group = 'mcn';
-            $clientDocument->template = 'Dog_UslugiSvayzi';
+            $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'Dog_UslugiSvayzi'])['id'];
             $clientDocument->save();
 
 
@@ -211,8 +211,7 @@ class WizardMcnController extends /*BaseController*/ApiController
                 $clientDocument->contract_date = date("Y-m-d");
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
-                $clientDocument->group = 'mcn';
-                $clientDocument->template = 'Zakaz_Uslug';
+                $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'Zakaz_Uslug'])['id'];
                 $clientDocument->save();
 
             }

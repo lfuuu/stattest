@@ -8,6 +8,7 @@ use yii\helpers\ArrayHelper;
 use app\classes\Language;
 use app\models\ClientContract;
 use app\models\ClientDocument;
+use app\models\UserGroups;
 
 $contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;
 $contragentsOptions = [];
@@ -68,8 +69,10 @@ $formFolderName = Language::getLanguageExtension($language);
             <?php if (!$model->isNewRecord): ?>
                 <div class="col-sm-12 form-group">
                     <a href="#" onclick="return showVersion({ClientContract:<?= $model->id ?>}, true);">Версии</a><br/>
-                    <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
-                    <span>История изменений</span>
+                    <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
+                        <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
+                        <span>История изменений</span>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -163,7 +166,7 @@ $formFolderName = Language::getLanguageExtension($language);
                 <form action="/document/create" method="post">
                     <div class="col-sm-1">
                         <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
-                        <input type="hidden" name="ClientDocument[type]" value="contract">
+                        <input type="hidden" name="ClientDocument[type]" value="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>">
                         <?=Html::dropDownList('ClientDocument[is_external]', ClientContract::IS_INTERNAL, ClientContract::$externalType, [
                             'id' =>'change-external',
                             'class' => 'form-control input-sm',
@@ -191,12 +194,10 @@ $formFolderName = Language::getLanguageExtension($language);
                     </div>
 
                     <div class="col-sm-2">
-                        <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
-                                data-type="contract" data-not-external="1"></select>
+                        <select class="form-control input-sm tmpl-group" data-type="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>"></select>
                     </div>
                     <div class="col-sm-2">
-                        <select class="form-control input-sm tmpl" name="ClientDocument[template]"
-                                data-type="contract" data-not-external="1"></select>
+                        <select class="form-control input-sm tmpl" name="ClientDocument[template_id]" data-type="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>"></select>
                     </div>
                     <div class="col-sm-2">
                         <button type="submit"
@@ -208,7 +209,7 @@ $formFolderName = Language::getLanguageExtension($language);
     </div>
 
 
-    <div class="col-sm-12" data-not-external="1">
+    <div class="col-sm-12" id="agreement-block">
         <div class="row"
              style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
             <div class="col-sm-12">Доп. соглашения</div>
@@ -257,7 +258,7 @@ $formFolderName = Language::getLanguageExtension($language);
             <form action="/document/create" method="post">
                 <div class="col-sm-2">
                     <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
-                    <input type="hidden" name="ClientDocument[type]" value="agreement">
+                    <input type="hidden" name="ClientDocument[type]" value="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>">
                     <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
                            value="<?= isset($armnt) && $armnt > 0 ? $armnt + 1 : 1 ?>"></div>
                 <div class="col-sm-2">
@@ -276,12 +277,12 @@ $formFolderName = Language::getLanguageExtension($language);
                 </div>
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl-group" name="ClientDocument[group]"
-                            data-type="agreement"></select>
+                    <select class="form-control input-sm tmpl-group"
+                            data-type="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>"></select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl" name="ClientDocument[template]"
-                            data-type="agreement"></select>
+                    <select class="form-control input-sm tmpl" name="ClientDocument[template_id]"
+                            data-type="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>"></select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
@@ -442,41 +443,7 @@ $formFolderName = Language::getLanguageExtension($language);
     </style>
 
     <script>
-        var folderTranslates = <?= json_encode(\app\dao\ClientDocumentDao::$folders) ?>;
-        var folders = <?= json_encode(\app\dao\ClientDocumentDao::templateList(true)) ?>;
-
-        function generateTmplList(type, selected) {
-            if (!selected)
-                selected = $('.tmpl-group[data-type="' + type + '"]').val();
-            var tmpl = $('.tmpl[data-type="' + type + '"]');
-            tmpl.empty();
-            if (typeof folders[type] !== 'undefined' && typeof folders[type][selected] !== 'undefined') {
-                $.each(folders[type][selected], function (k, v) {
-                    tmpl.append('<option value="' + v + '">' + v + '</option>');
-                });
-            }
-        }
-
         $(function () {
-            $('.tmpl-group').each(function () {
-                var type = $(this).data('type');
-                var t = $(this);
-                var first = false;
-                $.each(folders[type], function (k, v) {
-                    t.append('<option value="' + k + '">' + folderTranslates[k] + '</option>');
-                    if (first == false) {
-                        first = k;
-                    }
-                });
-                $('.tmpl-group[data-type="' + type + '"]').val(first);
-                generateTmplList(type, first);
-            });
-
-            $('.tmpl-group').on('change', function () {
-                generateTmplList($(this).data('type'), $(this).val());
-            });
-
-
             if($('#contracteditform-business_id').val() == 3)
                 $('#change-external').val('external');
             else
@@ -492,7 +459,7 @@ $formFolderName = Language::getLanguageExtension($language);
             });
 
             $('#change-external').on('change', function () {
-                var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"]');
+                var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
 
                 if($(this).val() == 'internal')
                     fields.show();
@@ -503,6 +470,9 @@ $formFolderName = Language::getLanguageExtension($language);
     </script>
 </div>
 
+<script> var templates = <?= json_encode(\app\dao\ClientDocumentDao::templateList()) ?>; </script>
 <script type="text/javascript" src="/js/behaviors/managers_by_contract_type.js"></script>
 <script type="text/javascript" src="/js/behaviors/organization_by_legal_type.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
+<script type="text/javascript" src="/js/behaviors/change-doc-template.js"></script>
+

@@ -69,7 +69,7 @@ class ApiCore
         self::exec('transfer_contragent', [
             'from_client_id' => $fromClientId,
             'to_client_id'   => $toClientId,
-            'contragent_id'  => $contragentId
+            'contragent_id'  => $contragentId,
         ]);
     }
 

@@ -20,8 +20,7 @@ class OperatorOnlimeDevices extends Operators
 {
 
     const OPERATOR = 'onlime';
-    //const OPERATOR_CLIENT = 'id35559';
-    const OPERATOR_CLIENT = 'onlime';
+    const OPERATOR_CLIENT = 'id36001';
 
     protected static $requestProducts = [
         [

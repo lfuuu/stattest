@@ -299,7 +299,7 @@ if ($has) :
                                         }
                                         ?>
                                     </td>
-                                    <td><?= VoipNumber::$statuses[$service->voipNumber->status]; ?></td>
+                                    <td><?= (isset(VoipNumber::$statuses[$service->voipNumber->status]) ? VoipNumber::$statuses[$service->voipNumber->status] : $service->voipNumber->status); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>

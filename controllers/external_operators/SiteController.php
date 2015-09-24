@@ -11,6 +11,7 @@ use app\models\Bill;
 use yii\filters\AccessControl;
 use app\models\LoginForm;
 use app\classes\operators\OperatorsFactory;
+use app\classes\operators\OperatorOnlimeDevices;
 
 class SiteController extends BaseController
 {
@@ -66,7 +67,7 @@ class SiteController extends BaseController
         }
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
         if ($asFile == 1) {
@@ -95,7 +96,7 @@ class SiteController extends BaseController
     public function actionCreateRequest()
     {
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator)) {
@@ -118,7 +119,7 @@ class SiteController extends BaseController
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {

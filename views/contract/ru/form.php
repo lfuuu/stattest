@@ -1,5 +1,7 @@
 <?php
+
 use yii\helpers\Html;
+use app\models\ClientDocument;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
 use app\models\ClientContract;

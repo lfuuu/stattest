@@ -6,6 +6,7 @@ use DateTime;
 use app\classes\BaseController;
 use app\classes\operators\OperatorsFactory;
 use app\classes\operators\OperatorOnlime;
+use app\classes\operators\OperatorOnlimeDevices;
 
 class ReportsController extends BaseController
 {
@@ -69,7 +70,7 @@ class ReportsController extends BaseController
             $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
         }
 
-        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
 
         return $this->render('onlime/report.php', [

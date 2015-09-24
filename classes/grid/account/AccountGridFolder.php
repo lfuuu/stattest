@@ -50,7 +50,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo'], 'string'],
+                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
     }
 
@@ -129,6 +129,7 @@ abstract class AccountGridFolder extends Model
             'cr.federal_district',
             'ct.name as contract_type',
             'cr.financial_type',
+            'MAX(doc.contract_date) as contract_created'
         ]);
 
         $query->join('INNER JOIN', 'client_contract cr', 'c.contract_id = cr.id');
@@ -138,6 +139,8 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
+        $query->join('LEFT JOIN', 'client_document doc', 'cr.id=doc.contract_id AND doc.is_active=1 AND doc.type=\'contract\'');
+        $query->groupBy('c.id');
     }
 
     public function queryOrderBy()
@@ -187,6 +190,11 @@ abstract class AccountGridFolder extends Model
             $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
         }
 
+        if ($this->contract_created && !empty($this->contract_created)) {
+            $createdDates = preg_split('/[\s+]\-[\s+]/', $this->contract_created);
+            $query->andWhere(['between', 'doc.contract_date', $createdDates[0], $createdDates[1]]);
+        }
+
         if (isset($this->block_date) && !empty($this->block_date)) {
             $blockDates = preg_split('/[\s+]\-[\s+]/', $this->block_date);
             $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
@@ -198,19 +206,8 @@ abstract class AccountGridFolder extends Model
     public function getCount()
     {
         $query = new Query();
-
         $this->queryParams($query);
         $query->orderBy = null;
-
-        if ($this instanceof AutoBlockFolder) {
-            $pg_query = new Query();
-            $pg_query->select('client_id')->from('billing.locks')->where('voip_auto_disabled=true');
-
-            $ids = $pg_query->column(\Yii::$app->dbPg);
-            if (!empty($ids)) {
-                $query->andFilterWhere(['in', 'c.id', $ids]);
-            }
-        }
         return $query->count();
     }
 
@@ -248,12 +245,13 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function () {
-                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" style="width:50px;" />';
+                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['id'] . '</a>';
-                }
+                },
+                'width' => '120px',
             ],
             'company' => [
                 'attribute' => 'company',
@@ -305,17 +303,23 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'created',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    $account = ClientAccount::findOne($data['id']);
-                    if(!$account)
-                        return null;
-                    $contract = $account->contract;
-                    if(!$contract)
-                        return null;
-                    $document = $contract->document;
-                    if(!$document)
-                        return null;
-                    return $document->contract_date;
+                    return $data['contract_created'];
                 },
+                'filter' => function () {
+                    return \kartik\daterange\DateRangePicker::widget([
+                        'name' => 'contract_created',
+                        'presetDropdown' => true,
+                        'hideInput' => true,
+                        'value' => \Yii::$app->request->get('contract_created'),
+                        'pluginOptions' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
+                        'containerOptions' => [
+                            'style' => 'width:50px; overflow: hidden;',
+                            'class' => 'drp-container input-group',
+                        ]
+                    ]);
+                }
             ],
             'block_date' => [
                 'attribute' => 'block_date',
