@@ -53,7 +53,13 @@ class ContragentTransferForm extends Form
 
         $super = ClientSuper::findOne($contragent->super_id);
 
-        ApiCore::transferContragent($contragent->id, $super->id, $this->targetClientAccount);
+        try {
+            ApiCore::transferContragent($contragent->id, $super->id, $this->targetClientAccount);
+        }
+        catch (Exception $e) {
+            $this->addError('transfer-error', 'API: ' . $e->getMessage());
+            return false;
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
