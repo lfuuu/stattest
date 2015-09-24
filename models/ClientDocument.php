@@ -16,8 +16,7 @@ class ClientDocument extends ActiveRecord
     const DOCUMENT_AGREEMENT_TYPE = 'agreement';
 
     public $content;
-    public $group;
-    public $template;
+    public $template_id;
     public $is_external;
 
     public static $types = [
@@ -44,8 +43,8 @@ class ClientDocument extends ActiveRecord
     {
         return [
             [['contract_id', 'contract_no'], 'required'],
-            [['contract_id', 'is_active', 'account_id'], 'integer', 'integerOnly' => true],
-            [['contract_date', 'contract_dop_date', 'comment', 'content', 'group', 'template'], 'string'],
+            [['contract_id', 'is_active', 'account_id', 'template_id'], 'integer', 'integerOnly' => true],
+            [['contract_date', 'contract_dop_date', 'comment', 'content'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
             ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
             ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
@@ -175,10 +174,10 @@ class ClientDocument extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if ($insert && $this->group && $this->template) {
+        if ($insert && $this->template_id) {
             if ($this->type == self::DOCUMENT_CONTRACT_TYPE && $this->is_external == ClientContract::IS_EXTERNAL) {
             } else {
-                $this->dao()->generateFile($this, $this->group, $this->template);
+                $this->dao()->generateFile($this, $this->template_id);
             }
 
             $contract = $this->getContract();

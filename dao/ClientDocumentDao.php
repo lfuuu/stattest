@@ -5,9 +5,9 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientDocument;
+use app\models\document\DocumentTemplate;
 use Yii;
 use app\classes\Singleton;
-use app\models\Contract;
 use app\models\TariffVoip;
 
 /**
@@ -16,60 +16,25 @@ use app\models\TariffVoip;
  */
 class ClientDocumentDao extends Singleton
 {
-    public static $folders = [
-        'mcn' => 'MCN',
-
-        'mcntelefonija' => 'MCN Телефония',
-        'mcninternet' => 'MCN Интернет',
-        'mcndatacenter' => 'MCN Дата-центр',
-
-        'interop' => 'Межоператорка',
-        'partners' => 'Партнеры',
-        'internetshop' => 'Интернет-магазин',
-
-        'welltime' => 'WellTime',
-        'arhiv' => 'Arhiv',
-    ];
-
-    public static function templateList($isWithType = false)
+    public static function templateList()
     {
-        $R = array();
-        foreach (glob(Yii::$app->params['STORE_PATH'] . 'contracts/template_*.html') as $s) {
-            $t = str_replace(array('template_', '.html'), array('', ''), basename($s));
+        $templates = DocumentTemplate::find()
+            ->joinWith(['folder'])
+            ->orderBy(['document_folder.sort' => SORT_ASC])
+            ->asArray()
+            ->all();
 
-            list($group,) = explode('_', $t);
-
-            if ($isWithType) {
-                $R[$group][] = $t;
-            } else {
-                $R[$group][] = substr($t, strlen($group) + 1);
-            }
+        $res = [];
+        foreach ($templates as $template) {
+            $res[] = [
+                'id' => $template['id'],
+                'name' => $template['name'],
+                'type' => $template['type'],
+                'folder' => $template['folder']['name'],
+                'folder_id' => $template['folder_id'],
+            ];
         }
-
-        foreach (static::$folders as $key => $folderName)
-            $_R[$key] = isset($R[$key]) ? $R[$key] : array();
-
-        if ($isWithType) {
-            $R = ['contract' => [], 'blank' => [], 'agreement' => []];
-
-            foreach ($_R as $folder => $rr) {
-                foreach ($rr as $k => $r) {
-                    $contract = Contract::findOne(['name' => $r]);
-
-                    if ($contract) {
-                        $type = $contract->type;
-                    } else {
-                        $type = 'contract';
-                    }
-                    list($group,) = explode('_', $r);
-                    $R[$type][$folder][] = substr($r, strlen($group) + 1);
-                }
-            }
-        } else {
-            $R = $_R;
-        }
-
-        return $R;
+        return $res;
     }
 
     public function deleteFile(ClientDocument $document)
@@ -83,9 +48,9 @@ class ClientDocumentDao extends Singleton
     }
 
 
-    public function generateFile(ClientDocument $document, $contractGroup, $contractTemplate)
+    public function generateFile(ClientDocument $document, $contractTemplateId)
     {
-        $content = $this->getTemplate('template_' . $contractGroup . "_" . $contractTemplate);
+        $content = DocumentTemplate::findOne($contractTemplateId)['content'];
         file_put_contents($this->getFilePath($document), $content);
         return $this->generateDefault($document);
     }
@@ -121,21 +86,6 @@ class ClientDocumentDao extends Singleton
         file_put_contents($file, $content);
         $newDocument = $design->fetch($file);
         return file_put_contents($file, $newDocument);
-    }
-
-    private function getTemplate($name)
-    {
-        $name = preg_replace('[^\w\d\-\_]', '', $name);
-
-        if (file_exists(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html')) {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/' . $name . '.html');
-        } else {
-            $data = file_get_contents(Yii::$app->params['STORE_PATH'] . 'contracts/template_mcn_default.html');
-        }
-
-        $this->fix_style($data);
-
-        return $data;
     }
 
     private function getFilePath(ClientDocument $document)
@@ -219,7 +169,7 @@ class ClientDocumentDao extends Singleton
             if ($currentTariff->dest_group != 0 && $currentTariff->minpayment_group) {
                 $group = preg_split('//', $currentTariff->dest_group, -1, PREG_SPLIT_NO_EMPTY);
                 $minpayment = ['value' => $currentTariff->minpayment_group, 'variants' => [0, 0, 0, 0,]];
-                for ($i=0, $s=sizeof($group); $i<$s; $i++) {
+                for ($i = 0, $s = sizeof($group); $i < $s; $i++) {
                     switch ($group[$i]) {
                         case 1:
                             $minpayment['variants'][1] = 1;
@@ -317,8 +267,7 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach (\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price * $usage->amount, $taxRate);
 
             $data['welltime'][] = [
@@ -413,10 +362,10 @@ class ClientDocumentDao extends Singleton
             return
                 $result .
                 'ИНН ' . $contragent->inn .
-                ', КПП ' . $contragent->kpp .'<br/>' .
+                ', КПП ' . $contragent->kpp . '<br/>' .
                 'Банковские реквизиты: ' .
                 'р/с ' . ($account->pay_acc ?: '') . '<br />' .
-                $account->bank_name . ' ' . $account->bank_city  .
+                $account->bank_name . ' ' . $account->bank_city .
                 ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
                 (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
