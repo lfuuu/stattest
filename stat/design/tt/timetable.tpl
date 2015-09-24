@@ -16,7 +16,7 @@
         {if $refix_flag}
         <form method='POST'>
             {/if}
-            <table id='timetable_cal_panel_frame' class="col-sm-12"
+            <table id='timetable_cal_panel_frame'
                    style='position:absolute;visibility:hidden;background-color:silver;border:double; z-index: 10;     width: 200px;'>
                 <tr>
                     <td colspan='2'>
@@ -62,10 +62,9 @@
                    {if !isset($timetableShow)}style='display:none'{/if}>
                 <tr>
                     <td colspan='48'>
-                        <div align='right' style='background-color:lightgray'><a href='#' style='text-decoration:none'
-                                                                                 id='show_cal'
-                                                                                 onclick='return optools.tt.timetable_event_handler(event);'>Другая
-                                дата</a></div>
+                        <div align='center' style='background-color:lightgray'>
+                            <a href='#' style='text-decoration:none' id='show_cal' onclick='return optools.tt.timetable_event_handler(event);'>Другая дата</a>
+                        </div>
                     </td>
                 </tr>
                 <tr>
