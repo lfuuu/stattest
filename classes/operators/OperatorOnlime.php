@@ -20,7 +20,8 @@ require_once PATH_TO_ROOT . 'conf.php';
 class OperatorOnlime extends Object
 {
 
-    const OPERATOR_CLIENT = 'onlime';
+    //const OPERATOR_CLIENT = 'onlime';
+    const OPERATOR_CLIENT = 'id36001';
 
     public static $requestProducts = [
         [
