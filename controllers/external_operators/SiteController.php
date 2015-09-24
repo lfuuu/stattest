@@ -59,7 +59,7 @@ class SiteController extends BaseController
         $getFile = Yii::$app->request->get('get-file');
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
 
         $today = new DateTime('now');
         $firstDayThisMonth = clone $today;

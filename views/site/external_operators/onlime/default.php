@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use kartik\daterange\DateRangePicker;
 
-$report = $operator->report->getList($dateFrom, $dateTo, $filter);
+$report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode']);
 ?>
 
 <div class="well" style="padding-top: 60px;">
@@ -28,7 +28,7 @@ $report = $operator->report->getList($dateFrom, $dateTo, $filter);
                 ?>
             </div>
 
-            <?php foreach ($operator->modes as $mode => $params): ?>
+            <?php foreach ($operator->requestModes as $mode => $params): ?>
                 <button
                     type="submit"
                     name="filter[mode]"

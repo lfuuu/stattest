@@ -100,7 +100,6 @@ class RequestOnlimeForm extends Form
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $account = ClientAccount::findOne(['client' => OperatorOnlime::OPERATOR_CLIENT]);
-            $storeId = '8e5c7b22-8385-11df-9af5-001517456eb1';
 
             $positions = [
                 'bill_no' => '',
@@ -138,7 +137,7 @@ class RequestOnlimeForm extends Form
                     'order_comment' => $positions['comment'],
                     'is_rollback' => $positions['is_rollback'],
                     'add_info' => $addInfo,
-                    'store_id' => $storeId,
+                    'store_id' => OperatorOnlime::STORE_ID,
                 ]);
             }
             catch (\Exception $e) {
