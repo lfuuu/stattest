@@ -27,7 +27,7 @@ class SiteController extends BaseController
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index', 'create-request', 'set-state', 'download-report'],
+                        'actions' => ['logout', 'index', 'create-request', 'set-state'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -50,7 +50,8 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
-        $filter = Yii::$app->request->get('filter');
+        $filter = Yii::$app->request->get('filter', []);
+        $asFile = Yii::$app->request->get('as-file', 0);
 
         if ($filter['range']) {
             list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
@@ -68,6 +69,16 @@ class SiteController extends BaseController
         $operator = OperatorsFactory::me()->getOperator('onlime-devices');
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
+        if ($asFile == 1) {
+            $reportName = 'OnlimeDevices__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
+
+            Yii::$app->response->sendContentAsFile(
+                $operator->GenerateExcel($report),
+                $reportName . '.xls'
+            );
+            Yii::$app->end();
+        }
+
         $this->layout = 'external_operators/main';
         $this->menuItem = 'indexReport';
         return $this->render('external_operators/default', [
@@ -79,19 +90,6 @@ class SiteController extends BaseController
                 'mode' => $filter['mode'],
             ],
         ]);
-    }
-
-    public function actionDownloadReport()
-    {
-        $filter = Yii::$app->request->get('filter');
-        $dateFrom = $dateTo = '';
-        if ($filter['range']) {
-            list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
-        }
-
-        /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator('onlime-devices');
-        $operator->downloadReport($dateFrom, $dateTo, $filter);
     }
 
     public function actionCreateRequest()

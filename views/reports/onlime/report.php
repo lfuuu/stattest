@@ -1,4 +1,6 @@
 <?php
+
+use yii\helpers\Url;
 use app\classes\Html;
 use kartik\daterange\DateRangePicker;
 use kartik\widgets\Select2;
@@ -8,7 +10,7 @@ foreach ($operator->requestModes as $mode => $params) {
     $modes[$mode] = $params['title'];
 }
 
-echo Html::formLabel('Статистика - Отчет по OnLime');
+echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operator->operator));
 ?>
 
 <div class="well">
@@ -145,11 +147,28 @@ echo Html::formLabel('Статистика - Отчет по OnLime');
 
     <?php if ($filter['mode']): ?>
 
+        <?php if (count($report)) :?>
+            <form method="GET">
+                <input type="hidden" name="filter[range]" value="<?= $filter['dateFrom'] . ' : ' . $filter['dateTo']; ?>" />
+                <input type="hidden" name="filter[mode]" value="<?= $filter['mode']; ?>" />
+                <input type="hidden" name="as-file" value="1" />
+                <div style="float: right;">
+                    <?=
+                    Html::submitButton('Экспорт в Excel', [
+                        'class' => 'btn btn-success',
+                    ]);
+                    ?>
+                </div>
+            </form>
+            <div style="clear: both; height: 15px;"></div>
+        <?php endif; ?>
+
         <?php
         echo $this->render('table.php', [
             'operator' => $operator,
             'filter' => $filter,
             'report' => $report,
+            'billLink' => Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => '']),
         ]);
         ?>
 

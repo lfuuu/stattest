@@ -4,19 +4,6 @@ use app\classes\Html;
 ?>
 
 <?php if (count($report)): ?>
-    <form method="GET" action="/site/download-report">
-        <input type="hidden" name="filter[range]" value="<?= $filter['range']; ?>" />
-        <input type="hidden" name="filter[mode]" value="<?= $filter['mode']; ?>" />
-        <div style="float: right;">
-            <?=
-            Html::submitButton('Экспорт в Excel', [
-                'class' => 'btn btn-success',
-            ]);
-            ?>
-        </div>
-    </form>
-    <div style="clear: both; height: 15px;"></div>
-
     <table id="report_table" border="1" cellspacing="2" style="border-collapse: collapse; font: normal 8pt sans-serif; padding: 2px 2px 2px 2px;">
         <thead>
             <tr>
@@ -47,7 +34,7 @@ use app\classes\Html;
                     <td><?= $item['fio_oper']; ?></td>
                     <td><?= $item['req_no']; ?></td>
                     <td>
-                        <a href="?module=newaccounts&action=bill_view&bill=<?= $item['bill_no']; ?>" title="Просмотр заказа">
+                        <a href="<?= $billLink . $item['bill_no']; ?>" title="Просмотр заказа">
                             <?= $item['bill_no']; ?>
                         </a>
                     </td>
@@ -102,7 +89,7 @@ use app\classes\Html;
     </table>
 <?php else: ?>
     <div class="alert alert-danger" style="text-align: center; font-weight: bold;">
-        Заявок не найдено
+        Ничего не найдено
     </div>
 <?php endif; ?>
 

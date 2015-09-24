@@ -143,23 +143,4 @@ class OperatorOnlime extends Operators
         $query->andWhere(['is_rollback' => 1]);
     }
 
-    public function downloadReport($dateFrom, $dateTo, $filter = [])
-    {
-        $list = $this->report->getList($dateFrom, $dateTo, $filter);
-        $sTypes = self::$requestModes;
-
-        $reportName =
-            'OnLime__' .
-            str_replace(' ', '_', $sTypes[ $filter['mode'] ]['title']) .
-            '__' . $dateFrom .
-            '__' . $dateTo;
-
-        Yii::$app->response->sendContentAsFile(
-            $this->GenerateExcel(self::$reportFields, $list),
-            $reportName . '.xls'
-        );
-        Yii::$app->end();
-    }
-
-
 }

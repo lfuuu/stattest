@@ -59,7 +59,7 @@ abstract class Operators extends Object
         return static::$availableRequestStatuses;
     }
 
-    public function generateExcel($head, $list)
+    public function generateExcel($report)
     {
         $objPHPExcel = new \PHPExcel;
         $objPHPExcel->setActiveSheetIndex(0);
@@ -71,7 +71,7 @@ abstract class Operators extends Object
         }
 
         $idx = 0;
-        foreach ($head as $title => $field) {
+        foreach (static::$reportFields as $title => $field) {
             if ($field == 'products') {
                 foreach (static::$requestProducts as $product) {
                     $sheet->setCellValueByColumnAndRow($idx++, 2, $product['name']);
@@ -82,9 +82,9 @@ abstract class Operators extends Object
             }
         }
 
-        foreach ($list as $rowIdx => $item) {
+        foreach ($report as $rowIdx => $item) {
             $colIdx = 0;
-            foreach($head as $title => $field) {
+            foreach(static::$reportFields as $title => $field) {
                 if ($field == 'products') {
                     foreach (static::$requestProducts as $i => $product) {
                         $sheet->setCellValueByColumnAndRow(

@@ -20,7 +20,8 @@ class OperatorOnlimeDevices extends Operators
 {
 
     const OPERATOR = 'onlime';
-    const OPERATOR_CLIENT = 'id35559';
+    //const OPERATOR_CLIENT = 'id35559';
+    const OPERATOR_CLIENT = 'onlime';
 
     protected static $requestProducts = [
         [
@@ -106,11 +107,8 @@ class OperatorOnlimeDevices extends Operators
     ];
 
     protected static $availableRequestStatuses = [
-        15 => 'Новый',
         17 => 'В работе',
-        24 => 'Отложен',
-        20 => 'Закрыт',
-        18 => 'Выполнен',
+        //24 => 'Отложен',
         21 => 'Отказ',
     ];
 

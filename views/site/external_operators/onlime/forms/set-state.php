@@ -100,50 +100,52 @@ $model->state_id = $trouble->currentStage->state_id;
         </table>
     <?php endif; ?>
 
-    <legend style="font-size: 16px;">Этап</legend>
-    <?php
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 1,
-        'attributes' => [
-            'comment' => ['type' => Form::INPUT_TEXTAREA],
-        ],
-    ]);
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            'state_id' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $operator->getAvailableRequestStatuses(),
+    <?php if ($model->state_id == 24): // Отложен ?>
+        <legend style="font-size: 16px;">Этап</legend>
+        <?php
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 1,
+            'attributes' => [
+                'comment' => ['type' => Form::INPUT_TEXTAREA],
             ],
-            'empty1' => ['type' => Form::INPUT_RAW],
-            'empty2' => [
-                'type' => Form::INPUT_RAW,
-                'value' =>
-                    Html::tag(
-                        'div',
-                        Html::button('Вернуться', [
-                            'class' => 'btn btn-link',
-                            'id' => 'dialog-close',
-                            'style' => 'width: 100px; margin-right: 15px;',
-                            'onClick' => 'window.history.back(-1)',
-                        ]) .
-                        Html::submitButton('Сохранить', [
-                            'class' => 'btn btn-primary',
-                            'style' => 'width: 100px;',
-                        ]),
-                        [
-                            'style' => 'padding-top: 20px; text-align: right;',
-                        ]
-                    )
-            ]
-        ],
-    ]);
-    ?>
+        ]);
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 3,
+            'attributes' => [
+                'state_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $operator->getAvailableRequestStatuses(),
+                ],
+                'empty1' => ['type' => Form::INPUT_RAW],
+                'empty2' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' =>
+                        Html::tag(
+                            'div',
+                            Html::button('Вернуться', [
+                                'class' => 'btn btn-link',
+                                'id' => 'dialog-close',
+                                'style' => 'width: 100px; margin-right: 15px;',
+                                'onClick' => 'window.history.back(-1)',
+                            ]) .
+                            Html::submitButton('Сохранить', [
+                                'class' => 'btn btn-primary',
+                                'style' => 'width: 100px;',
+                            ]),
+                            [
+                                'style' => 'padding-top: 20px; text-align: right;',
+                            ]
+                        )
+                ]
+            ],
+        ]);
+        ?>
+    <?php endif; ?>
 </div>
 
 <?php
