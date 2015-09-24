@@ -63,14 +63,14 @@ echo GridView::widget([
             'label' => 'Начало действия',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data->startdate, Url::toRoute(['/index.php?module=voipnew&action=network_file_show', 'id' => $data->id]));
+                return Html::a($data->startdate, Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'view_raw_file', 'id' => $data->id]));
             },
         ],
         [
             'label' => 'Имя файла',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data->filename, Url::toRoute(['/index.php?module=voipnew&action=network_file_show', 'id' => $data->id]));
+                return Html::a($data->filename, Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'view_raw_file', 'id' => $data->id]));
             },
         ],
         [
@@ -78,7 +78,7 @@ echo GridView::widget([
             'format' => 'raw',
             'value' => function ($data) {
                 if ($data->store_filename) {
-                    return Html::a('скачать', Url::toRoute(['/voip/network-config/file-download', 'fileId' => $data->id]));
+                    return Html::a('скачать', Url::toRoute(['/voip/pricelist/file-download', 'fileId' => $data->id]));
                 }
                 return '';
             },
