@@ -14,6 +14,6 @@ class DocumentFolder extends ActiveRecord
 
     public static function getList()
     {
-        return ArrayHelper::map(self::find()->all(), 'id', 'name');
+        return ArrayHelper::map(self::find()->orderBy("sort")->all(), 'id', 'name');
     }
 }
