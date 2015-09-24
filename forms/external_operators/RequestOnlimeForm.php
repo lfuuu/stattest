@@ -67,8 +67,7 @@ class RequestOnlimeForm extends Form
             [['account_id'], 'integer'],
             ['time_interval', 'in', 'range' => array_keys(self::getTimeIntervals())],
             ['products', 'required', 'message' => 'Выберите хотя бы один товар'],
-            ['products_counts', 'required', 'message' => 'Выберите хотя бы один товар'],
-            ['account_id', 'validateAccountId'],
+            ['products_counts', 'required', 'message' => 'Выберите хотя бы один товар']
         ];
     }
 
