@@ -2,6 +2,8 @@
 
 namespace _1c;
 
+use app\classes\operators\OperatorOnlime;
+use app\classes\operators\OperatorOnlimeDevices;
 use app\models\Bill;
 use app\models\Metro;
 
@@ -1001,13 +1003,25 @@ class SoapHandler{
                         and
                         state_1c='".addcslashes($state_1c,"\\'")."'
                         ".
-                /*($client == "DostavkaMTS" ? " and name = 'MTS'" :*/
-                ($state_1c == "Новый" ?
-                    ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
-                        ($client == "nbn" ? " and name = 'NetByNet'" :
-                            ($client == "onlime" ? " and name = 'OnLime'" :
-                                ($client == "onlime2" ? " and name = 'OnLime'" :
-                                    "")))) : "")/*)*/."
+                (
+                    $state_1c == 'Новый'
+                        ?
+                        (
+                            $client == 'WiMaxComstar'
+                                ? ' and name = "WiMax"'
+                                :
+                                (
+                                    $client == 'nbn'
+                                        ? ' and name = "NetByNet"'
+                                        :
+                                        (
+                                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                                ? ' and name = "OnLime"'
+                                                : ''
+                                        )
+                                )
+                        ) : ''
+                ) ."
 
                         order by
                         ".(($curtt['trouble_type']=='shop_orders')?'`oso`':($curtt['trouble_type']=='mounting_orders'?'`omo`':'`order`'))."
@@ -1084,16 +1098,27 @@ class SoapHandler{
 #1c-vitrina
 
             if(!$err)
-                $newstate = $db->GetRow("select * from tt_states where pk & (select states from tt_types where code='shop_orders')
-                        ".
-                ($client == "DostavkaMTS" ? " and name = 'MTS'" :
-                    ($state_1c == "Новый" ?
-                        ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
-                            ($client == "nbn" ? " and name = 'NetByNet'" :
-                                ($client == "onlime" ? " and name = 'OnLime'" :
-                                    ($client == "onlime2" ? " and name = 'OnLime'" :
-                                        "")))):""))."
-                            order by oso limit 1");
+                $newstate = $db->GetRow("select * from tt_states where pk & (select states from tt_types where code='shop_orders')" .
+                (
+                    $state_1c == 'Новый'
+                        ?
+                        (
+                            $client == 'WiMaxComstar'
+                                ? ' and name = "WiMax"'
+                                :
+                                (
+                                    $client == 'nbn'
+                                        ? ' and name = "NetByNet"'
+                                        :
+                                        (
+                                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                                ? ' and name = "OnLime"'
+                                                : ''
+                                        )
+                                )
+                        )
+                        : ''
+                ) . "order by oso limit 1");
             if(!$err && $err |= mysql_errno())
                 $err_msg = mysql_error();
 

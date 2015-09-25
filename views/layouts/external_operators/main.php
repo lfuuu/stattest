@@ -45,7 +45,7 @@ AppAsset::register($this);
                         </li>
                         <li>
                             <div style="margin-top: 5px;">
-                                <a href="./" class="btn btn-primary" style="height: 35px;">Выход</a>
+                                <a href="/site/logout/" class="btn btn-primary" style="height: 35px;">Выход</a>
                             </div>
                         </li>
                     </ul>

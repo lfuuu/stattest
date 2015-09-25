@@ -20,7 +20,8 @@ class OperatorOnlimeDevices extends Operators
 {
 
     const OPERATOR = 'onlime';
-    const OPERATOR_CLIENT = 'id36001';
+    //const OPERATOR_CLIENT = 'id36001';
+    const OPERATOR_CLIENT = 'id35559';
     const OPERATOR_TROUBLE_DEFAULT_FOLDER = 536870912;
 
     protected static $requestProducts = [
