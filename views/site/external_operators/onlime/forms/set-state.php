@@ -3,6 +3,7 @@
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use yii\helpers\Html;
+use app\helpers\DateTimeZoneHelper;
 
 /** @var RequestOnlimeStateForm $model */
 $form = ActiveForm::begin([
@@ -70,12 +71,10 @@ $model->state_id = $trouble->currentStage->state_id;
                             $dateEndView = $stage['date_finish_desired'];
 
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateStartView)) {
-                                $dateStartView = new DateTime($dateStartView, new DateTimeZone($userTimeZone));
-                                $dateStartView = $dateStartView->format('Y-m-d');
+                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, 'Y-m-d');
                             }
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateEndView)) {
-                                $dateEndView = new DateTime($dateEndView, new DateTimeZone($userTimeZone));
-                                $dateEndView = $dateEndView->format('Y-m-d');
+                                $dateEndView = DateTimeZoneHelper::getDateTime($dateEndView, 'Y-m-d');
                             }
                             ?>
 
@@ -88,8 +87,7 @@ $model->state_id = $trouble->currentStage->state_id;
                             <?php
                             $dateCloseView = $stage['date_edit'];
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateStartView)) {
-                                $dateStartView = new DateTime($dateStartView, new DateTimeZone($userTimeZone));
-                                $dateStartView = $dateStartView->format('Y-m-d');
+                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, 'Y-m-d');
                             }
                             echo $dateCloseView;
                             ?>
