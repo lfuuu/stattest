@@ -85,7 +85,9 @@ class BalanceSimple
 
             where
                 client_id='.$params['client_id'].'
-                '.($params["is_multy"] && !$params["is_view_canceled"] ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
+                '
+            /*($params["is_multy"] && !$params["is_view_canceled"] ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").*/
+        .'
             order by
                 bill_date desc,
                 bill_no desc
