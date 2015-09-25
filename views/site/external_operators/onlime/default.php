@@ -20,14 +20,11 @@ foreach ($operator->requestModes as $mode => $params) {
             <table border="0" width="100%">
                 <colgroup>
                     <col width="30%" />
-                    <col width="20%" />
-                    <col width="20%" />
                     <col width="*" />
                 </colgroup>
                 <thead>
                 <tr>
                     <th style="font-size: 12px;">Период</th>
-                    <th style="font-size: 12px;"><span style="padding-left: 14px">Состояние</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -47,24 +44,19 @@ foreach ($operator->requestModes as $mode => $params) {
                         ]);
                         ?>
                     </td>
-                    <td>
+                    <td align="right">
                         <div class="col-xs-12">
-                            <?php
-                            echo Select2::widget([
-                                'name' => 'filter[mode]',
-                                'data' => $modes,
-                                'value' => $filter['mode'],
-                                'options' => [
-                                    'placeholder' => '-- Выбрать --'
-                                ]
-                            ]);
-                            ?>
+                            <?php foreach ($operator->requestModes as $mode => $params) :?>
+                                <?php
+                                echo Html::submitButton($params['title'], [
+                                    'name' => 'filter[mode]',
+                                    'value' => $mode,
+                                    'class' => 'btn ' . ($mode == $filter['mode'] ? 'btn-primary' : 'btn-default'),
+                                    'style' => 'margin-right: 5px; width: 110px;',
+                                ]);
+                                ?>
+                            <?php endforeach;?>
                         </div>
-                    </td>
-                    <td>
-                        <?php
-                        echo Html::submitButton('Применить', ['class' => 'btn btn-primary',]);
-                        ?>
                     </td>
                 </tr>
                 </tbody>

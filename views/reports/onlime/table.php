@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 ?>
 
 <?php if (count($report)): ?>
@@ -38,7 +39,7 @@ use app\classes\Html;
                             <?= $item['bill_no']; ?>
                         </a>
                     </td>
-                    <td><?= $item['date_creation']; ?></td>
+                    <td><?= DateTimeZoneHelper::getDateTime($item['date_creation']); ?></td>
                     <?php foreach ($operator->products as $key => $product): ?>
                         <?php
                         if (is_string($key)) {
@@ -62,14 +63,14 @@ use app\classes\Html;
                         <?php
                         $last_stages = array_slice($item['stages'], count($items['stages'])-2, 2);
                         foreach ($last_stages as $stage) : ?>
-                            <span style="font-size: 8pt;"><?= $stage['date_finish_desired']; ?></span>
+                            <span style="font-size: 8pt;"><?= DateTimeZoneHelper::getDateTime($stage['date_finish_desired']); ?></span>
                             <b><?= $stage['state_name']; ?></b> <?= $stage['user_main']; ?>: <span style="background-color: #cfffcf;"> <?= $stage['comment']; ?> </span><br />
                         <?php endforeach; ?>
 
                         <?php if (count($item['stages']) > 2): ?>
                             <div title="История этапов <?= $item['bill_no']; ?>" class="stage-history" style="display: none;">
                                 <?php foreach ($item['stages'] as $stage): ?>
-                                    <span style="font-size: 8pt;"><?= $stage['date_finish_desired']; ?></span>
+                                    <span style="font-size: 8pt;"><?= DateTimeZoneHelper::getDateTime($stage['date_finish_desired']); ?></span>
                                     <b><?= $stage['state_name']; ?></b> <?= $stage['user_main']; ?>: <span style="background-color: #cfffcf;"> <?= $stage['comment']; ?> </span><br />
                                 <?php endforeach; ?>
                             </div>

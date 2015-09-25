@@ -4,6 +4,7 @@ namespace app\forms\external_operators;
 
 use Yii;
 use DateTime;
+use DateTimeZone;
 use app\classes\Form;
 use app\classes\StatModule;
 use app\classes\operators\Operators;
@@ -158,7 +159,8 @@ class RequestOnlimeForm extends Form
                 'client' => $account->client,
                 'problem' => $positions['comment'],
                 'bill_no' => $this->bill_no,
-                'time' => (new DateTime('now'))->format('Y-m-d'),
+                'time' => 0,
+                'folder' => $operator::OPERATOR_TROUBLE_DEFAULT_FOLDER,
             ]);
         }
         catch (\Exception $e) {
