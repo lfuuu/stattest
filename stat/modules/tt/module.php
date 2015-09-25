@@ -1667,7 +1667,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $R2['date_start'] = array('NOW()');
             $R2['state_id']=1;
         }else{
-            $R['folder'] = array('(select pk from tt_folders where pk & (select folders from tt_types where code="'.addcslashes($R['trouble_type'],"\\\"").'") order by pk limit 1)');
+            if (!isset($R['folder'])) {
+                $R['folder'] = array('(select pk from tt_folders where pk & (select folders from tt_types where code="'.addcslashes($R['trouble_type'],"\\\"").'") order by pk limit 1)');
+            }
             $R2['date_start'] = isset($R['date_start'])?$R['date_start']:array('NOW()');
 
             $r = $db->GetRow("select id from tt_states where pk & (select states from tt_types where code='".addcslashes($R['trouble_type'], "\\'")."') order by ".(($R['trouble_type']=='shop_orders')?'`oso`':($R['trouble_type']=='mounting_orders'?'`omo`':'`order`'))." limit 1");
