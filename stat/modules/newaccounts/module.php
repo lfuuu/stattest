@@ -174,8 +174,7 @@ class m_newaccounts extends IModule
     function newaccounts_bill_list_simple($get_sum=false){
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $account = ClientAccount::findOne($fixclient);
-        $isMulty = $account->contract->business_id == Business::INTERNET_SHOP;
+        $isMulty = ClientAccount::findOne($fixclient)->isMulty();
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
@@ -260,16 +259,20 @@ class m_newaccounts extends IModule
 
     function newaccounts_show_income_goods()
     {
-	global $design;
-	$_SESSION['get_income_goods_on_bill_list'] = get_param_raw('show', 'N') == "Y";
-	header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
-    exit();
+        global $design;
+
+        $_SESSION['get_income_goods_on_bill_list'] = get_param_raw('show', 'N') == "Y";
+
+        header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+        exit();
     }
+
     function newaccounts_bill_list_full($get_sum=false)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isMulty = ClientAccount::findOne($fixclient)->contract->business_id == Business::INTERNET_SHOP;
+        $isMulty = ClientAccount::findOne($fixclient)->isMulty();
+
         $isViewCanceled = get_param_raw("view_canceled", null);
 
         if($isViewCanceled === null){
