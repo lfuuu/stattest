@@ -57,7 +57,7 @@ class ContactController extends BaseController
         if (!$model)
             throw new Exception('Contact not found');
 
-        $model->is_active = intval(!$model->is_active);
+        $model->is_active = (int) !$model->is_active;
         $model->save();
         $this->redirect(Yii::$app->request->referrer);
     }
@@ -74,7 +74,7 @@ class ContactController extends BaseController
         if (!$lk)
             throw new Exception('Contact not found');
 
-        $contact->is_active = intval(!$contact->is_active);
+        $contact->is_active = (int) !$contact->is_active;
         $lk->status = $statuses[$contact->is_active];
         $contact->save();
         $lk->save();
