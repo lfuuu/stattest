@@ -12,7 +12,7 @@ class OperatorsFactory extends Singleton
     {
         return [
             'onlime' => OperatorOnlime::className(),
-            'id36001' => OperatorOnlime::className()
+            'id36001' => OperatorOnlimeDevices::className(),
         ];
     }
 

@@ -10,8 +10,8 @@ use app\models\Trouble;
 use app\models\Bill;
 use yii\filters\AccessControl;
 use app\models\LoginForm;
-use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorsFactory;
+use app\classes\operators\OperatorOnlimeDevices;
 
 class SiteController extends BaseController
 {
@@ -28,7 +28,7 @@ class SiteController extends BaseController
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index', 'create-request', 'set-state', 'download-report'],
+                        'actions' => ['logout', 'index', 'create-request', 'set-state'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -51,63 +51,55 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
-        $filter = Yii::$app->request->get('filter');
-        $dateFrom = $dateTo = '';
+        $filter = Yii::$app->request->get('filter', []);
+        $asFile = Yii::$app->request->get('as-file', 0);
+
         if ($filter['range']) {
             list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
         }
-        $getFile = Yii::$app->request->get('get-file');
+        else {
+            $today = new DateTime('now');
+            $firstDayThisMonth = clone $today;
+            $lastDayThisMonth = clone $today;
+
+            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format('Y-m-d');
+            $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
+        }
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
+        $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
-        $today = new DateTime('now');
-        $firstDayThisMonth = clone $today;
-        $lastDayThisMonth = clone $today;
+        if ($asFile == 1) {
+            $reportName = 'OnlimeDevices__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
 
-        $currentRange =
-            $firstDayThisMonth->modify('first day of this month')->format('Y-m-d') .
-            ' : ' .
-            $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
-
-        if (isset($filter['range']))
-            $currentRange = $filter['range'];
-
-        if ($getFile) {
-            $operator->downloadReport();
+            Yii::$app->response->sendContentAsFile(
+                $operator->GenerateExcel($report),
+                $reportName . '.xls'
+            );
+            Yii::$app->end();
         }
 
         $this->layout = 'external_operators/main';
         $this->menuItem = 'indexReport';
         return $this->render('external_operators/default', [
-            'currentRange' => $currentRange,
             'operator' => $operator,
-            'dateFrom' => $dateFrom,
-            'dateTo' => $dateTo,
-            'filter' => $filter,
+            'report' => $report,
+            'filter' => [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'mode' => $filter['mode'],
+            ],
         ]);
-    }
-
-    public function actionDownloadReport()
-    {
-        $filter = Yii::$app->request->get('filter');
-        $dateFrom = $dateTo = '';
-        if ($filter['range']) {
-            list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
-        }
-
-        /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
-        $operator->downloadReport($dateFrom, $dateTo, $filter);
     }
 
     public function actionCreateRequest()
     {
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator)) {
             return $this->redirect(['set-state', 'bill_no' => $model->bill_no]);
         }
 
@@ -127,10 +119,10 @@ class SiteController extends BaseController
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
         /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($bill, $trouble)) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
             return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
         }
 

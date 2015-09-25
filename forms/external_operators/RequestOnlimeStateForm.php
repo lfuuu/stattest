@@ -13,6 +13,7 @@ use app\models\TroubleState;
 use app\models\TroubleStage;
 use app\classes\operators\OperatorOnlime;
 use app\classes\StatModule;
+use app\classes\operators\Operators;
 
 require_once Yii::$app->basePath . '/stat/include/1c_integration.php';
 
@@ -40,7 +41,7 @@ class RequestOnlimeStateForm extends Form
         ];
     }
 
-    public function save(Bill $bill, Trouble $trouble)
+    public function save(Operators $operator, Bill $bill, Trouble $trouble)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -48,7 +49,7 @@ class RequestOnlimeStateForm extends Form
                 $newstate = TroubleState::findOne($this->state_id);
 
                 if ($newstate->state_1c != $bill->state_1c) {
-                    OperatorOnlime::saveOrderState1C($bill, $newstate);
+                    $operator->saveOrderState1C($bill, $newstate);
 
                     if (strcmp($newstate->state_1c, 'Отказ') == 0) {
                         $bill->sum = 0;
