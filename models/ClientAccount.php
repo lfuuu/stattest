@@ -71,6 +71,8 @@ class ClientAccount extends HistoryActiveRecord
         'prov' => 'пров'
     ];
 
+    public static $shopIds = [14050];
+
     /** Virtual variables */
     public $payment_info;
     /** /Virtual variables */
@@ -491,4 +493,8 @@ class ClientAccount extends HistoryActiveRecord
         return UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists();
     }
 
+    public function isMulty()
+    {
+        return in_array($this->id, self::$shopIds);
+    }
 }
