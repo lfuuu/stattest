@@ -9,8 +9,9 @@ use app\classes\Language;
 use app\models\ClientContract;
 use app\models\ClientDocument;
 use app\models\UserGroups;
+use app\models\ClientContragent;
 
-$contragents = \app\models\ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();;
+$contragents = ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();
 $contragentsOptions = [];
 
 foreach ($contragents as $contragent) {
@@ -22,6 +23,10 @@ $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
 $language = Language::getLanguageByCountryId($contragents[0]['country_id']?:643);
 $formFolderName = Language::getLanguageExtension($language);
+
+if (!$model->id) {
+    $model->organization_id = ClientContragent::$defaultOrganization[ $model->contract->contragent->legal_type ];
+}
 ?>
 
 <div class="row">
