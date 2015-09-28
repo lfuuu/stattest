@@ -121,9 +121,18 @@ class SiteController extends BaseController
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
+        $scenario = Yii::$app->request->post('scenario');
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
-            return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
+        switch ($scenario) {
+            case 'setFiles':
+                $trouble->mediaManager->addFiles($files = 'files', $custom_names = 'custom_name_files');
+                return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
+                break;
+            default:
+                if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
+                    return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
+                }
+                break;
         }
 
         $this->layout = 'external_operators/main';
@@ -138,11 +147,11 @@ class SiteController extends BaseController
 
     public function actionLogin()
     {
-        if (!\Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
-        $model = new LoginForm();
+        $model = new LoginForm;
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         } else {

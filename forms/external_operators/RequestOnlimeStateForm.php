@@ -5,13 +5,12 @@ namespace app\forms\external_operators;
 use Yii;
 use DateTime;
 use DateTimeZone;
-use app\classes\Form;
 use app\models\Trouble;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\TroubleState;
 use app\models\TroubleStage;
-use app\classes\operators\OperatorOnlime;
+use app\classes\Form;
 use app\classes\StatModule;
 use app\classes\operators\Operators;
 
@@ -38,6 +37,7 @@ class RequestOnlimeStateForm extends Form
         return [
             'state_id' => 'Состояние',
             'comment' => 'Комментарии',
+            'files' => 'Документы',
         ];
     }
 

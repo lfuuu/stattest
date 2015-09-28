@@ -108,7 +108,6 @@ class OperatorOnlimeDevices extends Operators
 
     protected static $availableRequestStatuses = [
         17 => 'В работе',
-        //24 => 'Отложен',
         21 => 'Отказ',
     ];
 
