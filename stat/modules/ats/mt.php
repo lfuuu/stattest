@@ -1,6 +1,5 @@
 <?php
 
-
 class MT
 {
     function __construct($fixclient, $action, $id = 0)
@@ -26,7 +25,7 @@ class MT
                     select id,atype, number, client_id, parent_id, call_count, is_pool 
                     from v_sip where type='multitrunk' order by number") as $l)
         {
-            $l["client"] = \app\models\ClientAccount::findOne($l["client_id"])->client;
+            $l["client"] = self::getClientByClientId($l["client_id"]);
             $m[$l["id"]] = $l;
             if(!isset($p[$l["parent_id"]])) $p[$l["parent_id"]] = array();
             $p[$l["parent_id"]][] = $l["id"];
@@ -96,7 +95,7 @@ class MT
             $data = array(
                     "id" => 0,
                     "number" => "",
-                    "client" => \app\models\ClientAccount::findOne($fixclient)->client,
+                    "client" => self::getClientByClientId($fixclient),
                     "password" => "",
                     "host_type" => "dynamic",
                     "host_static" => "",
@@ -108,7 +107,7 @@ class MT
                     );
         }else{
             $data = $db->GetRow("select * from v_sip where id ='".$id."' and type='multitrunk' and atype='multitrunk'");
-            $data["client"] = \app\models\ClientAccount::findOne($data["client_id"])->client;
+            $data["client"] = self::getClientByClientId($data["client_id"]);
             unset($data["client_id"]);
         }
 
@@ -343,5 +342,13 @@ class MT
         checker::isEmpty($data["codec"], "Задайте кодеки!");
         checker::isEmpty($data["context"], "Контекст не задан!");
     }
+
+    private static function getClientByClientId($id)
+    {
+        global $db;
+
+        return $db->GetValue("select client from ".SQL_DB.".clients where id = '".$id."'");
+    }
+
 }
 
