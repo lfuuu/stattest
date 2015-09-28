@@ -14,6 +14,7 @@ use app\classes\Form;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 use app\models\Bik;
+use app\classes\validators\BikValidator;
 
 class AccountEditForm extends Form
 {
@@ -117,8 +118,8 @@ class AccountEditForm extends Form
             ['status', 'in', 'range' => array_keys(ClientAccount::$statuses)],
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
-
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
+            ['bik', BikValidator::className()],
         ];
         return $rules;
     }
