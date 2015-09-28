@@ -41,7 +41,7 @@ class ContractEditForm extends Form
         $save_comment_stage = false,
         $public_comment = [];
 
-    protected $contract = null;
+    public $contract = null;
 
     public $historyVersionRequestedDate;
     public $historyVersionStoredDate;
