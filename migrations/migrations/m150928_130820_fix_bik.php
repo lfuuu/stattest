@@ -8,7 +8,7 @@ class m150928_130820_fix_bik extends \app\classes\Migration
     public function up()
     {
         $history = Yii::$app->getDb()->createCommand("
-            SELECT * FROM `history_version` WHERE `data_json` REGEXP '\"bik\":\"[^0][0-9]+\"' AND `date` > CAST('2015-07-01' AS date);
+            SELECT * FROM `history_version` WHERE `data_json` REGEXP '\"bik\":(\"[^0][0-9]+\"|[0-9]+),' AND `date` > CAST('2015-07-01' AS date);
         ")->queryAll();
 
         foreach ($history as $record) {
@@ -17,6 +17,7 @@ class m150928_130820_fix_bik extends \app\classes\Migration
             if (!($bik = Bik::findOne(['bik' => '0' . $data['bik']])) instanceof Bik)
                 continue;
 
+            print_r($bik);
             $data['bik'] = $bik->bik;
             $data['bank_name'] = $bik->bank_name;
             $data['bank_city'] = $bik->bank_city;
