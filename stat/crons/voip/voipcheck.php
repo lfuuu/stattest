@@ -18,7 +18,7 @@ echo "
 
 
 
-// voipNumbers::check(); // moved to ats2Numbers::check()
+ voipNumbers::check(); // moved to ats2Numbers::check()
 
 
 
