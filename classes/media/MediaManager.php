@@ -46,8 +46,8 @@ abstract class MediaManager
     public function addFiles($fileField = '', $names = '') {
         if (isset($_FILES[$fileField])) {
             $files = (array) $_FILES[$fileField];
-            $names = get_param_raw($names, false);
-            for ($i=0, $s=sizeof($files['name']); $i<$s; $i++) {
+            $names = Yii::$app->request->post('names', []);
+            for ($i=0, $s=count($files['name']); $i<$s; $i++) {
                 if (!$files['size'][$i]) {
                     continue;
                 }
