@@ -94,6 +94,11 @@ jQuery(document).ready(function() {
                 suggestion: function(obj){ return obj['value']; }
             }
         })
+        .on('typeahead:opened', function($e, $data) {
+            $('#accounteditform-bank_name').val('');
+            $('#accounteditform-corr_acc').val('');
+            $('#accounteditform-bank_city').val('');
+        })
         .on('typeahead:selected', function($e, data) {
             $('#accounteditform-bank_name').val(data['bank_name']);
             $('#accounteditform-corr_acc').val(data['corr_acc']);
