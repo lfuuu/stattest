@@ -164,7 +164,7 @@ $model->state_id = $trouble->currentStage->state_id;
     ActiveForm::end();
     ?>
 
-    <?php if ($model->state_id /*== 24*/): // Отложен ?>
+    <?php if ($model->state_id == 24): // Отложен ?>
         <legend style="font-size: 16px;">Этап</legend>
         <?php
         $form = ActiveForm::begin([

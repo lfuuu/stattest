@@ -11,7 +11,6 @@ use app\models\ClientAccount;
 use app\models\TroubleState;
 use app\models\TroubleStage;
 use app\classes\Form;
-use app\classes\validators\ArrayValidator;
 use app\classes\StatModule;
 use app\classes\operators\Operators;
 
@@ -27,6 +26,7 @@ class RequestOnlimeStateForm extends Form
     public function rules()
     {
         return [
+            [['state_id'], 'required'],
             [['comment'], 'string'],
             [['state_id'], 'integer'],
         ];
@@ -41,20 +41,7 @@ class RequestOnlimeStateForm extends Form
         ];
     }
 
-    public function scenarios()
-    {
-        return [
-            'setState' => [['state_id'], 'required'],
-        ];
-    }
-
-    public function setFiles(Trouble $trouble)
-    {
-        $trouble->mediaManager->addFiles($files = 'files', $custom_names = 'custom_name_files');
-        return true;
-    }
-
-    public function setState(Operators $operator, Bill $bill, Trouble $trouble)
+    public function save(Operators $operator, Bill $bill, Trouble $trouble)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {

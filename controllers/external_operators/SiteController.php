@@ -121,16 +121,15 @@ class SiteController extends BaseController
         /** TODO: определять оператора от авторизованного пользователя */
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $model = $operator->requestStateForm;
-        $model->scenario = Yii::$app->request->post('scenario');
+        $scenario = Yii::$app->request->post('scenario');
 
-        switch ($model->scenario) {
+        switch ($scenario) {
             case 'setFiles':
-                if ($model->setFiles($trouble)) {
-                    return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
-                }
+                $trouble->mediaManager->addFiles($files = 'files', $custom_names = 'custom_name_files');
+                return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
                 break;
             default:
-                if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->setState($operator, $bill, $trouble)) {
+                if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
                     return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
                 }
                 break;
