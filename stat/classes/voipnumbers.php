@@ -10,9 +10,9 @@ class voipNumbersChecker
         $actual = self::load("actual");
 
         if($diff = self::diff(self::load("number"), $actual))
+        {
             voipDiff::apply($diff);
-
-        $db->SwitchDB(SQL_DB);
+        }
     }
 
     private static $sqlActual = "select client_id, e164, no_of_lines from (
@@ -26,25 +26,31 @@ class voipNumbersChecker
         WHERE 
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from > '3000-01-01')
             and u.client = c.client and (c.status in ('work','connecting','testing') or c.client ='id9130')
-            /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
+            /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a
+
+            ";
 
     private static $sqlNumber=
         "SELECT client_id, number as e164, call_count as no_of_lines
-        FROM v_number WHERE enabled = 'yes'
+        FROM #db#.v_number WHERE enabled = 'yes'
         # and client='id9011'
-        order by id";
+        
+        order by id
+        ";
 
     private static function load($type)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db;
 
+
+
         $sql = "";
 
         switch($type)
         {
-            case 'actual': $sql = self::$sqlActual; $db->SwitchDB(SQL_DB); break;
-            case 'number': $sql = self::$sqlNumber; $db->SwitchDB(SQL_ATS_DB); break;
+            case 'actual': $sql = self::$sqlActual;  break;
+            case 'number': $sql = str_replace("#db#", SQL_ATS_DB, self::$sqlNumber); break;
             default: throw new Exception("Unknown type");
         }
 
@@ -56,6 +62,7 @@ class voipNumbersChecker
 
         if (!$d)
             throw new Exception("Data not load");
+
 
         return $d;
     }
@@ -98,7 +105,6 @@ class voipNumbersChecker
         l::ll(__CLASS__,__FUNCTION__,"..."/*, $actual*/);
         global $db;
 
-        $db->SwitchDB(SQL_DB);
         $db->Begin();
         $db->Query("truncate ".SQL_ATS_DB.".v_usage_save");
         $db->Query("insert into ".SQL_ATS_DB.".v_usage_save ".self::$sqlActual);
@@ -140,7 +146,7 @@ class voipNumbers
 
         if(!$numberId) return false;
 
-        foreach($db->AllRecords("SELECT * FROM `v_sip` 
+        foreach($db->AllRecords("SELECT * FROM ".SQL_ATS_DB.".v_sip 
                     WHERE atype='number'
                     and client_id='".$l["client_id"]."'".
                     (!$lookInDeleted ? " and enabled='yes'":"")) as $n)
@@ -164,7 +170,7 @@ class voipNumbers
 
         $numberId = self::getNumberId($l);
 
-        return $db->GetValue("select enabled from v_number where id = ".$numberId) == "no";
+        return $db->GetValue("select enabled from ".SQL_ATS_DB.".v_number where id = ".$numberId) == "no";
     }
 
     public static function add($l)
@@ -172,7 +178,7 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
 
-        return $db->QueryInsert("v_number", array(
+        return $db->QueryInsert(SQL_ATS_DB.".v_number", array(
                     "client_id" => $l["client_id"],
                     "number" => $l["e164"],
                     "call_count" => $l["no_of_lines"],
@@ -185,7 +191,7 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
 
-        return $db->QueryDelete("v_number", array(
+        return $db->QueryDelete(SQL_ATS_DB.".v_number", array(
                     "client_id" => $l["client_id"],
                     "number" => $l["e164"]
                     )
@@ -199,7 +205,7 @@ class voipNumbers
 
         $numberId = self::getNumberId($l);
 
-        $db->QueryUpdate("v_number", "id",
+        $db->QueryUpdate(SQL_ATS_DB.".v_number", "id",
                 array(
                     "id" => $numberId,
                     "enabled" => "yes",
@@ -207,11 +213,11 @@ class voipNumbers
                 );
 
         // type != multitrunk
-        if($n = $db->GetRow("select id, type from v_sip where number='".$numberId."' and atype='number'"))
+        if($n = $db->GetRow("select id, type from ".SQL_ATS_DB.".v_sip where number='".$numberId."' and atype='number'"))
         {
             voipNumbers::unMarkDeletSIP($n["id"]);
         // type == multitrunk
-        }elseif($n = $db->GetRow("select sip_id from v_number_mt where number_id = '".$numberId."'")){
+        }elseif($n = $db->GetRow("select sip_id from ".SQL_ATS_DB.".v_number_mt where number_id = '".$numberId."'")){
             voipNumbers::recoverInMT($numberId, $n["sip_id"]);
         }
     }
@@ -225,7 +231,7 @@ class voipNumbers
 
         $numberId = self::getNumberId($l);
 
-        $db->QueryUpdate("v_number", 
+        $db->QueryUpdate(SQL_ATS_DB.".v_number", 
                 array("id"), 
                 array(
                     "id" => $numberId,
@@ -250,7 +256,7 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $l, $id);
         global $db;
 
-        $db->QueryUpdate("v_number_mt", 
+        $db->QueryUpdate(SQL_ATS_DB.".v_number_mt", 
                 array("sip_id", "number_id"), 
                 array(
                     "sip_id" => $id,
@@ -268,7 +274,7 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $numberId, $sipId);
         global $db;
 
-        $db->QueryUpdate("v_number_mt", array("number_id"),
+        $db->QueryUpdate(SQL_ATS_DB.".v_number_mt", array("number_id"),
                 array(
                     "number_id" => $numberId,
                     "enabled" => "no"
@@ -284,13 +290,13 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $id);
        global $db;
 
-       $db->QueryUpdate("v_sip", "id", array(
+       $db->QueryUpdate(SQL_ATS_DB.".v_sip", "id", array(
                    "id" => $id,
                    "enabled" => "no"
                    )
                );
 
-       $db->QueryUpdate("v_sip", "parent_id", array(
+       $db->QueryUpdate(SQL_ATS_DB.".v_sip", "parent_id", array(
                    "parent_id" => $id,
                    "enabled" => "no"
                    )
@@ -302,13 +308,13 @@ class voipNumbers
         l::ll(__CLASS__,__FUNCTION__, $id);
        global $db;
 
-       $db->QueryUpdate("v_sip", "id", array(
+       $db->QueryUpdate(SQL_ATS_DB.".v_sip", "id", array(
                    "id" => $id,
                    "enabled" => "yes"
                    )
                );
 
-       $db->QueryUpdate("v_sip", "parent_id", array(
+       $db->QueryUpdate(SQL_ATS_DB.".v_sip", "parent_id", array(
                    "parent_id" => $id,
                    "enabled" => "yes"
                    )
@@ -323,7 +329,7 @@ class voipNumbers
 
         foreach($db->AllRecords(
                     "select client_id,number as e164, call_count 
-                    from v_number 
+                    from ".SQL_ATS_DB.".v_number 
                     where number = '".$l["e164"]."' and client_id != '".$l["client_id"]."'") as $n)
         {
             voipNumberAction::delFull($n);
@@ -338,8 +344,6 @@ class voipDiff
     {
         global $db;
         l::ll(__CLASS__,__FUNCTION__,$diff);
-
-        $db->SwitchDB(SQL_ATS_DB);
 
         if($diff["added"])
             self::add($diff["added"]);
@@ -408,10 +412,10 @@ class voipNumberAction
                 voipNumbers::unMarkDelet($l);
             }
         }else{
+            voipNumbers::delIfUsedOftherClient($l);
             voipNumbers::add($l);
         }
 
-        voipNumbers::delIfUsedOftherClient($l);
     }
 
     public static function del(&$l, $lookInDeleted = false)
@@ -450,7 +454,7 @@ class voipNumberAction
 
         global $db;
 
-        $db->QueryUpdate("v_number", "number", array(
+        $db->QueryUpdate(SQL_ATS_DB.".v_number", "number", array(
                     "number" => $l["e164"],
                     "call_count" => $l["no_of_lines"]
                     )
@@ -467,12 +471,12 @@ class voipNumberAction
         $numberId = $db->getValue("select id from ".SQL_ATS_DB.".v_number 
                 where number = '".$l["e164"]."'");
 
-        foreach($db->AllRecords("select sip_id from v_number_mt where number_id = '".$numberId."'") as $s)
+        foreach($db->AllRecords("select sip_id from ".SQL_ATS_DB.".v_number_mt where number_id = '".$numberId."'") as $s)
         {
-            $db->QueryUpdate("v_sip", "id", array("id" => $s["sip_id"], "client_id" => $l["client_id"]));
+            $db->QueryUpdate(SQL_ATS_DB.".v_sip", "id", array("id" => $s["sip_id"], "client_id" => $l["client_id"]));
         }
 
-        $db->QueryUpdate("v_number", "id", array("id" => $numberId, "client_id" => $l["client_id"]));
+        $db->QueryUpdate(SQL_ATS_DB.".v_number", "id", array("id" => $numberId, "client_id" => $l["client_id"]));
 
     }
 }

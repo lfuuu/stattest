@@ -38,8 +38,8 @@ class vSip
             $data1 = $db->GetRow($q="
                         select 
                             s.*,if(type='multitrunk', s.number, n.number) as number,n.call_count,s.id as s_id, n.id as number_id
-                        from v_sip s
-                        left join v_number n on (s.number = n.id)
+                        from ".SQL_ATS_DB.".v_sip s
+                        left join ".SQL_ATS_DB.".v_number n on (s.number = n.id)
                         where 1 ".$sqlClient." 
                             and s.id = '".$id."'
                             and atype in ('number','link')
@@ -69,16 +69,28 @@ class vSip
                 }
             }
 
-            $data2 = $db->GetRow($q="select s.*, n.number_id, n.direction, s.id as s_id from v_sip s, v_number_mt n where s.id ='".$id."' ".$sqlClient." and atype='line' and s.id=n.sip_id");
+            $data2 = $db->GetRow($q="
+                select s.*, 
+                    n.number_id, 
+                    n.direction, 
+                    s.id as s_id 
+                from 
+                    ".SQL_ATS_DB.".v_sip s, 
+                    ".SQL_ATS_DB.".v_number_mt n 
+                where 
+                    s.id ='".$id."' 
+                    ".$sqlClient." 
+                    and atype='line' 
+                    and s.id=n.sip_id");
 
             $data = $data1 ? $data1 : $data2;
             if($data["atype"] == "link"){
                 if($data["link_type"] == "trunk")
                 {
                     $data["parent_id_".$data["link_type"]] = $db->GetValue(
-                            "select n.number from v_sip s, v_number n where s.id = '".$data["parent_id"]."' and s.number = n.id");
+                            "select n.number from ".SQL_ATS_DB.".v_sip s, ".SQL_ATS_DB.".v_number n where s.id = '".$data["parent_id"]."' and s.number = n.id");
                 }else{ //multitrunk
-                    $data["parent_id_".$data["link_type"]] = $db->GetValue("select number from v_sip where id = '".$data["parent_id"]."'");
+                    $data["parent_id_".$data["link_type"]] = $db->GetValue("select number from ".SQL_ATS_DB.".v_sip where id = '".$data["parent_id"]."'");
                 }
             }
         }
@@ -96,7 +108,7 @@ class vSip
 
         if($d["type"] == "line" && !$d["line_mask"]) // line mask by default
         {
-            $d["line_mask"] = $db->GetValue("select number from v_number where id = '".$d["number"]."'");
+            $d["line_mask"] = $db->GetValue("select number from ".SQL_ATS_DB.".v_number where id = '".$d["number"]."'");
         }
 
         if($d["type"] == "link")
@@ -104,7 +116,7 @@ class vSip
             $d["type"] = $d["link_type"];
             $d["atype"] = "link";
             $d["parent_id"] = $d["parent_id_".$d["type"]];
-            $d["number"] = $db->GetValue("select number from v_sip where id = '".$d["parent_id"]."'");
+            $d["number"] = $db->GetValue("select number from ".SQL_ATS_DB.".v_sip where id = '".$d["parent_id"]."'");
         }else{
             $numbersMT = $d["number"]."=".$d["direction"];
         }
@@ -113,7 +125,7 @@ class vSip
 
         unset($d["id"],$d["link_type"], $d["parent_id_trunk"], $d["parent_id_multitrunk"]);
 
-        $parentId = $db->QueryInsert("v_sip", $d);
+        $parentId = $db->QueryInsert(SQL_ATS_DB.".v_sip", $d);
         //$db->QueryInsert("v_number_settings", array("sip_id" => $parentId, "client_id" => $d['client_id']));
 
         numberMT::save($parentId, $numbersMT);
@@ -138,7 +150,7 @@ class vSip
 
                 //$d1["number"] =$number["number"].$d["delimeter"].($i+1);
                 $d1["parent_id"] = $parentId;
-                numberMT::save($db->QueryInsert("v_sip", $d1), $numbersMT);
+                numberMT::save($db->QueryInsert(SQL_ATS_DB.".v_sip", $d1), $numbersMT);
             }
         }
 
@@ -151,7 +163,7 @@ class vSip
     {
         global $db;
 
-        $d = $db->GetRow("select atype,type, parent_id from v_sip where id ='".$id."'");
+        $d = $db->GetRow("select atype,type, parent_id from ".SQL_ATS_DB.".v_sip where id ='".$id."'");
 
         if($d["atype"] == "number")
         {
@@ -171,21 +183,21 @@ class vSip
     {
         global $db;
 
-        $n = $db->GetRow("select type, number from v_sip where id=".$id);
+        $n = $db->GetRow("select type, number from ".SQL_ATS_DB.".v_sip where id=".$id);
         if(!$n) return;
         $db->Begin();
 
         $mtNumbers = array();
-        foreach($db->AllRecords("select number_id from v_number_mt where sip_id = '".$id."'") as $l)
+        foreach($db->AllRecords("select number_id from ".SQL_ATS_DB.".v_number_mt where sip_id = '".$id."'") as $l)
             $mtNumbers[] = $l["number_id"];
 
         if($mtNumbers)
-            $db->Query("delete from v_number where id in ('".implode("','", $mtNumbers)."') and enabled='no'");
+            $db->Query("delete from ".SQL_ATS_DB.".v_number where id in ('".implode("','", $mtNumbers)."') and enabled='no'");
 
-        $db->QueryDelete("v_number_mt", array("sip_id" => $id));
-        $db->QueryDelete("v_sip",array("id" => $id));
-        $db->QueryDelete("v_sip",array("parent_id" => $id));
-        $db->QueryDelete("v_number_settings", array("sip_id" => $id));
+        $db->QueryDelete(SQL_ATS_DB.".v_number_mt", array("sip_id" => $id));
+        $db->QueryDelete(SQL_ATS_DB.".v_sip",array("id" => $id));
+        $db->QueryDelete(SQL_ATS_DB.".v_sip",array("parent_id" => $id));
+        $db->QueryDelete(SQL_ATS_DB.".v_number_settings", array("sip_id" => $id));
         $db->Commit();
         vNotify::anonse("sip:del:".$id);
     }
@@ -193,11 +205,11 @@ class vSip
     {
         global $db;
 
-        $sId = $db->GetValue("select parent_id from v_sip where id = '".$id."'");
+        $sId = $db->GetValue("select parent_id from ".SQL_ATS_DB.".v_sip where id = '".$id."'");
 
-        $db->QueryDelete("v_sip", array("id" => $id));
-        $db->QueryDelete("v_number_mt", array("sip_id" => $id));
-        $db->Query("update v_sip set `lines` = `lines`-1 where '".$sId."' in (id,parent_id)");
+        $db->QueryDelete(SQL_ATS_DB.".v_sip", array("id" => $id));
+        $db->QueryDelete(SQL_ATS_DB.".v_number_mt", array("sip_id" => $id));
+        $db->Query("update ".SQL_ATS_DB.".v_sip set `lines` = `lines`-1 where '".$sId."' in (id,parent_id)");
 
         vNotify::anonse("sip:del_line:".$id);
     }
@@ -209,7 +221,7 @@ class vSip
         $fromStatus = !$isEnable ? "no" : "yes";
         $toStatus = $isEnable ? "no" : "yes";
 
-        $db->Query($q = "update v_sip 
+        $db->Query($q = "update ".SQL_ATS_DB.".v_sip 
                 set is_stoped ='".$toStatus."' 
                 where id ".($info["atype"] == "number" ? " in ('".implode("','",  $info["all"])."')" : " = '".$info["id"]."'")." 
                 and is_stoped = '".$fromStatus."'");
@@ -348,7 +360,7 @@ class vSip
                             }else{//cpe
                                 $s2["number"] = $info["number"]["number"].$s2["delimeter"].($info["number"]["maxline"]+$i+1);
                             }
-                            numberMT::save($db->QueryInsert("v_sip", $s2), $lineNumberMt);
+                            numberMT::save($db->QueryInsert(SQL_ATS_DB.".v_sip", $s2), $lineNumberMt);
                         }
 
                     }elseif(count($info["lines"]) > $update["lines"]){
@@ -364,7 +376,7 @@ class vSip
                     if($info["number"]["id"] == $id)
                         unset($u["number"]);
 
-                    $db->QueryUpdate("v_sip", array("id", "client_id"), $u); 
+                    $db->QueryUpdate(SQL_ATS_DB.".v_sip", array("id", "client_id"), $u); 
                 }
 
 
@@ -376,7 +388,7 @@ class vSip
                     self::recalcCallCount($s["id"]);
                 }
             }else{
-                $db->QueryUpdate("v_sip", array("id", "client_id"), $update);
+                $db->QueryUpdate(SQL_ATS_DB.".v_sip", array("id", "client_id"), $update);
 
             }
             vNotify::anonse("sip:modify:".$update["id"]);
@@ -385,13 +397,13 @@ class vSip
 
         if($updateNum)
         {
-            $db->QueryUpdate("v_number_mt", "sip_id", $updateNum);
+            $db->QueryUpdate(SQL_ATS_DB.".v_number_mt", "sip_id", $updateNum);
 
             vNotify::anonse("sip:modify:".$updateNum["sip_id"]);
 
             if($s["atype"] == "number" && $s["type"] == "line")
             {
-                foreach($db->AllRecords("select id from v_sip where parent_id = '".$updateNum["sip_id"]."'") as $l)
+                foreach($db->AllRecords("select id from ".SQL_ATS_DB.".v_sip where parent_id = '".$updateNum["sip_id"]."'") as $l)
                 {
                     numberMT::save($l["id"], $updateNum["number_id"]."=".$updateNum["direction"]);
                     vNotify::anonse("sip:modify:".$l["id"]);
@@ -440,7 +452,7 @@ class vSip
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
         global $db;
-        return $db->GetValue("select parent_id from v_sip where id ='".$id."'");
+        return $db->GetValue("select parent_id from ".SQL_ATS_DB.".v_sip where id ='".$id."'");
     }
 
     private static function _getDepTrunks($id)
@@ -449,7 +461,7 @@ class vSip
         global $db;
         $d = array();
 
-        foreach($db->AllRecords("Select id from v_sip where parent_id = '".$id."'") as $l)
+        foreach($db->AllRecords("Select id from ".SQL_ATS_DB.".v_sip where parent_id = '".$id."'") as $l)
             $d[] = $l["id"];
 
         return $d;
@@ -460,11 +472,11 @@ class vSip
         l::ll(__CLASS__,__FUNCTION__, $id);
         global $db;
 
-        $r = $db->GetRow("select atype, number from v_sip where id = '".$id."'");
+        $r = $db->GetRow("select atype, number from ".SQL_ATS_DB.".v_sip where id = '".$id."'");
         if($r["atype"] == "link")
         {
             $ns = array();
-            foreach($db->AllRecords("select number_id from v_number_mt where sip_id = '".$id."'") as $l)
+            foreach($db->AllRecords("select number_id from ".SQL_ATS_DB.".v_number_mt where sip_id = '".$id."'") as $l)
                 $ns[] = $l["number_id"];
 
             return $ns;
@@ -477,7 +489,7 @@ class vSip
     {
         l::ll(__CLASS__,__FUNCTION__, $ns);
         global $db;
-        return $db->GetValue("select sum(call_count) from v_number where id in ('".implode("','", $ns)."') and enabled='yes'");
+        return $db->GetValue("select sum(call_count) from ".SQL_ATS_DB.".v_number where id in ('".implode("','", $ns)."') and enabled='yes'");
     }
 
     private static function _saveCallCount($id, $cc, $widthParent = true)
@@ -485,14 +497,14 @@ class vSip
         l::ll(__CLASS__,__FUNCTION__, $id, $cc, $widthParent);
         global $db;
 
-        $db->QueryUpdate("v_sip", "id", array(
+        $db->QueryUpdate(SQL_ATS_DB.".v_sip", "id", array(
                     "id" => $id,
                     "call_count" => $cc
                     )
                 );
 
         if($widthParent)
-            $db->QueryUpdate("v_sip", "parent_id", array(
+            $db->QueryUpdate(SQL_ATS_DB.".v_sip", "parent_id", array(
                         "parent_id" => $id,
                         "call_count" => $cc
                         )
@@ -526,7 +538,7 @@ class vSip
     {
         global $db;
 
-        return $db->GetValue("select max(line_pref) from v_sip where client_id = {$_SESSION['clients_client']} and line_mask='".$mask."'");
+        return $db->GetValue("select max(line_pref) from ".SQL_ATS_DB.".v_sip where client_id = {$_SESSION['clients_client']} and line_mask='".$mask."'");
     }
 
 
@@ -534,14 +546,14 @@ class vSip
     {
         global $db;
 
-        return $db->GetValue("select max(line_pref) from v_sip where parent_id = '".$parentId."'");
+        return $db->GetValue("select max(line_pref) from ".SQL_ATS_DB.".v_sip where parent_id = '".$parentId."'");
     }
 
     public static function logPasswordView($s, $event = "view")
     {
             global $user, $db;
 
-            $db->QueryInsert("log_password",array(
+            $db->QueryInsert(SQL_ATS_DB.".log_password",array(
                         "time" => array("NOW()"),
                         "number" => $s["number"],
                         "sip_id" => $s["id"],
