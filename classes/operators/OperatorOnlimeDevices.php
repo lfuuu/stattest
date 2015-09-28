@@ -20,8 +20,7 @@ class OperatorOnlimeDevices extends Operators
 {
 
     const OPERATOR = 'onlime';
-    //const OPERATOR_CLIENT = 'id36001';
-    const OPERATOR_CLIENT = 'id35559';
+    const OPERATOR_CLIENT = 'id36001';
     const OPERATOR_TROUBLE_DEFAULT_FOLDER = 536870912;
 
     protected static $requestProducts = [
@@ -109,7 +108,6 @@ class OperatorOnlimeDevices extends Operators
 
     protected static $availableRequestStatuses = [
         17 => 'В работе',
-        //24 => 'Отложен',
         21 => 'Отказ',
     ];
 
