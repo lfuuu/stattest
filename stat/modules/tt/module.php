@@ -1471,6 +1471,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     'ttService' => $design->get_template_vars('tt_service'),
                     'ttServiceId' => $design->get_template_vars('tt_service_id'),
                     'ttShowAdd' => $design->get_template_vars('tt_show_add'),
+                    'troubleTypes' => \yii\helpers\ArrayHelper::map(
+                        Yii::$app->db->createCommand('SELECT code, name FROM tt_types')->queryAll(PDO::FETCH_ASSOC),
+                        'code', 'name'
+                    ),
                     'troubleSubtypes' => $this->getTroubleSubTypes(),
                     'ttUsers' => \app\models\UserGroups::dao()->getListWithUsers(),
                     'billList' => $this->curtype && in_array($this->curtype['code'], ['shop_orders', 'mounting_orders', 'orders_kp'])
