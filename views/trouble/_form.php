@@ -72,18 +72,14 @@ if ($curtype) {
             <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">Тип</label>
-                    <?= Html::dropDownList('ttype', $curtype ? $curtype['code'] : Trouble::TYPE_TROUBLE, Trouble::$types,
+                    <?= Html::dropDownList('ttype', $curtype ? $curtype['code'] : Trouble::TYPE_TROUBLE, $troubleTypes,
                         ['class' => 'form-control', 'disabled' => (bool)$curtype]) ?>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">Тип заявки</label>
-                    <?= Html::dropDownList('trouble_subtype', 'trouble', [
-                        Trouble::TYPE_TROUBLE => Trouble::$subTypes[Trouble::TYPE_TROUBLE],
-                        Trouble::TYPE_CONSULTATION => Trouble::$subTypes[Trouble::TYPE_CONSULTATION],
-                        Trouble::TYPE_MONITORING => Trouble::$subTypes[Trouble::TYPE_MONITORING],
-                    ], ['class' => 'form-control']) ?>
+                    <?= Html::dropDownList('trouble_subtype', null, $troubleSubtypes, ['class' => 'form-control']) ?>
                 </div>
             </div>
         </div>
