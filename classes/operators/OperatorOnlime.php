@@ -78,7 +78,7 @@ class OperatorOnlime extends Operators
             'queryModify' => 'modeWorkModify',
         ],
         'close' => [
-            'title' => 'Доставлен',
+            'title' => 'Закрыт',
             'queryModify' => 'modeCloseModify',
         ],
         'reject' => [

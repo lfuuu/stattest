@@ -13,7 +13,7 @@ foreach ($operator->requestModes as $mode => $params) {
 echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operator->operator));
 ?>
 
-<div class="well">
+<div class="well" style="overflow-x: auto;">
     <form method="GET">
         <div class="col-xs-8">
             <legend style="font-size: 16px;">Фильтр</legend>
