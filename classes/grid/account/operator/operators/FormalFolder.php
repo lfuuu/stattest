@@ -1,17 +1,16 @@
 <?php
-namespace app\classes\grid\account\operator\formal;
+namespace app\classes\grid\account\operator\operators;
 
-use app\classes\grid\account\AccountGridFolder;
-use app\models\BusinessProcessStatus;
 use Yii;
 use yii\db\Query;
+use app\classes\grid\account\AccountGridFolder;
+use app\models\BusinessProcessStatus;
 
-
-class BlockedFolder extends AccountGridFolder
+class FormalFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Фрод блокировка';
+        return 'Формальные';
     }
 
     public function getColumns()
@@ -21,7 +20,7 @@ class BlockedFolder extends AccountGridFolder
             'id',
             'company',
             'contractNo',
-			'contract_created',
+            'contract_created',
             'currency',
             'manager',
             'account_manager',
@@ -37,6 +36,7 @@ class BlockedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_FORMAL_BLOCKED]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OPERATOR_CLIENTS_FORMAL]);
     }
+
 }

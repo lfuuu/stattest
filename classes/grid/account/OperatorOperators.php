@@ -2,6 +2,7 @@
 namespace app\classes\grid\account;
 
 use app\classes\grid\account\operator\operators\ActingFolder;
+use app\classes\grid\account\operator\operators\FormalFolder;
 use app\classes\grid\account\operator\operators\AutoBlockedFolder;
 use app\classes\grid\account\operator\operators\BlockedFolder;
 use app\classes\grid\account\operator\operators\IncomingFolder;
@@ -36,6 +37,7 @@ class OperatorOperators extends AccountGrid
             NegotiationsFolder::create($this),
             TestingFolder::create($this),
             ActingFolder::create($this),
+            FormalFolder::create($this),
             ManualBillFolder::create($this),
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
