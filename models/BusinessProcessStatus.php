@@ -70,6 +70,7 @@ class BusinessProcessStatus extends ActiveRecord
     const OPERATOR_CLIENTS_NEGOTIATIONS = 48; // Клиенты - Переговоры
     const OPERATOR_CLIENTS_TESTING = 49; // Клиенты - Тестирование
     const OPERATOR_CLIENTS_ACTING = 50; // Клиенты - Действующий
+    const OPERATOR_CLIENTS_FORMAL = 125; // Клиенты - Формальные
     const OPERATOR_CLIENTS_JIRASOFT = 56; // Клиенты - JiraSoft
     const OPERATOR_CLIENTS_SUSPENDED = 51; // Клиенты - Приостановлен
     const OPERATOR_CLIENTS_TERMINATED = 52; // Клиенты - Расторгнут
@@ -85,15 +86,6 @@ class BusinessProcessStatus extends ActiveRecord
     const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Инфраструктура - Фрод блокировка
     const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Инфраструктура - Техотказ
     const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Инфраструктура - Мусор
-    const OPERATOR_FORMAL_INCOMING = 77; // Формальные - Входящий
-    const OPERATOR_FORMAL_NEGOTIATIONS = 78; // Формальные - Переговоры
-    const OPERATOR_FORMAL_TESTING = 79; // Формальные - Тестирование
-    const OPERATOR_FORMAL_ACTING = 80; // Формальные - Действующий
-    const OPERATOR_FORMAL_SUSPENDED = 81; // Формальные - Приостановлен
-    const OPERATOR_FORMAL_TERMINATED = 82; // Формальные - Расторгнут
-    const OPERATOR_FORMAL_BLOCKED = 83; // Формальные - Фрод блокировка
-    const OPERATOR_FORMAL_TECH_FAILURE = 84; // Формальные - Техотказ
-    const OPERATOR_FORMAL_TRASH = 124; // Формальные - Мусор
 
     const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // Пуско-наладка
     const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // Техобслуживание
