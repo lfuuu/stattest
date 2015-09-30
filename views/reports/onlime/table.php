@@ -87,6 +87,28 @@ use app\helpers\DateTimeZoneHelper;
                 </tr>
             <?php endforeach; ?>
         </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="5"><div style="text-align: right;">Итого:</div></th>
+                <?php foreach ($operator->products as $key => $product): ?>
+                    <?php
+                    if (is_string($key)) {
+                        $key = 'count_' . $key;
+                    }
+                    else {
+                        $key = 'count_' . ($key + 1);
+                    }
+                    $summary[$key] = 0;
+
+                    foreach ($report as $number => $item):
+                        $summary[$key] += $item[$key];
+                    endforeach;
+                    ?>
+                    <th><div style="text-align: center;"><?= $summary[$key]; ?></div></th>
+                <?php endforeach; ?>
+                <th colspan="5"></th>
+            </tr>
+        </tfoot>
     </table>
 <?php else: ?>
     <div class="alert alert-danger" style="text-align: center; font-weight: bold;">
