@@ -42,14 +42,6 @@ $status = [
     'working' => 'Включенный',
 ];
 
-$allowedDirectionList = [
-    'full' => 'Все',
-    'russia' => 'Россия',
-    'localmob' => 'Местные стац.+моб.',
-    'local' => 'Местные стац.',
-    'blocked' => 'Запрет исх. связи',
-];
-
 echo Html::formLabel('Добавление номера');
 echo Breadcrumbs::widget([
     'links' => [
@@ -149,7 +141,6 @@ echo Breadcrumbs::widget([
                     ],
                 ]
             ],
-            'allowed_direction' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $allowedDirectionList],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
         ],
     ]);

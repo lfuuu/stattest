@@ -102,7 +102,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->edit_user_id = Yii::$app->user->getId();
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
-        $usage->allowed_direction = $this->allowed_direction;
         $usage->one_sip = 0;
         $usage->is_moved = 0;
         $usage->is_moved_with_pbx = 0;
@@ -150,7 +149,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
         $this->usage->address = $this->address;
-        $this->usage->allowed_direction = $this->allowed_direction;
         $this->usage->no_of_lines = (int) $this->no_of_lines;
 
         if (!$this->disconnecting_date) {

@@ -118,7 +118,7 @@ class ActaulizerVoipNumbers
             $d[$l] = ["action" => "add"] + $actual[$l];
 
 
-        foreach(["client_id", "region", "call_count", "number_type", "direction", "number7800", "is_blocked", "is_disabled"] as $field)
+        foreach(["client_id", "region", "call_count", "number_type", "number7800", "is_blocked", "is_disabled"] as $field)
         {
             foreach($actual as $number => $l)
             {
@@ -159,7 +159,7 @@ class ActaulizerVoipNumbers
             $d["added"][$l] = $actual[$l];
 
 
-        foreach(["client_id", "region", "call_count", "number_type", "direction", "number7800", "is_blocked", "is_disabled"] as $field)
+        foreach(["client_id", "region", "call_count", "number_type", "number7800", "is_blocked", "is_disabled"] as $field)
         {
             foreach($actual as $number => $l)
             {
@@ -254,7 +254,6 @@ class ActaulizerVoipNumbers
         $s = [
             "client_id"    => (int) $data["client_id"],
             "did"          =>       $data["number"],
-            "ds"           =>       $data["direction"],
             "cl"           => (int) $data["call_count"],
             "region"       => (int) $data["region"],
             "timezone"     =>       $this->getTimezoneByRegion($data["region"]),
@@ -361,7 +360,6 @@ class ActaulizerVoipNumbers
             $structChange = [
                 "client_id"    => (int) $new["client_id"],
                 "did"          =>       $number,
-                "ds"           =>       $new["direction"],
                 "cl"           => (int) $new["call_count"]
                 ];
 

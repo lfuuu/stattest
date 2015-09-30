@@ -17,7 +17,6 @@ return [
         'edit_user_id' => '188',
         'is_trunk' => '0',
         'created' => '2014-10-30 17:02:39',
-        'allowed_direction' => '',
         'one_sip' => '0',
         'line7800_id' => '0',
         'is_moved' => '0',
