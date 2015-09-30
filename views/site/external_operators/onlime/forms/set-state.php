@@ -58,7 +58,7 @@ $model->state_id = $trouble->currentStage->state_id;
                 ?>
 
                 <fieldset>
-                    <textarea class="form-control" name="comment"></textarea>
+                    <textarea class="form-control" name="comment"><?= $bill->comment; ?></textarea>
                 </fieldset>
 
                 <?php
