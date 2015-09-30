@@ -7,9 +7,10 @@ use yii\helpers\Html;
 use app\helpers\DateTimeZoneHelper;
 
 /** @var RequestOnlimeStateForm $model */
+/** @var \app\models\Bill $bill */
 
 $billItems = $bill->lines;
-$userTimeZone = Yii::$app->user->identity->timezone_name;
+$billExtendsInfo = $bill->extendsInfo;
 $stages = $operator->report->getTroubleStages($trouble->id);
 $model->state_id = $trouble->currentStage->state_id;
 ?>
@@ -18,6 +19,80 @@ $model->state_id = $trouble->currentStage->state_id;
 
 <div class="well" style="padding-top: 60px;">
     <legend>Просмотр счета №<?= $bill->bill_no; ?></legend>
+
+    <legend style="font-size: 16px;">Данные счета</legend>
+    <div class="col-xs-12">
+        <div class="col-xs-3">
+            <b>Ф.И.О.</b><br />
+            <?= $billExtendsInfo->fio; ?>
+        </div>
+        <div class="col-xs-3">
+            <b>Адрес доставки</b><br />
+            <?= $billExtendsInfo->address; ?>
+        </div>
+        <div class="col-xs-2">
+            <b>Контактный телефон</b><br />
+            <?= $billExtendsInfo->phone; ?>
+        </div>
+        <div class="col-xs-2">
+            <b>Лицевой счет</b><br />
+            <?= $billExtendsInfo->acc_no; ?>
+        </div>
+        <div class="col-xs-2">
+            <b>Временной интервал</b><br />
+            <?= $billExtendsInfo->comment1; ?>
+        </div>
+        <div class="col-xs-12" style="margin-top: 15px;">
+            <label style="float: left;"><b>Комментарий</b></label>
+            <div style="float: left; margin-left: 10px; margin-top: 2px; background: url('/images/icons/edit.gif') no-repeat 0 0; width: 16px; height: 16px;">
+                <a href="#" data-edit="#bill-comment" class="switchEditable" style="margin-left: 22px;">Редактировать</a>
+            </div>
+            <div style="clear: both;"></div>
+            <div id="bill-comment" style="display: none;">
+                <?php
+                $form = ActiveForm::begin([
+                    'type' => ActiveForm::TYPE_VERTICAL,
+                ]);
+
+                echo Html::hiddenInput('scenario', 'setComment');
+                ?>
+
+                <fieldset>
+                    <textarea class="form-control" name="comment"><?= $bill->comment; ?></textarea>
+                </fieldset>
+
+                <?php
+                echo Form::widget([
+                    'model' => $model,
+                    'form' => $form,
+                    'columns' => 2,
+                    'attributes' => [
+                        'empty1' => [
+                            'type' => Form::INPUT_RAW,
+                            'value' =>
+                                Html::tag(
+                                    'div',
+                                    Html::submitButton('Сохранить', [
+                                        'class' => 'btn btn-primary',
+                                        'style' => 'width: 100px;',
+                                    ]),
+                                    [
+                                        'style' => 'padding-top: 20px; text-align: right;',
+                                    ]
+                                )
+                        ]
+                    ],
+                ]);
+
+                ActiveForm::end();
+                ?>
+            </div>
+            <span>
+                <?= $bill->comment; ?>
+            </span>
+        </div>
+    </div>
+    <div style="clear: both;">&nbsp;</div>
 
     <?php if (count($billItems)): ?>
         <legend style="font-size: 16px;">Позиции счета</legend>
@@ -200,7 +275,6 @@ $model->state_id = $trouble->currentStage->state_id;
                             'div',
                             Html::button('Вернуться', [
                                 'class' => 'btn btn-link',
-                                'id' => 'dialog-close',
                                 'style' => 'width: 100px; margin-right: 15px;',
                                 'onClick' => 'window.history.back(-1)',
                             ]) .
@@ -223,10 +297,16 @@ $model->state_id = $trouble->currentStage->state_id;
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
-        $('#dialog-close').click(function() {
-            window.parent.location.reload(true);
-            window.parent.$dialog.dialog('close');
-        });
+        $('.switchEditable')
+            .on('click', function(e) {
+                e.preventDefault();
+                var target = $($(this).data('edit')),
+                    source = target.next('span');
+                if (target.length && source) {
+                    target.toggle();
+                    source.toggle();
+                }
+            });
     });
 </script>
 
