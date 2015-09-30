@@ -207,7 +207,7 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($account->contract->id);
+        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
 
         if($stDates)
         {
