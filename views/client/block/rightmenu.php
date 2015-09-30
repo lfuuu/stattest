@@ -4,7 +4,7 @@
             <a href="/account/edit?id=<?= $account->id ?>">Редактир. ЛС</a>
         </li>
         <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
-            <a href="/account/create?parentId=<?= $account->id ?>">Создать доп. ЛС</a>
+            <a href="/account/create?parentId=<?= $account->contract->id; ?>">Создать доп. ЛС</a>
         </li>
         <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
             <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a>
