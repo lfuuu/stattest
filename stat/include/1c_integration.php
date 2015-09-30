@@ -1008,19 +1008,20 @@ class SoapHandler{
                         ?
                         (
                             $client == 'WiMaxComstar'
-                                ? ' and name = "WiMax"'
+                                ? ' and `name` = "WiMax"'
                                 :
                                 (
-                                    $client == 'nbn'
-                                        ? ' and name = "NetByNet"'
-                                        :
-                                        (
-                                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
-                                                ? ' and name = "OnLime"'
-                                                : ''
-                                        )
+                                    $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                        ? ' and `name` = "OnLime"'
+                                        : ''
                                 )
-                        ) : ''
+                        )
+                        :
+                        (
+                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                ? 'and `state_1c` = "' . $state_1c . '"'
+                                : ''
+                        )
                 ) ."
 
                         order by
@@ -1033,7 +1034,7 @@ class SoapHandler{
                 $err_msg = "Unknown state!";
                 $db->Query("select 'error: ".$err_msg."'");
             }else{
-                if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+                if(in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, "DostavkaMTS"]) && trim($_POST["comment"]))
                     $q = "update tt_stages set comment='".$db->escape(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
 
                 if($state_1c == 'Отгружен')
@@ -1088,7 +1089,7 @@ class SoapHandler{
 
         }elseif(
             !$err && !$curtt && (
-                in_array($client,array('all4net','All4Net_new', 'wellconnect','WiMaxComstar','ComPapa','Compapa','nbn','onlime','onlime2', 'DostavkaMTS'))
+                in_array($client,['all4net','All4Net_new', 'wellconnect','WiMaxComstar','ComPapa','Compapa',OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, 'DostavkaMTS'])
                 ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "welltime"
                 ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "all4net"
             )){
@@ -1104,28 +1105,28 @@ class SoapHandler{
                         ?
                         (
                             $client == 'WiMaxComstar'
-                                ? ' and name = "WiMax"'
+                                ? ' and `name` = "WiMax"'
                                 :
                                 (
-                                    $client == 'nbn'
-                                        ? ' and name = "NetByNet"'
-                                        :
-                                        (
-                                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
-                                                ? ' and name = "OnLime"'
-                                                : ''
-                                        )
+                                    $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                        ? ' and `name` = "OnLime"'
+                                        : ''
                                 )
                         )
-                        : ''
+                        :
+                        (
+                            $client == OperatorOnlime::OPERATOR_CLIENT || $client == OperatorOnlimeDevices::OPERATOR_CLIENT
+                                ? ' and `state_1c` = "' . $state_1c . '"'
+                                : ''
+                        )
                 ) . "order by oso limit 1");
             if(!$err && $err |= mysql_errno())
                 $err_msg = mysql_error();
 
-            if(isset($add_info_koi8r) && (!$comment || $client == "onlime")){
+            if(isset($add_info_koi8r) && (!$comment || in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT]))){
                 $orig_comment = $comment;
 
-                if($client == "onlime")
+                if(in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT]))
                 {
                     $oo = \OnlimeOrder::find_by_external_id($add_info_koi8r["req_no"]);
                     if($oo)
@@ -1157,7 +1158,7 @@ class SoapHandler{
                 );
             }
 
-            if(in_array($client,array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+            if(in_array($client,[OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, "DostavkaMTS"]) && trim($_POST["comment"]))
                 $comment = trim($_POST["comment"]);
 
             if(!$err){
@@ -1183,7 +1184,7 @@ class SoapHandler{
                     if(!$err){
 
                         $comment = "";
-                        if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+                        if(in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, "DostavkaMTS"]) && trim($_POST["comment"]))
                             $comment = trim($_POST["comment"]);
 
                         $tsid = $db->QueryInsert('tt_stages',array(
