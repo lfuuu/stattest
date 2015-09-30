@@ -25,7 +25,7 @@ class ActualNumberDao extends Singleton
 
             SELECT 
                 client_id, number, region, call_count, 
-                number_type, direction, number7800,
+                number_type, number7800,
                 is_blocked, is_disabled 
             FROM
             ( SELECT 
@@ -39,7 +39,6 @@ class ActualNumberDao extends Singleton
                     usage_id,
                     no_of_lines AS call_count, 
                     IF(is_virtual, 'vnumber', IF(LENGTH(e164) > 5,'number','nonumber')) AS number_type,
-                    allowed_direction AS direction, 
                     #line7800_id,
                     is_blocked, 
                     voip_disabled AS is_disabled
@@ -64,7 +63,6 @@ class ActualNumberDao extends Singleton
                                     AND id_tarif = tv.id 
                                 ORDER BY lt.date_activation DESC, lt.id DESC 
                                 LIMIT 1), 0) AS is_virtual,
-                            allowed_direction,
                             c.voip_disabled
                         FROM
                             usage_voip u, clients c, client_contract ct
@@ -103,7 +101,7 @@ class ActualNumberDao extends Singleton
         $data = ActualNumber::getDb()->createCommand("
                 SELECT 
                     client_id, number, region, call_count, 
-                    number_type, direction, number7800,
+                    number_type, number7800,
                     is_blocked, is_disabled 
                 FROM 
                     actual_number a

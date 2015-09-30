@@ -773,7 +773,6 @@ class m_services extends IModule{
                 $notAcos[] = $p;
             }
 
-            $design->assign('allowed_direction', UsageVoip::$allowedDirection);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->assign('voip_conn_permit',$notAcos);

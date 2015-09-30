@@ -133,7 +133,7 @@
                     {/if}
                     {if isset($item.permit)}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}
                 </td>
-                <td style="font-size: 8pt;">{$allowed_direction[$item.allowed_direction]}</td>
+                <td style="font-size: 8pt;">{*$allowed_direction[$item.allowed_direction]*}</td>
                 <td>{$item.number_status}</td>
             </tr>
         {/foreach}

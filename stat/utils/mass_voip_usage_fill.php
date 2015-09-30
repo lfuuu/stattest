@@ -81,7 +81,6 @@ foreach($numbers as $number)
     $u->no_of_lines = 10;
     $u->edit_user_id = 54; //Yana
     $u->created = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-    $u->allowed_direction = "full";
     $u->status = "connecting";
     $u->save();
 
