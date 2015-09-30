@@ -7,6 +7,7 @@ class m150929_100409_formal_business_process_to_operators_business_process exten
         $this->execute("
             INSERT INTO `client_contract_business_process_status`
             SET
+                `id` = 125,
                 `business_process_id` = 11,
                 `name` = 'Формальные',
                 `sort` = 4;
