@@ -38,9 +38,9 @@ class Navigation
                 ->addItem('Телефония', ['tariff/voip'], ['tarifs.read'])
                 ->addItem('Телефония Пакеты', ['tariff/voip-package'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
+                ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
-                ->addItem('Шаблоны', ['document/template/edit'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(

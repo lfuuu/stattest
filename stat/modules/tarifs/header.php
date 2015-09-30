@@ -39,7 +39,6 @@ class m_tarifs_head extends IModuleHead{
             array('WellSystem',                'wellsystem',''),
             ['', 'contracts'],
             //            array('Старые доп.услуги',        'view','&m=add'),
-            array('Договора',            'contracts',''),
             array('Договор-Прайс-Телефония',            'price_tel',''),
         );
     }
