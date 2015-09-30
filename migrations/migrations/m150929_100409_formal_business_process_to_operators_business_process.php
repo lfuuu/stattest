@@ -9,15 +9,14 @@ class m150929_100409_formal_business_process_to_operators_business_process exten
             SET
                 `business_process_id` = 11,
                 `name` = 'Формальные',
-                `sort` = 4,
-                `oldstatus` = 'formal';
+                `sort` = 4;
         ");
 
         $this->execute("
             UPDATE `client_contract`
             SET
                 `business_process_id` = 11,
-                `business_process_status_id` = (SELECT `id` FROM `client_contract_business_process_status` WHERE `oldstatus` = 'formal')
+                `business_process_status_id` = 125
             WHERE
                 `business_process_id` = 14;
         ");
