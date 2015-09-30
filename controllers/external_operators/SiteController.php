@@ -124,6 +124,19 @@ class SiteController extends BaseController
         $scenario = Yii::$app->request->post('scenario');
 
         switch ($scenario) {
+            case 'setComment':
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    $bill->comment = Yii::$app->request->post('comment');
+                    $bill->save();
+                    $transaction->commit();
+                }
+                catch (\Exception $e) {
+                    $transaction->rollBack();
+                    throw $e;
+                }
+                return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
+                break;
             case 'setFiles':
                 $trouble->mediaManager->addFiles($files = 'files', $custom_names = 'custom_name_files');
                 return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
