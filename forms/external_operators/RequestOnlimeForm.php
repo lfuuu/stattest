@@ -151,17 +151,6 @@ class RequestOnlimeForm extends Form
 
             $soap = new \_1c\SoapHandler;
             $soap->statSaveOrder($class, $this->bill_no, $error, []);
-
-            StatModule::tt()->createTrouble([
-                'user_author' => 'system',
-                'trouble_type' => 'shop_orders',
-                'trouble_subtype' => 'shop',
-                'client' => $account->client,
-                'problem' => $positions['comment'],
-                'bill_no' => $this->bill_no,
-                'time' => 0,
-                'folder' => $operator::OPERATOR_TROUBLE_DEFAULT_FOLDER,
-            ]);
         }
         catch (\Exception $e) {
             $transaction->rollBack();
