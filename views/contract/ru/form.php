@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use app\models\ClientDocument;
+use app\models\ClientContractReward;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
 use app\models\ClientContract;
@@ -170,6 +170,81 @@ use app\models\ClientContract;
         )
     ]);
     ?>
+    <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
+        <?php foreach ($model->rewards as $usage => $reward) : ?>
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-12">
+                            <h2><?= ClientContractReward::$usages[$usage] ?></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="control-label" for="">Разовое</label>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="<?= $reward->once_only ?>"
+                                           name="ContractEditForm[rewards][<?= $usage ?>][once_only]">
+
+                                    <div class="input-group-addon">руб.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="control-label" for="">От абонентской платы</label>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="<?= $reward->percentage_of_fee ?>"
+                                           name="ContractEditForm[rewards][<?= $usage ?>][percentage_of_fee]">
+
+                                    <div class="input-group-addon">%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="control-label" for="">От превышенния</label>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="<?= $reward->percentage_of_over ?>"
+                                           name="ContractEditForm[rewards][<?= $usage ?>][percentage_of_over]">
+
+                                    <div class="input-group-addon">%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="form-group">
+                                        <label class="control-label" for="">Период выплат</label>
+                                        <select value="<?= $reward->period_type ?>" class="form-control period-type"
+                                                name="ContractEditForm[rewards][<?= $usage ?>][period_type]">
+                                            <option value="<?= ClientContractReward::PERIOD_MONTH ?>">Кол-во месяцев
+                                            </option>
+                                            <option value="<?= ClientContractReward::PERIOD_ALWAYS ?>">Всегда</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3" style="padding: 0;">
+                                    <div class="form-group">
+                                        <label class="control-label" for="">&nbsp;</label>
+                                        <input type="text" value="<?= $reward->period_month ?>" class="form-control"
+                                               name="ContractEditForm[rewards][<?= $usage ?>][period_month]">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        <?php endforeach; ?>
+    <?php endif; ?>
 
 </div>
 
@@ -229,6 +304,15 @@ use app\models\ClientContract;
 
         $('.btn-disabled').on('click', function (e) {
             return false;
+        });
+
+        $('.period-type').on('change', function () {
+            var month = $(this).parent().parent().next();
+            if ($(this).val() == '<?= ClientContractReward::PERIOD_MONTH ?>') {
+                month.show();
+            } else {
+                month.hide();
+            }
         })
     });
 </script>
