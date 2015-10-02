@@ -6,12 +6,22 @@ defined('YII_ENV') or define('YII_ENV', 'dev');
 require(__DIR__ . '/../vendor/autoload.php');
 require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
-if (php_sapi_name() != 'cli') {
-    $config = require(__DIR__ . '/../config/web.php');
-    new app\classes\WebApplication($config);
-} else {
-    $config = require(__DIR__ . '/../config/console.php');
-    new app\classes\ConsoleApplication($config);
+if (YII_ENV == "test") {
+
+    if (php_sapi_name() != 'cli') {
+        $config = require(__DIR__ . '/../tests/codeception/config/acceptance.php');
+        new app\classes\WebApplication($config);
+    } else {
+        die("у тестов свои консольные конфиги");
+    }
+}else {
+    if (php_sapi_name() != 'cli') {
+        $config = require(__DIR__ . '/../config/web.php');
+        new app\classes\WebApplication($config);
+    } else {
+        $config = require(__DIR__ . '/../config/console.php');
+        new app\classes\ConsoleApplication($config);
+    }
 }
 
 include PATH_TO_ROOT."conf.php";

@@ -35,7 +35,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
      */
     public function actionRecreateDb()
     {
-        if ($this->confirm("Recreate database \"" . $this->db->dsn . "\"?")) {
+        if (YII_ENV == "test" || $this->confirm("Recreate database \"" . $this->db->dsn . "\"?")) {
 
             $this->recreateDatabase();
 

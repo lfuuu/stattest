@@ -1653,7 +1653,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $user_main = $R['user_author'];
         } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where "'.$user_main.'" IN (`user`,`id`)')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
-        } else {trigger_error2('неверный пользователь'); return;}
+        } else {
+            if (defined("YII_ENV") && YII_ENV == "test") {
+                throw new Exception('неверный пользователь');
+            } else {
+                trigger_error2('неверный пользователь'); 
+            }
+            return;
+        }
 
         $R2 = [];
         if (isset($R["first_comment"]))
