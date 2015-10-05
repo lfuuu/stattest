@@ -242,18 +242,19 @@ class AccountEditForm extends Form
                 $client->save();
             }
             if($this->admin_email){
-                $contact = new ClientContact();
-                $contact->type = 'email';
-                $contact->user_id = Yii::$app->user->id;
-                $contact->client_id = $client->id;
-                $contact->data = $this->admin_email;
-                $contact->ts = date('Y-m-d H-i-s');
-                $contact->is_active = 1;
-                $contact->is_official = 1;
-                $contact->save();
+                $contact = new ClientContact(["client_id" => $client->id]);
+                $contact->addEmail($this->admin_email);
+                $contact->setActiveAndOfficial();
 
-                $client->admin_contact_id = $contact->id;
-                $client->save();
+                if ($contact->validate()) {
+                    $contact->save();
+
+                    $client->admin_contact_id = $contact->id;
+                    $client->save();
+                } else {
+                    $this->addErrors($contact->getErrors());
+                }
+
             }
             $this->setAttributes($client->getAttributes(), false);
             return true;

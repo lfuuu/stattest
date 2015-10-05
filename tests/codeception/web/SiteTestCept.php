@@ -11,15 +11,15 @@ $I = new _WebTester($scenario);
 $I->wantTo("register client from site (without vats)");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");
-$I->see("ok:35800");
+$I->see("ok:35801");
 
 $I = new _WebTester($scenario);
 $I->wantToTest("re-register client");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");
-$I->see("ok:35800");
+$I->see("ok:35801");
 
-$clientId = 35800;
+$clientId = 35801;
 $number = "74992130006";
 
 $I = new _WebTester($scenario);
