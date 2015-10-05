@@ -139,7 +139,7 @@
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
             {/if}
-            <td rowspan="{$rowspan}" align="right" style="background-color: red;">
+            <td rowspan="{$rowspan}" align="right">
                 {if $fixclient_data.currency == $op.bill.currency}
                     {objCurrency op=$op obj='delta' currency=$fixclient_data.currency simple=1}
                 {/if}
