@@ -26,7 +26,7 @@ class LoginPage extends BasePage
     {
         $loginPage = LoginPage::openBy($I);
         $I->see('Введите логин и пароль');
-        $loginPage->login('admin', 'admin');
-        $I->seeLink('Logout');
+        $loginPage->login('admin', '111');
+        $I->seeLink('Выход');
     }
 }

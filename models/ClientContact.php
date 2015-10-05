@@ -25,19 +25,37 @@ class ClientContact extends ActiveRecord
     public function rules()
     {
         return [
-            [['client_id', 'user_id', 'is_active', 'is_official'], 'integer', 'integerOnly' => true],
-            ['comment', 'string'],
-            ['ts', 'date', 'format' => 'yyyy-MM-dd HH:mm:ss'],
             ['type', 'in', 'range' => array_keys(self::$types)],
+            ['data', 'required'],
             ['data', 'email',
                 'when' => function($model){return $model->type == self::TYPE_EMAIL;},
                 'whenClient' => 'function(){return $("#contact-type").val() == "'. self::TYPE_EMAIL .'";}'
             ],
-            [['comment', 'data'], 'default', 'value' => ''],
+            [['comment'], 'default', 'value' => ''],
+            ['comment', 'string'],
             ['is_active', 'default', 'value' => 1],
             ['is_official', 'default', 'value' => 0],
             ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
+            ['user_id', 'default', 'value' => \Yii::$app->user->id],
+            [['client_id', 'user_id', 'is_active', 'is_official'], 'integer', 'integerOnly' => true]
         ];
+    }
+
+    public function addEmail($email)
+    {
+        $this->addContact(self::TYPE_EMAIL, $email);
+    }
+
+    public function addContact($type, $data)
+    {
+        $this->type = $type;
+        $this->data = $data;
+    }
+
+    public function setActiveAndOfficial()
+    {
+        $this->is_active = 1;
+        $this->is_official = 1;
     }
 
     /**
