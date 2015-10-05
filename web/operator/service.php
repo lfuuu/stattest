@@ -14,6 +14,11 @@ use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
 
+if (isset($_GET) && isset($_GET["test"]))
+{
+    define('YII_ENV', 'test');
+}
+
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
@@ -98,7 +103,6 @@ if ($action=='add_client') {
         $ca->validate();
 
         if ($ca->save()) {
-
             $clientId = $ca->id;
 
             Yii::info($ca);
@@ -325,10 +329,14 @@ if ($action=='add_client') {
         } catch (Exception $e)
         {
             $isOk = false;
-            mail("adima123@yandex.ru", "voip reserv error", "Number: ".$number.", clientId: ".$client_id."\n".$e->GetMessage());
+            if (YII_ENV == "test") {
+                throw $e;
+            } else {
+                mail("adima123@yandex.ru", "voip reserv error", "Number: ".$number.", clientId: ".$client_id."\n".$e->GetMessage());
+            }
         }
     }
-    echo $isOk ? 1 : 0;
+    echo $isOk ? "1" : "0";
 
 } elseif ($action == "connect_line")
 {

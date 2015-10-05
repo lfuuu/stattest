@@ -24,6 +24,7 @@ $config = yii\helpers\ArrayHelper::merge(
     ]
 );
 
-$application = new yii\console\Application($config);
+$application = new app\classes\ConsoleApplicationEmpty($config);
+//$application = new yii\console\Application($config);
 $exitCode = $application->run();
 exit($exitCode);

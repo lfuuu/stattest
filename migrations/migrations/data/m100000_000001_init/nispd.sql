@@ -679,7 +679,7 @@ CREATE TABLE `clients` (
   KEY `status` (`status`),
   KEY `super_id` (`super_id`),
   KEY `contract_id` (`contract_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35807 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=35800 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;

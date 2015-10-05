@@ -68,7 +68,7 @@ class VoipReservNumber
                 {
                     \Yii::error($form);
                     $errorKeys = array_keys($form->errors);
-                    throw new Exception($form->errors[$errorKeys[0]], 500);
+                    throw new Exception($form->errors[$errorKeys[0]][0], 500);
                 } else {
                     throw new Exception("Unknown error", 500);
                 }
@@ -95,7 +95,7 @@ class VoipReservNumber
 
         if (!$tarifId)
         {
-            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
+            if (YII_ENV != "test" && defined("ADMIN_EMAIL") && ADMIN_EMAIL)
             {
                 mail(ADMIN_EMAIL, "VoipReservNumber", "Тариф не установлен. region: ".$regionId. ", currency: ".$currency);
             }

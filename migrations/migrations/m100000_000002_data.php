@@ -39,6 +39,9 @@ class m100000_000002_data extends app\classes\Migration
         $this->executeSqlFile('user_grant_groups.sql');
         $this->executeSqlFile('user_groups.sql');
         $this->executeSqlFile('user_users.sql');
+        $this->executeSqlFile('voip_numbers.sql');
+        $this->executeSqlFile('tarifs_voip.sql');
+        $this->executeSqlFile('tarifs_number.sql');
     }
 
     public function down()
