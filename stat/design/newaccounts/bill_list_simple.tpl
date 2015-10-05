@@ -144,7 +144,7 @@
                     {objCurrency op=$op obj='delta' currency=$fixclient_data.currency simple=1}
                 {/if}
             </td>
-            {if count($op.pays)}?{$op.bill.bill_no}!{php}print_r($op.pays);{/php}?
+            {if count($op.pays)}
                 {foreach from=$op.pays item=pay key=keyin name=inner}
                     {if $smarty.foreach.inner.iteration!=1}
                         </tr><tr class="{$class}">
@@ -176,7 +176,7 @@
                         <td colspan="4" class="comment">444{$op.bill.comment|escape:"html"}</td>
                         <td colspan="4">&nbsp;</td>
                 {/if}
-            {else}!{$op.bill.bill_no}!
+            {else}
                 {if isset($op.bill.comment) && $op.bill.comment}
                         <td colspan="4" rowspan="2">&nbsp;</td>
                     </tr>
