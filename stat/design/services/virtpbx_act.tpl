@@ -13,7 +13,7 @@ BODY { "
 }
 -->
 </style>
-	
+
 		<p align="CENTER"
 			style="margin-top: 0.05cm; margin-bottom: 0.05cm; line-height: 100%">
 			<font face="Times New Roman, serif"><font size="5"><b>АКТ &#8470;3-{$client.id}</b>
@@ -116,6 +116,6 @@ BODY { "
 				</tr>
 			</tbody>
 		</table>
-	
+
 </body>
 </html>
