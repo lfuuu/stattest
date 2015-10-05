@@ -71,7 +71,7 @@ class ClientAccount extends HistoryActiveRecord
         'prov' => 'пров'
     ];
 
-    public static $shopIds = [14050];
+    public static $shopIds = [14050, 18042];
 
     /** Virtual variables */
     public $payment_info;
