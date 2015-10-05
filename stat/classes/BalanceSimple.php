@@ -71,7 +71,7 @@ class BalanceSimple
 
         $R1 = $db->AllRecords($q='
             select
-                *, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
+                *, newbills.comment as "comment", IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
                 '.(
                     $sum[$params['client_currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$params['client_currency']]['ts'].'",1,0)'
@@ -93,8 +93,7 @@ class BalanceSimple
             '.$sqlLimit.'
         ','',MYSQL_ASSOC);
 
-
-        $R2 = $db->AllRecords('
+        $R2 = $db->AllRecords($q='
             select
                 P.*,
                 U.user as user_name,
@@ -130,8 +129,7 @@ class BalanceSimple
             foreach($R2 as $k2=>$r2){
                 $r2['bill_vis_no'] = $r2['bill_no'];
                 $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
-                if(
-                    $r['bill_no'] == $r2['bill_no']
+                if($r['bill_no'] == $r2['bill_no']
                 &&
                     (
                         $r2['bill_no'] == $r2['bill_vis_no']

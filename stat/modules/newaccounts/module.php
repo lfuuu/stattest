@@ -232,6 +232,7 @@ class m_newaccounts extends IModule
         }
 
         #krsort($R);
+
         $design->assign('billops',$R);
         $design->assign('sum',$sum);
         $design->assign('sum_cur',$sum[$fixclient_data['currency']]);
