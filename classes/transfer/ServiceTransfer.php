@@ -60,7 +60,7 @@ abstract class ServiceTransfer
     public function process()
     {
         if ($this->service->actual_to < $this->getActualDate())
-            throw new InvalidValueException('Услуга не может быть перенеса на указанную дату');
+            throw new InvalidValueException('Услуга не может быть перенесена на указанную дату');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
