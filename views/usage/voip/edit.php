@@ -13,6 +13,7 @@ use app\models\TariffVoipPackage;
 use app\models\Region;
 use app\models\VoipNumber;
 use app\widgets\DateControl as CustomDateControl;
+use app\helpers\DateTimeZoneHelper;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -311,7 +312,7 @@ echo Breadcrumbs::widget([
                     <?php
                         $user = User::findOne($item->id_user);
                         $user = $user ? $user->name : $item->id_user;
-                        echo $item->ts . ' / ' . $user;
+                        echo DateTimeZoneHelper::getDateTime($item->ts) . ' / ' . $user;
                     ?>
                 </td>
                 <td>
