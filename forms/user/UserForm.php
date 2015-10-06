@@ -33,7 +33,7 @@ class UserForm extends Form
         $courier_id = 0,
         $enabled = 'yes';
 
-    public $initModel, $rights;
+    public $initModel, $rights = [];
 
     public function rules()
     {
@@ -94,7 +94,7 @@ class UserForm extends Form
         try {
             $user->save();
 
-            if (Yii::$app->user->can('users.grant') && count($this->rights)) {
+            if (Yii::$app->user->can('users.grant')) {
                 UserGrantUsers::setRights($user, $this->rights);
             }
 
