@@ -73,7 +73,7 @@ abstract class Operators extends Object
         $idx = 0;
         foreach (static::$reportFields as $title => $field) {
             if ($field == 'products') {
-                foreach (static::$requestProducts as $product) {
+                foreach ($this->products as $key => $product) {
                     $sheet->setCellValueByColumnAndRow($idx++, 2, $product['name']);
                 }
             }
@@ -86,11 +86,17 @@ abstract class Operators extends Object
             $colIdx = 0;
             foreach(static::$reportFields as $title => $field) {
                 if ($field == 'products') {
-                    foreach (static::$requestProducts as $i => $product) {
+                    foreach ($this->products as $key => $product) {
+                        if (is_string($key)) {
+                            $key = 'count_' . $key;
+                        }
+                        else {
+                            $key = 'count_' . ($key + 1);
+                        }
                         $sheet->setCellValueByColumnAndRow(
                             $colIdx++,
                             3 + $rowIdx,
-                            isset($item['group_' . ($i + 1)]) ? strip_tags($item['group_' . ($i + 1)]) : ''
+                            isset($item[$key]) ? strip_tags($item[$key]) : ''
                         );
                     }
                 }

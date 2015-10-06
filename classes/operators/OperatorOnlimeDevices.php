@@ -124,13 +124,13 @@ class OperatorOnlimeDevices extends Operators
     {
         $query->andWhere('s.stage_id = t.cur_stage_id');
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['in', 'state_id', [15, 35, 32, 33]]);
+        $query->andWhere(['in', 'state_id', [15, 32]]);
     }
 
     public function modeWorkModify(Query $query, $dao) {
         $query->andWhere('s.stage_id = t.cur_stage_id');
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['not in', 'state_id', [2, 20, 21]]);
+        $query->andWhere(['not in', 'state_id', [15, 32, 24, 31, 2, 20, 4, 18, 28, 21]]);
     }
 
     public function modeDeferredModify(Query $query, $dao)
