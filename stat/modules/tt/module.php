@@ -14,6 +14,7 @@ use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
 use yii\web\View;
+use app\helpers\DateTimeZoneHelper;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -125,11 +126,17 @@ class m_tt extends IModule{
             $db->Query('update tt_stages set date_finish_desired = date_finish_desired + INTERVAL '.$time.' HOUR where stage_id='.$trouble['cur_stage_id']);
         }elseif(($dateActivation = get_param_raw("date_activation", "none")) !== "none")
         {
-            if($datetimeActivation = (new DateTime($dateActivation, new DateTimeZone('Europe/Moscow')))->format('Y-m-d H:i:s'))
-            {
-                $db->Query('update tt_stages set date_start = "'.$datetimeActivation.'" where stage_id='.$trouble['cur_stage_id']);
-            }
-
+            $dateActivation = DateTimeZoneHelper::setDateTime($dateActivation, 'Y-m-d H:i:s');
+            Yii::$app->getDb()->createCommand("
+                UPDATE `tt_stages` SET
+                    `date_start` = :date_activation,
+                    `date_finish_desired` = `date_start` + INTERVAL (SELECT `time_delta` FROM `tt_states` WHERE `id` = `state_id`) HOUR
+                WHERE
+                    `stage_id` = :stage_id
+            ", [
+                ':state_id' => $trouble['cur_stage_id'],
+                ':date_activation' => $dateActivation,
+            ]);
         }
         if ($design->ProcessEx('errors.tpl')) {
             header('Location: ?module=tt&action=view&id='.$trouble['id']);
