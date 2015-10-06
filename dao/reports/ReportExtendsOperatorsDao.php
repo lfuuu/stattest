@@ -38,7 +38,7 @@ class ReportExtendsOperatorsDao extends Singleton
             'phone',
             'address',
             'date_creation',
-            new Expression("(
+            new Expression('(
                 SELECT `date_start`
                 FROM `tt_stages` s, `tt_doers` d
                 WHERE
@@ -47,13 +47,13 @@ class ReportExtendsOperatorsDao extends Singleton
                 ORDER BY
                     s.`stage_id` DESC
                 LIMIT 1
-            ) AS date_delivered"),
-            new Expression("(
-                SELECT GROUP_CONCAT(`serial` SEPARATOR ', ') FROM `g_serials` s WHERE s.`bill_no` = t.`bill_no`
-            ) AS serials"),
-            new Expression("(
+            ) AS date_delivered'),
+            new Expression('(
+                SELECT GROUP_CONCAT(`serial` SEPARATOR ", ") FROM `g_serials` s WHERE s.`bill_no` = t.`bill_no`
+            ) AS serials'),
+            new Expression('(
                 SELECT CONCAT(`coupon`) FROM `onlime_order` oo WHERE oo.`bill_no` = t.`bill_no`
-            ) AS coupon"),
+            ) AS coupon'),
             'i.comment1 AS date_deliv',
             'i.comment2 AS fio_oper',
         ]);
@@ -85,26 +85,29 @@ class ReportExtendsOperatorsDao extends Singleton
                 break;
         }
 
+        $query->groupBy('s.`trouble_id`');
         $query->orderBy('date_creation ASC');
 
         $modes = $this->operator->requestModes;
         $items = [];
 
-        if (!isset($modes[ $mode ]))
+        if (!array_key_exists($mode, $modes)) {
             return $items;
+        }
 
         $mode = $modes[ $mode ];
-        if (isset($mode['queryModify']) && method_exists($this->operator, $mode['queryModify']))
+        if (array_key_exists('queryModify', $mode) && method_exists($this->operator, $mode['queryModify'])) {
             $this->operator->{$mode['queryModify']}($query, $this);
+        }
 
         $items = $query->createCommand()->queryAll();
 
-        foreach($items as &$item) {
-            if (isset($item['date_deliv']) && $item['date_deliv']) {
+        foreach ($items as &$item) {
+            if (array_key_exists('date_deliv', $item) && $item['date_deliv']) {
                 @list(, $item['date_deliv']) = explode(': ', $item['date_deliv']);
             }
 
-            if (isset($item['fio_oper']) && $item['fio_oper']) {
+            if (array_key_exists('fio_oper', $item) && $item['fio_oper']) {
                 @list(, $item['fio_oper']) = explode(': ', $item['fio_oper']);
             }
 
@@ -123,7 +126,7 @@ class ReportExtendsOperatorsDao extends Singleton
 
         $query->select([
             's.*',
-            new Expression("IF(s.`date_edit` = 0, NULL, `date_edit`) AS date_edit"),
+            new Expression('IF(s.`date_edit` = 0, NULL, `date_edit`) AS date_edit'),
             'tts.name AS state_name',
         ]);
 
@@ -173,10 +176,12 @@ class ReportExtendsOperatorsDao extends Singleton
     {
         $products = [];
         foreach ($this->operator->products as $key => $product) {
-            if (is_string($key))
+            if (is_string($key)) {
                 $key = 'count_' . $key;
-            else
+            }
+            else {
                 $key = 'count_' . ($key + 1);
+            }
 
             $products[] = new Expression("
                 (
@@ -196,18 +201,26 @@ class ReportExtendsOperatorsDao extends Singleton
         if (strpos($address, '^') !== false) {
             list($street, $home, $bild, $porch, $floor, $flat, $intercom) = explode(' ^ ', $address . ' ^  ^  ^  ^  ^  ^  ^  ^ ');
             $a = $street;
-            if ($home)
+
+            if ($home) {
                 $a .= ', д.' . $home;
-            if ($bild)
+            }
+            if ($bild) {
                 $a .= ' стр.' . $bild;
-            if ($porch)
+            }
+            if ($porch) {
                 $a .= ', подъезд ' . $porch;
-            if ($floor)
+            }
+            if ($floor) {
                 $a .= ', этаж ' . $floor;
-            if ($flat)
+            }
+            if ($flat) {
                 $a .= ', кв.' . $flat;
-            if ($intercom)
+            }
+            if ($intercom) {
                 $a .= ' (домофон: ' . $intercom . ')';
+            }
+
             return $a;
         }
 
@@ -220,12 +233,15 @@ class ReportExtendsOperatorsDao extends Singleton
             list($home, $mob, $work) = explode(' ^ ', $phone . ' ^  ^  ^ ');
             $p = array();
 
-            if($home)
+            if ($home) {
                 $p[] = 'Домашний: ' . $home;
-            if($mob)
+            }
+            if ($mob) {
                 $p[] = 'Сотовый: ' . $mob;
-            if($work)
+            }
+            if ($work) {
                 $p[] = 'Рабочий: ' . $work;
+            }
 
             return implode('<br />', $p);
         }
