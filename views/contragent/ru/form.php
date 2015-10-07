@@ -2,7 +2,15 @@
 use yii\helpers\Html;
 use kartik\builder\Form;
 use app\models\ClientContragent;
+use app\models\ClientContract;
 use app\models\Country;
+use app\models\NewSaleChannel;
+use kartik\widgets\Select2;
+use app\models\Business;
+
+/**
+ * @var $f kartik\widgets\ActiveForm
+ */
 
 ?>
 
@@ -15,9 +23,12 @@ use app\models\Country;
 <div class="col-sm-8" style="margin-bottom: 20px; text-align: center;">
     <div id="type-select">
         <div class="btn-group">
-            <button type="button" class="btn btn-default"  data-tab="#legal"><?=$model->getAttributeLabel('legalTypeLegal')?></button>
-            <button type="button" class="btn btn-default" data-tab="#ip"><?=$model->getAttributeLabel('legalTypeIp')?></button>
-            <button type="button" class="btn btn-default" data-tab="#person"><?=$model->getAttributeLabel('legalTypePerson')?></button>
+            <button type="button" class="btn btn-default"
+                    data-tab="#legal"><?= $model->getAttributeLabel('legalTypeLegal') ?></button>
+            <button type="button" class="btn btn-default"
+                    data-tab="#ip"><?= $model->getAttributeLabel('legalTypeIp') ?></button>
+            <button type="button" class="btn btn-default"
+                    data-tab="#person"><?= $model->getAttributeLabel('legalTypePerson') ?></button>
         </div>
     </div>
 </div>
@@ -224,8 +235,43 @@ use app\models\Country;
     ]);
     echo '</div>';
     ?>
-    <div class="col-sm-6">
-        <?= $f->field($model, 'comment')->textarea(['style' => 'height: 100px;']) ?>
+    <div style="width: 100%;">
+        <div class="col-sm-6">
+            <?= $f->field($model, 'comment')->textarea(['style' => 'height: 100px;']) ?>
+        </div>
+        <div class="col-sm-3" style="padding-bottom: 15px;">
+            <?php
+                $partners = [];
+                $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->all();
+                foreach($cts as $ct){
+                    $accounts = $ct->getAccounts();
+                    if($accounts){
+                        $partners[$accounts[0]->id] = $ct->getContragent()->name;
+                    }
+                }
+            ?>
+            <?=
+            $f->field($model, 'partner_id')->widget(Select2::className(), [
+                'data' => $partners,
+                'options' => ['placeholder' => 'Начните вводить название'],
+                'pluginOptions' => [
+                    'allowClear' => true,
+                ],
+            ])
+            ?>
+
+        </div>
+        <div class="col-sm-3" style="padding-right: 30px; padding-bottom: 15px;">
+            <?=
+            $f->field($model, 'sale_channel_id')->widget(Select2::className(), [
+                'data' => NewSaleChannel::getList(),
+                'options' => ['placeholder' => 'Начните вводить название'],
+                'pluginOptions' => [
+                    'allowClear' => true,
+                ],
+            ])
+            ?>
+        </div>
     </div>
 
 </div>

@@ -46,9 +46,13 @@ class BusinessProcessStatus extends ActiveRecord
     const PROVIDER_MAINTENANCE_ONCE = 94; // Сопровождение - Разовый
 
     // Партнер
-    const PARTNER_MAINTENANCE_NEGOTIATIONS = 24; // Сопровождение - Переговоры
+    const PARTNER_MAINTENANCE_NEGOTIATIONS = 125; // Сопровождение - Переговоры
     const PARTNER_MAINTENANCE_ACTING = 35; // Сопровождение - Действующий
-    const PARTNER_MAINTENANCE_CLOSED = 26; // Сопровождение - Закрытый
+    const PARTNER_MAINTENANCE_MANUAL_BILL = 126; // Сопровождение - Ручной счет
+    const PARTNER_MAINTENANCE_SUSPENDED = 127; // Сопровождение - Приостановлен
+    const PARTNER_MAINTENANCE_TERMINATED = 128; // Сопровождение - Расторгнут
+    const PARTNER_MAINTENANCE_FAILURE = 129; // Сопровождение - Расторгнут
+    const PARTNER_MAINTENANCE_TRASH = 130; // Сопровождение - Мусор
 
     // Внутренний офис
     const INTERNAL_OFFICE = 34; // Внутренний офис

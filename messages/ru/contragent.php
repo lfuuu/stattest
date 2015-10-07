@@ -37,4 +37,7 @@ return [
     'legalTypeIp' => 'ИП',
     'legalTypeLegal' => 'Юр. лицо',
     'legalTypePerson' => 'Физ. лицо',
+
+    'sale_channel_id' => 'Откуда узнали о нас',
+    'partner_id' => 'Партнер',
 ];

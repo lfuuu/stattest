@@ -2,7 +2,6 @@
 namespace app\forms\client;
 
 use app\classes\DoubleAttributeLabelTrait;
-use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
@@ -43,6 +42,8 @@ class ContragentEditForm extends Form
         $country_id,
         $signer_passport,
         $comment,
+        $partner_id,
+        $sale_channel_id,
 
         $contragent_id,
         $first_name,
@@ -74,12 +75,12 @@ class ContragentEditForm extends Form
                 'passport_number', 'passport_issued', 'registration_address',
                 'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'default', 'value' => ''],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
-            [['opf_id'], 'default', 'value' => '0'],
+            [['opf_id', 'sale_channel_id'], 'default', 'value' => 0],
             [['tax_regime'], 'default', 'value' => ClientContragent::TAX_REGTIME_UNDEFINED],
             ['country_id', 'default', 'value' => Country::RUSSIA],
 
             ['legal_type', 'in', 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]],
-            [['super_id', 'country_id', 'opf_id'], 'integer'],
+            [['super_id', 'country_id', 'opf_id', 'partner_id', 'sale_channel_id'], 'integer'],
 
         ];
         return $rules;
@@ -225,6 +226,8 @@ class ContragentEditForm extends Form
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;
         $contragent->country_id = $this->country_id;
+        $contragent->sale_channel_id = $this->sale_channel_id;
+        $contragent->partner_id = $this->partner_id;
     }
 
     private function fillPerson()
