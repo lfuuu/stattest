@@ -30,12 +30,18 @@ $form = ActiveForm::begin([
                         <div class="col-sm-12">
 
                             <div class="row contragent-wrap" style="padding-top: 10px; padding-bottom: 10px;">
-                                <div class="col-sm-12">
+
+                                <table border="0" align="center" width="95%">
+                                    <colgroup>
+                                        <col width="*" />
+                                        <col width="20%" />
+                                        <col width="20%" />
+                                    </colgroup>
                                     <?php
                                     $contracts = $contragent->contracts;
                                     foreach ($contracts as $contract): ?>
-                                        <div class="row" style="margin-left: 0px;">
-                                            <div class="col-sm-6">
+                                        <tr>
+                                            <td>
                                                 <input type="hidden" name="<?= $model->formName(); ?>[contracts][]" value="<?= $contract->id; ?>" />
                                                 <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>" target="_blank">
                                                     <span class="c-blue-color">
@@ -43,11 +49,11 @@ $form = ActiveForm::begin([
                                                         (<?= $contract->organization->name; ?>)
                                                     </span>
                                                 </a>
-                                            </div>
-                                            <div class="col-sm-2" style="white-space: nowrap;">
-                                                <span><?= $contract->business; ?> / <?= $contract->businessProcessStatus->name; ?></span>
-                                            </div>
-                                            <div class="col-sm-4">
+                                            </td>
+                                            <td>
+                                                <?= $contract->business; ?> / <?= $contract->businessProcessStatus->name; ?>
+                                            </td>
+                                            <td>
                                                 <?php if ($contract->managerName) : ?>
                                                     <span style="float:left;background: <?= $contract->managerColor ?>;">
                                                         М: <?= $contract->managerName ?>
@@ -58,9 +64,10 @@ $form = ActiveForm::begin([
                                                         Ак.М: <?= $contract->accountManagerName ?>
                                                     </span>
                                                 <?php endif; ?>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div style="padding-left: 10px; float: left;">&nbsp;</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
                                                 <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                                     <div class="row row-ls">
                                                         <span class="col-sm-2" style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
@@ -69,10 +76,11 @@ $form = ActiveForm::begin([
                                                         </span>
                                                     </div>
                                                 <?php endforeach; ?>
-                                            </div>
-                                        </div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
-                                </div>
+                                </table>
+
                             </div>
 
                         </div>
