@@ -171,8 +171,8 @@ use app\models\ClientContract;
     ]);
     ?>
     <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
-        <?php foreach ($model->rewards as $usage => $reward) : ?>
-            <fieldset>
+        <fieldset>
+            <?php foreach ($model->rewards as $usage => $reward) : ?>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
@@ -242,10 +242,17 @@ use app\models\ClientContract;
                         </div>
                     </div>
                 </div>
-            </fieldset>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="col-sm-12 form-group">
+                        <label class="control-label" for="">Доступ к ЛК</label>
+                        <?= Html::dropDownList('lk_access', null, ClientContract::$lkAccess, ['disabled' => true, 'class' => 'form-control']) ?>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
     <?php endif; ?>
-
 </div>
 
 <script>

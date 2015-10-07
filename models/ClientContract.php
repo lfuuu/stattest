@@ -25,6 +25,10 @@ class ClientContract extends HistoryActiveRecord
     const IS_EXTERNAL = 'external';
     const IS_INTERNAL = 'internal';
 
+    const LK_ACCESS_FULL = 'full';
+    const LK_ACCESS_READONLY = 'readonly';
+    const LK_ACCESS_NO = 'noaccess';
+
     public $newClient = null;
 
     public static $states = [
@@ -56,6 +60,12 @@ class ClientContract extends HistoryActiveRecord
         self::IS_INTERNAL => 'Внутренний',
     ];
 
+    public static $lkAccess = [
+        self::LK_ACCESS_FULL => 'Полный доступ',
+        self::LK_ACCESS_READONLY => 'readonly',
+        self::LK_ACCESS_NO => 'noaccess',
+    ];
+
     public static function tableName()
     {
         return 'client_contract';
@@ -77,6 +87,7 @@ class ClientContract extends HistoryActiveRecord
             'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
             'is_external' => 'Внешний договор',
+            'lk_access' => 'Доступ к ЛК'
         ];
     }
 
