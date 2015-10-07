@@ -6,7 +6,7 @@ class m151007_135503_fix_super_transfer_error extends \app\classes\Migration
     {
         $this->execute("
             UPDATE `client_contragent` SET
-                `contragent_id` = 77777
+                `super_id` = 77777
             WHERE
                 `id` = 79572;
         ");
