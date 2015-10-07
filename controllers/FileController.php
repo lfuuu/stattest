@@ -22,7 +22,18 @@ class FileController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['clients.edit'],
+                        'actions' => ['get-file'],
+                        'roles' => ['client.read', 'tt.view'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['list', 'send-client-file'],
+                        'roles' => ['clients.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['report', 'upload-client-file', 'delete-client-file'],
+                        'roles' => ['clients.edit', 'clients.file'],
                     ],
                 ],
             ],
