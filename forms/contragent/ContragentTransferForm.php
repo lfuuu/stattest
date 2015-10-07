@@ -65,22 +65,29 @@ class ContragentTransferForm extends Form
         try {
             foreach ($clients as $client) {
                 $client->super_id = $this->targetClientAccount;
-                $client->save();
+                if ($client->save() === false) {
+                    throw new Exception( implode( '<br />', array_values($client->getFirstErrors()) ) );
+                }
             }
 
             foreach ($contracts as $contract) {
                 $contract->super_id = $this->targetClientAccount;
-                $contract->save();
+                if ($contract->save() === false){
+                    throw new Exception( implode( '<br />', array_values($contract->getFirstErrors()) ) );
+                }
             }
 
             $contragent->super_id = $this->targetClientAccount;
-            $contragent->save();
+            if ($contragent->save() === false) {
+                throw new Exception( implode( '<br />', array_values($contragent->getFirstErrors()) ) );
+            }
 
             $transaction->commit();
         }
         catch (Exception $e) {
             $transaction->rollBack();
-            throw $e;
+            $this->addError('transfer-error', $e->getMessage());
+            return false;
         }
 
         return true;
