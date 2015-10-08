@@ -384,23 +384,9 @@ class ClientDocumentDao extends Singleton
                 'contract_date' => $document->contract_date,
             ];
         } else {
-            $contractId = $account->contract_id;
-
-            if ($document->getContract()->state == ClientContract::STATE_CHECKED_COPY) {
-                $originContract =
-                    ClientContract::find()
-                        ->where(['contragent_id' => $document->getContract()->getContragent()->id])
-                        ->andWhere(['state' => ClientContract::STATE_CHECKED_ORIGINAL])
-                        ->orderBy('id ASC')
-                        ->one();
-                if ($originContract->id) {
-                    $contractId = $originContract->id;
-                }
-            }
-
             $contractDocument =
                 ClientDocument::find()
-                    ->andWhere(['type' => 'contract', 'contract_id' => $contractId])
+                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
                     ->orderBy('is_active desc, contract_date desc, id desc')
                     ->one();
 
