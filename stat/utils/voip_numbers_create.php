@@ -15,17 +15,19 @@ include PATH_TO_ROOT."conf_yii.php";
 
 
 
-$region = 81;
-$cityId = "3696";
-$prefix = "3696800";
+$region = 97;
+$cityId = "7861";
+$prefix = "78612041";
 
 
-$db->Query("delete from voip_numbers where region = '".$region."' and number like '".$prefix."%'");
+$q = "delete from voip_numbers where region = '".$region."' and number like '".$prefix."%'";
+echo $q;
+$db->Query($q);
 
 $sql = "";
 for($i=0;$i<=999;$i++)
 {
-    $num = $prefix.str_pad($i, 10-strlen($prefix), "0", STR_PAD_LEFT); 
+    $num = $prefix.str_pad($i, 11-strlen($prefix), "0", STR_PAD_LEFT); 
     echo "\n".$num;
     $sql .= ($sql ? "," : "").'("'.$num.'",'.$region.', '.$cityId.')';
 }
