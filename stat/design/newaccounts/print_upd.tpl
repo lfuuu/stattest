@@ -370,7 +370,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
             {if $is_four_order}
                 --
             {else}
-                {$row.outprice|round:2}
+                {$row.sum_without_tax|round:2}
             {/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' nowrap>
@@ -412,17 +412,17 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><b><span>Всего к оплате</span></b></p>
 		</td>
 		<td valign=bottom style='border:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{if $bill.tax_rate}{$bill.sum_without_tax|round:2}{else}{$bill.sum|round:2}{/if}{/if}</span></p>
+			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum_without_tax|round:2}{/if}</span></p>
 		</td>
 		<td colspan=2 valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span><b>Х</b></span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>
-            {if $bill.tax_rate}
-				{$bill.sum_tax|round:2}
+            {if $bill.sum_tax == 0 && $bill.sum}
+                --
             {else}
-				--
+                {$bill.sum_tax|round:2}
             {/if}
             </span></p>
 		</td>
