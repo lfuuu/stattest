@@ -146,7 +146,7 @@
                             {if count($item.doers)>0}
                             <table border='0' width='100%'>
                                 <tr>
-                                    <td width='50%'>&nbsp;{/if}{$item.comment|find_urls}{if $item.uspd}<br>{$item.uspd}{/if}{if count($item.doers)>0}</td>
+                                    <td width='50%'>&nbsp;{/if}{$item.comment|escape|find_urls}{if $item.uspd}<br>{$item.uspd}{/if}{if count($item.doers)>0}</td>
                                     <td width='50%'><table border='0' align='right' style='background-color:lightblue'>
                                             <tr align='center'><td colspan='2'>Исполнители:</td></tr>
                                             {foreach from=$item.doers item='doer'}<tr align='center'><td>{$doer.depart}&nbsp;</td><td>&nbsp;{$doer.name}</td></tr>{/foreach}
