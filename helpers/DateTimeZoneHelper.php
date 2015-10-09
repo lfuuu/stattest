@@ -17,7 +17,6 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
     public static function setDateTime($date, $format = false)
     {
-        $timezone =
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));
         $datetime->setTimezone(new DateTimeZone('UTC'));
         return $format !== false ? $datetime->format($format) : $datetime;
