@@ -443,7 +443,7 @@ echo Breadcrumbs::widget([
 </script>
 
 
-<!--h2>Подключенные пакеты:</h2>
+<h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">
     <col width="10%" />
     <col width="* " />
@@ -487,9 +487,9 @@ echo Breadcrumbs::widget([
     </tbody>
 </table>
 
-<h2>Добавить пакет:</h2-->
+<h2>Добавить пакет:</h2>
 <?php
-/*
+
 $formModel = new \app\forms\usage\UsageVoipAddPackageForm;
 $formModel->usage_voip_id = $usage->id;
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
@@ -535,7 +535,7 @@ echo Form::widget([
 ]);
 
 ActiveForm::end();
-*/
+
 ?>
 <br />
 <br />
