@@ -9,6 +9,7 @@
             <select onChange="change_type(this)" id="s_tarif_type">
                 <option value="public"{if $dbform_f_tarif_current.status eq 'public'} selected="selected"{/if}>Публичный</option>
                 <option value="archive"{if $dbform_f_tarif_current.status eq 'archive'} selected="selected"{/if}>Архивный</option>
+                <option value="special"{if $dbform_f_tarif_current.status eq 'special'} selected="selected"{/if}>Специальный</option>
             </select>
         </td>
         <td></td>
@@ -36,6 +37,16 @@
                     {/if}
                 {/foreach}
             </select>
+            <select id="t_id_tarif_special" name="">
+                <option value="0">-- выберите тариф --</option>
+                {foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
+                    {if $tarif.status eq 'special'}
+                    <option value="{$tarif.id}"{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id} selected="selected"{/if}>
+                        {$tarif.description}
+                    </option>
+                    {/if}
+                {/foreach}
+            </select>
         </td>
         <td></td>
     </tr>
@@ -52,16 +63,13 @@
 <script type="text/javascript">
 {literal}
     function change_type(el){
-        var type = el.value || el, types=['public','archive'], sel;
-        for(var i=0;i<2;i++){
-            sel = document.getElementById('t_id_tarif_'+types[i]);
-            if(type==types[i]){
-                sel.style.display = 'block';
-                sel.name='dbform[t_id_tarif]';
-            }else{
-                sel.name='';
-                sel.style.display = 'none';
-            }
+        var sel = $(el).val();
+        var e = $('#t_id_tarif_'+sel);
+        if(e.size()){
+            e.parent().find('select').each(function () {
+                $(this).attr('name', '').hide();
+            });
+            e.show().attr('name', 'dbform[t_id_tarif]')
         }
     };
 
