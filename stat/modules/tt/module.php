@@ -127,16 +127,16 @@ class m_tt extends IModule{
         }elseif(($dateActivation = get_param_raw("date_activation", "none")) !== "none")
         {
             $dateActivation = DateTimeZoneHelper::setDateTime($dateActivation, 'Y-m-d H:i:s');
-            Yii::$app->getDb()->createCommand("
+            Yii::$app->getDb()->createCommand('
                 UPDATE `tt_stages` SET
                     `date_start` = :date_activation,
                     `date_finish_desired` = `date_start` + INTERVAL (SELECT `time_delta` FROM `tt_states` WHERE `id` = `state_id`) HOUR
                 WHERE
                     `stage_id` = :stage_id
-            ", [
-                ':state_id' => $trouble['cur_stage_id'],
+            ', [
+                ':stage_id' => $trouble['cur_stage_id'],
                 ':date_activation' => $dateActivation,
-            ]);
+            ])->execute();
         }
         if ($design->ProcessEx('errors.tpl')) {
             header('Location: ?module=tt&action=view&id='.$trouble['id']);
