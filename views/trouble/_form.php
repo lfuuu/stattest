@@ -122,8 +122,8 @@ if ($curtype) {
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label>Ответсвенный</label>
-                    <?= Html::dropDownList('user', Yii::$app->user->id, $ttUsers, ['class' => 'form-control']) ?>
+                    <label>Ответственный</label>
+                    <?= Html::dropDownList('user', Yii::$app->user->id, $ttUsers, ['class' => 'form-control select2']) ?>
                 </div>
             </div>
             <div class="col-sm-6" style="padding-top: 20px;">
