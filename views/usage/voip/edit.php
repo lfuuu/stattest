@@ -456,7 +456,7 @@ echo Breadcrumbs::widget([
         </tr>
     </thead>
     <tbody>
-        <?php /*foreach ($usagePackages as $package): ?>
+        <?php foreach ($usagePackages as $package): ?>
             <?php
             $actualTo =
                 round(
@@ -483,7 +483,7 @@ echo Breadcrumbs::widget([
                     ?>
                 </td>
             </tr>
-        <?php endforeach;*/ ?>
+        <?php endforeach; ?>
     </tbody>
 </table>
 
