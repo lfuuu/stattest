@@ -83,5 +83,5 @@ $data = [
 $cl->createClient($data);
 $I->seeInCurrentUrl("view");
 $I->see("fagob6@inboxstore.me");
-$I->see("Заказ услуг");
+//$I->see("Заказ услуг");
 $I->seeLink("Договор № 35800");
