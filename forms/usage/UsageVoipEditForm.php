@@ -54,6 +54,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
+
         return $rules;
     }
 
@@ -386,6 +387,10 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 
         if ($this->type_id == 'number') {
+            if (!preg_match('/^\d+$/', $this->did)) {
+                $this->addError('did', 'Не верный формат номера');
+            }
+
             $number = Number::findOne($this->did);
             if ($number === null) {
                 $this->addError('did', 'Номер не найден');
