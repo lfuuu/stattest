@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class NegotationsFolder extends AccountGridFolder
+class TerminatedFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Переговоры';
+        return 'Расторгнут';
     }
 
     public function getColumns()
@@ -20,11 +20,13 @@ class NegotationsFolder extends AccountGridFolder
             'status',
             'id',
             'company',
-            'created',
-            'currency',
-            'sale_channel',
+            'contractNo',
+            'contract_created',
             'manager',
+            'account_manager',
             'region',
+            'contract_type',
+            'service'
         ];
     }
 
@@ -33,6 +35,6 @@ class NegotationsFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_NEGOTIATIONS]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_TERMINATED]);
     }
 }

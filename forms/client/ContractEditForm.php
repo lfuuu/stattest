@@ -5,6 +5,7 @@ use app\classes\Event;
 use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
+use app\models\ClientContractReward;
 use app\models\ClientContragent;
 use app\models\BusinessProcess;
 use app\models\Organization;
@@ -39,7 +40,11 @@ class ContractEditForm extends Form
         $is_external,
 
         $save_comment_stage = false,
-        $public_comment = [];
+        $public_comment = [],
+
+        $rewards = [];
+
+
 
     public $contract = null;
 
@@ -73,7 +78,7 @@ class ContractEditForm extends Form
             }],
             ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
             ['is_external', 'default', 'value' => ClientContract::IS_INTERNAL],
-
+            ['rewards', 'safe'],
         ];
         return $rules;
     }
@@ -109,6 +114,19 @@ class ContractEditForm extends Form
             $this->contract->super_id = $this->super_id;
         } else{
             $this->contract = new ClientContract();
+        }
+
+        foreach(ClientContractReward::$usages as $usage => $name){
+            if($this->contract->id){
+                $reward = ClientContractReward::findOne([
+                    'contract_id' => $this->contract->id,
+                    'usage_type' => $usage,
+                ]);
+            }
+            if(!$reward){
+                $reward = new ClientContractReward();
+            }
+            $this->rewards[$usage] = $reward;
         }
     }
 
@@ -164,6 +182,27 @@ class ContractEditForm extends Form
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);
             $this->newClient = $contract->newClient;
+
+            foreach($this->rewards as $usage => &$reward){
+                $model = ClientContractReward::findOne([
+                    'contract_id' => $contract->id,
+                    'usage_type' => $usage,
+                ]);
+                if(!$model){
+                    $model = new ClientContractReward();
+                }
+                $model->setAttributes([
+                    'contract_id' => $contract->id,
+                    'usage_type' => $usage,
+                    'once_only' => $reward['once_only'],
+                    'percentage_of_fee' => $reward['percentage_of_fee'],
+                    'percentage_of_over' => $reward['percentage_of_over'],
+                    'period_type' => $reward['period_type'],
+                    'period_month' => $reward['period_month'],
+                ]);
+                $model->save();
+                $reward = $model;
+            }
 
             foreach($contract->getAccounts() as $account)
                 Event::go('client_set_status', $account->id);

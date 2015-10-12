@@ -7,11 +7,11 @@ use Yii;
 use yii\db\Query;
 
 
-class ActingFolder extends AccountGridFolder
+class ManualBillFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'Действующий';
+        return 'Ручной счет';
     }
 
     public function getColumns()
@@ -35,6 +35,6 @@ class ActingFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_MANUAL_BILL]);
     }
 }
