@@ -14,6 +14,7 @@ class m100000_000002_data extends app\classes\Migration
         $this->executeSqlFile('city.sql');
         $this->executeSqlFile('currency.sql');
         $this->executeSqlFile('datacenter.sql');
+        $this->executeSqlFile('document_template.sql');
         $this->executeSqlFile('did_group.sql');
         $this->executeSqlFile('firma_pay_account.sql');
         $this->executeSqlFile('g_division.sql');

@@ -930,6 +930,32 @@ CREATE TABLE `did_group` (
 ) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `did_group`
+--
+
+DROP TABLE IF EXISTS `document_folder`;
+DROP TABLE IF EXISTS `document_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `document_folder` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `name` varchar(50) NOT NULL,
+      `sort` tinyint(3) unsigned NOT NULL DEFAULT '0',
+      PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `document_template` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `name` varchar(50) NOT NULL,
+      `folder_id` tinyint(3) unsigned NOT NULL,
+      `content` mediumtext NOT NULL,
+      `type` enum('contract','agreement','blank') NOT NULL DEFAULT 'contract',
+      PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 --
 -- Table structure for table `domains`
 --
