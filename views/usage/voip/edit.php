@@ -446,12 +446,18 @@ echo Breadcrumbs::widget([
 <h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">
     <col width="10%" />
+    <col width="50%" />
     <col width="* " />
+    <col width="* " />
+    <col width="15%" />
     <col width="5%" />
     <thead>
         <tr>
             <th>Период</th>
             <th>Тариф</th>
+            <th>Минут <br>в&nbsp;пакете / потрачено</th>
+            <th>Стоимость звонков</th>
+            <th>Добавлено</th>
             <th></th>
         </tr>
     </thead>
@@ -472,6 +478,28 @@ echo Breadcrumbs::widget([
             <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">
                 <td nowrap="nowrap"><?= $package->actual_from . ' - ' . $actualTo; ?></td>
                 <td><?= $package->tariff->name; ?></td>
+                <? if ($packageStat[$package->id]) { 
+                    $stat = $packageStat[$package->id];
+                ?>
+                <td><?= floor($stat->used_seconds / 60); ?> / <?= floor($stat->paid_seconds / 60); ?></td>
+                <td><?= abs($stat->used_credit); ?></td>
+                <? }else{ ?>
+                    <td colspan=2>&nbsp;</td>
+                <? } ?>
+
+                <? if ($packagesHistory[$package->id]) {
+                    $hist = $packagesHistory[$package->id];
+                ?>
+                    <td><? 
+                        $user = User::findOne($hist->id_user);
+                        $user = $user ? $user->name : $hist->id_user;
+                        echo DateTimeZoneHelper::getDateTime($hist->ts) . '<br>' . $user;
+
+                    ?></td> 
+                <? } else { ?>
+                <td>&nbsp;</td>
+                <? } ?>
+
                 <td align="center">
                     <?php
                     if ($package->actual_from > $now->format('Y-m-d')) {

@@ -3,8 +3,10 @@ namespace app\forms\usage;
 
 use Yii;
 use DateTime;
+use DateTimeZone;
 use app\classes\Assert;
 use app\classes\Form;
+use app\models\LogTarif;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
 
@@ -61,9 +63,22 @@ class UsageVoipAddPackageForm extends Form
         $usageVoipPackage->activation_dt = $activation_dt->format('Y-m-d H:i:s');
         $usageVoipPackage->client = $this->usage->clientAccount->client;
 
+
+        $today = new DateTime('now', new DateTimeZone('UTC'));
+
+        $logTarif = new logTarif;
+        $logTarif->service = 'usage_voip_package';
+        $logTarif->id_tarif = $this->tariff_id;
+        $logTarif->id_user = Yii::$app->user->getId();
+        $logTarif->ts = $today->format('Y-m-d H:i:s');
+        $logTarif->date_activation = $this->actual_from;
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $usageVoipPackage->save();
+
+            $logTarif->id_service = $usageVoipPackage->id;
+            $logTarif->save();
 
             $transaction->commit();
         } catch (\Exception $e) {
