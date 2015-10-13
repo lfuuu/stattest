@@ -2,6 +2,7 @@
 
 namespace app\controllers\external_operators;
 
+use app\classes\operators\Operators;
 use Yii;
 use DateTime;
 use app\classes\Assert;
@@ -15,7 +16,7 @@ use app\classes\operators\OperatorOnlimeDevices;
 
 class SiteController extends BaseController
 {
-    public $menuItem;
+    public $menuItem, $operatorsList = [], $operator;
 
     public function behaviors()
     {
@@ -24,13 +25,18 @@ class SiteController extends BaseController
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['login', 'error'],
+                        'actions' => ['login', 'logout', 'error'],
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index', 'create-request', 'set-state'],
+                        'actions' => ['index', 'who-is-it'],
                         'allow' => true,
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['create-request', 'set-state'],
+                        'allow' => true,
+                        'roles' => ['external-operators.tt_create'],
                     ],
                     [
                         'allow' => false,
@@ -38,6 +44,40 @@ class SiteController extends BaseController
                 ],
             ],
         ];
+    }
+    public function beforeAction()
+    {
+        $this->operator = Yii::$app->session->get('operator');
+
+        if (Yii::$app->user->identity && is_null($this->operator)) {
+            $operators = Yii::$app->params['rights']['external-operators'];
+
+            foreach ($operators['permissions'] as $key => $value) {
+                if (strpos($key, 'operator_') === false) {
+                    continue;
+                }
+                if (!Yii::$app->user->can('external-operators.' . $key)) {
+                    continue;
+                }
+                $this->operatorsList[$key] = $value;
+            }
+
+            if ($this->action->uniqueId != 'site/who-is-it') {
+                $operatorsCount = count($this->operatorsList);
+                if ($operatorsCount > 1) {
+                    $this->redirect('/site/who-is-it');
+                }
+                else if ($operatorsCount == 1) {
+                    Yii::$app->session->set('operator', str_replace('operator_', '', array_pop(array_keys($this->operatorsList))));
+                    $this->operator = Yii::$app->session->get('operator');
+                }
+                else {
+                    return $this->actionLogout();
+                }
+            }
+        }
+
+        return parent::beforeAction($this->action);
     }
 
     public function actions()
@@ -66,8 +106,7 @@ class SiteController extends BaseController
             $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
         }
 
-        /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator($this->operator);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
         if ($asFile == 1) {
@@ -93,10 +132,23 @@ class SiteController extends BaseController
         ]);
     }
 
+    public function actionWhoIsIt() {
+        $mode = Yii::$app->request->get('mode');
+
+        if ($mode == 'do') {
+            Yii::$app->session->set('operator', str_replace('operator_', '', Yii::$app->request->post('operator')));
+            return $this->goHome();
+        }
+
+        $this->layout = 'external_operators/main';
+        return $this->render('external_operators/who-is-it', [
+            'operators' => $this->operatorsList,
+        ]);
+    }
+
     public function actionCreateRequest()
     {
-        /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator($this->operator);
         $model = $operator->requestForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator)) {
@@ -118,8 +170,7 @@ class SiteController extends BaseController
         Assert::isObject($bill);
         $trouble = Trouble::findOne(['bill_no' => $bill->bill_no]);
 
-        /** TODO: определять оператора от авторизованного пользователя */
-        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
+        $operator = OperatorsFactory::me()->getOperator($this->operator);
         $model = $operator->requestStateForm;
         $scenario = Yii::$app->request->post('scenario');
 
@@ -178,6 +229,7 @@ class SiteController extends BaseController
 
     public function actionLogout()
     {
+        Yii::$app->session->remove('operator');
         Yii::$app->user->logout();
         return $this->goHome();
     }

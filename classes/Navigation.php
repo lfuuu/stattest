@@ -50,6 +50,7 @@ class Navigation
                 ->addItem('Отчёт по файлам',  ['/file/report'], ['stats.report'])
                 ->addItem('Отчет по OnLime', ['reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['reports/onlime-devices-report'], ['stats.report'])
+                ->addItem('Отчет по OnLime STB', ['reports/onlime-stb-report'], ['stats.report'])
                 ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
         );
         $this->addBlockForStatModule('routers');

@@ -1,5 +1,7 @@
 <?php
-return [
+use \yii\helpers\ArrayHelper;
+
+$rights = [
     'ats' => [
         'name' => 'Управление ATC',
         'permissions' => [
@@ -334,3 +336,9 @@ return [
         ],
     ],
 ];
+
+if (file_exists($file = __DIR__ . '/rights.external_operators.php')) {
+    $rights = ArrayHelper::merge($rights, require($file));
+}
+
+return $rights;

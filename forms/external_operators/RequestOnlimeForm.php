@@ -3,10 +3,7 @@
 namespace app\forms\external_operators;
 
 use Yii;
-use DateTime;
-use DateTimeZone;
 use app\classes\Form;
-use app\classes\StatModule;
 use app\classes\operators\Operators;
 use app\models\ClientAccount;
 
@@ -21,18 +18,19 @@ class RequestOnlimeForm extends Form
         $phone,
         $time_interval,
         $account_id,
+        $operator_name,
         $comment,
         $products = [],
         $products_counts = [];
 
     public $bill_no;
 
-    private static $time_intervals = [
+    protected static $time_intervals = [
         '10-16' => 'с 10 до 16 часов',
         '16-21' => 'с 16 до 21 часа',
     ];
 
-    private static $fields1C = [
+    protected static $fields1C = [
         'ФИО'                       => 'fio',
         'Адрес'                     => 'address',
         'НомерЗаявки'               => 'req_no',
@@ -167,6 +165,8 @@ class RequestOnlimeForm extends Form
                 return $this->fullname;
             case 'comment1':
                 return self::$time_intervals[ $this->time_interval ];
+            case 'comment2':
+                return isset($this->operator_name) ? ':' . $this->operator_name : '';
             case 'acc_no':
                 return $this->account_id;
             default:
