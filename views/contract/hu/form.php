@@ -32,7 +32,14 @@ use app\models\ClientContract;
                     ]
                 ],
                 ['type' => Form::INPUT_RAW],
-                ['type' => Form::INPUT_RAW],
+                [
+                    'type' => Form::INPUT_RAW,
+                    'value' =>  ($model->business_id == \app\models\Business::PARTNER) ? '
+                                <div class="col-sm-12 form-group">
+                                    <label class="control-label" for="">Доступ к ЛК</label>
+                                    '. Html::dropDownList('lk_access', null, ClientContract::$lkAccess, ['disabled' => true, 'class' => 'form-control'])
+                        .'</div>':'',
+                ],
 
                 'business_process_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
@@ -243,14 +250,6 @@ use app\models\ClientContract;
                     </div>
                 </div>
             <?php endforeach; ?>
-            <div class="row">
-                <div class="col-sm-3">
-                    <div class="col-sm-12 form-group">
-                        <label class="control-label" for="">Доступ к ЛК</label>
-                        <?= Html::dropDownList('lk_access', null, ClientContract::$lkAccess, ['disabled' => true, 'class' => 'form-control']) ?>
-                    </div>
-                </div>
-            </div>
         </fieldset>
     <?php endif; ?>
 
