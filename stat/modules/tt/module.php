@@ -60,7 +60,7 @@ class m_tt extends IModule{
         $mode = get_param_integer('mode',$f);
         if($mode>=2)
             $user->SetFlag('tt_tasks',$mode);
-        if ($mode == 2) {
+        if ($mode == 2 && (get_param_integer('keepclient') != 1)) {
             $_SESSION['clients_filter'] = '';
             $_SESSION['clients_my'] = '';
             $_SESSION['clients_client'] = '';
