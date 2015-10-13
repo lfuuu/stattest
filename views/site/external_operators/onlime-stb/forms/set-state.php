@@ -35,8 +35,11 @@ $model->state_id = $trouble->currentStage->state_id;
             <?= $billExtendsInfo->phone; ?>
         </div>
         <div class="col-xs-2">
-            <b>Лицевой счет</b><br />
-            <?= $billExtendsInfo->acc_no; ?>
+            <b>Ф.И.О. оператора</b><br />
+            <?php
+            list(, $operator_name) = preg_split('#:\s*#', $billExtendsInfo->comment2);
+            echo $operator_name;
+            ?>
         </div>
         <div class="col-xs-2">
             <b>Временной интервал</b><br />

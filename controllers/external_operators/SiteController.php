@@ -12,7 +12,6 @@ use app\models\Bill;
 use yii\filters\AccessControl;
 use app\models\LoginForm;
 use app\classes\operators\OperatorsFactory;
-use app\classes\operators\OperatorOnlimeDevices;
 
 class SiteController extends BaseController
 {
