@@ -7,6 +7,7 @@ use app\classes\BaseController;
 use app\classes\operators\OperatorsFactory;
 use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorOnlimeDevices;
+use app\classes\operators\OperatorOnlimeStb;
 
 class ReportsController extends BaseController
 {
@@ -71,6 +72,38 @@ class ReportsController extends BaseController
         }
 
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
+        $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
+
+        return $this->render('onlime/report.php', [
+            'operator' => $operator,
+            'report' => $report,
+            'filter' => [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'range' => isset($filter['range']) ? $filter['range'] : '',
+                'mode' => isset($filter['mode']) ? $filter['mode'] : '',
+                'promo' => isset($filter['promo']) ? $filter['promo'] : '',
+            ],
+        ]);
+    }
+
+    public function actionOnlimeStbReport()
+    {
+        $filter = Yii::$app->request->get('filter', []);
+
+        if (isset($filter['range'])) {
+            list($dateFrom, $dateTo) = explode(' : ', $filter['range']);
+        }
+        else {
+            $today = new DateTime('now');
+            $firstDayThisMonth = clone $today;
+            $lastDayThisMonth = clone $today;
+
+            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format('Y-m-d');
+            $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
+        }
+
+        $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeStb::OPERATOR_CLIENT);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
 
         return $this->render('onlime/report.php', [

@@ -104,11 +104,11 @@ class ReportExtendsOperatorsDao extends Singleton
 
         foreach ($items as &$item) {
             if (array_key_exists('date_deliv', $item) && $item['date_deliv']) {
-                @list(, $item['date_deliv']) = explode(': ', $item['date_deliv']);
+                list(, $item['date_deliv']) = preg_split('#:\s*#', $item['date_deliv']);
             }
 
             if (array_key_exists('fio_oper', $item) && $item['fio_oper']) {
-                @list(, $item['fio_oper']) = explode(': ', $item['fio_oper']);
+                list(, $item['fio_oper']) = preg_split('#:\s*#', $item['fio_oper']);
             }
 
             $item['address'] = $this->prepareAddress($item['address']);

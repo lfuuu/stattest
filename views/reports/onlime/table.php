@@ -22,7 +22,7 @@ use app\helpers\DateTimeZoneHelper;
                 <th><div style="text-align: center;">OnLime</div></th>
                 <th><div style="text-align: center;">Маркомнет Сервис</div></th>
                 <?php foreach ($operator->products as $i => $product): ?>
-                    <th align="center"><div style="text-align: center;"><?= $product['name']; ?></div></th>
+                    <th align="center" width="3%"><div style="text-align: center;"><?= $product['name']; ?></div></th>
                 <?php endforeach; ?>
                 <th><div style="text-align: center;">Желаемая</div></th>
                 <th><div style="text-align: center;">Фактическая</div></th>

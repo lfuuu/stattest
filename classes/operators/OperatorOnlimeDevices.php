@@ -110,6 +110,8 @@ class OperatorOnlimeDevices extends Operators
         21 => 'Отказ',
     ];
 
+    public $isRollback = true;
+
     public function getRequestForm()
     {
         return new RequestOnlimeForm;
