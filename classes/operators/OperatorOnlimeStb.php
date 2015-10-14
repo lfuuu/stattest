@@ -32,6 +32,8 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
         ],
     ];
 
+    public $isRollback = false;
+
     public function getRequestForm()
     {
         return new RequestOnlimeStbForm;

@@ -76,6 +76,10 @@ class SiteController extends BaseController
             }
         }
 
+        if ($this->action->id == 'error') {
+            $this->layout = 'minimal.php';
+        }
+
         return parent::beforeAction($this->action);
     }
 

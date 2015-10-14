@@ -100,7 +100,7 @@ class RequestOnlimeForm extends Form
                 'sum' => 0,
                 'number' => '',
                 'comment' => $this->comment,
-                'is_rollback' => 1,
+                'is_rollback' => (int) $operator->isRollback,
             ];
 
             for ($i = 0, $s = count($this->products); $i < $s; $i++) {
