@@ -3,7 +3,6 @@
 namespace app\classes\operators;
 
 use Yii;
-use yii\db\Expression;
 use yii\db\Query;
 use app\forms\external_operators\RequestOnlimeStbForm;
 
