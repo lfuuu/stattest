@@ -71,18 +71,18 @@ class RequestOnlimeStateForm extends Form
             $currentStage->save();
 
             $state = TroubleState::findOne($trouble->currentStage->state_id);
-            $dateStart = Yii::$app->getDb()->createCommand("
+            $dateStart = Yii::$app->getDb()->createCommand('
                 SELECT
                     GREATEST(`date_start`, NOW()) AS date_start
                 FROM
                     `tt_stages`
                 WHERE
                     `stage_id` = :stage_id
-            ", [
+            ', [
                 ':stage_id' => $trouble->currentStage->stage_id
             ])->queryScalar();
 
-            $dateFinishDesired = Yii::$app->getDb()->createCommand("
+            $dateFinishDesired = Yii::$app->getDb()->createCommand('
                 SELECT
                     GREATEST(`date_finish_desired`, NOW() + INTERVAL :time_delta HOUR) AS date_finish_desired
                 FROM
@@ -93,7 +93,7 @@ class RequestOnlimeStateForm extends Form
                 ORDER BY
                     `stage_id` DESC
                 LIMIT 1
-            ", [
+            ', [
                 'trouble_id' => $trouble->id,
                 'time_delta' => $state->time_delta,
             ])->queryScalar();
@@ -116,18 +116,18 @@ class RequestOnlimeStateForm extends Form
             $trouble->cur_stage_id = $stage->stage_id;
             $trouble->save();
 
-            Yii::$app->getDb()->createCommand("
+            Yii::$app->getDb()->createCommand('
                 UPDATE `tt_troubles`
                 SET
                     `cur_stage_id` = :stage_id,
                     `folder` = (SELECT `folder` FROM `tt_states` WHERE id = :state_id)
                     WHERE
                       `id` = :trouble_id
-            ", [
+            ', [
                 ':trouble_id' => $trouble->id,
                 ':stage_id' => $stage->stage_id,
                 ':state_id' => $this->state_id,
-            ]);
+            ])->execute();
 
             if (in_array($this->state_id, [2, 20, 7, 8, 48], null)) {
                 Trouble::updateAll(
