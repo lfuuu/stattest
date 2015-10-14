@@ -6,7 +6,7 @@ use kartik\builder\Form;
 /** @var $model \app\forms\external_operators\RequestOnlimeStbForm */
 ?>
 
-<div class="well" style="padding-top: 60px;">
+<div class="well">
     <legend>Создание заявки</legend>
 
     <?php

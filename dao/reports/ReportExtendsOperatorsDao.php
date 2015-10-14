@@ -59,20 +59,15 @@ class ReportExtendsOperatorsDao extends Singleton
         ]);
         $this->prepareProducts($query);
 
-        $query->from([
-            'tt_troubles t',
-            'tt_stages s',
-            'newbills_add_info i',
-            'newbills b',
-        ]);
+        $query->from('tt_troubles t');
+        $query->leftJoin('newbills_add_info i', 'i.bill_no = t.bill_no');
+        $query->leftJoin('newbills b', 'b.bill_no = t.bill_no');
 
         if ($promo) {
             $query->leftJoin('onlime_order oo', 'oo.bill_no = b.bill_no');
         }
 
-        $query->where('i.bill_no = t.bill_no');
-        $query->andWhere('t.bill_no = b.bill_no');
-        $query->andWhere(['t.client' => $this->operator->operatorClient]);
+        $query->where(['t.client' => $this->operator->operatorClient]);
 
         switch ($promo) {
             case 'promo':

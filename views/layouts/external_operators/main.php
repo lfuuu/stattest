@@ -29,6 +29,9 @@ AppAsset::register($this);
                     <a class="logo" style="margin: 4px 30px 0px 0px" href="//mcn.ru" target="_blank"></a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
+                    <div style="text-align: center; font-weight: bold; font-size: 14px;">
+                        <?= Yii::$app->controller->operatorTitle; ?>
+                    </div>
                     <ul class="nav navbar-nav">
                         <li<?= (Yii::$app->controller->menuItem == 'indexReport' ? ' class="active"' : ''); ?>>
                             <a href="/">Заказы</a>
@@ -54,8 +57,9 @@ AppAsset::register($this);
         </nav>
 
         <div class="container">
-
-            <?= $content ?>
+            <div style="padding-top: 60px;">
+                <?= $content; ?>
+            </div>
 
         </div>
 

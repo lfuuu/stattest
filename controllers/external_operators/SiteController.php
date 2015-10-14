@@ -2,7 +2,7 @@
 
 namespace app\controllers\external_operators;
 
-use app\classes\operators\Operators;
+use app\models\ClientAccount;
 use Yii;
 use DateTime;
 use app\classes\Assert;
@@ -15,7 +15,11 @@ use app\classes\operators\OperatorsFactory;
 
 class SiteController extends BaseController
 {
-    public $menuItem, $operatorsList = [], $operator;
+    public
+        $menuItem,
+        $operator,
+        $operatorTitle,
+        $operatorsList = [];
 
     public function behaviors()
     {
@@ -78,6 +82,10 @@ class SiteController extends BaseController
 
         if ($this->action->id == 'error') {
             $this->layout = 'minimal.php';
+        }
+
+        if ($this->operator) {
+            $this->operatorTitle = ClientAccount::findOne(['client' => $this->operator])->superClient->name;
         }
 
         return parent::beforeAction($this->action);
