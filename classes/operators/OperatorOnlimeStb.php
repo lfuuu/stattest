@@ -9,7 +9,7 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
 {
 
     const OPERATOR = 'onlime-stb';
-    const OPERATOR_CLIENT = 'id36130';
+    const OPERATOR_CLIENT = 'id36259';
 
     protected static $requestProducts = [
         [

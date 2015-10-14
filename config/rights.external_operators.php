@@ -7,7 +7,7 @@ return [
         'permissions' => [
             'tt_create' => 'создание заявок',
             'operator_id36001' => 'оператор OnLime оборудование',
-            'operator_id36130' => 'оператор OnLime STB',
+            'operator_id36259' => 'оператор OnLime STB',
         ],
     ],
 ];
