@@ -45,6 +45,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'no_of_lines', 'did',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'add'];
+        $rules[] = [['did'], 'trim'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
         $rules[] = [['address', 'disconnecting_date'], 'string', 'on' => 'edit'];
         $rules[] = [[
@@ -54,7 +55,6 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
-        $rules[] = ['did', 'trim'];
 
         return $rules;
     }
@@ -386,8 +386,6 @@ class UsageVoipEditForm extends UsageVoipForm
         if (!$this->did) {
             return;
         }
-
-        $this->did = trim($this->did);
 
         if ($this->type_id == 'number') {
             if (!preg_match('/^\d+$/', $this->did)) {
