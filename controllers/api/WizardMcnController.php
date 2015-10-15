@@ -247,7 +247,11 @@ class WizardMcnController extends /*BaseController*/ApiController
         }
 
         $content = "<html><head><meta charset=\"UTF-8\"/></head><body>".$content."</body></html>";
-        //return $content;
+
+        if (isset($this->postData["as_html"]))
+        {
+            return $content;
+        }
 
         return base64_encode($this->getPDFfromHTML($content));
     }
