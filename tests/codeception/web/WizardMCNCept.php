@@ -8,7 +8,6 @@ $I->wantTo('perform actions and see result');
 
 $accountId = 35801;
 
-//$I->SetHeader("Content-type", "application/json; charset=utf-8");
 $I->haveHttpHeader("Content-Type", "application/json");
 $I->amBearerAuthenticated("|H;\\9P$.N4/Y\$V\\9A$#l");
 $I->seeResponseIsJson();
@@ -420,6 +419,34 @@ $I->seeResponseContainsJson([
 //
 //step4
 //
+
+// set approve
+$account = \app\models\ClientAccount::findOne(["id" => $accountId]);
+$I->assertNotNull($account);
+$I->assertEquals($account->id, $accountId);
+$I->assertNotNull($account->contract);
+$contract = $account->contract;
+$wiz = \app\models\LkWizardState::findOne(["contract_id" => $contract->id]);
+$I->assertNotNull($wiz);
+$wiz->state = "approve";
+$I->assertTrue($wiz->save());
+
+readState($I, $accountId);
+$I->seeResponseContainsJson(["step" => 4, "good" => 4, "wizard_type" => "mcn"]);
+$I->seeResponseContainsJson(["step_state" => "approve"]);
+
+//view approve message
+readFull($I, $accountId);
+$I->seeResponseContainsJson([
+    "state" => [
+        "step" => 4,
+        "step_state" => "approve"
+    ]
+]);
+
+//read empty
+readState($I, $accountId);
+$I->seeResponseContainsJson(["step" => -1, "good" => -1, "wizard_type" => ""]);
 
 
 //TODO!!! доделать проверку на шаге4. Проблема создать 2 веб-клиента.
