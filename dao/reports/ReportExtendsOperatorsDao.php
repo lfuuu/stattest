@@ -67,7 +67,7 @@ class ReportExtendsOperatorsDao extends Singleton
         $this->prepareProducts($query);
 
         $query->from('tt_troubles t');
-        $query->leftJoin('newbills_add_info i', 'i.bill_no = t.bill_no');
+        $query->innerJoin('newbills_add_info i', 'i.bill_no = t.bill_no');
         $query->leftJoin('newbills b', 'b.bill_no = t.bill_no');
 
         if ($promo) {
