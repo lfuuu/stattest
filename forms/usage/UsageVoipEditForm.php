@@ -54,6 +54,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
+        $rules[] = ['did', 'trim'];
 
         return $rules;
     }
@@ -385,6 +386,8 @@ class UsageVoipEditForm extends UsageVoipForm
         if (!$this->did) {
             return;
         }
+
+        $this->did = trim($this->did);
 
         if ($this->type_id == 'number') {
             if (!preg_match('/^\d+$/', $this->did)) {
