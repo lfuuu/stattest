@@ -14,12 +14,19 @@ class ReportExtendsOperatorsDao extends Singleton
 
     public
         $operator,
+        $operatorsClients = [],
         $dateFrom,
         $dateTo;
 
     public function setOperator(Operators $operator)
     {
         $this->operator = $operator;
+        return $this->setOperatorClient($operator);
+    }
+
+    public function setOperatorClient(Operators $operator)
+    {
+        $this->operatorsClients[] = $operator->operatorClient;
         return $this;
     }
 
@@ -67,7 +74,7 @@ class ReportExtendsOperatorsDao extends Singleton
             $query->leftJoin('onlime_order oo', 'oo.bill_no = b.bill_no');
         }
 
-        $query->where(['t.client' => $this->operator->operatorClient]);
+        $query->where(['in', 't.client', $this->operatorsClients]);
 
         switch ($promo) {
             case 'promo':

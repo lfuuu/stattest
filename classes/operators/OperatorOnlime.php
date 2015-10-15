@@ -4,6 +4,7 @@ namespace app\classes\operators;
 
 use Yii;
 use yii\db\Query;
+use app\dao\reports\ReportExtendsOperatorsDao;
 
 class OperatorOnlime extends Operators
 {
@@ -70,6 +71,12 @@ class OperatorOnlime extends Operators
             'nameFull' => 'Gigaset C530A IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)',
             'id_1c' => '4454e4d5-a79e-11e4-a330-00155d881200',
         ],
+        'count_N17609' => [
+            'id' => 17609,
+            'name' => 'SML-482 HD Base с Wi-Fi',
+            'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
+            'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
+        ],
     ];
 
     public static $requestModes = [
@@ -115,6 +122,13 @@ class OperatorOnlime extends Operators
         18 => 'Выполнен',
         21 => 'Отказ',
     ];
+
+    public function getReport()
+    {
+        return
+            parent::getReport()
+                ->setOperatorClient(OperatorsFactory::me()->getOperator(OperatorOnlimeStb::OPERATOR_CLIENT));
+    }
 
     public function modeWorkModify(Query $query, $dao)
     {
