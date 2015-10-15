@@ -116,29 +116,37 @@ class OperatorOnlime extends Operators
         21 => 'Отказ',
     ];
 
-    public function modeWorkModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeWorkModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['not in', 'state_id', [2, 20, 21]]);
     }
 
-    public function modeCloseModify(Query $query, $dao) {
+    public function modeCloseModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.trouble_id = t.id');
+
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['in', 'state_id', [2, 20]]);
-        $query->andWhere('s.trouble_id = t.id');
         $query->andWhere(['between', 's.date_start', $dao->dateFrom, $dao->dateTo]);
     }
 
-    public function modeRejectModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeRejectModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['state_id' => 21]);
     }
 
-    public function modeRollbackModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeRollbackModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 1]);
     }

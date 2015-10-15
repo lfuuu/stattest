@@ -17,7 +17,7 @@ $model->state_id = $trouble->currentStage->state_id;
 
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" />
 
-<div class="well" style="padding-top: 60px;">
+<div class="well">
     <legend>Просмотр счета №<?= $bill->bill_no; ?></legend>
 
     <legend style="font-size: 16px;">Данные счета</legend>

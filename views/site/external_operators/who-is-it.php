@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 ?>
 
-<div class="well" style="padding-top: 60px;">
+<div class="well">
     <legend>Выбор оператора</legend>
 
     <div style="text-align: center;">

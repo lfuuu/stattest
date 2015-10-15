@@ -3,6 +3,7 @@
 namespace app\classes\operators;
 
 use Yii;
+use yii\db\Query;
 use app\forms\external_operators\RequestOnlimeStbForm;
 
 class OperatorOnlimeStb extends OperatorOnlimeDevices
@@ -37,6 +38,26 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
     public function getRequestForm()
     {
         return new RequestOnlimeStbForm;
+    }
+
+    public function modeNewModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
+
+        $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
+        $query->andWhere('state_id = 33');
+        $query->andWhere('d.doer_id IS NULL');
+    }
+
+    public function modeWorkModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
+
+        $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
+        $query->andWhere(['not in', 'state_id', [24, 31, 2, 20, 4, 18, 28, 21]]);
+        $query->andWhere('d.doer_id IS NOT NULL');
     }
 
 }
