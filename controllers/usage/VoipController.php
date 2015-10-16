@@ -39,7 +39,7 @@ class VoipController extends BaseController
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        $model = new UsageVoipEditForm(['no_of_lines' => 1]);
+        $model = new UsageVoipEditForm(['no_of_lines' => 1, "city_id" => Yii::$app->user->identity->city_id]);
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($clientAccount);
 
