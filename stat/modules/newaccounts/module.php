@@ -4292,7 +4292,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             ) a
             WHERE
                 (min_nds IS NULL OR min_nds > 0)  ###исключить счета, с товарами без НДС
-                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "' LIMIT 20";
+                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "'";
 
 
         $AA = array();
@@ -4310,13 +4310,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $this->bb_cache__init();
 
 
-        $count = 0;
         foreach($AA as $p)
         {
-            $count++;
-            if ($count > 50)
-                break;
-        //while(($p = mysql_fetch_assoc($res))!==false){
+            //while(($p = mysql_fetch_assoc($res))!==false){
 
             $bill=new Bill($p['bill_no']);
             for ($I=1;$I<=3;$I++) {
