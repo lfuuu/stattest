@@ -4292,7 +4292,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             ) a
             WHERE
                 (min_nds IS NULL OR min_nds > 0)  ###исключить счета, с товарами без НДС
-                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "' LIMIT 20";
+                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "'";
 
 
         $AA = array();
