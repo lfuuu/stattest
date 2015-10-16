@@ -89,17 +89,14 @@ class OperatorOnlimeDevices extends Operators
         ],
     ];
 
-    protected static $reportFields = [
+    public static $reportFields = [
         'Оператор'                                      => 'fio_oper',
         'Номер счета OnLime'                            => 'req_no',
         'Номер счета Маркомнет Сервис'                  => 'bill_no',
         'Дата создания заказа'                          => 'date_creation',
         'Кол-во'                                        => 'products',
+        'ФИО клиента'                                   => 'client',
         'Серийный номер'                                => 'serials',
-        'Номер купона'                                  => 'coupon',
-        'ФИО клиента'                                   => 'fio',
-        'Телефон клиента'                               => 'phone',
-        'Адрес'                                         => 'address',
         'Дата доставки желаемая'                        => 'date_deliv',
         'Дата доставки фактическая'                     => 'date_delivered',
         'Этап'                                          => 'stages_text',
