@@ -4181,8 +4181,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         if($paymethod) $W[] = 'C.nal="'.$paymethod.'"';
         if($firma) {
-            $firma = Organization::findOne(['firma' => $firma])->organization_id;
-            $W[] = 'cr.organization_id="' . $firma . '"';
+            $organization = Organization::findOne(['firma' => $firma]);
+            $W[] = 'cr.organization_id="' . $organization->organization_id . '"';
         }
 
         $W[] = "cg.legal_type in ('ip', 'legal')";
@@ -4309,9 +4309,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         $this->bb_cache__init();
 
+
         foreach($AA as $p)
         {
-        //while(($p = mysql_fetch_assoc($res))!==false){
+            //while(($p = mysql_fetch_assoc($res))!==false){
 
             $bill=new Bill($p['bill_no']);
             for ($I=1;$I<=3;$I++) {
@@ -4393,6 +4394,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         if(get_param_raw("csv", "0") == "1")
         {
+            /*
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="Книга продаж.csv"');
 
@@ -4430,6 +4432,56 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             }
             echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit();
+            */
+            $reader = \PHPExcel_IOFactory::createReader('Excel5');
+            $excel = $reader->load(Yii::getAlias('@app/stat/design/excel/balance_sell.xls'));
+            $worksheet = $excel->getActiveSheet();
+
+            $R = array_values($R);
+            $worksheet->insertNewRowBefore(12, count($R));
+
+            $company = $worksheet->getCell('A4');
+            $worksheet->setCellValue('A4', str_replace('{Name}', $organization->name, $company->getValue()));
+            $inn = $worksheet->getCell('A5');
+            $worksheet->setCellValue('A5', str_replace('{InnKpp}', ($organization->tax_registration_id . ($organization->tax_registration_reason ? '/' . $organization->tax_registration_reason : '')), $inn->getValue()));
+            $dates = $worksheet->getCell('A6');
+            $datesValue = str_replace(
+                '{DateFrom}',
+                (new DateTime(Yii::$app->request->get('date_from')))->format('d.m.Y'),
+                $dates->getValue()
+            );
+            $datesValue = str_replace(
+                '{DateTo}',
+                (new DateTime(Yii::$app->request->get('date_to')))->format('d.m.Y'),
+                $datesValue
+            );
+            $worksheet->setCellValue('A6', $datesValue);
+
+            for ($j=0, $t=count($R); $j<$t; $j++) {
+                $companyName = html_entity_decode($R[$j]['company_full']);
+                $companyName = str_replace(['«','»'], '"', $companyName);
+
+                $worksheet->setCellValueByColumnAndRow(0, $j + 12, ($j+1));
+                $worksheet->setCellValueByColumnAndRow(1, $j + 12, '"01"');
+                $worksheet->setCellValueByColumnAndRow(2, $j + 12, $R[$j]['inv_no'] . ';' . date('d.m.Y', $R[$j]['inv_date']));
+                $worksheet->setCellValueByColumnAndRow(6, $j + 12, $companyName);
+                $worksheet->setCellValueByColumnAndRow(7, $j + 12, $R[$j]['inn'] . ($R[$j]['type'] == 'org' ? '/' . ($R[$j]['kpp'] ?: '') : ''));
+                $worksheet->setCellValueByColumnAndRow(13, $j + 12, sprintf('%0.2f', round($R[$j]['sum'], 2)));
+                $worksheet->setCellValueByColumnAndRow(14, $j + 12, sprintf('%0.2f', round($R[$j]['sum_without_tax'], 2)));
+                $worksheet->setCellValueByColumnAndRow(17, $j + 12, sprintf('%0.2f', round($R[$j]['sum_tax'], 2)));
+            }
+
+            $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+            ob_start();
+            $writer->save('php://output');
+            $content = ob_get_contents();
+            ob_clean();
+
+            Yii::$app->response->sendContentAsFile(
+                $content,
+                'Книга продаж.xls'
+            );
+            Yii::$app->end();
         }
 
         $design->assign('data',$R);
