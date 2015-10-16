@@ -22,17 +22,6 @@ class NumberController extends Controller
             Number::dao()->stopHold($number);
             echo $number->number . " unholded\n";
         }
-
-        $numbers =
-            Number::find()
-                ->andWhere(['status' => Number::STATUS_HOLD])
-                ->andWhere("number like '7495%'")
-                ->all(); /** @var Number[] $numbers */
-
-        foreach ($numbers as $number) {
-            Number::dao()->stopHold($number);
-            echo $number->number . " unholded\n";
-        }
     }
 
     public function actionActualizeNumbersByUsages()
