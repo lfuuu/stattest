@@ -4292,7 +4292,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             ) a
             WHERE
                 (min_nds IS NULL OR min_nds > 0)  ###исключить счета, с товарами без НДС
-                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "'";
+                AND shipment_date BETWEEN '" . $date_from."' AND '" . $date_to . "' LIMIT 20";
 
 
         $AA = array();
@@ -4308,7 +4308,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $t = time();
 
         $this->bb_cache__init();
-
 
         foreach($AA as $p)
         {
@@ -4327,19 +4326,19 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                 if (is_array($A) && $A['bill']['sum']) {
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
-                    $A["bill"]["contract"] = $p["contract"];
-                    $A["bill"]["contract_status"] = $p["contract_status"];
+                    $A['bill']['contract'] = $p['contract'];
+                    $A['bill']['contract_status'] = $p['contract_status'];
 
                     $invDate = $A['bill']['shipment_ts'] ? 
                         $A['bill']['shipment_ts'] : 
                         $A['inv_date'];
 
                     // get property from history
-                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date("Y-m-d", $invDate));
-                    $p["company_full"] = trim($c["company_full"]);
-                    $p["inn"] = $c["inn"];
-                    $p["kpp"] = $c["kpp"];
-                    //$p["type"] = $c["type"];
+                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date('Y-m-d', $invDate));
+                    $p['company_full'] = trim($c['company_full']);
+                    $p['inn'] = $c['inn'];
+                    $p['kpp'] = $c['kpp'];
+                    //$p['type'] = $c['type'];
 
                     $A['bill']['inv_date'] = $invDate;
 
@@ -4349,16 +4348,16 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         $A['bill']['company_full'] = $p['company_full'];
                         $A['bill']['type'] = $c['type'];
 
-                        if($p["type"] == "person")
+                        if($p['type'] == 'person')
                         {
-                            $A['bill']['inn'] = "-----";
-                            $A['bill']['kpp'] = "-----";
-                        }elseif($p["type"] == "legal"){
+                            $A['bill']['inn'] = '-----';
+                            $A['bill']['kpp'] = '-----';
+                        }elseif($p['type'] == 'legal'){
                             $A['bill']['inn'] = $p['inn'];
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
                             $A['bill']['inn'] = $p['inn'];
-                            $A['bill']['kpp'] = "-----";
+                            $A['bill']['kpp'] = '-----';
                         }
 
                         $A['bill']['payment_no'] = $p['payment_no'];
@@ -4367,10 +4366,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                         $A['bill']['inv_no'] = $A['inv_no'];
 
-                        if($p["is_rollback"])
+                        if($p['is_rollback'])
                         {
-                            foreach(array("ts", "sum_tax", "sum_without_tax", "sum") as $f)
-                                $A["bill"][$f] = -abs($A["bill"][$f]);
+                            foreach(array('ts', 'sum_tax', 'sum_without_tax', 'sum') as $f)
+                                $A['bill'][$f] = -abs($A['bill'][$f]);
                         }
 
                         foreach ($S as $sk=>$sv) {
@@ -4438,7 +4437,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $worksheet = $excel->getActiveSheet();
 
             $R = array_values($R);
-            $worksheet->insertNewRowBefore(12, count($R));
+            $insertBefore = 13;
+            $worksheet->insertNewRowBefore($insertBefore, count($R) - 1);
+            $insertBefore--;
 
             $company = $worksheet->getCell('A4');
             $worksheet->setCellValue('A4', str_replace('{Name}', $organization->name, $company->getValue()));
@@ -4461,14 +4462,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 $companyName = html_entity_decode($R[$j]['company_full']);
                 $companyName = str_replace(['«','»'], '"', $companyName);
 
-                $worksheet->setCellValueByColumnAndRow(0, $j + 12, ($j+1));
-                $worksheet->setCellValueByColumnAndRow(1, $j + 12, '"01"');
-                $worksheet->setCellValueByColumnAndRow(2, $j + 12, $R[$j]['inv_no'] . ';' . date('d.m.Y', $R[$j]['inv_date']));
-                $worksheet->setCellValueByColumnAndRow(6, $j + 12, $companyName);
-                $worksheet->setCellValueByColumnAndRow(7, $j + 12, $R[$j]['inn'] . ($R[$j]['type'] == 'org' ? '/' . ($R[$j]['kpp'] ?: '') : ''));
-                $worksheet->setCellValueByColumnAndRow(13, $j + 12, sprintf('%0.2f', round($R[$j]['sum'], 2)));
-                $worksheet->setCellValueByColumnAndRow(14, $j + 12, sprintf('%0.2f', round($R[$j]['sum_without_tax'], 2)));
-                $worksheet->setCellValueByColumnAndRow(17, $j + 12, sprintf('%0.2f', round($R[$j]['sum_tax'], 2)));
+                $worksheet->setCellValueByColumnAndRow(0, $j + $insertBefore, ($j+1));
+                $worksheet->setCellValueByColumnAndRow(1, $j + $insertBefore, '01');
+                $worksheet->setCellValueByColumnAndRow(2, $j + $insertBefore, $R[$j]['inv_no'] . ';' . date('d.m.Y', $R[$j]['inv_date']));
+                $worksheet->setCellValueByColumnAndRow(6, $j + $insertBefore, $companyName);
+                $worksheet->setCellValueByColumnAndRow(7, $j + $insertBefore, $R[$j]['inn'] . ($R[$j]['type'] == 'org' ? '/' . ($R[$j]['kpp'] ?: '') : ''));
+                $worksheet->setCellValueByColumnAndRow(13, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum'], 2)));
+                $worksheet->setCellValueByColumnAndRow(14, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum_without_tax'], 2)));
+                $worksheet->setCellValueByColumnAndRow(17, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum_tax'], 2)));
             }
 
             $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
