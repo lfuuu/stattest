@@ -79,11 +79,9 @@ function do_events()
                 }
 
                 case 'midnight': {
-                    /* проверка необходимости включить или выключить услугу UsageVoip */
-                    Event::go('midnight__voip_numbers');
 
-                    /* проверка необходимости включить или выключить услугу UsageVirtPbx */
-                    Event::go('midnight__virtpbx3');
+                    /* проверка необходимости включать или выключать услуги */
+                    Event::go('check__usages');
 
                     /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
                     if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
@@ -104,15 +102,23 @@ function do_events()
                     break;
                 }
 
+                case 'check__usages': {
+                    /* проверка необходимости включить или выключить услугу UsageVoip */
+                    Event::go('check__voip_numbers');
+
+                    /* проверка необходимости включить или выключить услугу UsageVirtPbx */
+                    Event::go('check__virtpbx3');
+                }
+
                 /* проверка необходимости включить или выключить услугу UsageVoip */
-                case 'midnight__voip_numbers': {
+                case 'check__voip_numbers': {
                     voipNumbers::check();
                     echo "...voipNumbers::check()";
                     break;
                 }
 
                 /* проверка необходимости включить или выключить услугу UsageVirtPbx */
-                case 'midnight__virtpbx3': {
+                case 'check__virtpbx3': {
                     VirtPbx3::check();
                     echo "...VirtPbx3::check()";
                     break;
