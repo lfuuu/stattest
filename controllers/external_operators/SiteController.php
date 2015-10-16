@@ -121,13 +121,7 @@ class SiteController extends BaseController
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], '');
 
         if ($asFile == 1) {
-            $reportName = 'OnlimeDevices__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
-
-            Yii::$app->response->sendContentAsFile(
-                $operator->GenerateExcel($report),
-                $reportName . '.xls'
-            );
-            Yii::$app->end();
+            $operator->generateExcel($report);
         }
 
         $this->layout = 'external_operators/main';

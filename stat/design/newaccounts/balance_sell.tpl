@@ -52,11 +52,11 @@
             </select>
 
         Полный экран: <input type="checkbox" name="fullscreen" value="1" />&nbsp;
-        в Excel: <input type="checkbox" name="csv" value="1" /><br />
+        в Excel: <input type="checkbox" name="excel" value="1" /><br />
         <input type="submit" value="Показать" class="button" name="do" />
     </form>
     <h2>Книга продаж</h2>
-    <table class="price" cellspacing="4" cellpadding="2" border="0">
+    <table class="price" cellspacing="4" cellpadding="2" border="1" style="border-collapse: collapse; font: normal 8pt sans-serif; padding: 2px 2px 2px 2px;">
 {/if}
 
         <thead>

@@ -4391,98 +4391,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         //usort($R, array("self", "bb_sort_sum"));
         }
 
-        if(get_param_raw("csv", "0") == "1")
-        {
-            /*
-            header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="Книга продаж.csv"');
-
-            ob_start();
-
-            echo "Книга продаж;;;;;;;;;;;;;;;;\n";
-            echo ";;;;;;;;;;;;;;;;;;\n";
-            echo ";;;;;;;в том числе продажи, облагаемые налогом по ставке;;;;;;;;;;;\n";
-            echo "№ п/п;Код вида операции;Дата и номер счета-фактуры продавца;Наименование покупателя;ИНН/КПП покупателя;Номер и дата документа, подтверждающего оплату;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
-
-            $count = 0;
-            foreach($R as $r)
-            {
-                $companyName = html_entity_decode($r["company_full"]);
-                $companyName = str_replace(['«','»'], '"', $companyName);
-                $companyName = str_replace('"', '""', $companyName);
-
-                echo (++$count) . ';';
-                echo '="01";';
-                echo '"' . $r['inv_no'] . ';' . date('d.m.Y', $r['inv_date']) . '";';
-                echo '"' . $companyName . '";';
-                echo '"' . $r['inn'] . ($r['type'] == 'org' ? '/' . ($r['kpp'] ?: '') : '') . '";';
-                echo '"' . $r['payments'] . '";';
-                echo number_format(round($r["sum"],2), 2, ",", "").";";
-                echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
-                echo number_format(round($r["sum_tax"],2), 2, ",", "").";";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo $r["client_id"].";";
-
-                echo "\n";
-            }
-            echo iconv('utf-8', 'windows-1251', ob_get_clean());
-            exit();
-            */
-            $reader = \PHPExcel_IOFactory::createReader('Excel5');
-            $excel = $reader->load(Yii::getAlias('@app/stat/design/excel/balance_sell.xls'));
-            $worksheet = $excel->getActiveSheet();
-
-            $R = array_values($R);
-            $insertBefore = 13;
-            $worksheet->insertNewRowBefore($insertBefore, count($R) - 1);
-            $insertBefore--;
-
-            $company = $worksheet->getCell('A4');
-            $worksheet->setCellValue('A4', str_replace('{Name}', $organization->name, $company->getValue()));
-            $inn = $worksheet->getCell('A5');
-            $worksheet->setCellValue('A5', str_replace('{InnKpp}', ($organization->tax_registration_id . ($organization->tax_registration_reason ? '/' . $organization->tax_registration_reason : '')), $inn->getValue()));
-            $dates = $worksheet->getCell('A6');
-            $datesValue = str_replace(
-                '{DateFrom}',
-                (new DateTime(Yii::$app->request->get('date_from')))->format('d.m.Y'),
-                $dates->getValue()
-            );
-            $datesValue = str_replace(
-                '{DateTo}',
-                (new DateTime(Yii::$app->request->get('date_to')))->format('d.m.Y'),
-                $datesValue
-            );
-            $worksheet->setCellValue('A6', $datesValue);
-
-            for ($j=0, $t=count($R); $j<$t; $j++) {
-                $companyName = html_entity_decode($R[$j]['company_full']);
-                $companyName = str_replace(['«','»'], '"', $companyName);
-
-                $worksheet->setCellValueByColumnAndRow(0, $j + $insertBefore, ($j+1));
-                $worksheet->setCellValueByColumnAndRow(1, $j + $insertBefore, '01');
-                $worksheet->setCellValueByColumnAndRow(2, $j + $insertBefore, $R[$j]['inv_no'] . ';' . date('d.m.Y', $R[$j]['inv_date']));
-                $worksheet->setCellValueByColumnAndRow(6, $j + $insertBefore, $companyName);
-                $worksheet->setCellValueByColumnAndRow(7, $j + $insertBefore, $R[$j]['inn'] . ($R[$j]['type'] == 'org' ? '/' . ($R[$j]['kpp'] ?: '') : ''));
-                $worksheet->setCellValueByColumnAndRow(13, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum'], 2)));
-                $worksheet->setCellValueByColumnAndRow(14, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum_without_tax'], 2)));
-                $worksheet->setCellValueByColumnAndRow(17, $j + $insertBefore, sprintf('%0.2f', round($R[$j]['sum_tax'], 2)));
-            }
-
-            $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-            ob_start();
-            $writer->save('php://output');
-            $content = ob_get_contents();
-            ob_clean();
-
-            Yii::$app->response->sendContentAsFile(
-                $content,
-                'Книга продаж.xls'
-            );
-            Yii::$app->end();
+        if(get_param_raw('excel', 0) == 1) {
+            $excel = new \app\classes\excel\BalanceSellToExcel;
+            $excel->openFile(Yii::getAlias('@app/templates/balance_sell.xls'));
+            $excel->organization = $organization;
+            $excel->dateFrom = Yii::$app->request->get('date_from');
+            $excel->dateTo = Yii::$app->request->get('date_to');
+            $excel->prepare($R);
+            $excel->download('Книга продаж');
         }
 
         $design->assign('data',$R);

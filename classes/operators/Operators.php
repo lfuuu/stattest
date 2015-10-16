@@ -2,8 +2,10 @@
 
 namespace app\classes\operators;
 
+use Yii;
 use yii\base\Object;
 use app\dao\reports\ReportExtendsOperatorsDao;
+use app\classes\excel\OnlimeOperatorToExcel;
 
 abstract class Operators extends Object
 {
@@ -61,74 +63,10 @@ abstract class Operators extends Object
 
     public function generateExcel($report)
     {
-        $objPHPExcel = new \PHPExcel;
-        $objPHPExcel->setActiveSheetIndex(0);
-
-        $sheet = $objPHPExcel->getActiveSheet();
-
-        foreach ([10, 12, 21, 11, 29, 35, 33, 14, 14, 88] as $columnIndex => $width) {
-            $sheet->getColumnDimensionByColumn($columnIndex + 1)->setWidth($width);
-        }
-
-        $idx = 0;
-        foreach (static::$reportFields as $title => $field) {
-            if ($field == 'products') {
-                foreach ($this->products as $key => $product) {
-                    $sheet->setCellValueByColumnAndRow($idx++, 2, $product['name']);
-                }
-            }
-            else {
-                $sheet->setCellValueByColumnAndRow($idx++, 2, $title);
-            }
-        }
-
-        foreach ($report as $rowIdx => $item) {
-            $colIdx = 0;
-            foreach(static::$reportFields as $title => $field) {
-                if ($field == 'products') {
-                    foreach ($this->products as $key => $product) {
-                        if (is_string($key)) {
-                            $key = 'count_' . $key;
-                        }
-                        else {
-                            $key = 'count_' . ($key + 1);
-                        }
-                        $sheet->setCellValueByColumnAndRow(
-                            $colIdx++,
-                            3 + $rowIdx,
-                            isset($item[$key]) ? strip_tags($item[$key]) : ''
-                        );
-                    }
-                }
-                else if ($field == 'stages_text') {
-                    $last_stage = array_pop($item['stages']);
-
-                    $sheet->setCellValueByColumnAndRow(
-                        $colIdx++,
-                        3 + $rowIdx,
-                        $last_stage['date_finish_desired'] . "\n" .
-                        $last_stage['state_name'] . "\n" .
-                        $last_stage['user_edit'] . "\n" .
-                        $last_stage['comment']
-                    );
-                }
-                else {
-                    $sheet->setCellValueByColumnAndRow(
-                        $colIdx++,
-                        3 + $rowIdx,
-                        isset($item[$field]) ? strip_tags($item[$field]) : ''
-                    );
-                }
-            }
-        }
-
-        $oeWriter = new \PHPExcel_Writer_Excel5($objPHPExcel);
-        ob_start();
-        $oeWriter->save('php://output');
-        $content = ob_get_contents();
-        ob_clean();
-
-        return $content;
+        $excel = new OnlimeOperatorToExcel;
+        $excel->openFile(Yii::getAlias('@app/templates/onlime_operator.xls'));
+        $excel->prepare(static::$reportFields, $this->products, $report);
+        $excel->download($this->operatorClient);
     }
 
 }
