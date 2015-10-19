@@ -32,10 +32,10 @@ class NumberForm extends Form
         $clientAccount = $this->client_account_id ? ClientAccount::findOne($this->client_account_id) : null;
 
         if ($this->scenario == 'startHold') {
-            $holdFrom = new \DateTime('now', new \DateTimeZone('UTC'));
-            $holdFrom->modify("-" . (6 - $this->hold_month) . " month");
+            $holdTo = new \DateTime('now', new \DateTimeZone('UTC'));
+            $holTo->modify(+" . $this->hold_month . " month");
 
-            Number::dao()->startHold($number, $holdFrom);
+            Number::dao()->startHold($number, $holdTo);
         } elseif ($this->scenario == 'stopHold') {
             Number::dao()->stopHold($number);
         } elseif ($this->scenario == 'startReserve') {
