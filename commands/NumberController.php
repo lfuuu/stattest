@@ -15,7 +15,7 @@ class NumberController extends Controller
         $numbers =
             Number::find()
                 ->andWhere(['status' => Number::STATUS_HOLD])
-                ->andWhere('hold_from < NOW() - INTERVAL 6 MONTH')
+                ->andWhere('hold_to < NOW()')
                 ->all(); /** @var Number[] $numbers */
 
         foreach ($numbers as $number) {

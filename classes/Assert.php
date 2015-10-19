@@ -63,6 +63,17 @@ final class Assert
             );
     }
 
+    public static function isInArray($value, $array, $message = null)
+    {
+        Assert::isArray($array);
+
+        if (!in_array($value, $array))
+            throw new Exception(
+                $message.', '.self::dumpOppositeArguments($value, $array)
+            );
+    }
+
+
     public static function isNotNull($variable, $message = null)
     {
         if ($variable === null)

@@ -66,3 +66,20 @@ modules:
             url: 'http://192.168.56.101:801/'
             host: '192.168.56.101'
 ```
+
+
+codeception/func.suite.yml
+```
+class_name: _FuncTester
+modules:
+    enabled:
+      - Filesystem
+      - Yii2
+      - REST
+      - Asserts
+    config:
+        Yii2:
+            configFile: 'codeception/config/functional.php'
+        REST:
+            depends: PhpBrowser
+```

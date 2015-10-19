@@ -10,6 +10,7 @@ class NumberForm extends Form
 {
     public $did;
     public $client_account_id;
+    public $hold_month;
 
     public function rules()
     {
@@ -17,6 +18,8 @@ class NumberForm extends Form
             [['did'], 'string'],
             [['client_account_id'], 'string'],
             [['did'], 'required', 'on' => ['default', 'startReserve','stopReserve','startHold','stopHold','startNotSell','stopNotSell']],
+            [['hold_month'], 'default', 'value' => 6],
+            [['hold_month'], 'in', 'range' => [6, 3, 1]],
             [['scenario'], 'safe'],
         ];
     }
@@ -29,7 +32,10 @@ class NumberForm extends Form
         $clientAccount = $this->client_account_id ? ClientAccount::findOne($this->client_account_id) : null;
 
         if ($this->scenario == 'startHold') {
-            Number::dao()->startHold($number);
+            $holdTo = new \DateTime('now', new \DateTimeZone('UTC'));
+            $holTo->modify("+" . $this->hold_month . " month");
+
+            Number::dao()->startHold($number, $holdTo);
         } elseif ($this->scenario == 'stopHold') {
             Number::dao()->stopHold($number);
         } elseif ($this->scenario == 'startReserve') {
