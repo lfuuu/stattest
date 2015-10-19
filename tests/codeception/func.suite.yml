@@ -4,8 +4,10 @@ modules:
       - Filesystem
       - Yii2
       - REST
+      - Asserts
     config:
         Yii2:
             configFile: 'codeception/config/functional.php'
         REST:
             depends: PhpBrowser
+
