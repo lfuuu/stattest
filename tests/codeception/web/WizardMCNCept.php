@@ -279,7 +279,7 @@ function testContractHTML($I, $accountId, $s_step1)
     $I->dontSee("Exception");
     $I->dontSee("Ошибка в данных");
     $I->see("Договор оказания услуг связи");
-    $I->see("№ 35801");
+    $I->see("№ ".$accountId);
     foreach($s_step1 as $k => $v) 
     {
         if ($k == "legal_type" || $k == "passport_date_issued")

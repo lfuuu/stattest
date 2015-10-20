@@ -1,5 +1,10 @@
 <?php 
 
+$lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
+$accountId = $lastAccount+1;
+
+$number = "74992130006";
+
 $I = new _WebTester($scenario);
 $I->wantTo('test the integration with the website');
 $I->wantTo('get free numbers');
@@ -11,26 +16,24 @@ $I = new _WebTester($scenario);
 $I->wantTo("register client from site (without vats)");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");
-$I->see("ok:35801");
+$I->see("ok:".$accountId);
 
 $I = new _WebTester($scenario);
 $I->wantToTest("re-register client");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");
-$I->see("ok:35801");
+$I->see("ok:".$accountId);
 
-$clientId = 35801;
-$number = "74992130006";
 
 $I = new _WebTester($scenario);
 $I->wantTo("reserv number");
-$I->amOnPage("/operator/service.php?action=reserve_number&number=".$number."&client_id=".$clientId."&test=1");
+$I->amOnPage("/operator/service.php?action=reserve_number&number=".$number."&client_id=".$accountId."&test=1");
 $I->dontSee("0");
 $I->see("1");
 
 $I = new _WebTester($scenario);
 $I->wantTo("reserv reserved number ");
-$I->amOnPage("/operator/service.php?action=reserve_number&number=".$number."&client_id=".$clientId."&test=1");
+$I->amOnPage("/operator/service.php?action=reserve_number&number=".$number."&client_id=".$accountId."&test=1");
 $I->see("Exception");
 $I->see("Номер уже используется");
 
