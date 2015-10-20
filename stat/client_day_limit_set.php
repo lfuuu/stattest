@@ -25,16 +25,16 @@ $counters = $pg_db->AllRecords($q ="
 
 $clients = array();
 $res = $db->AllRecords('
-  select
-      distinct u.id as usage_id,
-      c.id as client_id, c.client, c.currency, c.voip_is_day_calc, c.voip_credit_limit_day,
-      o.vat_rate
-  from usage_voip u
-          left join clients c on c.client=u.client
-          left join client_contract cc on cc.id=c.contract_id
-          left join organization o on cc.organization_id=o.id and o.actual_from < CAST(now() as DATE) and o.actual_to > CAST(now() as DATE)
-  where u.actual_from < CAST(now() as DATE) and u.actual_to > CAST(now() as DATE) and voip_is_day_calc > 0
-');
+        SELECT
+            DISTINCT u.id AS usage_id,
+            c.id AS client_id, c.client, c.currency, c.voip_is_day_calc, c.voip_credit_limit_day
+        FROM usage_voip u
+        LEFT JOIN clients c ON c.client=u.client
+        WHERE 
+                u.actual_from < CAST(NOW() AS DATE) 
+            AND u.actual_to > CAST(NOW() AS DATE) 
+            AND voip_is_day_calc > 0
+        ');
 foreach($res as $r)
 {
   if (!isset($clients[$r['client_id']]))
@@ -46,8 +46,7 @@ foreach($res as $r)
         'currency'=>$r['currency'],
         'voip_is_day_calc'=>$r['voip_is_day_calc'],
         'voip_credit_limit_day'=>$r['voip_credit_limit_day'],
-        'sum'=>0,
-        'vat_rate'=>$r['vat_rate'],
+        'sum'=>0
       );
   }
 
@@ -57,7 +56,6 @@ foreach($res as $r)
 }
 foreach($clients as $k=>$c)
 {
-  $clients[$k]['sum'] = $c['sum'] * (1 + $c['vat_rate']);
   $clients[$k]['new_limit'] = intval($clients[$k]['sum']/$work_days*3);
 
   //TODO: 1000 это сумма в рублях. Для не рублевых клиентов сделать конвертацию по курсу
