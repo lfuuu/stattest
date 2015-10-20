@@ -240,7 +240,7 @@
                 {if $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">WTF{$op.bill.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">{$op.bill.comment|escape:"html"}</td>
                         <td colspan="5">&nbsp;</td>
                         <td colspan="2">&nbsp;</td>
                 {/if}
