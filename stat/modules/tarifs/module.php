@@ -65,12 +65,7 @@ class m_tarifs{
             !($dbf->Load($id))
         )return;
 
-        if( ($dbf->Process()) == "add"){
-            $db->QueryUpdate("price_voip", "id", array("id" => $dbf->data["id"], "idExt" => $dbf->data["id"]));
-        }
-        if(!isset($_SESSION['trash']) || !is_array($_SESSION['trash']))
-            $_SESSION['trash'] = array();
-        $_SESSION['trash']['price_voip'] = 1;
+        $dbf->Process();
 
         $dbf->Display(
             array(
