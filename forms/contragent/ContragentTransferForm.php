@@ -78,7 +78,7 @@ class ContragentTransferForm extends Form
             }
 
             $contragent->super_id = $this->targetClientAccount;
-            if ($contragent->save() === false) {
+            if ($contragent->save(false) === false) {
                 throw new Exception( implode( '<br />', array_values($contragent->getFirstErrors()) ) );
             }
 

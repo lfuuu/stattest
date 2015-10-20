@@ -20,13 +20,15 @@ class InnKppValidator extends Validator
         ];
     }
 
-    public function validateAttributes($model)
+    public function validateAttributes($model, $attributes = null)
     {
         $attributes = [];
-        if (in_array($model->legal_type, ['ip', 'legal']))
+        if (in_array($model->legal_type, ['ip', 'legal'])) {
             $attributes[] = 'inn';
-        if ($model->legal_type == 'legal' && $model->country_id == Country::RUSSIA)
+        }
+        if ($model->legal_type == 'legal' && $model->country_id == Country::RUSSIA) {
             $attributes[] = 'kpp';
+        }
 
         $contracts = $this->hasOperatorContract($model);
         $hasCheckedContracts = $model->hasChecked || $this->hasCheckedContract($model);
@@ -42,8 +44,9 @@ class InnKppValidator extends Validator
                     self::createValidator($this->attrValidator[$attribute], $model, $attribute)->validateAttribute($model, $attribute);
                 }
             }
-            if(!$contracts && ($has || $hasCheckedContracts))
+            if(!$contracts && ($has || $hasCheckedContracts)) {
                 $this->checkUnique($model, $attributes);
+            }
         }
 
     }
@@ -86,7 +89,8 @@ class InnKppValidator extends Validator
             ->andWhere(['inn' => $model->inn])
             ->andWhere(['!=', 'super_id', $model->super_id])
             ->one();
-        if ($double)
+        if ($double instanceof $model) {
             $this->addError($model, 'inn', 'Inn is already in another client <a href="/contragent/edit?id={contragentId}" target="_blank">контрагента</a>', ['contragentId' => $double->id]);
+        }
     }
 }
