@@ -33,7 +33,7 @@ class NumberForm extends Form
 
         if ($this->scenario == 'startHold') {
             $holdTo = new \DateTime('now', new \DateTimeZone('UTC'));
-            $holTo->modify("+" . $this->hold_month . " month");
+            $holdTo->modify("+" . $this->hold_month . " month");
 
             Number::dao()->startHold($number, $holdTo);
         } elseif ($this->scenario == 'stopHold') {
