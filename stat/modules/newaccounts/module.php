@@ -372,6 +372,7 @@ class m_newaccounts extends IModule
                     "" `comment`,
                     "0000-00-00" postreg ,
                     "" nal,
+                    0,
                     1 in_sum
 
                   FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'"
