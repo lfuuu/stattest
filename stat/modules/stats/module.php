@@ -4469,6 +4469,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
     }
 
+      $design->assign("RManager",
+          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
+              'managers' => \app\classes\stats\PhoneSales::reportByManager($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
+          ]));
+      $design->assign("RPartner",
+          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
+              'partners' => \app\classes\stats\PhoneSales::reportByPartner($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
+          ]));
+
     $design->assign("from_y", $from_y);
     $design->assign("from_m", $from_m);
     $design->assign("to_y", $to_y);

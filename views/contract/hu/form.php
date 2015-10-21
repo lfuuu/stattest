@@ -160,11 +160,21 @@ use app\models\ClientContract;
                 ],
                 ['type' => Form::INPUT_RAW],
             ]
-                : [
+                : (
+            ($model->business_id == \app\models\Business::PARTNER)
+                ? [
+                'contract_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ContractType::getList(),
 
+                ],
+                ['type' => Form::INPUT_RAW],
+            ]
+                : [
                 ['type' => Form::INPUT_RAW],
                 ['type' => Form::INPUT_RAW],
             ]
+            )
             )
         )
     ]);
@@ -195,7 +205,7 @@ use app\models\ClientContract;
                 s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
         });
 
-        if(s4){
+        if (s4) {
             s4.empty();
             s4.append('<option value="0"><?= Yii::t('contract', 'notDefined') ?></option>');
             $(contractTypes).each(function (k, v) {
@@ -216,7 +226,7 @@ use app\models\ClientContract;
                 if (s2.val() == v['up_id'])
                     s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
             });
-            if(s4){
+            if (s4) {
                 s4.empty();
                 $(contractTypes).each(function (k, v) {
                     if (s2.val() == v['business_process_id'])

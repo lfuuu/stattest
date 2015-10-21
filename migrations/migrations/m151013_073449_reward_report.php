@@ -7,7 +7,7 @@ class m151013_073449_reward_report extends \app\classes\Migration
         $this->execute("
             ALTER TABLE `client_contragent`
                 ADD COLUMN `sale_channel_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `comment`,
-                ADD COLUMN `partner_id` INT UNSIGNED NULL DEFAULT NULL AFTER `sale_channel_id`;
+                ADD COLUMN `partner_contract_id` INT UNSIGNED NULL DEFAULT NULL AFTER `sale_channel_id`;
         ");
 
         $this->execute("

@@ -161,11 +161,21 @@ use app\models\ClientContract;
                 ],
                 ['type' => Form::INPUT_RAW],
             ]
-                : [
+                : (
+            ($model->business_id == \app\models\Business::PARTNER)
+                ? [
+                'contract_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ContractType::getList(),
 
+                ],
+                ['type' => Form::INPUT_RAW],
+            ]
+                : [
                 ['type' => Form::INPUT_RAW],
                 ['type' => Form::INPUT_RAW],
             ]
+            )
             )
         )
     ]);

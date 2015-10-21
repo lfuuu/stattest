@@ -231,7 +231,7 @@ abstract class AccountGridFolder extends Model
         return $columns;
     }
 
-    private function getDefaultColumns()
+    protected function getDefaultColumns()
     {
         return [
             'status' => [
@@ -354,14 +354,14 @@ abstract class AccountGridFolder extends Model
                         'service',
                         \Yii::$app->request->get('service'),
                         [
-                            'emails' => 'emails',
-                            'tech_cpe' => 'tech_cpe',
-                            'usage_extra' => 'usage_extra',
-                            'usage_ip_ports' => 'usage_ip_ports',
-                            'usage_sms' => 'usage_sms',
-                            'usage_virtpbx' => 'usage_virtpbx',
-                            'usage_voip' => 'usage_voip',
-                            'usage_welltime' => 'usage_welltime',
+                            'emails' => 'Email',
+                            'tech_cpe' => 'Texh CPE',
+                            'usage_extra' => 'Extra',
+                            'usage_ip_ports' => 'IP Ports',
+                            'usage_sms' => 'SMS',
+                            'usage_virtpbx' => 'ВАТС',
+                            'usage_voip' => 'Телефония',
+                            'usage_welltime' => 'Welltime',
                         ],
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
                     );
