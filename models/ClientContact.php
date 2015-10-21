@@ -27,6 +27,7 @@ class ClientContact extends ActiveRecord
         return [
             ['type', 'in', 'range' => array_keys(self::$types)],
             ['data', 'required'],
+            ['data', 'trim'],
             ['data', 'email',
                 'when' => function($model){return $model->type == self::TYPE_EMAIL;},
                 'whenClient' => 'function(){return $("#contact-type").val() == "'. self::TYPE_EMAIL .'";}'
@@ -64,11 +65,6 @@ class ClientContact extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
-    }
-
-    public function beforeValidate() {
-        $this->data = trim($this->data);
-        return parent::beforeValidate();
     }
 
 }
