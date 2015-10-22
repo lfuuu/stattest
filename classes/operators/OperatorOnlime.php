@@ -76,13 +76,7 @@ class OperatorOnlime extends Operators
             'name' => 'Приставка SML-482 HD',
             'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
             'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
-        ],
-        'count_N17609' => [
-            'id' => 17609,
-            'name' => 'SML-482 HD Base с Wi-Fi',
-            'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
-            'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
-        ],
+        ]
     ];
 
     public static $requestModes = [
