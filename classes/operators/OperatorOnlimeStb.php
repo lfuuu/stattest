@@ -24,12 +24,15 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
             'name' => 'Доставка OnlimeTelecard внутри МКАД',
             'nameFull' => 'Услуга по доставке OnlimeTelecard по Москве в пределах МКАД',
             'id_1c' => '81d52242-4d6c-11e1-8572-00155d881200',
+            'type' => 'required_one',
+            'is_default' => true,
         ],
         [
             'id' => 13621,
             'name' => 'Доставка OnlimeTelecard за МКАД',
             'nameFull' => 'Услуга по доставке OnlimeTelecard по Москве за пределами МКАД',
             'id_1c' => '81d52245-4d6c-11e1-8572-00155d881200',
+            'type' => 'required_one',
         ],
     ];
 
