@@ -71,6 +71,12 @@ class OperatorOnlime extends Operators
             'nameFull' => 'Gigaset C530A IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)',
             'id_1c' => '4454e4d5-a79e-11e4-a330-00155d881200',
         ],
+        'count_28' => [
+            'id' => 17609,
+            'name' => 'Приставка SML-482 HD',
+            'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
+            'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
+        ],
         'count_N17609' => [
             'id' => 17609,
             'name' => 'SML-482 HD Base с Wi-Fi',
