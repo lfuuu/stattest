@@ -166,7 +166,14 @@ class RequestOnlimeForm extends Form
             case 'comment1':
                 return self::$time_intervals[ $this->time_interval ];
             case 'comment2':
-                return isset($this->operator_name) ? ':' . $this->operator_name : '';
+                $info = '';
+                if (isset($this->operator_name)) {
+                    $info .= ':' . $this->operator_name;
+                }
+                if (isset($this->partner)) {
+                    $info .= (!isset($this->operator_name) ? ':' : '') . ':' . $this->partner;
+                }
+                return $info;
             case 'acc_no':
                 return $this->account_id;
             default:

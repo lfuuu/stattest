@@ -13,6 +13,8 @@ $billItems = $bill->lines;
 $billExtendsInfo = $bill->extendsInfo;
 $stages = $operator->report->getTroubleStages($trouble->id);
 $model->state_id = $trouble->currentStage->state_id;
+
+list(, $operator_name, $partner) = preg_split('#:\s*#', $billExtendsInfo->comment2);
 ?>
 
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" />
@@ -36,10 +38,11 @@ $model->state_id = $trouble->currentStage->state_id;
         </div>
         <div class="col-xs-2">
             <b>Ф.И.О. оператора</b><br />
-            <?php
-            list(, $operator_name) = preg_split('#:\s*#', $billExtendsInfo->comment2);
-            echo $operator_name;
-            ?>
+            <?= $operator_name; ?>
+        </div>
+        <div class="col-xs-2">
+            <b>Партнер</b><br />
+            <?= $partner; ?>
         </div>
         <div class="col-xs-2">
             <b>Временной интервал</b><br />

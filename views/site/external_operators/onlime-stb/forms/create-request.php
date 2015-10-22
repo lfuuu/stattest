@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use yii\widgets\MaskedInput;
 
 /** @var $model \app\forms\external_operators\RequestOnlimeStbForm */
 ?>
@@ -19,7 +20,13 @@ use kartik\builder\Form;
         'attributes' => [
             'fullname' => ['type' => Form::INPUT_TEXT],
             'address' => ['type' => Form::INPUT_TEXT],
-            'phone' => ['type' => Form::INPUT_TEXT],
+            'phone' => [
+                'type' => Form::INPUT_WIDGET,
+                'widgetClass' => MaskedInput::className(),
+                'options' => [
+                    'mask' => '8 (999) 999-99-99',
+                ],
+            ],
         ],
     ]);
 
@@ -28,24 +35,23 @@ use kartik\builder\Form;
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'empty1' => [
-                'type' => Form::INPUT_RAW,
-                'value' =>
-                    $form->field($model, 'operator_name')->textInput() .
-                    $form->field($model, 'time_interval')->dropDownList($model->getTimeIntervals()),
-            ],
-            'comment' => [
-                'type' => Form::INPUT_TEXTAREA,
-                'columnOptions' => [
-                    'colspan' => 2,
-                ],
-                'options' => [
-                    'rows' => 5,
-                ],
+            'operator_name' => ['type' => Form::INPUT_TEXT],
+            'partner' => ['type' => Form::INPUT_TEXT],
+            'time_interval' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $model->getTimeIntervals(),
             ],
         ],
     ]);
 
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'columns' => 1,
+        'attributes' => [
+            'comment' => ['type' => Form::INPUT_TEXTAREA],
+        ],
+    ]);
     ?>
 
     <div class="row" style="padding: 5px;">

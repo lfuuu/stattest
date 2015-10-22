@@ -8,11 +8,13 @@ use yii\helpers\ArrayHelper;
 class RequestOnlimeStbForm extends RequestOnlimeForm
 {
 
+    public $partner;
+
     public function rules()
     {
         return [
-            [['fullname', 'address', 'phone', 'operator_name'], 'required'],
-            [['fullname', 'address', 'phone', 'comment', 'operator_name'], 'string'],
+            [['fullname', 'address', 'phone', 'operator_name', 'partner',], 'required'],
+            [['fullname', 'address', 'phone', 'comment', 'operator_name','partner',], 'string'],
             ['time_interval', 'in', 'range' => array_keys(self::getTimeIntervals())],
             ['products', 'required', 'message' => 'Выберите хотя бы один товар'],
             ['products_counts', 'required', 'message' => 'Выберите хотя бы один товар'],
@@ -21,7 +23,10 @@ class RequestOnlimeStbForm extends RequestOnlimeForm
 
     public function attributeLabels()
     {
-        return ArrayHelper::merge(parent::attributeLabels(), ['operator_name' => 'ФИО оператора']);
+        return ArrayHelper::merge(parent::attributeLabels(), [
+            'operator_name' => 'ФИО оператора',
+            'partner' => 'Партнер',
+        ]);
     }
 
 }
