@@ -11,7 +11,12 @@ use yii\widgets\MaskedInput;
     <legend>Создание заявки</legend>
 
     <?php
-    $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+    $form = ActiveForm::begin([
+        'type' => ActiveForm::TYPE_VERTICAL,
+        'options' => [
+            'data-name' => $model->formName(),
+        ],
+    ]);
 
     echo Form::widget([
         'model' => $model,
@@ -75,17 +80,31 @@ use yii\widgets\MaskedInput;
                     <td style="background-color: #F0F0F0;"><b>Количество</b></td>
                 </tr>
                 <?php foreach ($operator->products as $product): ?>
-                    <tr>
-                        <td valign="middle" align="center">
-                            <input type="checkbox" name="<?= $model->formName(); ?>[products][]" value="<?= $product['id']; ?>" />
-                        </td>
-                        <td valign="middle" class="product-item">
-                            <?= $product['nameFull']; ?>
-                        </td>
-                        <td>
-                            <input type="text" name="<?= $model->formName(); ?>[products_counts][]" value="1" size="10" disabled="disabled" class="form-control" style="height: 25px;" />
-                        </td>
-                    </tr>
+                    <?php if (array_key_exists('type', $product)): ?>
+                        <?php if ($product['type'] == 'required_one'): ?>
+                            <tr>
+                                <td valign="middle" align="center">
+                                    <input type="radio" name="required_one" value="<?= $product['id']; ?>"<?= (array_key_exists('is_default', $product) && $product['is_default'] === true ? ' checked="checked"' : '')?> />
+                                </td>
+                                <td valign="middle" class="product-item">
+                                    <?= $product['nameFull']; ?>
+                                </td>
+                                <td></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td valign="middle" align="center">
+                                <input type="checkbox" name="<?= $model->formName(); ?>[products][]" value="<?= $product['id']; ?>" />
+                            </td>
+                            <td valign="middle" class="product-item">
+                                <?= $product['nameFull']; ?>
+                            </td>
+                            <td>
+                                <input type="text" name="<?= $model->formName(); ?>[products_counts][]" value="1" size="10" disabled="disabled" class="form-control" style="height: 25px;" />
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </table>
         </div>
@@ -124,5 +143,32 @@ jQuery(document).ready(function() {
             $(this).parent('td').next('td').toggleClass('product-item');
             $(this).parents('tr').find('td:eq(2)').find('input').prop('disabled', !$(this).is(':checked'));
         });
+    $('input[type="radio"][name="required_one"]')
+        .on('change', function() {
+            var form = $(this).parents('form'),
+                product = $(form).find('div.' + $(this).attr('name'));
+
+            if (!product.length) {
+                product = $('<div />')
+                    .addClass($(this).attr('name'))
+                    .appendTo(form);
+            }
+
+            product.children().remove();
+
+            $('<input />')
+                .attr('type', 'text')
+                .attr('name', form.data('name') + '[products][]')
+                .val($(this).val())
+                .appendTo(product);
+
+            $('<input />')
+                .attr('type', 'text')
+                .attr('name', form.data('name') + '[products_counts][]')
+                .val(1)
+                .appendTo(product);
+        })
+        .filter(':checked')
+        .trigger('change');
 });
 </script>
