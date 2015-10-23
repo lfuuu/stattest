@@ -207,7 +207,7 @@ class NumberDao extends Singleton
     public function getCallsWithoutUsages($region)
     {
         $dt = new \DateTime("now", new \DateTimeZone("UTC"));
-        $dt->modify("first day of -5 month, 00:00:00");
+        $dt->modify("first day of -3 month, 00:00:00");
 
         return 
                 Yii::$app->dbPg->createCommand("
