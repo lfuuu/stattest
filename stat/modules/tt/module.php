@@ -771,9 +771,11 @@ where c.client="'.$trouble['client_orig'].'"')
     }
 
     function addLogToStages(&$R, &$l){
-        foreach($R as &$r)
-            if(isset($l[$r["stage_id"]])) $r["comment"] .= (!$r["comment"] ? "" : "<hr>")."<font style=\"font-size: 7pt;\">".$l[$r["stage_id"]]."</font>";
-
+        foreach($R as &$r) {
+            if (isset($l[$r['stage_id']])) {
+                $r['comment'] .= (!$r['comment'] ? '' : '<br />') . nl2br(htmlspecialchars_(addcslashes($l[$r['stage_id']])));
+            }
+        }
     }
     function tt_timetable($fixclient) {
         global $db,$design,$user;

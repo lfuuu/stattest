@@ -1043,16 +1043,19 @@ class SoapHandler{
                 $err_msg = "Unknown state!";
                 $db->Query("select 'error: ".$err_msg."'");
             }else{
-                if(in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, OperatorOnlimeStb::OPERATOR_CLIENT, 'DostavkaMTS']) && trim($_POST['comment']))
-                    $q = "update tt_stages set comment='".$db->escape(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
+                if (in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, OperatorOnlimeStb::OPERATOR_CLIENT, 'DostavkaMTS']) && trim($_POST['comment'])) {
+                    $q = "UPDATE `tt_stages` SET `comment` = '" . $db->escape(trim($_POST['comment'])) . "', `date_edit` = NOW() WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];
+                }
 
-                if($state_1c == 'Отгружен')
-                    $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
-                elseif($state_1c == 'КОтгрузке')
-                    $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
-                else{
-                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
-                    $q = "update tt_stages set comment='".$comment."', date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                if ($state_1c == 'Отгружен') {
+                    $q = "UPDATE `tt_stages` SET `comment` = 'Товар Отгружен: " . nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) . "', `date_edit` = NOW(), `user_edit` = '1C' WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];
+                }
+                elseif($state_1c == 'КОтгрузке') {
+                    $q = "UPDATE `tt_stages` SET `comment` = 'Возврат товара: " . nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."', `date_edit` = NOW(), `user_edit` = '1C' WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];
+                }
+                else {
+                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : '';
+                    $q = "UPDATE `tt_stages` SET `comment` = '" . $comment . "', `date_edit` = NOW(), `user_edit` = '1C' WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];
                 }
 
                 if($curtt['trouble_type'] == 'mounting_orders'){
