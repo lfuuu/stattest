@@ -157,13 +157,13 @@ jQuery(document).ready(function() {
             product.children().remove();
 
             $('<input />')
-                .attr('type', 'text')
+                .attr('type', 'hidden')
                 .attr('name', form.data('name') + '[products][]')
                 .val($(this).val())
                 .appendTo(product);
 
             $('<input />')
-                .attr('type', 'text')
+                .attr('type', 'hidden')
                 .attr('name', form.data('name') + '[products_counts][]')
                 .val(1)
                 .appendTo(product);
