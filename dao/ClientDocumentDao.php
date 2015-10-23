@@ -112,7 +112,7 @@ class ClientDocumentDao extends Singleton
 
         $taxRate = $clientAccount->getTaxRate();
 
-        foreach (\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
+        foreach (\app\models\UsageVoip::find()->client($client)->andWhere('actual_to > NOW()')->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
 
             $currentTariff = $usage->getCurrentLogTariff();
@@ -120,19 +120,19 @@ class ClientDocumentDao extends Singleton
             $row = [
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
-                'description' => "Телефонный номер: " . $usage->E164,
+                'description' => 'Телефонный номер: ' . $usage->E164,
                 'number' => $usage->E164.' x '.$usage->no_of_lines,
                 'lines' => $usage->no_of_lines,
                 'free_local_min' => $usage->currentTariff->free_local_min * ($usage->currentTariff->freemin_for_number ? 1 : $usage->no_of_lines),
-                'connect_price' => (string)$usage->voipNumber->price,
-                'tarif_name' => $usage->currentTariff->name,
+                'connect_price' => (string) $usage->voipNumber->price,
+                'tariff' => $usage->currentTariff,
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2),
-                'month_min_payment' => $usage->currentTariff->month_min_payment,
             ];
 
-            if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448]))
+            if (!$data['has8800'] && in_array($usage->currentTariff->id, [226, 263, 264, 321, 322, 323, 448])) {
                 $data['has8800'] = true;
+            }
 
             if (
                 $currentTariff->id_tarif_local_mob
@@ -169,7 +169,7 @@ class ClientDocumentDao extends Singleton
             if ($currentTariff->dest_group != 0 && $currentTariff->minpayment_group) {
                 $group = preg_split('//', $currentTariff->dest_group, -1, PREG_SPLIT_NO_EMPTY);
                 $minpayment = ['value' => $currentTariff->minpayment_group, 'variants' => [0, 0, 0, 0,]];
-                for ($i = 0, $s = sizeof($group); $i < $s; $i++) {
+                for ($i = 0, $s = count($group); $i < $s; $i++) {
                     switch ($group[$i]) {
                         case 1:
                             $minpayment['variants'][1] = 1;
@@ -193,7 +193,12 @@ class ClientDocumentDao extends Singleton
             if ($currentTariff->minpayment_intern > 0)
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
 
-            $data['voip'][] = $row;
+            if ($usage->type_id == '7800') {
+                $data['voip_7800'][] = $row;
+            }
+            else {
+                $data['voip'][] = $row;
+            }
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
@@ -214,26 +219,19 @@ class ClientDocumentDao extends Singleton
             $data[$block][] = [
                 'from' => strtotime($usage->actual_from),
                 'id' => $usage->id,
-                'tarif_name' => $usage->currentTariff->name,
-                'pay_once' => $usage->currentTariff->pay_once,
-                'gb_month' => $usage->currentTariff->mb_month / 1024,
-                'pay_mb' => $usage->currentTariff->pay_mb,
+                'tariff' => $usage->currentTariff,
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2)
             ];
         }
 
-        foreach (\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $usage) {
+        foreach (\app\models\UsageVirtpbx::find()->client($client)->andWhere('actual_to > NOW()')->all() as $usage) {
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->currentTariff->price, $taxRate);
 
             $data['vats'][] = [
                 'from' => strtotime($usage->actual_from),
-                'description' => "ВАТС " . $usage->id,
-                'tarif_name' => $usage->currentTariff->description,
-                'space' => $usage->currentTariff->space,
-                'over_space_per_gb' => $usage->currentTariff->overrun_per_gb,
-                'num_ports' => $usage->currentTariff->num_ports,
-                'overrun_per_port' => $usage->currentTariff->overrun_per_port,
+                'description' => 'ВАТС ' . $usage->id,
+                'tariff' => $usage->currentTariff,
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2)
             ];
@@ -259,7 +257,7 @@ class ClientDocumentDao extends Singleton
 
             $data['extra'][] = [
                 'from' => strtotime($usage->actual_from),
-                'tarif_name' => $usage->currentTariff->description,
+                'tariff' => $usage->currentTariff,
                 'amount' => $usage->amount,
                 'pay_once' => 0,
                 'per_month' => round($sum, 2),
@@ -272,7 +270,7 @@ class ClientDocumentDao extends Singleton
 
             $data['welltime'][] = [
                 'from' => $usage->actual_from,
-                'tarif_name' => $usage->currentTariff->description,
+                'tariff' => $usage->currentTariff,
                 'amount' => $usage->amount,
                 'pay_once' => 0,
                 'per_month' => round($sum, 2),
@@ -280,8 +278,8 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        $design->assign("blank_data", $data);
-        return $design->fetch("tarifs/blank.htm");
+        $design->assign('blank_data', $data);
+        return $design->fetch('tarifs/blank.htm');
     }
 
     private function contract_fix_static_parts_of_template(&$design, $content)
