@@ -112,7 +112,7 @@ class OperatorOnlime extends Operators
     ];
 
     public static $availableRequestStatuses = [
-        15 => 'Новый',
+        33 => 'Новый',
         17 => 'В работе',
         24 => 'Отложен',
         20 => 'Закрыт',

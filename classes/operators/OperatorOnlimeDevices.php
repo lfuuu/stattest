@@ -103,7 +103,7 @@ class OperatorOnlimeDevices extends Operators
     ];
 
     protected static $availableRequestStatuses = [
-        17 => 'В работе',
+        32 => 'В работе',
         21 => 'Отказ',
     ];
 
@@ -135,7 +135,7 @@ class OperatorOnlimeDevices extends Operators
         $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
 
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['not in', 'state_id', [24, 31, 2, 20, 4, 18, 28, 21]]);
+        $query->andWhere(['not in', 'state_id', [24, 31, 2, 20, 4, 18, 28, 21, 32]]);
         $query->andWhere('d.doer_id IS NOT NULL');
     }
 
@@ -149,7 +149,7 @@ class OperatorOnlimeDevices extends Operators
 
     public function modeCloseModify(Query $query, $dao)
     {
-        $query->leftJoin('tt_stages s', 's.trouble_id = t.id');
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
 
         $query->andWhere(['between', 's.date_start', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['in', 'state_id', [2, 20]]);
