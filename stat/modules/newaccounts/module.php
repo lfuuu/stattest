@@ -344,7 +344,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
+                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -361,8 +361,10 @@ class m_newaccounts extends IModule
                 (($get_income_goods_on_bill_list) ? 'union
                 (
                     ### incomegoods
-                 SELECT
+                    SELECT
+                    "income_order" as type,
                     number as bill_no,
+                    id as bill_id,
                     "" as bill_no_ext,
                     cast(date as date) as bill_date,
                     client_card_id as client_id,
@@ -382,7 +384,8 @@ class m_newaccounts extends IModule
                 bill_no desc
             limit 1000
         ','',MYSQL_ASSOC);
-
+        
+        
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0){
             array_unshift($R1, Array
                                 (
@@ -646,11 +649,11 @@ class m_newaccounts extends IModule
 
        //income orders
 	   //}elseif(isset($_GET["bill"]) && preg_match("/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/", $_GET["bill"])){ // incoming orders
-       }elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
+       }elseif(isset($_GET["income_order_id"]) || (isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"]))){ // incoming orders
 
            //find last order
            $order = GoodsIncomeOrder::first(array(
-                       "conditions" => array("number" => $_GET["bill"]),
+                       "conditions" => (isset($_GET["income_order_id"]) ? ["id" => $_GET["income_order_id"]] : ["number" => $_GET["bill"]]),
                        "order" => "date desc",
                        "limit" => 1
                        )
