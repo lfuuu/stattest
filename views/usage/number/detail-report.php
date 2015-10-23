@@ -54,11 +54,16 @@ echo Html::formLabel('Детальный отчет по номерам');
 
     <table class="table table-bordered table-striped table-condensed table-hover">
         <tr>
-            <th>Номер</th>
-            <th>Группа</th>
-            <th>Состояние</th>
-            <th>Клиент</th>
-            <th><small>Среднее кол-во звонков в месяц,<br/> за последнее 3 месяца</small></th>
+            <th rowspan=2>Номер</th>
+            <th rowspan=2>Группа</th>
+            <th rowspan=2>Состояние</th>
+            <th rowspan=2>Клиент</th>
+            <th colspan=6><small>Кол-во звонков в месяц</small></th>
+        </tr>
+        <tr>
+            <?php foreach($headMonths as $month): ?>
+                <th><small><?=$month?><small></th>
+            <?php endforeach; ?>
         </tr>
         <?php foreach($numbers as $n): ?>
             <tr>
@@ -82,11 +87,13 @@ echo Html::formLabel('Детальный отчет по номерам');
                     <?php endif; ?>
                 </td>
                 <td><a href="/client/view?id=<?= $n['client_id'] ?>"><?= $n['client'] . ' ' . $n['company'] ?></a></td>
-                <td <?php if (isset($n['count_avg3m']) && $n['count_avg3m'] > $minCalls): ?> style="font-weight: bold; color: red;"<?php endif; ?> >
-                    <?php if (isset($n['count_avg3m'])): ?>
-                        <?= $n['count_avg3m'] ?>
-                    <?php endif; ?>
-                </td>
+                <?php foreach($headMonths as $monthId => $month): 
+                    $mCalls = $n["month"][$monthId];
+                ?>
+                    <td <?php if ($mCalls > $minCalls): ?> style="font-weight: bold; color: red;"<?php endif; ?> >
+                        <?= ($mCalls > 0 ? $mCalls : "") ?>
+                    </td>
+                <?php endforeach; ?>
             </tr>
         <?php endforeach; ?>
     </table>

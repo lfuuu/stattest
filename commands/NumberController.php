@@ -6,6 +6,7 @@ use DateTime;
 use yii\console\Controller;
 use app\models\Number;
 use app\models\UsageVoip;
+use app\models\Region;
 
 
 class NumberController extends Controller
@@ -48,4 +49,19 @@ class NumberController extends Controller
             echo $today->format("Y-m-d").": ".$usage->E164."\n";
         }
     }
+
+    public function actionPreloadDetailReport()
+    {
+        echo "\n".date("r").": start";
+        if (date("N") > 5) {
+            echo "\n".date("r").": non working day";
+        } else {
+            foreach(Region::find()->all() as $region) {
+                echo "\n".date("r").": region ".$region->id;
+                Number::dao()->getCallsWithoutUsages($region->id);
+            }
+        }
+        echo "\n".date("r").": end";
+    }
+
 }
