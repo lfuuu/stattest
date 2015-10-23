@@ -174,10 +174,10 @@ class UsageController extends Controller
         {
             $client = ClientAccount::findOne($res["client_id"]);
 
-            if ($client->is_blocked == 0)
+            if ($client->voip_disabled == 0)
             {
                 echo "\n...".$res["client_id"];
-                $client->is_blocked = 1;
+                $client->voip_disabled = 1;
                 $client->save();
             }
         }
