@@ -163,11 +163,11 @@ class UsageController extends Controller
             FROM billing.clients c
             LEFT JOIN billing.counters cc ON c.id=cc.client_id
             LEFT JOIN billing.locks cl ON c.id=cl.client_id
-            WHERE cl.voip_auto_disabled AND not c.voip_disabled 
+            WHERE (cl.voip_auto_disabled or cl.voip_auto_disabled_local) AND not c.voip_disabled
             AND (
-                (voip_limit_day != 0 AND amount_day_sum > voip_limit_day) OR
+                (voip_limit_day != 0 AND amount_day_sum < -voip_limit_day) OR
                 (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
-            )  
+            )
             ")->queryAll();
 
         foreach($ress as $res)
