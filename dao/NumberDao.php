@@ -203,4 +203,21 @@ class NumberDao extends Singleton
             }
         }
     }
+
+    public function getCallsWithoutUsages($region)
+    {
+        $dt = new \DateTime("now", new \DateTimeZone("UTC"));
+        $dt->modify("first day of -5 month, 00:00:00");
+
+        return 
+                Yii::$app->dbPg->createCommand("
+                    select dst_number as usage_num, count(*) as count, to_char(connect_time, 'MM') as month
+                    from calls_raw.calls_raw
+                    where connect_time > '".$dt->format("Y-m-d H:i:s")."'
+                    and server_id = ".$region."
+                    and number_service_id is null
+                    and orig = false
+                    group by dst_number, month
+                ")->cache(86400)->queryAll();
+    }
 }
