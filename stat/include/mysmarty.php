@@ -226,15 +226,16 @@ function smarty_modifier_mdate($value,$format) {
 	return mdate($format,is_numeric($value)?$value:strtotime($value));
 }
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
+    $user_timezone = isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
+
     if (is_numeric($value)) {
-        $date = new DateTime('now', new DateTimeZone('UTC'));
+        $date = new DateTime('now');
         if ($value > 0) {
-            $date->setTimestamp($value);
+            $date->setTimestamp($value, new DateTimeZone($user_timezone));
         }
     } else {
-        $date = new DateTime($value, new DateTimeZone('UTC'));
+        $date = new DateTime($value, new DateTimeZone($user_timezone));
     }
-    $date->setTimezone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
 
     return dateReplaceMonth($date->format($format), $date->format('m'));
 }

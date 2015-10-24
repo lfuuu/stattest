@@ -2544,15 +2544,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             if(isset($_POST['doer_fix'])){
                 $date = array_keys($_POST['doer_fix']);
-                $date = $date[0];
-                $time = array_keys($_POST['doer_fix'][$date]);
-                $time = $time[0];
-                $date_start = $date." ".$time.":00:00";
+                $time = array_keys($_POST['doer_fix'][$date[0]]);
+                $date_start = \app\helpers\DateTimeZoneHelper::setDateTime($date[0] . ' ' . $time . ':00:00');
+
                 $db->Query("
                     UPDATE
                         `tt_stages`
                     SET
-                        `date_start` = '".$date_start."'
+                        `date_start` = '" . $date_start->format('Y-m-d H:i:s') . "'
                     WHERE
                         `stage_id` = ".$row['stage_id']
                 );
