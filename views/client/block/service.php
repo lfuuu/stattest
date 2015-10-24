@@ -267,7 +267,7 @@ if ($has) :
                                     </td>
                                     <td><?= $service->E164 ?>&nbsp;x&nbsp;<?= $service->no_of_lines ?></td>
                                     <td style="font-size: 8pt;">
-                                        <?= $currentTariff->name ?> (<?= $currentTariff->month_line . '-' . $currentTariff->month_number ?>)
+                                        <?= $currentTariff->name ?> (<?= $currentTariff->month_number . '-' . $currentTariff->month_line ?>)
                                         <?php
                                         if ($log->dest_group != '0') {
                                             echo '/ Набор:';
