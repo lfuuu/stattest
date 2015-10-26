@@ -21,7 +21,15 @@
         {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$firm.name} {$firm.address}{/if}
     {/capture}
     {capture name=consignee}
-        {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}{$bill_client.consignee}{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}{/if}
+        {if isset($client.is_with_consignee) && $client.is_with_consignee && $bill_client.consignee}
+            {$bill_client.consignee}
+        {else}
+            {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}
+                &nbsp;--
+            {else}
+                {$bill_client.company_full}{$bill_client.address_post}
+            {/if}
+        {/if}
     {/capture}
     {capture name=seller_head_position}
         {if $to_print}
