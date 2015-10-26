@@ -10,6 +10,7 @@ use app\helpers\DateTimeZoneHelper;
             <tr>
                 <th rowspan="2" width="1%">#</th>
                 <th rowspan="2" width="10%"><div style="text-align: center;">Оператор</div></th>
+                <th rowspan="2" width="10%"><div style="text-align: center;">Партнер</div></th>
                 <th colspan="2" width="10%"><div style="text-align: center;">Номер счета</div></th>
                 <th rowspan="2" width="5%"><div style="text-align: center;">Дата<br />создания заказа</div></th>
                 <th colspan="<?= count($operator->products); ?>" width="1%"><div style="text-align: center;">Кол-во</div></th>
@@ -33,6 +34,7 @@ use app\helpers\DateTimeZoneHelper;
                 <tr>
                     <td><?= ($number + 1); ?>.</td>
                     <td><?= $item['fio_oper']; ?></td>
+                    <td><?= $item['partner']; ?></td>
                     <td><?= $item['req_no']; ?></td>
                     <td>
                         <a href="<?= $billLink . $item['bill_no']; ?>" title="Просмотр заказа">
@@ -89,7 +91,7 @@ use app\helpers\DateTimeZoneHelper;
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="5"><div style="text-align: right;">Итого:</div></th>
+                <th colspan="6"><div style="text-align: right;">Итого:</div></th>
                 <?php foreach ($operator->products as $key => $product): ?>
                     <?php
                     if (is_string($key)) {

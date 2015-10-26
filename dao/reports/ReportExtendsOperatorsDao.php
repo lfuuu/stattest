@@ -110,7 +110,7 @@ class ReportExtendsOperatorsDao extends Singleton
             }
 
             if (array_key_exists('fio_oper', $item) && $item['fio_oper']) {
-                list(, $item['fio_oper']) = preg_split('#:\s*#', $item['fio_oper']);
+                list(, $item['fio_oper'], $item['partner']) = preg_split('#:\s*#', $item['fio_oper']);
             }
 
             $item['address'] = $this->prepareAddress($item['address']);
