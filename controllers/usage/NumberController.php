@@ -5,6 +5,7 @@ use Yii;
 use DateTime;
 use yii\helpers\ArrayHelper;
 use app\classes\Assert;
+use app\classes\DateFunction;
 use app\forms\usage\NumberForm;
 use app\models\City;
 use app\models\DidGroup;
@@ -100,6 +101,17 @@ class NumberController extends BaseController
             $statuses = array_keys($statusList);
         }
 
+        $headMonths = [];
+        $dt = new \DateTime();
+        $dt->setDate(date("Y"), date("m"), 15);
+        $dt->modify("-6 month");
+        $emptyMonths = [];
+        for($i = 0; $i < 6; $i++) {
+            $dt->modify("+1 month");
+            $headMonths[(int)$dt->format("m")] = DateFunction::mdate($dt->getTimestamp(), "месяц");
+            $emptyMonths[(int)$dt->format("m")] = 0;
+        }
+
         $numbers =
             Yii::$app->db->createCommand("
                     select n.*, ccc.name as company, c.client from voip_numbers n
@@ -118,25 +130,21 @@ class NumberController extends BaseController
 
         $city = City::findOne($cityId);
         if ($city && $city->connection_point_id && (in_array('hold', $statuses) || in_array('instock', $statuses))) {
-            $callsCount =
-                Yii::$app->dbPg->createCommand("
-                    select dst_number as usage_num, count(*) / 3 as count_avg3m
-                    from calls_raw.calls_raw
-                    where connect_time > now() - interval '3 month'
-                    and server_id = $city->connection_point_id
-                    and number_service_id is null
-                    and orig = false
-                    group by dst_number
-                ")->cache(86400)->queryAll();
+
+            $callsCount = Number::dao()->getCallsWithoutUsages($city->connection_point_id);
 
             $callsCountByNumber = [];
             foreach ($callsCount as $calls) {
-                $callsCountByNumber[$calls['usage_num']] = $calls['count_avg3m'];
+                if (!isset($callsCountByNumber[$calls['usage_num']])) {
+                    $callsCountByNumber[$calls['usage_num']] = $emptyMonths;
+                }
+
+                $callsCountByNumber[$calls['usage_num']][(int)$calls["month"]] = $calls['count'];
             }
 
             foreach($numbers as $k => $n) {
                 if (isset($callsCountByNumber[$n["number"]])) {
-                    $numbers[$k]['count_avg3m'] = $callsCountByNumber[$n["number"]];
+                    $numbers[$k]['month'] = $callsCountByNumber[$n["number"]];
                 }
             }
         }
@@ -147,6 +155,9 @@ class NumberController extends BaseController
             Yii::$app->end();
         }
 
+
+
+
         return $this->render('detail-report', [
             'cityId' => $cityId,
             'didGroups' => $didGroups,
@@ -156,7 +167,8 @@ class NumberController extends BaseController
             'didGroupList' => $didGroupList,
             'statusList' => Number::$statusList,
             'numbers' => $numbers,
-            'minCalls' => 10 //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
+            'minCalls' => 10, //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
+            'headMonths' => $headMonths
         ]);
     }
 

@@ -6,6 +6,7 @@ use DateTime;
 use yii\console\Controller;
 use app\models\Number;
 use app\models\UsageVoip;
+use app\models\Region;
 
 
 class NumberController extends Controller
@@ -15,18 +16,7 @@ class NumberController extends Controller
         $numbers =
             Number::find()
                 ->andWhere(['status' => Number::STATUS_HOLD])
-                ->andWhere('hold_from < NOW() - INTERVAL 6 MONTH')
-                ->all(); /** @var Number[] $numbers */
-
-        foreach ($numbers as $number) {
-            Number::dao()->stopHold($number);
-            echo $number->number . " unholded\n";
-        }
-
-        $numbers =
-            Number::find()
-                ->andWhere(['status' => Number::STATUS_HOLD])
-                ->andWhere("number like '7495%'")
+                ->andWhere('hold_to < NOW()')
                 ->all(); /** @var Number[] $numbers */
 
         foreach ($numbers as $number) {
@@ -59,4 +49,19 @@ class NumberController extends Controller
             echo $today->format("Y-m-d").": ".$usage->E164."\n";
         }
     }
+
+    public function actionPreloadDetailReport()
+    {
+        echo "\n".date("r").": start";
+        if (date("N") > 5) {
+            echo "\n".date("r").": non working day";
+        } else {
+            foreach(Region::find()->all() as $region) {
+                echo "\n".date("r").": region ".$region->id;
+                Number::dao()->getCallsWithoutUsages($region->id);
+            }
+        }
+        echo "\n".date("r").": end";
+    }
+
 }

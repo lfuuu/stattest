@@ -13,6 +13,7 @@ use app\models\TariffVoipPackage;
 use app\models\Region;
 use app\models\VoipNumber;
 use app\widgets\DateControl as CustomDateControl;
+use app\helpers\DateTimeZoneHelper;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -22,7 +23,7 @@ $types = [
     'number' => 'Номер',
     '7800' => '7800',
     'line' => 'Линия без номера',
-    'operator' => 'Оператор',
+    //'operator' => 'Оператор',
 ];
 
 $noYes = [
@@ -280,6 +281,7 @@ echo Breadcrumbs::widget([
                 <td nowrap><?= $actualFrom->format('Y-m-d') . ' - ' . ($actualTo !== null ? $actualTo->format('Y-m-d') :  '') ?></td>
                 <td width="100%">
                     <?= Html::encode($item->voipTariffMain->name) ?>
+                    (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
                     / Моб <?= Html::encode($item->voipTariffLocalMob->name_short) ?>
                     / МГ <?= Html::encode($item->voipTariffRussia->name_short) ?>
                     / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name_short) ?>
@@ -311,7 +313,7 @@ echo Breadcrumbs::widget([
                     <?php
                         $user = User::findOne($item->id_user);
                         $user = $user ? $user->name : $item->id_user;
-                        echo $item->ts . ' / ' . $user;
+                        echo DateTimeZoneHelper::getDateTime($item->ts) . ' / ' . $user;
                     ?>
                 </td>
                 <td>
@@ -442,20 +444,26 @@ echo Breadcrumbs::widget([
 </script>
 
 
-<!--h2>Подключенные пакеты:</h2>
+<h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">
     <col width="10%" />
+    <col width="50%" />
     <col width="* " />
+    <col width="* " />
+    <col width="15%" />
     <col width="5%" />
     <thead>
         <tr>
             <th>Период</th>
             <th>Тариф</th>
+            <th>Минут <br>в&nbsp;пакете / потрачено</th>
+            <th>Стоимость звонков</th>
+            <th>Добавлено</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <?php /*foreach ($usagePackages as $package): ?>
+        <?php foreach ($usagePackages as $package): ?>
             <?php
             $actualTo =
                 round(
@@ -471,6 +479,28 @@ echo Breadcrumbs::widget([
             <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">
                 <td nowrap="nowrap"><?= $package->actual_from . ' - ' . $actualTo; ?></td>
                 <td><?= $package->tariff->name; ?></td>
+                <? if ($packageStat[$package->id]) { 
+                    $stat = $packageStat[$package->id];
+                ?>
+                <td><?= floor($stat->used_seconds / 60); ?> / <?= floor($stat->paid_seconds / 60); ?></td>
+                <td><?= abs($stat->used_credit); ?></td>
+                <? }else{ ?>
+                    <td colspan=2>&nbsp;</td>
+                <? } ?>
+
+                <? if ($packagesHistory[$package->id]) {
+                    $hist = $packagesHistory[$package->id];
+                ?>
+                    <td><? 
+                        $user = User::findOne($hist->id_user);
+                        $user = $user ? $user->name : $hist->id_user;
+                        echo DateTimeZoneHelper::getDateTime($hist->ts) . '<br>' . $user;
+
+                    ?></td> 
+                <? } else { ?>
+                <td>&nbsp;</td>
+                <? } ?>
+
                 <td align="center">
                     <?php
                     if ($package->actual_from > $now->format('Y-m-d')) {
@@ -482,13 +512,13 @@ echo Breadcrumbs::widget([
                     ?>
                 </td>
             </tr>
-        <?php endforeach;*/ ?>
+        <?php endforeach; ?>
     </tbody>
 </table>
 
-<h2>Добавить пакет:</h2-->
+<h2>Добавить пакет:</h2>
 <?php
-/*
+
 $formModel = new \app\forms\usage\UsageVoipAddPackageForm;
 $formModel->usage_voip_id = $usage->id;
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
@@ -534,7 +564,7 @@ echo Form::widget([
 ]);
 
 ActiveForm::end();
-*/
+
 ?>
 <br />
 <br />

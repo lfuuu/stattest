@@ -72,8 +72,10 @@ if ($curtype) {
             <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">Тип</label>
-                    <?= Html::dropDownList('ttype', $curtype ? $curtype['code'] : Trouble::TYPE_TROUBLE, $troubleTypes,
+                    <?= Html::dropDownList('', $curtype ? $curtype['code'] : Trouble::TYPE_TROUBLE, $troubleTypes,
                         ['class' => 'form-control', 'disabled' => (bool)$curtype]) ?>
+
+                    <?= Html::hiddenInput('type', $curtype ? $curtype['code'] : Trouble::TYPE_TROUBLE) ?>
                 </div>
             </div>
             <div class="col-sm-6">
@@ -120,8 +122,8 @@ if ($curtype) {
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label>Ответсвенный</label>
-                    <?= Html::dropDownList('user', Yii::$app->user->id, $ttUsers, ['class' => 'form-control']) ?>
+                    <label>Ответственный</label>
+                    <?= Html::dropDownList('user', Yii::$app->user->id, $ttUsers, ['class' => 'form-control select2']) ?>
                 </div>
             </div>
             <div class="col-sm-6" style="padding-top: 20px;">
@@ -156,6 +158,12 @@ if ($curtype) {
         div.closest('div.form-group').children('div').hide();
         div.show();
     }).trigger('change');
+
+    $('form').on('submit', function () {
+        $('.timing-types .form-group div:hidden').remove();
+        return true;
+    });
+
     $('#toogle-trouble-form').on('click', function () {
         $('#create-trouble-form').toggle();
         var text = $(this).text();

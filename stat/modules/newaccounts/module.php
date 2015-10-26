@@ -344,7 +344,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
+                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -361,8 +361,10 @@ class m_newaccounts extends IModule
                 (($get_income_goods_on_bill_list) ? 'union
                 (
                     ### incomegoods
-                 SELECT
+                    SELECT
+                    "income_order" as type,
                     number as bill_no,
+                    id as bill_id,
                     "" as bill_no_ext,
                     cast(date as date) as bill_date,
                     client_card_id as client_id,
@@ -372,6 +374,7 @@ class m_newaccounts extends IModule
                     "" `comment`,
                     "0000-00-00" postreg ,
                     "" nal,
+                    0,
                     1 in_sum
 
                   FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'"
@@ -381,7 +384,8 @@ class m_newaccounts extends IModule
                 bill_no desc
             limit 1000
         ','',MYSQL_ASSOC);
-
+        
+        
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0){
             array_unshift($R1, Array
                                 (
@@ -645,11 +649,11 @@ class m_newaccounts extends IModule
 
        //income orders
 	   //}elseif(isset($_GET["bill"]) && preg_match("/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/", $_GET["bill"])){ // incoming orders
-       }elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
+       }elseif(isset($_GET["income_order_id"]) || (isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"]))){ // incoming orders
 
            //find last order
            $order = GoodsIncomeOrder::first(array(
-                       "conditions" => array("number" => $_GET["bill"]),
+                       "conditions" => (isset($_GET["income_order_id"]) ? ["id" => $_GET["income_order_id"]] : ["number" => $_GET["bill"]]),
                        "order" => "date desc",
                        "limit" => 1
                        )
@@ -4181,8 +4185,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         if($paymethod) $W[] = 'C.nal="'.$paymethod.'"';
         if($firma) {
-            $firma = Organization::findOne(['firma' => $firma])->organization_id;
-            $W[] = 'cr.organization_id="' . $firma . '"';
+            $organization = Organization::findOne(['firma' => $firma]);
+            $W[] = 'cr.organization_id="' . $organization->organization_id . '"';
         }
 
         $W[] = "cg.legal_type in ('ip', 'legal')";
@@ -4311,7 +4315,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         foreach($AA as $p)
         {
-        //while(($p = mysql_fetch_assoc($res))!==false){
+            //while(($p = mysql_fetch_assoc($res))!==false){
 
             $bill=new Bill($p['bill_no']);
             for ($I=1;$I<=3;$I++) {
@@ -4326,19 +4330,19 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                 if (is_array($A) && $A['bill']['sum']) {
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
-                    $A["bill"]["contract"] = $p["contract"];
-                    $A["bill"]["contract_status"] = $p["contract_status"];
+                    $A['bill']['contract'] = $p['contract'];
+                    $A['bill']['contract_status'] = $p['contract_status'];
 
                     $invDate = $A['bill']['shipment_ts'] ? 
                         $A['bill']['shipment_ts'] : 
                         $A['inv_date'];
 
                     // get property from history
-                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date("Y-m-d", $invDate));
-                    $p["company_full"] = trim($c["company_full"]);
-                    $p["inn"] = $c["inn"];
-                    $p["kpp"] = $c["kpp"];
-                    //$p["type"] = $c["type"];
+                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date('Y-m-d', $invDate));
+                    $p['company_full'] = trim($c['company_full']);
+                    $p['inn'] = $c['inn'];
+                    $p['kpp'] = $c['kpp'];
+                    //$p['type'] = $c['type'];
 
                     $A['bill']['inv_date'] = $invDate;
 
@@ -4348,16 +4352,16 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         $A['bill']['company_full'] = $p['company_full'];
                         $A['bill']['type'] = $c['type'];
 
-                        if($p["type"] == "person")
+                        if($p['type'] == 'person')
                         {
-                            $A['bill']['inn'] = "-----";
-                            $A['bill']['kpp'] = "-----";
-                        }elseif($p["type"] == "legal"){
+                            $A['bill']['inn'] = '-----';
+                            $A['bill']['kpp'] = '-----';
+                        }elseif($p['type'] == 'legal'){
                             $A['bill']['inn'] = $p['inn'];
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
                             $A['bill']['inn'] = $p['inn'];
-                            $A['bill']['kpp'] = "-----";
+                            $A['bill']['kpp'] = '-----';
                         }
 
                         $A['bill']['payment_no'] = $p['payment_no'];
@@ -4366,10 +4370,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                         $A['bill']['inv_no'] = $A['inv_no'];
 
-                        if($p["is_rollback"])
+                        if($p['is_rollback'])
                         {
-                            foreach(array("ts", "sum_tax", "sum_without_tax", "sum") as $f)
-                                $A["bill"][$f] = -abs($A["bill"][$f]);
+                            foreach(array('ts', 'sum_tax', 'sum_without_tax', 'sum') as $f)
+                                $A['bill'][$f] = -abs($A['bill'][$f]);
                         }
 
                         foreach ($S as $sk=>$sv) {
@@ -4391,45 +4395,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         //usort($R, array("self", "bb_sort_sum"));
         }
 
-        if(get_param_raw("csv", "0") == "1")
-        {
-            header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="Книга продаж.csv"');
-
-            ob_start();
-
-            echo "Книга продаж;;;;;;;;;;;;;;;;\n";
-            echo ";;;;;;;;;;;;;;;;;;\n";
-            echo ";;;;;;;в том числе продажи, облагаемые налогом по ставке;;;;;;;;;;;\n";
-            echo "№ п/п;Код вида операции;Дата и номер счета-фактуры продавца;Наименование покупателя;ИНН/КПП покупателя;Номер и дата документа, подтверждающего оплату;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;cId;\n";
-
-            $count = 0;
-            foreach($R as $r)
-            {
-                $companyName = html_entity_decode($r["company_full"]);
-                $companyName = str_replace(['«','»'], '"', $companyName);
-                $companyName = str_replace('"', '""', $companyName);
-
-                echo (++$count) . ';';
-                echo '="01";';
-                echo '"' . $r['inv_no'] . ';' . date('d.m.Y', $r['inv_date']) . '";';
-                echo '"' . $companyName . '";';
-                echo '"' . $r['inn'] . ($r['type'] == 'org' ? '/' . ($r['kpp'] ?: '') : '') . '";';
-                echo '"' . $r['payments'] . '";';
-                echo number_format(round($r["sum"],2), 2, ",", "").";";
-                echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
-                echo number_format(round($r["sum_tax"],2), 2, ",", "").";";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo "0;";
-                echo $r["client_id"].";";
-
-                echo "\n";
-            }
-            echo iconv('utf-8', 'windows-1251', ob_get_clean());
-            exit();
+        if(get_param_raw('excel', 0) == 1) {
+            $excel = new \app\classes\excel\BalanceSellToExcel;
+            $excel->openFile(Yii::getAlias('@app/templates/balance_sell.xls'));
+            $excel->organization = $organization;
+            $excel->dateFrom = Yii::$app->request->get('date_from');
+            $excel->dateTo = Yii::$app->request->get('date_to');
+            $excel->prepare($R);
+            $excel->download('Книга продаж');
         }
 
         $design->assign('data',$R);

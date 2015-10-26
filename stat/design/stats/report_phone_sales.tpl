@@ -148,6 +148,7 @@
   {assign var=month value=$report.month}
   {assign var=year value=$report.year}
   <h2>Статистика продаж телефонных номеров {$report.date}</h2>
+  <h3>Статистика продаж телефонных номеров по регионам</h3>
 
   <table class="price">
     <tr>

@@ -89,26 +89,25 @@ class OperatorOnlimeDevices extends Operators
         ],
     ];
 
-    protected static $reportFields = [
+    public static $reportFields = [
         'Оператор'                                      => 'fio_oper',
         'Номер счета OnLime'                            => 'req_no',
         'Номер счета Маркомнет Сервис'                  => 'bill_no',
         'Дата создания заказа'                          => 'date_creation',
         'Кол-во'                                        => 'products',
+        'ФИО клиента'                                   => 'client',
         'Серийный номер'                                => 'serials',
-        'Номер купона'                                  => 'coupon',
-        'ФИО клиента'                                   => 'fio',
-        'Телефон клиента'                               => 'phone',
-        'Адрес'                                         => 'address',
         'Дата доставки желаемая'                        => 'date_deliv',
         'Дата доставки фактическая'                     => 'date_delivered',
         'Этап'                                          => 'stages_text',
     ];
 
     protected static $availableRequestStatuses = [
-        17 => 'В работе',
+        32 => 'В работе',
         21 => 'Отказ',
     ];
+
+    public $isRollback = true;
 
     public function getRequestForm()
     {
@@ -122,39 +121,51 @@ class OperatorOnlimeDevices extends Operators
 
     public function modeNewModify(Query $query, $dao)
     {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['in', 'state_id', [15, 35, 32, 33]]);
+        $query->andWhere(['state_id' => 32]);
+        $query->andWhere('d.doer_id IS NULL');
     }
 
-    public function modeWorkModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeWorkModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['not in', 'state_id', [2, 20, 21]]);
+        $query->andWhere(['not in', 'state_id', [24, 31, 2, 20, 4, 18, 28, 21, 32]]);
+        $query->andWhere('d.doer_id IS NOT NULL');
     }
 
     public function modeDeferredModify(Query $query, $dao)
     {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['in', 'state_id', [24, 31]]);
     }
 
-    public function modeCloseModify(Query $query, $dao) {
-        $query->andWhere('s.trouble_id = t.id');
+    public function modeCloseModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 's.date_start', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['in', 'state_id', [2, 20]]);
     }
 
     public function modeDoneModify(Query $query, $dao)
     {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['in', 'state_id', [4, 18, 28]]);
     }
 
     public function modeRejectModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['state_id' => 21]);
     }

@@ -42,7 +42,7 @@ class ContragentEditForm extends Form
         $country_id,
         $signer_passport,
         $comment,
-        $partner_id,
+        $partner_contract_id,
         $sale_channel_id,
 
         $contragent_id,
@@ -80,7 +80,7 @@ class ContragentEditForm extends Form
             ['country_id', 'default', 'value' => Country::RUSSIA],
 
             ['legal_type', 'in', 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]],
-            [['super_id', 'country_id', 'opf_id', 'partner_id', 'sale_channel_id'], 'integer'],
+            [['super_id', 'country_id', 'opf_id', 'partner_contract_id', 'sale_channel_id'], 'integer'],
 
         ];
         return $rules;
@@ -227,7 +227,7 @@ class ContragentEditForm extends Form
         $contragent->ogrn = $this->ogrn;
         $contragent->country_id = $this->country_id;
         $contragent->sale_channel_id = $this->sale_channel_id;
-        $contragent->partner_id = $this->partner_id;
+        $contragent->partner_contract_id = $this->partner_contract_id;
     }
 
     private function fillPerson()

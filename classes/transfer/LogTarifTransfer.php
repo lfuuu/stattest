@@ -5,6 +5,7 @@ namespace app\classes\transfer;
 use Yii;
 use app\models\ClientAccount;
 use app\models\LogTarif;
+use yii\base\InvalidValueException;
 
 /**
  * Класс переноса тарифов
@@ -32,8 +33,8 @@ abstract class LogTarifTransfer
                 ->limit(1)
                 ->one();
 
-        if ($logTariff === null) {
-            return false;
+        if (!($logTariff instanceof LogTarif)) {
+            throw new InvalidValueException('Услуга не может быть перенесена, не найден тарифный план');
         }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
@@ -70,8 +71,8 @@ abstract class LogTarifTransfer
                 ->andWhere('id_tarif != 0')
                 ->one();
 
-        if ($logTariff === null) {
-            return false;
+        if (!($logTariff instanceof LogTarif)) {
+            throw new InvalidValueException('Услуга не может быть восстановлена, не найден тарифный план');
         }
 
         $dbTransaction = Yii::$app->db->beginTransaction();

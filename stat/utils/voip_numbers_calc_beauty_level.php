@@ -390,7 +390,9 @@ function work()
     $changedCount = 0;
     $errorsCount = 0;
 
-    $nums = $db->AllRecords("select number, city_id, beauty_level, did_group_id from voip_numbers");
+    $nums = $db->AllRecords("select number, city_id, beauty_level, did_group_id from voip_numbers 
+        where region = 97 and number like '78612041%'
+        ");
     foreach($nums as $num) {
         $nnn = substr($num['number'], -7);
         $beautyLevel = getNumCat($nnn);

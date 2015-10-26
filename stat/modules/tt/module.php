@@ -14,6 +14,7 @@ use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
 use yii\web\View;
+use app\helpers\DateTimeZoneHelper;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -59,7 +60,7 @@ class m_tt extends IModule{
         $mode = get_param_integer('mode',$f);
         if($mode>=2)
             $user->SetFlag('tt_tasks',$mode);
-        if ($mode == 2) {
+        if ($mode == 2 && (get_param_integer('keepclient') != 1)) {
             $_SESSION['clients_filter'] = '';
             $_SESSION['clients_my'] = '';
             $_SESSION['clients_client'] = '';
@@ -125,11 +126,17 @@ class m_tt extends IModule{
             $db->Query('update tt_stages set date_finish_desired = date_finish_desired + INTERVAL '.$time.' HOUR where stage_id='.$trouble['cur_stage_id']);
         }elseif(($dateActivation = get_param_raw("date_activation", "none")) !== "none")
         {
-            if($datetimeActivation = (new DateTime($dateActivation, new DateTimeZone('Europe/Moscow')))->format('Y-m-d H:i:s'))
-            {
-                $db->Query('update tt_stages set date_start = "'.$datetimeActivation.'" where stage_id='.$trouble['cur_stage_id']);
-            }
-
+            $dateActivation = DateTimeZoneHelper::setDateTime($dateActivation, 'Y-m-d H:i:s');
+            Yii::$app->getDb()->createCommand('
+                UPDATE `tt_stages` SET
+                    `date_start` = :date_activation,
+                    `date_finish_desired` = `date_start` + INTERVAL (SELECT `time_delta` FROM `tt_states` WHERE `id` = `state_id`) HOUR
+                WHERE
+                    `stage_id` = :stage_id
+            ', [
+                ':stage_id' => $trouble['cur_stage_id'],
+                ':date_activation' => $dateActivation,
+            ])->execute();
         }
         if ($design->ProcessEx('errors.tpl')) {
             header('Location: ?module=tt&action=view&id='.$trouble['id']);
@@ -2537,15 +2544,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             if(isset($_POST['doer_fix'])){
                 $date = array_keys($_POST['doer_fix']);
-                $date = $date[0];
-                $time = array_keys($_POST['doer_fix'][$date]);
-                $time = $time[0];
-                $date_start = $date." ".$time.":00:00";
+                $time = array_keys($_POST['doer_fix'][$date[0]]);
+                $date_start = \app\helpers\DateTimeZoneHelper::setDateTime($date[0] . ' ' . $time . ':00:00');
+
                 $db->Query("
                     UPDATE
                         `tt_stages`
                     SET
-                        `date_start` = '".$date_start."'
+                        `date_start` = '" . $date_start->format('Y-m-d H:i:s') . "'
                     WHERE
                         `stage_id` = ".$row['stage_id']
                 );

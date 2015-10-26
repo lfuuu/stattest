@@ -27,5 +27,5 @@ return [
     'legalTypePerson' => 'Természetes személy',
 
     'sale_channel_id' => 'Sale Channel',
-    'partner_id' => 'Partner',
+    'partner_contract_id' => 'Partner',
 ];

@@ -51,13 +51,11 @@ class NumberDao extends Singleton
     {
         Assert::isEqual($number->status, Number::STATUS_RESERVED);
 
-        $number->client_id = null;
         $number->reserve_from = null;
         $number->reserve_till = null;
-        $number->status = Number::STATUS_INSTOCK;
         $number->save();
 
-        Number::dao()->log($number, 'invertReserved', 'N');
+        Number::dao()->toInstock($number);
     }
 
     public function startActiveStat(Number $number, UsageVoip $usage)
@@ -67,6 +65,7 @@ class NumberDao extends Singleton
         $number->reserve_from = null;
         $number->reserve_till = null;
         $number->hold_from = null;
+        $number->hold_to = null;
         $number->status = Number::STATUS_ACTIVE;
         $number->save();
 
@@ -75,8 +74,7 @@ class NumberDao extends Singleton
 
     public function stopActive(Number $number)
     {
-
-        $setStatus = Number::STATUS_HOLD;
+        Assert::isEqual($number->status, Number::STATUS_ACTIVE);
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
@@ -94,24 +92,44 @@ class NumberDao extends Singleton
             && ($currentTariff = TariffVoip::findOne($log->id_tarif))
             && ($currentTariff->status == "test")
         ) {
-            $setStatus = Number::STATUS_INSTOCK;
+            Number::dao()->toInstock($number);
+            return ;
         }
 
+        Number::dao()->startHold($number);
+    }
 
+    public function toInstock(Number $number)
+    {
         $number->client_id = null;
         $number->usage_id = null;
-        $number->hold_from = $now->format('Y-m-d H:i:s');
-        $number->status = $setStatus;
+        $number->hold_from = null;
+        $number->hold_to = null;
+
+        $number->status = Number::STATUS_INSTOCK;
         $number->save();
 
         Number::dao()->log($number, 'invertReserved', 'N');
     }
 
-    public function startHold(Number $number)
+    public function startHold(Number $number, DateTime $holdTo = null)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_ACTIVE]);
 
+        $number->client_id = null;
+        $number->usage_id = null;
         $number->status = Number::STATUS_HOLD;
+
+        $now = new DateTime('now', new DateTimeZone('UTC'));
+        $number->hold_from = $now->format("Y-m-d H:i:s");
+
+        if ($holdTo) {
+            $number->hold_to = $holdTo->format("Y-m-d H:i:s");
+        } else {
+            $now->modify("+6 month");
+           $number->hold_to = $now->format("Y-m-d H:i:s");
+        }
+
         $number->save();
 
         Number::dao()->log($number, 'hold');
@@ -122,6 +140,7 @@ class NumberDao extends Singleton
         Assert::isEqual($number->status, Number::STATUS_HOLD);
 
         $number->status = Number::STATUS_INSTOCK;
+        $number->hold_to = null;
         $number->save();
 
         Number::dao()->log($number, 'unhold');
@@ -183,5 +202,22 @@ class NumberDao extends Singleton
                 Number::dao()->stopActive($number);
             }
         }
+    }
+
+    public function getCallsWithoutUsages($region)
+    {
+        $dt = new \DateTime("now", new \DateTimeZone("UTC"));
+        $dt->modify("first day of -3 month, 00:00:00");
+
+        return 
+                Yii::$app->dbPg->createCommand("
+                    select dst_number as usage_num, count(*) as count, to_char(connect_time, 'MM') as month
+                    from calls_raw.calls_raw
+                    where connect_time > '".$dt->format("Y-m-d H:i:s")."'
+                    and server_id = ".$region."
+                    and number_service_id is null
+                    and orig = false
+                    group by dst_number, month
+                ")->cache(86400)->queryAll();
     }
 }

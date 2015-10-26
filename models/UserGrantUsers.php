@@ -25,6 +25,10 @@ class UserGrantUsers extends ActiveRecord
             throw $e;
         }
 
+        if (!count($rights)) {
+            return true;
+        }
+
         foreach ($rights as $resource => $actions) {
             foreach ($baseRights as $baseRight) {
                 if ($resource != $baseRight->resource)

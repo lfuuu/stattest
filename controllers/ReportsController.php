@@ -7,6 +7,7 @@ use app\classes\BaseController;
 use app\classes\operators\OperatorsFactory;
 use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorOnlimeDevices;
+use app\classes\operators\OperatorOnlimeStb;
 
 class ReportsController extends BaseController
 {

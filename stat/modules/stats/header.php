@@ -65,7 +65,7 @@ class m_stats_head extends IModuleHead{
             array('Отчет: Продажи номеров', 'report_phone_sales'),
 
             array('Отчет: ИНН', 'report_inn'),
-            array('Отчет по Агентам', 'report_agent'),
+            array('Отчет по партнерам', function(){return '/stats/agent/report';}),
             array('Настройка Агента', 'agent_settings'),
             array('Региональные представители', 'report_sale_channel'),
             array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),

@@ -24,7 +24,15 @@ $config = yii\helpers\ArrayHelper::merge(
     ]
 );
 
-$application = new app\classes\ConsoleApplicationEmpty($config);
-//$application = new yii\console\Application($config);
-$exitCode = $application->run();
-exit($exitCode);
+try{
+    $application = new app\classes\ConsoleApplicationEmpty($config);
+    //$application = new yii\console\Application($config);
+    $exitCode = $application->run();
+    exit($exitCode);
+} catch(Exception $e)
+{
+    echo "\n\n\n\n====(".$e->getCode().") ".$e->getMessage()." =======\n\n\n";
+    exit(-1);
+}
+
+

@@ -4,6 +4,7 @@ namespace app\classes\operators;
 
 use Yii;
 use yii\db\Query;
+use app\dao\reports\ReportExtendsOperatorsDao;
 
 class OperatorOnlime extends Operators
 {
@@ -70,6 +71,12 @@ class OperatorOnlime extends Operators
             'nameFull' => 'Gigaset C530A IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)',
             'id_1c' => '4454e4d5-a79e-11e4-a330-00155d881200',
         ],
+        'count_28' => [
+            'id' => 17609,
+            'name' => 'Приставка SML-482 HD',
+            'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
+            'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
+        ]
     ];
 
     public static $requestModes = [
@@ -97,18 +104,15 @@ class OperatorOnlime extends Operators
         'Номер счета Маркомнет Сервис'                  => 'bill_no',
         'Дата создания заказа'                          => 'date_creation',
         'Кол-во'                                        => 'products',
+        'ФИО клиента'                                   => 'client',
         'Серийный номер'                                => 'serials',
-        'Номер купона'                                  => 'coupon',
-        'ФИО клиента'                                   => 'fio',
-        'Телефон клиента'                               => 'phone',
-        'Адрес'                                         => 'address',
         'Дата доставки желаемая'                        => 'date_deliv',
         'Дата доставки фактическая'                     => 'date_delivered',
         'Этап'                                          => 'stages_text',
     ];
 
     public static $availableRequestStatuses = [
-        15 => 'Новый',
+        33 => 'Новый',
         17 => 'В работе',
         24 => 'Отложен',
         20 => 'Закрыт',
@@ -116,29 +120,44 @@ class OperatorOnlime extends Operators
         21 => 'Отказ',
     ];
 
-    public function modeWorkModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function getReport()
+    {
+        return
+            parent::getReport()
+                ->setOperatorClient(OperatorsFactory::me()->getOperator(OperatorOnlimeStb::OPERATOR_CLIENT));
+    }
+
+    public function modeWorkModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['not in', 'state_id', [2, 20, 21]]);
     }
 
-    public function modeCloseModify(Query $query, $dao) {
+    public function modeCloseModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.trouble_id = t.id');
+
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['in', 'state_id', [2, 20]]);
-        $query->andWhere('s.trouble_id = t.id');
         $query->andWhere(['between', 's.date_start', $dao->dateFrom, $dao->dateTo]);
     }
 
-    public function modeRejectModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeRejectModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['state_id' => 21]);
     }
 
-    public function modeRollbackModify(Query $query, $dao) {
-        $query->andWhere('s.stage_id = t.cur_stage_id');
+    public function modeRollbackModify(Query $query, $dao)
+    {
+        $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
+
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere(['is_rollback' => 1]);
     }

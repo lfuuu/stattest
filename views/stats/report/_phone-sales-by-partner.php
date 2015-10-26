@@ -17,14 +17,14 @@ $amount = [
     'departure' => 0,
 ];
 ?>
-
+<h3>Статистика продажи телефонных номеров по партнерам</h3>
 <table class="sale-report">
     <thead>
     <tr>
         <th rowspan="2">Партнер (агент)</th>
         <th colspan="2">Номера</th>
-        <th colspan="2">Линии</th>
-        <th colspan="2">Свободные линии</th>
+        <th colspan="2">Соединительные линии</th>
+        <th colspan="2">Линии без номера</th>
         <th colspan="2">8800</th>
         <th colspan="2">ВАТС</th>
     </tr>

@@ -268,7 +268,12 @@ if ($action=='add_client') {
     $numbers =
         Yii::$app->db->createCommand("
                 SELECT * FROM `voip_numbers` WHERE (`region`=:region) AND (`status`='instock')
-                HAVING if(region = :region, if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true), true)
+                HAVING 
+                    if(
+                        number like '7495%', 
+                        number like '74951059%' or number like '74951090%' or beauty_level in (1,2), 
+                        true
+                    )
                 ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number  ",
             [':region' => $region]
         )

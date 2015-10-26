@@ -57,13 +57,6 @@ class AgentController extends BaseController
         }
     }
 
-    public function actionTest()
-    {
-        $managers = PhoneSales::reportByManager('2015-01-01', '2015-02-01');
-        $partners = PhoneSales::reportByPartner('2000-01-01', '2015-02-01');
-        return $this->render('/stats/report/_phone-sales-by-manager', ['managers' => $managers, 'partners' => $partners]);
-    }
-
     private function exportToCSV($data)
     {
 

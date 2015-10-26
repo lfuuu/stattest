@@ -3,6 +3,7 @@ use app\models\ClientAccount;
 use app\models\Number;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Html;
+use app\helpers\DateTimeZoneHelper;
 /** @var $number app\models\Number */
 ?>
 
@@ -37,6 +38,18 @@ use yii\helpers\Html;
                     </th>
                 </tr>
                 <?php endif; ?>
+                <?php if ($number->status == Number::STATUS_HOLD): ?>
+                <tr>
+                    <td>В остойнике до:</td>
+                    <th>
+                    <?php
+                        $dt = new \DateTime($number->hold_from, new \DateTimeZone("UTC"));
+                        $dt->modify("+6 month");
+                        echo DateTimeZoneHelper::getDateTime($dt->format("Y-m-d H:i:s"));
+                    ?>
+                    </th>
+                </tr>
+                <?php endif; ?>
             </table>
 
             <?php
@@ -44,6 +57,7 @@ use yii\helpers\Html;
             echo Html::activeHiddenInput($actionForm, 'scenario', ['id' => 'scenario']);
             echo Html::activeHiddenInput($actionForm, 'did');
             echo Html::activeHiddenInput($actionForm, 'client_account_id');
+            echo Html::activeHiddenInput($actionForm, 'hold_month', ['id' => 'hold_month']);
 
             if ($number->status == Number::STATUS_INSTOCK) {
                 if ($actionForm->client_account_id) {
@@ -53,7 +67,9 @@ use yii\helpers\Html;
                     echo Html::button('Зарезервировать без указания клиента', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
                 }
 
-                echo Html::button('Поместить в отстойник', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startHold')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                echo "<br>".Html::button('Поместить в отстойник (6 месяцев)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('6')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                echo "<br>".Html::button('Поместить в отстойник (3 месяца)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('3')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                echo "<br>".Html::button('Поместить в отстойник (1 месяц)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('1')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
                 echo Html::button('Номер не продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
@@ -78,7 +94,7 @@ use yii\helpers\Html;
                     </tr>
                     <?php foreach($logList as $log): ?>
                         <tr>
-                            <td style='text-align:center;font-weight:bolder;color:#555'><?= $log['human_time'] ?></td>
+                            <td style='text-align:center;font-weight:bolder;color:#555'><?= DateTimeZoneHelper::getDateTime($log['human_time']) ?></td>
                             <td>
                                 <?php if ($log['action'] == 'fix'): ?>
                                     <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
@@ -119,6 +135,12 @@ use yii\helpers\Html;
 <script>
     function numberSubmitForm(scenario) {
         $('#scenario').val(scenario);
+        $('#<?=$form->getId()?>').submit();
+    }
+
+    function numberHoldSubmitForm(hold_month) {
+        $('#scenario').val("startHold");
+        $('#hold_month').val(hold_month);
         $('#<?=$form->getId()?>').submit();
     }
 </script>

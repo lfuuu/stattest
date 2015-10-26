@@ -9,11 +9,22 @@ class m100000_000002_data extends app\classes\Migration
         $this->executeSqlFile('client_contract_business_process_status.sql');
         $this->executeSqlFile('client_contract_business.sql');
         $this->executeSqlFile('client_contract_type.sql');
+
+        /*
+        $this->executeSqlFile('client_super.sql');
+        $this->executeSqlFile('client_contragent.sql');
+        $this->executeSqlFile('client_contract.sql');
+        $this->executeSqlFile('clients.sql');
+        $this->executeSqlFile('lk_wizard_state.sql');
+        $this->executeSqlFile('client_contacts.sql');
+         */
+
         $this->executeSqlFile('code_opf.sql');
         $this->executeSqlFile('country.sql');
         $this->executeSqlFile('city.sql');
         $this->executeSqlFile('currency.sql');
         $this->executeSqlFile('datacenter.sql');
+        $this->executeSqlFile('document_template.sql');
         $this->executeSqlFile('did_group.sql');
         $this->executeSqlFile('firma_pay_account.sql');
         $this->executeSqlFile('g_division.sql');

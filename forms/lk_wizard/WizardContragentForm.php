@@ -62,7 +62,7 @@ class WizardContragentForm extends Form
             'when' => function($model){ return $model->legal_type=='legal';}
         ];
 
-        $rules[] = [['name', 'address_jur', 'first_name', 'last_name', 'inn', 'ogrn', 'address'], 'required',
+        $rules[] = [['name', /*'address_jur',*/ 'first_name', 'last_name', 'inn', 'ogrn', 'address'], 'required',
             'on' => 'mcn',
             'when' => function($model){ return $model->legal_type=='ip';}
         ];

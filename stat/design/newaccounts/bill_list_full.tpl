@@ -151,7 +151,8 @@
         <tr class="{$class}" style="{if $op.isCanceled==1}text-decoration: line-through;{/if}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}"{if $op.bill.postreg!="0000-00-00"} style="background-color:#FFFFD0"{/if}>{$op.bill.bill_date}</td>
-                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"><a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a></td>
+                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}">
+                    <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a></td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
@@ -240,7 +241,7 @@
                 {if $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">WTF{$op.bill.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">{$op.bill.comment|escape:"html"}</td>
                         <td colspan="5">&nbsp;</td>
                         <td colspan="2">&nbsp;</td>
                 {/if}

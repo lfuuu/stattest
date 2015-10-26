@@ -13,6 +13,7 @@ class OperatorsFactory extends Singleton
         return [
             'onlime' => OperatorOnlime::className(),
             'id36001' => OperatorOnlimeDevices::className(),
+            'id36259' => OperatorOnlimeStb::className(),
         ];
     }
 
@@ -20,8 +21,9 @@ class OperatorsFactory extends Singleton
     {
         $operators = self::getOperatorsList();
 
-        if (isset($operators[ $operator ]))
-            return new $operators[ $operator ];
+        if (isset($operators[ $operator ])) {
+            return new $operators[$operator];
+        }
 
         Assert::isUnreachable('Operator not found');
     }

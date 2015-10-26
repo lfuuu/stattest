@@ -114,6 +114,9 @@ class Onlime1CCreateBill
            21=e5f617a4-8f97-11e1-afcc-00155d881200 13949   Gigaset A510 IP IP-телефон, и радио телефон Siemens Gigaset A510 IP (IP, черный)
            22=4454e4d5-a79e-11e4-a330-00155d881200 16813   Gigaset C530 IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)
 
+           from 22.10.2015
+           28=d78e0644-6dbc-11e5-9421-00155d881200 17609   Приставка, SML-482 HD Base с опцией Wi-Fi
+
 
 
          */
@@ -132,6 +135,7 @@ class Onlime1CCreateBill
                 case '20':  $goodId = "e147d6bc-73f0-11e1-afcc-00155d881200"; break;
                 case '21':  $goodId = "e5f617a4-8f97-11e1-afcc-00155d881200"; break;
                 case '22':  $goodId = "4454e4d5-a79e-11e4-a330-00155d881200"; break;
+                case '28':  $goodId = "d78e0644-6dbc-11e5-9421-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])

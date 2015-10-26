@@ -1,5 +1,7 @@
 <?php
-return [
+use \yii\helpers\ArrayHelper;
+
+$rights = [
     'ats' => [
         'name' => 'Управление ATC',
         'permissions' => [
@@ -22,7 +24,8 @@ return [
             'inn_double'    =>  'заведение совпадающих ИНН',
             'all4net'       =>  'синхронизация с all4net',
             'history_edit'  =>  'редактирование истории',
-            'client_type_change' => 'Изменение тип договора'
+            'client_type_change' => 'изменение тип договора',
+            'changeback_contract_state' => 'изменение статуса проверки документов на "не проверено"',
         ],
     ],
     'data' => [
@@ -334,3 +337,9 @@ return [
         ],
     ],
 ];
+
+if (file_exists($file = __DIR__ . '/rights.external_operators.php')) {
+    $rights = ArrayHelper::merge($rights, require($file));
+}
+
+return $rights;

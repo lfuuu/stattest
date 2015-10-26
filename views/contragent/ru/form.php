@@ -251,7 +251,7 @@ use app\models\Business;
                 }
             ?>
             <?=
-            $f->field($model, 'partner_id')->widget(Select2::className(), [
+            $f->field($model, 'partner_contract_id')->widget(Select2::className(), [
                 'data' => $partners,
                 'options' => ['placeholder' => 'Начните вводить название'],
                 'pluginOptions' => [

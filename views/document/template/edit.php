@@ -263,7 +263,12 @@ $f["name"] . "<br/> Юридический адрес: " . $f["address"] .
                                         'Паспорт серия ' . $contragent->person->passport_serial .
                                         ' номер ' . $contragent->person->passport_number .
                                         '<br/>Выдан: ' . $contragent->person->passport_issued .
-                                        '<br/>Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
+                                        '<br/>Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.' .
+                                        (
+                                            count($officialContacts)
+                                                ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                                                : ''
+                                        );
                                 }
                                 else {
                                     return
@@ -275,7 +280,12 @@ $f["name"] . "<br/> Юридический адрес: " . $f["address"] .
                                         ', БИК ' . $account->bik .
                                         ', ИНН ' . $contragent->inn .
                                         ', КПП ' . $contragent->kpp .
-                                        (!empty($account->address_post_real) ? '<br/>Почтовый адрес: ' . $account->address_post_real : '');
+                                        (!empty($account->address_post_real) ? '<br/>Почтовый адрес: ' . $account->address_post_real : '') .
+                                        (
+                                            count($officialContacts)
+                                                ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                                                : ''
+                                        );
                                 }
                                 </pre>
             </td>

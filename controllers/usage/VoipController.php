@@ -2,17 +2,21 @@
 namespace app\controllers\usage;
 
 use app\classes\Assert;
+use app\classes\BaseController;
+
 use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
+
 use app\models\ClientAccount;
 use app\models\LogTarif;
 use app\models\TariffVoipPackage;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
+use app\models\billing\StatPackage;
+
 use Yii;
 use yii\filters\AccessControl;
-use app\classes\BaseController;
 
 class VoipController extends BaseController
 {
@@ -35,7 +39,7 @@ class VoipController extends BaseController
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        $model = new UsageVoipEditForm(['no_of_lines' => 1]);
+        $model = new UsageVoipEditForm(['no_of_lines' => 1, "city_id" => Yii::$app->user->identity->city_id]);
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($clientAccount);
 
@@ -102,12 +106,30 @@ class VoipController extends BaseController
                 ->orderBy('actual_from asc')
                 ->all();
 
+        $packageStat = $packagesHistory = [];
+
+        foreach($usagePackages as $package) {
+            $packageStat[$package->id] = StatPackage::findOne(["package_id" => $package->id]);
+
+            $packagesHistory[$package->id] =
+                LogTarif::find()
+                ->andWhere(['service' => 'usage_voip_package'])
+                ->andWhere(['id_service' => $package->id])
+                ->andWhere('id_tarif!=0')
+                ->orderBy('date_activation desc, id desc')
+                ->one();
+        }
+
+
         return $this->render('edit', [
             'model' => $model,
             'clientAccount' => $model->clientAccount,
             'usage' => $usage,
             'tariffHistory' => $tariffHistory,
             'usagePackages' => $usagePackages,
+            'packageStat' => $packageStat,
+            'packagesHistory' => $packagesHistory
+
         ]);
     }
 
