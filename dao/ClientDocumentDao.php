@@ -323,16 +323,14 @@ class ClientDocumentDao extends Singleton
                 . "<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank_name"]
                 . "<br /> к/с:&nbsp;" . $f["kor_acc"]
                 . "<br /> БИК:&nbsp;" . $f["bik"]
-                : '')
-            . "<br /> телефон: " . $f["phone"]
-            . (isset($f["fax"]) && $f["fax"] ? "<br /> факс: " . $f["fax"] : "")
-            . "<br /> е-mail: " . $f["email"];
+                : '');
         return $d;
     }
 
     private function prepareContragentPaymentInfo(ClientAccount $account)
     {
         $contragent = $account->contract->contragent;
+        $officialContacts = $account->getOfficialContact();
 
         $result = $contragent->name_full . '<br />Адрес: ' . (
             $contragent->legal_type == 'person'
@@ -354,7 +352,12 @@ class ClientDocumentDao extends Singleton
                     'Паспорт серия ' . $contragent->person->passport_serial .
                     ' номер ' . $contragent->person->passport_number .
                     '<br />Выдан: ' . $contragent->person->passport_issued .
-                    '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.';
+                    '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.' .
+                    (
+                        count($officialContacts)
+                            ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                            : ''
+                    );
 
         } else {
             return
@@ -366,7 +369,12 @@ class ClientDocumentDao extends Singleton
                 $account->bank_name . ' ' . $account->bank_city .
                 ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
-                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '');
+                (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '') .
+                (
+                    count($officialContacts)
+                        ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                        : ''
+                );
         }
     }
 
