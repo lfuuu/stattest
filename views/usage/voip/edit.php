@@ -281,6 +281,7 @@ echo Breadcrumbs::widget([
                 <td nowrap><?= $actualFrom->format('Y-m-d') . ' - ' . ($actualTo !== null ? $actualTo->format('Y-m-d') :  '') ?></td>
                 <td width="100%">
                     <?= Html::encode($item->voipTariffMain->name) ?>
+                    (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
                     / Моб <?= Html::encode($item->voipTariffLocalMob->name_short) ?>
                     / МГ <?= Html::encode($item->voipTariffRussia->name_short) ?>
                     / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name_short) ?>
