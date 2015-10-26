@@ -95,7 +95,7 @@ use yii\widgets\MaskedInput;
                     <?php else: ?>
                         <tr>
                             <td valign="middle" align="center">
-                                <input type="checkbox" name="<?= $model->formName(); ?>[products][]" value="<?= $product['id']; ?>" />
+                                <input type="checkbox" name="<?= $model->formName(); ?>[products][]" value="<?= $product['id']; ?>" class="request-product" />
                             </td>
                             <td valign="middle" class="product-item">
                                 <?= $product['nameFull']; ?>
@@ -138,11 +138,22 @@ use yii\widgets\MaskedInput;
 
 <script type="text/javascript">
 jQuery(document).ready(function() {
-    $('input[type="checkbox"]')
-        .on('click', function() {
-            $(this).parent('td').next('td').toggleClass('product-item');
-            $(this).parents('tr').find('td:eq(2)').find('input').prop('disabled', !$(this).is(':checked'));
-        });
+    var products = $('input.request-product');
+
+    if (products.length == 1) {
+        var product = products.eq(0);
+        product.prop('checked', true).on('click', function() { return false; });
+        product.parent('td').next('td').addClass('product-item');
+        product.parents('tr').find('td:eq(2)').find('input').prop('disabled', false);
+    }
+    else {
+        $('input[type="checkbox"]')
+            .on('click', function () {
+                $(this).parent('td').next('td').toggleClass('product-item');
+                $(this).parents('tr').find('td:eq(2)').find('input').prop('disabled', !$(this).is(':checked'));
+            });
+    }
+
     $('input[type="radio"][name="required_one"]')
         .on('change', function() {
             var form = $(this).parents('form'),
