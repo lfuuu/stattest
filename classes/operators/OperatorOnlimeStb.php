@@ -36,6 +36,29 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
         ],
     ];
 
+    protected static $requestModes = [
+        'new' => [
+            'title' => 'Новый',
+            'queryModify' => 'modeNewModify',
+        ],
+        'work' => [
+            'title' => 'В работе',
+            'queryModify' => 'modeWorkModify',
+        ],
+        'deferred' => [
+            'title' => 'Отложенный',
+            'queryModify' => 'modeDeferredModify',
+        ],
+        'close' => [
+            'title' => 'Закрыт',
+            'queryModify' => 'modeCloseModify',
+        ],
+        'reject' => [
+            'title' => 'Отказ',
+            'queryModify' => 'modeRejectModify',
+        ],
+    ];
+
     protected static $availableRequestStatuses = [
         33 => 'В работе',
         21 => 'Отказ',
@@ -51,21 +74,17 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
     public function modeNewModify(Query $query, $dao)
     {
         $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
-        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
 
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
         $query->andWhere('state_id = 33');
-        $query->andWhere('d.doer_id IS NULL');
     }
 
     public function modeWorkModify(Query $query, $dao)
     {
         $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
-        $query->leftJoin('tt_doers d', 'd.stage_id = t.cur_stage_id');
 
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
-        $query->andWhere(['not in', 'state_id', [24, 31, 2, 20, 4, 18, 28, 21, 33]]);
-        $query->andWhere('d.doer_id IS NOT NULL');
+        $query->andWhere(['in', 'state_id', [17, 18]]);
     }
 
 }
