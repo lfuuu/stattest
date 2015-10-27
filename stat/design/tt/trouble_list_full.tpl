@@ -28,7 +28,7 @@
 <table border=0 width=99% id="trouble_table">
     <tr>
         <td rowspan=2 width=20% valign=top align=center nowrap>
-{$r.date_creation|udate:'Y.m.d H:i'} / {$r.user_author}<br><br>
+{$r.date_creation|udate_with_timezone} / {$r.user_author}<br><br>
  <a href="?module=tt&action=view&id={$r.id}" style="font-size:10pt;font-weight: bold">{$r.id}</a> / {$trouble_subtypes_list[$r.trouble_subtype]} / {$r.user_main}<br>
         <br>
         
@@ -56,7 +56,7 @@
             {foreach from=$r.stages item=t}
             <tr style="border-bottom: 1px solid #EDEDED;">
 <td nowrap style="font-size: 8pt;">{$t.date_start}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment|escape}
-        {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send|udate} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}
+        {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send|udate_with_timezone} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}
         </td></tr>
             {/foreach}
         </table>
@@ -79,15 +79,15 @@
 	<TD>{$r.user_main}</TD>
 	<TD style='font-size:85%'>{$r.problem}</TD>
 	<TD{if $r.is_sms_send} style="background-color: yellow;"{/if}>{if $r.state_id==2}
-		{$r.date_start|udate:'Y.m.d H:i'}<br>
-		{$r.date_edit|udate:'Y.m.d H:i'}
+		{$r.date_start|udate_with_timezone}<br>
+		{$r.date_edit|udate_with_timezone}
 	{elseif $r.state_id==4}
-			выезд {$r.date_start|udate:'Y.m.d H:i'}<br>
+			выезд {$r.date_start|udate_with_timezone}<br>
 			{if $r.is_active}
 				прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 			{/if}
 	{else}
-		{$r.date_start|udate:'Y.m.d H:i'}<br>
+		{$r.date_start|udate_with_timezone}<br>
 		{if $r.is_active}
 			прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 		{else}

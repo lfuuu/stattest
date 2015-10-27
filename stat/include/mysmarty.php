@@ -225,6 +225,11 @@ function smarty_modifier_wordify($val,$curr) {
 function smarty_modifier_mdate($value,$format) {
 	return mdate($format,is_numeric($value)?$value:strtotime($value));
 }
+
+function smarty_modifier_udate_with_timezone($value, $format = 'd.m.Y H:i') {
+	return \app\helpers\DateTimeZoneHelper::getDateTime($value, $format);
+}
+
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
     $user_timezone = isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
 
@@ -364,6 +369,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
         $this->register_modifier('udate','smarty_modifier_udate');
+        $this->register_modifier('udate_with_timezone','smarty_modifier_udate_with_timezone');
 		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');

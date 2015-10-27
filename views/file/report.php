@@ -2,6 +2,7 @@
 use kartik\grid\GridView;
 use app\classes\Html;
 use app\models\ClientContract;
+use app\helpers\DateTimeZoneHelper;
 
 echo Html::formLabel('Отчет по файлам');
 
@@ -37,7 +38,13 @@ echo GridView::widget([
                 return $data->user->name;
             },
         ],
-        'ts',
+        [
+            'label' => (new $dataProvider->query->modelClass)->getAttributeLabel('ts'),
+            'format' => 'raw',
+            'value' => function($data){
+                return DateTimeZoneHelper::getDateTime($data->ts);
+            },
+        ],
         [
             'label' => (new ClientContract())->getAttributeLabel('manager'),
             'format' => 'raw',

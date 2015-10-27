@@ -58,7 +58,7 @@ window.setTimeout("javscript:refrfunc()",{/literal}{$refresh}{literal}000);
 {/if}
 	<TD><a href='/?module=newaccounts&action=bill_view&bill_no={$item.bill_no}&client={$item.client}'>{$item.bill_no}</a></TD>
 	<TD{if (isset($item.cur_sent)) && ($item.cur_sent==1)} style='color:red;font-weight:bold'{/if}>{$item.state}</TD>
-	<TD>{if $item.last_send!="0000-00-00 00:00:00"}{$item.last_send}{/if}</TD>
+	<TD>{if $item.last_send!="0000-00-00 00:00:00"}{$item.last_send|udate_with_timezone}{/if}</TD>
 	<TD style='font-size:80%'>{$item.message}</TD>
 </TR>
 {/foreach}

@@ -24,7 +24,7 @@
 {foreach from=$data item=i key=key name=outer}
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
     <TD>{$i.idx}.</TD>
-    <TD>{$i.ts|udate}</TD>
+    <TD>{$i.ts|udate_with_timezone}</TD>
     <TD>{$i.type}</TD>
     <TD><b><a href="./?module=newaccounts&action=doc_file&id={$i.id}" target=_blank>{$i.number}</a></b></TD>
     <TD>{$i.prefix}</TD>

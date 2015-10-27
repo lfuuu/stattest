@@ -11,7 +11,7 @@
     {/if}
     {$tt_trouble.id}
     {if $tt_trouble.bill_no}
-        <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span>
+        <span style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
     {/if}
 </h2>
 
@@ -46,13 +46,13 @@
         <td>
             <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
                 <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name} ({$tt_trouble.user_author})</abbr>
-            </a>, <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span>
+            </a>, <span style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
         </td>
     </tr>
     <tr>
         <td align="right">Текущие сроки:</td>
         <td>
-            с {$tt_trouble.date_start|udate:'Y.m.d H:i:s'} по {$tt_trouble.date_finish_desired|udate:'Y.m.d H:i:s'}<br>
+            с {$tt_trouble.date_start|udate_with_timezone:'Y.m.d H:i:s'} по {$tt_trouble.date_finish_desired|udate_with_timezone:'Y.m.d H:i:s'}<br>
             {if $tt_trouble.is_active}
                 прошло <font color=red>{$tt_trouble.time_pass} / {$tt_trouble.time_limit}</span>
             {else}
@@ -83,7 +83,7 @@
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td  align="right" title="С какого момента показывать">Дата активации </td>
-        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start|udate}"> <input type=submit class=button value='Установить'></form></td>
+        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start|udate_with_timezone}"> <input type=submit class=button value='Установить'></form></td>
     </tr>
 {/if}
 </table>
@@ -136,7 +136,7 @@
                                 <abbr title="Установить в качестве ответственного">{$item.user_main}</abbr>
                             </a>
                         </td>
-                        <td>{$item.date_start|udate:'m-d H:i'}<br>{$item.date_finish_desired|udate:'m-d H:i'}</td>
+                        <td>{$item.date_start|udate_with_timezone:'m-d H:i'}<br>{$item.date_finish_desired|udate_with_timezone:'m-d H:i'}</td>
                         <td>
                             <a href="javascript:void(0)" class="trouble-set-user" data-user="{$item.user_edit}">
                                 <abbr title="Установить в качестве ответственного">{$item.user_edit}</abbr>
@@ -178,7 +178,7 @@
                                 Оценка: {$item.user_rating}: <b>{$item.rating}</b>
                             {/if}
                         </td>
-                        <td>{$item.date_edit|udate}</td>
+                        <td>{$item.date_edit|udate_with_timezone}</td>
                     </tr>
                 {/foreach}
             </table>

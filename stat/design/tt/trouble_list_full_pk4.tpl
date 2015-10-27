@@ -33,7 +33,7 @@
 
 <table border=0 width=90%>
     <tr>
-        <td rowspan=3 width=20% valign=top align=center nowrap>{$r.date_start|udate:'Y.m.d H:i'} / {$r.user_author}<br>{$r.add_info.order_given}<br>{if $r.client_orig == "nbn"}<b>{$r.add_info.req_no}</b><br>{/if}
+        <td rowspan=3 width=20% valign=top align=center nowrap>{$r.date_start|udate_with_timezone} / {$r.user_author}<br>{$r.add_info.order_given}<br>{if $r.client_orig == "nbn"}<b>{$r.add_info.req_no}</b><br>{/if}
         {if $r.service}<a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{$r.service|replace:"usage_":""}<br>{$r.service_id}</a>
         {elseif $r.bill_no}<a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:medium;font-weight: bold">{$r.bill_no}</a>
         {else}&nbsp;{/if}<br>
@@ -84,15 +84,15 @@
 	<TD>{$r.user_main}</TD>
 	<TD style='font-size:85%'>{$r.problem}</TD>
 	<TD{if $r.is_sms_send} style="background-color: yellow;"{/if}>{if $r.state_id==2}
-		{$r.date_start|udate:'Y.m.d H:i'}<br>
-		{$r.date_edit|udate:'Y.m.d H:i'}
+		{$r.date_start|udate_with_timezone}<br>
+		{$r.date_edit|udate_with_timezone}
 	{elseif $r.state_id==4}
-			выезд {$r.date_start|udate:'Y.m.d H:i'}<br>
+			выезд {$r.date_start|udate_with_timezone}<br>
 			{if $r.is_active}
 				прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 			{/if}
 	{else}
-		{$r.date_start|udate:'Y.m.d H:i'}<br>
+		{$r.date_start|udate_with_timezone}<br>
 		{if $r.is_active}
 			прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 		{else}
@@ -117,7 +117,7 @@
 		<TD>{$r2.user_main}</TD>
 		<TD>{$r2.comment}</TD>
 		<TD style='font-size:85%'>{$r2.user_edit}</TD>
-		<TD style='font-size:85%'>{$r2.date_edit|udate:'Y.m.d H:i'}</TD>
+		<TD style='font-size:85%'>{$r2.date_edit|udate_with_timezone}</TD>
 	</TR>
 	{/foreach}
 	</TBODY></TABLE></TD></TR>
