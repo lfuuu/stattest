@@ -102,6 +102,10 @@ class NumberController extends BaseController
         }
 
         $headMonths = [];
+        $numbers = [];
+
+        if (Yii::$app->request->post("make")) {
+
         $dt = new \DateTime();
         $dt->setDate(date("Y"), date("m"), 15);
         $dt->modify("-6 month");
@@ -135,11 +139,11 @@ class NumberController extends BaseController
 
             $callsCountByNumber = [];
             foreach ($callsCount as $calls) {
-                if (!isset($callsCountByNumber[$calls['usage_num']])) {
-                    $callsCountByNumber[$calls['usage_num']] = $emptyMonths;
+                if (!isset($callsCountByNumber[$calls['u']])) {
+                    $callsCountByNumber[$calls['u']] = $emptyMonths;
                 }
 
-                $callsCountByNumber[$calls['usage_num']][(int)$calls["month"]] = $calls['count'];
+                $callsCountByNumber[$calls['u']][(int)$calls["m"]] = $calls['c'];
             }
 
             foreach($numbers as $k => $n) {
@@ -147,6 +151,7 @@ class NumberController extends BaseController
                     $numbers[$k]['month'] = $callsCountByNumber[$n["number"]];
                 }
             }
+        }
         }
 
         if (!empty($viewType)) {

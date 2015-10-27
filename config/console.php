@@ -48,6 +48,7 @@ return [
     'components' => [
         'cache' => [
             'class' => 'yii\caching\FileCache',
+            'dirMode' => 0777
         ],
         'user' => [
             'class' => 'yii\web\User',
