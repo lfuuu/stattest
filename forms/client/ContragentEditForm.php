@@ -66,6 +66,8 @@ class ContragentEditForm extends Form
                 'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment', 'tax_regime'], 'string'],
             [['name', 'name_full', 'address_jur', 'inn',
                 'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'default', 'value' => ''],
+            [['name', 'name_full', 'address_jur', 'inn',
+                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'trim'],
 
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address', 'historyVersionStoredDate',
