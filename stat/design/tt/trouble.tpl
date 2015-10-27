@@ -144,23 +144,37 @@
                         </td>
                         <td>
                             {if count($item.doers)>0}
-                            <table border='0' width='100%'>
-                                <tr>
-                                    <td width='50%'>&nbsp;{/if}{$item.comment|escape|find_urls}{if $item.uspd}<br>{$item.uspd}{/if}{if count($item.doers)>0}</td>
-                                    <td width='50%'><table border='0' align='right' style='background-color:lightblue'>
-                                            <tr align='center'><td colspan='2'>Исполнители:</td></tr>
-                                            {foreach from=$item.doers item='doer'}<tr align='center'><td>{$doer.depart}&nbsp;</td><td>&nbsp;{$doer.name}</td></tr>{/foreach}
-                                        </table></td>
-                                </tr>
-                            </table>
+                                <table border="0" width="100%">
+                                    <tr>
+                                        <td width="50%">&nbsp;
+                            {/if}
+                            {$item.comment|escape|find_urls}
+                            {if $item.uspd}<br />{$item.uspd}{/if}
+                            {if $item.stages_comment}
+                                <br /><span style="font-size: 7pt;">{$item.stages_comment}</span>
+                            {/if}
+                            {if count($item.doers)>0}
+                                        </td>
+                                        <td width="50%">
+                                            <table border="0" align="right" style="background-color: lightblue;">
+                                                <tr align="center"><td colspan="2">Исполнители:</td></tr>
+                                                {foreach from=$item.doers item='doer'}
+                                                    <tr align="center"><td>{$doer.depart}&nbsp;</td><td>&nbsp;{$doer.name}</td></tr>
+                                                {/foreach}
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
                             {/if}
                             {if isset($item.doer_stages) && $item.doer_stages}
-                                <table border=0 colspan=0 rowspan=0>
-                                    {foreach from=$item.doer_stages item=ds}<tr><td>{$ds.date}</td><td>{$ds.status_text}({$ds.status})</td><td>{$ds.comment}</td></tr>{/foreach}
+                                <table border="0">
+                                    {foreach from=$item.doer_stages item=ds}
+                                        <tr><td>{$ds.date}</td><td>{$ds.status_text}({$ds.status})</td><td>{$ds.comment}</td></tr>
+                                    {/foreach}
                                 </table>
                             {/if}
                             {if $item.rating > 0}
-                                <br>
+                                <br />
                                 Оценка: {$item.user_rating}: <b>{$item.rating}</b>
                             {/if}
                         </td>

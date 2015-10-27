@@ -755,7 +755,7 @@ where c.client="'.$trouble['client_orig'].'"')
                case "add" : $a = "Добавлена"; break;
                case "delete" : $a = "Удалена"; break;
             }
-            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
+            $s = $l["date"].": ".$a." позиция: <abbr title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</abbr>";
             $ff = array();
             if($l["action"] == "change" && isset($l["fields"])){
                 foreach($l["fields"] as $f)
@@ -773,7 +773,7 @@ where c.client="'.$trouble['client_orig'].'"')
     function addLogToStages(&$R, &$l){
         foreach($R as &$r) {
             if (isset($l[$r['stage_id']])) {
-                $r['comment'] .= (!$r['comment'] ? '' : '<br />') . nl2br(htmlspecialchars_(addcslashes($l[$r['stage_id']])));
+                $r['stages_comment'] .= $l[$r['stage_id']];
             }
         }
     }
