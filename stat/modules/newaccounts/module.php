@@ -364,7 +364,7 @@ class m_newaccounts extends IModule
                     SELECT
                     "income_order" as type,
                     number as bill_no,
-                    id as bill_id,
+                    g.id as bill_id,
                     "" as bill_no_ext,
                     cast(date as date) as bill_date,
                     client_card_id as client_id,
@@ -377,7 +377,10 @@ class m_newaccounts extends IModule
                     0,
                     1 in_sum
 
-                  FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'" and deleted=0
+                    FROM `g_income_order` g
+                        LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
+                        LEFT JOIN tt_stages ts ON  (ts.stage_id = t.cur_stage_id)
+                    where client_card_id = "'.$fixclient_data['id'].'" and state_id != 40 and deleted=0
                 )' : ' ' ) .
             'order by
                 bill_date desc,
