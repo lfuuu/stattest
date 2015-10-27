@@ -211,13 +211,14 @@ class NumberDao extends Singleton
 
         return 
                 Yii::$app->dbPg->createCommand("
-                    select dst_number as usage_num, count(*) as count, to_char(connect_time, 'MM') as month
+                    select dst_number as u, count(*) as c, to_char(connect_time, 'MM') as m
                     from calls_raw.calls_raw
                     where connect_time > '".$dt->format("Y-m-d H:i:s")."'
                     and server_id = ".$region."
                     and number_service_id is null
+                    ".($region == 99 ? "and dst_number BETWEEN 74950000000 and 74999000000" : "")."
                     and orig = false
-                    group by dst_number, month
+                    group by u, m
                 ")->cache(86400)->queryAll();
     }
 }
