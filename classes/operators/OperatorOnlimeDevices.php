@@ -79,7 +79,6 @@ class OperatorOnlimeDevices extends Operators
             'queryModify' => 'modeCloseModify',
         ],
         'done' => [
-            'sql' => '',
             'title' => 'Выполнен',
             'queryModify' => 'modeDoneModify',
         ],
