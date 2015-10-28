@@ -1,6 +1,8 @@
 <?php
 
 use app\models\ClientContragent;
+use app\models\CoreSyncIds;
+use app\classes\Utils;
 
 class SyncCoreHelper
 {
@@ -15,11 +17,19 @@ class SyncCoreHelper
 
         $emails = array();
 
-        $password = "";
-        $main_card = "";
+        $passwordAccount = null;
         $main_card_id = 0;
 
         $data = array("client" => array("id" => $super["id"], "name" => $super["name"]), "contragents" => array());
+
+        $adminEmail = "";
+        /*
+        $attrs = [
+            "id" => $superId,
+            "type" => "admin_email",
+        ];
+        $isNeedAdminSync = !((bool)CoreSyncIds::findOne($attrs));
+         */
 
         $contragents = ClientContragent::findAll(['super_id' => $superId]);
         foreach ($contragents as $contr) {
@@ -34,14 +44,26 @@ class SyncCoreHelper
             foreach ($contr->getContracts() as $contract) {
                 foreach ($contract->getAccounts() as $c) {
                     $isMainCard = strpos($c["client"], "/") === false;
+
                     if ($isMainCard) {
-                        $password = $c["password"];
-                        $main_card = $c["client"];
-                        $main_card_id = $c["id"];
-                        $adminContactId = $c["admin_contact_id"];
+
+                        if (/*$isNeedAdminSync && */!$adminEmail) {
+                            $passwordAccount = $c;
+                            $contacts  = $c->getOfficialContact();
+                            if (isset($contacts["email"])) {
+                                foreach($contacts["email"] as $email) {
+                                    $adminEmail = $email;
+                                    break;
+                                }
+                            }
+
+                            if (!$main_card_id) {
+                                $main_card_id = $c->id;
+                            }
+                        }
                     }
 
-                    if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
+                    //if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
 
                     //self::loadEmails($emails, $c["id"]);
 
@@ -54,27 +76,20 @@ class SyncCoreHelper
             $data["contragents"][] = $dataContragent;
         }
 
-        $adminEmail = $main_card_id . "@mcn.ru";
-
-        if ($adminContactId) {
-            $contact = app\models\ClientContact::findOne(["id" => $adminContactId, "type" => "email"]);
-
-            if ($contact) {
-                $adminEmail = $contact->data;
-            }
+        if (!$adminEmail && $main_card_id || !$passwordAccount) {
+            $adminEmail = $main_card_id . "@mcn.ru";
         }
 
-        $data["admin"] = array("email" => $adminEmail, "password" => $password ?: password_gen(), "active" => false);
-        /*
-        if ($emails && $password)
-        {
-            $data["admin"] = array();
-            foreach(array_keys($emails) as $email)
-            {
-                $data["admin"][] = array("email" => $email, "password" => $password);
-            }
+        if ($passwordAccount && !$passwordAccount->password) {
+            $passwordAccount->password = Utils::password_gen();
+            $passwordAccount->save();
         }
-        */
+
+        $data["admin"] = array(
+            "email" => $adminEmail, 
+            "password" => $passwordAccount->password,
+            "active" => false
+        );
 
         return $data;
     }
@@ -179,11 +194,5 @@ class SyncCoreHelper
     {
         return array("account_id" => $clientId, "product" => $product);
     }
-
-    public static function adminChangeStruct($superId, $email, $password, $isActive)
-    {
-        return array("client_id" => $superId, "admin" => array("email" => $email, "password" => $password, "active" => (bool)$isActive));
-    }
-
 }
 

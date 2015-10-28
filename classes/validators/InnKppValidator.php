@@ -38,7 +38,7 @@ class InnKppValidator extends Validator
             foreach ($attributes as $attribute) {
                 if (
                     ($hasCheckedContracts || $model->$attribute)
-                    && $this->when === null || call_user_func($this->when, $model, $attribute)
+                    && $this->when === null/* || call_user_func($this->when, $model, $attribute)*/
                 ) {
                     $has = true;
                     self::createValidator($this->attrValidator[$attribute], $model, $attribute)->validateAttribute($model, $attribute);

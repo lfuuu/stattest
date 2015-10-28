@@ -166,12 +166,6 @@ function do_events()
                         SyncCore::addAccount($param, false);
                         break;
 
-                    case 'admin_changed':
-                        if (is_array($param))
-                            $param = $param["account_id"];
-                        SyncCore::adminChanged($param);
-                        break;
-
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':

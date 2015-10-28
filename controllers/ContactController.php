@@ -30,20 +30,10 @@ class ContactController extends BaseController
     {
         $data = Yii::$app->request->post();
 
-        $client = ClientAccount::findOne($clientId);
-        if (isset($data['admin-lk-id']) && isset($data['set-admin-lk'])) {
-            if ($data['admin-lk-id'] != $client->admin_contact_id) {
-                $client->admin_contact_id = $data['admin-lk-id'];
-                $client->save();
-            }
-        } elseif (!empty($data['data'])) {
+        if (!empty($data['data'])) {
             $model = new ClientContact(["client_id" => $clientId]);
             $model->setAttributes($data, false);
             $model->save();
-            if($data['admin-lk-id'] == 1 && $model->type == 'email') {
-                $client->admin_contact_id = $model->id;
-                $client->save();
-            }
         }
 
         $this->redirect(Yii::$app->request->referrer);

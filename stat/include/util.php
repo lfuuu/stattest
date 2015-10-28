@@ -272,16 +272,6 @@ function day_norm($m,$d,$y){
     return $d;
 }
 
-function password_gen($len = 15, $isStrong = true){
-    mt_srand((double) microtime() * 1000000);
-    if ($isStrong)
-    {
-        $pass = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand())));
-    } else {
-        $pass = md5(mt_rand().mt_rand().mt_rand().mt_rand().mt_rand());
-    }
-    return substr($pass,0,$len);
-}
 
 
 function _provide_sort_thefunc($a,$b){

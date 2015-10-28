@@ -9,7 +9,7 @@ use DateTimeZone;
 use yii\base\Exception;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-
+use app\classes\Utils;
 /**
  * @property int $id
  * @property string $client
@@ -78,7 +78,7 @@ class ClientAccount extends HistoryActiveRecord
     /** /Virtual variables */
 
     private $_lastComment = false;
-/*For old stat*/
+    /*For old stat*/
 
     public function getType()
     {
@@ -218,7 +218,6 @@ class ClientAccount extends HistoryActiveRecord
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
             'HistoryChanges' =>         \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' =>           \app\classes\behaviors\SetOldStatus::className(),
-            'SetAdminContact' =>        \app\classes\behaviors\SetAdminContact::className(),
             'ActaulizeClientVoip' =>    \app\classes\behaviors\ActaulizeClientVoip::className(),
             'ClientAccountComments' =>  \app\classes\behaviors\ClientAccountComments::className(),
         ];
@@ -394,6 +393,7 @@ class ClientAccount extends HistoryActiveRecord
             ->select(['type', 'data'])
             ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
             ->groupBy(['type', 'data'])
+            ->orderBy('id')
             ->asArray()
             ->all();
 
@@ -471,6 +471,15 @@ class ClientAccount extends HistoryActiveRecord
         $this->sync1C();
         parent::afterSave($insert, $changedAttributes);
     }
+
+    public function beforeSave($insert)
+    {
+        if (!$this->password)
+            $this->password = Utils::password_gen();
+
+        return parent::beforeSave($insert);
+    }
+
 
     public function getRealtimeBalance()
     {
