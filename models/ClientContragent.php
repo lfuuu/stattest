@@ -38,7 +38,7 @@ class ClientContragent extends HistoryActiveRecord
     public function rules()
     {
         $rules = [
-            [['inn', 'kpp'], ['class' => InnKppValidator::className()]],
+            [['inn', 'kpp'], InnKppValidator::className()],
         ];
         return $rules;
     }

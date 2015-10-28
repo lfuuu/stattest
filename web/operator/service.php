@@ -152,12 +152,6 @@ if ($action=='add_client') {
                 $c->save();
                 $contactId = $c->id;
             }
-            if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
-            {
-                $ca->admin_contact_id = $contactId;
-                $ca->admin_is_active = 0;
-                $ca->save();
-            }
 
             $R = array(
                 'trouble_type' => 'connect',

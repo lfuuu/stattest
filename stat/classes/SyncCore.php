@@ -14,17 +14,39 @@ class SyncCore
 
         if ($struct)
         {
-            $accountSync = new CoreSyncIds;
-            $accountSync->id = $superId;
-            $accountSync->type = "super_client";
-            $accountSync->external_id = "*" . $superId;
+            $accountSync = null;
+            if (!CoreSyncIds::findOne(["id" => $superId, "type" => "super_client"])) {
+                $accountSync = new CoreSyncIds;
+                $accountSync->id = $superId;
+                $accountSync->type = "super_client";
+                $accountSync->external_id = "*" . $superId;
+            }
 
             try{
                 ApiCore::exec($action, $struct);
-                $accountSync->save();
+
+                if ($accountSync) {
+                    $accountSync->save();
+                }
+
+                $attrs = [
+                    "id" => $superId,
+                    "type" => "admin_email",
+                ];
+
+                if (isset($struct["admin"]) && !CoreSyncIds::findOne($attrs)) {
+                    $adminEmailSync = new CoreSyncIds;
+                    $adminEmailSync->id = $superId;
+                    $adminEmailSync->type = "admin_email";
+                    $adminEmailSync->external_id = "*" . $superId;
+                    $adminEmailSync->save();
+                }
+
             }catch(Exception $e)
             {
-                $accountSync->save();
+                if ($accountSync) {
+                    $accountSync->save();
+                }
                 throw $e;
             }
 
@@ -40,6 +62,7 @@ class SyncCore
 
 
         SyncCore::addSuperClient($account->super_id);
+
 
 
         if ($isResetProductState)
@@ -145,33 +168,6 @@ class SyncCore
         {
             Event::go("product_".$product."_".$action, ["product" => $product, "account_id" => $accountId]);
             ApiCore::exec($actionJSON, $struct);
-        }
-    }
-
-    public static function adminChanged($clientId)
-    {
-        $action = "update_admin_from_stat";
-
-        $account = ClientAccount::findOne($clientId);
-
-        if (strpos($account->client, "/") !== false) {
-            echo "\n not main card";
-            return;
-        }
-
-        if ($account)
-        {
-            $email = $account->id."@mcn.ru";
-            $cc = ClientContact::find("first", array("id" => $account->admin_contact_id, "is_official" => 1, "is_active" => 1, "type" => 'email'));
-
-            if ($cc)
-                $email = $cc->data;
-
-            $struct = SyncCoreHelper::adminChangeStruct($account->super_id, $email, $account->password?:password_gen(), (bool)$account->admin_is_active);
-            if ($struct)
-            {
-                ApiCore::exec($action, $struct);
-            }
         }
     }
 }

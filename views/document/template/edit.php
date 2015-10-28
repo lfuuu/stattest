@@ -154,10 +154,6 @@ use \kartik\builder\Form;
         </tr>
 
         <tr>
-            <td>{$contact}</td>
-            <td>ФИО контактного лица</td>
-        </tr>
-        <tr>
             <td>{$emails}</td>
             <td>Email</td>
         </tr>

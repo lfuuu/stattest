@@ -752,10 +752,6 @@ FOR EACH ROW BEGIN
 
 
 
-            if OLD.admin_contact_id <> NEW.admin_contact_id THEN
-                 call add_event('admin_changed', NEW.id);
-            end if;
-
             END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;

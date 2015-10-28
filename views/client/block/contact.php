@@ -59,11 +59,7 @@ $translate = [
                 <div class="row"
                      style="<?= ($contact->is_official) ? 'font-weight:bold;' : '' ?><?= ($contact->is_active) ? 'color:black;' : 'color:#909090;' ?>">
                     <div class="col-sm-2">
-                        <?php if ($contact->type == 'email' && $contact->is_active) : ?>
-                            Администратор ЛК
-                            <input type="radio" name="admin-lk-id"
-                                   value="<?= $contact->id ?>" <?= ($contact->id == $account->admin_contact_id) ? 'checked' : '' ?> />
-                        <?php endif ?>
+                        &nbsp;
                     </div>
                     <div class="col-sm-1"><?= $contact->type ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
@@ -89,9 +85,7 @@ $translate = [
             <?php endforeach; ?>
             <div class="row">
                 <div class="col-sm-2">
-                    <input type="radio" name="admin-lk-id"
-                           value="1" <?= (0 == $account->admin_contact_id) ? 'checked' : '' ?> />
-                    <button type="submit" name="set-admin-lk" class="btn btn-primary">Администратор ЛК</button>
+                    &nbsp;
                 </div>
                 <div class="col-sm-2">
                     <select name="type" id="contact-type" class="form-control" style="font-size:10px">

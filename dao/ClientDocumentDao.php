@@ -438,7 +438,6 @@ class ClientDocumentDao extends Singleton
             'contract_dop_date' => $lastContract['contract_dop_date'],
             'contract_dop_no' => $lastContract['contract_dop_no'],
 
-            'contact' => ($c = ClientContact::findOne($account->admin_contact_id)) ? $c->comment : '',
             'emails' => implode('; ', $officialContacts['email']),
             'phones' => implode('; ', $officialContacts['phone']),
             'faxes' => implode('; ', $officialContacts['fax']),

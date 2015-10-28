@@ -117,6 +117,7 @@ class ContractEditForm extends Form
         }
 
         foreach(ClientContractReward::$usages as $usage => $name){
+            $reward = null;
             if($this->contract->id){
                 $reward = ClientContractReward::findOne([
                     'contract_id' => $this->contract->id,
