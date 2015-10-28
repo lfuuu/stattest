@@ -203,6 +203,18 @@ abstract class Biller
             return 'date_range_with_year';
         }
     }
+
+    public function getPeriodExtTemplate($period)
+    {
+        if ($period == 'once') {
+            return 'date_once';
+        } elseif ($period == 'month') {
+            return 'date_ext_range_full';
+        } elseif ($period == 'year') {
+            return 'date_ext_range_with_year';
+        }
+    }
+
     protected function getContractInfo()
     {
         $dateTs = $this->billerDate->getTimestamp();

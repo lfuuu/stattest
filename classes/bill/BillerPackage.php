@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\classes\DateFunction;
 use app\models\ClientAccount;
 use app\models\Transaction;
 use app\models\Usage;
@@ -49,15 +50,15 @@ abstract class BillerPackage
     public static function create(Biller $biller)
     {
         $package = new static();
-        $package->biller            = $biller;
-        $package->clientAccount     = $biller->clientAccount;
-        $package->usage             = $biller->usage;
-        $package->billerPeriodFrom  = $biller->billerPeriodFrom;
-        $package->billerPeriodTo    = $biller->billerPeriodTo;
-        $package->billerActualFrom  = $biller->billerActualFrom;
-        $package->billerActualTo    = $biller->billerActualTo;
-        $package->usageActualFrom   = $biller->usageActualFrom;
-        $package->usageActualTo     = $biller->usageActualTo;
+        $package->biller = $biller;
+        $package->clientAccount = $biller->clientAccount;
+        $package->usage = $biller->usage;
+        $package->billerPeriodFrom = $biller->billerPeriodFrom;
+        $package->billerPeriodTo = $biller->billerPeriodTo;
+        $package->billerActualFrom = $biller->billerActualFrom;
+        $package->billerActualTo = $biller->billerActualTo;
+        $package->usageActualFrom = $biller->usageActualFrom;
+        $package->usageActualTo = $biller->usageActualTo;
         return $package;
     }
 
@@ -122,20 +123,20 @@ abstract class BillerPackage
                 $transaction->effective_amount = 0;
                 $transaction->effective_sum = 0;
             } elseif ($date > $periodTo) {
-                $transaction->effective_sum = - $transaction->sum;
+                $transaction->effective_sum = -$transaction->sum;
             } elseif ($periodTo > $periodFrom) {
                 $all = $periodTo - $periodFrom + 1;
                 $done = $date - $periodFrom;
 
                 $transaction->effective_amount = round($transaction->amount * $done / $all, 6);
-                $transaction->effective_sum = - round($transaction->sum * $done / $all, 2);
+                $transaction->effective_sum = -round($transaction->sum * $done / $all, 2);
             } else {
                 $transaction->effective_amount = $transaction->amount;
-                $transaction->effective_sum = - $transaction->sum;
+                $transaction->effective_sum = -$transaction->sum;
             }
         } else {
             $transaction->effective_amount = $transaction->amount;
-            $transaction->effective_sum = - $transaction->sum;
+            $transaction->effective_sum = -$transaction->sum;
         }
     }
 
@@ -166,9 +167,19 @@ abstract class BillerPackage
                 ],
                 $this->clientAccount->contragent->country->lang
             );
+            
+            $i18n_params['date_range_ext'] = Yii::t(
+                'biller',
+                $this->biller->getPeriodExtTemplate($this->periodType),
+                [
+                    $from2,
+                    $to2
+                ],
+                $this->clientAccount->contragent->country->lang
+            );
         }
 
-        $name  = Yii::t(
+        $name = Yii::t(
             $this->biller->getTranslateFilename(),
             $template,
             $i18n_params,
