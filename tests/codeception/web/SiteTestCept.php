@@ -1,6 +1,8 @@
 <?php 
 
-$lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
+use app\models\ClientAccount;
+
+$lastAccount = ClientAccount::find()->select('max(id)')->scalar();
 $accountId = $lastAccount+1;
 
 $number = "74992130006";
@@ -23,6 +25,12 @@ $I->wantToTest("re-register client");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");
 $I->see("ok:".$accountId);
+
+$account = ClientAccount::findOne(['id' => $accountId]);
+$I->assertNotNull($account);
+$I->assertEquals($account->credit, ClientAccount::DEFAULT_CREDIT);
+$I->assertEquals($account->voip_is_day_calc, ClientAccount::DEFAULT_VOIP_IS_DAY_CALC);
+$I->assertEquals($account->voip_credit_limit_day, ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY);
 
 
 $I = new _WebTester($scenario);
