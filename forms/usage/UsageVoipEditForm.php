@@ -35,6 +35,7 @@ class UsageVoipEditForm extends UsageVoipForm
     public $addressPlaceholder = '';
     public $disconnecting_date;
     public $region;
+    public $create_params = '{}';
 
     public function rules()
     {
@@ -107,7 +108,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->one_sip = 0;
         $usage->is_moved = 0;
         $usage->is_moved_with_pbx = 0;
-        $usage->create_params = '{}';
+        $usage->create_params = $this->create_params;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

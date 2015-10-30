@@ -19,6 +19,12 @@ $I->dontSee("error:");
 $I->see("ok:".$accountId);
 
 $I = new _WebTester($scenario);
+$I->wantTo("register client from site with vpbx (without voip)");
+$I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=42&test=1");
+$I->dontSee("error:");
+$I->see("ok:".$accountId);
+
+$I = new _WebTester($scenario);
 $I->wantToTest("re-register client");
 $I->amOnPage("/operator/service.php?action=add_client&company=test&phone=89264290001&email=test%40mcn.ru&client_comment=test+TEST&fio=fio&phone_connect=&lk_access=1&vats_tariff_id=&test=1");
 $I->dontSee("error:");

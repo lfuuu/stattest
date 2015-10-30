@@ -86,7 +86,7 @@ class VoipReservNumber
 
     }
 
-    private static function getDefaultTarifId($regionId, $currency)
+    public static function getDefaultTarifId($regionId, $currency)
     {
         global $db;
 
