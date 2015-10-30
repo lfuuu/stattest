@@ -1,4 +1,4 @@
-<h1>Отчет по себестоимости: (НЕ РАБОТАЕТ)</h1>
+<h1>Отчет по себестоимости</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
@@ -19,11 +19,6 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <select name="f_prefix_type">
-        <option value="op" {if $f_prefix_type eq 'op'} selected{/if}>Использовать операторские префиксы</option>
-        <option value="mcn" {if $f_prefix_type eq 'mcn'} selected{/if}>Использовать префиксы MCN</option>
-    </select>
-
     <div style="height: 5px"></div>
 
 	<select name="f_dest_group">
@@ -51,16 +46,9 @@
         <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
         <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
     </select>
-
-    <select name="f_direction_out">
-        <option value="t" {if $f_direction_out eq 't'} selected{/if}>Исходящие</option>
-        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>Входящие</option>
-    </select>
-
     <div style="height: 5px"></div>
 
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
-<!--  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/> -->
   &nbsp;&nbsp;&nbsp;&nbsp;
     <input type=submit name="make" id="make_report" value="Сформировать"/>
     <input type=submit name="export" value="Экспорт CSV"/>
@@ -70,7 +58,6 @@
 <thead>
 <tr>
     <td nowrap class=header colspan="2">&nbsp;</td>
-    <td class=header colspan="3">МСN Telecom</td>
     {foreach from=$reportOperators key='k' item='op'}
     <td nowrap class=header colspan="3">{$op->short_name} ({$k})</td>
     {/foreach}
@@ -78,13 +65,10 @@
 <tr>
     <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
     <td class=header style="min-width: 100px;">Назначение</td>
-    <td class=header>Кол.</td>
-    <td class=header>Мин.</td>
-    <td class=header>Руб.</td>
     {foreach from=$reportOperators key='k' item='op'}
-    <td class=header>Кол.</td>
-    <td class=header>Мин.</td>
-    <td class=header>Руб.</td>
+    <td class=header>кол.</td>
+    <td class=header>мин</td>
+    <td class=header>руб/мин</td>
     {/foreach}
 </tr>
 </thead>
@@ -93,13 +77,10 @@
 <tr class="{cycle values='even,odd'}">
 	<td>{$rd.prefix}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-    <td align=right>{$rd.count}</td>
-    <td align=right>{$rd.len_mcn}</td>
-    <td align=right>{$rd.amount_mcn}</td>
     {foreach from=$reportOperators key='k' item='op'}
     <td align=right>{$rd.operators[$k].count}</td>
-    <td align=right>{$rd.operators[$k].len_op}</td>
-    <td align=right>{$rd.operators[$k].amount_op}</td>
+    <td align=right>{$rd.operators[$k].duration}</td>
+    <td align=right>{$rd.operators[$k].price}</td>
     {/foreach}
 </tr>
 {/foreach}
@@ -107,13 +88,10 @@
 <tfoot>
 <tr>
     <td colspan="2"><b>Итого:</b></td>
-    <td align=right><b>{$totals.count}</b></td>
-    <td align=right><b>{$totals.len_mcn}</b></td>
-    <td align=right><b>{$totals.amount_mcn}</b></td>
     {foreach from=$reportOperators key='k' item='op'}
     <td align=right><b>{$totals.operators[$k].count}</b></td>
-    <td align=right><b>{$totals.operators[$k].len_op}</b></td>
-    <td align=right><b>{$totals.operators[$k].amount_op}</b></td>
+    <td align=right><b>{$totals.operators[$k].duration}</b></td>
+    <td align=right></td>
     {/foreach}
 </tr>
 </tfoot>
