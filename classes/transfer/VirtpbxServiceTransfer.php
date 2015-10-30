@@ -75,7 +75,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
 
                     $usageTransfer =
                         $usage
-                            ->getTransferHelper()
+                            ->getTransferHelper($usage)
                             ->setActivationDate($usage->actual_from);
 
                     LogTarifTransfer::process($usageTransfer, $targetUsage->id);
