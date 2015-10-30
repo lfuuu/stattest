@@ -219,7 +219,8 @@ class VoipBiller extends Biller
         /** @var UsageVoipPackage[] $packages */
         $packages =
             $this->usage->getUsagePackages()
-                ->where(['>=', 'actual_to', $this->billerActualTo->format('Y-m-d')])
+                ->andWhere(['<=', 'actual_from', $this->billerActualTo->format('Y-m-d')])
+                ->andWhere(['>=', 'actual_to', $this->billerActualTo->format('Y-m-d')])
                 ->all();
 
         foreach ($packages as $package) {
