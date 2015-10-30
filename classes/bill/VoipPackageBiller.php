@@ -18,8 +18,12 @@ class VoipPackageBiller extends Biller
     protected function processPeriodical()
     {
         $package = BillerPackagePeriodical::create($this)
-            ->setPeriodType(self::PERIOD_MONTH)// Need for localization
             ->setPrice($this->usage->tariff->periodical_fee)
+            //->setMinPaymentTemplate($this->usage->tariff->min_payment)
+            //->setMinPaymentTemplate()
+            ->setIsAlign(true)
+            ->setIsPartialWriteOff(false)
+            ->setPeriodType(self::PERIOD_MONTH)
             ->setTemplate('voip_package_fee')
             ->setTemplateData([
                 'tariff' => $this->usage->tariff->name,
@@ -28,6 +32,7 @@ class VoipPackageBiller extends Biller
         $this->addPackage($package);
     }
 
+    /*
     protected function processResource()
     {
         $this->addPackage(
@@ -43,4 +48,5 @@ class VoipPackageBiller extends Biller
                 ])
         );
     }
+     */
 }
