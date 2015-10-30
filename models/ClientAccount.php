@@ -34,6 +34,11 @@ class ClientAccount extends HistoryActiveRecord
 
     const STATUS_INCOME = 'income';
 
+    const DEFAULT_REGION = Region::MOSCOW;
+    const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 1000;
+    const DEFAULT_VOIP_IS_DAY_CALC = 1;
+    const DEFAULT_CREDIT = 0;
+
     public $client_orig = '';
 
     public static $statuses = array(
@@ -79,6 +84,18 @@ class ClientAccount extends HistoryActiveRecord
 
     private $_lastComment = false;
     /*For old stat*/
+
+
+    public function rules()
+    {
+        $rules = [];
+        $rules[] = ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY];
+        $rules[] = ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC];
+        $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
+        $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
+
+        return $rules;
+    }
 
     public function getType()
     {

@@ -18,10 +18,6 @@ use app\classes\validators\BikValidator;
 
 class AccountEditForm extends Form
 {
-    const DEFAULT_ACCOUNT_REGION = Region::MOSCOW;
-    const DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY = 1000;
-    const DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC = 1;
-
     protected $clientM = null;
     public $historyVersionRequestedDate = null;
     public $historyVersionStoredDate = null;
@@ -32,7 +28,7 @@ class AccountEditForm extends Form
 
     public
         $client,
-        $region = self::DEFAULT_ACCOUNT_REGION,
+        $region = ClientAccount::DEFAULT_REGION,
         $status,
         $address_post,
         $address_post_real,
@@ -40,7 +36,7 @@ class AccountEditForm extends Form
         $currency,
         $stamp,
         $nal,
-        $credit,
+        $credit = ClientAccount::DEFAULT_CREDIT,
         $credit_size,
         $sale_channel,
         $phone_connect,
@@ -48,8 +44,8 @@ class AccountEditForm extends Form
         $price_type,
         $voip_credit_limit,
         $voip_disabled,
-        $voip_credit_limit_day = self::DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY,
-        $voip_is_day_calc = self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC,
+        $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
+        $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
         $mail_print,
         $mail_who,
         $head_company,
@@ -107,9 +103,9 @@ class AccountEditForm extends Form
                 ],
                 'default', 'value' => 0
             ],
-            [['voip_credit_limit_day'], 'default', 'value' => 1000],
+            [['voip_credit_limit_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['admin_email', 'email'],
-            ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC],
+            ['voip_is_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
@@ -165,8 +161,8 @@ class AccountEditForm extends Form
             $this->setAttributes($this->clientM->getAttributes(), false);
             $this->admin_contact_id = 0;
             $this->admin_is_active = 0;
-            $this->voip_credit_limit_day = self::DEFAULT_ACCOUNT_VOIP_CREDIT_LIMIT_DAY;
-            $this->voip_is_day_calc = self::DEFAULT_ACCOUNT_VOIP_IS_DAY_CALC;
+            $this->voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY;
+            $this->voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC;
             $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();
