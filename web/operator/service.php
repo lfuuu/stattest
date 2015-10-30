@@ -14,6 +14,7 @@ use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\UsageVoip;
+use app\models\DidGroup;
 
 if (isset($_GET) && isset($_GET["test"]))
 {
@@ -200,11 +201,11 @@ if ($action=='add_client') {
                 $logTarif->id_user = User::LK_USER_ID;
                 $logTarif->save();
 
-                if ($tarif->id == 42) {
+                if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
                     $usage = UsageVoip::findOne(['client' => $client->client]);
 
                     if (!($usage instanceof UsageVoip)) {
-                        $freeNumber = Number::dao()->getRandomFreeNumber(2); // 2 = didGroup 499
+                        $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
 
                         if (!($freeNumber instanceof Number)) {
                             throw new Exception('Not found free number into 499 DID group', 500);

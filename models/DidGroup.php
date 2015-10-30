@@ -14,6 +14,8 @@ use yii\db\ActiveRecord;
  */
 class DidGroup extends ActiveRecord
 {
+    const MOSCOW_STANDART_GROUP_ID = 2;
+
     const BEAUTY_LEVEL_STANDART = 0;
     const BEAUTY_LEVEL_PLATINUM = 1;
     const BEAUTY_LEVEL_GOLD = 2;
