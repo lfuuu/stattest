@@ -88,7 +88,9 @@ abstract class BasePricelistLoader extends BaseLoader
             $q .= "('" . pg_escape_string($file->id) . "','" . pg_escape_string($row['prefix']) . "'," . $deleting . ",'" . pg_escape_string($row['rate']) . "'," . $mob . ")";
         }
 
-        Yii::$app->dbPg->createCommand($q)->execute();
+        if (count($new_rows) > 0) {
+            Yii::$app->dbPg->createCommand($q)->execute();
+        }
     }
 
 }
