@@ -29,7 +29,6 @@ class VoipTrunkBiller extends Biller
 
         $template_data = [
             'service' => $this->usage->description,
-            'by_agreement' => ''
         ];
 
         $this->addPackage(

@@ -20,27 +20,22 @@ class m_voipreports_cost_report
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '');
-        $f_direction_out = get_param_protected('f_direction_out', 't');
         $f_mob = get_param_protected('f_mob', '0');
         $f_prefix = get_param_protected('f_prefix', '');
         $f_volume = get_param_protected('f_volume', '');
 
-        if (!in_array($f_prefix_type, array('op', 'mcn'))) $f_prefix_type = 'op';
-        $prefixField = 'prefix_' . $f_prefix_type;
-
         $report = array();
-        $totals = array('count' => 0, 'len_mcn' => 0, 'amount_mcn' => 0, 'operators' => array());
+        $totals = array('operators' => array());
         $reportOperators = array();
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
             $where = " and r.connect_time >= '{$date_from}'";
             $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
-            $where .= $f_direction_out == 'f' ?  " and r.direction_out=false " : " and r.direction_out=true ";
 
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
             if ($f_prefix != '')
-                $where .= " and r.{$prefixField}::varchar like '" . intval($f_prefix) . "%' ";
+                $where .= " and r.prefix::varchar like '" . intval($f_prefix) . "%' ";
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
                     $where .= " and r.destination_id < 0 ";
@@ -63,22 +58,20 @@ class m_voipreports_cost_report
 
             $preReport = $pg_db->AllRecords("
                         select
-                              r.{$prefixField} as prefix,
+                              r.prefix as prefix,
                               r.operator_id,
                               r.mob as mob,
-                              r.dest,
+                              r.destination_id,
                               count(*) as count,
-                              sum(r.len_mcn) as len_mcn,
-                              sum(r.amount) as amount_mcn,
-                              sum(r.len_op) as len_op,
-                              sum(r.amount_op) amount_op,
+                              sum(r.billed_time) as duration,
+                              sum(r.cost) as cost,
                               g.name as destination
                         from calls_raw.calls_raw r
-                        left join voip_destinations d on d.ndef=r.{$prefixField}
+                        left join voip_destinations d on d.ndef=r.prefix
                         left join geo.geo g on g.id=d.geo_id
-                        where server_id = {$f_instance_id} and len>0 {$where}
-                        group by r.{$prefixField}, r.mob, r.operator_id, g.name, r.dest
-                        order by destination, r.{$prefixField}
+                        where not orig and not our and server_id = {$f_instance_id} and billed_time>0 {$where} 
+                        group by r.prefix, r.mob, r.operator_id, g.name, r.destination_id
+                        order by destination, r.prefix
                                      ");
 
             foreach ($preReport as $r) {
@@ -99,13 +92,9 @@ class m_voipreports_cost_report
                         'destination' => $r['destination'],
                         'mob' => $r['mob'],
                         'operators' => array(),
-                        'len_mcn' => 0,
-                        'amount_mcn' => 0,
                         'count' => 0,
                     );
                 }
-                $report[$k]['len_mcn'] += $r['len_mcn'];
-                $report[$k]['amount_mcn'] += $r['amount_mcn'];
                 $report[$k]['count'] += $r['count'];
 
                 if (!isset($reportOperators[$r['operator_id']])) {
@@ -113,52 +102,42 @@ class m_voipreports_cost_report
                 }
                 if (!isset($report[$k]['operators'][$r['operator_id']])) {
                     $report[$k]['operators'][$r['operator_id']] = array(
-                        'len_op' => 0,
-                        'amount_op' => 0,
+                        'duration' => 0,
+                        'cost' => 0,
                         'count' => 0,
                     );
                 }
-                $report[$k]['operators'][$r['operator_id']]['len_op'] += $r['len_op'];
-                $report[$k]['operators'][$r['operator_id']]['amount_op'] += $r['amount_op'];
+                $report[$k]['operators'][$r['operator_id']]['duration'] += $r['duration'];
+                $report[$k]['operators'][$r['operator_id']]['cost'] += $r['cost'];
                 $report[$k]['operators'][$r['operator_id']]['count'] += $r['count'];
             }
         }
 
         foreach ($report as $k => $r) {
-
-            $totals['len_mcn'] += $r['len_mcn'];
-            $totals['amount_mcn'] += $r['amount_mcn'];
-            $totals['count'] += $r['count'];
-
-            $report[$k]['len_mcn'] =        number_format(  $report[$k]['len_mcn'] / 60, 2, ',', '');
-            $report[$k]['amount_mcn'] =     number_format(  $report[$k]['amount_mcn'] / 100, 2, ',', '');
             foreach($r['operators'] as $k_op => $op) {
-
                 if (!isset($totals['operators'][$k_op])) {
                     $totals['operators'][$k_op] = array(
-                        'len_op' => 0,
-                        'amount_op' => 0,
+                        'duration' => 0,
+                        'cost' => 0,
                         'count' => 0,
                     );
                 }
-                $totals['operators'][$k_op]['len_op'] += $op['len_op'];
-                $totals['operators'][$k_op]['amount_op'] += $op['amount_op'];
+                $totals['operators'][$k_op]['duration'] += $op['duration'];
+                $totals['operators'][$k_op]['cost'] += $op['cost'];
                 $totals['operators'][$k_op]['count'] += $op['count'];
 
-                $report[$k]['operators'][$k_op]['len_op'] =
-                                            number_format(  $report[$k]['operators'][$k_op]['len_op'] / 60, 2, ',', '');
-                $report[$k]['operators'][$k_op]['amount_op'] =
-                                            number_format(  $report[$k]['operators'][$k_op]['amount_op'] / 100, 2, ',', '');
+                $duration = $report[$k]['operators'][$k_op]['duration'] / 60;
+                $report[$k]['operators'][$k_op]['duration'] = number_format(  $duration, 2, ',', '');
+                $report[$k]['operators'][$k_op]['price'] =
+                                            number_format(  $report[$k]['operators'][$k_op]['cost'] / $duration , 2, ',', '');
             }
         }
 
-        $totals['len_mcn'] =        number_format(  $totals['len_mcn'] / 60, 2, ',', '');
-        $totals['amount_mcn'] =     number_format(  $totals['amount_mcn'] / 100, 2, ',', '');
         foreach($totals['operators'] as $k_op => $op) {
-            $totals['operators'][$k_op]['len_op'] =
-                number_format(  $totals['operators'][$k_op]['len_op'] / 60, 2, ',', '');
-            $totals['operators'][$k_op]['amount_op'] =
-                number_format(  $totals['operators'][$k_op]['amount_op'] / 100, 2, ',', '');
+            $totals['operators'][$k_op]['duration'] =
+                number_format(  $totals['operators'][$k_op]['duration'] / 60, 2, ',', '');
+            $totals['operators'][$k_op]['cost'] =
+                number_format(  $totals['operators'][$k_op]['cost'], 2, ',', '');
         }
 
         $operators = array();
@@ -181,7 +160,6 @@ class m_voipreports_cost_report
             $design->assign('f_prefix', $f_prefix);
             $design->assign('f_country_id', $f_country_id);
             $design->assign('f_region_id', $f_region_id);
-            $design->assign('f_direction_out', $f_direction_out);
             $design->assign('f_mob', $f_mob);
             $design->assign('f_dest_group', $f_dest_group);
             $design->assign('f_volume', $f_volume);
@@ -197,30 +175,27 @@ class m_voipreports_cost_report
             $design->AddMain('voipreports/cost_report_show.html');
         } else {
             header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="cost.csv"');
+            header('Content-Disposition: attachment; filename="price.csv"');
 
             ob_start();
 
-            echo ';;МСN Telecom;;;';
+            echo ';;';
             foreach ($reportOperators as $k => $op) {
                 echo '"' . $op->short_name . ' (' . $k . ')";;;';
             }
             echo "\n";
-            echo '"Префикс номера";"Назначение";"Кол.";"Мин.";"Руб.";';
+            echo '"Префикс номера";"Назначение";';
             foreach ($reportOperators as $k => $op) {
-                echo '"Кол.";"Мин.";"Руб.";';
+                echo '"кол.";"мин";"руб/мин";';
             }
             echo "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
                 echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'') . '";';
-                echo '"' . $r['count'] . '";';
-                echo '"' . $r['len_mcn'] . '";';
-                echo '"' . $r['amount_mcn'] . '";';
                 foreach ($reportOperators as $k => $op) {
                     echo '"' . $r['operators'][$k]['count'] . '";';
-                    echo '"' . $r['operators'][$k]['len_op'] . '";';
-                    echo '"' . $r['operators'][$k]['amount_op'] . '";';
+                    echo '"' . $r['operators'][$k]['duration'] . '";';
+                    echo '"' . $r['operators'][$k]['price'] . '";';
                 }
                 echo "\n";
             }

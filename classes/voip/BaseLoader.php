@@ -281,7 +281,7 @@ abstract class BaseLoader extends Object
             $prefixTo = substr($prefixTo, 1);
         }
 
-        if ($prefixFrom == '' && $prefixTo == '' && $prefix != '') {
+        if ($prefixFrom == '' && $prefixTo == '') {
             $result[] = $prefix;
             return;
         }
