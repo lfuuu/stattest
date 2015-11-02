@@ -56,4 +56,7 @@ return [
     'voip_package_fee' => 'Абонентская плата за пакет "{tariff}" с номера {service}{date_range}',
     'voip_package_payment' => 'Абонентская плата за пакет "{tariff}" с номера {service}{date_range}',
     'voip_package_minpay' => 'Минимальный платеж за пакет "{tariff}" с номера {service}{date_range}',
+
+    'voip_operator_trunk_plus' => 'Платный траффик со стороны оператора по транку {service}{date_range}',
+    'voip_operator_trunk_minus' => 'Платный траффик на оператора по транку {service}{date_range}',
 ];

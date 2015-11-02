@@ -1,10 +1,11 @@
 <?php
 namespace app\models;
 
-use yii\db\ActiveRecord;
 use DateTime;
+use yii\db\ActiveRecord;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
+use app\classes\bill\VoipTrunkBiller;
 
 /**
  * @property int    $id
@@ -26,7 +27,7 @@ use app\dao\services\TrunkServiceDao;
  * @property Region $connectionPoint
  * @property
  */
-class UsageTrunk extends ActiveRecord
+class UsageTrunk extends ActiveRecord implements Usage
 {
     public static function tableName()
     {
@@ -36,6 +37,15 @@ class UsageTrunk extends ActiveRecord
     public static function dao()
     {
         return TrunkServiceDao::me();
+    }
+
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
+    {
+        return new VoipTrunkBiller($this, $date, $clientAccount);
+    }
+
+    public function getTariff()
+    {
     }
 
     public function getServiceType()
