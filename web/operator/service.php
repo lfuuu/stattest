@@ -171,10 +171,14 @@ if ($action=='add_client') {
         }
     }
 
+    $result_message = 'error:';
+
     if ($clientId)
     {
-        if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
+        $result_message = 'ok:' . $clientId;
+        if ($vatsTarifId = get_param_integer('vats_tariff_id', 0)) // заявка с ВАТС
         {
+            $result_message .= "\nvpbx:";
             $client = ClientAccount::findOne(['id' => $clientId]);
             $tarif = TariffVirtpbx::findOne([['id' => $vatsTarifId], ['!=', 'status', 'archive']]);
 
@@ -201,10 +205,14 @@ if ($action=='add_client') {
                 $logTarif->id_user = User::LK_USER_ID;
                 $logTarif->save();
 
+                $result_message .= 'created';
+
                 if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
                     $usage = UsageVoip::findOne(['client' => $client->client]);
 
                     if (!($usage instanceof UsageVoip)) {
+                        $result_message .= "\nvoip:";
+
                         $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
 
                         if (!($freeNumber instanceof Number)) {
@@ -238,23 +246,23 @@ if ($action=='add_client') {
                             $usageVoipId = $form->id;
 
                             $transaction->commit();
+                            $result_message .= 'added';
                         }
                         catch (\Exception $e) {
+                            $result_message .= 'failed';
                             $transaction->rollBack();
                             throw $e;
                         }
                     }
                 }
             }
+            else {
+                $result_message .= 'not_found_tariff';
+            }
         }
     }
 
-    if ($clientId)
-    {
-        die("ok:".$clientId);
-    } else {
-        die("error:");
-    }
+    die($result_message);
 }elseif($action == "set_active")
 {
 

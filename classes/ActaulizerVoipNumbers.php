@@ -272,7 +272,7 @@ class ActaulizerVoipNumbers
             $s["multitrunk_id"] = (int)$params["multitrunk_id"];
         } elseif ($s["type"] == "vpbx") {
             $s["vpbx_id"] = (int)$params["vpbx_id"];
-            if (array_key_exists("vpbx_stat_product_id", $params)) {
+            if (isset($params["vpbx_stat_product_id"])) {
                 $s["vpbx_stat_product_id"] = $params["vpbx_stat_product_id"];
             }
         }
