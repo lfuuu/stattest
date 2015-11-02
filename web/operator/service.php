@@ -178,7 +178,7 @@ if ($action=='add_client') {
         $result_message = 'ok:' . $clientId;
         if ($vatsTarifId = get_param_integer('vats_tariff_id', 0)) // заявка с ВАТС
         {
-            $result_message .= "\nvpbx:";
+            $result_message .= 'vpbx:';
             $client = ClientAccount::findOne(['id' => $clientId]);
             $tarif = TariffVirtpbx::findOne([['id' => $vatsTarifId], ['!=', 'status', 'archive']]);
 
@@ -211,7 +211,7 @@ if ($action=='add_client') {
                     $usage = UsageVoip::findOne(['client' => $client->client]);
 
                     if (!($usage instanceof UsageVoip)) {
-                        $result_message .= "\nvoip:";
+                        $result_message .= 'voip:';
 
                         $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
 

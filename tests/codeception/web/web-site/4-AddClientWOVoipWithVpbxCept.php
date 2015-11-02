@@ -11,16 +11,14 @@ $query = http_build_query([
     'test' => 1,
     'action' => 'add_client',
     'company' => 'test',
-    'phone' => '89264290001',
-    'email' => 'test%40mcn.ru',
-    'client_comment' => 'test+TEST',
+    'phone' => '89264290002',
+    'email' => 'test-vpbx@mcn.ru',
+    'client_comment' => 'test VPBX',
     'fio' => 'fio',
     'phone_connect' => '',
     'lk_access' => 1,
     'vats_tariff_id' => 42,
 ]);
-
-print $accountId;
 
 $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
