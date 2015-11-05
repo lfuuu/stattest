@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+
 use Yii;
 use DateTime;
 use app\models\Bill;
@@ -14,8 +15,8 @@ use app\models\UsageIpPorts;
 use app\models\UsageSms;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
+use app\models\UsageTrunk;
 use app\models\UsageWelltime;
-
 
 class ClientAccountBiller
 {
@@ -90,7 +91,6 @@ class ClientAccountBiller
             $status = 'working';
         }
 
-
         $this->processUsages(
             UsageIpPorts::find()
                 ->andWhere(['client' => $this->clientAccount->client])
@@ -107,6 +107,12 @@ class ClientAccountBiller
                 ->all()
         );
 
+        $this->processUsages(
+            UsageTrunk::find()
+                ->andWhere(['client_account_id' => $this->clientAccount->id])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->all()
+        );
 
         $this->processUsages(
             UsageVirtpbx::find()
@@ -156,7 +162,6 @@ class ClientAccountBiller
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $transactionTypes = [];
-            print $this->connecting . ' -> ' . $this->periodical . ' -> ' . $this->resource . '<br />';
 
             if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTING;
             if ($this->periodical) $transactionTypes[] = Transaction::TYPE_PERIODICAL;

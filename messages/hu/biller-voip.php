@@ -18,4 +18,7 @@ return [
     'voip_package_fee' => '{tariff} {service} {date_range}',
     'voip_package_payment' => '{tariff} {service} {date_range}',
     'voip_package_minpay' => '{tariff} {service} {date_range}',
+
+    'voip_operator_trunk_plus' => '{service} {date_range}',
+    'voip_operator_trunk_minus' => '{service} {date_range}',
 ];
