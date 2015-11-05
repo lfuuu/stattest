@@ -366,7 +366,7 @@ function doFormSend()
 
 <h3>События счета:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}
-<b>{$L.ts|udate} - {$L.user}</b>: {$L.comment}<br>
+<b>{$L.ts|udate_with_timezone} - {$L.user}</b>: {$L.comment}<br>
 {/foreach}{/if}
 <table style='display:none;position:absolute;background-color:silver;border:double;' id='ItemsDatesTable'>
 	<tr>

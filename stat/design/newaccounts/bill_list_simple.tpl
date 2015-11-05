@@ -38,10 +38,10 @@
     </tr>
     {foreach from=$saldo_history item=item}
         <tr class="even">
-            <td>{$item.edit_time|udate}</td>
+            <td>{$item.edit_time|udate_with_timezone}</td>
             <td>{$item.user_name}</td>
             <td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td>
-            <td>{$item.ts|udate}</td>
+            <td>{$item.ts|udate_with_timezone}</td>
             <td><a href="/client/cancel-saldo?id={$item.id}&clientId={$fixclient_data.id}" onClick="return confirm('Вы уверены, что хотите отменить сальдо ?')"><b>отменить</b></a></td>
         </tr>
     {/foreach}

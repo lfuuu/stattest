@@ -1,6 +1,7 @@
 <?php
 use \yii\helpers\Url;
 use \app\models\ClientContract;
+use app\helpers\DateTimeZoneHelper;
 
 ?>
 <div class="main-client">
@@ -81,7 +82,7 @@ use \app\models\ClientContract;
                                     <?php foreach ($contract->comments as $comment)
                                         if ($comment->is_publish): ?>
                                             <div class="col-sm-12">
-                                                <b><?= $comment->user ?> <?= $comment->ts ?>
+                                                <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>
                                                     : </b><?= $comment->comment ?>
                                             </div>
                                         <?php endif; ?>

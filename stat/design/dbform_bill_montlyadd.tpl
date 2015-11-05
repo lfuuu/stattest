@@ -5,5 +5,5 @@
 <br>
 <h3>История изменений</h3>
 {foreach from=$dbform_f_log key=key item=T}
-<b>{$T.ts|udate} - {$T.user}</b>: {$T.description} / {$T.amount} / {$T.price}<br>
+<b>{$T.ts|udate_with_timezone} - {$T.user}</b>: {$T.description} / {$T.amount} / {$T.price}<br>
 {/foreach}

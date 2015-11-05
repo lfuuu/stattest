@@ -2,6 +2,7 @@
 use yii\helpers\Url;
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
+use app\helpers\DateTimeZoneHelper;
 
 $contacts = $account->allContacts;
 $contactsArr = [];
@@ -65,7 +66,7 @@ $translate = [
                     <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
                     <div class="col-sm-2"><?= $contact->user->name ?></div>
-                    <div class="col-sm-2"><?= $contact->ts ?></div>
+                    <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
                     <div class="col-sm-1">
                         <?php if ($contact->user->user == 'AutoLK'): ?>
                             <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id]) ?>">

@@ -3,7 +3,8 @@
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use \yii\helpers\Url;
+use yii\helpers\Url;
+use app\helpers\DateTimeZoneHelper;
 
 $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($contractForm->business_process_status_id);;
 ?>
@@ -77,7 +78,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                 <div class="col-sm-12">
                     <input type="checkbox"
                            name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish ? 'checked' : '' ?>>
-                    <b><?= $comment->user ?> <?= $comment->ts ?>: </b><?= $comment->comment ?>
+                    <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>: </b><?= $comment->comment ?>
                 </div>
             <?php endforeach; ?>
         </div>
