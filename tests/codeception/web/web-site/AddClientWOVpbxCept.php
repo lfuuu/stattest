@@ -5,12 +5,14 @@
  * 2. Повторное добавление клиента без ВАТС
  */
 
+$email = mt_rand(0, 100) . '@mcn.ru';
+
 $query = http_build_query([
     'test' => 1,
     'action' => 'add_client',
     'company' => 'test',
     'phone' => '89264290001',
-    'email' => 'test@mcn.ru',
+    'email' => $email,
     'client_comment' => 'test TEST',
     'fio' => 'fio',
     'phone_connect' => '',
@@ -25,12 +27,11 @@ $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
 $I->see('ok:');
 
-$lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
-$accountId = $lastAccount;
+$clientAccountId = app\models\ClientContact::find()->select('client_id')->where(['data' => $email])->scalar();
 
 $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Add duplicate client without Vpbx');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:' . $accountId);
+$I->see('ok:' . $clientAccountId);
