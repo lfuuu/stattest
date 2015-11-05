@@ -15,7 +15,7 @@ return [
     'voip_monthly_fee_per_number_custom' => 'Оказанные услуги за телефонный номер {service}{date_range}{by_agreement}',
 
     // Client "bill_rename1" = Абонентская плата по
-    'voip_monthly_fee_per_line' => 'Абонентская плата за {lines_number} телефонн{plural_first} лин{plural_second} к номеру {service}',
+    'voip_monthly_fee_per_line' => 'Абонентская плата за {lines_number} телефонн{plural_first} лин{plural_second} к номеру {service}{date_range}',
     // Yii::t plural not work
     // https://github.com/yiisoft/yii2/issues/4259
 

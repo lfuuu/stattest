@@ -152,31 +152,21 @@ abstract class BillerPackage
             $from2 = new DateTime();
             $from2->setDate($from->format('Y'), $from->format('m'), $from->format('d'));
             $from2->setTime($from->format('H'), $from->format('i'), $from->format('s'));
-            $from2 = $from2->getTimestamp();
+
             $to2 = new DateTime();
             $to2->setDate($to->format('Y'), $to->format('m'), $to->format('d'));
             $to2->setTime($to->format('H'), $to->format('i'), $to->format('s'));
-            $to2 = $to2->getTimestamp();
 
             $i18n_params['date_range'] = Yii::t(
                 'biller',
-                $this->biller->getPeriodTemplate($this->periodType),
+                $this->biller->getPeriodTemplate($period, $from2, $to2),
                 [
-                    $from2,
-                    $to2
+                    $from2->getTimestamp(),
+                    $to2->getTimestamp()
                 ],
                 $this->clientAccount->contragent->country->lang
             );
             
-            $i18n_params['date_range_ext'] = Yii::t(
-                'biller',
-                $this->biller->getPeriodExtTemplate($this->periodType),
-                [
-                    $from2,
-                    $to2
-                ],
-                $this->clientAccount->contragent->country->lang
-            );
         }
 
         $name = Yii::t(

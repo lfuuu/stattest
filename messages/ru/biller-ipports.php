@@ -10,7 +10,7 @@ return [
     'ipports_monthly_fee' => 'Абонентская плата за доступ в интернет (подключение {service_id}, тариф {tariff}){date_range}',
 
     // Client "bill_rename1" = Оказанные услуги по Договору
-    'ipports_monthly_fee_custom' => 'Оказанные услуги по предоставлению доступа в интернет {date_range_ext}{by_agreement}',
+    'ipports_monthly_fee_custom' => 'Оказанные услуги по предоставлению доступа в интернет {date_range}{by_agreement}',
 
     'ipports_in_traffic' => 'входящего трафика',
 
