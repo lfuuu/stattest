@@ -83,7 +83,7 @@
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td  align="right" title="С какого момента показывать">Дата активации </td>
-        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start|udate_with_timezone}"> <input type=submit class=button value='Установить'></form></td>
+        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start|udate_with_timezone:'Y-m-d H:i:s':false}"> <input type=submit class=button value='Установить'></form></td>
     </tr>
 {/if}
 </table>

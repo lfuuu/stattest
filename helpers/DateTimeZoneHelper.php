@@ -9,7 +9,7 @@ use DateTimeZone;
 class DateTimeZoneHelper extends \yii\helpers\FileHelper
 {
 
-    public static function getDateTime($date, $format = 'd.m.Y H:i', $showTimezoneName = true)
+    public static function getDateTime($date, $format = 'Y-m-d H:i:s', $showTimezoneName = true)
     {
         $datetime = (new DateTime($date))->setTimezone(new DateTimeZone(self::getUserTimeZone()));
         if ($format !== false) {
@@ -28,11 +28,18 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     private static function getTimezoneDescription()
     {
         $timezone = static::getUserTimeZone();
-        switch ($timezone) {
-            case 'Europe/Moscow':
-                return 'Msk';
-            default:
-                return $timezone;
+        if ($timezone == "Europe/Moscow") {
+            return "Msk";
+        } else
+        if (strpos($timezone, "/") !== false) {
+
+            list($zone, $region) = explode("/", $timezone);
+
+            $region = str_replace(["a", "o", "e", "u", "i", "y"], "", $region);
+
+            return substr($region, 0, 3);
+        } else {
+            return $timezone;
         }
     }
 

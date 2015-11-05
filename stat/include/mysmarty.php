@@ -226,8 +226,8 @@ function smarty_modifier_mdate($value,$format) {
 	return mdate($format,is_numeric($value)?$value:strtotime($value));
 }
 
-function smarty_modifier_udate_with_timezone($value, $format = 'd.m.Y H:i') {
-	return \app\helpers\DateTimeZoneHelper::getDateTime($value, $format);
+function smarty_modifier_udate_with_timezone($value, $format = 'Y-m-d H:i:s', $isShowTimezone = true) {
+	return \app\helpers\DateTimeZoneHelper::getDateTime($value, $format, $isShowTimezone);
 }
 
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
