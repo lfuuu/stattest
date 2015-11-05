@@ -55,10 +55,21 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
+        $rules[] = [['line7800_id'], 'checkNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
 
         return $rules;
     }
 
+    public function checkNoUsedLine($attr, $params)
+    {
+        if ( ! UsageVoip::findOne(['client' => $this->clientAccount->client, 'id' => $this->$attr])) {
+            $this->addError('line7800_id', 'Линия не найдена');
+        }
+
+        if (UsageVoip::findOne(['client' => $this->clientAccount->client, 'line7800_id' => $this->$attr])) {
+            $this->addError('line7800_id', 'Линия подключена к другому номеру');
+        }
+    }
 
     public function add()
     {
