@@ -193,16 +193,20 @@ abstract class Biller
         return 'biller';
     }
 
-    public function getPeriodTemplate($period)
+    public function getPeriodTemplate($period, DateTime $from, DateTime $to)
     {
+
         if ($period == 'once') {
             return 'date_once';
-        } elseif ($period == 'month') {
+        } elseif ($from->format('m') == $to->format('m') && $from->format('Y') == $to->format('Y')) {
+            return 'date_range_month';
+        } elseif ($from->format('Y') == $to->format('Y')) { // from->m != to->m
+            return 'date_range_year';
+        } else {
             return 'date_range_full';
-        } elseif ($period == 'year') {
-            return 'date_range_with_year';
         }
     }
+
     protected function getContractInfo()
     {
         $dateTs = $this->billerDate->getTimestamp();

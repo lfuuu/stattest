@@ -6,9 +6,13 @@ return [
     'serial_number' => '(серийный номер {value}',
     'pledge' => 'Залог за {value}',
     'date_once' => ', {0, date, dd}',
-    'date_range_full' => ' с{0, date, dd MMM} по{1, date, dd MMM}',
-    'date_range_with_year' => ' с{0, date, dd MMM YYYY} по{1, date, dd MMM YYYY}',
-    'by_agreement' => ', согласно Договора {contract_no} от {contract_date, date,dd MMM YYYY}',
+
+    'date_range_month' => ' с{0, date, dd} по {1, date, dd MMMM}',
+    'date_range_year' =>  ' с{0, date, dd MMMM} г. по {1, date, dd MMMM YYYY} г.',
+    'date_range_full' =>  ' с{0, date, dd MMMM YYYY} г. по {1, date, dd MMMM YYYY} г.',
+
+
+    'by_agreement' => ', согласно Договора {contract_no} от {contract_date, date,dd MMM YYYY} г.',
 
     // SMS
     'sms_service' => 'СМС рассылка, {tariff}{date_range}',
@@ -18,7 +22,7 @@ return [
     'email_service' => 'Поддержка почтового ящика {local_part}@{domain}{date_range}{by_agreement}',
 
     // Extra
-    'extra_service' => '{tariff}{by_agreement}',
+    'extra_service' => '{tariff}{date_range}{by_agreement}',
     'extra_service_itpark' => 'по Договору {contract} от {contract_date, date, dd MMM YYYY} г.',
 
     // Welltime
