@@ -63,6 +63,8 @@ if ($action=='add_client') {
         $clientId = $c->client_id;
     } else {
 
+        $transaction = Yii::$app->db->beginTransaction();
+
         $s = new \app\models\ClientSuper();
         $s->name = $P['company'];
         $s->validate();
@@ -167,6 +169,7 @@ if ($action=='add_client') {
             $troubleId = StatModule::tt()->createTrouble($R, "system");
             LkWizardState::create($cr->id, $troubleId);
         }
+        $transaction->commit();
     }
 
     if ($clientId)
