@@ -1,12 +1,14 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use yii\db\ActiveRecord;
 use app\classes\bill\VoipBiller;
 use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
-use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
+
 
 /**
  * @property int $id
@@ -144,6 +146,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getUsagePackages()
     {
         return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

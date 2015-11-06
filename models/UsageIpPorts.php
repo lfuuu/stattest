@@ -1,12 +1,13 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use app\queries\UsageQuery;
+use yii\db\ActiveRecord;
 use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
-use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
 
 /**
  * @property int $id
@@ -106,6 +107,11 @@ class UsageIpPorts extends ActiveRecord implements Usage
     public static function getTransferHelper($usage)
     {
         return new IpPortsServiceTransfer($usage);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

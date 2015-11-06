@@ -30,4 +30,9 @@ class VoipNumber extends ActiveRecord
         return $this->hasOne(TariffNumber::className(), ['did_group_id' => 'did_group_id']);
     }
 
+    public function getUsageVoip()
+    {
+        return $this->hasOne(UsageVoip::className(), ['E164' => 'number']);
+    }
+
 }

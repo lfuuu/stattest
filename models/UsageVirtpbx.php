@@ -1,13 +1,13 @@
 <?php
 namespace app\models;
 
-use app\classes\Html;
+use DateTime;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\transfer\VirtpbxServiceTransfer;
 use app\dao\services\VirtpbxServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
 
 /**
  * @property int $id
@@ -78,6 +78,11 @@ class UsageVirtpbx extends ActiveRecord implements Usage
     public static function getTransferHelper($usage)
     {
         return new VirtpbxServiceTransfer($usage);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

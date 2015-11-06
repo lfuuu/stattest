@@ -1,0 +1,56 @@
+<?php
+
+namespace app\classes\transfer;
+
+use app\classes\Html;
+use app\models\ClientAccount;
+use app\models\Usage;
+use app\models\UsageVirtpbx;
+
+/**
+ * Класс переноса услуг типа "Телефония номера"
+ * @package app\classes\transfer
+ */
+class VoipPackageServiceTransfer extends ServiceTransfer
+{
+
+    /**
+     * Перенос базовой сущности услуги
+     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @return object - созданная услуга
+     */
+    public function process()
+    {
+        $targetService = parent::process();
+
+        LogTarifTransfer::process($this, $targetService->id);
+
+        return $targetService;
+    }
+
+    /**
+     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     */
+    public function fallback()
+    {
+        LogTarifTransfer::fallback($this);
+
+        parent::fallback();
+    }
+
+    public function getTypeTitle()
+    {
+        return 'Телефония пакет';
+    }
+
+    public function getTypeHelpBlock()
+    {
+        return '';
+    }
+
+    public function getTypeDescription()
+    {
+        return [$this->service->id, '', ''];
+    }
+
+}
