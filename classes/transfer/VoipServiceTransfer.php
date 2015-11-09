@@ -112,6 +112,13 @@ class VoipServiceTransfer extends ServiceTransfer
             }
             $checkboxOptions['disabled'] = 'disabled';
         }
+        if ($this->service->type_id == 'line') {
+            $number7800 = UsageVoip::findOne(['line7800_id' => $this->service->id]);
+            if ($number7800 instanceof UsageVoip) {
+                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)', ['data-linked' => $number7800->id]);
+                $checkboxOptions['disabled'] = 'disabled';
+            }
+        }
 
         return [$value, $description, $checkboxOptions];
     }

@@ -302,7 +302,7 @@ jQuery(document).ready(function() {
 
     /** THIS IS DOG-NAIL **/
     $('input[name*="UsageVirtpbx"]')
-        .on('click', function() {
+        .on('change', function() {
             var descr = $(this).parent('.service-usage').find('.usage-description'),
                 numbers = descr.text().replace(/[^0-9,]/g, '').split(',');
             for (var i=0,s=numbers.length; i<s; i++) {
@@ -310,6 +310,19 @@ jQuery(document).ready(function() {
                     .next('abbr[title*="' + numbers[i] + '"]')
                     .prev('input').prop('checked', $(this).is(':checked'));
             }
+        });
+
+    $('input[name*="UsageVoip"]')
+        .on('change', function() {
+            var $linkedWith = $('a[data-linked="' + $(this).val() + '"]');
+            if ($linkedWith.length) {
+                $linkedWith.parents('div.service-usage').find('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+            }
+        });
+    $('a[data-linked]')
+        .on('click', function() {
+            $('input[value="' + $(this).data('linked') + '"]').prop('checked', true).trigger('change');
+            return false;
         });
     /** THIS IS DOG-NAIL **/
 
