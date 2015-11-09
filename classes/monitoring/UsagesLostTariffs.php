@@ -6,6 +6,8 @@ use Yii;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
+use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 use app\models\UsageIpPorts;
@@ -31,6 +33,31 @@ class UsagesLostTariffs extends Component implements MonitoringInterface
     public function getTitle()
     {
         return 'Активные услуги без тарифа';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return 'Активные услуги без тарифа';
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return [
+            [
+                'attribute' => 'id',
+                'label' => 'ID услуги',
+            ],
+            MonitorGridColumns::getClient(),
+            MonitorGridColumns::getUsageTitle(),
+            MonitorGridColumns::getUsageRelevance(),
+            MonitorGridColumns::getUsageDescription(),
+        ];
     }
 
     /**

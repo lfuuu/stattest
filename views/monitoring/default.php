@@ -16,7 +16,7 @@ foreach ($monitors as $monitor) {
 
     if ($monitor->key == $current->key) {
         $tab['active'] = true;
-        $tab['content'] = $this->render($monitor->key, ['result' => $monitor->result]);
+        $tab['content'] = $this->render('grid', ['monitor' => $monitor]);
     }
     else {
         $tab['url'] = ['/monitoring', 'monitor' => $monitor->key];

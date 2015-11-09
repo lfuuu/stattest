@@ -20,6 +20,18 @@ interface MonitoringInterface
     public function getTitle();
 
     /**
+     * Получение подробного описания монитора
+     * @return string
+     */
+    public function getDescription();
+
+    /**
+     * Получение списка столбцов для отображения результата
+     * @return array
+     */
+    public function getColumns();
+
+    /**
      * Результат работы монитора
      * @return ArrayDataProvider
      */

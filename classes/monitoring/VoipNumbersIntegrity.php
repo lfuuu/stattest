@@ -5,6 +5,7 @@ namespace app\classes\monitoring;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
+use app\classes\Html;
 use app\models\VoipNumber;
 use app\models\UsageVoip;
 
@@ -24,7 +25,47 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
      */
     public function getTitle()
     {
-        return 'Расхождение между номерами и услугами';
+        return 'Номера: неправильное состояние';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return 'Расхождения между базой учета номеров и статусом услуги';
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return [
+            MonitorGridColumns::getVoipNumber(),
+            MonitorGridColumns::getVoipNumberStatus(),
+            [
+                'label' => 'Результат',
+                'format' => 'raw',
+                'value' => function($data) {
+                    if ($data->status == 'instock' && $data->usageVoip->id) {
+                        return
+                            Html::tag('span', 'Используется ', ['style' => 'color: red;']) .
+                            Html::a(
+                                $data->usageVoip->clientAccount->contract->contragent->name .
+                                ' / Договор № ' . $data->usageVoip->clientAccount->contract->number .
+                                ' / ЛС № ' . $data->usageVoip->clientAccount->id,
+                                ['/client/view', 'id' => $data->usageVoip->clientAccount->id],
+                                ['target' => '_blank']
+
+                            );
+                    }
+                    if ($data->status == 'active' && !$data->usageVoip->id) {
+                        return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
+                    }
+                },
+            ],
+        ];
     }
 
     /**

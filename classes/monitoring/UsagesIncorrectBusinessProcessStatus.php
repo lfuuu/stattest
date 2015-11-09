@@ -2,9 +2,12 @@
 
 namespace app\classes\monitoring;
 
+use Yii;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
+use app\classes\Html;
+use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 use app\models\UsageIpPorts;
@@ -36,10 +39,59 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
     }
 
     /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return
+            'Лицевые счета с активными услугами и бизнес-процесс статусом не ' .
+            '"Включенные", "Подключаемые", "Заказ услуг"';
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return [
+            MonitorGridColumns::getStatusColumn(),
+            MonitorGridColumns::getIdColumn(),
+            [
+                'attribute' => 'company',
+                'label' => 'Контрагент',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return
+                        Html::a($data->clientAccount->contract->contragent->name, ['/client/view', 'id' => $data->clientAccount->id]);
+                },
+                'width' => '500px',
+            ],
+            [
+                'label' => 'Менеджер',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return $data->clientAccount->manager_name;
+                },
+                'filter' =>
+                    Html::dropDownList(
+                        'manager',
+                        Yii::$app->request->get('manager'),
+                        array_merge(['' => '-- Менеджер --'], User::getManagerList()),
+                        ['class' => 'form-control select2']
+                    )
+            ]
+        ];
+    }
+
+    /**
      * @return ArrayDataProvider
      */
     public function getResult()
     {
+        $params = [
+            'manager' => Yii::$app->request->get('manager'),
+        ];
+
         $usages = [
             UsageVoip::className(),
             UsageVirtpbx::className(),
@@ -70,6 +122,7 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
                         ]
                     ])
+                    ->andFilterWhere(['cc.manager' => $params['manager']])
                     ->groupBy('u.client')
                     ->all()
 

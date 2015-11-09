@@ -32,6 +32,31 @@ class UsagesActiveConnecting extends Component implements MonitoringInterface
     }
 
     /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return 'Список активных услуг со статусом "подключаемые"';
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return [
+            [
+                'attribute' => 'id',
+                'label' => 'ID услуги',
+            ],
+            MonitorGridColumns::getClient(),
+            MonitorGridColumns::getUsageTitle(),
+            MonitorGridColumns::getUsageRelevance(),
+            MonitorGridColumns::getUsageDescription(),
+        ];
+    }
+
+    /**
      * @return ArrayDataProvider
      */
     public function getResult()
