@@ -291,7 +291,7 @@ class ClientAccount extends HistoryActiveRecord
             'manager' => 'Менеджер',
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
-            'lk_balance_view_mode' => 'Отображение баланса в ЛК',
+            'lk_balance_view_mode' => 'Тип отображения баланса в ЛК',
         ];
     }
 
