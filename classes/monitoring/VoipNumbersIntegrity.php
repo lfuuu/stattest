@@ -2,13 +2,13 @@
 
 namespace app\classes\monitoring;
 
+use yii\db\Query;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
 use app\classes\Html;
-use app\models\VoipNumber;
 use app\models\UsageVoip;
-use yii\db\Query;
+use app\models\Number;
 
 class VoipNumbersIntegrity extends Component implements MonitoringInterface
 {
@@ -51,7 +51,7 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                 'value' => function($data) {
                     $usage = UsageVoip::findOne($data['usage_id']);
 
-                    if ($data['status'] == 'instock' && $usage->id) {
+                    if ($data['status'] == Number::NUMBER_STATUS_INSTOCK && $usage->id) {
                         return
                             Html::tag('span', 'Используется ', ['style' => 'color: red;']) .
                             Html::a(
@@ -63,7 +63,7 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
 
                             );
                     }
-                    if ($data['status'] == 'active' && !$data['usage_id']) {
+                    if (!$data['usage_id']) {
                         return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
                     }
                 },
@@ -82,9 +82,9 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
             $result,
             (new Query)
                 ->select(['vn.*', 'uv.id AS usage_id'])
-                ->from([VoipNumber::tableName() . ' vn'])
+                ->from([Number::tableName() . ' vn'])
                 ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number')
-                ->where(['vn.status' => 'active'])
+                ->where(['vn.status' => Number::NUMBER_STATUS_ACTIVE])
                 ->andWhere('uv.id IS NULL')
                 ->all()
         );
@@ -94,11 +94,11 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
             (new Query)
                 ->select(['vn.*', 'uv.id AS usage_id'])
                 ->from([UsageVoip::tableName() . ' uv'])
-                ->leftJoin(VoipNumber::tableName() . ' vn', 'vn.number = uv.E164')
+                ->leftJoin(Number::tableName() . ' vn', 'vn.number = uv.E164')
                 ->where(['uv.type_id' => 'number'])
                 ->andWhere(new Expression('uv.actual_from <= CAST(NOW() AS DATE)'))
                 ->andWhere(new Expression('uv.actual_to > CAST(NOW() AS DATE)'))
-                ->andWhere(['!=', 'vn.status', 'active'])
+                ->andWhere(['!=', 'vn.status', Number::NUMBER_STATUS_ACTIVE])
                 ->all()
         );
 

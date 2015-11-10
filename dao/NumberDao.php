@@ -34,14 +34,14 @@ class NumberDao extends Singleton
 
     public function startReserve(Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_INSTOCK);
 
         $utc = new DateTimeZone('UTC');
 
         $number->client_id = $clientAccount ? $clientAccount->id : null;
         $number->reserve_from = (new DateTime('now', $utc))->format('Y-m-d H:i:s');
         $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format('Y-m-d H:i:s') : null;
-        $number->status = Number::STATUS_RESERVED;
+        $number->status = Number::NUMBER_STATUS_RESERVED;
         $number->save();
 
         Number::dao()->log($number, 'invertReserved', 'Y');
@@ -49,7 +49,7 @@ class NumberDao extends Singleton
 
     public function stopReserve(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_RESERVED);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_RESERVED);
 
         $number->reserve_from = null;
         $number->reserve_till = null;
@@ -66,7 +66,7 @@ class NumberDao extends Singleton
         $number->reserve_till = null;
         $number->hold_from = null;
         $number->hold_to = null;
-        $number->status = Number::STATUS_ACTIVE;
+        $number->status = Number::NUMBER_STATUS_ACTIVE;
         $number->save();
 
         Number::dao()->log($number, 'invertReserved', 'Y');
@@ -74,7 +74,7 @@ class NumberDao extends Singleton
 
     public function stopActive(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_ACTIVE);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_ACTIVE);
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
@@ -106,7 +106,7 @@ class NumberDao extends Singleton
         $number->hold_from = null;
         $number->hold_to = null;
 
-        $number->status = Number::STATUS_INSTOCK;
+        $number->status = Number::NUMBER_STATUS_INSTOCK;
         $number->save();
 
         Number::dao()->log($number, 'invertReserved', 'N');
@@ -114,11 +114,11 @@ class NumberDao extends Singleton
 
     public function startHold(Number $number, DateTime $holdTo = null)
     {
-        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_ACTIVE]);
+        Assert::isInArray($number->status, [Number::NUMBER_STATUS_INSTOCK, Number::NUMBER_STATUS_ACTIVE]);
 
         $number->client_id = null;
         $number->usage_id = null;
-        $number->status = Number::STATUS_HOLD;
+        $number->status = Number::NUMBER_STATUS_HOLD;
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
         $number->hold_from = $now->format("Y-m-d H:i:s");
@@ -137,9 +137,9 @@ class NumberDao extends Singleton
 
     public function stopHold(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_HOLD);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_HOLD);
 
-        $number->status = Number::STATUS_INSTOCK;
+        $number->status = Number::NUMBER_STATUS_INSTOCK;
         $number->hold_to = null;
         $number->save();
 
@@ -148,19 +148,19 @@ class NumberDao extends Singleton
 
     public function startNotSell(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_INSTOCK);
 
         $number->client_id = 764;
-        $number->status = Number::STATUS_NOT_SELL;
+        $number->status = Number::NUMBER_STATUS_NOTSELL;
         $number->save();
     }
 
     public function stopNotSell(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOT_SELL);
+        Assert::isEqual($number->status, Number::NUMBER_STATUS_NOTSELL);
 
         $number->client_id = null;
-        $number->status = Number::STATUS_INSTOCK;
+        $number->status = Number::NUMBER_STATUS_INSTOCK;
         $number->save();
     }
 
@@ -194,11 +194,11 @@ class NumberDao extends Singleton
             ->one();
         
         if ($usage) {
-            if ($number->status != Number::STATUS_ACTIVE) {
+            if ($number->status != Number::NUMBER_STATUS_ACTIVE) {
                 Number::dao()->startActiveStat($number, $usage);
             }
         } else {
-            if ($number->status == Number::STATUS_ACTIVE) {
+            if ($number->status == Number::NUMBER_STATUS_ACTIVE) {
                 Number::dao()->stopActive($number);
             }
         }

@@ -8,10 +8,9 @@ use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use app\models\User;
 use app\models\TariffVoip;
-use app\models\TariffNumber;
 use app\models\TariffVoipPackage;
 use app\models\Region;
-use app\models\VoipNumber;
+use app\models\Number;
 use app\widgets\DateControl as CustomDateControl;
 use app\helpers\DateTimeZoneHelper;
 
@@ -107,7 +106,7 @@ echo Breadcrumbs::widget([
                     'value' => '
                         <div class="form-group">
                             <label class="control-label">DID группа</label>
-                            <input type="text" class="form-control" value="' . VoipNumber::findOne($model->did)->didGroup->name . '" readonly="readonly" />
+                            <input type="text" class="form-control" value="' . Number::findOne($model->did)->didGroup->name . '" readonly="readonly" />
                         </div>
                     ',
                 ],

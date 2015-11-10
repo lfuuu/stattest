@@ -38,7 +38,7 @@ use app\helpers\DateTimeZoneHelper;
                     </th>
                 </tr>
                 <?php endif; ?>
-                <?php if ($number->status == Number::STATUS_HOLD): ?>
+                <?php if ($number->status == Number::NUMBER_STATUS_HOLD): ?>
                 <tr>
                     <td>В остойнике до:</td>
                     <th>
@@ -59,7 +59,7 @@ use app\helpers\DateTimeZoneHelper;
             echo Html::activeHiddenInput($actionForm, 'client_account_id');
             echo Html::activeHiddenInput($actionForm, 'hold_month', ['id' => 'hold_month']);
 
-            if ($number->status == Number::STATUS_INSTOCK) {
+            if ($number->status == Number::NUMBER_STATUS_INSTOCK) {
                 if ($actionForm->client_account_id) {
                     $clientAccount = ClientAccount::findOne($actionForm->client_account_id);
                     echo Html::button('Зарезервировать за клиентом ' . $clientAccount->id . ' ' . $clientAccount->company, ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -73,13 +73,13 @@ use app\helpers\DateTimeZoneHelper;
 
                 echo Html::button('Номер не продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_RESERVED) {
+            if ($number->status == Number::NUMBER_STATUS_RESERVED) {
                 echo Html::button('Снять с резерва', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_HOLD) {
+            if ($number->status == Number::NUMBER_STATUS_HOLD) {
                 echo Html::button('Убрать из отстойника', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopHold')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_NOT_SELL) {
+            if ($number->status == Number::NUMBER_STATUS_NOTSELL) {
                 echo Html::button('Номер продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
 

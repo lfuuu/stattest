@@ -2,7 +2,7 @@
 namespace app\classes\report;
 
 use app\models\UsageVoip;
-use app\models\VoipNumber;
+use app\models\Number;
 use PDO;
 use yii\db\Expression;
 use Yii;
@@ -96,7 +96,7 @@ class LostCalls
                     ->andWhere(['type_id' => '7800'])
                     ->column();
             else
-                self::$ourNumbers = VoipNumber::find()
+                self::$ourNumbers = Number::find()
                     ->select('number')
                     ->column();
         }

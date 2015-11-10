@@ -97,7 +97,7 @@ class NumberController extends BaseController
         }
         if (!$statuses) {
             $statusList= Number::$statusList;
-            unset($statusList[Number::STATUS_HOLD]);
+            unset($statusList[Number::NUMBER_STATUS_HOLD]);
             $statuses = array_keys($statusList);
         }
 

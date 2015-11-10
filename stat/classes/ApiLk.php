@@ -2267,7 +2267,7 @@ class ApiLk
             {
                 $check = \app\models\UsageVoip::find()->where("CAST(NOW() as DATE) BETWEEN actual_from AND actual_to")->andWhere(["E164" => $number])->one();
             } else {
-                $check = \app\models\VoipNumber::findOne(["number" => $number]);
+                $check = \app\models\Number::findOne(["number" => $number]);
             }
 
             return (bool)$check;

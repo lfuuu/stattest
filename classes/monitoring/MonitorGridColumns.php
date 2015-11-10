@@ -11,6 +11,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\User;
 use app\models\ClientAccount;
 use app\models\Region;
+use app\models\Number;
 
 abstract class MonitorGridColumns
 {
@@ -141,12 +142,7 @@ abstract class MonitorGridColumns
             'label' => 'Статус',
             'format' => 'raw',
             'value' => function($data) {
-                if ($data['status'] == 'instock') {
-                    return 'В продаже';
-                }
-                if ($data['status'] == 'active') {
-                    return 'Используется';
-                }
+                return Number::$statusList[$data['status']];
             },
         ];
     }

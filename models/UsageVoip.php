@@ -9,7 +9,6 @@ use app\dao\services\VoipServiceDao;
 use app\queries\UsageVoipQuery;
 use app\classes\monitoring\UsagesLostTariffs;
 
-
 /**
  * @property int $id
  *
@@ -92,7 +91,7 @@ class UsageVoip extends ActiveRecord implements Usage
 
     public function getVoipNumber()
     {
-        return $this->hasOne(VoipNumber::className(), ['number' => 'E164']);
+        return $this->hasOne(Number::className(), ['number' => 'E164']);
     }
 
     public function getDatacenter()
