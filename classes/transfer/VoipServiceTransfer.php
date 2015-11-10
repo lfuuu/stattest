@@ -3,8 +3,10 @@
 namespace app\classes\transfer;
 
 use app\classes\Html;
+use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\Usage;
+use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 
 /**
@@ -25,6 +27,8 @@ class VoipServiceTransfer extends ServiceTransfer
 
         LogTarifTransfer::process($this, $targetService->id);
 
+        $this->process7800($targetService);
+
         return $targetService;
     }
 
@@ -33,6 +37,45 @@ class VoipServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
+        LogTarifTransfer::fallback($this);
+
+        parent::fallback();
+
+        $this->fallback7800();
+    }
+
+    /**
+     * Перенос связанных с услугой линий без номер, если услуга 7800
+     * @param object $targetService - базовая услуга
+     */
+    private function process7800($targetService)
+    {
+        if (!$targetService->line7800_id) {
+            return;
+        }
+
+        $line7800 = UsageVoip::findOne($targetService->line7800_id);
+        Assert::isObject($line7800);
+
+        $this->service = $line7800;
+        $targetService = parent::process();
+
+        LogTarifTransfer::process($this, $targetService->id);
+    }
+
+    /**
+     * Отмена переноса связанных с услугой линий без номера, если услуга 7800
+     */
+    private function fallback7800()
+    {
+        if (!$this->service->line7800_id) {
+            return;
+        }
+
+        $line7800 = UsageVoip::findOne($this->service->line7800_id);
+        Assert::isObject($line7800);
+
+        $this->service = $line7800;
         LogTarifTransfer::fallback($this);
 
         parent::fallback();
@@ -68,6 +111,13 @@ class VoipServiceTransfer extends ServiceTransfer
                 $description = $usage->currentTariff->description . ' (' . $usage->id . ')';
             }
             $checkboxOptions['disabled'] = 'disabled';
+        }
+        if ($this->service->type_id == 'line') {
+            $number7800 = UsageVoip::findOne(['line7800_id' => $this->service->id]);
+            if ($number7800 instanceof UsageVoip) {
+                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)', ['data-linked' => $number7800->id]);
+                $checkboxOptions['disabled'] = 'disabled';
+            }
         }
 
         return [$value, $description, $checkboxOptions];
