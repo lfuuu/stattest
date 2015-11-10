@@ -118,7 +118,7 @@ class ClientController extends BaseController
 
         $services['voip_reserve'] =
                 Number::find()
-                    ->where(['status' => Number::NUMBER_STATUS_RESERVED])
+                    ->where(['status' => Number::STATUS_RESERVED])
                     ->andWhere(['client_id' => $account->id])
                     ->all();
         return

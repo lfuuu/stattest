@@ -18,14 +18,14 @@ $numberNum = "74992130007";
 $number = Number::findOne(["number" => $numberNum]);
 
 $I->assertNotNull($number);
-$I->assertEquals($number->status, Number::NUMBER_STATUS_INSTOCK);
+$I->assertEquals($number->status, Number::STATUS_INSTOCK);
 
 //
 //reserv. start.
 //
 Number::dao()->startReserve($number, $account);
 $number->refresh();
-$I->assertEquals($number->status, Number::NUMBER_STATUS_RESERVED);
+$I->assertEquals($number->status, Number::STATUS_RESERVED);
 $I->assertEquals($number->client_id, $account->id);
 
 //
@@ -35,7 +35,7 @@ Number::dao()->stopReserve($number);
 $number->refresh();
 function checkInStock($I, $number)
 {
-    $I->assertEquals($number->status, Number::NUMBER_STATUS_INSTOCK);
+    $I->assertEquals($number->status, Number::STATUS_INSTOCK);
     $I->assertNull($number->client_id);
     $I->assertNull($number->reserve_from);
     $I->assertNull($number->reserve_till);
@@ -52,7 +52,7 @@ $number->refresh();
 
 function checkHold($I, $number)
 {
-    $I->assertEquals($number->status, Number::NUMBER_STATUS_HOLD);
+    $I->assertEquals($number->status, Number::STATUS_HOLD);
     $I->assertNotNull($number->hold_from);
     $I->assertNotNull($number->hold_to);
 
@@ -81,7 +81,7 @@ checkInStock($I, $number);
 //
 Number::dao()->startNotSell($number);
 $number->refresh();
-$I->assertEquals($number->status, Number::NUMBER_STATUS_NOTSELL);
+$I->assertEquals($number->status, Number::STATUS_NOTSELL);
 $I->assertEquals($number->client_id, 764);
 
 //
@@ -107,7 +107,7 @@ $I->assertTrue($usagevoip->save());
 Number::dao()->actualizeStatus($number);
 $number->refresh();
 
-$I->assertEquals($number->status, Number::NUMBER_STATUS_ACTIVE);
+$I->assertEquals($number->status, Number::STATUS_ACTIVE);
 $I->assertEquals($number->client_id, $account->id);
 $I->assertEquals($number->usage_id, $usagevoip->id);
 
@@ -143,13 +143,13 @@ $I->assertTrue($logTarif->save());
 Number::dao()->actualizeStatus($number);
 $number->refresh();
 
-$I->assertEquals($number->status, Number::NUMBER_STATUS_ACTIVE);
+$I->assertEquals($number->status, Number::STATUS_ACTIVE);
 $I->assertEquals($number->client_id, $account->id);
 $I->assertEquals($number->usage_id, $usagevoip->id);
 
 $number->refresh();//aaaz
 $I->assertEquals("aaaz0", "aaaz0");
-$I->assertEquals($number->status, Number::NUMBER_STATUS_ACTIVE);
+$I->assertEquals($number->status, Number::STATUS_ACTIVE);
 
 //
 //active stop. test tarif
@@ -187,14 +187,14 @@ $m1->modify("+1 month");
 $m2 = new \DateTime("now", new \DateTimeZone("UTC"));
 $m2->modify("-1 sec");
 
-$number->status = Number::NUMBER_STATUS_HOLD;
+$number->status = Number::STATUS_HOLD;
 $number->hold_from = $now->format("Y-m-d H:i:s");
 $number->hold_to = $m1->format("Y-m-d H:i:s");
 $number->save();
 app\commands\NumberController::actionReleaseFromHold();
 
 $number->refresh();
-$I->assertEquals($number->status, Number::NUMBER_STATUS_HOLD);
+$I->assertEquals($number->status, Number::STATUS_HOLD);
 
 $number->hold_to = $m2->format("Y-m-d H:i:s");
 $number->save();

@@ -70,18 +70,18 @@ echo Html::formLabel('Детальный отчет по номерам');
                 <td><?= Html::a($n['number'], '/usage/number/view?did=' . $n['number'], ['target'=>'_blank']) ?></td>
                 <td><?= $didGroupList[$n['did_group_id']] ?></td>
                 <td>
-                    <?php if ($n['status'] == Number::NUMBER_STATUS_INSTOCK): ?>
+                    <?php if ($n['status'] == Number::STATUS_INSTOCK): ?>
                         <span style="color: green; font-weight: bold"><?= Number::$statusList[$n['status']]; ?></span>
-                    <?php elseif ($n['status'] == Number::NUMBER_STATUS_RESERVED): ?>
+                    <?php elseif ($n['status'] == Number::STATUS_RESERVED): ?>
                         <span style="color: #c40000; font-weight: bold"><?= Number::$statusList[$n['status']]; ?></span>
                         <?= $n['reserve_from'] ? 'с ' . substr($n['reserve_from'], 0, 10) : '' ?>
                         <?= $n['reserve_till'] ? 'по ' . substr($n['reserve_till'], 0, 10) : ''?>
-                    <?php elseif ($n['status'] == Number::NUMBER_STATUS_ACTIVE): ?>
+                    <?php elseif ($n['status'] == Number::STATUS_ACTIVE): ?>
                         <span style="color: gray;"><?= Number::$statusList[$n['status']]; ?></span>
-                    <?php elseif ($n['status'] == Number::NUMBER_STATUS_HOLD): ?>
+                    <?php elseif ($n['status'] == Number::STATUS_HOLD): ?>
                         <span style="color: blue;"><?= Number::$statusList[$n['status']]; ?></span>
                         <?= $n['hold_from'] ? 'с ' . substr($n['hold_from'], 0, 10) : '' ?>
-                    <?php elseif ($n['status'] == Number::NUMBER_STATUS_NOTSELL): ?>
+                    <?php elseif ($n['status'] == Number::STATUS_NOTSELL): ?>
                         <span><?= Number::$statusList[$n['status']]; ?></span>
                     <?php endif; ?>
                 </td>
