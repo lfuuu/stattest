@@ -8,6 +8,7 @@ use yii\db\Expression;
 use app\classes\Html;
 use app\models\VoipNumber;
 use app\models\UsageVoip;
+use yii\db\Query;
 
 class VoipNumbersIntegrity extends Component implements MonitoringInterface
 {
@@ -48,19 +49,21 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                 'label' => 'Результат',
                 'format' => 'raw',
                 'value' => function($data) {
-                    if ($data->status == 'instock' && $data->usageVoip->id) {
+                    $usage = UsageVoip::findOne($data['usage_id']);
+
+                    if ($data['status'] == 'instock' && $usage->id) {
                         return
                             Html::tag('span', 'Используется ', ['style' => 'color: red;']) .
                             Html::a(
-                                $data->usageVoip->clientAccount->contract->contragent->name .
-                                ' / Договор № ' . $data->usageVoip->clientAccount->contract->number .
-                                ' / ЛС № ' . $data->usageVoip->clientAccount->id,
-                                ['/client/view', 'id' => $data->usageVoip->clientAccount->id],
+                                $usage->clientAccount->contract->contragent->name .
+                                ' / Договор № ' . $usage->clientAccount->contract->number .
+                                ' / ЛС № ' . $usage->clientAccount->id,
+                                ['/client/view', 'id' => $usage->clientAccount->id],
                                 ['target' => '_blank']
 
                             );
                     }
-                    if ($data->status == 'active' && !$data->usageVoip->id) {
+                    if ($data['status'] == 'active' && !$data['usage_id']) {
                         return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
                     }
                 },
@@ -77,20 +80,25 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
 
         $result = array_merge(
             $result,
-            VoipNumber::find()
-                ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = number')
-                ->where([VoipNumber::tableName() . '.status' => 'active'])
+            (new Query)
+                ->select(['vn.*', 'uv.id AS usage_id'])
+                ->from([VoipNumber::tableName() . ' vn'])
+                ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number')
+                ->where(['vn.status' => 'active'])
                 ->andWhere('uv.id IS NULL')
                 ->all()
         );
 
         $result = array_merge(
             $result,
-            VoipNumber::find()
-                ->rightJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = number')
-                ->where([VoipNumber::tableName() . '.status' => 'instock'])
+            (new Query)
+                ->select(['vn.*', 'uv.id AS usage_id'])
+                ->from([UsageVoip::tableName() . ' uv'])
+                ->leftJoin(VoipNumber::tableName() . ' vn', 'vn.number = uv.E164')
+                ->where(['uv.type_id' => 'number'])
                 ->andWhere(new Expression('uv.actual_from <= CAST(NOW() AS DATE)'))
                 ->andWhere(new Expression('uv.actual_to > CAST(NOW() AS DATE)'))
+                ->andWhere(['!=', 'vn.status', 'active'])
                 ->all()
         );
 
