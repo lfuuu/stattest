@@ -66,7 +66,8 @@ class AccountEditForm extends Form
         $custom_properties,
         $bank_properties,
         $bank_city,
-        $admin_email;
+        $admin_email,
+        $lk_balance_view_mode;
 
     public function rules()
     {
@@ -116,6 +117,7 @@ class AccountEditForm extends Form
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
             ['bik', BikValidator::className()],
+            ['lk_balance_view_mode', 'in', 'range' => array_keys(ClientAccount::$balanceViewMode)],
         ];
         return $rules;
     }

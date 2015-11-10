@@ -89,13 +89,7 @@ class ApiLk
                         "saldo_date" => $sum["ts"] ? date("Y-m-d", $sum["ts"]) : ""
         );
 
-        return array(
-            "bills" => $bills,
-            "sums" => $nSum,
-            "balance" => $account->balance,
-            "credit" => $account->credit,
-            "expenditure" => ClientCounter::dao()->getAmountSumByAccountId($account->id),
-        );
+        return array("bills" => $bills, "sums" => $nSum);
     }
 
     public static function getUserBillOnSum($clientId, $sum)

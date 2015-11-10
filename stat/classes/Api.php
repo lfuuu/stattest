@@ -39,6 +39,7 @@ class Api
                 'credit' => $credit,
                 'expenditure' => $expenditure,
                 'currency' => $clientAccount->currency,
+                'view_mode' => $clientAccount->lk_balance_view_mode,
             ];
         }
 
