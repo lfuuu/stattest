@@ -7,6 +7,7 @@ use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\models\City;
 use app\models\Region;
+use app\models\ClientCounter;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
 
@@ -88,7 +89,13 @@ class ApiLk
                         "saldo_date" => $sum["ts"] ? date("Y-m-d", $sum["ts"]) : ""
         );
 
-        return array("bills" => $bills, "sums" => $nSum);
+        return array(
+            "bills" => $bills,
+            "sums" => $nSum,
+            "balance" => $account->balance,
+            "credit" => $account->credit,
+            "expenditure" => ClientCounter::dao()->getAmountSumByAccountId($account->id),
+        );
     }
 
     public static function getUserBillOnSum($clientId, $sum)
