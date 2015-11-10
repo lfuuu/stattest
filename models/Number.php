@@ -31,9 +31,9 @@ class Number extends ActiveRecord
     public static $statusList = [
         self::STATUS_NOTSELL => 'Не продается',
         self::STATUS_INSTOCK  => 'Свободен',
-        self::STATUS_RESERVED => 'Резерв',
+        self::STATUS_RESERVED => 'В резерве',
         self::STATUS_ACTIVE   => 'Используется',
-        self::STATUS_HOLD     => 'Отстойник',
+        self::STATUS_HOLD     => 'В отстойнике',
     ];
 
     public static function tableName()
