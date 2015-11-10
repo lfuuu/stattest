@@ -6,7 +6,7 @@ class m151110_125703_lk_balance_view_mode extends \app\classes\Migration
     {
         $this->execute('
             ALTER TABLE `clients`
-                ADD COLUMN `lk_balance_view_mode` ENUM("old", "new") NOT NULL DEFAULT "old" AFTER `timezone_offset`;
+                ADD COLUMN `lk_balance_view_mode` ENUM("old", "new") NOT NULL DEFAULT "old";
         ');
     }
 
