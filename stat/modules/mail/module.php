@@ -482,20 +482,33 @@ class m_mail{
     {
         global $db;
 
-        $db->Query(
-        "update 
-            mail_letter m, 
-            clients c, 
-            newbills b 
-        set 
-            is_lk_show=1 
-        where 
-                job_id = '".$jobId."'
-            and c.client=m.client 
-            and b.client_id = c.id 
-            and is_lk_show =0");
-
-
+        // публикуем счета менеджера, за этот и предыдущий месяц.
+        $db->Query($q = 
+            "update
+                client_contract cc, 
+                clients c,
+                newbills b
+            set 
+                is_lk_show = 1
+            where 
+                cc.manager in (
+                    select 
+                        distinct manager  
+                    from 
+                        mail_letter m ,clients c, client_contract cc
+                    where
+                            job_id = '".$jobId."'
+                        and c.client=m.client
+                        and cc.id = c.contract_id
+                )
+                and cc.id = c.contract_id
+                and c.id=b.client_id
+                and (
+                        bill_no like '".date("Ym")."%'
+                    or  bill_no like '".date("Ym", strtotime("-1 month"))."%'
+                )
+                and is_lk_show =0
+                ");
     }
 
 	function mail_default($fixclient,$pre = 0) {
