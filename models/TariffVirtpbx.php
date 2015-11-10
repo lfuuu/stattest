@@ -9,6 +9,9 @@ use yii\db\ActiveRecord;
  */
 class TariffVirtpbx extends ActiveRecord
 {
+
+    const TEST_TARIFF_ID = 42;
+
     public static function tableName()
     {
         return 'tarifs_virtpbx';
