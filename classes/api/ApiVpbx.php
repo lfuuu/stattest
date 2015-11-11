@@ -106,7 +106,7 @@ class ApiVpbx
         );
     }
 
-    public static function updateConnectionData($clientId, $usageId, $regionId)
+    public static function update($clientId, $usageId, $regionId)
     {
         $tariff = self::getTariff($usageId);
 

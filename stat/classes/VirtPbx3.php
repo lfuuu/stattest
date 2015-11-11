@@ -32,14 +32,12 @@ class VirtPbx3Checker
             WHERE
                     actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
                 AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
-                AND u.client = c.client 
-                AND u.id = 3728
+                AND u.client = c.client
             ORDER BY u.id";
 
     private static $sqlSaved=
         "SELECT usage_id, client_id, tarif_id, region_id
         FROM actual_virtpbx
-        WHERE usage_id = 3728
         order by usage_id";
 
     private function load($type, $usageId = 0)
@@ -74,7 +72,7 @@ class VirtPbx3Checker
         $d = array(
                 "added" => [],
                 "deleted" => [],
-                "changed_connection_data" => [],
+                "changed_data" => [],
                 "changed_client" => []
                 );
 
@@ -104,7 +102,10 @@ class VirtPbx3Checker
                         ||
                     $saved[$usageId]["region_id"] != $l["region_id"]
                 ) {
-                    $d["changed_connection_data"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
+                    $d["changed_data"][$usageId] = $l + [
+                        "prev_tarif_id" => $saved[$usageId]["tarif_id"],
+                        "prev_region_id" => $saved[$usageId]["region_id"],
+                    ];
                 }
             }
 
@@ -156,8 +157,8 @@ class VirtPbx3Diff
         if($diff["changed_client"])
             self::clientChanged($diff["changed_client"], $exception);
 
-        if($diff["changed_connection_data"])
-            self::connectionDataChanged($diff["changed_connection_data"], $exception);
+        if($diff["changed_data"])
+            self::dataChanged($diff["changed_data"], $exception);
 
         if ($exception instanceof Exception) {
             throw $exception;
@@ -205,13 +206,13 @@ class VirtPbx3Diff
         }
     }
 
-    private function connectionDataChanged(&$d, &$exception)
+    private function dataChanged(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
         foreach($d as $l) {
             try {
-                VirtPbx3Action::connectionDataChanged($l);
+                VirtPbx3Action::dataChanged($l);
             } catch (Exception $e) {
                 if (!$exception) $exception = $e;
             }
@@ -365,7 +366,7 @@ class VirtPbx3Action
         }
     }
 
-    public static function connectionDataChanged($l)
+    public static function dataChanged($l)
     {
         global $db;
 
@@ -373,7 +374,7 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::updateConnectionData($l["client_id"], $l["usage_id"], $l["region_id"]);
+            ApiVpbx::update($l["client_id"], $l["usage_id"], $l["region_id"]);
 
         } catch (Exception $e) {
             throw $e;
