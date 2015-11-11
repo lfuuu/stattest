@@ -1,12 +1,13 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use app\queries\UsageQuery;
+use yii\db\ActiveRecord;
 use app\classes\bill\WelltimeBiller;
 use app\classes\transfer\WelltimeServiceTransfer;
 use app\dao\services\WelltimeServiceDao;
-use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
 
 /**
  * @property int $id
@@ -65,6 +66,11 @@ class UsageWelltime extends ActiveRecord implements Usage
     public static function getTransferHelper($usage)
     {
         return new WelltimeServiceTransfer($usage);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoTariffTable(self::className(), TariffExtra::tableName());
     }
 
 }

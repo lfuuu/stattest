@@ -1,13 +1,13 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use yii\db\ActiveRecord;
 use app\classes\bill\SmsBiller;
 use app\classes\transfer\SmsServiceTransfer;
 use app\dao\services\SmsServiceDao;
 use app\queries\UsageQuery;
-use app\models\TariffSms;
-use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
 
 /**
  * @property int $id
@@ -66,6 +66,11 @@ class UsageSms extends ActiveRecord implements Usage
     public static function getTransferHelper($usage)
     {
         return new SmsServiceTransfer($usage);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoTariffTable(self::className(), TariffSms::tableName());
     }
 
 }

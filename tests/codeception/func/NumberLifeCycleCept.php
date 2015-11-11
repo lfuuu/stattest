@@ -81,7 +81,7 @@ checkInStock($I, $number);
 //
 Number::dao()->startNotSell($number);
 $number->refresh();
-$I->assertEquals($number->status, Number::STATUS_NOT_SELL);
+$I->assertEquals($number->status, Number::STATUS_NOTSELL);
 $I->assertEquals($number->client_id, 764);
 
 //

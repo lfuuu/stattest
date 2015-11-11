@@ -53,7 +53,14 @@ class Navigation
                 ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
         );
         $this->addBlockForStatModule('routers');
-        $this->addBlockForStatModule('monitoring');
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Мониторинг')
+                ->addStatModuleItems('monitoring')
+                ->addItem('Ключевые события',  ['/monitoring'], [])
+        );
+
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Управление доступом')

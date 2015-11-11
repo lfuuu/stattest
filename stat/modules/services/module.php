@@ -1,5 +1,5 @@
 <?php
-use app\classes\StatModule;
+
 use app\models\ClientAccount;
 use app\dao\services\SmsServiceDao;
 use app\dao\services\WelltimeServiceDao;
@@ -10,7 +10,7 @@ use app\classes\Event;
 use app\classes\Assert;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
-use app\models\VoipNumber;
+use app\models\Number;
 use app\models\User;
 
 class m_services extends IModule{
@@ -747,14 +747,14 @@ class m_services extends IModule{
                 $r['cpe'] = get_cpe_history('usage_voip',$r['id']);
                 $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
 
-                $r['number_status'] = VoipNumber::$statuses[$usage->voipNumber->status];
+                $r['number_status'] = Number::$statusList[$usage->voipNumber->status];
             }
 
             $numbers =
-                VoipNumber::find()
-                    ->leftJoin('`usage_voip` uv', 'uv.`E164` = ' . VoipNumber::tableName() . '.`number`')
+                Number::find()
+                    ->leftJoin('`usage_voip` uv', 'uv.`E164` = ' . Number::tableName() . '.`number`')
                     ->where([
-                        VoipNumber::tableName() . '.`client_id`' => $this->fetched_client['id'],
+                        Number::tableName() . '.`client_id`' => $this->fetched_client['id'],
                         'uv.`E164`' => null,
                     ])
                     ->all();
