@@ -33,7 +33,7 @@ class TemplateController extends BaseController
             $model->content = preg_replace_callback(
                 '#\{[^\}]+\}#',
                 function($matches) {
-                    return strip_tags($matches[0]);
+                    return preg_replace('#&[^;]+;#', '', strip_tags($matches[0]));
                 },
                 $request['content']
             );
