@@ -49,11 +49,20 @@ class UsagesLostTariffs extends Component implements MonitoringInterface
     public function getColumns()
     {
         return [
+            MonitorGridColumns::getStatusColumn(
+                $combineChainsValue = ['clientAccount']
+            ),
+            MonitorGridColumns::getIdColumn(
+                $combineChainsValue = ['clientAccount']
+            ),
+            MonitorGridColumns::getCompanyColumn(
+                $combineChainsValue = ['clientAccount', 'contract', 'contragent'],
+                $combineClientId = ['clientAccount']
+            ),
             [
                 'attribute' => 'id',
                 'label' => 'ID услуги',
             ],
-            MonitorGridColumns::getClient(),
             MonitorGridColumns::getUsageTitle(),
             MonitorGridColumns::getUsageRelevance(),
             MonitorGridColumns::getUsageDescription(),

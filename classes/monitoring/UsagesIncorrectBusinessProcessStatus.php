@@ -56,30 +56,13 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
         return [
             MonitorGridColumns::getStatusColumn(),
             MonitorGridColumns::getIdColumn(),
-            [
-                'attribute' => 'company',
-                'label' => 'Контрагент',
-                'format' => 'raw',
-                'value' => function ($data) {
-                    return
-                        Html::a($data->clientAccount->contract->contragent->name, ['/client/view', 'id' => $data->clientAccount->id]);
-                },
-                'width' => '500px',
-            ],
-            [
-                'label' => 'Менеджер',
-                'format' => 'raw',
-                'value' => function ($data) {
-                    return $data->clientAccount->manager_name;
-                },
-                'filter' =>
-                    Html::dropDownList(
-                        'manager',
-                        Yii::$app->request->get('manager'),
-                        array_merge(['' => '-- Менеджер --'], User::getManagerList()),
-                        ['class' => 'form-control select2']
-                    )
-            ]
+            MonitorGridColumns::getCompanyColumn(
+                $combineChainsValue = ['clientAccount', 'contract', 'contragent'],
+                $combineClientId = ['clientAccount']
+            ),
+            MonitorGridColumns::getManagerColumn(
+                $combineChainsValue = ['clientAccount']
+            ),
         ];
     }
 

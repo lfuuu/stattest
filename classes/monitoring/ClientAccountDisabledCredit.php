@@ -45,7 +45,9 @@ class ClientAccountDisabledCredit extends Component implements MonitoringInterfa
         return [
             MonitorGridColumns::getStatusColumn(),
             MonitorGridColumns::getIdColumn(),
-            MonitorGridColumns::getCompanyColumn(),
+            MonitorGridColumns::getCompanyColumn(
+                $combineChainsValue = ['contract', 'contragent']
+            ),
             MonitorGridColumns::getCreatedColumn(),
             MonitorGridColumns::getManagerColumn(),
             MonitorGridColumns::getRegionColumn(),

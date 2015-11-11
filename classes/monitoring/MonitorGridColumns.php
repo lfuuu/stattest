@@ -16,48 +16,80 @@ use app\models\Number;
 abstract class MonitorGridColumns
 {
 
-    public static function getStatusColumn()
+    /**
+     * @param array $combineChainsValue - массив указателей на свойства модели для получения clientContragent
+     * @return array
+     */
+    public static function getStatusColumn($combineChainsValue = [])
     {
         return [
-            'attribute' => 'status',
             'label' => '#',
             'format' => 'raw',
-            'value' => function ($data) {
-                return
-                    Html::tag('span', '&nbsp;', [
-                        'class' => 'btn btn-grid',
-                        'style' => 'background: ' . ClientAccount::$statuses[$data->status]['color'],
-                        'title' => ClientAccount::$statuses[$data->status]['name'],
-                    ]);
-            },
-            'filterType' => GridView::FILTER_COLOR
+            'value' =>
+                /**
+                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @return string
+                 */
+                function ($data) use ($combineChainsValue) {
+                    $value = self::getCombineResult($data, $combineChainsValue);
+
+                    return
+                        Html::tag('span', '&nbsp;', [
+                            'class' => 'btn btn-grid',
+                            'style' => 'background: ' . ClientAccount::$statuses[$value->status]['color'],
+                            'title' => ClientAccount::$statuses[$value->status]['name'],
+                        ]);
+                },
+            'filterType' => GridView::FILTER_COLOR,
+            'width' => '20px',
         ];
     }
 
-    public static function getIdColumn()
+    /**
+     * @param array $combineChainsValue - массив указателей на свойства модели для получения clientContragent
+     * @return array
+     */
+    public static function getIdColumn($combineChainsValue = [])
     {
         return [
             'attribute' => 'id',
             'label' => 'ID',
             'format' => 'raw',
-            'value' => function ($data) {
-                return
-                    Html::a($data->id, ['/client/view', 'id' => $data->id]);
-            },
-            'width' => '120px',
+            'value' =>
+                /**
+                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @return string
+                 */
+                function ($data) use ($combineChainsValue) {
+                    $value = self::getCombineResult($data, $combineChainsValue);
+                    return
+                        Html::a($value->id, ['/client/view', 'id' => $value->id]);
+                },
+            'width' => '80px',
         ];
     }
 
-    public static function getCompanyColumn()
+    /**
+     * @param array $combineChainsValue - массив указателей на свойства модели для получения clientContragent
+     * @param array $combineClientId - массив указателей на свойства модели для получения clientAccount
+     * @return array
+     */
+    public static function getCompanyColumn($combineChainsValue = [], $combineClientId = [])
     {
         return [
-            'attribute' => 'company',
             'label' => 'Контрагент',
             'format' => 'raw',
-            'value' => function ($data) {
-                return
-                    Html::a($data->company, ['/client/view', 'id' => $data->id]);
-            },
+            'value' =>
+                /**
+                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @return string
+                 */
+                function ($data) use ($combineClientId, $combineChainsValue) {
+                    $client = self::getCombineResult($data, $combineClientId);
+                    $value = self::getCombineResult($data, $combineChainsValue);
+
+                    return Html::a($value->name, ['/client/view', 'id' => $client->id]);
+                },
             'width' => '500px',
         ];
     }
@@ -88,14 +120,24 @@ abstract class MonitorGridColumns
         ];
     }
 
-    public static function getManagerColumn()
+    /**
+     * @param array $combineChainsValue - массив указателей на свойства модели для получения clientContragent
+     * @return array
+     */
+    public static function getManagerColumn($combineChainsValue = [])
     {
         return [
             'label' => 'Менеджер',
             'format' => 'raw',
-            'value' => function ($data) {
-                return $data->manager_name;
-            },
+            'value' =>
+                /**
+                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @return string
+                 */
+                function ($data) use ($combineChainsValue) {
+                    $value = self::getCombineResult($data, $combineChainsValue);
+                    return $value->manager_name;
+                },
             'filter' =>
                 Html::dropDownList(
                     'manager',
@@ -209,6 +251,21 @@ abstract class MonitorGridColumns
                 return $title . ' ' . $description;
             }
         ];
+    }
+
+    /**
+     * @param $source - источник данных, результат выборки или модель
+     * @param array $combineChains - список свойств
+     */
+    private static function getCombineResult($source, $combineChains = [])
+    {
+        $result = $source;
+        if (count($combineChains)) {
+            foreach ($combineChains as $chainPart) {
+                $result = $result->{$chainPart};
+            }
+        }
+        return $result;
     }
 
 }
