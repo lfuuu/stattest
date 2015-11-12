@@ -30,13 +30,7 @@ class TemplateController extends BaseController
             $model = new DocumentTemplate();
         $request = \Yii::$app->request->post('DocumentTemplate');
         if($request) {
-            $model->content = preg_replace_callback(
-                '#\{[^\}]+\}#',
-                function($matches) {
-                    return preg_replace('#&[^;]+;#', '', strip_tags($matches[0]));
-                },
-                $request['content']
-            );
+            $model->content = $request['content'];
             $model->save();
         }
         return $this->render('edit', ['model' => $model]);
