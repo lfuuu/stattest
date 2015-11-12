@@ -80,7 +80,6 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
             UsageVirtpbx::className(),
             UsageIpPorts::className(),
             UsageSms::className(),
-            UsageVoipPackage::className(),
             UsageExtra::className(),
             UsageWelltime::className(),
         ];
