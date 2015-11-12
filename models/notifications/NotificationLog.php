@@ -35,12 +35,14 @@ class NotificationLog extends ActiveRecord
         return 'notification_log';
     }
 
+    /*
     public function behaviors()
     {
         return [
             'UpdateContactsList' => \app\classes\behaviors\NotificationLog::className(),
         ];
     }
+    */
 
     /**
      * @return \yii\db\ActiveQuery
