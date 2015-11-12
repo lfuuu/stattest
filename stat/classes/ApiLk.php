@@ -2295,7 +2295,7 @@ class ApiLk
             throw new Exception("data_error");
 
         $paypal = new \PayPal();
-        return $paypal->getPaymentToken($accountId, $sum, $c->currency);
+        return $paypal->getPaymentToken($accountId, $sum, $account->currency);
     }
 
     public static function paypalApply($token, $payerId)
