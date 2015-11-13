@@ -2273,7 +2273,7 @@ class ApiLk
             return (bool)$check;
     }
 
-    public static function getPayPalToken($accountId, $sum)
+    public static function getPayPalToken($accountId, $sum, $host)
     {
         if (!isset(Yii::$app->params['LK_PATH']) || !Yii::$app->params['LK_PATH'])
             throw new Exception("format_error");
@@ -2295,6 +2295,7 @@ class ApiLk
             throw new Exception("data_error");
 
         $paypal = new \PayPal();
+        $paypal->setHost($host);
         return $paypal->getPaymentToken($accountId, $sum, $account->currency);
     }
 
