@@ -120,7 +120,7 @@ function do_func($function)
 		case 'saveClientData': return ApiLk::saveClientData(get_param_raw("client_id"), get_param_raw("data")); break;
         case 'getCompanyName': return ApiLk::getCompanyName(get_param_raw("client_id")); break;
 
-        case 'getPayPalToken': return ApiLk::getPayPalToken(get_param_raw("account_id"), get_param_raw("sum"), get_param_raw("host")); break;
+        case 'getPayPalToken': return ApiLk::getPayPalToken(get_param_raw("account_id"), get_param_raw("sum"), get_param_raw("host"), get_param_raw("lang")); break;
         case 'paypalApply': return ApiLk::paypalApply(get_param_raw("token"), get_param_raw("payer_id")); break;
 
         case 'getWizardState': return ApiLkWizard::getState(get_param_raw("account_id")); break;

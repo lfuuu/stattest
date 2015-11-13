@@ -35,4 +35,8 @@ return [
 
     'test' => '',
 
+    'paypal_payment_description' => 'Пополнение личевого счета {account} на сумму {sum} {currency}',
+
+    'RUB' => 'руб.'
+
 ];

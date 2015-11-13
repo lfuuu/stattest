@@ -3,6 +3,7 @@ use app\models\ClientAccount;
 use app\models\BillDocument;
 use app\models\Country;
 use app\classes\Assert;
+use app\classes\Language;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\models\City;
@@ -2273,7 +2274,7 @@ class ApiLk
             return (bool)$check;
     }
 
-    public static function getPayPalToken($accountId, $sum, $host)
+    public static function getPayPalToken($accountId, $sum, $host, $lang)
     {
         if (!isset(Yii::$app->params['LK_PATH']) || !Yii::$app->params['LK_PATH'])
             throw new Exception("format_error");
@@ -2294,9 +2295,11 @@ class ApiLk
         if($account->currency != "RUB" && $account->currency != "HUF")
             throw new Exception("data_error");
 
+        $lang = Language::normalizeLang($lang);
+
         $paypal = new \PayPal();
         $paypal->setHost($host);
-        return $paypal->getPaymentToken($accountId, $sum, $account->currency);
+        return $paypal->getPaymentToken($accountId, $sum, $account->currency, $lang);
     }
 
     public static function paypalApply($token, $payerId)

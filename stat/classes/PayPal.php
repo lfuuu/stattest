@@ -67,14 +67,24 @@ class PayPal {
            ];
    }
 
-   public function getPaymentToken($accountId, $sum, $currency)
+   public function getPaymentToken($accountId, $sum, $currency, $lang)
    {
+       $descr = \Yii::t(
+               'biller', 'paypal_payment_description', 
+               [
+                   'account' => $accountId, 
+                   'sum' => $sum,
+                   'currency' => \Yii::t('biller', $currency, [], $lang)
+               ], $lang);
+
+
        $response = $this -> request('SetExpressCheckout', 
            $this -> _requestParams + 
-           $this -> _getOrderParams($sum, $currency)
+           $this -> _getOrderParams($sum, $currency) +
+           ['PAYMENTREQUEST_0_DESC' => $descr]
        );
 
-       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: ".print_r($response + $this->_requestParams, true));
+       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: (".$lang.") ".print_r($response + $this->_requestParams, true));
 
        if (
            $response && 

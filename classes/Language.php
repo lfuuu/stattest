@@ -49,4 +49,16 @@ class Language
     {
         Yii::$app->language = $lang;
     }
+
+    public static function normalizeLang($lang)
+    {
+        $lang = str_replace("_", "-", $lang);
+
+        if (self::languageExists($lang)) {
+            return $lang;
+        }
+
+        return self::DEFAULT_LANGUAGE;
+    }
+
 }
