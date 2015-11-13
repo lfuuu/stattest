@@ -15,9 +15,13 @@ function parse_rossvyaz($filename)
   global $pg_db;
   $file = file_get_contents('http://www.rossvyaz.ru/docs/articles/'.$filename);
   $m = array();
-  preg_match_all('|<tr>	<td>	(\d+)	</td>	<td>	(\d+)	</td>	<td>	(\d+)	</td>	<td>	(\d+)	</td>	<td>	(.*)	</td>	<td>	(.*)	</td>	</tr>|', $file, $m, PREG_SET_ORDER);
+  preg_match_all('|<tr>	<td>	(\d+)	</td><td>	(\d+)	</td><td>	(\d+)	</td><td>	(\d+)	</td><td>	(.*)	</td><td>	(.*)	</td>	</tr>|', $file, $m, PREG_SET_ORDER);
+
   unset($file);
   $l = 0;
+
+  $cc = 0;
+
   if (count($m) > 0)
   {
     $q = '';
@@ -30,19 +34,25 @@ function parse_rossvyaz($filename)
 
       if (strlen($r[6]) > $l) $l = strlen($r[6]);
 
-      $r[5] = pg_escape_string(iconv('windows-1251', 'utf-8', $r[5]));
-      $r[6] = pg_escape_string(iconv('windows-1251', 'utf-8', $r[6]));
+      $r[5] = pg_escape_string($r[5]);
+      $r[6] = pg_escape_string($r[6]);
 
       $q .= "('{$r[1]}','{$r[2]}','{$r[3]}','{$r[4]}','{$r[5]}','{$r[6]}')";
+
+	  if (($cc++ % 1000) == 0) {
+		  $pg_db->Query($q, false);
+		  $q = '';
+	  }
     }
+
+	if ($q) {
+	  $pg_db->Query($q, false);
+	}
+    unset($q);
   }
   unset($m);
 
-  $pg_db->Query($q, false);
-
-  unset($q);
-
-  echo "OK ".$filename." <br/>\n";
+  echo "OK ".$filename." - ".$cc." lines<br/>\n";
   flush();
 }
 
