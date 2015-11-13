@@ -43,10 +43,18 @@ class PayPal {
        $this -> _credentials["USER"] = paypal_user;
        $this -> _credentials["PWD"] = paypal_password;
        $this -> _credentials["SIGNATURE"] = paypal_signature;
+   }
 
+   public function setHost($host)
+   {
+       $this->makeRequestParam($host);
+   }
+
+   private function makeRequestParam($host)
+   {
        $this -> _requestParams = array(
-           'RETURNURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/paypal?',
-           'CANCELURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/failed',
+           'RETURNURL' => 'https://' . $host . '/lk/app?#accounts/add_pay/paypal?',
+           'CANCELURL' => 'https://' . $host . '/lk/app?#accounts/add_pay/failed',
        );
    }
 
@@ -66,7 +74,7 @@ class PayPal {
            $this -> _getOrderParams($sum, $currency)
        );
 
-       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: ".print_r($response, true));
+       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: ".print_r($response + $this->_requestParams, true));
 
        if (
            $response && 
@@ -81,6 +89,7 @@ class PayPal {
            $pay->currency = $currency;
            $pay->client_id = $accountId;
            $pay->data1 = json_encode($response);
+           $pay->data3 = json_encode($this->_requestParams);
            $pay->save();
 
            return $response["TOKEN"];
