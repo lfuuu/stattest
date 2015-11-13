@@ -13,6 +13,9 @@ return [
     'vpbx_over_disk_usage' => 'Tárhely túllépés{date_range}',
     'vpbx_over_ports_count' => 'Portok számának a túllépése{date_range}',
 
-    '' => '{}'
+    '' => '{}',
+
+    'paypal_payment_description' => '{account} számú egyenleg feltőltése {sum} {currency}',
+    'HUF' => 'forinttal'
 
 ];
