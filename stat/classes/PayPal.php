@@ -78,6 +78,7 @@ class PayPal {
            $pay = new PaypalPayment();
            $pay->token = $response["TOKEN"];
            $pay->sum = $sum;
+           $pay->currency = $currency;
            $pay->client_id = $accountId;
            $pay->data1 = json_encode($response);
            $pay->save();
@@ -102,6 +103,7 @@ class PayPal {
        $pay->data2 = json_encode($response);
        $pay->save();
 
+
        Yii::info("Paypal detail request: token: ".$token.", payerId: ".$payerId.":: ".print_r($response, true));
 
 
@@ -114,7 +116,7 @@ class PayPal {
        {
            $response = $this -> request('DoExpressCheckoutPayment',
                ["TOKEN" => $token, "PAYERID" => $payerId] + 
-               $this -> _getOrderParams($pay->sum)
+               $this -> _getOrderParams($pay->sum, $pay->currency)
            );
 
            $pay->data3 = json_encode($response);
