@@ -6,8 +6,18 @@ use app\classes\Event;
 
 class YandexProcessor
 {
+    // МСМ Телеком
+    private $shopPassword = "DnI1N7mjQ19GMOPy1k6X";
+    private $shopId = "101321";
+    //private $scId = 34952;
+
+    /*
+    // МСН Телеком
     private $shopPassword = "DnI1N7mjQ19GMOPy1k6X";
     private $shopId = "15339";
+    //private $scId = 7703;
+    */
+    
 
     private $allField = array(
             "shopSumBankPaycash", "requestDatetime", "merchant_order_id", "customerNumber", "sumCurrency", 
