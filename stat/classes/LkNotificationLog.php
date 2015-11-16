@@ -1,6 +1,6 @@
 <?php 
 
-use app\classes\notifications\NotificationBuilder;
+use app\classes\important_events\ImportantEventsBuilder;
 
 class LkNotificationLog 
 {
@@ -30,7 +30,7 @@ class LkNotificationLog
                     )
                 );
 
-        NotificationBuilder::create($clientId, $event, $balance, $limit, $value);
+        ImportantEventsBuilder::create($clientId, $event, $balance, $limit, $value);
     }
 
 }

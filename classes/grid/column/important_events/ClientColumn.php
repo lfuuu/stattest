@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\grid\column\notifications;
+namespace app\classes\grid\column\important_events;
 
 use Yii;
 use yii\helpers\Html;

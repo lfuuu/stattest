@@ -1,11 +1,11 @@
 <?php
-namespace app\models\notifications;
+
+namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
-use app\models\ClientContact;
 
-class NotificationLog extends ActiveRecord
+class ImportantEvents extends ActiveRecord
 {
 
     public function rules()

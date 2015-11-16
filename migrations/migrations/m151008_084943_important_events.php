@@ -4,14 +4,14 @@ use app\models\notifications\NotificationSettings;
 use app\models\LkClientSettings;
 use app\models\LkNoticeSetting;
 
-class m151008_084943_lk_settings extends \app\classes\Migration
+class m151008_084943_important_events extends \app\classes\Migration
 {
     public function up()
     {
-        $this->execute('DROP TABLE IF EXISTS `notification_log`');
+        $this->execute('DROP TABLE IF EXISTS `important_events`');
 
         $this->execute('
-            CREATE TABLE `notification_log` (
+            CREATE TABLE `important_events` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `client_id` INT(11) NOT NULL DEFAULT "0",
@@ -27,7 +27,7 @@ class m151008_084943_lk_settings extends \app\classes\Migration
         ');
 
         $this->execute('
-            INSERT INTO `notification_log`
+            INSERT INTO `important_events`
               (`date`,`client_id`,`event`,`balance`,`limit`,`value`,`is_set`)
               (SELECT DISTINCT `date`,`client_id`,`event`,`balance`,`limit`,`value`,`is_set` FROM `lk_notice_log`);
         ');

@@ -3,11 +3,10 @@
 use yii\data\ActiveDataProvider;
 use kartik\grid\GridView;
 use app\classes\Html;
-use app\models\ClientAccount;
-use app\models\notifications\NotificationLog;
+use app\models\important_events\ImportantEvents;
 
 /** @var $dataProvider ActiveDataProvider */
-/** @var NotificationLog $filterModel */
+/** @var ImportantEvents $filterModel */
 
 echo Html::formLabel('Логи оповeщений');
 
@@ -17,7 +16,7 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => 'app\classes\grid\column\notifications\ClientColumn',
+            'class' => 'app\classes\grid\column\important_events\ClientColumn',
             'width' => '5%',
         ],
         'date' => [
@@ -44,7 +43,7 @@ echo GridView::widget([
             ])
         ],
         [
-            'class' => 'app\classes\grid\column\notifications\NotificationNameColumn',
+            'class' => 'app\classes\grid\column\important_events\NotificationNameColumn',
             'width' => '30%',
         ],
         [

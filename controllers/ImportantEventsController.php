@@ -4,14 +4,14 @@ namespace app\controllers;
 
 use Yii;
 use app\classes\BaseController;
-use app\models\notifications\NotificationLog;
+use app\models\important_events\ImportantEvents;
 
-class NotificationLogController extends BaseController
+class ImportantEventsController extends BaseController
 {
 
     public function actionIndex()
     {
-        $searchModel = new NotificationLog;
+        $searchModel = new ImportantEvents;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('report', [

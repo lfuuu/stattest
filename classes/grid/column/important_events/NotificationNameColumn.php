@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\grid\column\notifications;
+namespace app\classes\grid\column\important_events;
 
 use kartik\grid\GridView;
 use app\classes\Html;
