@@ -36,15 +36,12 @@ class NotificationNameColumn extends DataColumn
     {
         $eventKey = parent::getDataCellValue($model, $key, $index);
         $value = $this->values[$eventKey] ?: $eventKey;
+        $info = [];
 
-        $info = [
-            'style' => 'background: url("/images/icons/action_delete.gif") 100% 0 no-repeat;',
-            'title' => 'Установлено',
-        ];
-        if (!$model['is_set'] && $eventKey != 'add_pay_notif' && $eventKey != 'prebil_prepayers_notif') {
+        if (!$model['is_set']) {
             $info = [
-                'style' => 'background: url("/images/icons/action_check.gif") 100% 0 no-repeat;',
-                'title' => 'Снято',
+                'style' => 'background: url("/images/icons/action_delete.gif") 100% 0 no-repeat;',
+                'title' => 'Установлено',
             ];
         }
 

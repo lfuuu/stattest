@@ -1,6 +1,6 @@
 <?php 
 
-use app\models\notifications\NotificationLog;
+use app\classes\notifications\NotificationBuilder;
 
 class LkNotificationLog 
 {
@@ -30,14 +30,7 @@ class LkNotificationLog
                     )
                 );
 
-        $notification = new NotificationLog;
-        $notification->client_id = $clientId;
-        $notification->date = (new DateTime('now'))->format('Y-m-d H:i:s');
-        $notification->event = $event;
-        $notification->balance = $balance;
-        $notification->limit = $limit;
-        $notification->value = $value;
-        $notification->save();
+        NotificationBuilder::create($clientId, $event, $balance, $limit, $value);
     }
 
 }
