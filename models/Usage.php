@@ -1,8 +1,9 @@
 <?php
 namespace app\models;
 
-use app\classes\transfer\ServiceTransfer;
 use DateTime;
+use app\classes\transfer\ServiceTransfer;
+use app\classes\usages\UsageHelperInterface;
 use app\classes\bill\Biller;
 
 /**
@@ -31,4 +32,9 @@ interface Usage
      * @return ClientAccount
      */
     public function getClientAccount();
+
+    /**
+     * @return UsageHelperInterface
+     */
+    public function getHelper();
 }

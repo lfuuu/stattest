@@ -17,10 +17,10 @@ ID <?= $account->id; ?><br />
         <?php foreach($services as $service => $usages): ?>
             <?php foreach($usages as $usage): ?>
                 <?php
-                list($fulltext) = $usage::getTransferHelper($usage)->getTypeDescription();
+                list($fulltext) = $usage->helper->description;
                 ?>
                 <tr>
-                    <td><?= $usage::getTransferHelper($usage)->getTypeTitle(); ?></td>
+                    <td><?= $usage->helper->title; ?></td>
                     <td><?= $usage->address; ?></td>
                     <td><?= $fulltext; ?></td>
                 </tr>

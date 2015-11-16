@@ -38,19 +38,4 @@ class VoipPackageServiceTransfer extends ServiceTransfer
         parent::fallback();
     }
 
-    public function getTypeTitle()
-    {
-        return 'Телефония пакет';
-    }
-
-    public function getTypeHelpBlock()
-    {
-        return '';
-    }
-
-    public function getTypeDescription()
-    {
-        return [$this->service->id, '', ''];
-    }
-
 }

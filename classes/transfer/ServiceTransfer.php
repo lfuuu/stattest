@@ -151,8 +151,4 @@ abstract class ServiceTransfer
                     ->format('Y-m-d');
     }
 
-    public function getTypeTitle() {}
-    public function getTypeHelpBlock() {}
-    public function getTypeDescription() {}
-
 }

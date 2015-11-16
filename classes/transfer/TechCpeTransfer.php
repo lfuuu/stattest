@@ -77,14 +77,4 @@ class TechCpeTransfer extends ServiceTransfer
         }
     }
 
-    public function getTypeTitle()
-    {
-        return 'Клиентские устройства';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->service->model->vendor . ' ' . $this->service->model->model;
-    }
-
 }

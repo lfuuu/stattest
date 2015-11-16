@@ -81,46 +81,4 @@ class VoipServiceTransfer extends ServiceTransfer
         parent::fallback();
     }
 
-    public function getTypeTitle()
-    {
-        return 'Телефония номера';
-    }
-
-    public function getTypeHelpBlock()
-    {
-        return Html::tag(
-            'div',
-            'Заблокированные номера подключены на ВАТС,<br >' .
-            'перенос возможен только совместно с ВАТС.<br />' .
-            'Отключить номер от ВАТС можно в ЛК',
-            [
-                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px; white-space: nowrap;',
-            ]
-        );
-    }
-
-    public function getTypeDescription()
-    {
-        $value = $this->service->E164 . ' (линий ' . $this->service->no_of_lines . ')';
-        $description = '';
-        $checkboxOptions = [];
-
-        $numbers = $this->service->clientAccount->voipNumbers;
-        if (isset($numbers[ $this->service->E164 ]) && $numbers[ $this->service->E164]['type'] == 'vpbx') {
-            if (($usage = UsageVirtpbx::findOne($numbers[ $this->service->E164 ]['stat_product_id'])) instanceof Usage) {
-                $description = $usage->currentTariff->description . ' (' . $usage->id . ')';
-            }
-            $checkboxOptions['disabled'] = 'disabled';
-        }
-        if ($this->service->type_id == 'line') {
-            $number7800 = UsageVoip::findOne(['line7800_id' => $this->service->id]);
-            if ($number7800 instanceof UsageVoip) {
-                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)', ['data-linked' => $number7800->id]);
-                $checkboxOptions['disabled'] = 'disabled';
-            }
-        }
-
-        return [$value, $description, $checkboxOptions];
-    }
-
 }

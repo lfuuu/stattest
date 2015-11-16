@@ -77,14 +77,4 @@ class EmailServiceTransfer extends ServiceTransfer
         }
     }
 
-    public function getTypeTitle()
-    {
-        return 'E-mail';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->service->local_part . '@' . $this->service->domain;
-    }
-
 }

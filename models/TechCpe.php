@@ -5,6 +5,7 @@ use app\dao\TechCpeDao;
 use yii\db\ActiveRecord;
 use app\queries\TechCpeQuery;
 use app\classes\transfer\TechCpeTransfer;
+use app\classes\usages\TechCpeHelper;
 
 /**
  * @property int $id
@@ -39,9 +40,21 @@ class TechCpe extends ActiveRecord
         return TechCpeDao::me();
     }
 
+    /**
+     * @param $usage
+     * @return TechCpeTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new TechCpeTransfer($usage);
+    }
+
+    /**
+     * @return TechCpeHelper
+     */
+    public function getHelper()
+    {
+        return new TechCpeHelper($this);
     }
 
 }

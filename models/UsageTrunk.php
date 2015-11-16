@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\classes\bill\VoipTrunkBiller;
+use app\classes\usages\UsageVoipTrunkHelper;
 
 /**
  * @property int    $id
@@ -73,9 +74,21 @@ class UsageTrunk extends ActiveRecord implements Usage
         return $activationDt <= $now and $expireDt >= $now;
     }
 
+    /**
+     * @param $usage
+     * @return TrunkServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new TrunkServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVoipTrunkHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVoipTrunkHelper($this);
     }
 
 }

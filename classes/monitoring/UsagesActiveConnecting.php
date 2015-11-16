@@ -55,10 +55,7 @@ class UsagesActiveConnecting extends Component implements MonitoringInterface
                 $combineChainsValue = ['clientAccount', 'contract', 'contragent'],
                 $combineClientId = ['clientAccount']
             ),
-            [
-                'attribute' => 'id',
-                'label' => 'ID услуги',
-            ],
+            MonitorGridColumns::getUsageId(),
             MonitorGridColumns::getUsageTitle(),
             MonitorGridColumns::getUsageRelevance(),
             MonitorGridColumns::getUsageDescription(),

@@ -8,6 +8,7 @@ use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
+use app\classes\usages\UsageIpPortsHelper;
 
 /**
  * @property int $id
@@ -104,9 +105,21 @@ class UsageIpPorts extends ActiveRecord implements Usage
             ->all();
     }
 
+    /**
+     * @param $usage
+     * @return IpPortsServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new IpPortsServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageIpPortsHelper
+     */
+    public function getHelper()
+    {
+        return new UsageIpPortsHelper($this);
     }
 
     public static function getMissingTariffs()

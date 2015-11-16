@@ -8,6 +8,7 @@ use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
 use app\queries\UsageVoipQuery;
 use app\classes\monitoring\UsagesLostTariffs;
+use app\classes\usages\UsageVoipHelper;
 
 /**
  * @property int $id
@@ -131,10 +132,22 @@ class UsageVoip extends ActiveRecord implements Usage
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
-    
+
+    /**
+     * @param $usage
+     * @return VoipServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new VoipServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVoipHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVoipHelper($this);
     }
 
     public function getAbonPerMonth()

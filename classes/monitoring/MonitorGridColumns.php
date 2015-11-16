@@ -230,14 +230,25 @@ abstract class MonitorGridColumns
         ];
     }
 
+    public static function getUsageId()
+    {
+        return [
+            'label' => 'ID услуги',
+            'format' => 'raw',
+            'value' => function($data) {
+                return Html::a($data->id, $data->helper->editLink, ['target' => '_blank']);
+            },
+        ];
+    }
+
     public static function getUsageTitle()
     {
         return [
             'label' => 'Тип услуги',
             'format' => 'raw',
             'value' => function($data) {
-                return $data->getTransferHelper($data)->getTypeTitle();
-            }
+                return Html::a($data->helper->title, $data->helper->editLink, ['target' => '_blank']);
+            },
         ];
     }
 
@@ -247,7 +258,7 @@ abstract class MonitorGridColumns
             'label' => 'Описание услуги',
             'format' => 'raw',
             'value' => function($data) {
-                list ($title, $description, $other) = (array) $data->getTransferHelper($data)->getTypeDescription();
+                list ($title, $description, $other) = (array) $data->helper->description;
                 return $title . ' ' . $description;
             }
         ];
