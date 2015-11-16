@@ -29,36 +29,9 @@ class NotificationLog extends ActiveRecord
         ];
     }
 
-
     public static function tableName()
     {
         return 'notification_log';
-    }
-
-    /*
-    public function behaviors()
-    {
-        return [
-            'UpdateContactsList' => \app\classes\behaviors\NotificationLog::className(),
-        ];
-    }
-    */
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getContactLog()
-    {
-        return $this->hasMany(NotificationContactLog::className(), ['notification_id' => 'id']);
-    }
-
-    /**
-     * @return static
-     */
-    public function getContacts()
-    {
-        return $this->hasMany(ClientContact::className(), ['id' => 'contact_id'])
-            ->viaTable('notification_contact_log', ['notification_id' => 'id']);
     }
 
     /**
@@ -66,7 +39,7 @@ class NotificationLog extends ActiveRecord
      */
     public function search($params)
     {
-        $query = self::find()->with('contacts')->orderBy('date DESC');
+        $query = self::find()->orderBy('date DESC');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

@@ -17,25 +17,6 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => 'kartik\grid\ExpandRowColumn',
-            'width' => '50px',
-            'value' => function ($model, $key, $index, $column) {
-                return GridView::ROW_COLLAPSED;
-            },
-            'detail' => function ($model, $key, $index, $column) {
-                $clientAccount = ClientAccount::findOne($model['client_id']);
-                $notification = NotificationLog::findOne($model['id']);
-
-                return Yii::$app->controller->renderPartial('expand-details', [
-                    'model' => $model,
-                    'client' => $clientAccount,
-                    'notification' => $notification,
-                ]);
-            },
-            'headerOptions' => ['class' => 'kartik-sheet-style'],
-            'expandOneOnly' => true,
-        ],
-        [
             'class' => 'app\classes\grid\column\notifications\ClientColumn',
             'width' => '5%',
         ],
