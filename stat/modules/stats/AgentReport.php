@@ -17,8 +17,8 @@ class AgentReport
         $agent_id = get_param_raw("agent", false);
         $export = get_param_raw("export", false);
         
-        $agents = $db->AllRecords('SELECT id, name FROM sale_channels WHERE is_agent=1');
-        if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels WHERE id=' . $agent_id);
+        $agents = $db->AllRecords('SELECT id, name FROM sale_channels_old WHERE is_agent=1');
+        if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels_old WHERE id=' . $agent_id);
         
         $interests_types = array(
                 'prebills' => 

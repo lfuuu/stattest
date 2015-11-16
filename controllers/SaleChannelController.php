@@ -1,7 +1,7 @@
 <?php
 namespace app\controllers;
 
-use app\models\SaleChannel;
+use app\models\SaleChannelOld;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
@@ -25,7 +25,7 @@ class SaleChannelController extends BaseController
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => SaleChannel::find(),
+            'query' => SaleChannelOld::find(),
         ]);
 
         return $this->render('index', ['dataProvider' => $dataProvider]);
@@ -33,7 +33,7 @@ class SaleChannelController extends BaseController
 
     public function actionCreate()
     {
-        $model = new SaleChannel();
+        $model = new SaleChannelOld();
         if($model->load(Yii::$app->request->post()) && $model->save()){
             return $this->redirect(['sale-channel/index']);
         }
@@ -43,7 +43,7 @@ class SaleChannelController extends BaseController
 
     public function actionEdit($id)
     {
-        $model = SaleChannel::findOne($id);
+        $model = SaleChannelOld::findOne($id);
         if(!$model)
             throw new Exception('Sale Channel does not exist');
 

@@ -4,7 +4,7 @@ use kartik\builder\Form;
 use app\models\ClientContragent;
 use app\models\ClientContract;
 use app\models\Country;
-use app\models\NewSaleChannel;
+use app\models\SaleChannel;
 use kartik\widgets\Select2;
 use app\models\Business;
 
@@ -264,7 +264,7 @@ use app\models\Business;
         <div class="col-sm-3" style="padding-right: 30px; padding-bottom: 15px;">
             <?=
             $f->field($model, 'sale_channel_id')->widget(Select2::className(), [
-                'data' => NewSaleChannel::getList(),
+                'data' => SaleChannel::getList(),
                 'options' => ['placeholder' => 'Начните вводить название'],
                 'pluginOptions' => [
                     'allowClear' => true,

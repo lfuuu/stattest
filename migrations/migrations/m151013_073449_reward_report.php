@@ -19,6 +19,15 @@ class m151013_073449_reward_report extends \app\classes\Migration
             ENGINE=InnoDB
             ;
         ");
+
+        $this->execute("
+            INSERT INTO `sale_channel` (`name`) VALUES ('Сарафанное радио'),('Поиск в Интернет'), ('Реклама в Интернет')
+            ");
+
+        $this->execute("
+            RENAME TABLE sale_channels TO sale_channels_old
+            ");
+
     }
 
     public function down()

@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Region;
-use app\models\SaleChannel;
 use app\models\PriceType;
 use kartik\widgets\Select2;
 use kartik\builder\Form;

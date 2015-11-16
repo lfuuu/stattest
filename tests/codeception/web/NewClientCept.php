@@ -29,7 +29,9 @@ $data = [
         'tax_regime' => 'undefined',
         'position' => '',
         'fio' => '',
-        'comment' => 'тест'
+        'comment' => 'тест',
+        'sale_channel_id' => '2',
+        'partner_contract_id' => ''
     ],
 
     'ContractEditForm' => [
@@ -46,7 +48,6 @@ $data = [
         'admin_email' => 'fagob6@inboxstore.me',
         'region' => '99',
         'timezone_name' => 'Europe/Moscow',
-        'sale_channel' => '',
         'nal' => 'beznal',
         'currency' => 'RUB',
         'price_type' => '739a53ba-8389-11df-9af5-001517456eb1',

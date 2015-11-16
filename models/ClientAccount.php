@@ -193,7 +193,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getChannelName()
     {
-        return $this->sale_channel ? SaleChannel::getList()[$this->sale_channel] : '';
+        return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
 /**************/
