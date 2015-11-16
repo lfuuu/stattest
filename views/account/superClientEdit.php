@@ -3,7 +3,6 @@
 use yii\helpers\Html;
 use app\models\Region;
 use app\models\Metro;
-use app\models\SaleChannel;
 use app\models\Bank;
 use app\models\PriceType;
 use kartik\widgets\ActiveForm;

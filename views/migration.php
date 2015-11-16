@@ -7,7 +7,9 @@ class <?= $className ?> extends \app\classes\Migration
 {
     public function up()
     {
+        $this->execute("
 
+        ");
     }
 
     public function down()

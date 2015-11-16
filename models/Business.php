@@ -27,7 +27,9 @@ class Business extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::find()->all();
+        $arr = self::find()
+            ->orderBy('sort')
+            ->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
 

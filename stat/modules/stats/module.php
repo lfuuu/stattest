@@ -2478,7 +2478,7 @@ class m_stats extends IModule{
 	{
 		$interest = AgentInterests::find($fixclient_data['id']);
 	}
-	$sale_channel = $db->GetValue('SELECT name FROM sale_channels WHERE is_agent = 1 AND dealer_id = ' . $fixclient_data['id']);
+	$sale_channel = $db->GetValue('SELECT name FROM sale_channels_old WHERE is_agent = 1 AND dealer_id = ' . $fixclient_data['id']);
 	$design->assign('interest', $interest);
 	$design->assign('sale_channel', $sale_channel);
 	$interests_types = array(
@@ -4099,7 +4099,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             s.courier_id as courier_id
           from usage_voip u
           left join clients c on c.client=u.client
-          left join sale_channels s on s.id=c.sale_channel
+          left join sale_channels_old s on s.id=c.sale_channel
           where 
               u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
             and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
@@ -4117,7 +4117,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             s.courier_id as courier_id
           from usage_virtpbx u
           left join clients c on c.client=u.client
-          left join sale_channels s on s.id=c.sale_channel
+          left join sale_channels_old s on s.id=c.sale_channel
           where 
               u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
             and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
@@ -4480,6 +4480,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         $tmp_y--;
       }
     }
+
+      $design->assign("RManager",
+          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
+              'managers' => \app\classes\stats\PhoneSales::reportByManager($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
+          ]));
+      $design->assign("RPartner",
+          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
+              'partners' => \app\classes\stats\PhoneSales::reportByPartner($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
+          ]));
 
     $design->assign("from_y", $from_y);
     $design->assign("from_m", $from_m);

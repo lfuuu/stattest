@@ -37,13 +37,16 @@ class BusinessProcess extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::find()->andWhere(['show_as_status' => '1'])->all();
+        $arr = self::find()
+            ->andWhere(['show_as_status' => '1'])
+            ->orderBy('sort')
+            ->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
     public function getBusinessProcessStatuses()
     {
-        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id']);
+        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])->orderBy('sort');
     }
 
 }

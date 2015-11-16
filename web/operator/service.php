@@ -98,7 +98,6 @@ if ($action=='add_client') {
         $ca->address_post = $P['address'];
         $ca->address_post_real = $P['address'];
         $ca->address_connect = $P['address'];
-        $ca->sale_channel = $P['market_chanel'];
         $ca->status = "income";
 
         if($P["phone_connect"])

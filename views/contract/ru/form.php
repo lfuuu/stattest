@@ -168,18 +168,28 @@ use app\models\ClientContract;
                 ],
                 ['type' => Form::INPUT_RAW],
             ]
-                : [
+                : (
+            ($model->business_id == \app\models\Business::PARTNER)
+                ? [
+                'contract_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\models\ContractType::getList(),
 
+                ],
+                ['type' => Form::INPUT_RAW],
+            ]
+                : [
                 ['type' => Form::INPUT_RAW],
                 ['type' => Form::INPUT_RAW],
             ]
+            )
             )
         )
     ]);
     ?>
     <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
-        <fieldset>
-            <?php foreach ($model->rewards as $usage => $reward) : ?>
+        <?php foreach ($model->rewards as $usage => $reward) : ?>
+            <fieldset>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
@@ -249,9 +259,10 @@ use app\models\ClientContract;
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </fieldset>
+            </fieldset>
+        <?php endforeach; ?>
     <?php endif; ?>
+
 </div>
 
 <script>

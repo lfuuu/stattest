@@ -4528,7 +4528,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $query = $db->AllRecords('SELECT user, name FROM user_users');
             foreach($query as $row) $usersData[$row['user']] = $row['name'];
 
-            $channels=array(); $query=$db->AllRecords("select * from sale_channels ORDER BY id");
+            $channels=array(); $query=$db->AllRecords("select * from sale_channels_old ORDER BY id");
             $channels[''] = 'не определено';
             foreach($query as $key => $value) $channels[$value['id']] = $value['name'];
 

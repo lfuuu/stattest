@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Region;
-use app\models\SaleChannel;
 use app\models\PriceType;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
@@ -36,20 +35,7 @@ use app\models\Currency;
                     . '</div>'
             ],
             'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => Region::getTimezoneList()],
-            'sale_channel' => [
-                'type' => Form::INPUT_RAW,
-                'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['sale_channel'] . '</label>'
-                    . Select2::widget([
-                        'model' => $model,
-                        'attribute' => 'sale_channel',
-                        'data' => SaleChannel::getList(),
-                        'options' => ['placeholder' => 'Начните вводить название'],
-                        'pluginOptions' => [
-                            'allowClear' => true
-                        ],
-                    ])
-                    . '</div>'
-            ],
+            ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],
 
             'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$nalTypes],

@@ -38,7 +38,6 @@ class AccountEditForm extends Form
         $nal,
         $credit = ClientAccount::DEFAULT_CREDIT,
         $credit_size,
-        $sale_channel,
         $phone_connect,
         $form_type,
         $price_type,
@@ -90,7 +89,7 @@ class AccountEditForm extends Form
             ],
             [
                 [
-                    'id', 'super_id', 'contract_id', 'stamp', 'sale_channel', 'credit', 'credit_size', 'voip_credit_limit',
+                    'id', 'super_id', 'contract_id', 'stamp', 'credit', 'credit_size', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
                     'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
                 ],
@@ -98,7 +97,7 @@ class AccountEditForm extends Form
             ],
             [
                 [
-                    'stamp', 'sale_channel', 'credit', 'voip_credit_limit', 'is_agent', 'mail_print',
+                    'stamp', 'credit', 'voip_credit_limit', 'is_agent', 'mail_print',
                     'voip_disabled', 'voip_credit_limit_day', 'is_with_consignee', 'is_upd_without_sign',
                 ],
                 'default', 'value' => 0
@@ -179,7 +178,6 @@ class AccountEditForm extends Form
             $this->credit = 1;
         }
 
-        $this->sale_channel = (!is_numeric($this->sale_channel)) ? 0 : $this->sale_channel;
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
     }

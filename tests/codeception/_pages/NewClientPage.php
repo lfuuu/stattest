@@ -29,7 +29,7 @@ class NewClientPage extends BasePage
                         "business_id", "business_process_id", "business_process_status_id", 
                         "manager", "account_manager", "organization_id", "state", "nal",
                         "region", "timezone_name", "currency", "price_type", "form_type",
-                        "sale_channel"]))
+                        "sale_channel_id", "partner_contract_id"]))
                     {
                         $key = 'select[name="'. $section . '[' . $k .']"]';
                         $this->actor->selectOption($key, $v);
