@@ -9,7 +9,7 @@ use app\classes\grid\column\DataColumn;
 class ClientColumn extends DataColumn
 {
     public $attribute = 'client_id';
-    public $label = 'Клиент';
+    public $label = 'Л/С';
 
     protected function renderDataCellContent($model, $key, $index)
     {
