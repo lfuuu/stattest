@@ -9,7 +9,7 @@ class SaleChannelOld extends ActiveRecord
     private static $list;
     public static function tableName()
     {
-        return 'sale_channels';
+        return 'sale_channels_old';
     }
 
     public function attributeLabels()
