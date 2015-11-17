@@ -77,15 +77,15 @@
                 </tr>
                 <tr>
                     <td align='right'>&nbsp;</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                         <td>{$smarty.section.myloop.index}</td>
                     {/section}
                     <td>&nbsp;</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                         <td>{$smarty.section.myloop.index}</td>
                     {/section}
                     <td>&nbsp;</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                         <td>{$smarty.section.myloop.index}</td>
                     {/section}
                 </tr>
@@ -96,7 +96,7 @@
                 {foreach from=$doers_d item='doer' key='doer_id'}
                 <tr>
                     <td>{$doer.name}</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                     <td style="{if isset($doer.time[$dates.key.yesterday].here) && $doer.time[$dates.key.yesterday].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
                         {if isset($doer.time[$dates.key.yesterday][$smarty.section.myloop.index]) && $doer.time[$dates.key.yesterday][$smarty.section.myloop.index]}
                         {if $refix_flag eq true && $doer.time[$dates.key.yesterday].here eq $smarty.section.myloop.index}
@@ -132,7 +132,7 @@
                     </td>
                     {/section}
                     <td>&nbsp;</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                     <td style="{if isset($doer.time[$dates.key.today].here) && $doer.time[$dates.key.today].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
                         {if isset($doer.time[$dates.key.today][$smarty.section.myloop.index]) && $doer.time[$dates.key.today][$smarty.section.myloop.index]}
                         {if $refix_flag eq true && $doer.time[$dates.key.today].here eq $smarty.section.myloop.index}
@@ -171,7 +171,7 @@
                     </td>
                     {/section}
                     <td>&nbsp;</td>
-                    {section loop=24 start=9 name='myloop'}
+                    {section loop=24 start=8 name='myloop'}
                         <td style="{if isset($doer.time[$dates.key.tomorrow].here) && $doer.time[$dates.key.tomorrow].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
                             {if isset($doer.time[$dates.key.tomorrow][$smarty.section.myloop.index]) && $doer.time[$dates.key.tomorrow][$smarty.section.myloop.index]}
                                 {if $refix_flag eq true && $doer.time[$dates.key.tomorrow].here eq $smarty.section.myloop.index}
