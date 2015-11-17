@@ -230,8 +230,6 @@ if ($action=='add_client') {
                             $form->prepareAdd();
                             $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
                             $form->create_params = \yii\helpers\Json::encode([
-                                'type' => $form->type_id,
-                                'sip_accounts' => 0,
                                 'vpbx_stat_product_id' => $vats->id,
                             ]);
 
