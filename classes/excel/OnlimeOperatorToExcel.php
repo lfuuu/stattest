@@ -28,7 +28,10 @@ class OnlimeOperatorToExcel extends Excel
         foreach ($report as $rowIdx => $item) {
             $colIdx = 0;
             $rowIdx += $this->insertRowPosition;
+
             foreach($fields as $title => $field) {
+                $worksheet->setCellValueByColumnAndRow(0, $rowIdx, $rowIdx - $this->insertRowPosition + 1);
+
                 if ($field == 'products') {
                     foreach ($products as $key => $product) {
                         if (is_string($key)) {

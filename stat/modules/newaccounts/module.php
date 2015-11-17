@@ -697,6 +697,7 @@ class m_newaccounts extends IModule
         $design->assign('admin_order',$adminNum);
 
         $design->assign('bill',$bill->GetBill());
+        $design->assign('bill_extends_info',$newbill->extendsInfo);
         $design->assign('bill_manager',getUserName(\app\models\Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment',$bill->GetStaticComment());
         $design->assign('bill_courier',$bill->GetCourier());
