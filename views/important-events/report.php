@@ -3,7 +3,7 @@
 use yii\data\ActiveDataProvider;
 use kartik\grid\GridView;
 use app\classes\Html;
-use app\models\important_events\ImportantEvents;
+use app\models\ImportantEvents;
 
 /** @var $dataProvider ActiveDataProvider */
 /** @var ImportantEvents $filterModel */

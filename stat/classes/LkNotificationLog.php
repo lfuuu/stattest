@@ -1,6 +1,6 @@
 <?php 
 
-use app\models\important_events\ImportantEvents;
+use app\models\ImportantEvents;
 
 class LkNotificationLog 
 {

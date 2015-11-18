@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\classes\BaseController;
-use app\models\important_events\ImportantEvents;
+use app\models\ImportantEvents;
 
 class ImportantEventsController extends BaseController
 {
