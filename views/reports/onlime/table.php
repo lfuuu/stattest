@@ -19,7 +19,7 @@ use app\helpers\DateTimeZoneHelper;
                 <th rowspan="2" width="20%"><div style="text-align: center;">Состояние</div></th>
             </tr>
             <tr>
-                <th><div style="text-align: center;">OnLime</div></th>
+                <th width="5%"><div style="text-align: center;">Л / С</div></th>
                 <th><div style="text-align: center;">Маркомнет Сервис</div></th>
                 <?php foreach ($operator->products as $i => $product): ?>
                     <th align="center" width="3%"><div style="text-align: center;"><?= $product['name']; ?></div></th>
@@ -33,7 +33,7 @@ use app\helpers\DateTimeZoneHelper;
                 <tr>
                     <td><?= ($number + 1); ?>.</td>
                     <td><?= $item['fio_oper']; ?></td>
-                    <td><?= $item['req_no']; ?></td>
+                    <td><?= $item['acc_no']; ?></td>
                     <td>
                         <a href="<?= $billLink . $item['bill_no']; ?>" title="Просмотр заказа">
                             <?= $item['bill_no']; ?>

@@ -42,7 +42,7 @@ class ReportsController extends BaseController
             Yii::$app->end();
         }
 
-        return $this->render('onlime/report.php', [
+        return $this->render('onlime-stb/report.php', [
             'operator' => $operator,
             'report' => $report,
             'filter' => [
@@ -58,6 +58,7 @@ class ReportsController extends BaseController
     public function actionOnlimeDevicesReport()
     {
         $filter = Yii::$app->request->get('filter', []);
+        $asFile = Yii::$app->request->get('as-file', 0);
 
         if (isset($filter['range'])) {
             list($dateFrom, $dateTo) = explode(' : ', $filter['range']);
@@ -73,6 +74,16 @@ class ReportsController extends BaseController
 
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlimeDevices::OPERATOR_CLIENT);
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
+
+        if ($asFile == 1) {
+            $reportName = 'OnLime_Devices__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
+
+            Yii::$app->response->sendContentAsFile(
+                $operator->GenerateExcel($report),
+                $reportName . '.xls'
+            );
+            Yii::$app->end();
+        }
 
         return $this->render('onlime/report.php', [
             'operator' => $operator,
