@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\usages;
+namespace app\helpers\usages;
 
 use yii\base\Object;
 use yii\helpers\Url;

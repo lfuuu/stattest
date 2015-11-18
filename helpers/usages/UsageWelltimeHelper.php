@@ -1,11 +1,13 @@
 <?php
 
-namespace app\classes\usages;
+namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\helpers\Url;
 use app\models\Usage;
+use app\models\UsageWelltime;
 
-class UsageVoipPackageHelper extends Object implements UsageHelperInterface
+class UsageWelltimeHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
@@ -21,7 +23,7 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
      */
     public function getTitle()
     {
-        return 'Телефония пакет';
+        return 'Welltime';
     }
 
     /**
@@ -29,7 +31,7 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        return [$this->usage->id, '', ''];
+        return [($this->usage->tariff ? $this->usage->tariff->description : 'Описание'), '', ''];
     }
 
     /**
@@ -45,7 +47,7 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return '';
+        return Url::toRoute(['/pop_services.php', 'table' => UsageWelltime::tableName(), 'id' => $this->usage->id]);
     }
 
 }

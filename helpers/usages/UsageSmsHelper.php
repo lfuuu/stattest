@@ -1,13 +1,13 @@
 <?php
 
-namespace app\classes\usages;
+namespace app\helpers\usages;
 
 use yii\base\Object;
 use yii\helpers\Url;
 use app\models\Usage;
-use app\models\UsageExtra;
+use app\models\UsageSms;
 
-class UsageExtraHelper extends Object implements UsageHelperInterface
+class UsageSmsHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
@@ -23,7 +23,7 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
      */
     public function getTitle()
     {
-        return 'Доп. услуги';
+        return 'SMS';
     }
 
     /**
@@ -31,7 +31,7 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        return [($this->usage->tariff ? $this->usage->tariff->description : 'Описание'), '', ''];
+        return [$this->usage->tariff ? $this->usage->tariff->description : 'Описание', '', ''];
     }
 
     /**
@@ -47,7 +47,7 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => UsageExtra::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageSms::tableName(), 'id' => $this->usage->id]);
     }
 
 }

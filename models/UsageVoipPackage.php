@@ -5,10 +5,9 @@ use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
-use app\classes\transfer\ServiceTransfer;
 use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageVoipPackageHelper;
+use app\helpers\usages\UsageVoipPackageHelper;
 
 /**
  * @property int $id

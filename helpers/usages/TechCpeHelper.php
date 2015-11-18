@@ -1,18 +1,16 @@
 <?php
 
-namespace app\classes\usages;
+namespace app\helpers\usages;
 
 use yii\base\Object;
 use yii\helpers\Url;
-use app\models\Usage;
-use app\models\Emails;
 
-class UsageEmailHelper extends Object implements UsageHelperInterface
+class TechCpeHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
 
-    public function __construct(Usage $usage)
+    public function __construct($usage)
     {
         $this->usage = $usage;
         parent::__construct();
@@ -23,7 +21,7 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
      */
     public function getTitle()
     {
-        return 'E-mail';
+        return 'Клиентские устройства';
     }
 
     /**
@@ -31,7 +29,7 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        return [$this->usage->local_part . '@' . $this->usage->domain, '', ''];
+        return [$this->usage->model->vendor . ' ' . $this->usage->model->model, '', ''];
     }
 
     /**
@@ -47,7 +45,7 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => Emails::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/', 'module' => 'routers', 'action' => 'd_edit', 'id' => $this->usage->id]);
     }
 
 }

@@ -6,7 +6,7 @@ use yii\db\ActiveRecord;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\classes\bill\VoipTrunkBiller;
-use app\classes\usages\UsageVoipTrunkHelper;
+use app\helpers\usages\UsageVoipTrunkHelper;
 
 /**
  * @property int    $id

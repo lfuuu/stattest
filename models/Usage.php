@@ -3,7 +3,7 @@ namespace app\models;
 
 use DateTime;
 use app\classes\transfer\ServiceTransfer;
-use app\classes\usages\UsageHelperInterface;
+use app\helpers\usages\UsageHelperInterface;
 use app\classes\bill\Biller;
 
 /**

@@ -8,7 +8,7 @@ use app\classes\bill\ExtraBiller;
 use app\classes\transfer\ExtraServiceTransfer;
 use app\dao\services\ExtraServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageExtraHelper;
+use app\helpers\usages\UsageExtraHelper;
 
 /**
  * @property int $id

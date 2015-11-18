@@ -5,7 +5,7 @@ use app\dao\TechCpeDao;
 use yii\db\ActiveRecord;
 use app\queries\TechCpeQuery;
 use app\classes\transfer\TechCpeTransfer;
-use app\classes\usages\TechCpeHelper;
+use app\helpers\usages\TechCpeHelper;
 
 /**
  * @property int $id

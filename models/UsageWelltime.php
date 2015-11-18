@@ -8,7 +8,7 @@ use app\classes\bill\WelltimeBiller;
 use app\classes\transfer\WelltimeServiceTransfer;
 use app\dao\services\WelltimeServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageWelltimeHelper;
+use app\helpers\usages\UsageWelltimeHelper;
 
 /**
  * @property int $id

@@ -8,7 +8,7 @@ use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
 use app\queries\UsageVoipQuery;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageVoipHelper;
+use app\helpers\usages\UsageVoipHelper;
 
 /**
  * @property int $id

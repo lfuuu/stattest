@@ -8,7 +8,7 @@ use app\dao\services\VirtpbxServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageVirtpbxHelper;
+use app\helpers\usages\UsageVirtpbxHelper;
 
 /**
  * @property int $id

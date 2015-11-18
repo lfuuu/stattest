@@ -8,7 +8,7 @@ use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageIpPortsHelper;
+use app\helpers\usages\UsageIpPortsHelper;
 
 /**
  * @property int $id

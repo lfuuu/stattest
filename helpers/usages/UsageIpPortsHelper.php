@@ -1,12 +1,13 @@
 <?php
 
-namespace app\classes\usages;
+namespace app\helpers\usages;
 
 use yii\base\Object;
-use app\models\Usage;
 use yii\helpers\Url;
+use app\models\Usage;
+use app\models\UsageIpPorts;
 
-class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
+class UsageIpPortsHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
@@ -22,7 +23,7 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
      */
     public function getTitle()
     {
-        return 'Телефония транки';
+        return 'Интернет';
     }
 
     /**
@@ -30,7 +31,7 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        return [$this->usage->description ?: 'Описание отсутствует', '', ''];
+        return [$this->usage->address, '', ''];
     }
 
     /**
@@ -42,11 +43,11 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/usage/trunk/edit', 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageIpPorts::tableName(), 'id' => $this->usage->id]);
     }
 
 }

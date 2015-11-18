@@ -8,7 +8,7 @@ use app\classes\transfer\SmsServiceTransfer;
 use app\dao\services\SmsServiceDao;
 use app\queries\UsageQuery;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\usages\UsageSmsHelper;
+use app\helpers\usages\UsageSmsHelper;
 
 /**
  * @property int $id

@@ -7,7 +7,7 @@ use app\dao\services\EmailsServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageQuery;
 use DateTime;
-use app\classes\usages\UsageEmailHelper;
+use app\helpers\usages\UsageEmailHelper;
 
 /**
  * @property int $id
