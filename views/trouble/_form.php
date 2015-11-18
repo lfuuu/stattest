@@ -62,7 +62,7 @@ if ($curtype) {
                     <div class="form-group">
                         <a href="pop_services.php?table=<?= $ttService ?>&id=<?= $ttServiceId ?>"><?= $ttService ?>
                             #<?= $ttServiceId ?></a>
-                        <?= Html::hiddenInput('service', $ttServiceId) ?>
+                        <?= Html::hiddenInput('service', $ttService) ?>
                         <?= Html::hiddenInput('service_id', $ttServiceId) ?>
                     </div>
                 </div>
