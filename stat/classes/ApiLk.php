@@ -1051,11 +1051,10 @@ class ApiLk
      * @param $client_id - ID клиента в Стат
      * @param $region_id - ID региона
      * @param $tarif_id - ID тарифа
-     * @param int $enable - Включить сразу или использовать систему заявок
      * @return array
      * @throws Exception
      */
-    public static function orderVpbxTarif($client_id, $region_id, $tarif_id, $enable = 0)
+    public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
     {
         global $db;
 
@@ -1085,7 +1084,7 @@ class ApiLk
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $account->client,
-                            "actual_from"   => ($enable ? date('Y-m-d') : "4000-01-01"),
+                            "actual_from"   => date('Y-m-d'),
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
