@@ -8,6 +8,7 @@ use app\classes\bill\VoipPackageBiller;
 use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
@@ -15,7 +16,7 @@ use app\helpers\usages\UsageVoipPackageHelper;
  * @property Region $connectionPoint
  * @property
  */
-class UsageVoipPackage extends ActiveRecord implements Usage
+class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
 
     public static function tableName()

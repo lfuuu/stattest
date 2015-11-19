@@ -9,6 +9,7 @@ use app\classes\transfer\WelltimeServiceTransfer;
 use app\dao\services\WelltimeServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageWelltimeHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
@@ -16,7 +17,7 @@ use app\helpers\usages\UsageWelltimeHelper;
  * @property TariffExtra $tariff
  * @property
  */
-class UsageWelltime extends ActiveRecord implements Usage
+class UsageWelltime extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {
@@ -51,12 +52,6 @@ class UsageWelltime extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    public function getCurrentTariff()
-    {
-        $tariff = TariffExtra::findOne($this->tarif_id);
-        return $tariff;
     }
 
     public function getRegionName()

@@ -397,9 +397,8 @@ echo Breadcrumbs::widget([
         ]);
     }
 
-    $logTariff = $usage->getCurrentLogTariff();
-    if ($logTariff) {
-        $mainTariff = TariffVoip::findOne($logTariff->id_tarif);
+    if ($usage->logTariff) {
+        $mainTariff = TariffVoip::findOne($usage->logTariff->id_tarif);
         if ($mainTariff) {
             echo Form::widget([
                 'model' => $model,

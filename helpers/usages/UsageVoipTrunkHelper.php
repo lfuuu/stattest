@@ -3,7 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use yii\helpers\Url;
 
 class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
@@ -11,7 +11,7 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
 
     private $usage;
 
-    public function __construct(Usage $usage)
+    public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
         parent::__construct();

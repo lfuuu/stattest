@@ -1,7 +1,6 @@
 <?php
 namespace app\classes\bill;
 
-
 use Yii;
 use DateTime;
 use app\models\Bill;
@@ -9,7 +8,7 @@ use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Emails;
 use app\models\Transaction;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
@@ -263,7 +262,7 @@ class ClientAccountBiller
         }
     }
 
-    private function processUsage(Usage $usage)
+    private function processUsage(UsageInterface $usage)
     {
         $transactions =
             $usage

@@ -27,7 +27,7 @@ abstract class MonitorGridColumns
             'format' => 'raw',
             'value' =>
                 /**
-                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
                  * @return string
                  */
                 function ($data) use ($combineChainsValue) {
@@ -57,7 +57,7 @@ abstract class MonitorGridColumns
             'format' => 'raw',
             'value' =>
                 /**
-                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
                  * @return string
                  */
                 function ($data) use ($combineChainsValue) {
@@ -81,7 +81,7 @@ abstract class MonitorGridColumns
             'format' => 'raw',
             'value' =>
                 /**
-                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
                  * @return string
                  */
                 function ($data) use ($combineClientId, $combineChainsValue) {
@@ -131,7 +131,7 @@ abstract class MonitorGridColumns
             'format' => 'raw',
             'value' =>
                 /**
-                 * @param object $data - запись выборки в виде модели (Usage / ClientContract / ClientAccount)
+                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
                  * @return string
                  */
                 function ($data) use ($combineChainsValue) {

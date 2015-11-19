@@ -1,10 +1,9 @@
 <?php
 namespace app\classes\bill;
 
-use app\classes\DateFunction;
 use app\models\ClientAccount;
 use app\models\Transaction;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use Yii;
 use DateTime;
 
@@ -14,7 +13,7 @@ abstract class BillerPackage
     protected $biller;
     /** @var ClientAccount */
     protected $clientAccount;
-    /** @var Usage */
+    /** @var UsageInterface */
     protected $usage;
 
     /** @var DateTime */

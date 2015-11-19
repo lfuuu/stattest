@@ -9,6 +9,8 @@ use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVirtpbxHelper;
+use app\models\usages\UsageInterface;
+use app\models\usages\UsageLogTariffInterface;
 
 /**
  * @property int $id
@@ -16,7 +18,7 @@ use app\helpers\usages\UsageVirtpbxHelper;
  * @property TariffVirtpbx $tariff
  * @property
  */
-class UsageVirtpbx extends ActiveRecord implements Usage
+class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
     public static function tableName()
     {
@@ -38,9 +40,36 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return new VirtpbxBiller($this, $date, $clientAccount);
     }
 
-    public function getTariff()
+    /**
+     * @param string $date
+     * @return bool|TariffVirtpbx
+     */
+    public function getTariff($date = 'now')
     {
-        return $this->hasOne(TariffVirtpbx::className(), ['id' => 'tarif_id']);
+        $logTariff = $this->getLogTariff($date);
+        if ($logTariff === null) {
+            return false;
+        }
+
+        return TariffVirtpbx::findOne($logTariff->id_tarif);
+    }
+
+    /**
+     * @param string $date
+     * @return null|LogTarif
+     */
+    public function getLogTariff($date = 'now')
+    {
+        $date = (new DateTime($date))->format('Y-m-d H:i:s');
+
+        return
+            LogTarif::find()
+                ->andWhere(['service' => 'usage_virtpbx', 'id_service' => $this->id])
+                ->andWhere('date_activation <= :date', [':date' => $date])
+                ->andWhere('id_tarif != 0')
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
+                ->one();
     }
 
     public function getServiceType()
@@ -51,24 +80,6 @@ class UsageVirtpbx extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    public function getCurrentTariff()
-    {
-        $logTariff =
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_virtpbx', 'id_service' => $this->id])
-                ->andWhere('date_activation <= now()')
-                ->andWhere('id_tarif != 0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
-        if ($logTariff === null) {
-            return false;
-        }
-
-        $tariff = TariffVirtpbx::findOne($logTariff->id_tarif);
-        return $tariff;
     }
 
     public function getRegionName()

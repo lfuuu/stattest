@@ -1,19 +1,20 @@
 <?php
 namespace app\models;
 
+use DateTime;
 use app\classes\bill\EmailBiller;
 use app\classes\transfer\EmailServiceTransfer;
 use app\dao\services\EmailsServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageQuery;
-use DateTime;
 use app\helpers\usages\UsageEmailHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
  * @property
  */
-class Emails extends ActiveRecord implements Usage
+class Emails extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {

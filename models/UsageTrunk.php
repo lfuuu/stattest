@@ -7,6 +7,7 @@ use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\classes\bill\VoipTrunkBiller;
 use app\helpers\usages\UsageVoipTrunkHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int    $id
@@ -28,7 +29,7 @@ use app\helpers\usages\UsageVoipTrunkHelper;
  * @property Region $connectionPoint
  * @property
  */
-class UsageTrunk extends ActiveRecord implements Usage
+class UsageTrunk extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {

@@ -9,12 +9,14 @@ use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageIpPortsHelper;
+use app\models\usages\UsageInterface;
+use app\models\usages\UsageLogTariffInterface;
 
 /**
  * @property int $id
  * @property
  */
-class UsageIpPorts extends ActiveRecord implements Usage
+class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
     public $actual5d;
 
@@ -46,9 +48,35 @@ class UsageIpPorts extends ActiveRecord implements Usage
         return new IpPortBiller($this, $date, $clientAccount);
     }
 
-    public function getTariff()
+    /**
+     * @param string $date
+     * @return bool|TariffInternet
+     */
+    public function getTariff($date = 'now')
     {
-        return null;
+        $logTariff = $this->getLogTariff($date);
+        if ($logTariff === null) {
+            return false;
+        }
+
+        return TariffInternet::findOne($logTariff->id_tarif);
+    }
+
+    /**
+     * @param string $date
+     * @return null|LogTarif
+     */
+    public function getLogTariff($date = 'now')
+    {
+        $date = (new DateTime($date))->format('Y-m-d H:i:s');
+
+        return LogTarif::find()
+            ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->id])
+            ->andWhere('date_activation <= :date', [':date' => $date])
+            ->andWhere('id_tarif != 0')
+            ->orderBy('date_activation desc, id desc')
+            ->limit(1)
+            ->one();
     }
 
     public function getServiceType()
@@ -59,28 +87,6 @@ class UsageIpPorts extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    public function getCurrentLogTariff()
-    {
-        return LogTarif::find()
-            ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->id])
-            ->andWhere('date_activation <= now()')
-            ->andWhere('id_tarif != 0')
-            ->orderBy('date_activation desc, id desc')
-            ->limit(1)
-            ->one();
-    }
-
-    public function getCurrentTariff()
-    {
-        $logTariff = $this->getCurrentLogTariff();
-        if ($logTariff === null) {
-            return false;
-        }
-
-        $tariff = TariffInternet::findOne($logTariff->id_tarif);
-        return $tariff;
     }
 
     public function getRegionName()
