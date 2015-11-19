@@ -113,7 +113,7 @@ class ServiceTransferForm extends Form
             }
         }
 
-        if (sizeof($this->servicesErrors)) {
+        if (count($this->servicesErrors)) {
             $this->addError('services_got_errors', 'Некоторые услуги не могут быть перенесены');
             return false;
         }
@@ -159,7 +159,7 @@ class ServiceTransferForm extends Form
 
         $total = 0;
         $result = [];
-        if (sizeof($services))
+        if (count($services))
             foreach ($services as $service) {
                 $result[ get_class($service) ][] = $service;
                 $total++;

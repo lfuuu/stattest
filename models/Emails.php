@@ -7,6 +7,7 @@ use app\dao\services\EmailsServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageQuery;
 use DateTime;
+use app\helpers\usages\UsageEmailHelper;
 
 /**
  * @property int $id
@@ -49,9 +50,21 @@ class Emails extends ActiveRecord implements Usage
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @param $usage
+     * @return EmailServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new EmailServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageEmailHelper
+     */
+    public function getHelper()
+    {
+        return new UsageEmailHelper($this);
     }
 
 }

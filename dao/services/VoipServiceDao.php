@@ -18,6 +18,7 @@ class VoipServiceDao extends Singleton implements ServiceDao
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])
+                ->orderBy(['id' => SORT_DESC])
                 ->all();
     }
 

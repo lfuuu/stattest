@@ -190,14 +190,4 @@ class IpPortsServiceTransfer extends ServiceTransfer
         }
     }
 
-    public function getTypeTitle()
-    {
-        return 'Интернет';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->service->address;
-    }
-
 }

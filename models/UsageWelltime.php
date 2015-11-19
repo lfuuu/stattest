@@ -8,6 +8,7 @@ use app\classes\bill\WelltimeBiller;
 use app\classes\transfer\WelltimeServiceTransfer;
 use app\dao\services\WelltimeServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\usages\UsageWelltimeHelper;
 
 /**
  * @property int $id
@@ -63,9 +64,21 @@ class UsageWelltime extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @param $usage
+     * @return WelltimeServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new WelltimeServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageWelltimeHelper
+     */
+    public function getHelper()
+    {
+        return new UsageWelltimeHelper($this);
     }
 
     public static function getMissingTariffs()

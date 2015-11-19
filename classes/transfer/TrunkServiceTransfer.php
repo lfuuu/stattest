@@ -101,14 +101,4 @@ class TrunkServiceTransfer extends ServiceTransfer
 
     }
 
-    public function getTypeTitle()
-    {
-        return 'Телефония транки';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->description ?: 'Описание отсутствует';
-    }
-
 }
