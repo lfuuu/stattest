@@ -261,7 +261,7 @@ class ActaulizerVoipNumbers
             "cl"           => (int) $data["call_count"],
             "region"       => (int) $data["region"],
             "timezone"     =>       $this->getTimezoneByRegion($data["region"]),
-            "type"         =>       $usage->type_id,
+            "type"         =>       'line', //$usage->type_id,
             "sip_accounts" =>       1,
             "nonumber"     => (bool)$this->isNonumber($data["number"])
             ];
