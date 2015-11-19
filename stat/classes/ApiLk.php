@@ -1047,6 +1047,13 @@ class ApiLk
 
     }
 
+    /**
+     * @param $client_id - ID клиента в Стат
+     * @param $region_id - ID региона
+     * @param $tarif_id - ID тарифа
+     * @return array
+     * @throws Exception
+     */
     public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
     {
         global $db;
@@ -1077,7 +1084,7 @@ class ApiLk
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $account->client,
-                            "actual_from"   => "4000-01-01",
+                            "actual_from"   => date('Y-m-d'),
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
@@ -1097,10 +1104,12 @@ class ApiLk
                             )
                         );
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
-            return array('status'=>'ok','message'=>'order_ok');
-        else
-            return array('status'=>'error','message'=>'order_error');
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0) {
+            return array('status' => 'ok', 'message' => 'order_ok');
+        }
+        else {
+            return array('status' => 'error', 'message' => 'order_error');
+        }
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
