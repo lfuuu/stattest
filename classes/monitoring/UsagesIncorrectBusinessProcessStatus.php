@@ -44,8 +44,13 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
     public function getDescription()
     {
         return
-            'Лицевые счета с активными услугами и бизнес-процесс статусом не ' .
-            '"Включенные", "Подключаемые", "Заказ услуг"';
+            'Лицевые счета с активными услугами и бизнес-процесс статусом не соответствующем:' .
+            Html::tag('br') .
+            Html::tag('span', 'Телеком-клиент: "Включенные", "Подключаемые", "Заказ услуг"', ['style' => 'margin-left: 20px;']) .
+            Html::tag('br') .
+            Html::tag('span', 'Партнер: "Действующий"', ['style' => 'margin-left: 20px;']) .
+            Html::tag('br') .
+            Html::tag('span', 'Welltime: "Техобслуживание", "Без Техобслуживания"', ['style' => 'margin-left: 20px;']);
     }
 
     /**
@@ -55,7 +60,9 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
     {
         return [
             MonitorGridColumns::getStatusColumn(),
-            MonitorGridColumns::getIdColumn(),
+            MonitorGridColumns::getIdColumn(
+                $combineChainsValue = ['clientAccount']
+            ),
             MonitorGridColumns::getCompanyColumn(
                 $combineChainsValue = ['clientAccount', 'contract', 'contragent'],
                 $combineClientId = ['clientAccount']
@@ -101,7 +108,10 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
                         [
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
-                            BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
+                            BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES,
+                            BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING,
+                            BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE,
+                            BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE_FREE,
                         ]
                     ])
                     ->andFilterWhere(['cc.manager' => $params['manager']])
