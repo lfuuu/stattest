@@ -14,6 +14,6 @@ class Language extends ActiveRecord
 
     public static function getList()
     {
-        return ArrayHelper::map(self::find()->all(), 'code', 'name');
+        return ArrayHelper::map(self::find()->orderBy('code desc')->all(), 'code', 'name');
     }
 }
