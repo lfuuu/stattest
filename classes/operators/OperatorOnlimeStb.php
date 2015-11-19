@@ -64,6 +64,21 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
         21 => 'Отказ',
     ];
 
+    public static $reportFields = [
+        'Оператор'                      => 'fio_oper',
+        'Партнер'                       => 'partner',
+        'Номер счета Маркомнет Сервис'  => 'bill_no',
+        'Дата создания заказа'          => 'date_creation',
+        'Кол-во'                        => 'products',
+        'ФИО клиента'                   => 'client',
+        'Серийный номер'                => 'serials',
+        'Дата доставки желаемая'        => 'date_deliv',
+        'Дата доставки фактическая'     => 'date_delivered',
+        'Этап'                          => 'stages_text',
+    ];
+
+    public static $reportTemplate = 'onlime_operator';
+
     public $isRollback = false;
 
     public function getRequestForm()

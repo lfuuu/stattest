@@ -33,13 +33,7 @@ class ReportsController extends BaseController
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
 
         if ($asFile == 1) {
-            $reportName = 'OnLime__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
-
-            Yii::$app->response->sendContentAsFile(
-                $operator->GenerateExcel($report),
-                $reportName . '.xls'
-            );
-            Yii::$app->end();
+            $operator->generateExcel($report);
         }
 
         return $this->render('onlime-stb/report.php', [
@@ -76,13 +70,7 @@ class ReportsController extends BaseController
         $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
 
         if ($asFile == 1) {
-            $reportName = 'OnLime_Devices__' . $filter['mode'] . '__' . $dateFrom . '__' . $dateTo;
-
-            Yii::$app->response->sendContentAsFile(
-                $operator->GenerateExcel($report),
-                $reportName . '.xls'
-            );
-            Yii::$app->end();
+            $operator->generateExcel($report);
         }
 
         return $this->render('onlime/report.php', [
