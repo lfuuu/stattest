@@ -32,7 +32,7 @@ class ImportantEvents extends ActiveRecord
 
     public static function tableName()
     {
-        return 'notification_log';
+        return 'important_events';
     }
 
     /**
@@ -69,6 +69,8 @@ class ImportantEvents extends ActiveRecord
      */
     public function search($params)
     {
+        global $fixclient_data;
+
         $query = self::find()->orderBy('date DESC');
 
         $dataProvider = new ActiveDataProvider([
@@ -77,6 +79,13 @@ class ImportantEvents extends ActiveRecord
         $dataProvider->sort = false;
 
         if (!($this->load($params) && $this->validate())) {
+            if ($fixclient_data) {
+                $this->client_id = $fixclient_data['id'];
+                $query->andFilterWhere([
+                    'client_id' => $this->client_id,
+                ]);
+            }
+
             return $dataProvider;
         }
 

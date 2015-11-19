@@ -27,13 +27,13 @@ echo GridView::widget([
                 'name' => $filterModel->formName() . '[date]',
                 'presetDropdown' => false,
                 'hideInput' => true,
-                'value' => $filterModel->date ?: (new DateTime('now'))->format('Y-m-d') . ' - ' . (new DateTime('now'))->format('Y-m-d'),
+                'value' => $filterModel->date ?: (new DateTime('first day of this month'))->format('Y-m-d') . ' - ' . (new DateTime('last day of this month'))->format('Y-m-d'),
                 'pluginOptions' => [
                     'format' => 'YYYY-MM-DD',
                     'ranges' => [
-                        'Сегодня' => ['moment().startOf("day")', 'moment()'],
                         'Текущий месяц' => ['moment().startOf("month")', 'moment().endOf("month")'],
                         'Прошлый месяц' => ['moment().subtract(1,"month").startOf("month")', 'moment().subtract(1,"month").endOf("month")'],
+                        'Сегодня' => ['moment().startOf("day")', 'moment()'],
                     ],
                 ],
                 'containerOptions' => [
