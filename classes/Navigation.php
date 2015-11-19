@@ -91,7 +91,13 @@ class Navigation
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
         $this->addBlockForStatModule('incomegoods');
-        $this->addBlockForStatModule('logs');
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Логи')
+                ->addStatModuleItems('logs')
+                ->addItem('Значимые события', ['/important-events'])
+        );
 
         $settingsBlock = NavigationBlock::create();
         if ($settingsBlock) {
