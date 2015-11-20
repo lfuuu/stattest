@@ -26,7 +26,7 @@ class TemplateContent extends ActiveRecord
     {
         return [
             [['template_id'], 'required'],
-            [['lang_code', 'content'], 'string'],
+            [['lang_code', 'title', 'content'], 'string'],
             ['lang_code', 'default', 'value' => Language::DEFAULT_LANGUAGE],
             ['lang_code', 'in', 'range' => array_keys(LanguageModel::getList())],
             ['type', 'in', 'range' => array_keys(self::$types)],
@@ -38,6 +38,7 @@ class TemplateContent extends ActiveRecord
         return [
             'type' => 'Тип',
             'lang_code' => 'Язык',
+            'title' => 'Тема',
             'content' => 'Содержание',
         ];
     }

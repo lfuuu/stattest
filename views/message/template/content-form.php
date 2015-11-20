@@ -45,6 +45,17 @@ use app\classes\Html;
         ]
     ]);
 
+    if ($type_descr['format'] != 'plain') {
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 1,
+            'attributes' => [
+                'title' => ['type' => Form::INPUT_TEXT,],
+            ]
+        ]);
+    }
+
     echo Form::widget([
         'model' => $model,
         'form' => $form,
