@@ -139,7 +139,7 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-        $query->join('LEFT JOIN', 'client_document doc', 'doc.id = (select id from client_document where contract_id = cr.id and is_active = 1 and type ="contract" ORDER BY ts limit 1)');
+        $query->join('LEFT JOIN', 'client_document doc', 'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
         $query->groupBy('c.id');
     }
 
