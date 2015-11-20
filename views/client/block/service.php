@@ -1,7 +1,7 @@
 <?php
 
 use app\models\Usage;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 use yii\helpers\Html;
 use app\models\TariffVoip;
 use app\models\Number;
@@ -42,7 +42,7 @@ $ipstat = function ($data) {
     return
         '<table cellspacing="0" cellpadding="0" border="0">' .
             '<tr>' .
-                '<td valign=middle>' . TechCpe::dao()->getCpeIpStat($R) . '</td>' .
+                '<td valign=middle>' . UsageTechCpe::dao()->getCpeIpStat($R) . '</td>' .
                 '<td valign=middle' . $c . '>' .
                     '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
                     (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') .

@@ -427,7 +427,7 @@ class Db_map_nispd extends Db_map {
 		$keys=array(
 				'usage_ip_ports'		=> 'id',
 				'routes'				=> 'id',
-				'tech_cpe'			=> 'id',
+				'usage_tech_cpe'		=> 'id',
 				'tech_routers'			=> 'router',
 				'clients_vip'			=> 'id',
 				'clients'				=> 'client',
@@ -450,7 +450,7 @@ class Db_map_nispd extends Db_map {
 				array('usage_ip_ports.node',			'tech_routers.router'),
 				array('routes.client',					'clients.client'),
 				array('usage_ip_ports.client',			'clients.client',		'if (!$row["address"]) $this->rset("address",$r["address_post_real"]);'),
-				array('tech_cpe.client',			'clients.client'),
+				array('usage_tech_cpe.client',			'clients.client'),
 
 				array('usage_ip_ports.tarif_id',		'tarifs_internet.id',	'
 							if (access("services_internet","tarif")){
@@ -475,7 +475,7 @@ class Db_map_nispd extends Db_map {
 										'),
 				array('usage_ip_ports.tarif_old_id',	'tarifs_internet.id'),
 				
-				array('usage_voip.tech_voip_device_id',	'tech_cpe.id',		'',	'$wh_add="(client=\"".$data["client"]["value"]."\")";'),
+				array('usage_voip.tech_voip_device_id',	'usage_tech_cpe.id',		'',	'$wh_add="(client=\"".$data["client"]["value"]."\")";'),
 
 				array('usage_ip_ppp.port_id',			'usage_ip_ports.id'),
 			);
@@ -496,7 +496,7 @@ class Db_map_nispd extends Db_map {
 				'usage_ip_ports.port_type'			=> array('no',			'if (!$old["port_type"]) $ignore["port_type"]=true;'),
 
 					
-				'tech_cpe.ip'					=> array('ip'),
+				'usage_tech_cpe.ip'					=> array('ip'),
 				'tech_routers.net'					=> array('ip_net_z'),
 					
 				'usage_ip_ppp.ip'					=> array('ip'),
@@ -507,7 +507,7 @@ class Db_map_nispd extends Db_map {
 				'usage_ip_ports'		=> array('client','address','type','node'),
 				'routes'				=> array('node','net','client'),
 				'clients'				=> array('client','company','address_jur'),
-				'tech_cpe'			=> array('client','ip','manufacturer','model'),
+				'usage_tech_cpe'		=> array('client','ip','manufacturer','model'),
 				'tech_routers'			=> array('router','net'),
 				'tarifs_internet'		=> array('mb_month','pay_month','pay_mb','name'),
 				'domains'				=> array('domain'),
@@ -560,7 +560,7 @@ class Db_map_nispd extends Db_map {
 				'emails'				=> array ('client','id','domain'),
 				'tech_routers'			=> array ('router'),
 				'clients_vip'			=> array ('id','last_time5'),
-				'tech_cpe'			=> array ('id'),
+				'usage_tech_cpe'		=> array ('id'),
 				'tech_routers'			=> array ('id'),
 				'usage_ip_ppp'			=> array ('client','port_id','user_editable','enabled','mtu','send_nispd_vsa','enabled_local_ports','enabled_remote_ports','limit_cps_in','limit_cps_out','day_quota_in','day_quota_in_used','day_quota_out','day_quota_out_used','month_quota_in','month_quota_in_used','month_quota_out','month_quota_out_used'),
 				);
@@ -597,9 +597,9 @@ class Db_map_nispd extends Db_map {
 				'*.ClientIPAddress'		=> 'IP-адрес',
 				'*.enabled'				=> 'включено',
 				'*.status'				=> 'состояние',
-				'tech_cpe.numbers'	=> 'телефонные номера',
-				'tech_cpe.logins'	=> 'логины',
-				'tech_cpe.owner'	=> 'владелец',
+				'usage_tech_cpe.numbers'	=> 'телефонные номера',
+				'usage_tech_cpe.logins'	=> 'логины',
+				'usage_tech_cpe.owner'	=> 'владелец',
 					
 				'emails.local_part'		=> 'локальная часть e-mail-адреса',
 				'emails.box_size'		=> 'занято',

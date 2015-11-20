@@ -3,7 +3,6 @@ namespace app\controllers;
 
 use app\classes\grid\GridFactory;
 use app\classes\Assert;
-use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -11,7 +10,7 @@ use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Number;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 use app\models\Trouble;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
@@ -80,7 +79,7 @@ class ClientController extends BaseController
                 ->all();
 
         $services['device'] =
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->where(['client' => $account->client])
                 ->hideNotLinked()
                 ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])

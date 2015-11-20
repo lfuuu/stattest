@@ -355,7 +355,7 @@ abstract class AccountGridFolder extends Model
                         \Yii::$app->request->get('service'),
                         [
                             'emails' => 'Email',
-                            'tech_cpe' => 'Texh CPE',
+                            'usage_tech_cpe' => 'Texh CPE',
                             'usage_extra' => 'Extra',
                             'usage_ip_ports' => 'IP Ports',
                             'usage_sms' => 'SMS',

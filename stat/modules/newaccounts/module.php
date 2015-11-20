@@ -2498,14 +2498,14 @@ class m_newaccounts extends IModule
 
             if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
                 $id = null;
-                if ($li['service']=='tech_cpe') {
+                if ($li['service']=='usage_tech_cpe') {
                     $id = $li['id_service'];
                 } elseif ($li['service']=='usage_ip_ports') {
-                    $account = $db->GetRow('select id_service from tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
+                    $account = $db->GetRow('select id_service from usage_tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
                     if ($account) $id = $account['id_service'];
                 }
                 if ($id) {
-                    $account=$db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
+                    $account=$db->GetRow('select usage_tech_cpe.*,model,vendor,type from usage_tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model WHERE usage_tech_cpe.id='.$id);
                     $account['amount'] = floatval($li['amount']);
                     $cpe[]=$account;
                 } else {

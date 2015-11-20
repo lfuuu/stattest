@@ -536,21 +536,21 @@ function get_cpe_history($service,$param) {
     global $db;
     return $db->AllRecords('
         select
-            tech_cpe.*,
+            usage_tech_cpe.*,
             type,
             vendor,
             model,
             IF(actual_from<=NOW() and actual_to>=NOW(),1,0) as actual
         from
-            tech_cpe
+            usage_tech_cpe
         INNER JOIN
             tech_cpe_models
         ON
-            tech_cpe_models.id = tech_cpe.id_model
+            tech_cpe_models.id = usage_tech_cpe.id_model
         where
-            tech_cpe.service = "'.$service.'"
+            usage_tech_cpe.service = "'.$service.'"
         and
-            tech_cpe.id_service = "'.$param.'"
+            usage_tech_cpe.id_service = "'.$param.'"
         order by
             id','');
 }
