@@ -1,16 +1,18 @@
 <?php
 namespace app\models;
 
+
 use DateTime;
-use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
-use app\dao\services\IpPortsServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\helpers\usages\UsageIpPortsHelper;
+use app\dao\services\IpPortsServiceDao;
+use app\queries\UsageQuery;
 use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
+use app\helpers\usages\UsageIpPortsHelper;
+use app\helpers\usages\LogTariffTrait;
 
 /**
  * @property int $id
@@ -18,6 +20,9 @@ use app\models\usages\UsageLogTariffInterface;
  */
 class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
+
+    use LogTariffTrait;
+
     public $actual5d;
 
     public static function tableName()
@@ -60,23 +65,6 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         }
 
         return TariffInternet::findOne($logTariff->id_tarif);
-    }
-
-    /**
-     * @param string $date
-     * @return null|LogTarif
-     */
-    public function getLogTariff($date = 'now')
-    {
-        $date = (new DateTime($date))->format('Y-m-d H:i:s');
-
-        return LogTarif::find()
-            ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->id])
-            ->andWhere('date_activation <= :date', [':date' => $date])
-            ->andWhere('id_tarif != 0')
-            ->orderBy('date_activation desc, id desc')
-            ->limit(1)
-            ->one();
     }
 
     public function getServiceType()

@@ -2,15 +2,16 @@
 namespace app\models;
 
 use DateTime;
+use yii\db\ActiveRecord;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\transfer\VirtpbxServiceTransfer;
+use app\classes\monitoring\UsagesLostTariffs;
 use app\dao\services\VirtpbxServiceDao;
 use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
-use app\classes\monitoring\UsagesLostTariffs;
-use app\helpers\usages\UsageVirtpbxHelper;
 use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
+use app\helpers\usages\UsageVirtpbxHelper;
+use app\helpers\usages\LogTariffTrait;
 
 /**
  * @property int $id
@@ -20,6 +21,9 @@ use app\models\usages\UsageLogTariffInterface;
  */
 class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
+
+    use LogTariffTrait;
+
     public static function tableName()
     {
         return 'usage_virtpbx';
@@ -52,24 +56,6 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
         }
 
         return TariffVirtpbx::findOne($logTariff->id_tarif);
-    }
-
-    /**
-     * @param string $date
-     * @return null|LogTarif
-     */
-    public function getLogTariff($date = 'now')
-    {
-        $date = (new DateTime($date))->format('Y-m-d H:i:s');
-
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_virtpbx', 'id_service' => $this->id])
-                ->andWhere('date_activation <= :date', [':date' => $date])
-                ->andWhere('id_tarif != 0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
     }
 
     public function getServiceType()
