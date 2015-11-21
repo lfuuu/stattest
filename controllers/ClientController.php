@@ -16,6 +16,7 @@ use app\models\Trouble;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
+use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
@@ -121,6 +122,13 @@ class ClientController extends BaseController
                     ->where(['status' => Number::STATUS_RESERVED])
                     ->andWhere(['client_id' => $account->id])
                     ->all();
+
+        $services['trunk'] =
+            UsageTrunk::find()
+                ->where(['client_account_id' => $account->id])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
         return
             $this->render(
                 'view',
