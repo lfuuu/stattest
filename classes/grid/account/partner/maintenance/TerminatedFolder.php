@@ -9,6 +9,8 @@ use yii\db\Query;
 
 class TerminatedFolder extends AccountGridFolder
 {
+    use PartherMaintanceTrait;
+
     public function getName()
     {
         return 'Расторгнут';
@@ -36,22 +38,12 @@ class TerminatedFolder extends AccountGridFolder
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_TERMINATED]);
+
+        $this->extendQuery($query);
     }
 
     protected function getDefaultColumns()
     {
-        $columns = parent::getDefaultColumns();
-        $columns['service']['filter'] = function () {
-            return \yii\helpers\Html::dropDownList(
-                'service',
-                \Yii::$app->request->get('service'),
-                [
-                    'usage_virtpbx' => 'ВАТС',
-                    'usage_voip' => 'Телефония',
-                ],
-                ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
-            );
-        };
-        return $columns;
+        return $this->appendServiceColumn(parent::getDefaultColumns());
     }
 }
