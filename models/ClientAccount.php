@@ -85,6 +85,10 @@ class ClientAccount extends HistoryActiveRecord
     private $_lastComment = false;
     /*For old stat*/
 
+    public static function tableName()
+    {
+        return 'clients';
+    }
 
     public function rules()
     {
@@ -95,6 +99,82 @@ class ClientAccount extends HistoryActiveRecord
         $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
 
         return $rules;
+    }
+
+    public function behaviors()
+    {
+        return [
+            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
+            'HistoryChanges' =>         \app\classes\behaviors\HistoryChanges::className(),
+            'SetOldStatus' =>           \app\classes\behaviors\SetOldStatus::className(),
+            'ActaulizeClientVoip' =>    \app\classes\behaviors\ActaulizeClientVoip::className(),
+            'ClientAccountComments' =>  \app\classes\behaviors\ClientAccountComments::className(),
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'comment' => 'Комментарий',
+            'usd_rate_percent' => 'USD уровень в процентах',
+            'address_post' => 'Почтовый адрес',
+            'address_post_real' => 'Действительный почтовый адрес',
+            'bik' => 'БИК',
+            'bank_properties' => 'Банковские реквизиты',
+            'currency' => 'Валюта',
+            'stamp' => 'Печатать штамп',
+            'nal' => 'Предполагаемый метод платежа',
+            'sale_channel' => 'Канал продаж',
+            'user_impersonate' => 'Наследовать права пользователя',
+            'address_connect' => 'Предполагаемый адрес подключения',
+            'phone_connect' => 'Предполагаемый телефон подключения',
+            'id_all4net' => 'ID в All4Net',
+            'dealer_comment' => 'Комментарий для дилера',
+            'form_type' => 'Формирование с/ф',
+            'credit' => 'Разрешить кредит',
+            'credit_size' => 'Размер кредита',
+            'corr_acc' => 'К/С',
+            'pay_acc' => 'Р/С',
+            'bank_name' => 'Название банка',
+            'bank_city' => 'Город банка',
+            'price_type' => 'Тип цены для интернет-магазина',
+            'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
+            'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
+            'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
+            'balance' => 'Баланс',
+            'voip_is_day_calc' => 'Включить пересчет дневного лимита',
+            'region' => 'Регион',
+            'mail_print' => 'Массовая печать конвертов и закрывающих документов',
+            'mail_who' => '"Кому" письмо',
+            'head_company' => 'Головная компания',
+            'head_company_address_jur' => 'Юр. адрес головной компании',
+            'bill_rename1' => 'Номенклатура',
+            'is_agent' => 'Агент',
+            'is_with_consignee' => 'Использовать грузополучателя',
+            'consignee' => 'Грузополучатель',
+            'is_upd_without_sign' => 'Печать УПД без подписей',
+            'is_blocked' => 'Блокировка',
+            'timezone_name' => 'Часовой пояс',
+            'manager' => 'Менеджер',
+            'account_manager' => 'Ак. менеджер',
+            'custom_properties' => 'Ввести данные вручную',
+        ];
+    }
+
+    public static function dao()
+    {
+        return ClientAccountDao::me();
+    }
+
+    public static function find()
+    {
+        return new ClientAccountQuery(get_called_class());
+    }
+
+
+    public function getSuperClient()
+    {
+        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
     public function getType()
@@ -214,85 +294,6 @@ class ClientAccount extends HistoryActiveRecord
     }
 
 /**************/
-    public static function tableName()
-    {
-        return 'clients';
-    }
-
-    public static function dao()
-    {
-        return ClientAccountDao::me();
-    }
-
-    public static function find()
-    {
-        return new ClientAccountQuery(get_called_class());
-    }
-
-    public function behaviors()
-    {
-        return [
-            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryChanges' =>         \app\classes\behaviors\HistoryChanges::className(),
-            'SetOldStatus' =>           \app\classes\behaviors\SetOldStatus::className(),
-            'ActaulizeClientVoip' =>    \app\classes\behaviors\ActaulizeClientVoip::className(),
-            'ClientAccountComments' =>  \app\classes\behaviors\ClientAccountComments::className(),
-        ];
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'comment' => 'Комментарий',
-            'usd_rate_percent' => 'USD уровень в процентах',
-            'address_post' => 'Почтовый адрес',
-            'address_post_real' => 'Действительный почтовый адрес',
-            'bik' => 'БИК',
-            'bank_properties' => 'Банковские реквизиты',
-            'currency' => 'Валюта',
-            'stamp' => 'Печатать штамп',
-            'nal' => 'Предполагаемый метод платежа',
-            'sale_channel' => 'Канал продаж',
-            'user_impersonate' => 'Наследовать права пользователя',
-            'address_connect' => 'Предполагаемый адрес подключения',
-            'phone_connect' => 'Предполагаемый телефон подключения',
-            'id_all4net' => 'ID в All4Net',
-            'dealer_comment' => 'Комментарий для дилера',
-            'form_type' => 'Формирование с/ф',
-            'credit' => 'Разрешить кредит',
-            'credit_size' => 'Размер кредита',
-            'corr_acc' => 'К/С',
-            'pay_acc' => 'Р/С',
-            'bank_name' => 'Название банка',
-            'bank_city' => 'Город банка',
-            'price_type' => 'Тип цены для интернет-магазина',
-            'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
-            'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
-            'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
-            'balance' => 'Баланс',
-            'voip_is_day_calc' => 'Включить пересчет дневного лимита',
-            'region' => 'Регион',
-            'mail_print' => 'Массовая печать конвертов и закрывающих документов',
-            'mail_who' => '"Кому" письмо',
-            'head_company' => 'Головная компания',
-            'head_company_address_jur' => 'Юр. адрес головной компании',
-            'bill_rename1' => 'Номенклатура',
-            'is_agent' => 'Агент',
-            'is_with_consignee' => 'Использовать грузополучателя',
-            'consignee' => 'Грузополучатель',
-            'is_upd_without_sign' => 'Печать УПД без подписей',
-            'is_blocked' => 'Блокировка',
-            'timezone_name' => 'Часовой пояс',
-            'manager' => 'Менеджер',
-            'account_manager' => 'Ак. менеджер',
-            'custom_properties' => 'Ввести данные вручную',
-        ];
-    }
-
-    public function getSuperClient()
-    {
-        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
-    }
 
 
     /**
