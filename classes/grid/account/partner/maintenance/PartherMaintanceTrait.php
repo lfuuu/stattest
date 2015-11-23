@@ -27,7 +27,7 @@ trait PartherMaintanceTrait
                     WHERE
                         cg.`partner_contract_id`
                    GROUP BY cg.`partner_contract_id`
-                   ' . ($this->service ? 'HAVING ' . $this->service . ' > 0' : '') . '
+                   ' . ($this->partner_clients_service ? 'HAVING ' . $this->partner_clients_service . ' > 0' : '') . '
                 )
             '),
             'c.`id` = expression.`partner_contract_id`'
@@ -41,10 +41,10 @@ trait PartherMaintanceTrait
      */
     public function appendServiceColumn(array $columns)
     {
-        $columns['service']['filter'] = function () {
+        $columns['partner_clients_service']['filter'] = function () {
             return \yii\helpers\Html::dropDownList(
-                'service',
-                \Yii::$app->request->get('service'),
+                'partner_clients_service',
+                \Yii::$app->request->get('partner_clients_service'),
                 [
                     'usage_virtpbx' => 'ВАТС',
                     'usage_voip' => 'Телефония',

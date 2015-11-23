@@ -27,7 +27,7 @@ class ActingFolder extends AccountGridFolder
             'account_manager',
             'region',
             'contract_type',
-            'service'
+            'partner_clients_service'
         ];
     }
 

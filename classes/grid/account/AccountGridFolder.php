@@ -27,6 +27,7 @@ abstract class AccountGridFolder extends Model
     public $account_manager;
     public $bill_date;
     public $service;
+    public $partner_clients_service;
     public $regionId;
     public $sale_channel;
     public $financial_type;
@@ -50,7 +51,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
+                'service', 'partner_clients_service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
     }
 
@@ -72,6 +73,7 @@ abstract class AccountGridFolder extends Model
                 'status' => '#',
                 'lastComment' => 'Комментарий',
                 'service' => 'Услуга',
+                'partner_clients_service' => 'Услуга',
                 'bill_date' => 'Дата платежа',
                 'abon' => 'Абон.(пред.)',
                 'over' => 'Прев.(пред.)',
@@ -348,6 +350,30 @@ abstract class AccountGridFolder extends Model
                 }
             ],
             'service' => [
+                'attribute' => 'service',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return $data['service'];
+                },
+                'filter' => function () {
+                    return \yii\helpers\Html::dropDownList(
+                        'service',
+                        \Yii::$app->request->get('service'),
+                        [
+                            'emails' => 'Email',
+                            'tech_cpe' => 'Tech CPE',
+                            'usage_extra' => 'Extra',
+                            'usage_ip_ports' => 'IP Ports',
+                            'usage_sms' => 'SMS',
+                            'usage_virtpbx' => 'ВАТС',
+                            'usage_voip' => 'Телефония',
+                            'usage_welltime' => 'Welltime',
+                        ],
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
+                    );
+                },
+            ],
+            'partner_clients_service' => [
                 'attribute' => 'service',
                 'format' => 'raw',
                 'value' => function ($data) {
