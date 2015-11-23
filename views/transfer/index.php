@@ -95,13 +95,13 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
 
                         <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
                             <?php foreach ($possibleServices['items'] as $serviceType => $services): ?>
-                                <b><?= $services[0]::getTransferHelper()->getTypeTitle(); ?></b>
+                                <b><?= $services[0]->helper->title; ?></b>
                                 <div class="service-usages">
 
                                     <?php
                                     /** @var \app\models\Usage[] $services */
                                     foreach ($services as $service):
-                                        list($fulltext, $description, $checkboxOptions) = (array) $service::getTransferHelper($service)->getTypeDescription();
+                                        list($fulltext, $description, $checkboxOptions) = (array) $service->helper->description;
 
                                         if (mb_strlen($fulltext, 'UTF-8') > 30):
                                             $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
@@ -128,7 +128,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                                             <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
-                                    <?= $services[0]::getTransferHelper()->getTypeHelpBlock(); ?>
+                                    <?= $services[0]->helper->help; ?>
                                     <br />
 
                                 </div>
@@ -302,7 +302,7 @@ jQuery(document).ready(function() {
 
     /** THIS IS DOG-NAIL **/
     $('input[name*="UsageVirtpbx"]')
-        .on('click', function() {
+        .on('change', function() {
             var descr = $(this).parent('.service-usage').find('.usage-description'),
                 numbers = descr.text().replace(/[^0-9,]/g, '').split(',');
             for (var i=0,s=numbers.length; i<s; i++) {
@@ -310,6 +310,19 @@ jQuery(document).ready(function() {
                     .next('abbr[title*="' + numbers[i] + '"]')
                     .prev('input').prop('checked', $(this).is(':checked'));
             }
+        });
+
+    $('input[name*="UsageVoip"]')
+        .on('change', function() {
+            var $linkedWith = $('a[data-linked="' + $(this).val() + '"]');
+            if ($linkedWith.length) {
+                $linkedWith.parents('div.service-usage').find('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+            }
+        });
+    $('a[data-linked]')
+        .on('click', function() {
+            $('input[value="' + $(this).data('linked') + '"]').prop('checked', true).trigger('change');
+            return false;
         });
     /** THIS IS DOG-NAIL **/
 

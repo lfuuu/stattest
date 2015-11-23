@@ -1747,7 +1747,7 @@ class DbFormUsageIPPPP extends DbForm{
 
 class DbFormTechCPE extends DbForm{
     public function __construct() {
-        DbForm::__construct('tech_cpe');
+        DbForm::__construct('usage_tech_cpe');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
         $this->fields['actual_to']=array('default'=>'01-01-4000');
 
@@ -1793,7 +1793,7 @@ class DbFormTechCPE extends DbForm{
                 select
                     *
                 from
-                    tech_cpe
+                    usage_tech_cpe
                 where
                     actual_from <= NOW()
                 and
@@ -1951,7 +1951,7 @@ class DbFormFactory {
             return new DbFormUsageIPPPP();
 //        }elseif ($table=='usage_voip') {
 //            return new DbFormUsageVoip();
-        }elseif ($table=='tech_cpe') {
+        }elseif ($table=='usage_tech_cpe') {
             return new DbFormTechCPE();
         }elseif ($table=='tech_cpe_models') {
             return new DbFormTechCPEModels();
@@ -2042,28 +2042,28 @@ $GLOBALS['translate_arr']=array(
     'clients.bank_name'                    => 'Банк',
     'clients.bank_city'                    => 'Город Банка',
 
-    'tech_cpe.type'            => 'тип устройства',
-    'tech_cpe.service'        => 'связанная услуга',
-    'tech_cpe.id_service'    => 'связанное подключение',
-    'tech_cpe.mac'            => 'MAC-адрес',
-    'tech_cpe.ip'            => 'IP-адрес',
-    'tech_cpe.ip_nat'        => 'IP-адрес NAT',
-    'tech_cpe.ip_cidr'        => 'IP-адрес CIDR',
-    'tech_cpe.ip_gw'        => 'IP-адрес GW',
-    'tech_cpe.admin_login'    => 'адмниский логин',
-    'tech_cpe.admin_pass'    => 'адмниский пароль',
-    'tech_cpe.numbers'        => array('номера','и, вроде бы, комментарий'),
-    'tech_cpe.logins'        => 'логины',
-    'tech_cpe.owner'        => 'владелец',
-    'tech_cpe.tech_support'    => 'тех. поддержка',
-    'tech_cpe.deposit_sumUSD'    => 'сумма залога в USD',
-    'tech_cpe.deposit_sumRUB'    => 'сумма залога в RUB',
+    'usage_tech_cpe.type'            => 'тип устройства',
+    'usage_tech_cpe.service'        => 'связанная услуга',
+    'usage_tech_cpe.id_service'    => 'связанное подключение',
+    'usage_tech_cpe.mac'            => 'MAC-адрес',
+    'usage_tech_cpe.ip'            => 'IP-адрес',
+    'usage_tech_cpe.ip_nat'        => 'IP-адрес NAT',
+    'usage_tech_cpe.ip_cidr'        => 'IP-адрес CIDR',
+    'usage_tech_cpe.ip_gw'        => 'IP-адрес GW',
+    'usage_tech_cpe.admin_login'    => 'адмниский логин',
+    'usage_tech_cpe.admin_pass'    => 'адмниский пароль',
+    'usage_tech_cpe.numbers'        => array('номера','и, вроде бы, комментарий'),
+    'usage_tech_cpe.logins'        => 'логины',
+    'usage_tech_cpe.owner'        => 'владелец',
+    'usage_tech_cpe.tech_support'    => 'тех. поддержка',
+    'usage_tech_cpe.deposit_sumUSD'    => 'сумма залога в USD',
+    'usage_tech_cpe.deposit_sumRUB'    => 'сумма залога в RUB',
     'tech_cpe_models.type'    => 'тип устройства',
     'tech_cpe_models.default_deposit_sumUSD'    => 'сумма залога в USD по умолчанию',
     'tech_cpe_models.default_deposit_sumRUB'    => 'сумма залога в RUB по умолчанию',
     '*.vendor'                                => 'вендор',
     'tech_cpe_models.part_no'                => 'парт. номер',
-    'tech_cpe.id_model'                        => 'модель устройства',
+    'usage_tech_cpe.id_model'                        => 'модель устройства',
     '*.comment'                    =>    'комментарий',        
     '*.t_comment'                    =>    'комментарий',        
     

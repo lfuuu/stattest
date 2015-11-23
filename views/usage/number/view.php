@@ -79,7 +79,7 @@ use app\helpers\DateTimeZoneHelper;
             if ($number->status == Number::STATUS_HOLD) {
                 echo Html::button('Убрать из отстойника', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopHold')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_NOT_SELL) {
+            if ($number->status == Number::STATUS_NOTSELL) {
                 echo Html::button('Номер продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
 

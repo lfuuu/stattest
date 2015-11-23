@@ -10,7 +10,7 @@ use yii\base\InvalidValueException;
  * Класс переноса устройств
  * @package app\classes\transfer
  */
-class TechCpeTransfer extends ServiceTransfer
+class UsageTechCpeTransfer extends ServiceTransfer
 {
 
     /**
@@ -75,16 +75,6 @@ class TechCpeTransfer extends ServiceTransfer
             $dbTransaction->rollBack();
             throw $e;
         }
-    }
-
-    public function getTypeTitle()
-    {
-        return 'Клиентские устройства';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->service->model->vendor . ' ' . $this->service->model->model;
     }
 
 }

@@ -63,13 +63,13 @@ class VoipTrunkBiller extends Biller
                         CAST(-SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_minus
                     FROM calls_aggr.calls_aggr
                     WHERE
-                        trunk_service_id = :trunk_id
+                        trunk_service_id = :trunk_service_id
                         AND aggr_time >= :from
                         AND aggr_time <= :to
                         AND ABS(cost) > 0.00001
                     GROUP BY trunk_service_id
                 ', [
-                    ':trunk_id' => $this->usage->trunk_id,
+                    ':trunk_service_id' => $this->usage->id,
                     ':from' => $from->format('Y-m-d H:i:s'),
                     ':to' => $to->format('Y-m-d H:i:s'),
                 ])->queryOne();

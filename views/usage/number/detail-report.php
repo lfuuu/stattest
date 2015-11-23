@@ -1,6 +1,6 @@
 <?php
 use app\classes\Html;
-use app\models\VoipNumber;
+use app\models\Number;
 
 echo Html::formLabel('Детальный отчет по номерам');
 ?>
@@ -70,20 +70,19 @@ echo Html::formLabel('Детальный отчет по номерам');
                 <td><?= Html::a($n['number'], '/usage/number/view?did=' . $n['number'], ['target'=>'_blank']) ?></td>
                 <td><?= $didGroupList[$n['did_group_id']] ?></td>
                 <td>
-                    <?php if ($n['status'] == 'instock'): ?>
-                        <span style="color: green; font-weight: bold"><?= VoipNumber::NUMBER_STATUS_INSTOCK; ?></span>
-                    <?php elseif ($n['status'] == 'reserved'): ?>
-                        <span style="color: #c40000; font-weight: bold"><?= VoipNumber::NUMBER_STATUS_RESERVED; ?></span>
+                    <?php if ($n['status'] == Number::STATUS_INSTOCK): ?>
+                        <span style="color: green; font-weight: bold"><?= Number::$statusList[$n['status']]; ?></span>
+                    <?php elseif ($n['status'] == Number::STATUS_RESERVED): ?>
+                        <span style="color: #c40000; font-weight: bold"><?= Number::$statusList[$n['status']]; ?></span>
                         <?= $n['reserve_from'] ? 'с ' . substr($n['reserve_from'], 0, 10) : '' ?>
                         <?= $n['reserve_till'] ? 'по ' . substr($n['reserve_till'], 0, 10) : ''?>
-                    <?php elseif ($n['status'] == 'active'): ?>
-                        <span style="color: gray;"><?= VoipNumber::NUMBER_STATUS_ACTIVE; ?></span>
-
-                    <?php elseif ($n['status'] == 'hold'): ?>
-                        <span style="color: blue;"><?= VoipNumber::NUMBER_STATUS_HOLD; ?></span>
+                    <?php elseif ($n['status'] == Number::STATUS_ACTIVE): ?>
+                        <span style="color: gray;"><?= Number::$statusList[$n['status']]; ?></span>
+                    <?php elseif ($n['status'] == Number::STATUS_HOLD): ?>
+                        <span style="color: blue;"><?= Number::$statusList[$n['status']]; ?></span>
                         <?= $n['hold_from'] ? 'с ' . substr($n['hold_from'], 0, 10) : '' ?>
-                    <?php elseif ($n['status'] == 'notsell'): ?>
-                        <span><?= VoipNumber::NUMBER_STATUS_NOTSELL; ?></span>
+                    <?php elseif ($n['status'] == Number::STATUS_NOTSELL): ?>
+                        <span><?= Number::$statusList[$n['status']]; ?></span>
                     <?php endif; ?>
                 </td>
                 <td><a href="/client/view?id=<?= $n['client_id'] ?>"><?= $n['client'] . ' ' . $n['company'] ?></a></td>

@@ -1,12 +1,14 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use yii\db\ActiveRecord;
 use app\classes\bill\VoipBiller;
 use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
-use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\usages\UsageVoipHelper;
 
 /**
  * @property int $id
@@ -90,7 +92,7 @@ class UsageVoip extends ActiveRecord implements Usage
 
     public function getVoipNumber()
     {
-        return $this->hasOne(VoipNumber::className(), ['number' => 'E164']);
+        return $this->hasOne(Number::className(), ['number' => 'E164']);
     }
 
     public function getDatacenter()
@@ -130,10 +132,22 @@ class UsageVoip extends ActiveRecord implements Usage
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
-    
+
+    /**
+     * @param $usage
+     * @return VoipServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new VoipServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVoipHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVoipHelper($this);
     }
 
     public function getAbonPerMonth()
@@ -144,6 +158,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getUsagePackages()
     {
         return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

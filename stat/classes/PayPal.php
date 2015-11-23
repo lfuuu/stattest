@@ -43,10 +43,18 @@ class PayPal {
        $this -> _credentials["USER"] = paypal_user;
        $this -> _credentials["PWD"] = paypal_password;
        $this -> _credentials["SIGNATURE"] = paypal_signature;
+   }
 
+   public function setHost($host)
+   {
+       $this->makeRequestParam($host);
+   }
+
+   private function makeRequestParam($host)
+   {
        $this -> _requestParams = array(
-           'RETURNURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/paypal?',
-           'CANCELURL' => Yii::$app->params['LK_PATH'].'app?#accounts/add_pay/failed',
+           'RETURNURL' => 'https://' . $host . '/lk/app?#accounts/add_pay/paypal?',
+           'CANCELURL' => 'https://' . $host . '/lk/app?#accounts/add_pay/failed',
        );
    }
 
@@ -59,14 +67,24 @@ class PayPal {
            ];
    }
 
-   public function getPaymentToken($accountId, $sum, $currency)
+   public function getPaymentToken($accountId, $sum, $currency, $lang)
    {
+       $descr = \Yii::t(
+               'biller', 'paypal_payment_description', 
+               [
+                   'account' => $accountId, 
+                   'sum' => $sum,
+                   'currency' => \Yii::t('biller', $currency, [], $lang)
+               ], $lang);
+
+
        $response = $this -> request('SetExpressCheckout', 
            $this -> _requestParams + 
-           $this -> _getOrderParams($sum, $currency)
+           $this -> _getOrderParams($sum, $currency) +
+           ['PAYMENTREQUEST_0_DESC' => $descr]
        );
 
-       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: ".print_r($response, true));
+       Yii::info("Paypal token request: account: ".$accountId.", sum: ".$sum." ".$currency.":: (".$lang.") ".print_r($response + $this->_requestParams, true));
 
        if (
            $response && 
@@ -78,8 +96,10 @@ class PayPal {
            $pay = new PaypalPayment();
            $pay->token = $response["TOKEN"];
            $pay->sum = $sum;
+           $pay->currency = $currency;
            $pay->client_id = $accountId;
            $pay->data1 = json_encode($response);
+           $pay->data3 = json_encode($this->_requestParams);
            $pay->save();
 
            return $response["TOKEN"];
@@ -102,6 +122,7 @@ class PayPal {
        $pay->data2 = json_encode($response);
        $pay->save();
 
+
        Yii::info("Paypal detail request: token: ".$token.", payerId: ".$payerId.":: ".print_r($response, true));
 
 
@@ -114,7 +135,7 @@ class PayPal {
        {
            $response = $this -> request('DoExpressCheckoutPayment',
                ["TOKEN" => $token, "PAYERID" => $payerId] + 
-               $this -> _getOrderParams($pay->sum)
+               $this -> _getOrderParams($pay->sum, $pay->currency)
            );
 
            $pay->data3 = json_encode($response);

@@ -337,7 +337,7 @@
 				LEFT JOIN 
 					clients c on c.client=u.client
 				LEFT JOIN 
-					sale_channels s on s.id=c.sale_channel
+					sale_channels_old s on s.id=c.sale_channel
 				LEFT JOIN 
 					log_tarif as LT ON u.id = LT.id_service
 				LEFT JOIN 
@@ -381,7 +381,7 @@
 				LEFT JOIN  
 					clients c on c.client=u.client
 				LEFT JOIN 
-					sale_channels s on s.id=c.sale_channel
+					sale_channels_old s on s.id=c.sale_channel
 				LEFT JOIN 
 					log_tarif as LT ON u.id = LT.id_service
 				LEFT JOIN 

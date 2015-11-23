@@ -1,5 +1,5 @@
 <?php
-use app\classes\StatModule;
+
 use app\models\ClientAccount;
 use app\dao\services\SmsServiceDao;
 use app\dao\services\WelltimeServiceDao;
@@ -10,7 +10,7 @@ use app\classes\Event;
 use app\classes\Assert;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
-use app\models\VoipNumber;
+use app\models\Number;
 use app\models\User;
 
 class m_services extends IModule{
@@ -747,14 +747,14 @@ class m_services extends IModule{
                 $r['cpe'] = get_cpe_history('usage_voip',$r['id']);
                 $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
 
-                $r['number_status'] = VoipNumber::$statuses[$usage->voipNumber->status];
+                $r['number_status'] = Number::$statusList[$usage->voipNumber->status];
             }
 
             $numbers =
-                VoipNumber::find()
-                    ->leftJoin('`usage_voip` uv', 'uv.`E164` = ' . VoipNumber::tableName() . '.`number`')
+                Number::find()
+                    ->leftJoin('`usage_voip` uv', 'uv.`E164` = ' . Number::tableName() . '.`number`')
                     ->where([
-                        VoipNumber::tableName() . '.`client_id`' => $this->fetched_client['id'],
+                        Number::tableName() . '.`client_id`' => $this->fetched_client['id'],
                         'uv.`E164`' => null,
                     ])
                     ->all();
@@ -1226,7 +1226,16 @@ class m_services extends IModule{
         }
         $design->assign('voip_connections',$R);
                 
-        $db->Query('select tech_cpe.*,usage_ip_ports.address from tech_cpe left join usage_ip_ports on usage_ip_ports.id=tech_cpe.id_service and tech_cpe.service="usage_ip_ports" where (tech_cpe.client="'.$clientNick.'") and (tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW())');
+        $db->Query('
+            SELECT utc.*, uip.address
+            FROM
+                `usage_tech_cpe` utc
+                    LEFT JOIN `usage_ip_ports` uip ON uip.`id` = utc.`id_service` AND utc.service = "usage_ip_ports"
+            WHERE
+                utc.client="' . $clientNick . '"
+                AND utc.actual_from <= NOW()
+                AND utc.actual_to > NOW()
+        ');
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
@@ -1288,7 +1297,7 @@ class m_services extends IModule{
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         $client=get_param_raw('client','');
-        $db->Query('select * from tech_cpe where (client="'.$client.'") 
+        $db->Query('select * from usage_tech_cpe where (client="'.$client.'")
         #and (actual_from<=NOW()) and (actual_to>NOW()) 
         and id='.$id.'');
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
@@ -2538,10 +2547,10 @@ class m_services extends IModule{
 //            $r['tarif']=get_tarif_current("usage_ip_ports",$r['id']);
 //            $r['tarif_next']=get_tarif_next("usage_ip_ports",$r['id']);
             $r['cpe']=get_cpe_history('usage_ip_ports',$r['id']);
-/*            $r['cpe']=$db->AllRecords('select tech_cpe.*,type,vendor,model from tech_cpe '.
-                    'LEFT JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model '.
-                    'where tech_cpe.service="usage_ip_ports" and tech_cpe.id_service="'.$r['id'].'" '.
-                    'AND tech_cpe.actual_from<=NOW() and tech_cpe.actual_to>=NOW() '.
+/*            $r['cpe']=$db->AllRecords('select usage_tech_cpe.*,type,vendor,model from usage_tech_cpe '.
+                    'LEFT JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model '.
+                    'where usage_tech_cpe.service="usage_ip_ports" and usage_tech_cpe.id_service="'.$r['id'].'" '.
+                    'AND usage_tech_cpe.actual_from<=NOW() and usage_tech_cpe.actual_to>=NOW() '.
                     'order by id');*/
             $collocation=0;
             if(isset($r['tarif']['type']) && $r['tarif']['type']=='C')

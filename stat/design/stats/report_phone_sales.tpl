@@ -148,6 +148,7 @@
   {assign var=month value=$report.month}
   {assign var=year value=$report.year}
   <h2>Статистика продаж телефонных номеров {$report.date}</h2>
+  <h3>Статистика продаж телефонных номеров по регионам</h3>
 
   <table class="price">
     <tr>
@@ -512,153 +513,9 @@
     </tr>
   </table>
   <br/>
-  <table class="price">
-    <tr>
-      <th rowspan="2">Продажи номеров/линий без номера по менеджерам</th>
-      <th colspan="4" style="text-align: center;">Новые</th>
-      <th colspan="4" style="text-align: center;">Допродажи</th>
-      <th rowspan="2" >Выезды</th>
-      <th rowspan="2">%</th>   
-      <th colspan="4">Продажи ВАТС</th>
-    </tr>
-    <tr>
-      <th>шт</th>
-      <th>%</th>
-      <th>СЛ, шт.</th>
-      <th>%</th>
-      <th>шт</th>
-      <th>%</th>
-      <th>СЛ, шт.</th>
-      <th>%</th>
-      <th>Новые, шт</th>
-      <th>%</th>
-      <th>Доп, шт.</th>
-      <th>%</th>
-    </tr>
-    {foreach from=$sale_channels.managers item=sales key=manager name="outer"}
-    <tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-      <td><span class="click" onclick="phone_sales_details('channels', '', '{$month}', '{$year}', '', '', '{$sales.sale_channel_id}');">{$manager|default:"???????"}</span></td>
-      <td class="dig">
-        {if isset($sales.nums.new)}
-          <b>{$sales.nums.new}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.nums_perc.new)}
-          {$sales.nums_perc.new}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.lines.new)}
-          <b>{$sales.lines.new}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.lines_perc.new)}
-          {$sales.lines_perc.new}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.nums.old)}
-          <b>{$sales.nums.old}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.nums_perc.old)}
-          {$sales.nums_perc.old}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.lines.old)}
-          <b>{$sales.lines.old}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.lines_perc.old)}
-          {$sales.lines_perc.old}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.visits)}
-          <b>{$sales.visits}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.visits_perc)}
-          {$sales.visits_perc}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.vpbx.new)}
-          <b>{$sales.vpbx.new}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.vpbx_perc.new)}
-          {$sales.vpbx_perc.new}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.vpbx.old)}
-          <b>{$sales.vpbx.old}</b>
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-      <td class="dig">
-        {if isset($sales.vpbx_perc.old)}
-          {$sales.vpbx_perc.old}%
-        {else}
-            &nbsp;
-        {/if}
-      </td>
-    </tr>
-    {/foreach}
-  </table>
 {/foreach}
-<div id="report_details" title="Подробная информация" style="display: none;"></div>
-<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
-<script>
-{literal}
-	function phone_sales_details(type, region, month, year, subtype, disabled, channel_id)
-	{
-		$('a.ui-dialog-titlebar-close').click();
-		subtype = subtype || '';
-		disabled = disabled || 0;
-		channel_id = channel_id || 0;
-		$("#report_details").html('');
-		$("#report_details").dialog(
-		{
-			width: 850,
-			height: 400,
-			open: function(){
-				$(this).load('./index_lite.php?module=stats&action=phone_sales_details&type=' + type + '&region=' + region + '&month=' + month + '&year=' + year + '&subtype=' + subtype + '&disabled=' + disabled + '&channel_id=' + channel_id);
-			}
-		});
-	}
-{/literal}
-</script>
+
+
+{$RManager}
+<br/><br/>
+{$RPartner}

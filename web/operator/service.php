@@ -13,6 +13,8 @@ use app\models\User;
 use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
+use app\models\UsageVoip;
+use app\models\DidGroup;
 
 if (isset($_GET) && isset($_GET["test"]))
 {
@@ -63,6 +65,8 @@ if ($action=='add_client') {
         $clientId = $c->client_id;
     } else {
 
+        $transaction = Yii::$app->db->beginTransaction();
+
         $s = new \app\models\ClientSuper();
         $s->name = $P['company'];
         $s->validate();
@@ -94,7 +98,6 @@ if ($action=='add_client') {
         $ca->address_post = $P['address'];
         $ca->address_post_real = $P['address'];
         $ca->address_connect = $P['address'];
-        $ca->sale_channel = $P['market_chanel'];
         $ca->status = "income";
 
         if($P["phone_connect"])
@@ -167,19 +170,24 @@ if ($action=='add_client') {
             $troubleId = StatModule::tt()->createTrouble($R, "system");
             LkWizardState::create($cr->id, $troubleId);
         }
+        $transaction->commit();
     }
+
+    $result_message = 'error:';
 
     if ($clientId)
     {
-        if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
+        $result_message = 'ok:' . $clientId;
+        if ($vatsTarifId = get_param_integer('vats_tariff_id', 0)) // заявка с ВАТС
         {
-            $client = ClientAccount::findOne(["id" => $clientId]);
-            $tarif = TariffVirtpbx::find()->where(["and", ["id" => $vatsTarifId], ["!=", "status", "archive"]])->one();
+            $result_message .= 'vpbx:';
+            $client = ClientAccount::findOne(['id' => $clientId]);
+            $tarif = TariffVirtpbx::findOne([['id' => $vatsTarifId], ['!=', 'status', 'archive']]);
 
             if ($client && $tarif)
             {
-                $actual_from = date("Y-m-d");
-                $actual_to = "4000-01-01";
+                $actual_from = date('Y-m-d');
+                $actual_to = '4000-01-01';
                 $vats = new UsageVirtpbx;
                 $vats->client = $client->client;
                 $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -191,23 +199,70 @@ if ($action=='add_client') {
                 $vats->region = \app\models\Region::MOSCOW;
                 $vats->save();
                 $logTarif = new LogTarif;
-                $logTarif->service = "usage_virtpbx";
+                $logTarif->service = 'usage_virtpbx';
                 $logTarif->id_service = $vats->id;
                 $logTarif->id_tarif = $tarif->id;
                 $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $logTarif->date_activation = date("Y-m-d");
+                $logTarif->date_activation = date('Y-m-d');
                 $logTarif->id_user = User::LK_USER_ID;
                 $logTarif->save();
+
+                $result_message .= 'created';
+
+                if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
+                    $usage = UsageVoip::findOne(['client' => $client->client]);
+
+                    if (!($usage instanceof UsageVoip)) {
+                        $result_message .= 'voip:';
+
+                        $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
+
+                        if (!($freeNumber instanceof Number)) {
+                            throw new Exception('Not found free number into 499 DID group', 500);
+                        }
+
+                        $transaction = Yii::$app->db->beginTransaction();
+                        try {
+                            $form = new UsageVoipEditForm;
+                            $form->scenario = 'add';
+                            $form->initModel($client);
+                            $form->did = $freeNumber->number;
+                            $form->prepareAdd();
+                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
+                            $form->create_params = \yii\helpers\Json::encode([
+                                'vpbx_stat_product_id' => $vats->id,
+                            ]);
+
+                            if (!$form->validate() || !$form->add()) {
+                                if ($form->errors) {
+                                    \Yii::error($form);
+                                    $errorKeys = array_keys($form->errors);
+                                    throw new Exception($form->errors[$errorKeys[0]][0], 500);
+                                } else {
+                                    throw new Exception('Unknown error', 500);
+                                }
+                            }
+
+                            $usageVoipId = $form->id;
+
+                            $transaction->commit();
+                            $result_message .= 'added';
+                        }
+                        catch (\Exception $e) {
+                            $result_message .= 'failed';
+                            $transaction->rollBack();
+                            throw $e;
+                        }
+                    }
+                }
+            }
+            else {
+                $result_message .= 'not_found_tariff';
             }
         }
     }
 
-    if ($clientId)
-    {
-        die("ok:".$clientId);
-    } else {
-        die("error:");
-    }
+    die($result_message);
 }elseif($action == "set_active")
 {
 

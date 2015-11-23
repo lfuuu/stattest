@@ -137,9 +137,9 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'client_contract_type ct', 'ct.id = cr.contract_type_id');
         $query->join('LEFT JOIN', 'user_users amu', 'amu.user = cr.account_manager');
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
-        $query->join('LEFT JOIN', 'sale_channels sh', 'sh.id = c.sale_channel');
+        $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-        $query->join('LEFT JOIN', 'client_document doc', 'cr.id=doc.contract_id AND doc.is_active=1 AND doc.type=\'contract\'');
+        $query->join('LEFT JOIN', 'client_document doc', 'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
         $query->groupBy('c.id');
     }
 
@@ -231,7 +231,7 @@ abstract class AccountGridFolder extends Model
         return $columns;
     }
 
-    private function getDefaultColumns()
+    protected function getDefaultColumns()
     {
         return [
             'status' => [
@@ -354,14 +354,14 @@ abstract class AccountGridFolder extends Model
                         'service',
                         \Yii::$app->request->get('service'),
                         [
-                            'emails' => 'emails',
-                            'tech_cpe' => 'tech_cpe',
-                            'usage_extra' => 'usage_extra',
-                            'usage_ip_ports' => 'usage_ip_ports',
-                            'usage_sms' => 'usage_sms',
-                            'usage_virtpbx' => 'usage_virtpbx',
-                            'usage_voip' => 'usage_voip',
-                            'usage_welltime' => 'usage_welltime',
+                            'emails' => 'Email',
+                            'usage_tech_cpe' => 'Texh CPE',
+                            'usage_extra' => 'Extra',
+                            'usage_ip_ports' => 'IP Ports',
+                            'usage_sms' => 'SMS',
+                            'usage_virtpbx' => 'ВАТС',
+                            'usage_voip' => 'Телефония',
+                            'usage_welltime' => 'Welltime',
                         ],
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
                     );
@@ -505,7 +505,7 @@ abstract class AccountGridFolder extends Model
                 'filter' => function () {
                     return \kartik\widgets\Select2::widget([
                         'name' => 'account_manager',
-                        'data' => \app\models\SaleChannel::getList(),
+                        'data' => \app\models\SaleChannelOld::getList(),
                         'value' => \Yii::$app->request->get('sale_channel'),
                         'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100px;',],
                         'pluginOptions' => [

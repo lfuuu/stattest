@@ -29,11 +29,11 @@ use app\forms\transfer\ServiceTransferForm;
                                 foreach($serviceIds as $serviceId)
                                         $services[] = $model->getService($serviceType, $serviceId);
                                 ?>
-                                <b><?= $services[0]::getTransferHelper()->getTypeTitle(); ?></b>
+                                <b><?= $services[0]->helper->title; ?></b>
                                 <ul>
                                     <?php foreach($services as $service): ?>
                                         <?php
-                                        list($fulltext, $description, $checkboxOptions) = (array) $service::getTransferHelper($service)->getTypeDescription();
+                                        list($fulltext, $description, $checkboxOptions) = (array) $service->helper->description;
 
                                         if (mb_strlen($fulltext, 'UTF-8') > 30):
                                             $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';

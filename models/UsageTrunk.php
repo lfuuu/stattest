@@ -3,9 +3,11 @@ namespace app\models;
 
 use DateTime;
 use yii\db\ActiveRecord;
+use app\models\billing\Trunk;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\classes\bill\VoipTrunkBiller;
+use app\helpers\usages\UsageVoipTrunkHelper;
 
 /**
  * @property int    $id
@@ -46,6 +48,7 @@ class UsageTrunk extends ActiveRecord implements Usage
 
     public function getTariff()
     {
+        return null;
     }
 
     public function getServiceType()
@@ -63,6 +66,11 @@ class UsageTrunk extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
     }
 
+    public function getTrunk()
+    {
+        return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
+    }
+
     public function isActive()
     {
         $now = new DateTime('now');
@@ -73,9 +81,21 @@ class UsageTrunk extends ActiveRecord implements Usage
         return $activationDt <= $now and $expireDt >= $now;
     }
 
+    /**
+     * @param $usage
+     * @return TrunkServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new TrunkServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVoipTrunkHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVoipTrunkHelper($this);
     }
 
 }

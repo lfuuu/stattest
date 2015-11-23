@@ -105,6 +105,12 @@
 <br/>
 
 <div>
+    {if $bill_extends_info.acc_no}
+        <span style="background-color: #F0F0F0;">
+            <b>Лицевой счет:</b> {$bill_extends_info.acc_no}
+        </span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {/if}
     Дата проводки: <b>{$bill.bill_date}</b>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Валюта проводки: <b{if $bill.currency=='RUB'} style='color:blue'{/if}>{$bill.currency}</b>

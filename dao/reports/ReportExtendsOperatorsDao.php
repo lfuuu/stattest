@@ -61,6 +61,7 @@ class ReportExtendsOperatorsDao extends Singleton
             new Expression('(
                 SELECT CONCAT(`coupon`) FROM `onlime_order` oo WHERE oo.`bill_no` = t.`bill_no`
             ) AS coupon'),
+            'i.acc_no',
             'i.comment1 AS date_deliv',
             'i.comment2 AS fio_oper',
         ]);
@@ -93,7 +94,7 @@ class ReportExtendsOperatorsDao extends Singleton
         $modes = $this->operator->requestModes;
         $items = [];
 
-        if (!array_key_exists($mode, $modes)) {
+        if (!isset($modes[$mode])) {
             return $items;
         }
 
@@ -105,11 +106,11 @@ class ReportExtendsOperatorsDao extends Singleton
         $items = $query->createCommand()->queryAll();
 
         foreach ($items as &$item) {
-            if (array_key_exists('date_deliv', $item) && $item['date_deliv']) {
+            if (isset($item['date_deliv'])) {
                 list(, $item['date_deliv']) = preg_split('#:\s*#', $item['date_deliv']);
             }
 
-            if (array_key_exists('fio_oper', $item) && $item['fio_oper']) {
+            if (isset($item['fio_oper'])) {
                 list(, $item['fio_oper'], $item['partner']) = preg_split('#:\s*#', $item['fio_oper']);
             }
 

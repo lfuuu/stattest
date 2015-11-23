@@ -768,7 +768,7 @@ class ClientCS {
         self::updateProperty($cid,'address',$this->address_post,-$this->id);
         self::updateProperty($cid,'name',$this->company,-$this->id);
 
-        if ($this->sale_channel) $r = $db->getRow('select name from sale_channels where id='.$this->sale_channel);
+        if ($this->sale_channel) $r = $db->getRow('select name from sale_channels_old where id='.$this->sale_channel);
         self::updateProperty($cid,'sale_channel',$this->sale_channel?$r['name']:null,-$this->id);
 
         if (isset($this->status)) self::updateProperty($cid,'status',$this->status,-$this->id,true);

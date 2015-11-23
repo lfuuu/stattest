@@ -106,19 +106,20 @@ class ApiVpbx
         );
     }
 
-    public static function updateTariff($clientId, $usageId)
+    public static function update($clientId, $usageId, $regionId)
     {
         $tariff = self::getTariff($usageId);
 
         ApiVpbx::exec(
             'update',
             [
-                "client_id"  => (int)$clientId,
-                "stat_product_id"  => (int)$usageId,
-                "phones"     => $tariff["num_ports"],
-                "faxes"      => $tariff["is_fax"] ? 5 : 0,
-                "record"     => (bool)$tariff["is_record"],
-                "enable_web_call" => (bool)$tariff["is_web_call"],
+                "client_id"         => (int)$clientId,
+                "stat_product_id"   => (int)$usageId,
+                "phones"            => $tariff["num_ports"],
+                "faxes"             => $tariff["is_fax"] ? 5 : 0,
+                "record"            => (bool)$tariff["is_record"],
+                "enable_web_call"   => (bool)$tariff["is_web_call"],
+                "region"            => (int)$regionId,
             ]
         );
     }

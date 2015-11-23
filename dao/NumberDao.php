@@ -151,13 +151,13 @@ class NumberDao extends Singleton
         Assert::isEqual($number->status, Number::STATUS_INSTOCK);
 
         $number->client_id = 764;
-        $number->status = Number::STATUS_NOT_SELL;
+        $number->status = Number::STATUS_NOTSELL;
         $number->save();
     }
 
     public function stopNotSell(Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOT_SELL);
+        Assert::isEqual($number->status, Number::STATUS_NOTSELL);
 
         $number->client_id = null;
         $number->status = Number::STATUS_INSTOCK;

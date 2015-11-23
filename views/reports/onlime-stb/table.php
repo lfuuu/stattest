@@ -10,7 +10,6 @@ use app\helpers\DateTimeZoneHelper;
             <tr>
                 <th rowspan="2" width="1%">#</th>
                 <th rowspan="2" width="10%"><div style="text-align: center;">Оператор</div></th>
-                <th rowspan="2" width="10%"><div style="text-align: center;">Партнер</div></th>
                 <th colspan="2" width="10%"><div style="text-align: center;">Номер счета</div></th>
                 <th rowspan="2" width="5%"><div style="text-align: center;">Дата<br />создания заказа</div></th>
                 <th colspan="<?= count($operator->products); ?>" width="1%"><div style="text-align: center;">Кол-во</div></th>
@@ -20,7 +19,7 @@ use app\helpers\DateTimeZoneHelper;
                 <th rowspan="2" width="20%"><div style="text-align: center;">Состояние</div></th>
             </tr>
             <tr>
-                <th><div style="text-align: center;">OnLime</div></th>
+                <th><div style="text-align: center;">Партнер</div></th>
                 <th><div style="text-align: center;">Маркомнет Сервис</div></th>
                 <?php foreach ($operator->products as $i => $product): ?>
                     <th align="center" width="3%"><div style="text-align: center;"><?= $product['name']; ?></div></th>
@@ -35,7 +34,6 @@ use app\helpers\DateTimeZoneHelper;
                     <td><?= ($number + 1); ?>.</td>
                     <td><?= $item['fio_oper']; ?></td>
                     <td><?= $item['partner']; ?></td>
-                    <td><?= $item['req_no']; ?></td>
                     <td>
                         <a href="<?= $billLink . $item['bill_no']; ?>" title="Просмотр заказа">
                             <?= $item['bill_no']; ?>

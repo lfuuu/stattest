@@ -6,7 +6,29 @@ use tests\codeception\_pages\ClientViewPage;
 $I = new _WebTester($scenario);
 $I->wantTo('perform actions and see result');
 
-$accountId = 35801;
+$email = 'test-wizard@mcn.ru';
+
+$query = http_build_query([
+    'test' => 1,
+    'action' => 'add_client',
+    'company' => 'test',
+    'phone' => '89264290001',
+    'email' => $email,
+    'client_comment' => 'Wizard TEST',
+    'fio' => 'fio',
+    'phone_connect' => '',
+    'lk_access' => 1,
+    'vats_tariff_id' => '',
+]);
+
+$I = new _WebTester($scenario);
+$I->wantTo('Web site integration');
+$I->wantTo('Add client without Vpbx');
+$I->amOnPage('/operator/service.php?' . $query);
+$I->dontSee('error:');
+$I->see('ok:');
+
+$accountId = app\models\ClientContact::find()->select('client_id')->where(['data' => $email])->scalar();
 
 $I->haveHttpHeader("Content-Type", "application/json");
 $I->amBearerAuthenticated("|H;\\9P$.N4/Y\$V\\9A$#l");

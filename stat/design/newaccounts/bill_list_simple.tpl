@@ -163,7 +163,7 @@
                         {if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
                     </td>
                     <td style="padding:0 0 0 0;">{if isset($op.bill) && $op.bill.currency=='USD'}{$pay.payment_rate}{else}&nbsp;{/if}</td>
-                    <td><span title="{$pay.add_date}">{$pay.user_name}00</span></td>
+                    <td><span title="{$pay.add_date}">{$pay.user_name}</span></td>
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">

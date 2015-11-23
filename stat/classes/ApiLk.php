@@ -3,6 +3,7 @@ use app\models\ClientAccount;
 use app\models\BillDocument;
 use app\models\Country;
 use app\classes\Assert;
+use app\classes\Language;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\models\City;
@@ -682,17 +683,17 @@ class ApiLk
     {
         foreach(NewBill::find_by_sql("
 					SELECT
-						`tech_cpe`.*,
+						`usage_tech_cpe`.*,
 						`type`,
 						`vendor`,
 						`model`,
 						IF (`actual_from` <= NOW() AND `actual_to` >= NOW(), 1, 0) as `actual`
 					FROM
-						`tech_cpe`
-					INNER JOIN `tech_cpe_models` ON `tech_cpe_models`.`id` = `tech_cpe`.`id_model`
+						`usage_tech_cpe`
+					INNER JOIN `tech_cpe_models` ON `tech_cpe_models`.`id` = `usage_tech_cpe`.`id_model`
 					WHERE
-							`tech_cpe`.`service` = 'usage_ip_ports'
-						AND `tech_cpe`.`id_service` = ?
+							`usage_tech_cpe`.`service` = 'usage_ip_ports'
+						AND `usage_tech_cpe`.`id_service` = ?
 						AND (`actual_from` <= NOW() AND `actual_to` >= NOW())
 					ORDER BY
 						`actual` DESC,
@@ -1047,6 +1048,13 @@ class ApiLk
 
     }
 
+    /**
+     * @param $client_id - ID клиента в Стат
+     * @param $region_id - ID региона
+     * @param $tarif_id - ID тарифа
+     * @return array
+     * @throws Exception
+     */
     public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
     {
         global $db;
@@ -1077,7 +1085,7 @@ class ApiLk
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $account->client,
-                            "actual_from"   => "4000-01-01",
+                            "actual_from"   => date('Y-m-d'),
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
@@ -1097,10 +1105,12 @@ class ApiLk
                             )
                         );
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
-            return array('status'=>'ok','message'=>'order_ok');
-        else
-            return array('status'=>'error','message'=>'order_error');
+        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0) {
+            return array('status' => 'ok', 'message' => 'order_ok');
+        }
+        else {
+            return array('status' => 'error', 'message' => 'order_error');
+        }
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
@@ -2268,13 +2278,13 @@ class ApiLk
             {
                 $check = \app\models\UsageVoip::find()->where("CAST(NOW() as DATE) BETWEEN actual_from AND actual_to")->andWhere(["E164" => $number])->one();
             } else {
-                $check = \app\models\VoipNumber::findOne(["number" => $number]);
+                $check = \app\models\Number::findOne(["number" => $number]);
             }
 
             return (bool)$check;
     }
 
-    public static function getPayPalToken($accountId, $sum)
+    public static function getPayPalToken($accountId, $sum, $host, $lang)
     {
         if (!isset(Yii::$app->params['LK_PATH']) || !Yii::$app->params['LK_PATH'])
             throw new Exception("format_error");
@@ -2295,8 +2305,11 @@ class ApiLk
         if($account->currency != "RUB" && $account->currency != "HUF")
             throw new Exception("data_error");
 
+        $lang = Language::normalizeLang($lang);
+
         $paypal = new \PayPal();
-        return $paypal->getPaymentToken($accountId, $sum, $c->currency);
+        $paypal->setHost($host);
+        return $paypal->getPaymentToken($accountId, $sum, $account->currency, $lang);
     }
 
     public static function paypalApply($token, $payerId)

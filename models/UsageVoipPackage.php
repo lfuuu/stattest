@@ -5,8 +5,9 @@ use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
-use app\classes\transfer\ServiceTransfer;
-use app\classes\transfer\VoipServiceTransfer;
+use app\classes\transfer\VoipPackageServiceTransfer;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\usages\UsageVoipPackageHelper;
 
 /**
  * @property int $id
@@ -41,30 +42,25 @@ class UsageVoipPackage extends ActiveRecord implements Usage
     }
 
     /**
-     * @return ServiceTransfer
+     * @param $usage
+     * @return VoipPackageServiceTransfer
      */
     public static function getTransferHelper($usage)
     {
-        return new VoipServiceTransfer($usage);
+        return new VoipPackageServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVoipPackageHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVoipPackageHelper($this);
     }
 
     public function getServiceType()
     {
         return Transaction::SERVICE_VOIP_PACKAGE;
-    }
-
-    public function getTypeDescription()
-    {
-        return 'Телефония пакет';
-    }
-
-    public static function getTypeHelpBlock()
-    {
-    }
-
-    public static function getTypeTitle()
-    {
-        return 'Телефония пакет';
     }
 
     /**
@@ -73,6 +69,11 @@ class UsageVoipPackage extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoTariffTable(self::className(), TariffVoipPackage::tableName(), 'tariff_id');
     }
 
 }

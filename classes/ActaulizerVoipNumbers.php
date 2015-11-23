@@ -244,11 +244,15 @@ class ActaulizerVoipNumbers
     {
         \l::ll(__CLASS__,__FUNCTION__, $data);
 
-        $params = UsageVoip::find()->phone($data["number"])->actual()->one()->create_params;
+        $usage = UsageVoip::find()->phone($data["number"])->actual()->one();
+        $params = "{}";
+        if ($usage) {
+            $params = $usage->create_params;
+        }
 
-        if (!$params || !($params = json_decode($params, true)))
-        {
-            $params = ["type_connect" => "line", "sip_accounts" => 1]; //by default
+        $params = json_decode($params, true);
+        if (!$params) {
+            $params = [];
         }
 
         $s = [
@@ -257,21 +261,18 @@ class ActaulizerVoipNumbers
             "cl"           => (int) $data["call_count"],
             "region"       => (int) $data["region"],
             "timezone"     =>       $this->getTimezoneByRegion($data["region"]),
-            "type"         =>       $params["type_connect"],
-            "sip_accounts" =>       $params["sip_accounts"],
+            "type"         =>       'line', //$usage->type_id,
+            "sip_accounts" =>       1,
             "nonumber"     => (bool)$this->isNonumber($data["number"])
             ];
 
-        if ($s["nonumber"] && $data["number7800"])
-        {
+        if ($s["nonumber"] && $data["number7800"]) {
             $s["nonumber_phone"] = $data["number7800"];
         }
 
-        if ($s["type"] == "multi")
-        {
-            $s["multitrunk_id"] = (int)$params["multitrunk_id"];
-        } elseif ($s["type"] == "vpbx") {
-            $s["vpbx_id"] = (int)$params["vpbx_id"];
+        if (isset($params["vpbx_stat_product_id"])) {
+            $s["vpbx_stat_product_id"] = $params["vpbx_stat_product_id"];
+            $s["type"] = "vpbx";
         }
 
         $this->execQuery("add_did", $s);

@@ -1,12 +1,14 @@
 <?php
 namespace app\models;
 
+use DateTime;
+use app\queries\UsageQuery;
+use yii\db\ActiveRecord;
 use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
-use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\usages\UsageIpPortsHelper;
 
 /**
  * @property int $id
@@ -93,7 +95,7 @@ class UsageIpPorts extends ActiveRecord implements Usage
 
     public function getCpeList()
     {
-        return TechCpe::find()->where(['service' => Transaction::SERVICE_IPPORT, 'id_service' => $this->id])->all();
+        return UsageTechCpe::find()->where(['service' => Transaction::SERVICE_IPPORT, 'id_service' => $this->id])->all();
     }
 
     public function getNetList()
@@ -103,9 +105,26 @@ class UsageIpPorts extends ActiveRecord implements Usage
             ->all();
     }
 
+    /**
+     * @param $usage
+     * @return IpPortsServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new IpPortsServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageIpPortsHelper
+     */
+    public function getHelper()
+    {
+        return new UsageIpPortsHelper($this);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

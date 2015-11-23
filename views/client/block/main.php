@@ -69,13 +69,13 @@ use app\helpers\DateTimeZoneHelper;
                                 <div class="col-sm-4">
                                     <?php if ($contract->managerName) : ?>
                                         <span style="float:left;background: <?= $contract->managerColor ?>;">
-                            М: <?= $contract->managerName ?>
-                        </span>
+                                            М: <?= $contract->managerName ?>
+                                        </span>
                                     <?php endif; ?>
                                     <?php if ($contract->accountManagerName) : ?>
                                         <span style="float:right;background: <?= $contract->accountManagerColor ?>;">
-                            Ак.М: <?= $contract->accountManagerName ?>
-                        </span>
+                                            Ак.М: <?= $contract->accountManagerName ?>
+                                        </span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-sm-12">
@@ -92,9 +92,11 @@ use app\helpers\DateTimeZoneHelper;
                                         <?php
                                         $realtimeBalance = $contractAccount->getRealtimeBalance();
                                         ?>
-                                        <a href="/account/edit?id=<?= $contractAccount->id ?>" style="position: absolute;top: 4px; left: 20px;"><img src="/images/icons/edit.gif"></a>
+                                        <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
+                                            <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
+                                        </div>
                                         <div
-                                            style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
+                                            style="position: relative;<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
                                             class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
                                             <span class="col-sm-2"

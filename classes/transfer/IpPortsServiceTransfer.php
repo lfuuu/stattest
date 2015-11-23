@@ -6,7 +6,7 @@ use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageIpRoutes;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 
 /**
  * Класс переноса услуг типа "IP Port"
@@ -124,7 +124,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
     private function processDevices($targetService)
     {
         $devices =
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->andWhere(['service' => 'usage_ip_ports'])
                 ->andWhere(['id_service' => $this->service->id])
                 ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
@@ -161,7 +161,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
     private function fallbackDevices()
     {
         $devices =
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->andWhere(['service' => 'usage_ip_ports'])
                 ->andWhere(['id_service' => $this->service->id])
                 ->all();
@@ -170,7 +170,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
                 $movedDevice =
-                    TechCpe::find()
+                    UsageTechCpe::find()
                         ->andWhere(['service' => 'usage_ip_ports'])
                         ->andWhere(['id_service' => $this->service->next_usage_id])
                         ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
@@ -188,16 +188,6 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 throw $e;
             }
         }
-    }
-
-    public function getTypeTitle()
-    {
-        return 'Интернет';
-    }
-
-    public function getTypeDescription()
-    {
-        return $this->service->address;
     }
 
 }

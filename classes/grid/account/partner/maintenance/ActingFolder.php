@@ -37,4 +37,21 @@ class ActingFolder extends AccountGridFolder
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PARTNER_MAINTENANCE_ACTING]);
     }
+
+    protected function getDefaultColumns()
+    {
+        $columns = parent::getDefaultColumns();
+        $columns['service']['filter'] = function () {
+            return \yii\helpers\Html::dropDownList(
+                'service',
+                \Yii::$app->request->get('service'),
+                [
+                    'usage_virtpbx' => 'ВАТС',
+                    'usage_voip' => 'Телефония',
+                ],
+                ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
+            );
+        };
+        return $columns;
+    }
 }

@@ -21,18 +21,19 @@ use yii\db\ActiveRecord;
  */
 class Number extends ActiveRecord
 {
-    const STATUS_NOT_SELL = 'notsell';
+
     const STATUS_INSTOCK  = 'instock';
-    const STATUS_RESERVED = 'reserved';
-    const STATUS_ACTIVE   = 'active';
     const STATUS_HOLD     = 'hold';
+    const STATUS_ACTIVE   = 'active';
+    const STATUS_RESERVED = 'reserved';
+    const STATUS_NOTSELL  = 'notsell';
 
     public static $statusList = [
-        self::STATUS_NOT_SELL => 'Не продается',
+        self::STATUS_NOTSELL => 'Не продается',
         self::STATUS_INSTOCK  => 'Свободен',
-        self::STATUS_RESERVED => 'Резерв',
+        self::STATUS_RESERVED => 'В резерве',
         self::STATUS_ACTIVE   => 'Используется',
-        self::STATUS_HOLD     => 'Отстойник',
+        self::STATUS_HOLD     => 'В отстойнике',
     ];
 
     public static function tableName()
@@ -54,4 +55,5 @@ class Number extends ActiveRecord
     {
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
     }
+
 }

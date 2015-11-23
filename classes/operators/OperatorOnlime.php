@@ -111,6 +111,8 @@ class OperatorOnlime extends Operators
         'Этап'                                          => 'stages_text',
     ];
 
+    public static $reportTemplate = 'onlime_operator';
+
     public static $availableRequestStatuses = [
         33 => 'Новый',
         17 => 'В работе',

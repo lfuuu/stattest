@@ -6,7 +6,7 @@ use app\classes\Assert;
 use app\classes\Form;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
-use app\models\Emails;
+use app\models\UsageEmails;
 use app\models\Usage;
 use app\models\UsageExtra;
 use app\models\UsageSms;
@@ -15,7 +15,7 @@ use app\models\UsageIpPorts;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageTrunk;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 
 class ServiceTransferForm extends Form
 {
@@ -44,7 +44,7 @@ class ServiceTransferForm extends Form
     public function getServicesGroups()
     {
         return [
-            Emails::dao(),
+            UsageEmails::dao(),
             UsageExtra::dao(),
             UsageSms::dao(),
             UsageWelltime::dao(),
@@ -52,7 +52,7 @@ class ServiceTransferForm extends Form
             UsageVoip::dao(),
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
-            TechCpe::dao(),
+            UsageTechCpe::dao(),
         ];
     }
 
@@ -113,7 +113,7 @@ class ServiceTransferForm extends Form
             }
         }
 
-        if (sizeof($this->servicesErrors)) {
+        if (count($this->servicesErrors)) {
             $this->addError('services_got_errors', 'Некоторые услуги не могут быть перенесены');
             return false;
         }
@@ -159,7 +159,7 @@ class ServiceTransferForm extends Form
 
         $total = 0;
         $result = [];
-        if (sizeof($services))
+        if (count($services))
             foreach ($services as $service) {
                 $result[ get_class($service) ][] = $service;
                 $total++;

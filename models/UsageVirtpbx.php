@@ -1,13 +1,14 @@
 <?php
 namespace app\models;
 
-use app\classes\Html;
+use DateTime;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\transfer\VirtpbxServiceTransfer;
 use app\dao\services\VirtpbxServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
-use DateTime;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\usages\UsageVirtpbxHelper;
 
 /**
  * @property int $id
@@ -56,12 +57,12 @@ class UsageVirtpbx extends ActiveRecord implements Usage
     {
         $logTariff =
             LogTarif::find()
-            ->andWhere(['service' => 'usage_virtpbx', 'id_service' => $this->id])
-            ->andWhere('date_activation <= now()')
-            ->andWhere('id_tarif != 0')
-            ->orderBy('date_activation desc, id desc')
-            ->limit(1)
-            ->one();
+                ->andWhere(['service' => 'usage_virtpbx', 'id_service' => $this->id])
+                ->andWhere('date_activation <= now()')
+                ->andWhere('id_tarif != 0')
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
+                ->one();
         if ($logTariff === null) {
             return false;
         }
@@ -75,9 +76,26 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @param $usage
+     * @return VirtpbxServiceTransfer
+     */
     public static function getTransferHelper($usage)
     {
         return new VirtpbxServiceTransfer($usage);
+    }
+
+    /**
+     * @return UsageVirtpbxHelper
+     */
+    public function getHelper()
+    {
+        return new UsageVirtpbxHelper($this);
+    }
+
+    public static function getMissingTariffs()
+    {
+        return UsagesLostTariffs::intoLogTariff(self::className());
     }
 
 }

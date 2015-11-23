@@ -8,10 +8,12 @@ include PATH_TO_ROOT."conf_yii.php";
 use app\models\Number;
 
 $userId = 10; // ava
+$userId = 48; // dga
 
-$clientId = 36166;
+$clientId = 36254;
 
 $confs = [
+    /*
     [
         "didGroupId" => 12,
         "region" => 97,
@@ -45,12 +47,13 @@ $confs = [
         "id_tarif_russia_mob" =>252,
         "id_tarif_intern" => 255,
     ],
+*/
     [
         "didGroupId" => 47,
         "region" => 87,
         "count_numbers" => 50,
 
-        "id_tarif" => 658,
+        "id_tarif" => 659,
         "id_tarif_local_mob" => 661,
         "id_tarif_russia" => 662,
         "id_tarif_russia_mob" =>186,

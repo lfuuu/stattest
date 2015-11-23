@@ -24,6 +24,7 @@ class VirtPbx3Checker
                 u.id as usage_id,
                 c.id as client_id,
                 IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
+                u.region as region_id,
                 prev_usage_id,
                 next_usage_id
             FROM
@@ -31,12 +32,11 @@ class VirtPbx3Checker
             WHERE
                     actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
                 AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
-                AND u.client = c.client 
-
+                AND u.client = c.client
             ORDER BY u.id";
 
     private static $sqlSaved=
-        "SELECT usage_id, client_id, tarif_id
+        "SELECT usage_id, client_id, tarif_id, region_id
         FROM actual_virtpbx
         order by usage_id";
 
@@ -72,7 +72,7 @@ class VirtPbx3Checker
         $d = array(
                 "added" => [],
                 "deleted" => [],
-                "changed_tarif" => [],
+                "changed_data" => [],
                 "changed_client" => []
                 );
 
@@ -97,8 +97,15 @@ class VirtPbx3Checker
 
         foreach($actual as $usageId => $l)
             if(isset($saved[$usageId])) {
-                if ($saved[$usageId]["tarif_id"] != $l["tarif_id"]) {
-                    $d["changed_tarif"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
+                if (
+                    $saved[$usageId]["tarif_id"] != $l["tarif_id"]
+                        ||
+                    $saved[$usageId]["region_id"] != $l["region_id"]
+                ) {
+                    $d["changed_data"][$usageId] = $l + [
+                        "prev_tarif_id" => $saved[$usageId]["tarif_id"],
+                        "prev_region_id" => $saved[$usageId]["region_id"],
+                    ];
                 }
             }
 
@@ -150,8 +157,8 @@ class VirtPbx3Diff
         if($diff["changed_client"])
             self::clientChanged($diff["changed_client"], $exception);
 
-        if($diff["changed_tarif"])
-            self::tarifChanged($diff["changed_tarif"], $exception);
+        if($diff["changed_data"])
+            self::dataChanged($diff["changed_data"], $exception);
 
         if ($exception instanceof Exception) {
             throw $exception;
@@ -199,13 +206,13 @@ class VirtPbx3Diff
         }
     }
 
-    private function tarifChanged(&$d, &$exception)
+    private function dataChanged(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
         foreach($d as $l) {
             try {
-                VirtPbx3Action::tarifChanged($l);
+                VirtPbx3Action::dataChanged($l);
             } catch (Exception $e) {
                 if (!$exception) $exception = $e;
             }
@@ -260,6 +267,7 @@ class VirtPbx3Action
                 "usage_id" => $l["usage_id"],
                 "client_id" => $l["client_id"],
                 "tarif_id" => $l["tarif_id"],
+                "region_id" => $l["region_id"],
             )
         );
     }
@@ -358,7 +366,7 @@ class VirtPbx3Action
         }
     }
 
-    public static function tarifChanged($l)
+    public static function dataChanged($l)
     {
         global $db;
 
@@ -366,7 +374,7 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::updateTariff($l["client_id"], $l["usage_id"]);
+            ApiVpbx::update($l["client_id"], $l["usage_id"], $l["region_id"]);
 
         } catch (Exception $e) {
             throw $e;
@@ -376,6 +384,7 @@ class VirtPbx3Action
             "usage_id" => $l["usage_id"],
             "client_id" => $l["client_id"],
             "tarif_id" => $l["tarif_id"],
+            "region_id" => $l["region_id"],
         ));
 
     }

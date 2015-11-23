@@ -20,7 +20,10 @@ class ClientDocumentDao extends Singleton
     {
         $templates = DocumentTemplate::find()
             ->joinWith(['folder'])
-            ->orderBy(['document_template.name' => SORT_ASC])
+            ->orderBy([
+                'document_folder.is_default' => SORT_DESC,
+                'document_template.name' => SORT_ASC
+            ])
             ->asArray()
             ->all();
 
