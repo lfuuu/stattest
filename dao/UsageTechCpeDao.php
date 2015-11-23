@@ -5,9 +5,9 @@ namespace app\dao;
 use Yii;
 use app\classes\Singleton;
 use app\models\ClientAccount;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 
-class TechCpeDao extends Singleton
+class UsageTechCpeDao extends Singleton
 {
 
     public function getCpeIpStat(array $ips)
@@ -66,7 +66,7 @@ class TechCpeDao extends Singleton
     public function getPossibleToTransfer(ClientAccount $client)
     {
         return
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])

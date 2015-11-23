@@ -1,30 +1,30 @@
 <?php
 namespace app\models;
 
-use app\dao\TechCpeDao;
 use yii\db\ActiveRecord;
-use app\queries\TechCpeQuery;
-use app\classes\transfer\TechCpeTransfer;
-use app\helpers\usages\TechCpeHelper;
+use app\dao\UsageTechCpeDao;
+use app\queries\UsageTechCpeQuery;
+use app\classes\transfer\UsageTechCpeTransfer;
+use app\helpers\usages\UsageTechCpeHelper;
 
 /**
  * @property int $id
  * @property
  */
-class TechCpe extends ActiveRecord
+class UsageTechCpe extends ActiveRecord
 {
 
     public static function tableName()
     {
-        return 'tech_cpe';
+        return 'usage_tech_cpe';
     }
 
     /**
-     * @return TechCpeQuery
+     * @return UsageTechCpeQuery
      */
     public static function find()
     {
-        return new TechCpeQuery(get_called_class());
+        return new UsageTechCpeQuery(get_called_class());
     }
 
     public function getModel()
@@ -33,28 +33,28 @@ class TechCpe extends ActiveRecord
     }
 
     /**
-     * @return TechCpeDao
+     * @return UsageTechCpeDao
      */
     public static function dao()
     {
-        return TechCpeDao::me();
+        return UsageTechCpeDao::me();
     }
 
     /**
      * @param $usage
-     * @return TechCpeTransfer
+     * @return UsageTechCpeTransfer
      */
     public static function getTransferHelper($usage)
     {
-        return new TechCpeTransfer($usage);
+        return new UsageTechCpeTransfer($usage);
     }
 
     /**
-     * @return TechCpeHelper
+     * @return UsageTechCpeHelper
      */
     public function getHelper()
     {
-        return new TechCpeHelper($this);
+        return new UsageTechCpeHelper($this);
     }
 
 }

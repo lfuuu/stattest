@@ -24,7 +24,7 @@ class UsageController extends Controller
         $now = new DateTime();
 
         $usageQueries = [
-            Emails::find(),
+            UsageEmails::find(),
             UsageExtra::find(),
             UsageIpPorts::find(),
             UsageSms::find(),

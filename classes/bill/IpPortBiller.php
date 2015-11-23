@@ -1,10 +1,9 @@
 <?php
 namespace app\classes\bill;
 
-use app\classes\Assert;
 use app\models\LogTarif;
 use app\models\TariffInternet;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 use app\models\UsageIpRoutes;
 use Yii;
 
@@ -279,7 +278,7 @@ class IpPortBiller extends Biller
     {
         $filter = '';
         $techCpe =
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
                 ->asArray()
                 ->all();
