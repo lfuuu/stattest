@@ -107,12 +107,12 @@ class ClientAccountBiller
                 ->all()
         );
 
-        /*$this->processUsages(
+        $this->processUsages(
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $this->clientAccount->id])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
-        );*/
+        );
 
         $this->processUsages(
             UsageVirtpbx::find()

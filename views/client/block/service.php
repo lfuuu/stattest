@@ -308,6 +308,64 @@ if ($has) :
                 </div>
             <?php endif; ?>
 
+            <?php if ($services['trunk']): ?>
+                <div id="trunks">
+                    <h3><a href="/?module=services&action=trunk_view">Телефония транки</a></h3>
+                    <table cellspacing="4" cellpadding="2" width="100%" border="0">
+                        <thead>
+                            <tr bgcolor="#FFFFD8">
+                                <th width="5%">id</th>
+                                <th width="15%">Дата подключения</th>
+                                <th width="15%">Точка присоединения</th>
+                                <th width="20%">Транк</th>
+                                <th width="20%">Свойства</th>
+                                <th width="15%">Минимальный платеж</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($services['trunk'] as $trunk): ?>
+                                <tr bgcolor="<?= ($trunk->status == 'working') ? ($actual($trunk->actual_from, $trunk->actual_to) ? '#EEDCA9' : '#FFFFF5') : '#FFE0E0' ?>">
+                                    <td>
+                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
+                                            <?= $trunk->id; ?>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
+                                            <?= $renderDate($trunk->actual_from, $trunk->actual_to); ?>
+                                        </a>
+                                    </td>
+                                    <td><?= $trunk->connectionPoint->name; ?></td>
+                                    <td><?= $trunk->trunk->name; ?></td>
+                                    <td>
+                                        <?php if ($trunk->orig_enabled): ?>
+                                            Оригинация
+                                        <?php endif; ?>
+                                        <?php if ($trunk->orig_enabled && $trunk->term_enabled): ?>
+                                            /
+                                        <?php endif; ?>
+                                        <?php if ($trunk->term_enabled): ?>
+                                            Терминация
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($trunk->orig_min_payment): ?>
+                                            Оригинация: <?= $trunk->orig_min_payment; ?>
+                                        <?php endif; ?>
+                                        <?php if($trunk->orig_min_payment && $trunk->term_min_payment): ?>
+                                            /
+                                        <?php endif; ?>
+                                        <?php if ($trunk->term_min_payment): ?>
+                                            Терминация: <?= $trunk->term_min_payment; ?>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+
             <?php if ($services['device']) : ?>
                 <div id="device">
                     <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
