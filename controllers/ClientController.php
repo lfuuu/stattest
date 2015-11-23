@@ -3,7 +3,6 @@ namespace app\controllers;
 
 use app\classes\grid\GridFactory;
 use app\classes\Assert;
-use app\classes\voip\VoipStatus;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -11,11 +10,12 @@ use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Number;
-use app\models\TechCpe;
+use app\models\UsageTechCpe;
 use app\models\Trouble;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
+use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
@@ -80,7 +80,7 @@ class ClientController extends BaseController
                 ->all();
 
         $services['device'] =
-            TechCpe::find()
+            UsageTechCpe::find()
                 ->where(['client' => $account->client])
                 ->hideNotLinked()
                 ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
@@ -121,6 +121,13 @@ class ClientController extends BaseController
                     ->where(['status' => Number::STATUS_RESERVED])
                     ->andWhere(['client_id' => $account->id])
                     ->all();
+
+        $services['trunk'] =
+            UsageTrunk::find()
+                ->where(['client_account_id' => $account->id])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
         return
             $this->render(
                 'view',

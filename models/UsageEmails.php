@@ -14,7 +14,7 @@ use app\models\usages\UsageInterface;
  * @property int $id
  * @property
  */
-class Emails extends ActiveRecord implements UsageInterface
+class UsageEmails extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {

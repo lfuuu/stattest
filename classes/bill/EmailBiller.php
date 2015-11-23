@@ -1,7 +1,7 @@
 <?php
 namespace app\classes\bill;
 
-use app\models\Emails;
+use app\models\UsageEmails;
 use Yii;
 
 class EmailBiller extends Biller
@@ -13,7 +13,7 @@ class EmailBiller extends Biller
         if (!isset(self::$service_data[$this->clientAccount->id])) {
 
             $email =
-                Emails::find()
+                UsageEmails::find()
                     ->andWhere(['client' => $this->clientAccount->client])
                     ->andWhere('actual_from <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
                     ->andWhere('actual_to >= :to', [':to' => $this->billerActualTo->format('Y-m-d')])

@@ -5,10 +5,10 @@ namespace app\queries;
 use yii\db\ActiveQuery;
 
 /**
- * @method TechCpeQuery[] all($db = null)
+ * @method UsageTechCpeQuery[] all($db = null)
  * @property
  */
-class TechCpeQuery extends ActiveQuery
+class UsageTechCpeQuery extends ActiveQuery
 {
 
     public function hideNotLinked()

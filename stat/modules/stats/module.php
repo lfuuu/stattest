@@ -118,7 +118,7 @@ class m_stats extends IModule{
 			from
 				usage_ip_ports as S
 			INNER JOIN
-				tech_cpe as D
+				usage_tech_cpe as D
 			ON
 				D.service="usage_ip_ports"
 			and

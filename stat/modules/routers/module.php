@@ -79,7 +79,7 @@ class m_routers {
         global $db,$design;
         if (is_array($this->devices)) return;
 
-        $add=$fixclient?' where (tech_cpe.client="'.ClientAccount::findOne($fixclient)->client.'")':'';
+        $add=$fixclient?' where (usage_tech_cpe.client="'.ClientAccount::findOne($fixclient)->client.'")':'';
         $addJ=''; $selJ = '';
         if ($search){
             if ($add) $add.=' and '; else $add=' where ';
@@ -91,8 +91,8 @@ class m_routers {
         }
         if ($snmp_only) {
             if ($add) $add.=' and '; else $add=' where ';
-            $add.='(tech_cpe.snmp=1)';
-            $addJ.=' LEFT JOIN usage_ip_ports ON usage_ip_ports.id=tech_cpe.id_service AND tech_cpe.service="usage_ip_ports"';
+            $add.='(usage_tech_cpe.snmp=1)';
+            $addJ.=' LEFT JOIN usage_ip_ports ON usage_ip_ports.id=usage_tech_cpe.id_service AND usage_tech_cpe.service="usage_ip_ports"';
             $addJ.=' LEFT JOIN tech_ports ON tech_ports.id=usage_ip_ports.port_id';
             $selJ.='usage_ip_ports.address,tech_ports.node,tech_ports.port_name,';
         }
@@ -101,12 +101,12 @@ class m_routers {
         else
             $lim = '';
 
-        $addJ.=' LEFT JOIN clients ON clients.client=tech_cpe.client';
-        $db->Query($q='select sql_calc_found_rows tech_cpe.*,tech_cpe_models.vendor,'.$selJ.
-                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual, clients.id as clientid'.
-                        ' from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model '.
+        $addJ.=' LEFT JOIN clients ON clients.client=usage_tech_cpe.client';
+        $db->Query($q='select sql_calc_found_rows usage_tech_cpe.*,tech_cpe_models.vendor,'.$selJ.
+                        'tech_cpe_models.model,IF((usage_tech_cpe.actual_from<=NOW()) and (usage_tech_cpe.actual_to>NOW()),1,0) as actual, clients.id as clientid'.
+                        ' from usage_tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model '.
                         $addJ.$add.
-                        ' order by actual desc,tech_cpe.id asc'.$lim);
+                        ' order by actual desc,usage_tech_cpe.id asc'.$lim);
 
         //echo $q;
 
@@ -510,7 +510,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
     function routers_d_act($fixclient)    {
         global $design, $db;
         if (!($id=get_param_integer('id'))) return;
-        $cpe = $db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
+        $cpe = $db->GetRow('select usage_tech_cpe.*,model,vendor,type from usage_tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model WHERE usage_tech_cpe.id='.$id);
         if (!$cpe) return;
         $client = \app\models\ClientAccount::find()->where(['client' => $cpe['client']])->one();
         if (!$client) return;

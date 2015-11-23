@@ -89,7 +89,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
 
     public function getCpeList()
     {
-        return TechCpe::find()->where(['service' => Transaction::SERVICE_IPPORT, 'id_service' => $this->id])->all();
+        return UsageTechCpe::find()->where(['service' => Transaction::SERVICE_IPPORT, 'id_service' => $this->id])->all();
     }
 
     public function getNetList()
