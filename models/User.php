@@ -122,7 +122,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             ->andWhere(['depart_id' => self::DEPART_SALES])
             ->andWhere(['enabled' => 'yes'])
             ->all();
-        return ArrayHelper::map($arr, 'user', 'name', 'depart_id');
+        return ArrayHelper::map($arr, 'user', 'name');
     }
 
     public static function getManagerList()
