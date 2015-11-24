@@ -173,7 +173,7 @@
                 {if $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">{$op.bill.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
                         <td colspan="4">&nbsp;</td>
                 {/if}
             {else}
@@ -181,7 +181,7 @@
                         <td colspan="4" rowspan="2">&nbsp;</td>
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">{$op.bill.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
                 {else}
                     <td colspan="4">&nbsp;</td>
                 {/if}
