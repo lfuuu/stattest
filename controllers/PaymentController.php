@@ -4,11 +4,10 @@ namespace app\controllers;
 use app\classes\Assert;
 use app\forms\buh\PaymentAddForm;
 use app\models\ClientAccount;
-use app\models\Currency;
+use app\models\Bill;
 use app\models\Payment;
 use Yii;
 use app\classes\BaseController;
-
 
 class PaymentController extends BaseController
 {
@@ -33,7 +32,7 @@ class PaymentController extends BaseController
         return $behaviors;
     }
 
-    public function actionAdd($clientAccountId)
+    public function actionAdd($clientAccountId, $billId = 0)
     {
         $client = ClientAccount::findOne($clientAccountId);
         Assert::isObject($client);
@@ -49,6 +48,11 @@ class PaymentController extends BaseController
         $model->payment_date = date('Y-m-d');
         $model->oper_date = date('Y-m-d');
         $model->payment_rate = 1;
+
+        if ((int) $billId && ($bill = Bill::findOne($billId)) instanceof Bill) {
+            $model->original_sum = $bill->sum;
+            $model->bill_no = $bill->bill_no;
+        }
 
         return $this->render('add', [
             'model' => $model,
