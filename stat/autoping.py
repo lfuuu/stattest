@@ -291,7 +291,7 @@ def get_source():
 			trim(ip),
 			client
 		from
-			tech_cpe
+			usage_tech_cpe
 		where
 			actual_from <= NOW()
 		and
