@@ -4,15 +4,15 @@ namespace app\helpers\usages;
 
 use yii\base\Object;
 use yii\helpers\Url;
-use app\models\Usage;
-use app\models\Emails;
+use app\models\usages\UsageInterface;
+use app\models\UsageEmails;
 
 class UsageEmailHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
 
-    public function __construct(Usage $usage)
+    public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
         parent::__construct();
@@ -47,7 +47,7 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => Emails::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageEmails::tableName(), 'id' => $this->usage->id]);
     }
 
 }

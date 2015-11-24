@@ -528,7 +528,7 @@ class ApiLk
 
             $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
-            $line["tarif_name"] = $usage->currentTariff->name;
+            $line["tarif_name"] = $usage->tariff->name;
             $line["per_month"] = number_format($usage->getAbonPerMonth(), 2, ".", " ");
 
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
@@ -682,17 +682,17 @@ class ApiLk
     {
         foreach(NewBill::find_by_sql("
 					SELECT
-						`tech_cpe`.*,
+						`usage_tech_cpe`.*,
 						`type`,
 						`vendor`,
 						`model`,
 						IF (`actual_from` <= NOW() AND `actual_to` >= NOW(), 1, 0) as `actual`
 					FROM
-						`tech_cpe`
-					INNER JOIN `tech_cpe_models` ON `tech_cpe_models`.`id` = `tech_cpe`.`id_model`
+						`usage_tech_cpe`
+					INNER JOIN `tech_cpe_models` ON `tech_cpe_models`.`id` = `usage_tech_cpe`.`id_model`
 					WHERE
-							`tech_cpe`.`service` = 'usage_ip_ports'
-						AND `tech_cpe`.`id_service` = ?
+							`usage_tech_cpe`.`service` = 'usage_ip_ports'
+						AND `usage_tech_cpe`.`id_service` = ?
 						AND (`actual_from` <= NOW() AND `actual_to` >= NOW())
 					ORDER BY
 						`actual` DESC,

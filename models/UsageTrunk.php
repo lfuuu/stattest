@@ -3,10 +3,12 @@ namespace app\models;
 
 use DateTime;
 use yii\db\ActiveRecord;
+use app\models\billing\Trunk;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\classes\bill\VoipTrunkBiller;
 use app\helpers\usages\UsageVoipTrunkHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int    $id
@@ -28,7 +30,7 @@ use app\helpers\usages\UsageVoipTrunkHelper;
  * @property Region $connectionPoint
  * @property
  */
-class UsageTrunk extends ActiveRecord implements Usage
+class UsageTrunk extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {
@@ -47,6 +49,7 @@ class UsageTrunk extends ActiveRecord implements Usage
 
     public function getTariff()
     {
+        return null;
     }
 
     public function getServiceType()
@@ -62,6 +65,11 @@ class UsageTrunk extends ActiveRecord implements Usage
     public function getConnectionPoint()
     {
         return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
+    }
+
+    public function getTrunk()
+    {
+        return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
     }
 
     public function isActive()

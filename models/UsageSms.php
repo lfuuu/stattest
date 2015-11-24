@@ -9,6 +9,7 @@ use app\dao\services\SmsServiceDao;
 use app\queries\UsageQuery;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageSmsHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
@@ -16,7 +17,7 @@ use app\helpers\usages\UsageSmsHelper;
  * @property TariffSms $tariff
  * @property
  */
-class UsageSms extends ActiveRecord implements Usage
+class UsageSms extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {
@@ -51,12 +52,6 @@ class UsageSms extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    public function getCurrentTariff()
-    {
-        $tariff = TariffSms::findOne($this->tarif_id);
-        return $tariff;
     }
 
     public function getRegionName()

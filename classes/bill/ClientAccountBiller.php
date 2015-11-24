@@ -1,15 +1,14 @@
 <?php
 namespace app\classes\bill;
 
-
 use Yii;
 use DateTime;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
-use app\models\Emails;
+use app\models\UsageEmails;
 use app\models\Transaction;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
@@ -139,7 +138,7 @@ class ClientAccountBiller
         );
 
         $this->processUsages(
-            Emails::find()
+            UsageEmails::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
@@ -263,7 +262,7 @@ class ClientAccountBiller
         }
     }
 
-    private function processUsage(Usage $usage)
+    private function processUsage(UsageInterface $usage)
     {
         $transactions =
             $usage

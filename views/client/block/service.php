@@ -1,7 +1,7 @@
 <?php
 
-use app\models\Usage;
-use app\models\TechCpe;
+use app\models\usages\UsageInterface;
+use app\models\UsageTechCpe;
 use yii\helpers\Html;
 use app\models\TariffVoip;
 use app\models\Number;
@@ -11,7 +11,8 @@ $actual = function ($from, $to) {
 };
 
 $renderDate = function ($from, $to) {
-    if(strtotime($to) >= strtotime(Usage::MAX_POSSIBLE_DATE) && strtotime($from) >= strtotime(Usage::MAX_POSSIBLE_DATE)){
+    $max_possible_date = strtotime(UsageInterface::MAX_POSSIBLE_DATE);
+    if(strtotime($to) >= $max_possible_date && strtotime($from) >= $max_possible_date){
         return 'Не был включен';
     }
 
@@ -42,7 +43,7 @@ $ipstat = function ($data) {
     return
         '<table cellspacing="0" cellpadding="0" border="0">' .
             '<tr>' .
-                '<td valign=middle>' . TechCpe::dao()->getCpeIpStat($R) . '</td>' .
+                '<td valign=middle>' . UsageTechCpe::dao()->getCpeIpStat($R) . '</td>' .
                 '<td valign=middle' . $c . '>' .
                     '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
                     (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') .
@@ -99,9 +100,9 @@ if ($has) :
                                 </td>
                                 <td><?= $service->address ?></td>
                                 <td title="Время проверки скорости: <?= $service->speed_update ?>"
-                                <?= ($service->currentTariff && $service->speed_mgts != $service->currentTariff->adsl_speed)
-                                    ? 'style="color: #c40000;"><b>' . $service->speed_mgts . '</b> ' . $service->currentTariff->adsl_speed
-                                    : ($service->currentTariff ? '>' . $service->currentTariff->adsl_speed : '>')
+                                <?= ($service->tariff && $service->speed_mgts != $service->tariff->adsl_speed)
+                                    ? 'style="color: #c40000;"><b>' . $service->speed_mgts . '</b> ' . $service->tariff->adsl_speed
+                                    : ($service->tariff ? '>' . $service->tariff->adsl_speed : '>')
                                 ?>
                                 </td>
                                 <td><?= $renderDate($service->actual_from, $service->actual_to); ?></td>
@@ -116,8 +117,8 @@ if ($has) :
                                 <td>
                                     <img alt="Текущий тариф" class="icon" src="/images/icons/tarif.gif">
                             <span style="color:#0000C0"
-                                  title="Текущий тариф: <?= $service->currentTariff->mb_month ?>-<?= $service->currentTariff->pay_month ?>-<?= $service->currentTariff->pay_mb ?>">
-                                <?= $service->currentTariff->name ?>
+                                  title="Текущий тариф: <?= $service->tariff->mb_month ?>-<?= $service->tariff->pay_month ?>-<?= $service->tariff->pay_mb ?>">
+                                <?= $service->tariff->name ?>
                             </span>
                                 </td>
                             </tr>
@@ -234,12 +235,12 @@ if ($has) :
                                 /** @var TariffVoip $currentTariff */
                                 /** @var \app\models\LogTarif $log */
                                 $currentTariff = $log = null;
-                                if (!($currentTariff = $service->currentTariff)) {
-                                    $log = $service->getCurrentLogTariff($service->actual_from);
+                                if (!($currentTariff = $service->tariff)) {
+                                    $log = $service->getLogTariff($service->actual_from);
                                     $currentTariff = TariffVoip::findOne($log->id_tarif);
                                 }
                                 else {
-                                    $log = $service->currentLogTariff;
+                                    $log = $service->logTariff;
                                 }
                                 ?>
                                 <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
@@ -308,6 +309,64 @@ if ($has) :
                 </div>
             <?php endif; ?>
 
+            <?php if ($services['trunk']): ?>
+                <div id="trunks">
+                    <h3><a href="/?module=services&action=trunk_view">Телефония транки</a></h3>
+                    <table cellspacing="4" cellpadding="2" width="100%" border="0">
+                        <thead>
+                            <tr bgcolor="#FFFFD8">
+                                <th width="5%">id</th>
+                                <th width="15%">Дата подключения</th>
+                                <th width="15%">Точка присоединения</th>
+                                <th width="20%">Транк</th>
+                                <th width="20%">Свойства</th>
+                                <th width="15%">Минимальный платеж</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($services['trunk'] as $trunk): ?>
+                                <tr bgcolor="<?= ($trunk->status == 'working') ? ($actual($trunk->actual_from, $trunk->actual_to) ? '#EEDCA9' : '#FFFFF5') : '#FFE0E0' ?>">
+                                    <td>
+                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
+                                            <?= $trunk->id; ?>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
+                                            <?= $renderDate($trunk->actual_from, $trunk->actual_to); ?>
+                                        </a>
+                                    </td>
+                                    <td><?= $trunk->connectionPoint->name; ?></td>
+                                    <td><?= $trunk->trunk->name; ?></td>
+                                    <td>
+                                        <?php if ($trunk->orig_enabled): ?>
+                                            Оригинация
+                                        <?php endif; ?>
+                                        <?php if ($trunk->orig_enabled && $trunk->term_enabled): ?>
+                                            /
+                                        <?php endif; ?>
+                                        <?php if ($trunk->term_enabled): ?>
+                                            Терминация
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($trunk->orig_min_payment): ?>
+                                            Оригинация: <?= $trunk->orig_min_payment; ?>
+                                        <?php endif; ?>
+                                        <?php if($trunk->orig_min_payment && $trunk->term_min_payment): ?>
+                                            /
+                                        <?php endif; ?>
+                                        <?php if ($trunk->term_min_payment): ?>
+                                            Терминация: <?= $trunk->term_min_payment; ?>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+
             <?php if ($services['device']) : ?>
                 <div id="device">
                     <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>
@@ -355,7 +414,7 @@ if ($has) :
 
             <?php
             foreach ($services['extra'] as $k => $service)
-                if ($service->currentTariff->code == 'extra')
+                if ($service->tariff->code == 'extra')
                     unset($services['extra'][$k]);
             if ($services['extra']):
                 ?>
@@ -388,11 +447,11 @@ if ($has) :
                                     </a>
                                 <?php endif;*/ ?>
                                 </td>
-                                <td><?= $service->currentTariff->description ?></td>
+                                <td><?= $service->tariff->description ?></td>
                                 <td><?= $service->amount ?></td>
-                                <td><?= $service->currentTariff->price ?></td>
+                                <td><?= $service->tariff->price ?></td>
                                 <td><?= $service->param_value ?></td>
-                                <td><?= $service->currentTariff->period ?></td>
+                                <td><?= $service->tariff->period ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -425,9 +484,9 @@ if ($has) :
                                         <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
                                     </a>
                                 </td>
-                                <td><?= $service->currentTariff->description ?></td>
+                                <td><?= $service->tariff->description ?></td>
                                 <td><?= $service->amount ?></td>
-                                <td><?= $service->currentTariff->price ?></td>
+                                <td><?= $service->tariff->price ?></td>
                                 <td><?= $service->ip ?></td>
                                 <td><?= $service->router ?></td>
                             </tr>
@@ -465,8 +524,8 @@ if ($has) :
                                     </a>
 
                                 </td>
-                                <td><?= $service->currentTariff->description ?></td>
-                                <td><?= $service->currentTariff->price ?></td>
+                                <td><?= $service->tariff->description ?></td>
+                                <td><?= $service->tariff->price ?></td>
                                 <td><?= $service->regionName->name ?></td>
                             </tr>
                         <?php endforeach; ?>
@@ -498,9 +557,9 @@ if ($has) :
                                         <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
                                     </a>
                                 </td>
-                                <td><?= $service->currentTariff->description ?></td>
-                                <td><?= $service->currentTariff->per_month_price ?>
-                                    / <?= $service->currentTariff->per_sms_price ?></td>
+                                <td><?= $service->tariff->description ?></td>
+                                <td><?= $service->tariff->per_month_price ?>
+                                    / <?= $service->tariff->per_sms_price ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

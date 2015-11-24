@@ -5,9 +5,12 @@ use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\VoipBiller;
 use app\classes\transfer\VoipServiceTransfer;
+use app\classes\monitoring\UsagesLostTariffs;
 use app\dao\services\VoipServiceDao;
 use app\queries\UsageVoipQuery;
-use app\classes\monitoring\UsagesLostTariffs;
+use app\models\usages\UsageInterface;
+use app\models\usages\UsageLogTariffInterface;
+use app\helpers\usages\LogTariffTrait;
 use app\helpers\usages\UsageVoipHelper;
 
 /**
@@ -17,8 +20,10 @@ use app\helpers\usages\UsageVoipHelper;
  * @property ClientAccount $clientAccount
  * @property
  */
-class UsageVoip extends ActiveRecord implements Usage
+class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
+
+    use LogTariffTrait;
 
     public static $allowedDirection = [
         'full' => 'Все',
@@ -57,9 +62,18 @@ class UsageVoip extends ActiveRecord implements Usage
         return new VoipBiller($this, $date, $clientAccount);
     }
 
-    public function getTariff()
+    /**
+     * @param string $date
+     * @return bool|TariffVoip
+     */
+    public function getTariff($date = 'now')
     {
-        return null;
+        $logTariff = $this->getLogTariff($date);
+        if (!($logTariff instanceof LogTarif)) {
+            return false;
+        }
+
+        return TariffVoip::findOne($logTariff->id_tarif);
     }
 
     public function getServiceType()
@@ -100,34 +114,6 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasOne(Datacenter::className(), ["region" => "region"]);
     }
 
-    public function getCurrentLogTariff($date = null)
-    {
-        if ($date === null) {
-            $date = date('Y-m-d H:i:s');
-        }
-
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_voip'])
-                ->andWhere(['id_service' => $this->id])
-                ->andWhere('date_activation<=:date', [':date' => $date])
-                ->andWhere('id_tarif!=0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
-    }
-
-    public function getCurrentTariff()
-    {
-        $logTariff = $this->getCurrentLogTariff();
-        if ($logTariff === null) {
-            return false;
-        }
-
-        $tariff = TariffVoip::findOne($logTariff->id_tarif);
-        return $tariff;
-    }
-
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -152,7 +138,7 @@ class UsageVoip extends ActiveRecord implements Usage
 
     public function getAbonPerMonth()
     {
-        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines - 1));
+        return $this->tariff->month_number + ($this->tariff->month_line * ($this->no_of_lines - 1));
     }
 
     public function getUsagePackages()

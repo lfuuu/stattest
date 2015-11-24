@@ -141,7 +141,7 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-        $query->join('LEFT JOIN', 'client_document doc', 'cr.id=doc.contract_id AND doc.is_active=1 AND doc.type=\'contract\'');
+        $query->join('LEFT JOIN', 'client_document doc', 'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
         $query->groupBy('c.id');
     }
 
@@ -170,6 +170,7 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['cr.number' => $this->contractNo]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
+        $query->andFilterWhere(['l.service' => $this->service]);
         $query->andFilterWhere(['c.region' => $this->regionId]);
 
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
@@ -361,7 +362,7 @@ abstract class AccountGridFolder extends Model
                         \Yii::$app->request->get('service'),
                         [
                             'emails' => 'Email',
-                            'tech_cpe' => 'Tech CPE',
+                            'usage_tech_cpe' => 'Tech CPE',
                             'usage_extra' => 'Extra',
                             'usage_ip_ports' => 'IP Ports',
                             'usage_sms' => 'SMS',
@@ -513,7 +514,7 @@ abstract class AccountGridFolder extends Model
                             'style' => 'width: 150px;',
                         ],
                         'pluginOptions' => [
-                            'allowClear' => true
+                            'allowClear' => true,
                         ],
                     ]);
                 },

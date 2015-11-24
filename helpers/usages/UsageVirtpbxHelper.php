@@ -5,7 +5,7 @@ namespace app\helpers\usages;
 use yii\base\Object;
 use yii\helpers\Url;
 use app\classes\Html;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 
 class UsageVirtpbxHelper extends Object implements UsageHelperInterface
@@ -13,7 +13,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
 
     private $usage;
 
-    public function __construct(Usage $usage)
+    public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
         parent::__construct();
@@ -32,7 +32,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        $value = $this->usage->currentTariff ? $this->usage->currentTariff->description : 'Описание';
+        $value = $this->usage->tariff ? $this->usage->tariff->description : 'Описание';
         $description = [];
         $checkboxOptions = [];
 

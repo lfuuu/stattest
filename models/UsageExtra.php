@@ -9,6 +9,7 @@ use app\classes\transfer\ExtraServiceTransfer;
 use app\dao\services\ExtraServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageExtraHelper;
+use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
@@ -16,7 +17,7 @@ use app\helpers\usages\UsageExtraHelper;
  * @property TariffExtra $tariff
  * @property
  */
-class UsageExtra extends ActiveRecord implements Usage
+class UsageExtra extends ActiveRecord implements UsageInterface
 {
     public static function tableName()
     {
@@ -51,12 +52,6 @@ class UsageExtra extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    public function getCurrentTariff()
-    {
-        $tariff = TariffExtra::findOne($this->tarif_id);
-        return $tariff;
     }
 
     public function getRegionName()

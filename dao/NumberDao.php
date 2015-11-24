@@ -88,7 +88,7 @@ class NumberDao extends Singleton
 
         if (
             $usage
-            && ($log = $usage->getCurrentLogTariff($usage->actual_from))
+            && ($log = $usage->getLogTariff($usage->actual_from))
             && ($currentTariff = TariffVoip::findOne($log->id_tarif))
             && ($currentTariff->status == "test")
         ) {

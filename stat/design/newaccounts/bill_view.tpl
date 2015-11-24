@@ -1,3 +1,34 @@
+<style type="text/css">
+{literal}
+.content-wrap {
+    width: 300px;
+    height: 40px;
+    border: 1px dashed grey;
+    padding: 4px;
+    position: relative;
+    clear: both;
+}
+.content-wrap:hover .more-info {
+    display: block;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+.full-text {
+    height: 35px;
+    overflow: hidden;
+}
+.more-info {
+    border: 1px dashed grey;
+    background: #ccc;
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    right: -1px;
+    padding: 4px;
+    display: none;
+}
+{/literal}
+</style>
+
 <table border=0 width=100%>
     <tr>
         <td width="33%">
@@ -43,7 +74,7 @@
                 </form>
             {/if}
             {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
-            {if $bill.is_payed != 1}<br><a href="/payment/add?clientAccountId={$bill.client_id}">Внести платеж</a>{/if}
+            {if $bill.is_payed != 1}<br><a href="/payment/add?clientAccountId={$bill.client_id}&billId={$bill.id}">Внести платеж</a>{/if}
         </td>
     </tr>
     {if !$isClosed}
@@ -61,14 +92,27 @@
                 </form>
             </td>
             <td width="33%">
-                Комментарий:
-                <form action="?" method=post>
-                    <input type=hidden name=module value=newaccounts>
-                    <input type=hidden name=bill value="{$bill.bill_no}">
-                    <input type=hidden name=action value="bill_comment">
-                    <input class=text type=text value="{$bill.comment|escape}" name=comment style="width: 200px">
-                    <input type=submit class=button value='ок'>
-                </form>
+                <div style="float: left;">Комментарий</div>
+                {if $bill.comment}
+                    <div style="float: left; margin-left: 10px; background: url('/images/icons/edit.gif') no-repeat 0 0; width: 16px; height: 16px;">
+                        <a href="javascript:void(0)" data-edit="#bill-comment" class="switchEditable" style="margin-left: 22px;">Редактировать</a>
+                    </div>
+                    <div id="bill-comment-text" class="content-wrap">
+                        <div class="full-text">{$bill.comment}</div>
+                        <div class="more-info">{$bill.comment}</div>
+                    </div>
+                {/if}
+                <div id="bill-comment" style="{if $bill.comment}display: none;{/if}width: 300px;">
+                    <form action="?" method=post>
+                        <input type=hidden name=module value=newaccounts>
+                        <input type=hidden name=bill value="{$bill.bill_no}">
+                        <input type=hidden name=action value="bill_comment">
+                        <textarea name="comment" style="width: 300px;" class="text">{$bill.comment|strip_tags}</textarea><br />
+                        <div style="float: right;">
+                            <input type="submit" value="Сохранить" />
+                        </div>
+                    </form>
+                </div>
             </td>
             <td width="33%">
                 Предпологаемый тип платежа:
@@ -396,3 +440,19 @@ function doFormSend()
 {/if*}
 
 <script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>
+<script type="text/javascript">
+{literal}
+jQuery(document).ready(function() {
+    $('.switchEditable')
+        .on('click', function(e) {
+            e.preventDefault();
+            var target = $($(this).data('edit')),
+                source = target.prev('div');
+            if (target.length && source) {
+                target.toggle();
+                source.toggle();
+            }
+        });
+});
+{/literal}
+</script>

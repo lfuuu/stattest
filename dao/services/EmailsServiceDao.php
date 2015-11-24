@@ -4,7 +4,7 @@ namespace app\dao\services;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\Emails;
+use app\models\UsageEmails;
 use app\models\ClientAccount;
 
 class EmailsServiceDao extends Singleton implements ServiceDao
@@ -33,10 +33,8 @@ class EmailsServiceDao extends Singleton implements ServiceDao
 
     public function getPossibleToTransfer(ClientAccount $client)
     {
-        $now = new \DateTime();
-
         return
-            Emails::find()
+            UsageEmails::find()
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])

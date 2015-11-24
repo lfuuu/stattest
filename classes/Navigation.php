@@ -41,6 +41,7 @@ class Navigation
                 ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+                ->addItem('Шаблоны сообщений', ['message/template'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(
