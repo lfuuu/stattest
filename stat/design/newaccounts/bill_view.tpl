@@ -43,7 +43,7 @@
                 </form>
             {/if}
             {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
-            {if $bill.is_payed != 1}<br><a href="/payment/add?clientAccountId={$bill.client_id}">Внести платеж</a>{/if}
+            {if $bill.is_payed != 1}<br><a href="/payment/add?clientAccountId={$bill.client_id}&billId={$bill.id}">Внести платеж</a>{/if}
         </td>
     </tr>
     {if !$isClosed}
