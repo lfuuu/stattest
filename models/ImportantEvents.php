@@ -18,7 +18,7 @@ class ImportantEvents extends ActiveRecord
     const EVENT_UNSET_MIN_BALANCE = 'unset_min_balance';
     const EVENT_DAY_LIMIT = 'day_limit';
 
-    private static $eventsList = [
+    public static $eventsList = [
         self::EVENT_ZERO_BALANCE => 'Финансовая блокировка',
         self::EVENT_UNSET_ZERO_BALANCE => 'Снятие: Финансовая блокировка',
         self::EVENT_ADD_PAYMENT => 'Зачисление средств',
@@ -30,9 +30,9 @@ class ImportantEvents extends ActiveRecord
     public function rules()
     {
         return [
-            [['event', 'source', ], 'required'],
+            [['event', 'source', ], 'required', 'on' => 'create'],
             [['event', 'source'], 'string'],
-            ['client_id', 'required', 'when' => function($model) {
+            ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
                 return in_array($model->event, [
                     self::EVENT_ZERO_BALANCE,
                     self::EVENT_UNSET_ZERO_BALANCE,
@@ -46,6 +46,14 @@ class ImportantEvents extends ActiveRecord
             ['extends_data', 'exist', 'allowArray' => true, 'when' => function($model, $attribute) {
                 return is_array($model->$attribute);
             }],
+        ];
+    }
+
+    public function scenarios()
+    {
+        return [
+            'create' => ['event', 'source', 'client_id', 'extends_data'],
+            'default' => ['event', 'client_id', 'date'],
         ];
     }
 
@@ -70,6 +78,7 @@ class ImportantEvents extends ActiveRecord
     {
         $event = new self;
 
+        $event->scenario = 'create';
         $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
         $event->event = $eventType;
 
