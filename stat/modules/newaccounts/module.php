@@ -892,7 +892,7 @@ class m_newaccounts extends IModule
         $billNo = get_param_protected("bill");
 
         $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
-        $bill->comment = get_param_raw("comment");
+        $bill->comment = nl2br(strip_tags(get_param_raw("comment")));
         $bill->save();
 
         header("Location: /?module=newaccounts&action=bill_view&bill=" . $billNo);
