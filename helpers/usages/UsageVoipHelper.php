@@ -5,7 +5,7 @@ namespace app\helpers\usages;
 use yii\base\Object;
 use yii\helpers\Url;
 use app\classes\Html;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 
@@ -14,7 +14,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
 
     private $usage;
 
-    public function __construct(Usage $usage)
+    public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
         parent::__construct();
@@ -40,7 +40,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
         $numbers = $this->usage->clientAccount->voipNumbers;
         if (isset($numbers[$this->usage->E164]) && $numbers[$this->usage->E164]['type'] == 'vpbx') {
             if (($usage = UsageVirtpbx::findOne($numbers[$this->usage->E164]['stat_product_id'])) instanceof Usage) {
-                $description = $usage->currentTariff->description . ' (' . $usage->id . ')';
+                $description = $usage->tariff->description . ' (' . $usage->id . ')';
             }
             $checkboxOptions['disabled'] = 'disabled';
         }

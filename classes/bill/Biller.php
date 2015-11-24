@@ -4,7 +4,7 @@ namespace app\classes\bill;
 use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\Transaction;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -44,7 +44,7 @@ abstract class Biller
     /** @var DateTime */
     public $billerActualTo;
 
-    public function __construct(Usage $usage, DateTime $date, ClientAccount $clientAccount)
+    public function __construct(UsageInterface $usage, DateTime $date, ClientAccount $clientAccount)
     {
         $this->usage = $usage;
         $this->clientAccount = $clientAccount;

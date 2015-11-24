@@ -5,7 +5,7 @@ namespace app\classes\transfer;
 use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use \DateTime;
 use \DateTimeZone;
 use yii\base\InvalidValueException;
@@ -18,7 +18,7 @@ abstract class ServiceTransfer
     protected $targetAccount;
     protected $activationDate;
 
-    /** @var Usage */
+    /** @var UsageInterface */
     public $service;
 
     /**

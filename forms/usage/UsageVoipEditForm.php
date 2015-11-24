@@ -2,9 +2,7 @@
 namespace app\forms\usage;
 
 use app\classes\Assert;
-use app\classes\Event;
 use app\models\City;
-use app\models\Region;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffVoip;
@@ -15,7 +13,7 @@ use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
 use yii\helpers\ArrayHelper;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
@@ -93,10 +91,10 @@ class UsageVoipEditForm extends UsageVoipForm
             $actualTo->modify('+10 days');
             $actualTo = $actualTo->format('Y-m-d');
         } else {
-            $actualTo = Usage::MAX_POSSIBLE_DATE;
+            $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
         }
          */
-        $actualTo = Usage::MAX_POSSIBLE_DATE;
+        $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
         $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -151,7 +149,7 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
-        if ($this->usage->actual_from != Usage::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
+        if ($this->usage->actual_from != UsageInterface::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
             Yii::$app->session->setFlash('error', 'Услуга уже отключена');
             return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
         }
@@ -166,7 +164,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->no_of_lines = (int) $this->no_of_lines;
 
         if (!$this->disconnecting_date) {
-            $actualTo = (new DateTime(Usage::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
+            $actualTo = (new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
             $expireDt =
                 (new DateTime($actualTo, $this->timezone))
                     ->setTimezone(new DateTimeZone('UTC'))
@@ -243,8 +241,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $line7800->E164;
             }
 
-            if (!($currentTariff = $usage->getCurrentLogTariff()))
-                $currentTariff = $usage->getCurrentLogTariff($usage->actual_from);
+            if (!($currentTariff = $usage->getLogTariff()))
+                $currentTariff = $usage->getLogTariff($usage->actual_from);
 
             if ($currentTariff) {
                 $this->tariff_main_id = $currentTariff->id_tarif;
@@ -459,7 +457,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 }
             }
 
-            $currentTariff = $usage->getCurrentLogTariff($tariffDate);
+            $currentTariff = $usage->getLogTariff($tariffDate);
             $massChangeMainTariffId = $currentTariff->id_tarif;
         } else {
             $tariffUsages = [$usage];
@@ -467,7 +465,7 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 
         foreach ($tariffUsages as $tariffUsage) {
-            $currentTariff = $tariffUsage->getCurrentLogTariff($tariffDate);
+            $currentTariff = $tariffUsage->getLogTariff($tariffDate);
 
             if ($massChangeMainTariffId && $massChangeMainTariffId != $currentTariff->id_tarif) {
                 continue;

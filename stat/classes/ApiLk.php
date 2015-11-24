@@ -528,7 +528,7 @@ class ApiLk
 
             $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
-            $line["tarif_name"] = $usage->currentTariff->name;
+            $line["tarif_name"] = $usage->tariff->name;
             $line["per_month"] = number_format($usage->getAbonPerMonth(), 2, ".", " ");
 
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;

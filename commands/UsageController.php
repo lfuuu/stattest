@@ -119,7 +119,7 @@ class UsageController extends Controller
 
         foreach ($usages as $usage)
         {
-            $tarif = $usage->currentTariff;
+            $tarif = $usage->tariff;
             $account = $usage->clientAccount;
 
             if (!$tarif || $tarif->status == "test") // тестовый тариф, или без тарифа вообще

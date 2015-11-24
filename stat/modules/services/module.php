@@ -711,12 +711,12 @@ class m_services extends IModule{
                 /** @var UsageVoip $usage */
                 $usage = UsageVoip::findOne($r['id']);
 
-                if (!($r['tarif'] = $usage->currentTariff)) {
-                    $r['logTarif'] = $usage->getCurrentLogTariff($usage->actual_from);
+                if (!($r['tarif'] = $usage->tariff)) {
+                    $r['logTarif'] = $usage->getLogTariff($usage->actual_from);
                     $r['tarif'] = TariffVoip::findOne($r['logTarif']->id_tarif);
                 }
                 else {
-                    $r['logTarif'] = $usage->currentLogTariff;
+                    $r['logTarif'] = $usage->logTariff;
                 }
                 $r['tarifs'] = [];
                 if (
