@@ -3,6 +3,7 @@ use \ActiveRecord\RecordNotFound;
 use \app\forms\client\ContragentEditForm;
 use \app\forms\client\ContractEditForm;
 use \app\forms\client\AccountEditForm;
+use \app\models\ClientAccount;
 
 class Sync1CServerHandler
 {
@@ -280,6 +281,7 @@ class Sync1CServerHandler
         }
 
         GoodsIncomeOrder::checkClose($order->id);
+        ClientAccount::dao()->updateBalance($order->client_card_id);
 
         return $order;
     }
