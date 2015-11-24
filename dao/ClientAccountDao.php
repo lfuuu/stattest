@@ -378,18 +378,20 @@ class ClientAccountDao extends Singleton
         $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);
         $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount);
 
+        $p = [
+            ':clientAccountId' => $clientAccount->id,
+            ':balance' => $balance,
+            ':lastBillDate' => $lastBillDate,
+            ':lastPayedBillMonth' => $lastPayedBillMonth
+        ];
+
         ClientAccount::getDb()
             ->createCommand('
                 UPDATE clients
                 SET balance = :balance,
                     last_account_date = :lastBillDate,
                     last_payed_voip_month = :lastPayedBillMonth
-                WHERE id = :clientAccountId', [
-                    ':clientAccountId' => $clientAccount->id,
-                    ':balance' => $balance,
-                    ':lastBillDate' => $lastBillDate,
-                    ':lastPayedBillMonth' => $lastPayedBillMonth
-                ]
+                WHERE id = :clientAccountId', $p
             )
             ->execute();
 
@@ -445,6 +447,23 @@ class ClientAccountDao extends Singleton
                         G.client_card_id = :clientAccountId
                     and G.currency = :currency
                     and G.date >= :saldoDate
+                    and G.deleted = 0
+                    and G.active = 1
+                    and if (40 != ifnull((
+                        select 
+                            state_id 
+                        from 
+                            tt_troubles t, 
+                            tt_stages s 
+                        WHERE 
+                                G.id = t.bill_id 
+                            AND s.stage_id = t.cur_stage_id)
+                       , 40), true, false)
+
+                
+            
+
+
             ) as B
 
             GROUP BY B.bill_no, B.is_payed, B.sum, B.bill_date, B.currency
