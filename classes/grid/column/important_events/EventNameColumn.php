@@ -3,9 +3,9 @@
 namespace app\classes\grid\column\important_events;
 
 use kartik\grid\GridView;
-use app\classes\Html;
 use app\classes\grid\column\DataColumn;
-use app\models\ImportantEvents;
+use app\models\ImportantEventsNames;
+use yii\helpers\ArrayHelper;
 
 class EventNameColumn extends DataColumn
 {
@@ -17,13 +17,15 @@ class EventNameColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = array_merge(['' => '- Выберите событие -'], ImportantEvents::$eventsList);
+        $this->filter = array_merge(
+            ['' => '- Выберите событие -'],
+            ArrayHelper::map(ImportantEventsNames::find()->all(), 'code', 'value')
+        );
         parent::__construct($config);
     }
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        $eventKey = parent::getDataCellValue($model, $key, $index);
-        return isset(ImportantEvents::$eventsList[$eventKey]) ? ImportantEvents::$eventsList[$eventKey] : $eventKey;
+        return $model->name->value ?: parent::getDataCellValue($model, $key, $index);
     }
 }

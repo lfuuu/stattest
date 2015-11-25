@@ -7,25 +7,10 @@ use DateTime;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
+use yii\helpers\ArrayHelper;
 
 class ImportantEvents extends ActiveRecord
 {
-
-    const EVENT_ZERO_BALANCE = 'zero_balance';
-    const EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
-    const EVENT_ADD_PAYMENT = 'add_pay_notif';
-    const EVENT_MIN_BALANCE = 'min_balance';
-    const EVENT_UNSET_MIN_BALANCE = 'unset_min_balance';
-    const EVENT_DAY_LIMIT = 'day_limit';
-
-    public static $eventsList = [
-        self::EVENT_ZERO_BALANCE => 'Финансовая блокировка',
-        self::EVENT_UNSET_ZERO_BALANCE => 'Снятие: Финансовая блокировка',
-        self::EVENT_ADD_PAYMENT => 'Зачисление средств',
-        self::EVENT_MIN_BALANCE => 'Критический остаток',
-        self::EVENT_UNSET_MIN_BALANCE => 'Снятие: Критический остаток',
-        self::EVENT_DAY_LIMIT => 'Суточный лимит',
-    ];
 
     public function rules()
     {
@@ -33,14 +18,7 @@ class ImportantEvents extends ActiveRecord
             [['event', 'source', ], 'required', 'on' => 'create'],
             [['event', 'source'], 'string'],
             ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
-                return in_array($model->event, [
-                    self::EVENT_ZERO_BALANCE,
-                    self::EVENT_UNSET_ZERO_BALANCE,
-                    self::EVENT_ADD_PAYMENT,
-                    self::EVENT_MIN_BALANCE,
-                    self::EVENT_UNSET_MIN_BALANCE,
-                    self::EVENT_DAY_LIMIT,
-                ]);
+                return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'));
             }],
             ['client_id', 'integer', 'integerOnly' => true],
         ];
@@ -69,6 +47,11 @@ class ImportantEvents extends ActiveRecord
     public static function tableName()
     {
         return 'important_events';
+    }
+
+    public function getName()
+    {
+        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event']);
     }
 
     public function getProperties()
