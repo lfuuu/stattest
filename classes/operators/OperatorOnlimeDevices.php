@@ -94,7 +94,8 @@ class OperatorOnlimeDevices extends Operators
         'Номер счета Маркомнет Сервис'  => 'bill_no',
         'Дата создания заказа'          => 'date_creation',
         'Кол-во'                        => 'products',
-        'ФИО клиента'                   => 'client',
+        'ФИО клиента'                   => 'fio',
+        'Телефон, Адрес'                => 'contacts',
         'Серийный номер'                => 'serials',
         'Дата доставки желаемая'        => 'date_deliv',
         'Дата доставки фактическая'     => 'date_delivered',
@@ -102,6 +103,7 @@ class OperatorOnlimeDevices extends Operators
     ];
 
     public static $reportTemplate = 'onlime_devices_operator';
+    public $reportColumnsShiftFrom = 0;
 
     protected static $availableRequestStatuses = [
         32 => 'В работе',

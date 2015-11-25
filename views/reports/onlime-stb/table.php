@@ -89,7 +89,7 @@ use app\helpers\DateTimeZoneHelper;
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="6"><div style="text-align: right;">Итого:</div></th>
+                <th colspan="5"><div style="text-align: right;">Итого:</div></th>
                 <?php foreach ($operator->products as $key => $product): ?>
                     <?php
                     if (is_string($key)) {
