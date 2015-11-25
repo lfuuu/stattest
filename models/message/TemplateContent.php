@@ -48,4 +48,9 @@ class TemplateContent extends ActiveRecord
         return 'message_template_content';
     }
 
+    public static function primaryKey()
+    {
+        return ['template_id', 'type', 'lang_code'];
+    }
+
 }
