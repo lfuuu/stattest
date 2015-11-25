@@ -43,9 +43,6 @@ class ImportantEvents extends ActiveRecord
                 ]);
             }],
             ['client_id', 'integer', 'integerOnly' => true],
-            ['extends_data', 'exist', 'allowArray' => true, 'when' => function($model, $attribute) {
-                return is_array($model->$attribute);
-            }],
         ];
     }
 
@@ -74,6 +71,11 @@ class ImportantEvents extends ActiveRecord
         return 'important_events';
     }
 
+    public function getProperties()
+    {
+        return $this->hasMany(ImportantEventsProperties::className(), ['event_id' => 'id']);
+    }
+
     public static function create($eventType, $data = [], $date = 'now')
     {
         $event = new self;
@@ -82,10 +84,10 @@ class ImportantEvents extends ActiveRecord
         $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
         $event->event = $eventType;
 
-        $extendsData = [];
+        $properties = [];
         foreach ($data as $key => $value) {
             if (!array_key_exists($key, $event->attributes)) {
-                $extendsData[$key] = $value;
+                $properties[] = [0, $key, $value];
             }
             else {
                 $event->{$key} = $value;
@@ -93,14 +95,20 @@ class ImportantEvents extends ActiveRecord
         }
 
         if ((int) $event->client_id) {
-            $extendsData['balance'] = self::getBalance($event->client_id);
+            $properties[] = [0, 'balance', self::getBalance($event->client_id)];
         }
-
-        $event->extends_data = json_encode($extendsData);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if ($event->validate() && $event->save()) {
+                if (count($properties)) {
+                    Yii::$app->db->createCommand()->batchInsert(
+                        ImportantEventsProperties::tableName(),
+                        ['event_id', 'property', 'value'],
+                        array_map(function($row) use ($event) { $row[0] = $event->id; return $row; }, $properties)
+                    )->execute();
+                }
+
                 $transaction->commit();
                 return true;
             }

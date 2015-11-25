@@ -47,7 +47,7 @@ echo GridView::widget([
             'width' => '15%',
         ],
         [
-            'class' => 'app\classes\grid\column\important_events\ExtendsDataColumn',
+            'class' => 'app\classes\grid\column\important_events\PropertiesColumn',
             'width' => '30%',
         ],
     ],
