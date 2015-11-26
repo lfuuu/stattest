@@ -104,6 +104,7 @@ if ($model->id) {
 $(document).ready(function () {
     tinymce.init({
         selector: '.editor',
+        relative_urls: false,
         height : 350,
         plugins: [
             "advlist autolink lists link image charmap print preview anchor",
