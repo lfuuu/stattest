@@ -76,6 +76,11 @@ class ClientAccount extends HistoryActiveRecord
         'prov' => 'пров'
     ];
 
+    public static $balanceViewMode = [
+        'old' => 'Старый',
+        'new' => 'Новый',
+    ];
+
     public static $shopIds = [14050, 18042];
 
     /** Virtual variables */
@@ -158,6 +163,7 @@ class ClientAccount extends HistoryActiveRecord
             'manager' => 'Менеджер',
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
+            'lk_balance_view_mode' => 'Тип отображения баланса в ЛК',
         ];
     }
 
