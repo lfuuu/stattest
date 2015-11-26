@@ -7,17 +7,16 @@ use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
 use app\classes\Html;
-use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
-use app\models\UsageVoipPackage;
 use app\models\UsageExtra;
 use app\models\UsageWelltime;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\BusinessProcessStatus;
+use app\models\Business;
 
 class UsagesIncorrectBusinessProcessStatus extends Component implements MonitoringInterface
 {
@@ -113,6 +112,9 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
                             BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE,
                             BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE_FREE,
                         ]
+                    ])
+                    ->andWhere([
+                        '!=', 'cc.business_id', Business::OPERATOR
                     ])
                     ->andFilterWhere(['cc.manager' => $params['manager']])
                     ->groupBy('u.client')

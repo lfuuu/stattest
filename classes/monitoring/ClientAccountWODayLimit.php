@@ -4,11 +4,13 @@ namespace app\classes\monitoring;
 
 use Yii;
 use yii\base\Component;
+use yii\db\Expression;
 use yii\data\ArrayDataProvider;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\BusinessProcessStatus;
+use app\models\UsageVoip;
 
 class ClientAccountWODayLimit extends Component implements MonitoringInterface
 {
@@ -75,7 +77,13 @@ class ClientAccountWODayLimit extends Component implements MonitoringInterface
             ClientAccount::find()
                 ->from(ClientAccount::tableName() . ' c')
                 ->leftJoin(ClientContract::tableName() . ' cc', 'cc.id = c.contract_id')
-                ->innerJoin(ClientContragent::tableName() . ' cg', 'cc.contragent_id = cg.id')
+                ->innerJoin(ClientContragent::tableName() . ' cg', 'cg.id = cc.contragent_id')
+                ->innerJoin(
+                    UsageVoip::tableName() . ' uv',
+                    'uv.client = c.client AND ' .
+                    new Expression('uv.actual_from <= CAST(NOW() AS DATE)') . ' AND ' .
+                    new Expression('uv.actual_to > CAST(NOW() AS DATE)')
+                )
                 ->where(['c.voip_credit_limit_day' => 0])
                 ->andWhere([
                     'in',
