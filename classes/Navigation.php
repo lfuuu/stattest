@@ -41,7 +41,6 @@ class Navigation
                 ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
-                ->addItem('Шаблоны сообщений', ['message/template'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(
@@ -72,7 +71,14 @@ class Navigation
         );
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
-        $this->addBlockForStatModule('mail');
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Письма клиентам')
+                ->addStatModuleItems('mail')
+                ->addItem('Шаблоны сообщений', ['message/template'], ['mail.w'])
+                ->addItem('Правила на события', ['important-events/rules'], ['mail.w'])
+        );
 
         $this->addBlock(
             NavigationBlock::create()

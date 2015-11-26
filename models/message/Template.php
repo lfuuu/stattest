@@ -35,9 +35,6 @@ class Template extends ActiveRecord
     {
         return [
             'name' => 'Название',
-            /*'type' => 'Тип',
-            'lang_code' => 'Язык',
-            'content' => 'Содержание',*/
         ];
     }
 
