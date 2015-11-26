@@ -99,12 +99,13 @@ class OperatorOnlime extends Operators
     ];
 
     public static $reportFields = [
-        'Оператор'                                      => 'fio_oper',
         'Номер счета OnLime'                            => 'req_no',
         'Номер счета Маркомнет Сервис'                  => 'bill_no',
         'Дата создания заказа'                          => 'date_creation',
         'Кол-во'                                        => 'products',
-        'ФИО клиента'                                   => 'client',
+        'Оператор'                                      => 'fio_oper',
+        'ФИО клиента'                                   => 'fio',
+        'Телефон, Адрес'                                => 'contacts',
         'Серийный номер'                                => 'serials',
         'Дата доставки желаемая'                        => 'date_deliv',
         'Дата доставки фактическая'                     => 'date_delivered',
@@ -112,6 +113,7 @@ class OperatorOnlime extends Operators
     ];
 
     public static $reportTemplate = 'onlime_operator';
+    public $reportColumnsShiftFrom = 1;
 
     public static $availableRequestStatuses = [
         33 => 'Новый',
