@@ -119,6 +119,11 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    public function getLine7800()
+    {
+        return $this->hasOne(self::className(), ['id' => 'line7800_id']);
+    }
+
     /**
      * @param $usage
      * @return VoipServiceTransfer
