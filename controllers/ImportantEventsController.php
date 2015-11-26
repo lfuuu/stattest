@@ -5,8 +5,8 @@ namespace app\controllers;
 use Yii;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
-use app\models\ImportantEvents;
-use app\models\ImportantEventsRules;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsRules;
 
 class ImportantEventsController extends BaseController
 {

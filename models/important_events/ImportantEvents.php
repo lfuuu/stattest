@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace app\models\important_events;
 
 use DateTime;
 use yii\db\ActiveRecord;

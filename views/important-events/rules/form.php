@@ -5,8 +5,9 @@ use kartik\builder\Form;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
+use unclead\widgets\MultipleInput;
 use app\classes\Html;
-use app\models\ImportantEventsRules;
+use app\models\important_events\ImportantEventsRulesConditions;
 use app\models\message\Template as MessageTemplate;
 use app\classes\actions\message\SendActionFactory;
 
@@ -50,11 +51,33 @@ echo Form::widget([
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 3,
+    'columns' => 4,
     'attributes' => [
-        'property' => ['type' => Form::INPUT_TEXT,],
-        'condition' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ImportantEventsRules::$conditions, 'options' => ['class' => 'select2']],
-        'value' => ['type' => Form::INPUT_TEXT],
+        'conditions' => [
+            'label' => 'Условия',
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => MultipleInput::className(),
+            'options' => [
+                'allowEmptyList'    => false,
+                'enableGuessTitle'  => true,
+                'columns' => [
+                    [
+                        'name'  => 'property',
+                        'title' => 'Свойство',
+                        'enableError' => true,
+                    ],
+                    [
+                        'name'  => 'condition',
+                        'type'  => 'dropDownList',
+                        'items' => ImportantEventsRulesConditions::$conditions,
+                    ],
+                    [
+                        'name'  => 'value',
+                        'title' => 'Значение',
+                    ],
+                ],
+            ],
+        ],
     ]
 ]);
 
@@ -81,3 +104,17 @@ echo Form::widget([
 ]);
 
 ActiveForm::end();
+?>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('button.append-block-btn')
+        .on('click', function() {
+            var parent = $(this).parents('fieldset'),
+                block = parent.clone(true);
+            block.find('input').val('');
+            block.find('select').find('option:eq(0)').prop('selected', true);
+            block.insertAfter(parent);
+        });
+});
+</script>

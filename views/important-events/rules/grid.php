@@ -5,7 +5,7 @@ use yii\helpers\Url;
 use kartik\grid\GridView;
 use app\classes\Html;
 use app\forms\user\GroupForm;
-use app\models\ImportantEventsRules;
+use app\models\important_events\ImportantEventsRulesConditions;
 
 /** @var GroupForm $dataProvider */
 
@@ -63,7 +63,13 @@ echo GridView::widget([
             'label' => 'Условие',
             'format' => 'raw',
             'value' => function($data) {
-                return Html::tag('b', $data->property) . ' ' . ImportantEventsRules::$conditions[$data->condition] . ' ' . Html::tag('b', $data->value);
+                $result = [];
+
+                foreach ($data->allConditions as $condition) {
+                    $result[] = Html::tag('b', $condition->property) . ' ' . ImportantEventsRulesConditions::$conditions[$condition->condition] . ' ' . Html::tag('b', $condition->value);
+                }
+
+                return implode('<br />', $result);
             },
             'width' => '20%',
         ],
