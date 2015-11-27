@@ -43,18 +43,18 @@ use app\models\Currency;
             'price_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => PriceType::getList()],
             ['type' => Form::INPUT_RAW,],
 
-            'credit' => ['type' => Form::INPUT_CHECKBOX, 'options' => ['id' => 'credit'], 'columnOptions' => ['style' => 'margin-top: 20px;']],
-            'credit_size' => ['columnOptions' => ['id' => 'credit-size', 'style' => $model->credit > 0 ? '' : 'display:none;']],
+            'credit' => ['columnOptions' => ['id' => 'credit-size']],
+            ['type' => Form::INPUT_RAW,],
             'lk_balance_view_mode' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$balanceViewMode],
             ['type' => Form::INPUT_RAW,],
 
-            'voip_credit_limit' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;']],
-            ['type' => Form::INPUT_RAW,],
+            'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
+            'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 1, 'style' => 'margin-top: 35px;'],],
+            'voip_credit_limit' => ['columnOptions' => ['colspan' => 1]],
             ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],
 
-            'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
-            'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 3, 'style' => 'margin-top: 35px;'],],
+            ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],
 
@@ -106,9 +106,3 @@ use app\models\Currency;
     ]);
     ?>
 </div>
-
-<script>
-    $('#credit').on('click', function () {
-        $('#credit-size').toggle();
-    });
-</script>
