@@ -406,6 +406,18 @@ class UsageVoipEditForm extends UsageVoipForm
             $number = Number::findOne($this->did);
             if ($number === null) {
                 $this->addError('did', 'Номер не найден');
+            } else if (
+                $number->status != Number::STATUS_INSTOCK 
+                && $number->status != Number::STATUS_HOLD
+                && !($number->status == Number::STATUS_RESERVED && $number->client_id == $this->clientAccount->id)
+            ) {
+                $msg = 'Номер находится в статусе "' . Number::$statusList[$number->status] . '"';
+
+                if ($number->status == Number::STATUS_RESERVED || $number->status == Number::STATUS_ACTIVE) {
+                    $msg .= ', Л/С: ' . $number->client_id;
+                }
+
+                $this->addError('did', $msg);
             }
 
             if ($number && $number->city_id != $this->city_id) {
