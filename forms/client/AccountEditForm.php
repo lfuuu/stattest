@@ -37,7 +37,6 @@ class AccountEditForm extends Form
         $stamp,
         $nal,
         $credit = ClientAccount::DEFAULT_CREDIT,
-        $credit_size,
         $phone_connect,
         $form_type,
         $price_type,
@@ -90,7 +89,7 @@ class AccountEditForm extends Form
             ],
             [
                 [
-                    'id', 'super_id', 'contract_id', 'stamp', 'credit', 'credit_size', 'voip_credit_limit',
+                    'id', 'super_id', 'contract_id', 'stamp', 'credit', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
                     'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
                 ],
@@ -105,6 +104,7 @@ class AccountEditForm extends Form
             ],
             [['voip_credit_limit_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['admin_email', 'email'],
+            ['credit', 'integer', 'min' => 0],
             ['voip_is_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
@@ -169,17 +169,6 @@ class AccountEditForm extends Form
             $this->clientM = new ClientAccount();
         }
 
-        if($this->credit == -1){
-            $this->credit = 0;
-            $this->credit_size = 0;
-        } elseif($this->credit == 0) {
-            $this->credit = 1;
-            $this->credit_size = 0;
-        }else{
-            $this->credit_size = $this->credit;
-            $this->credit = 1;
-        }
-
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
     }
@@ -191,12 +180,8 @@ class AccountEditForm extends Form
         if ($this->getIsNewRecord())
             $this->is_active = 0;
 
-        if ($this->credit && $this->credit_size > 0) {
-            $this->credit = $this->credit_size;
-        } elseif ($this->credit) {
+        if ($this->credit < 0) {
             $this->credit = 0;
-        } else{
-            $this->credit = -1;
         }
 
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';

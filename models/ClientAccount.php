@@ -147,7 +147,7 @@ class ClientAccount extends HistoryActiveRecord
             'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
             'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
             'balance' => 'Баланс',
-            'voip_is_day_calc' => 'Включить пересчет дневного лимита',
+            'voip_is_day_calc' => 'Пересчет дневного лимита',
             'region' => 'Регион',
             'mail_print' => 'Массовая печать конвертов и закрывающих документов',
             'mail_who' => '"Кому" письмо',
