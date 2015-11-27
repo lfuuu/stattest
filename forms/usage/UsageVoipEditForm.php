@@ -149,10 +149,12 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 */
 
+        /*
         if ($this->usage->actual_from != UsageInterface::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
             Yii::$app->session->setFlash('error', 'Услуга уже отключена');
             return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
         }
+         */
 
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -237,8 +239,8 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
-            if ($usage->line7800_id && ($line7800 = UsageVoip::findOne($usage->line7800_id)) instanceof Usage) {
-                $this->line7800_id = $line7800->E164;
+            if ($usage->line7800 !== null) {
+                $this->line7800_id = $usage->line7800->E164;
             }
 
             if (!($currentTariff = $usage->getLogTariff()))

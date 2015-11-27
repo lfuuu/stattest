@@ -94,7 +94,6 @@ class ContragentController extends BaseController
         $model = new ContragentTransferForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
-            print_r($model);
             $contragent = ClientContragent::findOne($model->sourceClientAccount);
             Assert::isObject($contragent);
 

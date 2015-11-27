@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\models\billing\Counter;
 use app\models\ClientCounter;
 
 /**
@@ -10,6 +11,8 @@ use app\models\ClientCounter;
  */
 class ClientCounterDao extends Singleton
 {
+
+    private static $amounts = [];
 
     public function getOrCreateCounter($clientAccountId)
     {
@@ -24,6 +27,37 @@ class ClientCounterDao extends Singleton
         }
 
         return $counter;
+    }
+
+    public static function getAmountSumByAccountId($clientId)
+    {
+        if (isset(static::$amounts[$clientId])) {
+            return static::$amounts[$clientId];
+        }
+
+        $pgCounter = Counter::findOne(['client_id' => $clientId]);
+
+        if ($pgCounter) {
+            $counter = ClientCounter::findOne($clientId);
+            if (!$counter) {
+                $counter = new ClientCounter();
+                $counter->client_id = $clientId;
+            }
+            $counter->setAttributes($pgCounter->getAttributes());
+            $counter->save();
+        }
+        else {
+            $counter = ClientCounter::findOne($clientId);
+            if ($counter) {
+                $counter->delete();
+            }
+        }
+
+        $result = ($pgCounter) ? $pgCounter->toArray() : ['amount_sum' => 0, 'amount_day_sum' => 0, 'amount_month_sum' => 0];
+
+        static::$amounts[$clientId] = $result;
+
+        return $result;
     }
 
 }

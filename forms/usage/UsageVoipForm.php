@@ -46,7 +46,8 @@ class UsageVoipForm extends Form
             [['tariff_main_status'], 'string'],
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
             [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
-            ['status', 'default', 'value' => 'connecting']
+            ['status', 'default', 'value' => 'connecting'],
+            [['connecting_date'], 'validateDate', 'on' => 'edit']
         ];
     }
 
@@ -81,5 +82,16 @@ class UsageVoipForm extends Form
             'tariff_group_price' => 'Гарантированный платеж (Набор)',
         ];
     }
+
+    public function validateDate($attr, $params)
+    {
+        $expireDt = new \DateTime($this->usage->actual_to.' 23:59:59');
+        $nowDt = new \DateTime('now');
+
+        if (!$this->usage->isActive() && $expireDt < $nowDt) {
+            $this->addError('disconnecting_date', 'Услуга отключена '.($expireDt->format('d.m.Y')));
+        }
+    }
+
 
 }

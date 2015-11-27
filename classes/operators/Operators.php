@@ -64,6 +64,7 @@ abstract class Operators extends Object
     public function generateExcel($report)
     {
         $excel = new OnlimeOperatorToExcel;
+        $excel->setColumnShift($this->reportColumnsShiftFrom);
         $excel->openFile(Yii::getAlias('@app/templates/' . static::$reportTemplate . '.xls'));
         $excel->prepare(static::$reportFields, $this->products, $report);
         $excel->download($this->operatorClient);

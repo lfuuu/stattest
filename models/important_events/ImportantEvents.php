@@ -2,10 +2,12 @@
 
 namespace app\models\important_events;
 
+use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\dao\important_events\ImportantEventsDao;
+use yii\helpers\ArrayHelper;
 
 class ImportantEvents extends ActiveRecord
 {
@@ -13,9 +15,20 @@ class ImportantEvents extends ActiveRecord
     public function rules()
     {
         return [
-            [['client_id'], 'integer', 'integerOnly' => true],
-            ['date', 'date', 'format' => 'yyyy-MM-dd - yyyy-MM-dd'],
-            ['event', 'string'],
+            [['event', 'source', ], 'required', 'on' => 'create'],
+            [['event', 'source'], 'string'],
+            ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
+                return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'));
+            }],
+            ['client_id', 'integer', 'integerOnly' => true],
+        ];
+    }
+
+    public function scenarios()
+    {
+        return [
+            'create' => ['event', 'source', 'client_id', 'extends_data'],
+            'default' => ['event', 'client_id', 'date'],
         ];
     }
 
@@ -36,33 +49,62 @@ class ImportantEvents extends ActiveRecord
         return 'important_events';
     }
 
-    /**
-     * @param int $clientId
-     * @param string $eventType
-     * @param float $balance
-     * @param float $limit
-     * @param float $currentValue
-     * @param string $date
-     * @return ImportantEvents
-     * @throws \Exception
-     */
-    public static function create($clientId, $eventType, $balance, $limit = 0, $currentValue = 0, $date = 'now')
+    public function getName()
+    {
+        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event']);
+    }
+
+    public function getProperties()
+    {
+        return $this->hasMany(ImportantEventsProperties::className(), ['event_id' => 'id']);
+    }
+
+    public static function create($eventType, $data = [], $date = 'now')
     {
         $event = new self;
 
-        $event->client_id = $clientId;
+        $event->scenario = 'create';
         $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
         $event->event = $eventType;
-        $event->balance = $balance;
-        $event->limit = $limit;
-        $event->value = $currentValue;
 
+        $properties = [];
+        foreach ($data as $key => $value) {
+            if (!array_key_exists($key, $event->attributes)) {
+                $properties[] = [0, $key, $value];
+            }
+            else {
+                $event->{$key} = $value;
+            }
+        }
+
+        if ((int) $event->client_id) {
+            $properties[] = [0, 'balance', self::getBalance($event->client_id)];
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-            return $event->save();
+            if ($event->validate() && $event->save()) {
+                if (count($properties)) {
+                    Yii::$app->db->createCommand()->batchInsert(
+                        ImportantEventsProperties::tableName(),
+                        ['event_id', 'property', 'value'],
+                        array_map(function($row) use ($event) { $row[0] = $event->id; return $row; }, $properties)
+                    )->execute();
+                }
+
+                $transaction->commit();
+                return true;
+            }
+            else {
+                throw new FormValidationException($event);
+            }
         }
         catch (\Exception $e) {
+            $transaction->rollBack();
             throw $e;
         }
+
+        return false;
     }
 
     /**
@@ -115,6 +157,21 @@ class ImportantEvents extends ActiveRecord
         $query->andFilterWhere(array_merge(['between', 'date'], preg_split('#\s\-\s#', $this->date)));
 
         return $dataProvider;
+    }
+
+    /**
+     * @param $clientId
+     * @return float
+     */
+    private static function getBalance($clientId)
+    {
+        $client = ClientAccount::findOne($clientId);
+        $balance = $client->balance;
+        if ($client->credit > -1) {
+            $clientAmountSum = ClientCounter::dao()->getAmountSumByAccountId($client->id);
+            $balance += $clientAmountSum['amount_sum'];
+        }
+        return $balance;
     }
 
 }
