@@ -22,33 +22,6 @@ echo Breadcrumbs::widget([
         $model->name ? 'Редактирование шаблона' : 'Новый шаблон'
     ],
 ]);
-
-$tabs = [];
-if ($model->id) {
-    $languages = Language::find()->orderBy('code desc')->all();
-    $types = Template::$types;
-    foreach ($types as $type => $descr) {
-        foreach ($languages as $language) {
-            $content =
-                TemplateContent::findOne([
-                    'template_id' => $model->id,
-                    'lang_code' => $language->code,
-                    'type' => $type,
-                ]);
-
-            $tabs[] = [
-                'label'     => $descr['title'] . ' ' . $language->name,
-                'content'   => $this->render('content-form', [
-                    'template_id' => $model->id,
-                    'type' => $type,
-                    'type_descr' => $descr,
-                    'language' => $language,
-                    'model' => $content instanceof TemplateContent ? $content : new TemplateContent
-                ]),
-            ];
-        }
-    }
-}
 ?>
 
 <div class="well">
@@ -92,10 +65,42 @@ if ($model->id) {
     ActiveForm::end();
 
     if ($model->id) {
+        $form = ActiveForm::begin([
+            'type' => ActiveForm::TYPE_VERTICAL,
+            'action' => Url::toRoute(['/message/template/edit-template-content', 'template_id' => $model->id]),
+        ]);
+
+        $tabs = [];
+        $languages = Language::find()->orderBy('code desc')->all();
+        $types = Template::$types;
+        foreach ($types as $type => $descr) {
+            foreach ($languages as $language) {
+                $content =
+                    TemplateContent::findOne([
+                        'template_id' => $model->id,
+                        'lang_code' => $language->code,
+                        'type' => $type,
+                    ]);
+
+                $tabs[] = [
+                    'label'     => $descr['title'] . ' ' . $language->name,
+                    'content'   => $this->render('content-form', [
+                        'type' => $type,
+                        'type_descr' => $descr,
+                        'language' => $language,
+                        'model' => $content instanceof TemplateContent ? $content : new TemplateContent,
+                        'form' => $form,
+                    ]),
+                ];
+            }
+        }
+
         echo Tabs::widget([
             'id' => 'tabs-message-template',
             'items' => $tabs,
         ]);
+
+        ActiveForm::end();
     }
     ?>
 </div>
@@ -104,6 +109,7 @@ if ($model->id) {
 $(document).ready(function () {
     tinymce.init({
         selector: '.editor',
+        relative_urls: false,
         height : 350,
         plugins: [
             "advlist autolink lists link image charmap print preview anchor",

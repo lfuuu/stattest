@@ -28,4 +28,5 @@ class Counter extends ActiveRecord
         ]);
         return $query;
     }
+
 }

@@ -1779,6 +1779,7 @@ class m_newaccounts extends IModule
             $design->assign("organization", $organization);
         }
 
+
         if($obj == "receipt")
         {
             $this->_print_receipt();

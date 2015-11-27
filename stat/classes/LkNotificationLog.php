@@ -1,8 +1,6 @@
 <?php 
 
-use app\models\ImportantEvents;
-
-class LkNotificationLog 
+class LkNotificationLog
 {
 
     public static function contact_setEvent($contact, $fld, $value)

@@ -27,6 +27,7 @@ abstract class AccountGridFolder extends Model
     public $account_manager;
     public $bill_date;
     public $service;
+    public $partner_clients_service;
     public $regionId;
     public $sale_channel;
     public $financial_type;
@@ -50,7 +51,7 @@ abstract class AccountGridFolder extends Model
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
+                'service', 'partner_clients_service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
     }
 
@@ -72,6 +73,7 @@ abstract class AccountGridFolder extends Model
                 'status' => '#',
                 'lastComment' => 'Комментарий',
                 'service' => 'Услуга',
+                'partner_clients_service' => 'Услуга',
                 'bill_date' => 'Дата платежа',
                 'abon' => 'Абон.(пред.)',
                 'over' => 'Прев.(пред.)',
@@ -308,16 +310,21 @@ abstract class AccountGridFolder extends Model
                 'filter' => function () {
                     return \kartik\daterange\DateRangePicker::widget([
                         'name' => 'contract_created',
-                        'presetDropdown' => true,
-                        'hideInput' => true,
                         'value' => \Yii::$app->request->get('contract_created'),
+                        'presetDropdown' => true,
                         'pluginOptions' => [
                             'format' => 'YYYY-MM-DD',
                         ],
                         'containerOptions' => [
-                            'style' => 'width:50px; overflow: hidden;',
+                            'style' => 'overflow: hidden;',
                             'class' => 'drp-container input-group',
-                        ]
+                        ],
+                        'pluginEvents' => [
+                            'cancel.daterangepicker' => 'function(e, picker) { picker.element.find("input").val("").trigger("change"); }',
+                        ],
+                        'options' => [
+                            'style' => 'font-size: 10px;',
+                        ],
                     ]);
                 }
             ],
@@ -355,7 +362,38 @@ abstract class AccountGridFolder extends Model
                         \Yii::$app->request->get('service'),
                         [
                             'emails' => 'Email',
-                            'usage_tech_cpe' => 'Texh CPE',
+                            'usage_tech_cpe' => 'Tech CPE',
+                            'usage_extra' => 'Extra',
+                            'usage_ip_ports' => 'IP Ports',
+                            'usage_sms' => 'SMS',
+                            'usage_virtpbx' => 'ВАТС',
+                            'usage_voip' => 'Телефония',
+                            'usage_welltime' => 'Welltime',
+                        ],
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
+                    );
+                },
+            ],
+            'partner_clients_service' => [
+                'attribute' => 'service',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    $usages = [];
+                    if ($data['usage_voip'] > 0) {
+                        $usages[] = 'Телефония';
+                    }
+                    if ($data['usage_virtpbx'] > 0) {
+                        $usages[] = 'ВАТС';
+                    }
+                    return implode(', ', $usages);
+                },
+                'filter' => function () {
+                    return \yii\helpers\Html::dropDownList(
+                        'service',
+                        \Yii::$app->request->get('service'),
+                        [
+                            'emails' => 'Email',
+                            'tech_cpe' => 'Tech CPE',
                             'usage_extra' => 'Extra',
                             'usage_ip_ports' => 'IP Ports',
                             'usage_sms' => 'SMS',
@@ -451,10 +489,10 @@ abstract class AccountGridFolder extends Model
                         'value' => \Yii::$app->request->get('manager'),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
-                            'style' => 'width:100px;',
+                            'style' => 'width: 150px;',
                         ],
                         'pluginOptions' => [
-                            'allowClear' => true
+                            'allowClear' => true,
                         ],
 
                     ]);
@@ -473,10 +511,10 @@ abstract class AccountGridFolder extends Model
                         'data' => \app\models\User::getAccountManagerList(),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
-                            'style' => 'width:100px;',
+                            'style' => 'width: 150px;',
                         ],
                         'pluginOptions' => [
-                            'allowClear' => true
+                            'allowClear' => true,
                         ],
                     ]);
                 },
@@ -525,7 +563,7 @@ abstract class AccountGridFolder extends Model
                         'regionId',
                         \Yii::$app->request->get('regionId'),
                         \app\models\Region::getList(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width: 180px;']
                     );
                 },
             ],

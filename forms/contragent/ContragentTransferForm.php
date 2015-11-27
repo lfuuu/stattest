@@ -24,7 +24,7 @@ class ContragentTransferForm extends Form
     public function rules()
     {
         return [
-            [['targetClientAccount','sourceClientAccount','contracts','clients',], 'required'],
+            [['targetClientAccount','sourceClientAccount',], 'required'],
             [['targetClientAccount','sourceClientAccount',], 'integer'],
         ];
     }
@@ -46,11 +46,7 @@ class ContragentTransferForm extends Form
         Assert::isObject($contragent);
 
         $contracts = ClientContract::find()->where(['id' => $this->contracts])->all();
-        Assert::isArray($contracts);
-
         $clients = ClientAccount::find()->where(['id' => $this->clients])->all();
-        Assert::isArray($clients);
-
         $super = ClientSuper::findOne($contragent->super_id);
 
         try {

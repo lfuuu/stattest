@@ -7,7 +7,13 @@ class OnlimeOperatorToExcel extends Excel
 
     private
         $insertColumnPosition = 4,
-        $insertRowPosition = 4;
+        $insertRowPosition = 4,
+        $columnShift = 0;
+
+    public function setColumnShift($shift)
+    {
+        $this->columnShift = $shift;
+    }
 
     public function prepare(array $fields, array $products, $report)
     {
@@ -26,7 +32,7 @@ class OnlimeOperatorToExcel extends Excel
 
         $worksheet->insertNewRowBefore($this->insertRowPosition + 1, count($report) - 1);
         foreach ($report as $rowIdx => $item) {
-            $colIdx = 0;
+            $colIdx = $this->columnShift;
             $rowIdx += $this->insertRowPosition;
 
             foreach($fields as $title => $field) {
@@ -47,11 +53,11 @@ class OnlimeOperatorToExcel extends Excel
                         );
                     }
                 }
-                else if ($field == 'client') {
+                else if ($field == 'contacts') {
                     $worksheet->setCellValueByColumnAndRow(
                         $colIdx++,
                         $rowIdx,
-                        $item['fio'] . "\n" . $item['phone'] . "\n" . $item['address']
+                        $item['phone'] . "\n" . $item['address']
                     );
                 }
                 else if ($field == 'stages_text') {

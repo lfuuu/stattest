@@ -1,48 +1,55 @@
 <?php 
 
+use app\models\ClientAccount;
+use app\models\ClientCounter;
+
 class Api
 {
-	public static function getBalance($clientIds, $simple = true)
-	{
-		if(!is_array($clientIds))
-			$clientIds = array($clientIds);
-
-		foreach ($clientIds as $clientId)
-		{
-			if(!$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-				throw new Exception("Неверный номер лицевого счета!");
-		}
-
-		$result = array();	
-		foreach ($clientIds as $clientId)
-		{
-
-			$c = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
-
-			if(!$c)
-			{
-				throw new Exception("Лицевой счет не найден!");
-			}
-
-            $balance = $c->balance;
-
-            if ($c->credit >= 0)
-            {
-                $billingCounter = ClientCS::getBillingCounters($clientId, true);
-                $balance +=$billingCounter["amount_sum"];
-            }
-
-			$result[$c->id] = array("id" => $c->id, "balance" => $balance, "currency" => $c->currency);
-		}
-
-        if ($simple)
-        {
-            $clientId = $clientIds[0];
-            return $result[$clientId]["balance"];
+    public static function getBalance($clientIds, $simple = true)
+    {
+        if (!is_array($clientIds)) {
+            $clientIds = (array) $clientIds;
         }
 
-		return $result;
-	}
+        foreach ($clientIds as $clientId) {
+            if(!$clientId || !preg_match("/^\d{1,6}$/", $clientId)) {
+                throw new Exception('Неверный номер лицевого счета!');
+            }
+        }
+
+        $result = [];
+        foreach ($clientIds as $clientId) {
+            $clientAccount = ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
+
+            if (!($clientAccount instanceof ClientAccount)) {
+                throw new Exception('Лицевой счет не найден!');
+            }
+
+            $balance = $clientAccount->balance;
+            $credit = $clientAccount->credit;
+            $expenditure = ClientCounter::dao()->getAmountSumByAccountId($clientAccount->id);
+
+            if ($credit >= 0) {
+                $balance += $expenditure['amount_sum'];
+            }
+
+            $result[$clientAccount->id] = [
+                'id' => $clientAccount->id,
+                'balance' => $balance,
+                'credit' => $credit,
+                'expenditure' => $expenditure,
+                'currency' => $clientAccount->currency,
+                'view_mode' => $clientAccount->lk_balance_view_mode,
+            ];
+        }
+
+        if ($simple) {
+            $clientId = $clientIds[0];
+            return $result[$clientId]['balance'];
+        }
+
+        return $result;
+    }
 
     /**
     * Возвращает все активные номера лицевого счета

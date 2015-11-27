@@ -45,7 +45,7 @@ use app\models\Currency;
 
             'credit' => ['type' => Form::INPUT_CHECKBOX, 'options' => ['id' => 'credit'], 'columnOptions' => ['style' => 'margin-top: 20px;']],
             'credit_size' => ['columnOptions' => ['id' => 'credit-size', 'style' => $model->credit > 0 ? '' : 'display:none;']],
-            ['type' => Form::INPUT_RAW,],
+            'lk_balance_view_mode' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$balanceViewMode],
             ['type' => Form::INPUT_RAW,],
 
             'voip_credit_limit' => ['columnOptions' => ['colspan' => 2], 'options' => ['style' => 'width:20%;']],
