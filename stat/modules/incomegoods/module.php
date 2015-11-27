@@ -1,5 +1,7 @@
 <?php
 use app\classes\StatModule;
+use app\models\ClientAccount;
+use app\models\Business;
 
 class m_incomegoods extends IModule{
 
@@ -138,15 +140,21 @@ class m_incomegoods extends IModule{
         global $design, $fixclient_data, $user;
 
         if (!isset($_GET['id'])) throw new IncorrectRequestParametersException();
+        if (!isset($_GET['client_id'])) throw new IncorrectRequestParametersException();
+
+        $clientId = intval($_GET['client_id']);
+        if (
+            !($client = ClientAccount::findOne(['id' => $clientId]))
+            || $client->contract->business_id != Business::PROVIDER
+        ) {
+            trigger_error2('Выберите клиента-поставщика'); return;
+        }
 
         if ($_GET['id'] == '') {
-            if (!isset($fixclient_data['id'])) {
-                trigger_error2('Выберите клиента...'); return;
-            }
             $order = new GoodsIncomeOrder();
             $order->active = true;
             $order->currency = \app\models\Currency::RUB;
-            $order->client_card_id = $fixclient_data['id'];
+            $order->client_card_id = $clientId;
             $order->organization_id = GoodsOrganization::DEFAULT_FOR_INCOMES;
             $order->store_id = Store::MAIN_STORE;
             $order->status = GoodsIncomeOrder::STATUS_AGREED;

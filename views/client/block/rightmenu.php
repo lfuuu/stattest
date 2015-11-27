@@ -26,7 +26,7 @@
         </li>
         <?php if ($account->contract->business_id == \app\models\Business::PROVIDER) : ?>
         <li style="background: url('/images/icons/disable.gif') no-repeat 0px 6px;">
-            <a href="?module=incomegoods&action=order_edit&id=">Заказ Поставщику</a>
+            <a href="?module=incomegoods&action=order_edit&id=&client_id=<?= $account->id ?>">Заказ Поставщику</a>
         </li>
         <?php endif; ?>
         <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
