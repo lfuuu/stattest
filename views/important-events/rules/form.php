@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use unclead\widgets\MultipleInput;
 use app\classes\Html;
+use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsRulesConditions;
 use app\models\message\Template as MessageTemplate;
 use app\classes\actions\message\SendActionFactory;
@@ -32,12 +33,17 @@ $form = ActiveForm::begin([
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 3,
+    'columns' => 4,
     'attributes' => [
         'title' => ['type' => Form::INPUT_TEXT,],
         'action' => [
             'type' => Form::INPUT_DROPDOWN_LIST,
             'items' => ['' => '- Выбрать -'] + ArrayHelper::map(SendActionFactory::me()->getActions(), 'code', 'title'),
+            'options' => ['class' => 'select2'],
+        ],
+        'event' => [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => ImportantEvents::dao()->getList(true),
             'options' => ['class' => 'select2'],
         ],
         'message_template_id' => [

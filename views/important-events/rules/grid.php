@@ -52,6 +52,14 @@ echo GridView::widget([
             'width' => '20%',
         ],
         [
+            'label' => 'Событие',
+            'format' => 'raw',
+            'value' => function($data) {
+                return $data->eventInfo->title . ' (' . $data->event . ')';
+            },
+            'width' => '20%',
+        ],
+        [
             'label' => 'Шаблон сообщения',
             'format' => 'raw',
             'value' => function($data) {

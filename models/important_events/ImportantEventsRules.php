@@ -44,7 +44,7 @@ class ImportantEventsRules extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'action', 'message_template_id'], 'required'],
+            [['title', 'action', 'event', 'message_template_id'], 'required'],
             [['message_template_id'], 'integer'],
             ['conditions', 'validateConditions'],
         ];
@@ -54,10 +54,8 @@ class ImportantEventsRules extends ActiveRecord
     {
         return [
             'title' => 'Название',
-            'property' => 'Свойство',
-            'condition' => 'Условие',
-            'value' => 'Значение',
             'action' => 'Действие',
+            'event' => 'Событие',
             'message_template_id' => 'Шаблон сообщения',
         ];
     }
@@ -79,6 +77,11 @@ class ImportantEventsRules extends ActiveRecord
     public function getAction()
     {
         return SendActionFactory::me()->get($this->action);
+    }
+
+    public function getEventInfo()
+    {
+        return $this->hasOne(ImportantEvents::className(), ['event' => 'event']);
     }
 
     public function getTemplate()

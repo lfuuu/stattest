@@ -5,6 +5,7 @@ namespace app\models\important_events;
 use DateTime;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
+use app\dao\important_events\ImportantEventsDao;
 
 class ImportantEvents extends ActiveRecord
 {
@@ -62,6 +63,23 @@ class ImportantEvents extends ActiveRecord
         catch (\Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     * @return ImportantEventsDao
+     */
+    public static function dao()
+    {
+        return ImportantEventsDao::me();
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        $name = ImportantEventsNames::findOne(['code' => $this->event]);
+        return ($name instanceof ImportantEventsNames ? $name->value : $this->event);
     }
 
     /**
