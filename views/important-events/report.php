@@ -17,11 +17,11 @@ echo GridView::widget([
     'columns' => [
         [
             'class' => 'app\classes\grid\column\important_events\ClientColumn',
-            'width' => '5%',
+            'width' => '15%',
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '30%',
+            'width' => '12%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
@@ -43,20 +43,12 @@ echo GridView::widget([
             ])
         ],
         [
-            'class' => 'app\classes\grid\column\important_events\NotificationNameColumn',
+            'class' => 'app\classes\grid\column\important_events\EventNameColumn',
+            'width' => '15%',
+        ],
+        [
+            'class' => 'app\classes\grid\column\important_events\PropertiesColumn',
             'width' => '30%',
-        ],
-        [
-            'attribute' => 'balance',
-            'width' => '10%',
-        ],
-        [
-            'attribute' => 'limit',
-            'width' => '10%',
-        ],
-        [
-            'attribute' => 'value',
-            'width' => '10%',
         ],
     ],
     'pjax' => false,

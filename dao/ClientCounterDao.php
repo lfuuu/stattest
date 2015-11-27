@@ -34,7 +34,9 @@ class ClientCounterDao extends Singleton
         if (isset(static::$amounts[$clientId])) {
             return static::$amounts[$clientId];
         }
+
         $pgCounter = Counter::findOne(['client_id' => $clientId]);
+
         if ($pgCounter) {
             $counter = ClientCounter::findOne($clientId);
             if (!$counter) {
@@ -50,8 +52,11 @@ class ClientCounterDao extends Singleton
                 $counter->delete();
             }
         }
+
         $result = ($pgCounter) ? $pgCounter->toArray() : ['amount_sum' => 0, 'amount_day_sum' => 0, 'amount_month_sum' => 0];
+
         static::$amounts[$clientId] = $result;
+
         return $result;
     }
 

@@ -5,15 +5,26 @@ namespace app\classes\grid\column\important_events;
 use Yii;
 use yii\helpers\Html;
 use app\classes\grid\column\DataColumn;
+use app\models\ClientAccount;
 
 class ClientColumn extends DataColumn
 {
     public $attribute = 'client_id';
-    public $label = 'Л/С';
+    public $label = 'Клиент';
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        return Html::a(parent::getDataCellValue($model, $key, $index), ['client/view', 'id' => $model->id], ['target' => '_blank']);
+        $value = parent::getDataCellValue($model, $key, $index);
+        $clientAccount = ClientAccount::findOne($value);
+
+        return
+            $clientAccount instanceof ClientAccount
+            ? Html::a(
+                $clientAccount->contract->contragent->name,
+                ['client/view', 'id' => $clientAccount->id],
+                ['target' => '_blank']
+              )
+            : '';
     }
 
 }
