@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 
 class ClientSearch extends ClientAccount
 {
@@ -115,7 +116,15 @@ class ClientSearch extends ClientAccount
         if ($this->ip) {
             $query->leftJoin(UsageIpPorts::tableName(), UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
             $query->leftJoin(UsageIpRoutes::tableName(), UsageIpRoutes::tableName() . '.port_id=' . UsageIpPorts::tableName() . '.id');
-            $query->andFilterWhere(['like', UsageIpRoutes::tableName() . '.net', $this->ip]);
+            $query->andFilterWhere(
+                ['or', 
+                    ['and', 
+                        (new Expression('INET_ATON("' . $this->ip . '") >= INET_ATON(SUBSTRING_INDEX(net,"/",1))')),
+                        (new Expression('INET_ATON("' . $this->ip . '") <  INET_ATON(SUBSTRING_INDEX(net,"/",1))' . 
+                                                                          '+POW(2,32-SUBSTRING_INDEX(net,"/",-1))'))
+                    ],
+                    ['like', UsageIpRoutes::tableName() . '.net', $this->ip]
+                ]);
         }
 
         if ($this->domain) {
