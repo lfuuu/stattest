@@ -21,7 +21,7 @@ foreach ($contragents as $contragent) {
 }
 $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
-$language = Language::getLanguageByCountryId($contragents[0]['country_id']?:643);
+$language = Language::getLanguageByCountryId($contragents[0]['country_id']?: \app\models\Country::RUSSIA);
 
 if (!$model->id) {
     $model->organization_id = ClientContragent::$defaultOrganization[ $model->contract->contragent->legal_type ];

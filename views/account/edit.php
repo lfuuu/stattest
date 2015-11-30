@@ -8,7 +8,7 @@ use app\classes\Language;
 use app\models\ClientDocument;
 use app\models\UserGroups;
 
-$language = Language::getLanguageByCountryId(643);
+$language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
 <div class="row">
     <div class="col-sm-12">

@@ -5,7 +5,7 @@ use kartik\widgets\DatePicker;
 use app\classes\Language;
 use app\models\UserGroups;
 
-$language = Language::getLanguageByCountryId($model->country_id?:643);
+$language = Language::getLanguageByCountryId($model->country_id?: \app\models\Country::RUSSIA);
 $model->formLang = $language;
 ?>
 <div class="row">

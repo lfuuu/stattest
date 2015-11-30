@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use app\classes\Language;
 
-$language = Language::getLanguageByCountryId($contragent->country_id?:643);
+$language = Language::getLanguageByCountryId($contragent->country_id?: \app\models\Country::RUSSIA);
 $contragent->formLang = $language;
 ?>
 <div class="row">
