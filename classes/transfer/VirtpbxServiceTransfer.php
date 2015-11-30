@@ -5,6 +5,7 @@ namespace app\classes\transfer;
 use Yii;
 use app\classes\Html;
 use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\LogTarif;
@@ -53,7 +54,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
                         ])
                         ->actual()
                         ->one()
-                ) instanceof Usage
+                ) instanceof UsageInterface
             ) {
                 $dbTransaction = Yii::$app->db->beginTransaction();
                 try {
