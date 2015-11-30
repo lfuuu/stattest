@@ -410,6 +410,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 $number->status != Number::STATUS_INSTOCK 
                 && $number->status != Number::STATUS_HOLD
                 && !($number->status == Number::STATUS_RESERVED && $number->client_id == $this->clientAccount->id)
+                && $number->status != Number::STATUS_ACTIVE //контроль переноса номера в статусе "активный" регулируется далее
             ) {
                 $msg = 'Номер находится в статусе "' . Number::$statusList[$number->status] . '"';
 
@@ -419,6 +420,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
                 $this->addError('did', $msg);
             }
+
 
             if ($number && $number->city_id != $this->city_id) {
                 $this->addError('did', 'Номер ' . $this->did . ' из другого города');
