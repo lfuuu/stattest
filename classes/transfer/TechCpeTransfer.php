@@ -10,7 +10,7 @@ use yii\base\InvalidValueException;
  * Класс переноса устройств
  * @package app\classes\transfer
  */
-class UsageTechCpeTransfer extends ServiceTransfer
+class TechCpeTransfer extends ServiceTransfer
 {
 
     /**
