@@ -7,18 +7,19 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use unclead\widgets\MultipleInput;
 use app\classes\Html;
-use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsRules;
+use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsRulesConditions;
 use app\models\message\Template as MessageTemplate;
 use app\classes\actions\message\SendActionFactory;
 
-/** @var Template $model */
+/** @var ImportantEventsRules $model */
 
 echo Html::formLabel($model->id ? 'Редактирование правила' : 'Новое правило');
 echo Breadcrumbs::widget([
     'links' => [
-        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important-events'])],
-        ['label' => 'Список правил на события', 'url' => Url::toRoute(['/important-events/rules'])],
+        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
+        ['label' => 'Список правил на события', 'url' => Url::toRoute(['/important_events/rules'])],
         $model->id ? 'Редактирование правила' : 'Новое правило'
     ],
 ]);
@@ -43,7 +44,7 @@ echo Form::widget([
         ],
         'event' => [
             'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => ImportantEvents::dao()->getList(true),
+            'items' => ['' => '- Выбрать -'] + ArrayHelper::map(ImportantEventsNames::find()->all(), 'code', 'value'),
             'options' => ['class' => 'select2'],
         ],
         'message_template_id' => [
@@ -64,7 +65,7 @@ echo Form::widget([
             'type' => Form::INPUT_WIDGET,
             'widgetClass' => MultipleInput::className(),
             'options' => [
-                'allowEmptyList'    => false,
+                'allowEmptyList'    => true,
                 'enableGuessTitle'  => true,
                 'columns' => [
                     [
@@ -100,7 +101,7 @@ echo Form::widget([
                     Html::button('Отменить', [
                         'class' => 'btn btn-link',
                         'style' => 'margin-right: 15px;',
-                        'onClick' => 'self.location = "' . Url::toRoute(['important-events/rules']) . '";',
+                        'onClick' => 'self.location = "' . Url::toRoute(['important_events/rules']) . '";',
                     ]) .
                     Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
                     ['style' => 'text-align: right; padding-right: 0px;']

@@ -13,7 +13,7 @@ $recordBtns = [
     'delete' => function($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            ['/important-events/rules-delete', 'rule_id' => $model->id],
+            ['/important_events/rules/delete', 'rule_id' => $model->id],
             [
                 'title' => Yii::t('kvgrid', 'Delete'),
                 'data-pjax' => 0,
@@ -26,7 +26,7 @@ $recordBtns = [
 echo Html::formLabel('Список правил на события');
 echo Breadcrumbs::widget([
     'links' => [
-        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important-events'])],
+        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
         'Список правил на события'
     ],
 ]);
@@ -39,7 +39,7 @@ echo GridView::widget([
             'label' => 'Название',
             'format' => 'raw',
             'value' => function($data) {
-                return Html::a($data->title, ['/important-events/rules-edit', 'id' => $data->id]);
+                return Html::a($data->title, ['/important_events/rules/edit', 'id' => $data->id]);
             },
             'width' => '*',
         ],
@@ -55,7 +55,7 @@ echo GridView::widget([
             'label' => 'Событие',
             'format' => 'raw',
             'value' => function($data) {
-                return $data->eventInfo->title . ' (' . $data->event . ')';
+                return $data->eventInfo->value . ' (' . $data->event . ')';
             },
             'width' => '20%',
         ],
@@ -95,7 +95,7 @@ echo GridView::widget([
             'content' =>
                 Html::a(
                     '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['/important-events/rules-edit'],
+                    ['/important_events/rules/edit'],
                     [
                         'data-pjax' => 0,
                         'class' => 'btn btn-success btn-sm form-lnk',
