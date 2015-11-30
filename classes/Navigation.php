@@ -102,7 +102,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Логи')
                 ->addStatModuleItems('logs')
-                ->addItem('Значимые события', ['/important-events'])
+                ->addItem('Значимые события', ['/important_events/report'])
         );
 
         $this->addBlock(

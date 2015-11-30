@@ -23,6 +23,12 @@ echo Breadcrumbs::widget([
         $model->id ? 'Редактирование правила' : 'Новое правило'
     ],
 ]);
+
+$eventsList = ['' => '- Выбрать -'];
+
+foreach (ImportantEventsNames::find()->all() as $event) {
+    $eventsList[$event->group->title][$event->code] = $event->value;
+}
 ?>
 
 <div class="well">
@@ -44,7 +50,7 @@ echo Form::widget([
         ],
         'event' => [
             'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => ['' => '- Выбрать -'] + ArrayHelper::map(ImportantEventsNames::find()->all(), 'code', 'value'),
+            'items' => $eventsList,
             'options' => ['class' => 'select2'],
         ],
         'message_template_id' => [

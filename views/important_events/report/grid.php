@@ -62,3 +62,20 @@ echo GridView::widget([
     ],
 ]);
 ?>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('.select2').select2({
+        templateResult: function(item) {
+            console.log(item);
+            var $result =
+                $('<input />')
+                    .attr('type', 'checkbox')
+                    .attr('name', 'test')
+                    .val(item.val());
+
+            return $result + item.text;
+        }
+    });
+});
+</script>
