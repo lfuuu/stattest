@@ -4,7 +4,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\dao\UsageTechCpeDao;
 use app\queries\UsageTechCpeQuery;
-use app\classes\transfer\UsageTechCpeTransfer;
+use app\classes\transfer\TechCpeTransfer;
 use app\helpers\usages\UsageTechCpeHelper;
 
 /**
@@ -42,11 +42,11 @@ class UsageTechCpe extends ActiveRecord
 
     /**
      * @param $usage
-     * @return UsageTechCpeTransfer
+     * @return TechCpeTransfer
      */
     public static function getTransferHelper($usage)
     {
-        return new UsageTechCpeTransfer($usage);
+        return new TechCpeTransfer($usage);
     }
 
     /**
