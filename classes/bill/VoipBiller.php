@@ -6,6 +6,7 @@ use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
 use app\models\UsageVoipPackage;
+use app\dao\billing\CallsDao;
 use Yii;
 
 class VoipBiller extends Biller
@@ -239,27 +240,7 @@ class VoipBiller extends Biller
         $to = clone $this->billerActualTo;
         $to->setTimezone(new \DateTimeZone('UTC'));
 
-        $command =
-            Yii::$app->get('dbPg')
-                ->createCommand("
-                        select
-                            case destination_id <= 0 when true then
-                                case mob when true then 5 else 4 end
-                            else destination_id end rdest,
-                            cast( - sum(cost) as NUMERIC(10,2)) as price
-                        from
-                            calls_raw.calls_raw
-                        where
-                            number_service_id = {$this->usage->id}
-                            and connect_time >= '" . $from->format('Y-m-d H:i:s') . "'
-                            and connect_time <= '" . $to->format('Y-m-d H:i:s') . "'
-                            and abs(cost) > 0.00001
-                        group by rdest
-                        having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
-                    "
-                );
-
-        $res = $command->queryAll();
+        $res = CallsDao::calcByDest($this->usage, $from, $to);
 
         $groups = $logTarif->dest_group;
 
