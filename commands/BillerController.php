@@ -12,6 +12,8 @@ class BillerController extends Controller
 
     public function actionTariffication()
     {
+        define('MONTHLY_BILLING', 1);
+
         Yii::info("Запущен тариффикатор");
 
         $partSize = 500;
