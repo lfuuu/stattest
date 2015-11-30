@@ -22,7 +22,6 @@ foreach ($contragents as $contragent) {
 $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
 $language = Language::getLanguageByCountryId($contragents[0]['country_id']?:643);
-$formFolderName = Language::getLanguageExtension($language);
 
 if (!$model->id) {
     $model->organization_id = ClientContragent::$defaultOrganization[ $model->contract->contragent->legal_type ];
@@ -35,7 +34,7 @@ if (!$model->id) {
 
         <?php $f = ActiveForm::begin(); ?>
 
-        <?= $this->render($formFolderName.'/form', ['model' => $model, 'f' => $f, 'contragents' => $contragents, 'contragentsOptions' => $contragentsOptions]); ?>
+        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f, 'contragents' => $contragents, 'contragentsOptions' => $contragentsOptions]); ?>
 
         <div class="row" style="width: 1100px;">
             <div class="row">

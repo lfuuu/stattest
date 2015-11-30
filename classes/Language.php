@@ -33,13 +33,6 @@ class Language
         return $country ? $country->lang : null;
     }
 
-    public static function getLanguageExtension($lang = null)
-    {
-        if(!$lang)
-            $lang = self::getCurrentLanguage();
-        return (explode('-', $lang)[0]);
-    }
-
     private static function languageExists($lang)
     {
         return array_key_exists($lang, \app\models\Language::getList());

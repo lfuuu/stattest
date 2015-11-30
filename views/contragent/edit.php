@@ -6,7 +6,6 @@ use app\classes\Language;
 use app\models\UserGroups;
 
 $language = Language::getLanguageByCountryId($model->country_id?:643);
-$formFolderName = Language::getLanguageExtension($language);
 $model->formLang = $language;
 ?>
 <div class="row">
@@ -18,7 +17,7 @@ $model->formLang = $language;
         <?php endif; ?>
 
         <?php $f = ActiveForm::begin(); ?>
-        <?= $this->render($formFolderName.'/form', ['model' => $model, 'f' => $f]); ?>
+        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f]); ?>
         <div class="row" style="width: 1100px;">
             <div class="col-sm-6">
                 <div class="row">
