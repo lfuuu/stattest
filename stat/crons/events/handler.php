@@ -104,6 +104,9 @@ function do_events()
 
                 case 'check__usages': {
                     /* проверка необходимости включить или выключить услугу UsageVoip */
+                    Event::go('check__voip_old_numbers');
+
+                    /* проверка необходимости включить или выключить услугу в новой схеме */
                     Event::go('check__voip_numbers');
 
                     /* проверка необходимости включить или выключить услугу UsageVirtPbx */
@@ -111,7 +114,7 @@ function do_events()
                 }
 
                 /* проверка необходимости включить или выключить услугу UsageVoip */
-                case 'check__voip_numbers': {
+                case 'check__voip_old_numbers': {
                     voipNumbers::check();
                     echo "...voipNumbers::check()";
                     break;
@@ -184,7 +187,7 @@ function do_events()
                         SyncCore::checkProductState('phone', $param['account_id']);
                         break;
 
-                    case 'midnight':
+                    case 'check__voip_numbers':
                         ActaulizerVoipNumbers::me()->actualizeAll();
                         break;
 
