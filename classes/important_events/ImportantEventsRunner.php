@@ -22,7 +22,6 @@ class ImportantEventsRunner
                 $action->run($rule->template, $event);
             }
         }
-        exit;
     }
 
     private static function runConditions(ImportantEventsRules $rule)
