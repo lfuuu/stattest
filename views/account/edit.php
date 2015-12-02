@@ -8,8 +8,7 @@ use app\classes\Language;
 use app\models\ClientDocument;
 use app\models\UserGroups;
 
-$language = Language::getLanguageByCountryId(643);
-$formFolderName = Language::getLanguageExtension($language);
+$language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
 <div class="row">
     <div class="col-sm-12">
@@ -17,7 +16,7 @@ $formFolderName = Language::getLanguageExtension($language);
 
         <?php $f = ActiveForm::begin(); ?>
 
-        <?= $this->render($formFolderName.'/form', ['model' => $model, 'f' => $f]); ?>
+        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f]); ?>
 
         <div class="row" style="width: 1100px;">
 

@@ -82,13 +82,7 @@ if (!empty($title)) {
                     echo $form->field($model, 'lang_code')
                         ->dropDownList(
                             ArrayHelper::map(
-                                array_map(
-                                    function($item){
-                                        $item['lang'] = explode('-', $item['lang'])[0];
-                                        return $item;
-                                    },
-                                    Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('lang desc')->all()
-                                ),
+                                Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('lang desc')->all(),
                                 'lang',
                                 'lang'
                             ),

@@ -14,7 +14,7 @@ $cl = NewClientPage::openBy($I);
 
 $data = [
     'ContragentEditForm' => [
-        'country_id' => 643,
+        'country_id' => \app\models\Country::RUSSIA,
         'legal_type' => 'legal',
         'super_id' => '',
         'name' => 'Ромашка',

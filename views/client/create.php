@@ -4,8 +4,7 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use app\classes\Language;
 
-$language = Language::getLanguageByCountryId($contragent->country_id?:643);
-$formFolderName = Language::getLanguageExtension($language);
+$language = Language::getLanguageByCountryId($contragent->country_id?: \app\models\Country::RUSSIA);
 $contragent->formLang = $language;
 ?>
 <div class="row">
@@ -20,9 +19,9 @@ $contragent->formLang = $language;
             </div>
         </div>
 
-        <?= $this->render('../contragent/' . $formFolderName . '/form', ['model' => $contragent, 'f' => $f]); ?>
-        <?= $this->render('../contract/' . $formFolderName . '/form', ['model' => $contract, 'f' => $f]); ?>
-        <?= $this->render('../account/' . $formFolderName . '/form', ['model' => $account, 'f' => $f]); ?>
+        <?= $this->render('../contragent/' . $language . '/form', ['model' => $contragent, 'f' => $f]); ?>
+        <?= $this->render('../contract/' . $language . '/form', ['model' => $contract, 'f' => $f]); ?>
+        <?= $this->render('../account/' . $language . '/form', ['model' => $account, 'f' => $f]); ?>
 
         <div class="row" style="width: 1100px;">
             <div class="col-sm-12 form-group">
