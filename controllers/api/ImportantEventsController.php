@@ -6,7 +6,7 @@ use Yii;
 use app\exceptions\FormValidationException;
 use app\classes\DynamicModel;
 use app\classes\ApiController;
-use app\models\ImportantEvents;
+use app\models\important_events\ImportantEvents;
 
 class ImportantEventsController extends ApiController
 {
@@ -18,8 +18,8 @@ class ImportantEventsController extends ApiController
         $model = DynamicModel::validateData(
             $data,
             [
-                [['event'], 'required'],
-                [['event'], 'string'],
+                [['event', 'source'], 'required'],
+                [['event', 'source'], 'string'],
             ]
         );
 
@@ -27,7 +27,7 @@ class ImportantEventsController extends ApiController
             throw new FormValidationException($model);
         }
 
-        if (ImportantEvents::create($model->event, (array) $data)) {
+        if (ImportantEvents::create($model->event, $model->source, (array) $data)) {
             return ['success' => true];
         }
     }

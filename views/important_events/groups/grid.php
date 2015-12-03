@@ -13,21 +13,21 @@ $recordBtns = [
     'delete' => function($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            ['/important-events/rules-delete', 'rule_id' => $model->id],
+            ['/important_events/groups/delete', 'group_id' => $model->id],
             [
                 'title' => Yii::t('kvgrid', 'Delete'),
                 'data-pjax' => 0,
-                'onClick' => 'return confirm("Вы уверены, что хотите удалить правило ?")',
+                'onClick' => 'return confirm("Вы уверены, что хотите удалить группу ?")',
             ]
         );
     },
 ];
 
-echo Html::formLabel('Список правил на события');
+echo Html::formLabel('Список групп событий');
 echo Breadcrumbs::widget([
     'links' => [
-        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important-events'])],
-        'Список правил на события'
+        ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
+        'Список групп событий'
     ],
 ]);
 
@@ -39,39 +39,9 @@ echo GridView::widget([
             'label' => 'Название',
             'format' => 'raw',
             'value' => function($data) {
-                return Html::a($data->title, ['/important-events/rules-edit', 'id' => $data->id]);
+                return Html::a($data->title, ['/important_events/groups/edit', 'id' => $data->id]);
             },
             'width' => '*',
-        ],
-        [
-            'label' => 'Действие',
-            'format' => 'raw',
-            'value' => function($data) {
-                return $data->getAction($data->action)->title;
-            },
-            'width' => '20%',
-        ],
-        [
-            'label' => 'Шаблон сообщения',
-            'format' => 'raw',
-            'value' => function($data) {
-                return Html::a($data->template->name, ['/message/template/edit', 'id' => $data->template->id], ['target' => '_blank']);
-            },
-            'width' => '20%',
-        ],
-        [
-            'label' => 'Условие',
-            'format' => 'raw',
-            'value' => function($data) {
-                $result = [];
-
-                foreach ($data->allConditions as $condition) {
-                    $result[] = Html::tag('b', $condition->property) . ' ' . ImportantEventsRulesConditions::$conditions[$condition->condition] . ' ' . Html::tag('b', $condition->value);
-                }
-
-                return implode('<br />', $result);
-            },
-            'width' => '20%',
         ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',
@@ -87,7 +57,7 @@ echo GridView::widget([
             'content' =>
                 Html::a(
                     '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['/important-events/rules-edit'],
+                    ['/important_events/groups/edit'],
                     [
                         'data-pjax' => 0,
                         'class' => 'btn btn-success btn-sm form-lnk',
