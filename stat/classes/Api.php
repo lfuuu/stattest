@@ -25,22 +25,7 @@ class Api
                 throw new Exception('Лицевой счет не найден!');
             }
 
-            $balance = $clientAccount->balance;
-            $credit = $clientAccount->credit;
-            $expenditure = ClientCounter::dao()->getAmountSumByAccountId($clientAccount->id);
-
-            if ($credit >= 0) {
-                $balance += $expenditure['amount_sum'];
-            }
-
-            $result[$clientAccount->id] = [
-                'id' => $clientAccount->id,
-                'balance' => $balance,
-                'credit' => $credit,
-                'expenditure' => $expenditure,
-                'currency' => $clientAccount->currency,
-                'view_mode' => $clientAccount->lk_balance_view_mode,
-            ];
+            $result[$clientAccount->id] = $clientAccount->makeBalance(true);
         }
 
         if ($simple) {

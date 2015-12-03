@@ -530,4 +530,28 @@ class ClientAccount extends HistoryActiveRecord
     {
         return in_array($this->id, self::$shopIds);
     }
+
+    public function makeBalance($isWithExp = false)
+    {
+        $balance = $this->balance;
+        $expenditure = ClientCounter::dao()->getAmountSumByAccountId($this->id);
+
+        if ($this->credit >= 0) {
+            $balance += $expenditure['amount_sum'];
+        }
+
+        $res = [
+            'balance' => $balance,
+            'currency' => $this->currency,
+        ];
+
+        if ($isWithExp) {
+            $res['id'] = $this->id;
+            $res['credit'] = $this->credit;
+            $res['expenditure'] = $expenditure;
+            $res['view_mode'] = $this->lk_balance_view_mode;
+        }
+
+        return $res;
+    }
 }
