@@ -106,14 +106,12 @@ class m151127_081124_important_events_all extends \app\classes\Migration
                 ("unset_zero_balance", "Снятие: Финансовая блокировка", 1),
                 ("zero_balance", "Финансовая блокировка", 1);
         ');
-
-        return false;
     }
 
     public function down()
     {
         echo "m151127_081124_important_events_rules_event cannot be reverted.\n";
 
-        return true;
+        return false;
     }
 }
