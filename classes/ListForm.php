@@ -6,11 +6,10 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\Query;
+use app\clesses\Form;
 
 abstract class ListForm extends Model
 {
-    const PAGE_SIZE = 20;
-
     /**
      * @return ActiveDataProvider
      */
@@ -25,7 +24,7 @@ abstract class ListForm extends Model
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => self::PAGE_SIZE,
+                'pageSize' => Form::PAGE_SIZE,
             ],
         ]);
     }
