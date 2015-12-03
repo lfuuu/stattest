@@ -328,9 +328,6 @@ if (!$model->id) {
                 </div>
                 <div class="col-sm-2">
                     <?= $file->ts ?>
-                    <a href="#" class="deleteFile" data-id="<?= $file->id ?>">
-                        <img style="margin: -3px 0 0 -2px;" class=icon src="/images/icons/delete.gif" alt="Удалить" />
-                    </a>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -410,19 +407,6 @@ if (!$model->id) {
             });
         });
 
-        $('.deleteFile').on('click', function (e) {
-            e.preventDefault();
-            var fid = $(this).data('id');
-            var row = $(this).closest('.row');
-            if (confirm('Вы уверены, что хотите удалить файл?')) {
-                $.getJSON('/file/delete-client-file', {id: fid}, function (data) {
-                    console.log(data);
-                    console.log(data['status'] == 'ok');
-                    if (data['status'] == 'ok')
-                        row.remove();
-                });
-            }
-        });
     </script>
 
     <style>
