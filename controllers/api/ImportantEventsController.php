@@ -6,7 +6,7 @@ use Yii;
 use app\exceptions\FormValidationException;
 use app\classes\DynamicModel;
 use app\classes\ApiController;
-use app\models\ImportantEvents;
+use app\models\important_events\ImportantEvents;
 
 class ImportantEventsController extends ApiController
 {

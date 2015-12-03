@@ -77,7 +77,6 @@ class Navigation
                 ->setTitle('Письма клиентам')
                 ->addStatModuleItems('mail')
                 ->addItem('Шаблоны сообщений', ['message/template'], ['mail.w'])
-                ->addItem('Правила на события', ['important-events/rules'], ['mail.w'])
         );
 
         $this->addBlock(
@@ -103,20 +102,19 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Логи')
                 ->addStatModuleItems('logs')
-                ->addItem('Значимые события', ['/important-events'])
+                ->addItem('Значимые события', ['/important_events/report'])
         );
 
-        $settingsBlock = NavigationBlock::create();
-        if ($settingsBlock) {
-            $this->addBlock(
-                $settingsBlock
-                    ->setId('settings')
-                    ->setTitle('Настройки')
-                    ->setRights(['organization.read', 'person.read'])
-                    ->addItem('Организации', ['/organization'])
-                    ->addItem('Ответственные лица', ['/person'])
-            );
-        }
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('dictionaries')
+                ->setTitle('Словари')
+                ->addItem('Организации', ['/organization'], ['organization.read'])
+                ->addItem('Ответственные лица', ['/person'], ['person.read'])
+                ->addItem('Названия событий', ['important_events/names'])
+                ->addItem('Группы событий', ['important_events/groups'])
+                ->addItem('Правила на события', ['important_events/rules'])
+        );
     }
 
     /**
