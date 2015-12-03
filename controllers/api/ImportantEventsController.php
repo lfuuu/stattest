@@ -18,8 +18,8 @@ class ImportantEventsController extends ApiController
         $model = DynamicModel::validateData(
             $data,
             [
-                [['event'], 'required'],
-                [['event'], 'string'],
+                [['event', 'source'], 'required'],
+                [['event', 'source'], 'string'],
             ]
         );
 
@@ -27,7 +27,7 @@ class ImportantEventsController extends ApiController
             throw new FormValidationException($model);
         }
 
-        if (ImportantEvents::create($model->event, (array) $data)) {
+        if (ImportantEvents::create($model->event, $model->source, (array) $data)) {
             return ['success' => true];
         }
     }

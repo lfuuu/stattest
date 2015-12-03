@@ -20,8 +20,8 @@ class ImportantEvents extends ActiveRecord
     {
         return [
             [['event', 'source_id', ], 'required', 'on' => 'create'],
-            [['event', 'source_id', ], 'string'],
-            [['event', 'source_id', ], 'trim'],
+            [['event', ], 'trim'],
+            ['source_id', 'integer'],
             ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
                 return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'), true);
             }],
@@ -61,19 +61,29 @@ class ImportantEvents extends ActiveRecord
 
     /**
      * @param $eventType
+     * @param $eventSource
      * @param array $data
      * @param string $date
      * @return bool
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    public static function create($eventType, $data = [], $date = 'now')
+    public static function create($eventType, $eventSource, $data = [], $date = 'now')
     {
         $event = new self;
 
         $event->scenario = 'create';
         $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
         $event->event = $eventType;
+
+        $source = ImportantEventsSources::findOne(['title' => $eventSource]);
+        if (!($source instanceof ImportantEventsSources)) {
+            $source = new ImportantEventsSources;
+            $source->title = $eventSource;
+            $source->save();
+        }
+
+        $event->source_id = $source->id;
 
         foreach ($data as $key => $value) {
             if (!array_key_exists($key, $event->attributes)) {
@@ -92,7 +102,7 @@ class ImportantEvents extends ActiveRecord
             throw new FormValidationException($event);
         }
 
-        return false;
+        return true;
     }
 
     /**
