@@ -9,7 +9,24 @@ class m151127_081124_important_events_all extends \app\classes\Migration
         $this->execute('DROP TABLE IF EXISTS `important_events_rules` CASCADE');
         $this->execute('DROP TABLE IF EXISTS `important_events_names` CASCADE');
         $this->execute('DROP TABLE IF EXISTS `important_events_groups` CASCADE');
+        $this->execute('DROP TABLE IF EXISTS `important_events_sources`');
         $this->execute('DROP TABLE IF EXISTS `important_events`');
+
+        $this->execute('
+            CREATE TABLE `important_events_groups` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `title` VARCHAR(150) NULL DEFAULT "0",
+                PRIMARY KEY (`id`)
+            ) COLLATE="utf8_general_ci" ENGINE=InnoDB
+        ');
+
+        $this->execute('
+            CREATE TABLE `important_events_sources` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `title` VARCHAR(150) NOT NULL,
+                PRIMARY KEY (`id`)
+            ) COLLATE="utf8_general_ci" ENGINE=InnoDB
+        ');
 
         $this->execute('
             CREATE TABLE `important_events` (
@@ -17,17 +34,9 @@ class m151127_081124_important_events_all extends \app\classes\Migration
                 `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `client_id` INT(11) NULL DEFAULT NULL,
                 `event` VARCHAR(50) NULL DEFAULT NULL,
-                `source` VARCHAR(16) NULL DEFAULT NULL,
+                `source_id` INT(11) NULL DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 INDEX `date` (`date`) USING BTREE
-            ) COLLATE="utf8_general_ci" ENGINE=InnoDB
-        ');
-
-        $this->execute('
-            CREATE TABLE `important_events_groups` (
-                `id` INT(11) NOT NULL AUTO_INCREMENT,
-                `title` VARCHAR(150) NULL DEFAULT "0",
-                PRIMARY KEY (`id`)
             ) COLLATE="utf8_general_ci" ENGINE=InnoDB
         ');
 
@@ -97,12 +106,14 @@ class m151127_081124_important_events_all extends \app\classes\Migration
                 ("unset_zero_balance", "Снятие: Финансовая блокировка", 1),
                 ("zero_balance", "Финансовая блокировка", 1);
         ');
+
+        return false;
     }
 
     public function down()
     {
         echo "m151127_081124_important_events_rules_event cannot be reverted.\n";
 
-        return false;
+        return true;
     }
 }

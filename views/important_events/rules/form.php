@@ -42,34 +42,25 @@ echo Form::widget([
     'form' => $form,
     'columns' => 4,
     'attributes' => [
-        'title' => ['type' => Form::INPUT_TEXT,],
-        'action' => [
-            'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => ['' => '- Выбрать -'] + ArrayHelper::map(SendActionFactory::me()->getActions(), 'code', 'title'),
-            'options' => ['class' => 'select2'],
+        'leftBlock' => [
+            'type' => Form::INPUT_RAW,
+            'value' =>
+                $form->field($model, 'title')->textInput() .
+                $form->field($model, 'event')->dropDownList($eventsList, ['class' => 'select2']),
         ],
-        'event' => [
-            'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => $eventsList,
-            'options' => ['class' => 'select2'],
+        'rightBlock' => [
+            'type' => Form::INPUT_RAW,
+            'value' =>
+                $form->field($model, 'action')->dropDownList(['' => '- Выбрать -'] + ArrayHelper::map(SendActionFactory::me()->getActions(), 'code', 'title'), ['class' => 'select2']) .
+                $form->field($model, 'message_template_id')->dropDownList(['' => '- Выбрать -'] + ArrayHelper::map(MessageTemplate::find()->all(), 'id', 'name'), ['class' => 'select2']),
         ],
-        'message_template_id' => [
-            'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => ['' => '- Выбрать -'] + ArrayHelper::map(MessageTemplate::find()->all(), 'id', 'name'),
-            'options' => ['class' => 'select2']
-        ],
-    ]
-]);
-
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'columns' => 4,
-    'attributes' => [
         'conditions' => [
             'label' => 'Условия',
             'type' => Form::INPUT_WIDGET,
             'widgetClass' => MultipleInput::className(),
+            'columnOptions' => [
+                'colspan' => 2,
+            ],
             'options' => [
                 'allowEmptyList'    => true,
                 'enableGuessTitle'  => true,

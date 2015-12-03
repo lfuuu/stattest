@@ -4,8 +4,7 @@ namespace app\classes\grid\column\important_events;
 
 use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
-use app\models\ImportantEventsNames;
-use yii\helpers\ArrayHelper;
+use app\models\important_events\ImportantEventsNames;
 
 class EventNameColumn extends DataColumn
 {

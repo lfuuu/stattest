@@ -113,6 +113,7 @@ class Navigation
                 ->addItem('Ответственные лица', ['/person'], ['person.read'])
                 ->addItem('Названия событий', ['important_events/names'])
                 ->addItem('Группы событий', ['important_events/groups'])
+                ->addItem('Источники событий', ['important_events/sources'])
                 ->addItem('Правила на события', ['important_events/rules'])
         );
     }

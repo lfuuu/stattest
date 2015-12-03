@@ -19,9 +19,9 @@ class ImportantEvents extends ActiveRecord
     public function rules()
     {
         return [
-            [['event', 'source', ], 'required', 'on' => 'create'],
-            [['event', 'source', ], 'string'],
-            [['event', 'source', ], 'trim'],
+            [['event', 'source_id', ], 'required', 'on' => 'create'],
+            [['event', 'source_id', ], 'string'],
+            [['event', 'source_id', ], 'trim'],
             ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
                 return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'), true);
             }],
@@ -33,7 +33,7 @@ class ImportantEvents extends ActiveRecord
     {
         return [
             'create' => ['event', 'source', 'client_id', 'extends_data'],
-            'default' => ['event', 'client_id', 'date'],
+            'default' => ['event', 'client_id', 'date', 'source_id'],
         ];
     }
 
@@ -43,9 +43,7 @@ class ImportantEvents extends ActiveRecord
             'client_id' => 'Клиент',
             'date' => 'Когда произошло',
             'event' => 'Событие',
-            'balance' => 'Баланс',
-            'limit' => 'Лимит',
-            'value' => 'Значение',
+            'source_id' => 'Источник',
         ];
     }
 
@@ -131,6 +129,14 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSource()
+    {
+        return $this->hasOne(ImportantEventsSources::className(), ['id' => 'source_id']);
+    }
+
+    /**
      * @param $clientId
      * @return float
      */
@@ -173,6 +179,7 @@ class ImportantEvents extends ActiveRecord
         $query->andFilterWhere([
             'client_id' => $this->client_id,
             'event' => $this->event,
+            'source_id' => $this->source_id,
         ]);
 
         $query->andFilterWhere(array_merge(['between', 'date'], preg_split('#\s\-\s#', $this->date)));
