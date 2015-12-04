@@ -8,22 +8,12 @@ include PATH_TO_ROOT."conf_yii.php";
 use app\models\Number;
 
 $userId = 10; // ava
-$userId = 48; // dga
+//$userId = 188;
 
-$clientId = 36254;
+$clientId = 36166;
 
 $confs = [
-    /*
-    [
-        "didGroupId" => 12,
-        "region" => 97,
-        "count_numbers" => 150,
-        "id_tarif" => 638,
-        "id_tarif_local_mob" => 636,
-        "id_tarif_russia" => 637,
-        "id_tarif_russia_mob" => 63,
-        "id_tarif_intern" => 69
-    ],
+/*
     [
         "didGroupId" => 17,
         "region" => 96,
@@ -48,6 +38,40 @@ $confs = [
         "id_tarif_intern" => 255,
     ],
 */
+    [
+        "didGroupId" => 12,
+        "region" => 97,
+        "count_numbers" => 50,
+
+        "id_tarif" => 639,
+        "id_tarif_local_mob" => 636,
+        "id_tarif_russia" => 637,
+        "id_tarif_russia_mob" => 63,
+        "id_tarif_intern" => 69
+    ],
+    [
+        "didGroupId" => 22,
+        "region" => 95,
+        "count_numbers" => 50,
+
+        "id_tarif" => 645,
+        "id_tarif_local_mob" => 647,
+        "id_tarif_russia" => 648,
+        "id_tarif_russia_mob" => 160,
+        "id_tarif_intern" => 162
+
+    ],
+    [
+        "didGroupId" => 42,
+        "region" => 88,
+        "count_numbers" => 50,
+
+        "id_tarif" => 680,
+        "id_tarif_local_mob" => 682,
+        "id_tarif_russia" => 683,
+        "id_tarif_russia_mob" => 208,
+        "id_tarif_intern" => 210,
+    ],
     [
         "didGroupId" => 47,
         "region" => 87,
