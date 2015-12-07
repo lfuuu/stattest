@@ -15,14 +15,16 @@ class ImportantEventsSources extends ActiveRecord
     public function rules()
     {
         return [
-            [['title',], 'required'],
-            [['title',], 'trim'],
+            [['code', 'title',], 'required'],
+            [['code', 'title',], 'trim'],
+            ['code', 'unique'],
         ];
     }
 
     public function attributeLabels()
     {
         return [
+            'code' => 'Код',
             'title' => 'Название',
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace app\models\important_events;
 
+use app\classes\Assert;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
@@ -76,12 +77,8 @@ class ImportantEvents extends ActiveRecord
         $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
         $event->event = $eventType;
 
-        $source = ImportantEventsSources::findOne(['title' => $eventSource]);
-        if (!($source instanceof ImportantEventsSources)) {
-            $source = new ImportantEventsSources;
-            $source->title = $eventSource;
-            $source->save();
-        }
+        $source = ImportantEventsSources::findOne(['code' => $eventSource]);
+        Assert::isObject($source);
 
         $event->source_id = $source->id;
 

@@ -34,8 +34,9 @@ $form = ActiveForm::begin([
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 4,
+    'columns' => 2,
     'attributes' => [
+        'code' => ['type' => Form::INPUT_TEXT,],
         'title' => ['type' => Form::INPUT_TEXT,],
     ]
 ]);
