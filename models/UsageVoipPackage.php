@@ -9,6 +9,7 @@ use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
 use app\models\usages\UsageInterface;
+use app\models\billing\StatPackage;
 
 /**
  * @property int $id
@@ -40,6 +41,14 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new VoipPackageBiller($this, $date, $clientAccount);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStat()
+    {
+        return $this->hasOne(StatPackage::className(), ['package_id' => 'id']);
     }
 
     /**
