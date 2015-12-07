@@ -83,4 +83,5 @@ $cl->createClient($data);
 $I->seeInCurrentUrl("view");
 $I->see("fagob6@inboxstore.me");
 //$I->see("Заказ услуг");
-$I->seeLink("Договор № 35800");
+$lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
+$I->seeLink("Договор № " . $lastAccount);
