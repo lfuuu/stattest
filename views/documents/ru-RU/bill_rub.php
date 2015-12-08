@@ -92,7 +92,7 @@ $payer_company = $document->getPayer();
 
         <center><h2>Счёт &#8470;<?= $document->bill->bill_no; ?></h2></center>
 
-        <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'dd.MM.YYYY г.'); ?></b></p>
+        <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:d.m.Y'); ?> г.</b></p>
 
         <hr />
         <br />
