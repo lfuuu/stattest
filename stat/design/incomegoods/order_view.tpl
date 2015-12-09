@@ -10,7 +10,7 @@
 	</a>
 	{if !$order->isClosed()}
 		<small>
-			<a href="?module=incomegoods&action=order_edit&id={$order->id}&clint_id={$order->client_card->id}"><span class="icon_edit"></span>
+			<a href="?module=incomegoods&action=order_edit&id={$order->id}&client_id={$order->client_card->id}"><span class="icon_edit"></span>
 				Редактировать
 			</a>
 		</small>
