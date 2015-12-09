@@ -31,6 +31,7 @@
             if ( $(this).data().details != 'undefined')
             {
                 var details = $(this).data().details;
+                details.startDate = '<?= $startDate ?>';
 
                 $.post(
                     './index_lite.php?module=stats&action=report_by_one_manager',
@@ -90,7 +91,8 @@
                                 open: function() {
                                     $(this).append($table);
                                 }
-                            });
+                            }
+                        );
                     },
 
                     'json'

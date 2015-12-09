@@ -4475,8 +4475,9 @@ class m_stats extends IModule
 
         $design->assign("RManager",
             (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
+                'startDate' => $from_y . '-' . $from_m . '-01',
                 'managers' => \app\classes\stats\PhoneSales::reportByManager(
-                    $from_y . '-' . $from_m . '-00',
+                    $from_y . '-' . $from_m . '-01',
                     $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца
                 )
             ]));
@@ -4484,7 +4485,7 @@ class m_stats extends IModule
         $design->assign("RPartner",
             (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
                 'partners' => \app\classes\stats\PhoneSales::reportByPartner(
-                    $from_y . '-' . $from_m . '-00',
+                    $from_y . '-' . $from_m . '-01',
                     $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца
                 )
             ]));
@@ -4932,7 +4933,7 @@ class m_stats extends IModule
     {
         $requestData = isset($_POST['data']) ? json_decode($_POST['data']) : '';
         $reportType = isset($_POST['type']) ? $requestData->report . '_' . $requestData->type : $requestData->report;
-        $managerReport = \app\classes\stats\PhoneSales::reportBySingleManager($requestData->manager, '2015-11-01', $reportType);
+        $managerReport = \app\classes\stats\PhoneSales::reportBySingleManager($requestData->manager, $requestData->startDate, $reportType);
 
         if (!empty($managerReport))
         {
