@@ -44,9 +44,10 @@ class ImportantEventsRules extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'action', 'message_template_id'], 'required'],
+            [['title', 'action', 'event', 'message_template_id'], 'required'],
             [['message_template_id'], 'integer'],
             ['conditions', 'validateConditions'],
+            [['title',], 'trim'],
         ];
     }
 
@@ -54,10 +55,8 @@ class ImportantEventsRules extends ActiveRecord
     {
         return [
             'title' => 'Название',
-            'property' => 'Свойство',
-            'condition' => 'Условие',
-            'value' => 'Значение',
             'action' => 'Действие',
+            'event' => 'Событие',
             'message_template_id' => 'Шаблон сообщения',
         ];
     }
@@ -66,7 +65,7 @@ class ImportantEventsRules extends ActiveRecord
     {
         $requiredValidator = new RequiredValidator;
 
-        foreach($this->$attribute as $index => $row) {
+        foreach ($this->{$attribute} as $index => $row) {
             $error = null;
             $requiredValidator->validate($row['property'], $error);
             if (!empty($error)) {
@@ -79,6 +78,11 @@ class ImportantEventsRules extends ActiveRecord
     public function getAction()
     {
         return SendActionFactory::me()->get($this->action);
+    }
+
+    public function getEventInfo()
+    {
+        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event']);
     }
 
     public function getTemplate()

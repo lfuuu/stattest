@@ -21,7 +21,7 @@ echo GridView::widget([
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '12%',
+            'width' => '16%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
@@ -39,11 +39,15 @@ echo GridView::widget([
                 'containerOptions' => [
                     'style' => 'overflow: hidden;',
                     'class' => 'drp-container input-group',
-                ]
+                ],
             ])
         ],
         [
             'class' => 'app\classes\grid\column\important_events\EventNameColumn',
+            'width' => '15%',
+        ],
+        [
+            'class' => 'app\classes\grid\column\important_events\SourceColumn',
             'width' => '15%',
         ],
         [
@@ -62,3 +66,20 @@ echo GridView::widget([
     ],
 ]);
 ?>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('.select2').select2({
+        templateResult: function(item) {
+            console.log(item);
+            var $result =
+                $('<input />')
+                    .attr('type', 'checkbox')
+                    .attr('name', 'test')
+                    .val(item.val());
+
+            return $result + item.text;
+        }
+    });
+});
+</script>

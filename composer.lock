@@ -2198,6 +2198,51 @@
             "time": "2015-05-05 12:07:24"
         },
         {
+            "name": "unclead/yii2-multiple-input",
+            "version": "1.2.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/unclead/yii2-multiple-input.git",
+                "reference": "1151705bcf8a8a68a33a6ec89ed64483982bfc79"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/unclead/yii2-multiple-input/zipball/1151705bcf8a8a68a33a6ec89ed64483982bfc79",
+                "reference": "1151705bcf8a8a68a33a6ec89ed64483982bfc79",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "unclead\\widgets\\examples\\": "examples/",
+                    "unclead\\widgets\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Eugene Tupikov",
+                    "email": "unclead.nsk@gmail.com"
+                }
+            ],
+            "description": "Widget for handle multiple inputs for an attribute of Yii2 framework model",
+            "keywords": [
+                "yii2",
+                "yii2 array input",
+                "yii2 multiple field",
+                "yii2 multiple input",
+                "yii2 tabular input"
+            ],
+            "time": "2015-11-18 08:00:37"
+        },
+        {
             "name": "welltime/graylog-target",
             "version": "dev-master",
             "source": {

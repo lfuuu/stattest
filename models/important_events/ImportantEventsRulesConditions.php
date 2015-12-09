@@ -9,7 +9,7 @@ class ImportantEventsRulesConditions extends ActiveRecord
 
     public static $conditions = [
         '==' => 'Равно',
-        '!=' => 'Не равно',
+        '<>' => 'Не равно',
         '<=' => 'Меньше или равно',
         '>=' => 'Больше или равно',
         '<' => 'Меньше',
@@ -27,6 +27,7 @@ class ImportantEventsRulesConditions extends ActiveRecord
         return [
             [['property',], 'required'],
             [['value'], 'string'],
+            [['value'], 'trim'],
             ['condition', 'in', 'range' => array_keys(self::$conditions)],
         ];
     }

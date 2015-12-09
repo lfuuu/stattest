@@ -12,7 +12,7 @@ use app\exceptions\api\internal\PartnerNotFoundException;
 
 class AccountController extends ApiInternalController
 {
-    public function actionIndex()
+    private function getAccountFromParams()
     {
         $requestData = $this->getRequestParams();
 
@@ -23,37 +23,57 @@ class AccountController extends ApiInternalController
         }
 
         if ($accountId && ($account = ClientAccount::findOne(['id' => $accountId]))) {
-
-            $activeVoips = [];
-            foreach(ActualNumber::findAll(['client_id' => $account->id]) as $v) {
-                $activeVoips[$v->id] = [
-                    'stat_product_id' => $v->id,
-                    'number' => $v->number,
-                    'region' => $v->region
-                ];
-            }
-
-            $activeVats = [];
-            foreach(ActualVirtpbx::findAll(['client_id' => $account->id]) as $v) {
-                $activeVats[$v->usage_id] = [
-                    'stat_product_id' => $v->usage_id,
-                    'region' => $v->region_id
-                ];
-            }
-
-            $data = [
-                'id' => $account->id, 
-                'usages' => [
-                    'active' => [
-                        'voip' => $activeVoips,
-                        'vats' => $activeVats
-                    ]
-                ]
-            ];
-
-            return $data;
+            return $account;
         } else {
             throw new BadRequestHttpException;
         }
+    }
+
+    public function actionIndex()
+    {
+        $account = $this->getAccountFromParams();
+
+        $activeVoips = [];
+        foreach(ActualNumber::findAll(['client_id' => $account->id]) as $v) {
+            $activeVoips[$v->id] = [
+                'stat_product_id' => $v->id,
+                'number' => $v->number,
+                'region' => $v->region
+            ];
+        }
+
+        $activeVats = [];
+        foreach(ActualVirtpbx::findAll(['client_id' => $account->id]) as $v) {
+            $activeVats[$v->usage_id] = [
+                'stat_product_id' => $v->usage_id,
+                'region' => $v->region_id
+            ];
+        }
+
+        $data = [
+            'id' => $account->id, 
+            'usages' => [
+                'active' => [
+                    'voip' => $activeVoips,
+                    'vats' => $activeVats
+                ]
+            ]
+        ];
+
+        return $data;
+    }
+
+    public function actionBalance()
+    {
+        $account = $this->getAccountFromParams();
+
+        return $account->makeBalance();
+    }
+
+    public function actionBalanceFull()
+    {
+        $account = $this->getAccountFromParams();
+
+        return $account->makeBalance(true);
     }
 }

@@ -1,40 +1,28 @@
 <?php
 
-namespace app\controllers;
+namespace app\controllers\important_events;
 
 use Yii;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
-use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsRules;
 
-class ImportantEventsController extends BaseController
+class RulesController extends BaseController
 {
 
     public function actionIndex()
-    {
-        $searchModel = new ImportantEvents;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('report', [
-            'dataProvider' => $dataProvider,
-            'filterModel' => $searchModel,
-        ]);
-    }
-
-    public function actionRules()
     {
         $dataProvider = new ActiveDataProvider([
             'query' => ImportantEventsRules::find(),
         ]);
         $dataProvider->sort = false;
 
-        return $this->render('rules/grid', [
+        return $this->render('grid', [
             'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionRulesEdit($id = 0)
+    public function actionEdit($id = 0)
     {
         $model = ImportantEventsRules::findOne($id);
         if (!($model instanceof ImportantEventsRules)) {
@@ -42,15 +30,15 @@ class ImportantEventsController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect('/important-events/rules');
+            $this->redirect('/important_events/rules');
         }
 
-        return $this->render('rules/form', [
+        return $this->render('form', [
             'model' => $model,
         ]);
     }
 
-    public function actionRulesDelete($rule_id)
+    public function actionDelete($rule_id)
     {
         $model = ImportantEventsRules::findOne($rule_id);
 
@@ -58,7 +46,7 @@ class ImportantEventsController extends BaseController
             $model->delete();
         }
 
-        return $this->redirect('/important-events/rules');
+        return $this->redirect('/important_events/rules');
     }
 
 }

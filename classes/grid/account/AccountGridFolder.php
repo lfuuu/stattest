@@ -12,6 +12,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
+use app\classes\Form;
 
 
 abstract class AccountGridFolder extends Model
@@ -161,7 +162,10 @@ abstract class AccountGridFolder extends Model
             'sort' => [
                 'defaultOrder' => $this->queryOrderBy(),
                 'attributes' => $this->getColumns()
-            ]
+            ],
+            'pagination' => [
+                'pageSize' => Form::PAGE_SIZE,
+            ],
         ]);
 
         $query->andFilterWhere(['c.id' => $this->id]);

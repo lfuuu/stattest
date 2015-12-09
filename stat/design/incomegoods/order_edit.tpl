@@ -8,8 +8,11 @@
     <a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
         {$order->number}</a>
 
-    <small><a href="?module=incomegoods&action=order_edit&id={$order->id}"><span class="icon_edit"></span>
-            <span style="color: darkred">{if $order->id}Редактирование{else}Создание{/if}</span></a></small>
+    <small>
+        <a href="?module=incomegoods&action=order_edit&id={$order->id}&client_id={$order->client_card->id}"><span class="icon_edit"></span>
+            <span style="color: darkred">{if $order->id}Редактирование{else}Создание{/if}</span>
+        </a>
+    </small>
 </h2>
 
 <form id="ajaxForm" action="?module=incomegoods&action=order_save" method="POST">
