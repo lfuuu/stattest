@@ -54,6 +54,7 @@ class m100000_000002_data extends app\classes\Migration
         $this->executeSqlFile('tarifs_voip.sql');
         $this->executeSqlFile('tarifs_number.sql');
         $this->executeSqlFile('tarifs_virtpbx.sql');
+        $this->executeSqlFile('tarifs_internet.sql');
     }
 
     public function down()

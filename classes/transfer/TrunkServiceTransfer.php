@@ -3,8 +3,7 @@
 namespace app\classes\transfer;
 
 use Yii;
-use app\classes\Assert;
-use app\models\ClientAccount;
+use yii\base\InvalidValueException;
 use app\models\UsageTrunkSettings;
 
 /**
@@ -20,7 +19,31 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     public function process()
     {
-        $targetService = parent::process();
+        if ((int) $this->service->next_usage_id)
+            throw new InvalidValueException('Услуга уже перенесена');
+
+        $dbTransaction = Yii::$app->db->beginTransaction();
+        try {
+            $targetService = new $this->service;
+            $targetService->setAttributes($this->service->getAttributes(), false);
+            unset($targetService->id);
+            $targetService->actual_from = $this->getActualDate();
+            $targetService->prev_usage_id = $this->service->id;
+            $targetService->client_account_id = $this->targetAccount->id;
+
+            $targetService->save();
+
+            $this->service->actual_to = $this->getExpireDate();
+            $this->service->next_usage_id = $targetService->id;
+
+            $this->service->save();
+
+            $dbTransaction->commit();
+        }
+        catch (\Exception $e) {
+            $dbTransaction->rollBack();
+            throw $e;
+        }
 
         $this->processSettings($targetService);
 
@@ -33,12 +56,7 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     private function processSettings($targetService)
     {
-        $settings =
-            UsageTrunkSettings::find()
-                ->andWhere(['usage_id' => $this->service->id])
-                ->all();
-
-        foreach ($settings as $setting) {
+        foreach ($this->service->settings as $setting) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
                 $targetSetting = new $setting;
@@ -72,6 +90,7 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     private function fallbackSettings()
     {
+        /*
         $settings =
             UsageTrunkSettings::find()
                 ->andWhere(['usage_id' => $this->service->id])
@@ -97,8 +116,7 @@ class TrunkServiceTransfer extends ServiceTransfer
                 $dbTransaction->rollBack();
                 throw $e;
             }
-        }
-
+        }*/
     }
 
 }

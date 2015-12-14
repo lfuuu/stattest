@@ -72,6 +72,11 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
     }
 
+    public function getSettings()
+    {
+        return $this->hasMany(UsageTrunkSettings::className(), ['usage_id' => 'id']);
+    }
+
     public function isActive()
     {
         $now = new DateTime('now');
