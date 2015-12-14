@@ -35,7 +35,6 @@ class VirtpbxServiceTransfer extends ServiceTransfer
      */
     private function processVoipNumbers($targetService)
     {
-        print_r($this->service->clientAccount->voipNumbers);
         foreach ($this->service->clientAccount->voipNumbers as $number => $options) {
             if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->service->id) {
                 continue;
