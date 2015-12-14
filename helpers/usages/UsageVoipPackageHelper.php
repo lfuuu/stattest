@@ -29,7 +29,7 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        return [$this->usage->id, '', ''];
+        return [$this->usage->tariff->name, '', ''];
     }
 
     /**

@@ -298,7 +298,23 @@ if ($has) :
                                             $tariff = TariffVoip::findOne($log->id_tarif_intern);
                                             echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
                                         }
+
+                                        $packages = $service->usagePackages;
                                         ?>
+                                        <div style="color: #DD0000;">
+                                            <?php foreach ($packages as $package) :?>
+                                                <?php
+                                                list($description) = $package->helper->description;
+                                                ?>
+                                                <?= $description; ?>
+                                                (
+                                                    <abbr title="Кол-во минут по тарифу"><?= $package->tariff->minutes_count; ?></abbr> /
+                                                    <abbr title="Кол-во оплаченных минут"><?= floor($package->stat->paid_seconds / 60); ?></abbr> /
+                                                    <abbr title="Кол-во израсходованных минут"><?= floor($package->stat->used_seconds / 60); ?></abbr>
+                                                )<br />
+                                            <?endforeach;
+                                            ?>
+                                        </div>
                                     </td>
                                     <td><?= (isset(Number::$statusList[$service->voipNumber->status]) ? Number::$statusList[$service->voipNumber->status] : $service->voipNumber->status); ?></td>
                                 </tr>

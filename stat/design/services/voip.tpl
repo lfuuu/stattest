@@ -132,6 +132,17 @@
                         / МН {$item.tarifs.intern.name} {if $item.logTarif.minpayment_intern > 0}({$item.logTarif.minpayment_intern}){/if}
                     {/if}
                     {if isset($item.permit)}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}
+
+                    <div style="color: #DD0000;">
+                        {foreach from=$item.packages item=package}
+                            {$package.description}
+                            (
+                            <abbr title="Кол-во минут по тарифу">{$package.tariff.minutes_count}</abbr> /
+                            <abbr title="Кол-во оплаченных минут">{$package.stat.paid_seconds/60|floor}</abbr> /
+                            <abbr title="Кол-во израсходованных минут">{$package.stat.used_seconds/60|floor}</abbr>
+                            )<br />
+                        {/foreach}
+                    </div>
                 </td>
                 <td style="font-size: 8pt;">{*$allowed_direction[$item.allowed_direction]*}</td>
                 <td>{$item.number_status}</td>
