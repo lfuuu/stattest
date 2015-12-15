@@ -15,7 +15,7 @@ class ImportantEventsSources extends ActiveRecord
     public function rules()
     {
         return [
-            [['code', 'title',], 'required'],
+            [['code',], 'required'],
             [['code', 'title',], 'trim'],
             ['code', 'unique'],
         ];

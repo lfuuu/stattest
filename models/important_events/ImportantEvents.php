@@ -78,7 +78,11 @@ class ImportantEvents extends ActiveRecord
         $event->event = $eventType;
 
         $source = ImportantEventsSources::findOne(['code' => $eventSource]);
-        Assert::isObject($source);
+        if (!($source instanceof ImportantEventsSources)) {
+            $source = new ImportantEventsSources;
+            $source->code = $eventSource;
+            $source->save();
+        }
 
         $event->source_id = $source->id;
 
