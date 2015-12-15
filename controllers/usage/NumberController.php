@@ -106,52 +106,52 @@ class NumberController extends BaseController
 
         if (Yii::$app->request->post("make")) {
 
-        $dt = new \DateTime();
-        $dt->setDate(date("Y"), date("m"), 15);
-        $dt->modify("-6 month");
-        $emptyMonths = [];
-        for($i = 0; $i < 6; $i++) {
-            $dt->modify("+1 month");
-            $headMonths[(int)$dt->format("m")] = DateFunction::mdate($dt->getTimestamp(), "месяц");
-            $emptyMonths[(int)$dt->format("m")] = 0;
-        }
-
-        $numbers =
-            Yii::$app->db->createCommand("
-                    select n.*, ccc.name as company, c.client from voip_numbers n
-                    left join clients c on n.client_id=c.id
-                    left join client_contract cc on cc.id=c.contract_id
-                    left join client_contragent ccc on ccc.id=cc.contragent_id
-                    where
-                        n.city_id = :cityId
-                        and n.did_group_id in ('" . implode("','", $didGroups) . "')
-                        and n.status in ('" . implode("','", $statuses) . "')
-                        and n.number like :prefix
-                ", [
-                ':cityId' => $cityId,
-                ':prefix' => $prefix . '%',
-            ])->queryAll();
-
-        $city = City::findOne($cityId);
-        if ($city && $city->connection_point_id && (in_array('hold', $statuses) || in_array('instock', $statuses))) {
-
-            $callsCount = Number::dao()->getCallsWithoutUsages($city->connection_point_id);
-
-            $callsCountByNumber = [];
-            foreach ($callsCount as $calls) {
-                if (!isset($callsCountByNumber[$calls['u']])) {
-                    $callsCountByNumber[$calls['u']] = $emptyMonths;
-                }
-
-                $callsCountByNumber[$calls['u']][(int)$calls["m"]] = $calls['c'];
+            $dt = new \DateTime();
+            $dt->setDate(date("Y"), date("m"), 15);
+            $dt->modify("-6 month");
+            $emptyMonths = [];
+            for($i = 0; $i < 6; $i++) {
+                $dt->modify("+1 month");
+                $headMonths[(int)$dt->format("m")] = DateFunction::mdate($dt->getTimestamp(), "месяц");
+                $emptyMonths[(int)$dt->format("m")] = 0;
             }
 
-            foreach($numbers as $k => $n) {
-                if (isset($callsCountByNumber[$n["number"]])) {
-                    $numbers[$k]['month'] = $callsCountByNumber[$n["number"]];
+            $numbers =
+                Yii::$app->db->createCommand("
+                        select n.*, ccc.name as company, c.client from voip_numbers n
+                        left join clients c on n.client_id=c.id
+                        left join client_contract cc on cc.id=c.contract_id
+                        left join client_contragent ccc on ccc.id=cc.contragent_id
+                        where
+                            n.city_id = :cityId
+                            and n.did_group_id in ('" . implode("','", $didGroups) . "')
+                            and n.status in ('" . implode("','", $statuses) . "')
+                            and n.number like :prefix
+                    ", [
+                    ':cityId' => $cityId,
+                    ':prefix' => $prefix . '%',
+                ])->queryAll();
+
+            $city = City::findOne($cityId);
+            if ($city && $city->connection_point_id && (in_array('hold', $statuses) || in_array('instock', $statuses))) {
+
+                $callsCount = Number::dao()->getCallsWithoutUsages($city->connection_point_id);
+
+                $callsCountByNumber = [];
+                foreach ($callsCount as $calls) {
+                    if (!isset($callsCountByNumber[$calls['u']])) {
+                        $callsCountByNumber[$calls['u']] = $emptyMonths;
+                    }
+
+                    $callsCountByNumber[$calls['u']][(int)$calls["m"]] = $calls['c'];
+                }
+
+                foreach($numbers as $k => $n) {
+                    if (isset($callsCountByNumber[$n["number"]])) {
+                        $numbers[$k]['month'] = $callsCountByNumber[$n["number"]];
+                    }
                 }
             }
-        }
         }
 
         if (!empty($viewType)) {
@@ -159,9 +159,6 @@ class NumberController extends BaseController
             Yii::$app->response->sendContentAsFile($result, 'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
             Yii::$app->end();
         }
-
-
-
 
         return $this->render('detail-report', [
             'cityId' => $cityId,
