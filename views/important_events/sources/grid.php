@@ -35,6 +35,15 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
+            'attribute' => 'code',
+            'label' => 'Код',
+            'format' => 'raw',
+            'value' => function($data) {
+                return Html::a($data->code, ['/important_events/sources/edit', 'id' => $data->id]);
+            },
+            'width' => '20%',
+        ],
+        [
             'attribute' => 'title',
             'label' => 'Название',
             'format' => 'raw',

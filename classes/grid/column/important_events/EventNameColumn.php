@@ -2,33 +2,31 @@
 
 namespace app\classes\grid\column\important_events;
 
-use kartik\grid\GridView;
-use app\classes\grid\column\DataColumn;
 use app\models\important_events\ImportantEventsNames;
 
-class EventNameColumn extends DataColumn
+class EventNameColumn extends \kartik\grid\DataColumn
 {
 
     public $label = 'Событие';
     public $attribute = 'event';
     public $value = 'event';
-    public $filterType = GridView::FILTER_SELECT2;
+    public $filterType = '\app\widgets\select_multiply\SelectMultiply';
+    public $filterInputOptions = null;
 
     public function __construct($config = [])
     {
-        $eventsList = ['' => '- Выберите событие(я) -'];
+        $eventsList = [];
 
         foreach (ImportantEventsNames::find()->all() as $event) {
             $eventsList[$event->group->title][$event->code] = $event->value;
         }
 
-        $this->filter = $eventsList;
+        $this->filterWidgetOptions['items'] = $eventsList;
+        $this->filterWidgetOptions['clientOptions']['multiple'] = true;
+        $this->filterWidgetOptions['clientOptions']['placeholder'] = '- Выберите событие(я) -';
+        $this->filterWidgetOptions['clientOptions']['width'] = '100%';
 
         parent::__construct($config);
     }
 
-    protected function renderDataCellContent($model, $key, $index)
-    {
-        return $model->name->value ?: parent::getDataCellValue($model, $key, $index);
-    }
 }

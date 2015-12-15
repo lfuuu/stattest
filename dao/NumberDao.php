@@ -4,12 +4,15 @@ namespace app\dao;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 use app\classes\Assert;
 use app\classes\Singleton;
 use app\models\Number;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
+use app\models\TariffNumber;
 
 /**
  * @method static NumberDao me($args = null)
@@ -30,6 +33,24 @@ class NumberDao extends Singleton
                 ->orderBy('RAND()')
                 ->limit(1)
                 ->one();
+    }
+
+    /**
+     * @param string $region
+     * @return ActiveRecord[]
+     */
+    public function getFreeNumbersByRegion($region = '')
+    {
+        return $this->getFreeNumbers()->andWhere(['region' => $region])->all();
+    }
+
+    /**
+     * @param TariffNumber $tariff
+     * @return ActiveRecord[]
+     */
+    public function getFreeNumbersByTariff(TariffNumber $tariff)
+    {
+        return $this->getFreeNumbers()->andWhere(['did_group_id' => $tariff->did_group_id])->all();
     }
 
     public function startReserve(Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
@@ -221,4 +242,23 @@ class NumberDao extends Singleton
                     group by u, m
                 ")->cache(86400)->queryAll();
     }
+
+    /**
+     * @return ActiveRecord[]
+     */
+    private function getFreeNumbers()
+    {
+        return
+            Number::find()
+                ->where(['status' => 'instock'])
+                ->having(new Expression('
+                    IF(
+                        `number` LIKE "7495%",
+                        `number` LIKE "74951059%" OR `number` LIKE "74951090%" OR `beauty_level` IN (1,2),
+                        true
+                    )
+                '))
+                ->orderBy([new Expression('IF(`beauty_level` = 0, 10, `beauty_level`) DESC, `number`')]);
+    }
+
 }

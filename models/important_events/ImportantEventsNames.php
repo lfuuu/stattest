@@ -17,7 +17,8 @@ class ImportantEventsNames extends ActiveRecord
         return [
             [['code', 'value', 'group_id'], 'required'],
             [['code', 'value',], 'trim'],
-            ['group_id', 'integer']
+            ['group_id', 'integer'],
+            [['code', 'group_id'], 'unique'],
         ];
     }
 

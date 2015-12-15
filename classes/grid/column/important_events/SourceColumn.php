@@ -13,11 +13,17 @@ class SourceColumn extends DataColumn
     public $label = 'Источник';
     public $attribute = 'source_id';
     public $value = 'source_id';
-    public $filterType = GridView::FILTER_SELECT2;
+    public $filterType = '\app\widgets\select_multiply\SelectMultiply';
+    public $filterInputOptions = null;
 
     public function __construct($config = [])
     {
-        $this->filter = ['' => '- Выберите источник -'] + ArrayHelper::map(ImportantEventsSources::find()->all(), 'id', 'title');
+        $sourcesList =  ArrayHelper::map(ImportantEventsSources::find()->all(), 'id', 'title');
+
+        $this->filterWidgetOptions['items'] = $sourcesList;
+        $this->filterWidgetOptions['clientOptions']['placeholder'] = '- Выберите источник(и) -';
+        $this->filterWidgetOptions['clientOptions']['width'] = '100%';
+
         parent::__construct($config);
     }
 
@@ -25,4 +31,5 @@ class SourceColumn extends DataColumn
     {
         return $model->source->title ?: parent::getDataCellValue($model, $key, $index);
     }
+
 }

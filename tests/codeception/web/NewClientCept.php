@@ -1,8 +1,8 @@
 <?php 
 
-
 use tests\codeception\_pages\NewClientPage;
 use tests\codeception\_pages\LoginPage;
+use app\models\Country;
 
 $I = new _WebTester($scenario);
 $I->wantTo('create new LC');
@@ -14,7 +14,7 @@ $cl = NewClientPage::openBy($I);
 
 $data = [
     'ContragentEditForm' => [
-        'country_id' => \app\models\Country::RUSSIA,
+        'country_id' => Country::RUSSIA,
         'legal_type' => 'legal',
         'super_id' => '',
         'name' => 'Ромашка',
@@ -83,4 +83,5 @@ $cl->createClient($data);
 $I->seeInCurrentUrl("view");
 $I->see("fagob6@inboxstore.me");
 //$I->see("Заказ услуг");
-$I->seeLink("Договор № 35800");
+$lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
+$I->seeLink("Договор № " . $lastAccount);

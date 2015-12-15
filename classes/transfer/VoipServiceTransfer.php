@@ -58,9 +58,11 @@ class VoipServiceTransfer extends ServiceTransfer
         Assert::isObject($line7800);
 
         $this->service = $line7800;
-        $targetService = parent::process();
+        $targetService7800 = parent::process();
+        $targetService->line7800_id = $targetService7800->id;
+        $targetService->save();
 
-        LogTarifTransfer::process($this, $targetService->id);
+        LogTarifTransfer::process($this, $targetService7800->id);
     }
 
     /**

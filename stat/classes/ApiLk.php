@@ -11,6 +11,7 @@ use app\models\Region;
 use app\models\ClientCounter;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
+use app\models\Number;
 
 class ApiLk
 {
@@ -900,76 +901,26 @@ class ApiLk
 
         $ret = array();
 
-        $numbers =
-            Yii::$app->db->createCommand("
-                SELECT
-                    a.number,
-                    IF(client_id IN ('9130', '764'), 'our',
-                        IF(date_reserved IS NOT NULL, 'reserv',
-                            IF(active_usage_id IS NOT NULL, 'used',
-                                IF(max_date >= (now() - INTERVAL 6 MONTH), 'stop', 'free'
-                                )
-                            )
-                        )
-                    ) AS status
-                FROM (
-                    SELECT
-                        number, client_id,
-                        (
-                            SELECT
-                                MAX(actual_to)
-                            FROM
-                                usage_voip u
-                            WHERE
-                                u.e164 = v.number AND
-                                actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')
-                        ) AS max_date,
-                        (
-                            SELECT
-                                MAX(id)
-                            FROM
-                                usage_voip u
-                            WHERE
-                                u.e164 = v.number AND
-                                (
-                                    (
-                                        actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND
-                                        actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
-                                    ) OR
-                                    actual_from >= '2029-01-01'
-                                )
-                        ) AS active_usage_id,
-                        (
-                            SELECT
-                                MAX(created)
-                            FROM
-                                usage_voip u
-                            WHERE
-                                u.e164 = v.number AND
-                                actual_from = '2029-01-01'
-                        ) AS date_reserved
-                    FROM
-                        voip_numbers v
-                    WHERE v.did_group_id='{$numberTariff->did_group_id}'
-                    )a
-                LEFT JOIN clients c ON (c.id = a.client_id)
-                HAVING status IN ('free')
-            ")
-            ->queryAll();
+        $numbers = Number::dao()->getFreeNumbersByTariff($numberTariff);
 
         $skipFrom = 1;
         $areaLen = 3;
         
-        foreach($numbers as $number)
-        {
-            $line = ['number' => $number['number']];
-            $line['full_number'] = $line['number'];
-            $line['area_code'] = substr($line['number'],$skipFrom,$areaLen);
+        foreach($numbers as $number) {
+            $line = [
+                'number' => $number->number,
+                'full_number' => $number->number,
+                'area_code' => substr($number->number, $skipFrom, $areaLen)
+            ];
             $l = strlen($line['number']);
-            $number = $line["number"];
-            $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
+            $number = $line['number'];
+            $line['number'] =
+                substr($line['number'], 4, ($l-8)) . '-' .
+                substr($line['number'], ($l-4), 2) . '-' .
+                substr($line['number'], ($l-2), 2);
             $ret[] = $isSimple ? $number : $line;
         }
+
         return $ret;
     }
 
