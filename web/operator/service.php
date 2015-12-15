@@ -314,22 +314,10 @@ if ($action=='add_client') {
 
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
-    $numbers =
-        Yii::$app->db->createCommand("
-                SELECT * FROM `voip_numbers` WHERE (`region`=:region) AND (`status`='instock')
-                HAVING 
-                    if(
-                        number like '7495%', 
-                        number like '74951059%' or number like '74951090%' or beauty_level in (1,2), 
-                        true
-                    )
-                ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number  ",
-            [':region' => $region]
-        )
-            ->queryAll();
+    $numbers = Number::dao()->getFreeNumbersByRegion($region);
 
     foreach($numbers as $r) {
-        echo $r['number'].';'.$r['beauty_level'].';'.$r['price'].';'.$r['region']."\n";
+        echo implode(';', [$r->number, $r->beauty_level, $r->price, $r->region]) . "\n";
     }
 
 }elseif($action == "reserve_number")

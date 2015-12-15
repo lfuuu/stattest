@@ -6,15 +6,22 @@
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	Заказ поставщику
 	<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
-		{$order->number}</a>
-{if !$order->isClosed()}
-	<small><a href="?module=incomegoods&action=order_edit&id={$order->id}"><span class="icon_edit"></span>
-			Редактировать</a></small>
-    {if $order->isEntering()}
-	<small><a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
-			Создать поступление</a></small>
-    {/if}
-{/if}
+		{$order->number}
+	</a>
+	{if !$order->isClosed()}
+		<small>
+			<a href="?module=incomegoods&action=order_edit&id={$order->id}&client_id={$order->client_card->id}"><span class="icon_edit"></span>
+				Редактировать
+			</a>
+		</small>
+    	{if $order->isEntering()}
+			<small>
+				<a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
+					Создать поступлени
+				</a>
+			</small>
+    	{/if}
+	{/if}
 </h2>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">

@@ -748,6 +748,15 @@ class m_services extends IModule{
                 $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
 
                 $r['number_status'] = Number::$statusList[$usage->voipNumber->status];
+
+                foreach ($usage->usagePackages as $package) {
+                    list ($description) = $package->helper->description;
+                    $r['packages'][] = [
+                        'description' => $description,
+                        'tariff' => $package->tariff,
+                        'stat' => $package->stat,
+                    ];
+                }
             }
 
             $numbers =

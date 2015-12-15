@@ -10,7 +10,7 @@ $I->wantTo('Test Number life cycle');
 
 
 
-$accountId = 35800;
+$accountId = ClientAccount::find()->select('max(id)')->scalar();//35800;
 $account = ClientAccount::findOne(["id" => $accountId]);
 $I->assertNotNull($account);
 
