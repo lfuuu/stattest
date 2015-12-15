@@ -50,7 +50,7 @@ class ImportantEvents extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\ImportantEvents::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ImportantEvents::className(),
         ];
     }
 
