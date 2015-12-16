@@ -4,6 +4,8 @@ class m151207_104807_important_events_sources_extend extends \app\classes\Migrat
 {
     public function up()
     {
+        $this->execute('truncate important_events_sources');
+
         $this->execute('
             ALTER TABLE `important_events_sources`
                 ADD COLUMN `code` VARCHAR(50) NOT NULL AFTER `id`,
