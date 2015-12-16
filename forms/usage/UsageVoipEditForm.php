@@ -174,8 +174,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $this->usage->actual_to = $actualTo;
             $this->usage->expire_dt = $expireDt;
-        }
-        else {
+        } else {
             $this->setDisconnectionDate();
         }
 
@@ -426,6 +425,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->addError('did', 'Номер ' . $this->did . ' из другого города');
             }
         }
+
         if ($this->type_id == 'line') {
             if (!preg_match('/^\d{4,5}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
@@ -442,20 +442,8 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         }
 
-        $actualFrom = $this->connecting_date;
-        $actualTo = '2029-01-01';
-
-        $queryVoip =
-            UsageVoip::find()
-                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)', [':from' => $actualFrom, ':to' => $actualTo])
-                ->andWhere(['E164' => $this->did]);
-        if ($this->id) {
-            $queryVoip->andWhere('id != :id', [':id' => $this->id]);
-        }
-        foreach ($queryVoip->all() as $usage) {
-            $this->addError('did', "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
-        }
     }
+
 
     private function saveTariff(UsageVoip $usage, $tariffDate)
     {
