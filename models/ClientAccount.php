@@ -164,6 +164,7 @@ class ClientAccount extends HistoryActiveRecord
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
             'lk_balance_view_mode' => 'Тип отображения баланса в ЛК',
+            'anti_fraud_disabled' => 'Отключен анти-фрод'
         ];
     }
 
