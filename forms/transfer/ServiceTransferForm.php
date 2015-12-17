@@ -2,12 +2,12 @@
 
 namespace app\forms\transfer;
 
+use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
 use app\models\ClientAccount;
-use app\models\ClientContragent;
 use app\models\UsageEmails;
-use app\models\Usage;
+use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
 use app\models\UsageSms;
 use app\models\UsageWelltime;
@@ -68,6 +68,13 @@ class ServiceTransferForm extends Form
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageTransfer::className(),
+        ];
+    }
+
     public function validateTargetAccountId()
     {
         try {
@@ -111,6 +118,8 @@ class ServiceTransferForm extends Form
             catch (\Exception $e) {
                 \Yii::error($e);
             }
+
+            $serviceTransfer->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
         }
 
         if (count($this->servicesErrors)) {
@@ -144,7 +153,7 @@ class ServiceTransferForm extends Form
      */
     public function getPossibleServices(ClientAccount $client, $usages = [])
     {
-        /** @var Usage[] $services */
+        /** @var UsageInterface[] $services */
         $services = [];
         foreach ($this->getServicesGroups() as $serviceDao) {
             $modelName = str_replace('Dao', '', (new \ReflectionClass($serviceDao))->getShortName());
@@ -175,7 +184,7 @@ class ServiceTransferForm extends Form
     /**
      * Получение списка услуг по ID услуги и типу
      * @param array $servicesList - Список услуг разделенных по группам
-     * @return Usage[]
+     * @return UsageInterface[]
      */
     public function getServicesByIDs(array $servicesList)
     {

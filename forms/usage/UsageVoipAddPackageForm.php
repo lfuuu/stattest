@@ -4,6 +4,7 @@ namespace app\forms\usage;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
 use app\models\LogTarif;
@@ -85,6 +86,8 @@ class UsageVoipAddPackageForm extends Form
             $transaction->rollBack();
             throw $e;
         }
+
+        $usageVoipPackage->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
 
         return false;
     }

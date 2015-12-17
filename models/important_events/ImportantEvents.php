@@ -2,7 +2,6 @@
 
 namespace app\models\important_events;
 
-use app\classes\Assert;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
@@ -15,6 +14,8 @@ use app\models\ClientCounter;
 class ImportantEvents extends ActiveRecord
 {
 
+    const ROWS_PER_PAGE = 100;
+
     public $propertiesCollection = [];
 
     public function rules()
@@ -23,9 +24,6 @@ class ImportantEvents extends ActiveRecord
             [['event', 'source_id', ], 'required', 'on' => 'create'],
             [['event', ], 'trim'],
             ['source_id', 'integer'],
-            ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
-                return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'), true);
-            }],
             ['client_id', 'integer', 'integerOnly' => true],
         ];
     }
@@ -173,6 +171,9 @@ class ImportantEvents extends ActiveRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => self::ROWS_PER_PAGE,
+            ],
         ]);
         $dataProvider->sort = false;
 

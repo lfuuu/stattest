@@ -10,6 +10,10 @@ use yii\db\Query;
 
 abstract class Form extends Model
 {
+
+    const PAGE_SIZE = 200;
+    const EVENT_AFTER_SAVE = 'afterSave';
+
     public function saveModel(ActiveRecord $model, $runValidation = true)
     {
         if (!$model->save($runValidation)) {
@@ -20,10 +24,9 @@ abstract class Form extends Model
             }
             return false;
         }
+
         return true;
     }
-
-    const PAGE_SIZE = 200;
 
     /**
      * @return ActiveDataProvider

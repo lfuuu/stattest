@@ -5,15 +5,15 @@ namespace app\controllers\api;
 use Yii;
 use app\exceptions\FormValidationException;
 use app\classes\DynamicModel;
-use app\classes\ApiController;
+use app\classes\ApiInternalController;
 use app\models\important_events\ImportantEvents;
 
-class ImportantEventsController extends ApiController
+class ImportantEventsController extends ApiInternalController
 {
 
     public function actionAdd()
     {
-        $data = Yii::$app->request->bodyParams;
+        $data = $this->getRequestParams();
 
         $model = DynamicModel::validateData(
             $data,

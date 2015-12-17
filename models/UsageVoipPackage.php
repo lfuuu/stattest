@@ -20,6 +20,13 @@ use app\models\billing\StatPackage;
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
 
+    public function behaviors()
+    {
+        return [
+            'ImportantEvent' => \app\classes\behaviors\important_events\UsageVoipPackage::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_voip_package';

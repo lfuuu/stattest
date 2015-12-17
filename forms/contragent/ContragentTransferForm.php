@@ -3,6 +3,7 @@
 namespace app\forms\contragent;
 
 use Yii;
+use yii\base\ModelEvent;
 use yii\base\Exception;
 use app\classes\Assert;
 use app\classes\Form;
@@ -34,6 +35,13 @@ class ContragentTransferForm extends Form
         return [
             'targetClientAccount' => 'Супер клиент',
             'sourceClientAccount' => 'ID супер клиента',
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContragent::className(),
         ];
     }
 
@@ -85,6 +93,8 @@ class ContragentTransferForm extends Form
             $this->addError('transfer-error', $e->getMessage());
             return false;
         }
+
+        $this->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
 
         return true;
     }

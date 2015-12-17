@@ -13,13 +13,20 @@ use yii\base\InvalidValueException;
  * Абстрактный класс переноса услуг
  * @package app\classes\transfer
  */
-abstract class ServiceTransfer
+abstract class ServiceTransfer extends \yii\base\Component
 {
     protected $targetAccount;
     protected $activationDate;
 
     /** @var UsageInterface */
     public $service;
+
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageTransfer::className(),
+        ];
+    }
 
     /**
      * Конструктор класса

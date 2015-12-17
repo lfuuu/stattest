@@ -9,12 +9,16 @@
   7 | выполнен
   8 | отработано
 */
+use yii\db\ActiveRecord;
+use yii\base\ModelEvent;
 use app\dao\TroubleDao;
 use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
 use yii\web\View;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Trouble as YiiTrouble;
+use app\models\TroubleStage as YiiTroubleStage;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -371,7 +375,7 @@ class m_tt extends IModule{
             }
         }
 
-        $troubleRecord = \app\models\Trouble::findOne($trouble['id']);
+        $troubleRecord = YiiTrouble::findOne($trouble['id']);
         $troubleRecord->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
 
         if($trouble['bill_no'] && $trouble["trouble_type"] == "shop_orders")
@@ -711,7 +715,7 @@ where c.client="'.$trouble['client_orig'].'"')
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
 
-        $trouble = \app\models\Trouble::findOne($trouble['id']);
+        $trouble = YiiTrouble::findOne($trouble['id']);
         if ($trouble) {
             $mediaManager = $trouble->mediaManager;
             $design->assign('tt_media', $mediaManager->getFiles());
@@ -1632,15 +1636,27 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $data_to_open['date_edit'] = array('NOW()');
             $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
         }
-        $data_to_open['trouble_id']=$trouble_id;
+        $trouble = YiiTrouble::findOne($trouble_id);
+        $data_to_open['trouble_id']=$trouble->id;
 
         $id = $db->QueryInsert('tt_stages',$data_to_open);
 
-        $db->Query('update tt_troubles set cur_stage_id = '.$id.', folder=(select folder from tt_states where id='.(int)$data_to_open['state_id'].') where id='.$trouble_id);
+        $stage = YiiTroubleStage::findOne($id);
+        $stage->trigger(ActiveRecord::EVENT_AFTER_INSERT, new ModelEvent);
+
+        $db->Query('
+            UPDATE `tt_troubles`
+            SET
+                `cur_stage_id` = ' . $id . ',
+                `folder` = (SELECT `folder` FROM `tt_states` WHERE `id` = ' . (int)$data_to_open['state_id'] . ')
+            WHERE
+                `id` = ' . $trouble->id
+        );
 
         if(in_array($data_to_open["state_id"], array(2,20,7,8,48))){
             // to close
             $db->Query("update tt_troubles set date_close=now() where id = '".$data_to_open["trouble_id"]."' and date_close='0000-00-00 00:00:00'");
+            $trouble->trigger(ActiveRecord::EVENT_AFTER_UPDATE, new ModelEvent);
         }
 
         if($id>0)
@@ -1709,22 +1725,24 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             unset($R['bill_no']);
         $id = $db->QueryInsert('tt_troubles',$R);
 
-        $trouble = \app\models\Trouble::findOne($id);
+        $trouble = YiiTrouble::findOne($id);
         $trouble->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
+
+        $trouble->trigger(YiiTrouble::EVENT_AFTER_INSERT, new ModelEvent);
 
         $R2['user_main'] = $user_main;
 /*
     insert into tt_stages (date_start,state_id,date_finish_desired,user_main,trouble_id) values (NOW(),"1",NOW() + INTERVAL 1 HOUR,"nick","49583")
 */
 
-        $this->createStage($id,$R2);
+        $this->createStage($trouble->id,$R2);
         if (isset($R2["comment"]) && $R2["comment"])
         {
             $R2["comment"] = "";
-            $this->createStage($id,$R2);
+            $this->createStage($trouble->id, $R2);
         }
 
-        return $id;
+        return $trouble->id;
     }
 
     function checkTroubleAccess($trouble = null) {

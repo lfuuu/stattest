@@ -99,6 +99,7 @@ class ClientContract extends HistoryActiveRecord
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
             'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
+            'ClientContractEvent' => \app\classes\behaviors\important_events\ClientContract::className(),
         ];
     }
 
