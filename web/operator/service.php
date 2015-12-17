@@ -66,9 +66,12 @@ if ($action=='add_client') {
     $f = new ClientCreateExternalForm;
     $f->setAttributes($P);
 
-    $result_message = "";
+    $result_message = "error:";
+
     if ($f->validate()) {
-        $result_message = $f->create();
+        if ($f->create()) {
+            $result_message = "ok:" . $f->account_id . ($f->info ? ":" . $f->info : "");
+        }
     } else {
         $errors = $f->getErrors();
         $fields = array_keys($errors);

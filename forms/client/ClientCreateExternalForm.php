@@ -23,6 +23,7 @@ use app\models\DidGroup;
 use app\models\ClientContact;
 use app\models\LogTarif;
 use app\classes\validators\FormFieldValidator;
+use app\models\usages\UsageInterface;
 
 /**
  * Форма добавления клиента из внешнего мира.
@@ -31,10 +32,10 @@ use app\classes\validators\FormFieldValidator;
 
 class ClientCreateExternalForm extends Form
 {
-    private $super_id = 0;
-    private $contragent_id = 0;
-    private $contract_id = 0;
-    private $account_id = 0;
+    public $super_id = 0;
+    public $contragent_id = 0;
+    public $contract_id = 0;
+    public $account_id = 0;
 
     public $vats_tariff_id = 0;
 
@@ -47,6 +48,9 @@ class ClientCreateExternalForm extends Form
     public $address;
     public $comment;
     public $partner_id;
+
+    public $info = "";
+    public $isCreated = null;
 
 
     public function rules()
@@ -87,7 +91,7 @@ class ClientCreateExternalForm extends Form
 
         if (
             ($account = ClientAccount::findOne(['id' => $partnerId]))
-            && ($account->contract->business_id == Business::PARTNER)
+            && ($account->isPartner())
         ) {
             // OK
         } else {
@@ -102,8 +106,8 @@ class ClientCreateExternalForm extends Form
         if ($c) {
             $this->account_id    = $c->client->id;
             $this->contract_id   = $c->client->contract->id;
-            $this->contragent_id = $c->client->contract->contragent->id;
-            $this->super_id      = $c->client->contract->contragent->super->id;
+            $this->contragent_id = $c->client->contragent->id;
+            $this->super_id      = $c->client->superClient->id;
 
             return true;
         }
@@ -123,10 +127,11 @@ class ClientCreateExternalForm extends Form
         $retVast = [];
 
         if ($this->findByEmail()) {
-            //
+            $this->isCreated = false;
         } else {
-
             $this->createClientStruct();
+
+            $this->isCreated = true;
 
             if ($this->account_id) {
                 $this->createTroubleAndWizard();
@@ -137,60 +142,62 @@ class ClientCreateExternalForm extends Form
         }
         $transaction->commit();
 
-
-        $answer = "";
+        $result = null;
         if ($this->account_id) {
-            $answer = "ok:".$this->account_id;
+            $result = true;
 
             if ($resVats) {
-                $answer .= ":vats:" . $resVats['status'] . ":" . $resVats['info'];
+                $this->info = "vats:" . $resVats['status'] . ":" . $resVats['info'];
             }
         } else {
-            $answer = 'error:';
+            $result = false;
         }
 
-        return $answer;
+        return $result;
     }
 
     private function createClientStruct()
     {
-        $s = new \app\models\ClientSuper();
-        $s->name = $this->company;
-        $s->validate();
-        $s->save();
-        Yii::info($s);
-        $this->super_id = $s->id;
+        $super = new \app\models\ClientSuper();
+        $super->name = $this->company;
+        $super->validate();
+        $super->save();
+        Yii::info($super);
+        $this->super_id = $super->id;
 
-        $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
-        $cg->name = $cg->name_full = $this->company;
-        $cg->address_jur = $this->address;
-        $cg->legal_type = 'legal';
-        $cg->validate();
-        $cg->save();
-        $this->contragent_id = $cg->id;
-        Yii::info($cg);
+        $contragent = new \app\forms\client\ContragentEditForm(['super_id' => $super->id]);
+        $contragent->name = $contragent->name_full = $this->company;
+        $contragent->address_jur = $this->address;
+        $contragent->legal_type = 'legal';
+        if ($this->partner_id) {
+            $contragent->partner_contract_id = $this->partner_id;
+        }
+        $contragent->validate();
+        $contragent->save();
+        $this->contragent_id = $contragent->id;
+        Yii::info($contragent);
 
-        $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-        $cr->business_id = Business::TELEKOM;
-        $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
-        $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
-        $cr->organization_id = Organization::MCN_TELEKOM;
-        $cr->validate();
-        $cr->save();
-        $this->contract_id = $cr->id;
-        Yii::info($cr);
+        $contract = new \app\forms\client\ContractEditForm(['contragent_id' => $contragent->id]);
+        $contract->business_id = Business::TELEKOM;
+        $contract->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
+        $contract->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+        $contract->organization_id = Organization::MCN_TELEKOM;
+        $contract->validate();
+        $contract->save();
+        $this->contract_id = $contract->id;
+        Yii::info($contract);
 
-        $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
-        $ca->address_post = $this->address;
-        $ca->address_post_real = $this->address;
-        $ca->address_connect = $this->address;
-        $ca->status = "income";
-        $ca->validate();
+        $account = new \app\forms\client\AccountEditForm(['id' => $contract->newClient->id]);
+        $account->address_post = $this->address;
+        $account->address_post_real = $this->address;
+        $account->address_connect = $this->address;
+        $account->status = "income";
+        $account->validate();
 
-        $ca->save();
-        $this->account_id = $ca->id;
+        $account->save();
+        $this->account_id = $account->id;
 
-        Yii::info($ca);
+        Yii::info($account);
         if ($this->contact_phone) {
             $this->addContact([
                 'type' => 'phone',
@@ -254,7 +261,7 @@ class ClientCreateExternalForm extends Form
         if ($client && $tarif)
         {
             $actual_from = date('Y-m-d');
-            $actual_to = '4000-01-01';
+            $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
             $vats = new UsageVirtpbx;
             $vats->client = $client->client;
