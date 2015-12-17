@@ -39,7 +39,7 @@ $user	= new UserService();
 
 $action=get_param_raw('action','');
 if ($action=='add_client') {
-	$V = array('company','fio', 'contact','email','phone','fax','address','market_chanel','client_comment', 'phone_connect');
+	$V = array('company','fio', 'contact','email','phone','fax','address','client_comment', 'phone_connect');
 	$P = array();
 	foreach ($V as $k) @$P[$k] = htmlspecialchars(trim(get_param_raw($k, "")));
 
