@@ -1,23 +1,28 @@
 <?php
 namespace app\forms\client;
 
+use Yii;
+use DateTime;
+use DateTimeZone;
+use Exception;
+use VoipReservNumber;
 use app\classes\Form;
 use app\models\Number;
 use app\classes\StatModule;
-use app\models\Trouble;
 use app\models\LkWizardState;
 use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\TariffVirtpbx;
-use app\models\TariffVoip;
 use app\models\User;
 use app\models\Organization;
-use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\UsageVoip;
+use app\models\UsageVirtpbx;
 use app\models\DidGroup;
 use app\models\ClientContact;
+use app\models\LogTarif;
+use app\classes\validators\FormFieldValidator;
 
 /**
  * Форма добавления клиента из внешнего мира.
@@ -33,11 +38,11 @@ class ClientCreateExternalForm extends Form
 
     public $vats_tariff_id = 0;
 
+    public $email;
     public $company;
     public $fio;
-    public $contact;
-    public $email;
-    public $phone;
+    public $contact_phone;
+    public $official_phone;
     public $fax;
     public $address;
     public $comment;
@@ -47,7 +52,10 @@ class ClientCreateExternalForm extends Form
     public function rules()
     {
         $rules = [
+            ['email', 'required'],
             [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment'], 'default', 'value' => ''],
+            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment'], FormFieldValidator::className()],
+            ['company', 'default', 'value' => 'Клиент с сайта'],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id'], 'integer'],
             [['partner_id'], 'validatePartnerId']
@@ -69,9 +77,28 @@ class ClientCreateExternalForm extends Form
         ];
     }
 
+    public function validatePartnerId($attr, $params = [])
+    {
+        $partnerId = $this->$attr;
+        
+        if (!$partnerId) {
+            return ;
+        }
+
+        if (
+            ($account = ClientAccount::findOne(['id' => $partnerId]))
+            && ($account->contract->business_id == Business::PARTNER)
+        ) {
+            // OK
+        } else {
+            $this->addError($attr, "Партнер не найден");
+        }
+    }
+
     public function findByEmail()
     {
         $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
+
         if ($c) {
             $this->account_id    = $c->client->id;
             $this->contract_id   = $c->client->contract->id;
@@ -103,7 +130,7 @@ class ClientCreateExternalForm extends Form
 
             if ($this->account_id) {
                 $this->createTroubleAndWizard();
-                if ($this->vats_tarif_id) {
+                if ($this->vats_tariff_id) {
                     $resVats = $this->createVats();
                 }
             }
@@ -192,9 +219,9 @@ class ClientCreateExternalForm extends Form
 
         $this->addContact([
             'type' => 'email',
-            'data' => $P['email'],
-            'comment' => $P["fio"];
-        'is_official' => 1
+            'data' => $this->email,
+            'comment' => $this->fio,
+            'is_official' => 1
         ]);
     }
 
@@ -212,7 +239,7 @@ class ClientCreateExternalForm extends Form
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($cr->id, $troubleId);
+        LkWizardState::create($this->contract_id, $troubleId);
 
         return true;
     }
@@ -222,7 +249,7 @@ class ClientCreateExternalForm extends Form
         $result = ['status' => 'error'];
 
         $client = ClientAccount::findOne(['id' => $this->account_id]);
-        $tarif = TariffVirtpbx::findOne([['id' => $this->vats_tarif_id], ['!=', 'status', 'archive']]);
+        $tarif = TariffVirtpbx::findOne([['id' => $this->vats_tariff_id], ['!=', 'status', 'archive']]);
 
         if ($client && $tarif)
         {

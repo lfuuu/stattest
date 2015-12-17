@@ -126,4 +126,12 @@ class ClientContragent extends HistoryActiveRecord
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
+
+    /**
+     * @return ClientSuper
+     */
+    public function getSuper()
+    {
+        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+    }
 }

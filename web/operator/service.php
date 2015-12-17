@@ -16,8 +16,9 @@ use app\forms\usage\UsageVoipEditForm;
 use app\models\UsageVoip;
 use app\models\DidGroup;
 
-if (isset($_GET) && isset($_GET["test"]))
-{
+use app\forms\client\ClientCreateExternalForm;
+
+if (isset($_GET) && isset($_GET["test"])) {
     define('YII_ENV', 'test');
 }
 
@@ -35,231 +36,44 @@ class UserService
 		return 25;
 	}
 }
-$user	= new UserService();
+$user = new UserService();
 
 $action=get_param_raw('action','');
-if ($action=='add_client') {
-	$V = array('company','fio', 'contact','email','phone','fax','address','client_comment', 'phone_connect');
-	$P = array();
-	foreach ($V as $k) @$P[$k] = htmlspecialchars(trim(get_param_raw($k, "")));
 
-	if(empty($P["company"]))
-    {
-        $P["company"] = "Клиент с сайта";
+if ($action=='add_client') {
+    $V = array(
+        'company' => 'company',
+        'fio'     => 'fio', 
+        'contact' => 'contact_phone',
+        'email'   => 'email',
+        'phone'   => 'official_phone',
+        'fax'     => 'fax',
+        'address' => 'address',
+        'client_comment' => 'comment', 
+        'vats_tariff_id' => 'vats_tariff_id'
+    );
+
+	$P = [];
+    foreach ($V as $k1 => $k2) {
+        $P[$k2] = get_param_raw($k1, "");
     }
 
-    if ($P["company"] == "google")
-    {
+    if ($P["company"] == "google") {
         echo "error:";
         exit();
     }
-    $c = \app\models\ClientContact::findOne(['data' => $P['email'], 'type' => 'email']);
 
-    Yii::info("Start add_client");
-    Yii::info($P);
-    Yii::info($c);
+    $f = new ClientCreateExternalForm;
+    $f->setAttributes($P);
 
-    $clientId = null;
-	if($c)
-    {
-        $clientId = $c->client_id;
+    $result_message = "";
+    if ($f->validate()) {
+        $result_message = $f->create();
     } else {
+        $errors = $f->getErrors();
+        $fields = array_keys($errors);
 
-        $transaction = Yii::$app->db->beginTransaction();
-
-        $s = new \app\models\ClientSuper();
-        $s->name = $P['company'];
-        $s->validate();
-        $s->save();
-
-        Yii::info($s);
-
-        $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
-        $cg->name = $cg->name_full = $P['company'];
-        $cg->address_jur = $P['address'];
-        $cg->legal_type = 'legal';
-        $cg->validate();
-        $cg->save();
-
-        Yii::info($cg);
-
-        $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
-        $cr->business_id = Business::TELEKOM;
-        $cr->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
-        $cr->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
-        $cr->organization_id = Organization::MCN_TELEKOM;
-        $cr->validate();
-
-        $cr->save();
-
-        Yii::info($cr);
-
-        $ca = new \app\forms\client\AccountEditForm(['id' => $cr->newClient->id]);
-        $ca->address_post = $P['address'];
-        $ca->address_post_real = $P['address'];
-        $ca->address_connect = $P['address'];
-        $ca->status = "income";
-
-        if($P["phone_connect"])
-            $ca->phone_connect = $P["phone_connect"];
-
-        $ca->validate();
-
-        if ($ca->save()) {
-            $clientId = $ca->id;
-
-            Yii::info($ca);
-            $contactId = 0;
-            if($P['contact']){
-                $c = new \app\models\ClientContact();
-                $c->client_id = $ca->id;
-                $c->type = 'phone';
-                $c->data = $P['contact'];
-                $c->comment = $P["fio"];
-                $c->user_id = User::CLIENT_USER_ID;
-                $c->is_active = 1;
-                $c->is_official = 0;
-                $c->save();
-            }
-            if($P['phone']){
-                $c = new \app\models\ClientContact();
-                $c->client_id = $ca->id;
-                $c->type = 'phone';
-                $c->data = $P['phone'];
-                $c->comment = $P["fio"];
-                $c->user_id = User::CLIENT_USER_ID;
-                $c->is_active = 1;
-                $c->is_official = 1;
-                $c->save();
-            }
-            if($P['fax']){
-                $c = new \app\models\ClientContact();
-                $c->client_id = $ca->id;
-                $c->type = 'fax';
-                $c->data = $P['fax'];
-                $c->comment = $P["fio"];
-                $c->user_id = User::CLIENT_USER_ID;
-                $c->is_active = 1;
-                $c->is_official = 1;
-                $c->save();
-            }
-            if($P['email']){
-                $c = new \app\models\ClientContact();
-                $c->client_id = $ca->id;
-                $c->type = 'email';
-                $c->data = $P['email'];
-                $c->comment = $P["fio"];
-                $c->user_id = User::CLIENT_USER_ID;
-                $c->is_active = 1;
-                $c->is_official = 1;
-                $c->save();
-                $contactId = $c->id;
-            }
-
-            $R = array(
-                'trouble_type' => 'connect',
-                'trouble_subtype' => 'connect',
-                'client' => "id".$ca->id,
-                'date_start' => date('Y-m-d H:i:s'),
-                'date_finish_desired' => date('Y-m-d H:i:s'),
-                'problem' => "Входящие клиент с сайта: ".$P["company"],
-                'user_author' => "system",
-                'first_comment' => $P["client_comment"]
-            );
-
-            $troubleId = StatModule::tt()->createTrouble($R, "system");
-            LkWizardState::create($cr->id, $troubleId);
-        }
-        $transaction->commit();
-    }
-
-    $result_message = 'error:';
-
-    if ($clientId)
-    {
-        $result_message = 'ok:' . $clientId;
-        if ($vatsTarifId = get_param_integer('vats_tariff_id', 0)) // заявка с ВАТС
-        {
-            $result_message .= 'vpbx:';
-            $client = ClientAccount::findOne(['id' => $clientId]);
-            $tarif = TariffVirtpbx::findOne([['id' => $vatsTarifId], ['!=', 'status', 'archive']]);
-
-            if ($client && $tarif)
-            {
-                $actual_from = date('Y-m-d');
-                $actual_to = '4000-01-01';
-                $vats = new UsageVirtpbx;
-                $vats->client = $client->client;
-                $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $vats->actual_from = $actual_from;
-                $vats->actual_to = $actual_to;
-                $vats->amount = 1;
-                $vats->status = 'connecting';
-                $vats->region = \app\models\Region::MOSCOW;
-                $vats->save();
-                $logTarif = new LogTarif;
-                $logTarif->service = 'usage_virtpbx';
-                $logTarif->id_service = $vats->id;
-                $logTarif->id_tarif = $tarif->id;
-                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $logTarif->date_activation = date('Y-m-d');
-                $logTarif->id_user = User::LK_USER_ID;
-                $logTarif->save();
-
-                $result_message .= 'created';
-
-                if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
-                    $usage = UsageVoip::findOne(['client' => $client->client]);
-
-                    if (!($usage instanceof UsageVoip)) {
-                        $result_message .= 'voip:';
-
-                        $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
-
-                        if (!($freeNumber instanceof Number)) {
-                            throw new Exception('Not found free number into 499 DID group', 500);
-                        }
-
-                        $transaction = Yii::$app->db->beginTransaction();
-                        try {
-                            $form = new UsageVoipEditForm;
-                            $form->scenario = 'add';
-                            $form->initModel($client);
-                            $form->did = $freeNumber->number;
-                            $form->prepareAdd();
-                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
-                            $form->create_params = \yii\helpers\Json::encode([
-                                'vpbx_stat_product_id' => $vats->id,
-                            ]);
-
-                            if (!$form->validate() || !$form->add()) {
-                                if ($form->errors) {
-                                    \Yii::error($form);
-                                    $errorKeys = array_keys($form->errors);
-                                    throw new Exception($form->errors[$errorKeys[0]][0], 500);
-                                } else {
-                                    throw new Exception('Unknown error', 500);
-                                }
-                            }
-
-                            $usageVoipId = $form->id;
-
-                            $transaction->commit();
-                            $result_message .= 'added';
-                        }
-                        catch (\Exception $e) {
-                            $result_message .= 'failed';
-                            $transaction->rollBack();
-                            throw $e;
-                        }
-                    }
-                }
-            }
-            else {
-                $result_message .= 'not_found_tariff';
-            }
-        }
+        $result_message = "error:" . $errors[$fields[0]][0];
     }
 
     die($result_message);
