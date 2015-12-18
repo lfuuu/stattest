@@ -151,6 +151,12 @@ class Bill {
         $clientAccount = ClientAccount::findOne($this->client_id);
         $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
+        if ($type == 'zadatok') {
+            $bill =  \app\models\Bill::findOne($this->bill['id']);
+            $bill->price_include_vat = $this->bill['price_include_vat'] = 1;
+            $bill->save();
+        }
+
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
         $line->sort = $this->max_sort;
