@@ -7,7 +7,6 @@ use DateTime;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
-use yii\helpers\ArrayHelper;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 
@@ -49,7 +48,7 @@ class ImportantEvents extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\ImportantEvents::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ImportantEventsBehavior::className(),
         ];
     }
 
