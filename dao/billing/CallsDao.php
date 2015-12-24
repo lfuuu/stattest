@@ -1,6 +1,9 @@
 <?php
 namespace app\dao\billing;
 
+use app\classes\Assert;
+use app\models\ClientAccount;
+use app\widgets\select_multiply\Asset;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -68,9 +71,11 @@ class CallsDao extends Singleton
     {
         $firstDayOfDate = new DateTime;
         $firstDayOfDate = $firstDayOfDate->setDate($year, $month, 1);
+        $firstDayOfDate = $firstDayOfDate->setTime(0, 0, 0);
 
         $lastDayOfDate = clone $firstDayOfDate;
         $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
+        $lastDayOfDate = $lastDayOfDate->setTime(23, 59, 59);
 
         $query = new Query;
 
@@ -86,25 +91,24 @@ class CallsDao extends Singleton
         ]);
         $query->from(Calls::tableName());
 
-        if ($accountId) {
-            $usage = UsageVoip::find()->client('id' . $accountId)->actual()->one();
+        $clientAccount = ClientAccount::findOne(['client' => 'id' . $accountId]);
+        Assert::isObject($clientAccount, 'ClientAccount#' . $accountId);
 
-            if ($usage instanceof UsageVoip) {
-                $regions = ArrayHelper::getColumn(UsageVoip::find()->select('region')->client('id' . $accountId)->distinct()->all(), 'region');
+        $query->andWhere(['account_id' => $clientAccount->id]);
 
-                $query->andWhere(['account_id' => $usage->clientAccount->id]);
-                if (count($regions)) {
-                    $query->andWhere(['in', 'server_id', $regions]);
-                }
-            }
+        $regions = ArrayHelper::getColumn(UsageVoip::find()->select('region')->client($clientAccount->client)->distinct()->all(), 'region');
+        if (count($regions)) {
+            $query->andWhere(['in', 'server_id', $regions]);
         }
+
         if ($number) {
             $usage = UsageVoip::find()->where(['E164' => $number])->actual()->one();
-            if ($usage instanceof UsageVoip) {
-                $query->andWhere(['number_service_id' => $usage->id]);
-                $query->andWhere(['server_id' => $usage->region]);
-            }
+            Assert::isObject($usage, 'Number "' . $number . '"');
+
+            $query->andWhere(['number_service_id' => $usage->id]);
+            $query->andWhere(['server_id' => $usage->region]);
         }
+
         if ($offset) {
             $query->offset($offset);
         }

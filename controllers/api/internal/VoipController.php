@@ -27,8 +27,7 @@ class VoipController extends ApiInternalController
             [
                 [['account_id', 'offset', 'limit', 'year', 'month'], 'integer'],
                 ['number', 'trim'],
-                ['account_id', 'required', 'when' => function() use ($requestData) { return !$requestData['number']; }],
-                ['number', 'required', 'when' => function() use ($requestData) { return !$requestData['account_id']; }],
+                ['account_id', 'required'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
