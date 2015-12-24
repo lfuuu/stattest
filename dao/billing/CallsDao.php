@@ -7,6 +7,7 @@ use yii\db\Query;
 use app\classes\Singleton;
 use app\models\UsageVoip;
 use app\models\billing\Calls;
+use yii\helpers\ArrayHelper;
 
 class CallsDao extends Singleton
 {
@@ -63,8 +64,14 @@ class CallsDao extends Singleton
      * @param int $limit
      * @return array
      */
-    public function getCalls($accountId = 0, $number = '', $year = '', $month = '', $offset = 0, $limit = 1000)
+    public function getCalls($accountId = 0, $number = '', $year, $month, $offset = 0, $limit = 1000)
     {
+        $firstDayOfDate = new DateTime;
+        $firstDayOfDate = $firstDayOfDate->setDate($year, $month, 1);
+
+        $lastDayOfDate = clone $firstDayOfDate;
+        $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
+
         $query = new Query;
 
         $query->select([
@@ -83,24 +90,27 @@ class CallsDao extends Singleton
             $usage = UsageVoip::find()->client('id' . $accountId)->actual()->one();
 
             if ($usage instanceof UsageVoip) {
+                $regions = ArrayHelper::getColumn(UsageVoip::find()->select('region')->client('id' . $accountId)->distinct()->all(), 'region');
+
                 $query->andWhere(['account_id' => $usage->clientAccount->id]);
+                if (count($regions)) {
+                    $query->andWhere(['in', 'server_id', $regions]);
+                }
             }
         }
         if ($number) {
             $usage = UsageVoip::find()->where(['E164' => $number])->actual()->one();
             if ($usage instanceof UsageVoip) {
                 $query->andWhere(['number_service_id' => $usage->id]);
+                $query->andWhere(['server_id' => $usage->region]);
             }
-        }
-        if ($year) {
-            $query->andWhere("date_part('year', connect_time) = :year", [':year' => $year]);
-        }
-        if ($month) {
-            $query->andWhere("date_part('month', connect_time) = :month", [':month' => $month]);
         }
         if ($offset) {
             $query->offset($offset);
         }
+
+        $query->andWhere(['between', 'connect_time', $firstDayOfDate->format('Y-m-d'), $lastDayOfDate->format('Y-m-d')]);
+
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
 
         return $query->all(Calls::getDb());

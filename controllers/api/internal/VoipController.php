@@ -5,16 +5,13 @@ namespace app\controllers\api\internal;
 use Yii;
 use DateTime;
 use app\classes\ApiInternalController;
-use app\exceptions\web\BadRequestHttpException;
+use app\classes\DynamicModel;
 use app\exceptions\web\NotImplementedHttpException;
+use app\exceptions\FormValidationException;
 use app\models\billing\Calls;
 
 class VoipController extends ApiInternalController
 {
-
-    private
-        $accountId,
-        $number;
 
     public function actionIndex()
     {
@@ -24,27 +21,33 @@ class VoipController extends ApiInternalController
     public function actionCalls()
     {
         $requestData = $this->getRequestParams();
-        $this->getRequiredParams($requestData);
 
-        $year   = isset($requestData['year']) ? $requestData['year'] : (new DateTime())->format('Y');
-        $month  = isset($requestData['month']) ? $requestData['month'] : (new DateTime())->format('m');
-        $offset = isset($requestData['offset']) ? $requestData['offset']: 0;
-        $limit  = isset($requestData['limit']) ? $requestData['limit']: 1000;
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                [['account_id', 'offset', 'limit', 'year', 'month'], 'integer'],
+                ['number', 'trim'],
+                ['account_id', 'required', 'when' => function() use ($requestData) { return !$requestData['number']; }],
+                ['number', 'required', 'when' => function() use ($requestData) { return !$requestData['account_id']; }],
+                ['year', 'default', 'value' => (new DateTime())->format('Y')],
+                ['month', 'default', 'value' => (new DateTime())->format('m')],
+                ['offset', 'default', 'value' => 0],
+                ['limit', 'default', 'value' => 1000],
+            ]
+        );
 
-        return Calls::dao()->getCalls($this->accountId, $this->number, $year, $month, $offset, $limit);
-    }
-
-    private function getRequiredParams(array $data)
-    {
-        $accountId = isset($data['account_id']) ? $data['account_id'] : null;
-        $number = isset($data['number']) ? $data['number'] : null;
-
-        if (!$accountId && !$number) {
-            throw new BadRequestHttpException;
+        if ($model->hasErrors()) {
+            throw new FormValidationException($model);
         }
 
-        $this->accountId = $accountId;
-        $this->number = $number;
+        return Calls::dao()->getCalls(
+            $model->account_id,
+            $model->number,
+            $model->year,
+            $model->month,
+            $model->offset,
+            $model->limit
+        );
     }
 
 }
