@@ -91,7 +91,7 @@ class CallsDao extends Singleton
         ]);
         $query->from(Calls::tableName());
 
-        $clientAccount = ClientAccount::findOne(['client' => 'id' . $accountId]);
+        $clientAccount = ClientAccount::findOne($accountId);
         Assert::isObject($clientAccount, 'ClientAccount#' . $accountId);
 
         $query->andWhere(['account_id' => $clientAccount->id]);
