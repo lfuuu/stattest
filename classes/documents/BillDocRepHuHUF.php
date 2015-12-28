@@ -19,12 +19,7 @@ class BillDocRepHuHUF extends DocumentReport
 
     public function getDocType()
     {
-        if (count($this->lines) == 1 && $this->lines[0]['type'] == 'zadatok') {
-            return 'payment';
-        }
-        else {
-            return self::BILL_DOC_TYPE;
-        }
+        return self::BILL_DOC_TYPE;
     }
 
     public function getName()
