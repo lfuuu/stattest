@@ -66,6 +66,12 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         return Transaction::SERVICE_TRUNK;
     }
 
+    /** Заглушка, чтобы не падало из-за различий в client и client_account_id */
+    public function getClient()
+    {
+        return $this->clientAccount->client;
+    }
+
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
