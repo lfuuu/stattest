@@ -49,7 +49,7 @@ use app\classes\Html;
                     'value' =>
                         Html::tag(
                             'div',
-                            Html::label('Язык', null, ['class' => 'control-label']) .
+                            Html::label('Тема', null, ['class' => 'control-label']) .
                             Html::input('text', $model->formName() . '[title][]', $model->title, ['class' => 'form-control']),
                             ['class' => 'form-group']
                         )

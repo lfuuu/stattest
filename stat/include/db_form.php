@@ -124,24 +124,27 @@ class DbForm {
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+        $usageForm = \app\models\usages\UsageFactory::getUsageForm($this->table);
+
         if($this->dbform_action=='delete'){
-            $db->Query('delete from '.$this->table.' where id='.$this->dbform['id']);
+            (new $usageForm->model)->findOne($this->dbform['id'])->delete();
             return 'delete';
         }elseif($this->dbform_action=='save'){
-            $R=array();
-            $s='';
+            $R = [];
+            $s = [];
             $sDiff = "";
 
             foreach($this->fields as $f=>$F){
                 if($f!='id' && !(isset($F['db_ignore']) && $F['db_ignore']==1)){
                     if(isset($F["type"]) && $F["type"] == "password" && $this->dbform[$f] == "*******") continue;
-                    if($s)
-                        $s.=',';
-                    $s .= $f.'='.(
+
+                    $s[$f] = (
                         isset($this->dbform[$f])
-                            ? (is_array($this->dbform[$f])?$this->dbform[$f][0]:'"'.addslashes($this->dbform[$f]).'"')
-                            : '""'
+                            ? (is_array($this->dbform[$f]) ? $this->dbform[$f][0] : addslashes($this->dbform[$f]))
+                            : ''
                     );
+
                     if($this->dbform['id'] && isset($this->dbform[$f]) && isset($this->data[$f])){
                         if($this->dbform[$f] != $this->data[$f]){
                             $sDiff .= ($sDiff?", ":"").$f;
@@ -154,25 +157,54 @@ class DbForm {
                 }
             }
 
-
-
             if (!$no_real_update) {
                 if ($this->dbform['id']) {
-
-                    if ($sDiff)
-                    {
+                    if ($sDiff) {
                         $this->dbform["t_fields_changes"] = $sDiff;
                     }
-                    $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
-                    $p='edit';
-                    Yii::$app->session->addFlash('success', 'Запись обновлена');
+
+                    $model = (new $usageForm->model)->findOne($this->dbform['id']);
+                    if (
+                        $usageForm->load([$usageForm->formName() => $s])
+                            &&
+                        $usageForm->validate()
+                            &&
+                        $usageForm->saveModel($model, true, true)
+                    ) {
+                        $p='edit';
+                        $this->Load($this->dbform['id']);
+                        Yii::$app->session->addFlash('success', 'Запись обновлена');
+                    }
+
+                    if ($usageForm->hasErrors()) {
+                        $this->data = $this->dbform;
+                        foreach ($usageForm->firstErrors as $error) {
+                            Yii::$app->session->addFlash('error', $error);
+                        }
+                    }
                 } else {
-                    $db->Query('insert into '.$this->table.' SET '.$s);
-                    $this->dbform['id']=$db->GetInsertId();
-                    $p='add';
-                    Yii::$app->session->addFlash('success', 'Запись добавлена');
+                    $model = new $usageForm->model;
+                    if (
+                        $usageForm->load([$usageForm->formName() => $s])
+                            &&
+                        $usageForm->validate()
+                            &&
+                        $usageForm->saveModel($model, true, true)
+                    ) {
+                        $this->dbform['id'] = $model->id;
+                        $p='add';
+                        $this->Load($this->dbform['id']);
+                        Yii::$app->session->addFlash('success', 'Запись добавлена');
+                    }
+
+                    if ($usageForm->hasErrors()) {
+                        $this->data = $this->dbform;
+                        foreach ($usageForm->firstErrors as $error) {
+                            Yii::$app->session->addFlash('error', $error);
+                        }
+                    }
                 }
-                $this->Load($this->dbform['id']);
+
             } else {
                 $p='add';
                 $this->data=$this->dbform;

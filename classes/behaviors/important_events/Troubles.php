@@ -23,7 +23,7 @@ class Troubles extends Behavior
     public function registerAddEvent($event)
     {
         if ($event->sender->trouble_type == 'trouble' || $event->sender->trouble_type == 'task') {
-            ImportantEvents::create('new_trouble', self::EVENT_SOURCE, [
+            ImportantEvents::create('created_trouble', self::EVENT_SOURCE, [
                 'trouble_id' => $event->sender->id,
                 'client_id' => $event->sender->account->id,
                 'user_id' => Yii::$app->user->id,

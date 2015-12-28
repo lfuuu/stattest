@@ -9,6 +9,14 @@ use yii\db\ActiveRecord;
  */
 class UsageIpRoutes extends ActiveRecord
 {
+
+    public function behaviors()
+    {
+        return [
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_ip_routes';

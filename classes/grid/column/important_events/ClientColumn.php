@@ -12,6 +12,12 @@ class ClientColumn extends DataColumn
     public $attribute = 'client_id';
     public $label = 'Клиент';
 
+    public function __construct($config = [])
+    {
+        $this->filterInputOptions['placeholder'] = 'ID клиента';
+        parent::__construct($config);
+    }
+
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = parent::getDataCellValue($model, $key, $index);

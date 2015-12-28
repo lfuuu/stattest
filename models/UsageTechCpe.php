@@ -14,6 +14,13 @@ use app\helpers\usages\UsageTechCpeHelper;
 class UsageTechCpe extends ActiveRecord
 {
 
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_tech_cpe';

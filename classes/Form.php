@@ -14,8 +14,15 @@ abstract class Form extends Model
     const PAGE_SIZE = 200;
     const EVENT_AFTER_SAVE = 'afterSave';
 
-    public function saveModel(ActiveRecord $model, $runValidation = true)
+    public function saveModel(ActiveRecord $model, $runValidation = true, $autoSetAttributes = false)
     {
+        if ($autoSetAttributes) {
+            $attributes = $this->getAttributes();
+            foreach ($attributes as $name => $value) {
+                $model->$name = $value;
+            }
+        }
+
         if (!$model->save($runValidation)) {
             foreach ($model->getErrors() as $attribute => $errors) {
                 foreach($errors as $error) {
@@ -26,6 +33,11 @@ abstract class Form extends Model
         }
 
         return true;
+    }
+
+    public function getModel()
+    {
+        return static::$formModel;
     }
 
     /**

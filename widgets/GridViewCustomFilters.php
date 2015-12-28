@@ -113,7 +113,7 @@ class GridViewCustomFilters extends \kartik\grid\GridView
 
     public function renderFilters()
     {
-        $columnsCount = count($this->columns);
+        $columnsCount = count($this->columns) + 1;
 
         if ($this->filterModel !== null) {
             $cells = [];

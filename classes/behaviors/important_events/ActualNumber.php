@@ -23,8 +23,9 @@ class ActualNumber extends Behavior
 
     public function ActualNumberAddEvent($event)
     {
-        ImportantEvents::create('usage_voip_on', self::EVENT_SOURCE, [
+        ImportantEvents::create('enabled_usage', self::EVENT_SOURCE, [
             'client_id' => $event->sender->client_id,
+            'usage' => 'usage_voip',
             'number' => $event->sender->number,
             'user_id' => Yii::$app->user->id,
         ]);
@@ -32,16 +33,12 @@ class ActualNumber extends Behavior
 
     public function ActualNumberDeleteEvent($event)
     {
-        ImportantEvents::create('usage_voip_off', self::EVENT_SOURCE, [
+        ImportantEvents::create('disabled_usage', self::EVENT_SOURCE, [
             'client_id' => $event->sender->client_id,
+            'usage' => 'usage_voip',
             'number' => $event->sender->number,
             'user_id' => Yii::$app->user->id,
         ]);
-    }
-
-    public function ActualNumberUpdateEvent($event)
-    {
-        print_r($event);
     }
 
 }

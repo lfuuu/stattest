@@ -24,6 +24,14 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
 
     use LogTariffTrait;
 
+    public function behaviors()
+    {
+        return [
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_virtpbx';

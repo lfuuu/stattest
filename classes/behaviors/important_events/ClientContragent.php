@@ -21,7 +21,7 @@ class ClientContragent extends Behavior
 
     public function registerTransferEvent($event)
     {
-        ImportantEvents::create('contragent_transfer', self::EVENT_SOURCE, [
+        ImportantEvents::create('transfer_contragent', self::EVENT_SOURCE, [
             'contragent_id' => $event->sender->sourceClientAccount,
             'to_super_id' => $event->sender->targetClientAccount,
             'user_id' => Yii::$app->user->id,

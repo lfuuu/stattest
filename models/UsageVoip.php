@@ -3,6 +3,7 @@ namespace app\models;
 
 use DateTime;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use app\classes\bill\VoipBiller;
 use app\classes\transfer\VoipServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
@@ -36,9 +37,11 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     public function behaviors()
     {
         return [
-            'UsageVoipAddress' =>        \app\classes\behaviors\UsageVoipAddress::className(),
+            'UsageVoipAddress' => \app\classes\behaviors\UsageVoipAddress::className(),
             'ActualizeNumberByStatus' => \app\classes\behaviors\ActualizeNumberByStatus::className(),
-            'ActualizeVoipNumber' =>     \app\classes\behaviors\ActualizeVoipNumber::className(),
+            'ActualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
         ];
     }
 

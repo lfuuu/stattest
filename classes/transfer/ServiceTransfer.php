@@ -24,7 +24,7 @@ abstract class ServiceTransfer extends \yii\base\Component
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageTransfer::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
         ];
     }
 

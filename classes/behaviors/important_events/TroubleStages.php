@@ -28,24 +28,27 @@ class TroubleStages extends Behavior
         $trouble = Trouble::findOne($event->sender->trouble_id);
 
         if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id, $this->closedStates, true)) {
-            ImportantEvents::create('trouble_set_state', self::EVENT_SOURCE, [
+            ImportantEvents::create('set_state_trouble', self::EVENT_SOURCE, [
                 'trouble_id' => $event->sender->trouble_id,
+                'stage_id' => $trouble->stage->id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);
         }
 
         if ($trouble->stage->user_main != $event->sender->user_main) {
-            ImportantEvents::create('trouble_set_responsible', self::EVENT_SOURCE, [
+            ImportantEvents::create('set_responsible_trouble', self::EVENT_SOURCE, [
                 'trouble_id' => $event->sender->trouble_id,
+                'stage_id' => $trouble->stage->id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);
         }
 
         if (!empty($trouble->stage->comment)) {
-            ImportantEvents::create('trouble_new_comment', self::EVENT_SOURCE, [
+            ImportantEvents::create('new_comment_trouble', self::EVENT_SOURCE, [
                 'trouble_id' => $event->sender->trouble_id,
+                'stage_id' => $trouble->stage->id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);

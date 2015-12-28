@@ -6,7 +6,6 @@ use yii\base\Behavior;
 use app\classes\Event;
 use yii\db\ActiveRecord;
 
-
 class ActualizeVoipNumber extends Behavior
 {
     public function events()
