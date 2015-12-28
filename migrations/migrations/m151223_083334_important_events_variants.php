@@ -6,7 +6,7 @@ class m151223_083334_important_events_variants extends \app\classes\Migration
     {
         $this->execute("
             INSERT INTO `important_events_names`
-                (`code`, `value`, `group`)
+                (`code`, `value`, `group_id`)
             VALUES
                 ('new_account', 'Создание: Клиент', 1),
                 ('account_changed', 'Изменение: Клиент', 1),
@@ -28,8 +28,6 @@ class m151223_083334_important_events_variants extends \app\classes\Migration
                 ('deleted_usage', 'Удаление: Услуга', 1),
                 ('transfer_usage', 'Перемещение: Услуга', 1);
         ");
-
-        return false;
     }
 
     public function down()
