@@ -7,6 +7,7 @@ use yii\base\Exception;
 use app\classes\Assert;
 use app\classes\Form;
 use app\classes\api\ApiCore;
+use app\classes\validators\ArrayValidator;
 use app\models\ClientContragent;
 use app\models\ClientContract;
 use app\models\ClientAccount;
@@ -26,6 +27,7 @@ class ContragentTransferForm extends Form
         return [
             [['targetClientAccount','sourceClientAccount',], 'required'],
             [['targetClientAccount','sourceClientAccount',], 'integer'],
+            [['contracts', 'clients', ], ArrayValidator::className()],
         ];
     }
 

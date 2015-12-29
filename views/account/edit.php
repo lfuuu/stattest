@@ -12,7 +12,7 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
 <div class="row">
     <div class="col-sm-12">
-        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> Лицевого Счета</h2>
+        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> лицевого счета</h2>
 
         <?php $f = ActiveForm::begin(); ?>
 

@@ -65,7 +65,8 @@ class AccountEditForm extends Form
         $bank_properties,
         $bank_city,
         $admin_email,
-        $lk_balance_view_mode;
+        $lk_balance_view_mode,
+        $anti_fraud_disabled;
 
     public function rules()
     {
@@ -91,7 +92,7 @@ class AccountEditForm extends Form
                 [
                     'id', 'super_id', 'contract_id', 'stamp', 'credit', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
+                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active', 'anti_fraud_disabled'
                 ],
                 'integer'
             ],
@@ -164,6 +165,7 @@ class AccountEditForm extends Form
             $this->admin_is_active = 0;
             $this->voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY;
             $this->voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC;
+            $this->anti_fraud_disabled = 0;
             $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();

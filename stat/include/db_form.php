@@ -969,10 +969,11 @@ class DbFormUsageIpRoutes extends DbForm{
                     )
                     and
                         net="'.addslashes($this->dbform['net']).'"
+                    and 
+                        actual_from != "4000-01-01"
                     and
                         id!="'.addslashes($this->dbform['id']).'"')
         );
-
 
         if ($v) {$this->dbform['net']=''; trigger_error2('Сеть уже занята'); header("Location: ./?module=services&action=in_add2"); exit();}
         $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");

@@ -1,32 +1,38 @@
 <?php
 
 use yii\data\ActiveDataProvider;
-use kartik\grid\GridView;
+use app\widgets\GridViewCustomFilters;
 use app\classes\Html;
 use app\models\important_events\ImportantEvents;
 
-/** @var $dataProvider ActiveDataProvider */
+/** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
 
 echo Html::formLabel('Логи оповeщений');
 
-echo GridView::widget([
-    'id' => 'LkNotifyLog',
+foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $event) {
+    $eventsList[$event->group->title][$event->code] = $event->value;
+}
+
+echo GridViewCustomFilters::widget([
+    'id' => 'ImportantEvents',
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
         [
             'class' => 'app\classes\grid\column\important_events\ClientColumn',
             'width' => '15%',
+            'options' => [
+                'placeholder'=>'Enter username...'
+            ],
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '16%',
+            'width' => '15%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
-                'presetDropdown' => false,
-                'hideInput' => true,
+                'presetDropdown' => true,
                 'value' => $filterModel->date ?: (new DateTime('first day of this month'))->format('Y-m-d') . ' - ' . (new DateTime('last day of this month'))->format('Y-m-d'),
                 'pluginOptions' => [
                     'format' => 'YYYY-MM-DD',
@@ -40,6 +46,9 @@ echo GridView::widget([
                     'style' => 'overflow: hidden;',
                     'class' => 'drp-container input-group',
                 ],
+                'options' => [
+                    'style' => 'font-size: 12px; height: 30px;',
+                ],
             ])
         ],
         [
@@ -52,7 +61,7 @@ echo GridView::widget([
         ],
         [
             'class' => 'app\classes\grid\column\important_events\PropertiesColumn',
-            'width' => '30%',
+            'width' => '40%',
         ],
     ],
     'pjax' => false,
@@ -62,24 +71,8 @@ echo GridView::widget([
     'condensed' => true,
     'hover' => true,
     'panel'=>[
-        'type' => GridView::TYPE_DEFAULT,
+        'type' => GridViewCustomFilters::TYPE_DEFAULT,
     ],
 ]);
+
 ?>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('.select2').select2({
-        templateResult: function(item) {
-            console.log(item);
-            var $result =
-                $('<input />')
-                    .attr('type', 'checkbox')
-                    .attr('name', 'test')
-                    .val(item.val());
-
-            return $result + item.text;
-        }
-    });
-});
-</script>

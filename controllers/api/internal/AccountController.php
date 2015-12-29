@@ -14,9 +14,7 @@ class AccountController extends ApiInternalController
 {
     private function getAccountFromParams()
     {
-        $requestData = $this->getRequestParams();
-
-        $accountId = isset($requestData['account_id']) ? $requestData['account_id'] : null;
+        $accountId = isset($this->requestData['account_id']) ? $this->requestData['account_id'] : null;
 
         if (!$accountId) {
             throw new BadRequestHttpException;

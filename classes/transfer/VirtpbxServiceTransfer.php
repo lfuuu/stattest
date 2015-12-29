@@ -48,6 +48,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
                             'E164' => $number,
                             'client' => $this->service->clientAccount->client,
                             'next_usage_id' => 0,
+                            'type_id' => 'number',
                         ])
                         ->actual()
                         ->one()
@@ -55,28 +56,10 @@ class VirtpbxServiceTransfer extends ServiceTransfer
             ) {
                 $dbTransaction = Yii::$app->db->beginTransaction();
                 try {
-                    $targetUsage = new $usage;
-                    $targetUsage->setAttributes($usage->getAttributes(), false);
-                    unset($targetUsage->id);
-                    $targetUsage->activation_dt = $this->getActivationDatetime();
-                    $targetUsage->actual_from = $this->getActualDate();
-                    $targetUsage->prev_usage_id = $usage->id;
-                    $targetUsage->client = $targetService->clientAccount->client;
-
-                    $targetUsage->save();
-
-                    $usage->expire_dt = $this->getExpireDatetime();
-                    $usage->actual_to = $this->getExpireDate();
-                    $usage->next_usage_id = $targetUsage->id;
-
-                    $usage->save();
-
-                    $usageTransfer =
-                        $usage
-                            ->getTransferHelper($usage)
-                            ->setActivationDate($usage->actual_from);
-
-                    LogTarifTransfer::process($usageTransfer, $targetUsage->id);
+                    $usage::getTransferHelper($usage)
+                        ->setTargetAccount($targetService->clientAccount)
+                        ->setActivationDate($targetService->actual_from)
+                        ->process();
 
                     $dbTransaction->commit();
                 } catch (\Exception $e) {
