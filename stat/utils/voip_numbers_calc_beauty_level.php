@@ -391,12 +391,17 @@ function work()
     $errorsCount = 0;
 
     $nums = $db->AllRecords("select number, city_id, beauty_level, did_group_id from voip_numbers 
-        where region = 87 and (
-                number like '786330905%' or
-                number like '786330906%' or
-                number like '786330907%' or
-                number like '786330908%' or
-                number like '786330909%'
+        where region = 88 and (
+                number like '783123505%' or
+                number like '783123506%' or
+                number like '783123507%' or
+                number like '783123508%' or
+                number like '783123509%' or
+                number like '783123510%' or
+                number like '783123511%' or
+                number like '783123512%' or
+                number like '783123513%' or
+                number like '783123514%'
             )
         ");
     foreach($nums as $num) {
