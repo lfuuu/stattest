@@ -33,17 +33,17 @@ class VoipTrunkBiller extends Biller
 
         $this->addPackage(
             BillerPackageResource::create($this)
-                ->setPrice($prices['price_plus'])
+                ->setPrice($prices['price_orig'])
                 ->setPeriodType(self::PERIOD_MONTH) // Need for localization
-                ->setTemplate('voip_operator_trunk_plus')
+                ->setTemplate('voip_operator_trunk_orig')
                 ->setTemplateData($template_data)
         );
 
         $this->addPackage(
             BillerPackageResource::create($this)
-                ->setPrice($prices['price_minus'])
+                ->setPrice($prices['price_term'])
                 ->setPeriodType(self::PERIOD_MONTH) // Need for localization
-                ->setTemplate('voip_operator_trunk_minus')
+                ->setTemplate('voip_operator_trunk_term')
                 ->setTemplateData($template_data)
         );
     }
@@ -59,8 +59,8 @@ class VoipTrunkBiller extends Biller
             Yii::$app->get('dbPg')
                 ->createCommand('
                     SELECT
-                        CAST(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_plus,
-                        CAST(-SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_minus
+                        CAST(- SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_orig,
+                        CAST(- SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_term
                     FROM calls_aggr.calls_aggr
                     WHERE
                         trunk_service_id = :trunk_service_id
