@@ -1,4 +1,4 @@
-l<style>
+<style>
 {literal}
 .dig {
     text-align: right;
