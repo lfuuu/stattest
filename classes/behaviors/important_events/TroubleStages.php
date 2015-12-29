@@ -29,8 +29,8 @@ class TroubleStages extends Behavior
 
         if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id, $this->closedStates, true)) {
             ImportantEvents::create('set_state_trouble', self::EVENT_SOURCE, [
-                'trouble_id' => $event->sender->trouble_id,
-                'stage_id' => $trouble->stage->id,
+                'trouble_id' => $trouble->id,
+                'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);
@@ -38,8 +38,8 @@ class TroubleStages extends Behavior
 
         if ($trouble->stage->user_main != $event->sender->user_main) {
             ImportantEvents::create('set_responsible_trouble', self::EVENT_SOURCE, [
-                'trouble_id' => $event->sender->trouble_id,
-                'stage_id' => $trouble->stage->id,
+                'trouble_id' => $trouble->id,
+                'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);
@@ -47,8 +47,8 @@ class TroubleStages extends Behavior
 
         if (!empty($trouble->stage->comment)) {
             ImportantEvents::create('new_comment_trouble', self::EVENT_SOURCE, [
-                'trouble_id' => $event->sender->trouble_id,
-                'stage_id' => $trouble->stage->id,
+                'trouble_id' => $trouble->id,
+                'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,
                 'user_id' => Yii::$app->user->id,
             ]);
