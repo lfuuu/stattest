@@ -3961,338 +3961,345 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         return $list;
 }
 
-  public function stats_report_phone_sales()
-  {
-    global $db, $design;
-    $from_y = get_param_raw("from_y", date('Y'));
-    $from_m = get_param_raw("from_m", date('m'));
-    $to_y   = get_param_raw("to_y",   date('Y'));
-    $to_m   = get_param_raw("to_m",   date('m'));
 
-    // для последующего использования в sql-выражениях:
-    $from_date = $from_y."-".$from_m."-01";
-    $to_date = date("Y-m-t", mktime(0,0,0,$to_m,1,$to_y));
-
-    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
-    $selector_mm = array();
-    for($i=1;$i<=12;$i++) $selector_mm[$i] = $month_list[$i-1];
-
-    $selector_yy = array(date('Y')+1, date('Y'), date('Y')-1, date('Y')-2);
-
-    // для показа в интерфейсе:
-    $from = "01.".$from_m.".".$from_y;
-    $to = date("t.m.Y", mktime(0,0,0,$to_m,1,$to_y));
-
-    $curr_phones = $db->AllRecords('
-        SELECT 
-          u.region, 
-          COUNT(*) as count_num, 
-          SUM(no_of_lines) as count_lines 
-        FROM 
-          usage_voip u 
-        WHERE 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND
-          E164 NOT LIKE "7800%" AND 
-          LENGTH(E164) > 4 
-        GROUP BY 
-          u.region', 'region');
-    $curr_vpbx = $db->AllRecordsAssoc(
-	'SELECT 
-		c.region, COUNT(*) as count_vpbx
-	FROM 
-		usage_virtpbx as u
-	LEFT JOIN 
-		clients as c ON c.client = u.client 
-	WHERE 
-        CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
-	GROUP BY
-		c.region
-	', 'region', 'count_vpbx'
-    );
-    $curr_8800 = $db->AllRecords('
-        select 
-          u.region, 
-          count(*) as count_num, 
-          sum(no_of_lines) as count_lines 
-        from 
-          usage_voip u 
-        where 
-          u.E164 LIKE "7800%" AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
-        group by 
-          u.region', 'region');
-    $curr_no_nums = $db->AllRecords('
-        select 
-          u.region, 
-          count(*) as count_num, 
-          sum(no_of_lines) as count_lines 
-        from 
-          usage_voip u 
-        where 
-          LENGTH(u.E164) < 5 AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
-        group by 
-          u.region', 'region');
-    $region_clients_count = $db->AllRecordsAssoc("
-	SELECT 
-		COUNT(id) as clients,
-		region
-	FROM 
-		clients
-	WHERE 
-		status IN ('testing', 'conecting', 'work') AND
-		region > 0 
-	GROUP BY 
-		region
-	ORDER BY
-		region DESC
-    ", 'region', 'clients');
-    $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
-    $reports = array();
-
-    $tmp_m = $to_m; // for itterations
-    $tmp_y = $to_y;
-    while(mktime(0,0,0,$tmp_m,1,$tmp_y) >= mktime(0,0,0,$from_m,1,$from_y)) // process all monthes in interval
+    public function stats_report_phone_sales()
     {
-      $tmp_date_from = $tmp_y.'-'.$tmp_m.'-01';
-      $tmp_date_to = date("Y-m-t", mktime(0,0,0,$tmp_m,1,$tmp_y));
-      $client_ids = array();
-      $region_sums = $db->AllRecordsAssoc($q="
-		SELECT 
-			b.region,
-			ROUND(SUM(a.sum)) as sum
-		FROM
-			newbills as a
-		LEFT JOIN
-			clients as b ON a.client_id = b.id
-		LEFT JOIN
-			client_contract as c ON c.id = b.contract_id
-		LEFT JOIN
-			client_contragent as d ON c.contragent_id = d.id
-		WHERE 
-			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
-			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
-			b.region > 0 AND 
-			b.status IN ('testing', 'conecting', 'work') AND 
-			d.legal_type IN ('legal', 'ip') AND
-			sum > 0 
-		GROUP BY
-			b.region
-		ORDER BY 
-			b.region DESC
-      ", 'region', 'sum');
-      $region_sums['all'] = 0;
-      foreach ($region_sums as $k => $v)
-      {
-		$region_sums['all'] += $v;
-      }
-      
-      $res = $db->AllRecords("
-          select 
-            u.region, 
-            u.E164 as phone, 
-            u.no_of_lines,
-            c.id as client_id, 
-            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
-            s.name as sale_channel,
-            s.id as sale_channel_id,
-            s.courier_id as courier_id
-          from usage_voip u
-          left join clients c on c.client=u.client
-          left join sale_channels_old s on s.id=c.sale_channel
-          where 
-              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
-            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
-          group by 
-            u.region, u.E164, c.id, c.created, s.name  ");
-            
-	$res_vpbx = $db->AllRecords("
-          select 
-            c.region, 
-            u.id, 
-            c.id as client_id, 
-            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
-            s.name as sale_channel,
-            s.id as sale_channel_id,
-            s.courier_id as courier_id
-          from usage_virtpbx u
-          left join clients c on c.client=u.client
-          left join sale_channels_old s on s.id=c.sale_channel
-          where 
-              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
-            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
-          group by 
-            c.region, c.id, c.created, s.name  ");
+        global $db, $design;
+        $from_y = get_param_raw("from_y", date('Y'));
+        $from_m = get_param_raw("from_m", date('m'));
+        $to_y = get_param_raw("to_y", date('Y'));
+        $to_m = get_param_raw("to_m", date('m'));
 
-      $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_8800 = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_vpbx = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_channels = array('all' => array('vpbx' => array('new'=>0,'old'=>0,'all'=>0), 'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'visits' => 0), "managers" => array());
-      $clients = array();
-      $clients_vpbx = array();
-      $vpbx_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      foreach($res as $r)
-      {
-          $client_ids[$r['client_id']] = 0;
-        if (strlen($r['phone']) > 4) //номера
+        // для последующего использования в sql-выражениях:
+        $from_date = $from_y . "-" . $from_m . "-01";
+        $to_date = date("Y-m-t", mktime(0, 0, 0, $to_m, 1, $to_y));
+
+        $month_list = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');
+        $selector_mm = array();
+
+        for ($i = 1; $i <= 12; $i++)
+            $selector_mm[$i] = $month_list[$i - 1];
+
+        $selector_yy = array(date('Y') + 1, date('Y'), date('Y') - 1, date('Y') - 2);
+
+        // для показа в интерфейсе:l
+        $from = "01." . $from_m . "." . $from_y;
+        $to = date("t.m.Y", mktime(0, 0, 0, $to_m, 1, $to_y));
+
+        $curr_phones = $db->AllRecords('
+            SELECT
+              u.region,
+              COUNT(*) as count_num,
+              SUM(no_of_lines) as count_lines
+            FROM
+              usage_voip u
+            WHERE
+              CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND
+              E164 NOT LIKE "7800%" AND
+              LENGTH(E164) > 4
+            GROUP BY
+              u.region'
+
+        , 'region');
+
+        $curr_vpbx = $db->AllRecordsAssoc(
+                'SELECT
+            c.region, COUNT(*) as count_vpbx
+            FROM
+                usage_virtpbx as u
+            LEFT JOIN
+                clients as c ON c.client = u.client
+            WHERE
+                CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
+            GROUP BY
+                c.region
+            ', 'region', 'count_vpbx'
+        );
+
+        $curr_8800 = $db->AllRecords('
+            select
+              u.region,
+              count(*) as count_num,
+              sum(no_of_lines) as count_lines
+            from
+              usage_voip u
+            where
+              u.E164 LIKE "7800%" AND
+              CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
+            group by
+          u.region', 'region');
+
+        $curr_no_nums = $db->AllRecords('
+            select
+              u.region,
+              count(*) as count_num,
+              sum(no_of_lines) as count_lines
+            from
+              usage_voip u
+            where
+              LENGTH(u.E164) < 5 AND
+              CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
+            group by
+          u.region', 'region');
+
+        $region_clients_count = $db->AllRecordsAssoc("
+            SELECT
+                COUNT(id) as clients,
+                region
+            FROM
+                clients
+            WHERE
+                status IN ('testing', 'conecting', 'work') AND
+                region > 0
+            GROUP BY
+                region
+            ORDER BY
+                region DESC
+            ", 'region', 'clients');
+
+
+        $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
+        $reports = array();
+
+        $tmp_m = $to_m; // for itterations
+        $tmp_y = $to_y;
+
+        $this->_getPhoneSellByPeriod($reports, $from_y, $from_m, $to_y, $to_m, $month_list, true);
+
+        while (mktime(0, 0, 0, $tmp_m, 1, $tmp_y) >= mktime(0, 0, 0, $from_m, 1, $from_y)) // process all monthes in interval
         {
-		if (strpos($r['phone'], '7800') === 0)
-		{
-			if (!isset($sale_8800[$r['region']])) 
-			{
-				$sale_8800[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
-			}
-			if ($r['is_new'] > 0)
-			{
-				$sale_8800[$r['region']]['new'] += 1;
-				$sale_8800['all']['new'] += 1;
-			} else {
-				$sale_8800[$r['region']]['old'] += 1;
-				$sale_8800['all']['old'] += 1;
-			}
-			$sale_8800[$r['region']]['all'] += 1;
-			$sale_8800['all']['all'] += 1;
-		} else {
-			if (!isset($sale_nums[$r['region']])) 
-			{
-				$sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
-			}
-			if ($r['is_new'] > 0)
-			{
-				$sale_nums[$r['region']]['new'] += 1;
-				$sale_nums['all']['new'] += 1;
-			} else {
-				$sale_nums[$r['region']]['old'] += 1;
-				$sale_nums['all']['old'] += 1;
-			}
-			$sale_nums[$r['region']]['all'] += 1;
-			$sale_nums['all']['all'] += 1;
-		}
+            $tmp_date_from = $tmp_y . '-' . $tmp_m . '-01';
+            $tmp_date_to = date("Y-m-t", mktime(0, 0, 0, $tmp_m, 1, $tmp_y));
+            $client_ids = array();
 
-        }else{ //линия без номера
+            $region_sums = $db->AllRecordsAssoc($q = "
+                SELECT
+                    b.region,
+                    ROUND(SUM(a.sum)) as sum
+                FROM
+                    newbills as a
+                LEFT JOIN
+                    clients as b ON a.client_id = b.id
+                LEFT JOIN
+                    client_contract as c ON c.id = b.contract_id
+                LEFT JOIN
+                    client_contragent as d ON c.contragent_id = d.id
+                WHERE
+                    a.bill_date >= CAST('" . $tmp_date_from . "' AS DATE) AND
+                    a.bill_date <= CAST('" . $tmp_date_to . "' AS DATE) AND
+                    b.region > 0 AND
+                    b.status IN ('testing', 'conecting', 'work') AND
+                    d.legal_type IN ('legal', 'ip') AND
+                    sum > 0
+                GROUP BY
+                    b.region
+                ORDER BY
+                    b.region DESC
+              ", 'region', 'sum');
 
-          if (!isset($sale_nonums[$r['region']])) 
-              $sale_nonums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+            $region_sums['all'] = 0;
 
-          if ($r['is_new'] > 0){
-            $sale_nonums[$r['region']]['new'] += 1;
-            $sale_nonums['all']['new'] += 1;
-          }else{
-            $sale_nonums[$r['region']]['old'] += 1;
-            $sale_nonums['all']['old'] += 1;
-          }
-          $sale_nonums[$r['region']]['all'] += 1;
-          $sale_nonums['all']['all'] += 1;
-        }
+            foreach ($region_sums as $k => $v) {
+                $region_sums['all'] += $v;
+            }
 
-        //линии
-        if (!isset($sale_lines[$r['region']]))
-          $sale_lines[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+            $res = $db->AllRecords("
+                select
+                    u.region,
+                    u.E164 as phone,
+                    u.no_of_lines,
+                    c.id as client_id,
+                    ifnull(c.created >= date_add('" . $tmp_date_from . "',interval - 1 month), 0) as is_new,
+                    s.name as sale_channel,
+                    s.id as sale_channel_id,
+                    s.courier_id as courier_id
+                from usage_voip u
+                left join clients c on c.client=u.client
+                left join sale_channels_old s on s.id=c.sale_channel
+                where
+                    u.actual_from>=CAST('" . $tmp_date_from . "' AS DATE)
+                    and u.actual_from<=CAST('" . $tmp_date_to . "' AS DATE)
+                group by
+                    u.region, u.E164, c.id, c.created, s.name  ");
 
-        $sale_lines[$r['region']][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
-        $sale_lines['all'][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+            $res_vpbx = $db->AllRecords("
+                select
+                    c.region,
+                    u.id,
+                    c.id as client_id,
+                    ifnull(c.created >= date_add('" . $tmp_date_from . "',interval - 1 month), 0) as is_new,
+                    s.name as sale_channel,
+                    s.id as sale_channel_id,
+                    s.courier_id as courier_id
+                from usage_virtpbx u
+                left join clients c on c.client=u.client
+                left join sale_channels_old s on s.id=c.sale_channel
+                where
+                    u.actual_from>=CAST('" . $tmp_date_from . "' AS DATE)
+                    and u.actual_from<=CAST('" . $tmp_date_to . "' AS DATE)
+                group by
+                    c.region, c.id, c.created, s.name  ");
 
-        $sale_lines[$r['region']]['all'] += $r["no_of_lines"];
-        $sale_lines['all']['all'] += $r["no_of_lines"];
+            $sale_nums = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_8800 = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_vpbx = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_nonums = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_lines = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_clients = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+            $sale_channels = array('all' => array('vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'visits' => 0), "managers" => array());
+            $clients = array();
+            $clients_vpbx = array();
+            $vpbx_clients = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+
+            foreach ($res as $r) {
+                $client_ids[$r['client_id']] = 0;
+                if (strlen($r['phone']) > 4) //номера
+                {
+                    if (strpos($r['phone'], '7800') === 0) {
+                        if (!isset($sale_8800[$r['region']])) {
+                            $sale_8800[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+                        }
+                        if ($r['is_new'] > 0) {
+                            $sale_8800[$r['region']]['new'] += 1;
+                            $sale_8800['all']['new'] += 1;
+                        } else {
+                            $sale_8800[$r['region']]['old'] += 1;
+                            $sale_8800['all']['old'] += 1;
+                        }
+                        $sale_8800[$r['region']]['all'] += 1;
+                        $sale_8800['all']['all'] += 1;
+                    } else {
+                        if (!isset($sale_nums[$r['region']])) {
+                            $sale_nums[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+                        }
+                        if ($r['is_new'] > 0) {
+                            $sale_nums[$r['region']]['new'] += 1;
+                            $sale_nums['all']['new'] += 1;
+                        } else {
+                            $sale_nums[$r['region']]['old'] += 1;
+                            $sale_nums['all']['old'] += 1;
+                        }
+                        $sale_nums[$r['region']]['all'] += 1;
+                        $sale_nums['all']['all'] += 1;
+                    }
+
+                } else { //линия без номера
+
+                    if (!isset($sale_nonums[$r['region']]))
+                        $sale_nonums[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+                    if ($r['is_new'] > 0) {
+                        $sale_nonums[$r['region']]['new'] += 1;
+                        $sale_nonums['all']['new'] += 1;
+                    } else {
+                        $sale_nonums[$r['region']]['old'] += 1;
+                        $sale_nonums['all']['old'] += 1;
+                    }
+                    $sale_nonums[$r['region']]['all'] += 1;
+                    $sale_nonums['all']['all'] += 1;
+                }
+
+                //линии
+                if (!isset($sale_lines[$r['region']]))
+                    $sale_lines[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+                $sale_lines[$r['region']][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+                $sale_lines['all'][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+
+                $sale_lines[$r['region']]['all'] += $r["no_of_lines"];
+                $sale_lines['all']['all'] += $r["no_of_lines"];
 
 
-        if (!isset($clients[$r['client_id']]))
-        {
-          $clients[$r['client_id']] = $r['client_id'];
+                if (!isset($clients[$r['client_id']])) {
+                    $clients[$r['client_id']] = $r['client_id'];
 
-          if (!isset($sale_clients[$r['region']])) 
-              $sale_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+                    if (!isset($sale_clients[$r['region']]))
+                        $sale_clients[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
 
-          if ($r['is_new'] > 0){
-            $sale_clients[$r['region']]['new'] += 1;
-            $sale_clients['all']['new'] += 1;
-          }else{
-            $sale_clients[$r['region']]['old'] += 1;
-            $sale_clients['all']['old'] += 1;
-          }
-          $sale_clients[$r['region']]['all'] += 1;
-          $sale_clients['all']['all'] += 1;
-        }
+                    if ($r['is_new'] > 0) {
+                        $sale_clients[$r['region']]['new'] += 1;
+                        $sale_clients['all']['new'] += 1;
+                    } else {
+                        $sale_clients[$r['region']]['old'] += 1;
+                        $sale_clients['all']['old'] += 1;
+                    }
+                    $sale_clients[$r['region']]['all'] += 1;
+                    $sale_clients['all']['all'] += 1;
+                }
 
-        if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id'=>$r['sale_channel_id'],'vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
-        $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
-        $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
-        $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
-        $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
-        $sale_channels['all']['nums']['all'] += 1;
-        if ($r['is_new']){
-          $sale_channels['managers'][$r['sale_channel']]['nums']['new'] += 1;
-          $sale_channels['managers'][$r['sale_channel']]['lines']['new'] += $r['no_of_lines'];
-          $sale_channels['all']['nums']['new'] += 1;
-          $sale_channels['all']['lines']['new'] += $r['no_of_lines'];
-        } else {
-          $sale_channels['managers'][$r['sale_channel']]['nums']['old'] += 1;
-          $sale_channels['managers'][$r['sale_channel']]['lines']['old'] += $r['no_of_lines'];
-          $sale_channels['all']['nums']['old'] += 1;
-          $sale_channels['all']['lines']['old'] += $r['no_of_lines'];
-        }
-      }
-      foreach($res_vpbx as $r)
-      {
-          $client_ids[$r['client_id']] = 0;
-        
-          if (!isset($sale_vpbx[$r['region']])) 
-              $sale_vpbx[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+                if (!isset($sale_channels['managers'][$r['sale_channel']]))
+                    $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id' => $r['sale_channel_id'], 'vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+                $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
+                $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
+                $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
+                $sale_channels['managers'][$r['sale_channel']]['clients'][] = $r['client_id'];
+                $sale_channels['all']['nums']['all'] += 1;
+                if ($r['is_new']) {
+                    $sale_channels['managers'][$r['sale_channel']]['nums']['new'] += 1;
+                    $sale_channels['managers'][$r['sale_channel']]['lines']['new'] += $r['no_of_lines'];
+                    $sale_channels['all']['nums']['new'] += 1;
+                    $sale_channels['all']['lines']['new'] += $r['no_of_lines'];
+                } else {
+                    $sale_channels['managers'][$r['sale_channel']]['nums']['old'] += 1;
+                    $sale_channels['managers'][$r['sale_channel']]['lines']['old'] += $r['no_of_lines'];
+                    $sale_channels['all']['nums']['old'] += 1;
+                    $sale_channels['all']['lines']['old'] += $r['no_of_lines'];
+                }
+            }
+            foreach ($res_vpbx as $r) {
+                $client_ids[$r['client_id']] = 0;
 
-          if ($r['is_new'] > 0){
-            $sale_vpbx[$r['region']]['new'] += 1;
-            $sale_vpbx['all']['new'] += 1;
-          }else{
-            $sale_vpbx[$r['region']]['old'] += 1;
-            $sale_vpbx['all']['old'] += 1;
-          }
-          $sale_vpbx[$r['region']]['all'] += 1;
-          $sale_vpbx['all']['all'] += 1;
+                if (!isset($sale_vpbx[$r['region']]))
+                    $sale_vpbx[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
 
-        if (!isset($clients_vpbx[$r['client_id']]))
-        {
-          $clients_vpbx[$r['client_id']] = $r['client_id'];
+                if ($r['is_new'] > 0) {
+                    $sale_vpbx[$r['region']]['new'] += 1;
+                    $sale_vpbx['all']['new'] += 1;
+                } else {
+                    $sale_vpbx[$r['region']]['old'] += 1;
+                    $sale_vpbx['all']['old'] += 1;
+                }
+                $sale_vpbx[$r['region']]['all'] += 1;
+                $sale_vpbx['all']['all'] += 1;
 
-          if (!isset($vpbx_clients[$r['region']])) 
-              $vpbx_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+                if (!isset($clients_vpbx[$r['client_id']])) {
+                    $clients_vpbx[$r['client_id']] = $r['client_id'];
 
-          if ($r['is_new'] > 0){
-            $vpbx_clients[$r['region']]['new'] += 1;
-            $vpbx_clients['all']['new'] += 1;
-          }else{
-            $vpbx_clients[$r['region']]['old'] += 1;
-            $vpbx_clients['all']['old'] += 1;
-          }
-          $vpbx_clients[$r['region']]['all'] += 1;
-          $vpbx_clients['all']['all'] += 1;
-        }
+                    if (!isset($vpbx_clients[$r['region']]))
+                        $vpbx_clients[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
 
-        
+                    if ($r['is_new'] > 0) {
+                        $vpbx_clients[$r['region']]['new'] += 1;
+                        $vpbx_clients['all']['new'] += 1;
+                    } else {
+                        $vpbx_clients[$r['region']]['old'] += 1;
+                        $vpbx_clients['all']['old'] += 1;
+                    }
+                    $vpbx_clients[$r['region']]['all'] += 1;
+                    $vpbx_clients['all']['all'] += 1;
+                }
 
-        if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id'=>$r['sale_channel_id'],'vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
-        $sale_channels['managers'][$r['sale_channel']]['vpbx']['all'] += 1;
-        $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
-        $sale_channels['all']['vpbx']['all'] += 1;
-        if ($r['is_new']){
-          $sale_channels['managers'][$r['sale_channel']]['vpbx']['new'] += 1;
-          $sale_channels['all']['vpbx']['new'] += 1;
-        } else {
-          $sale_channels['managers'][$r['sale_channel']]['vpbx']['old'] += 1;
-          $sale_channels['all']['vpbx']['old'] += 1;
-        }
-      }
-/*
+
+                if (!isset($sale_channels['managers'][$r['sale_channel']]))
+                    $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id' => $r['sale_channel_id'], 'vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+                $sale_channels['managers'][$r['sale_channel']]['vpbx']['all'] += 1;
+                $sale_channels['managers'][$r['sale_channel']]['clients'][] = $r['client_id'];
+                $sale_channels['all']['vpbx']['all'] += 1;
+                if ($r['is_new']) {
+                    $sale_channels['managers'][$r['sale_channel']]['vpbx']['new'] += 1;
+                    $sale_channels['all']['vpbx']['new'] += 1;
+                } else {
+                    $sale_channels['managers'][$r['sale_channel']]['vpbx']['old'] += 1;
+                    $sale_channels['all']['vpbx']['old'] += 1;
+                }
+            }
+            /*
       //Выезды
       $res = $db->AllRecords("
               select
-                count(*) as cnt, 
+                count(*) as cnt,
                 c.id as client_id
-              from 
+              from
                 tt_stages ts
               left join tt_troubles tt on tt.id=ts.trouble_id
               left join clients c on c.client=tt.client
@@ -4310,201 +4317,650 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                 $sale_channels['all']['visits'] += $r['cnt'];
             }
         }
-      }
-*/
-      //Выезды
-      foreach($sale_channels["managers"] as $manager => &$d)
-      {
-        if ($d['courier_id'] > 0) {
-            $res = $db->GetValue($qq='SELECT 
-				COUNT(*)
-			FROM 
-				tt_stages as st
-			LEFT JOIN 
-				tt_troubles as tt ON tt.id = st.trouble_id 
-			LEFT JOIN 
-				tt_doers as td ON td.stage_id = st.stage_id 
-			WHERE 
-				tt.id IN (SELECT 
-						DISTINCT(t.id) 
-					FROM 
-						tt_doers as d
-					LEFT JOIN 
-						tt_stages as s ON d.stage_id = s.stage_id 
-					LEFT JOIN 
-						tt_troubles as t ON s.trouble_id = t.id 
-					WHERE 
-						    d.doer_id = ' . $d['courier_id'] . ' 
-						AND 
-						    s.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
-						AND 
-						    s.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
-					) 
-				AND 
-				    st.state_id = 4 
-				AND 
-				    st.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
-				AND 
-				    st.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
-				AND  
-				    td.doer_id = ' . $d['courier_id']);
-            $sale_channels['all']['visits'] += $res;
-            $d['visits'] = $res;
+      } */
+            //Выезды
+            foreach ($sale_channels["managers"] as $manager => &$d) {
+                if ($d['courier_id'] > 0) {
+                    $res = $db->GetValue($qq = 'SELECT
+                            COUNT(*)
+                        FROM
+                            tt_stages as st
+                        LEFT JOIN
+                            tt_troubles as tt ON tt.id = st.trouble_id
+                        LEFT JOIN
+                            tt_doers as td ON td.stage_id = st.stage_id
+                        WHERE
+                            tt.id IN (SELECT
+                                    DISTINCT(t.id)
+                                FROM
+                                    tt_doers as d
+                                LEFT JOIN
+                                    tt_stages as s ON d.stage_id = s.stage_id
+                                LEFT JOIN
+                                    tt_troubles as t ON s.trouble_id = t.id
+                                WHERE
+                                        d.doer_id = ' . $d['courier_id'] . '
+                                    AND
+                                        s.date_start >= CAST("' . $tmp_date_from . '" AS DATE)
+                                    AND
+                                        s.date_start <= CAST("' . $tmp_date_to . '" AS DATE)
+                                )
+                            AND
+                                st.state_id = 4
+                            AND
+                                st.date_start >= CAST("' . $tmp_date_from . '" AS DATE)
+                            AND
+                                st.date_start <= CAST("' . $tmp_date_to . '" AS DATE)
+                            AND
+                                td.doer_id = ' . $d['courier_id']);
+
+
+                    $sale_channels['all']['visits'] += $res;
+                    $d['visits'] = $res;
+                }
+            }
+            foreach ($sale_channels["managers"] as $mamager => &$d) {
+                if ($sale_channels["all"]["nums"]['all'] > 0) {
+                    $d["nums_perc"]['new'] = round($d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
+                    $d["nums_perc"]['old'] = round($d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
+                } else {
+                    $d["nums_perc"]['new'] = 0;
+                    $d["nums_perc"]['old'] = 0;
+                }
+                if ($sale_channels["all"]["lines"]['all'] > 0) {
+                    $d["lines_perc"]['new'] = round($d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
+                    $d["lines_perc"]['old'] = round($d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
+                } else {
+                    $d["lines_perc"]['new'] = 0;
+                    $d["lines_perc"]['old'] = 0;
+                }
+                if ($sale_channels["all"]["vpbx"]['all'] > 0) {
+                    $d["vpbx_perc"]['new'] = round($d["vpbx"]['new'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+                    $d["vpbx_perc"]['old'] = round($d["vpbx"]['old'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+                } else {
+                    $d["vpbx_perc"]['new'] = 0;
+                    $d["vpbx_perc"]['old'] = 0;
+                }
+                $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round($d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
+            }
+
+
+            $del_nums = array('all' => 0);
+            $del_8800 = array('all' => 0);
+            $del_nonums = array('all' => 0);
+            $del_lines = array('all' => 0);
+            $del_vpbx = array('all' => 0);
+
+            $res = $db->AllRecords("
+                select
+                    u.region,
+                    u.E164 as phone,
+                    u.no_of_lines,
+                    c.id as client_id
+                from usage_voip u
+                left join clients c on c.client=u.client
+                where
+                    u.actual_to>=CAST('" . $tmp_date_from . "' AS DATE)
+                and u.actual_to<=CAST('" . $tmp_date_to . "' AS DATE)
+                group by u.region, u.E164, c.id  ");
+
+            $res_vpbx = $db->AllRecords("
+                select
+                    c.region,
+                    u.id,
+                    c.id as client_id
+                from usage_virtpbx u
+                left join clients c on c.client=u.client
+                where
+                    u.actual_to>=CAST('" . $tmp_date_from . "' AS DATE)
+                and u.actual_to<=CAST('" . $tmp_date_to . "' AS DATE)
+                group by c.region, u.id, c.id  ");
+
+            foreach ($res as $r) {
+                if (strlen($r['phone']) > 4) {
+                    if (strpos($r['phone'], '7800') === 0) {
+                        if (!isset($del_8800[$r['region']]))
+                            $del_8800[$r['region']] = 0;
+
+                        $del_8800[$r['region']] += 1;
+                        $del_8800['all'] += 1;
+                    } else {
+                        if (!isset($del_nums[$r['region']]))
+                            $del_nums[$r['region']] = 0;
+
+                        $del_nums[$r['region']] += 1;
+                        $del_nums['all'] += 1;
+                    }
+                } else {
+                    if (!isset($del_nonums[$r['region']]))
+                        $del_nonums[$r['region']] = 0;
+
+                    $del_nonums[$r['region']] += 1;
+                    $del_nonums['all'] += 1;
+                }
+
+                if (!isset($del_lines[$r['region']]))
+                    $del_lines[$r['region']] = 0;
+
+                $del_lines[$r['region']] += $r['no_of_lines'];
+                $del_lines['all'] += $r['no_of_lines'];
+            }
+
+            foreach ($res_vpbx as $r) {
+                if (!isset($del_vpbx[$r['region']]))
+                    $del_vpbx[$r['region']] = 0;
+
+                $del_vpbx[$r['region']] += 1;
+                $del_vpbx['all'] += 1;
+            }
+
+
+            if ($tmp_m < 1) $tmp_m = 12;
+
+            $reports[] = array(
+                'date' => $month_list[$tmp_m - 1] . " " . $tmp_y . " ",
+                'month' => 0 + $tmp_m,
+                'year' => $tmp_y,
+                'region_sums' => $region_sums,
+                'sale_nums' => $sale_nums,
+                'sale_8800' => $sale_8800,
+                'sale_nonums' => $sale_nonums,
+                'sale_lines' => $sale_lines,
+                'sale_clients' => $sale_clients,
+                'sale_channels' => $sale_channels,
+                'del_nums' => $del_nums,
+                'del_8800' => $del_8800,
+                'del_nonums' => $del_nonums,
+                'del_lines' => $del_lines,
+                'del_vpbx' => $del_vpbx,
+                'sale_vpbx' => $sale_vpbx,
+                'vpbx_clients' => $vpbx_clients
+            );
+            if (--$tmp_m < 1) {
+                $tmp_m = 12;
+                $tmp_y--;
+            }
+
         }
-      }
-      foreach($sale_channels["managers"] as $mamager => &$d)
-      {
-        if ($sale_channels["all"]["nums"]['all'] > 0)
-        {
-		$d["nums_perc"]['new'] = round( $d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
-		$d["nums_perc"]['old'] = round( $d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
-        } else {
-		$d["nums_perc"]['new'] = 0;
-		$d["nums_perc"]['old'] = 0;
-        }
-        if ($sale_channels["all"]["lines"]['all'] > 0)
-        {
-		$d["lines_perc"]['new'] = round( $d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
-		$d["lines_perc"]['old'] = round( $d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
-        } else {
-		$d["lines_perc"]['new'] = 0;
-		$d["lines_perc"]['old'] = 0;
-        }
-        if ($sale_channels["all"]["vpbx"]['all'] > 0) 
-        {
-		$d["vpbx_perc"]['new'] = round( $d["vpbx"]['new'] / $sale_channels["all"]["vpbx"]['all'] * 100);
-		$d["vpbx_perc"]['old'] = round( $d["vpbx"]['old'] / $sale_channels["all"]["vpbx"]['all'] * 100);
-        } else {
-		$d["vpbx_perc"]['new'] = 0;
-		$d["vpbx_perc"]['old'] = 0;
-        }
-        $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round( $d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
-      }
 
 
-      $del_nums = array('all'=>0);
-      $del_8800 = array('all'=>0);
-      $del_nonums = array('all'=>0);
-      $del_lines = array('all'=>0);
-      $del_vpbx = array('all'=>0);
-      $res = $db->AllRecords("
-          select 
-            u.region, 
-            u.E164 as phone, 
-            u.no_of_lines,
-            c.id as client_id
-          from usage_voip u
-          left join clients c on c.client=u.client
-          where 
-                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
-            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
-          group by u.region, u.E164, c.id  ");
+        $design->assign("RManager",
+            (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
+                'managers' => \app\classes\stats\PhoneSales::reportByManager(
+                    $from_y . '-' . $from_m . '-00',
+                    $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца
+                )
+            ]));
 
-      $res_vpbx = $db->AllRecords("
-          select 
-            c.region, 
-            u.id, 
-            c.id as client_id
-          from usage_virtpbx u
-          left join clients c on c.client=u.client
-          where 
-                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
-            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
-          group by c.region, u.id, c.id  ");
-      
-      foreach($res as $r)
-      {
-        if (strlen($r['phone']) > 4)
-        {
-		if (strpos($r['phone'], '7800') === 0)
-		{
-			if (!isset($del_8800[$r['region']])) 
-				$del_8800[$r['region']] = 0;
+        $design->assign("RPartner",
+            (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
+                'partners' => \app\classes\stats\PhoneSales::reportByPartner(
+                    $from_y . '-' . $from_m . '-00',
+                    $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца
+                )
+            ]));
 
-			$del_8800[$r['region']] += 1;
-			$del_8800['all'] += 1;
-		} else {
-			if (!isset($del_nums[$r['region']])) 
-				$del_nums[$r['region']] = 0;
-
-			$del_nums[$r['region']] += 1;
-			$del_nums['all'] += 1;
-		}
-        }else{
-          if (!isset($del_nonums[$r['region']])) 
-            $del_nonums[$r['region']] = 0;
-
-          $del_nonums[$r['region']] += 1;
-          $del_nonums['all'] += 1;
-        }
-
-        if (!isset($del_lines[$r['region']])) 
-          $del_lines[$r['region']] = 0;
-
-        $del_lines[$r['region']] += $r['no_of_lines'];
-        $del_lines['all'] += $r['no_of_lines'];
-      }
-      foreach($res_vpbx as $r)
-      {
-          if (!isset($del_vpbx[$r['region']])) 
-            $del_vpbx[$r['region']] = 0;
-
-          $del_vpbx[$r['region']] += 1;
-          $del_vpbx['all'] += 1;
-      }
-
-
-      if ($tmp_m < 1) $tmp_m = 12;
-
-      $reports[] = array(
-        'date' => $month_list[$tmp_m-1]." ".$tmp_y." ",
-        'month' => 0+$tmp_m,
-        'year' => $tmp_y,
-        'region_sums' => $region_sums,
-        'sale_nums'=>$sale_nums,
-        'sale_8800'=>$sale_8800,
-        'sale_nonums'=>$sale_nonums,
-        'sale_lines'=>$sale_lines,
-        'sale_clients'=>$sale_clients,
-        'sale_channels'=>$sale_channels,
-        'del_nums'=>$del_nums,
-        'del_8800'=>$del_8800,
-        'del_nonums'=>$del_nonums,
-        'del_lines'=>$del_lines,
-        'del_vpbx' => $del_vpbx,
-        'sale_vpbx' => $sale_vpbx,
-        'vpbx_clients' => $vpbx_clients
-      );
-      if (--$tmp_m < 1) {
-        $tmp_m = 12;
-        $tmp_y--;
-      }
+        $design->assign("from_y", $from_y);
+        $design->assign("from_m", $from_m);
+        $design->assign("to_y", $to_y);
+        $design->assign("to_m", $to_m);
+        $design->assign("select_year", $selector_yy);
+        $design->assign("select_month", $selector_mm);
+        $design->assign("regions", $regions);
+        $design->assign("region_clients_count", $region_clients_count);
+        $design->assign('reports', $reports);
+        $design->assign('curr_phones', $curr_phones);
+        $design->assign('curr_vpbx', $curr_vpbx);
+        $design->assign('curr_8800', $curr_8800);
+        $design->assign('curr_no_nums', $curr_no_nums);
+        $design->AddMain('stats/report_phone_sales.tpl');
     }
 
-      $design->assign("RManager",
-          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
-              'managers' => \app\classes\stats\PhoneSales::reportByManager($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
-          ]));
-      $design->assign("RPartner",
-          (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
-              'partners' => \app\classes\stats\PhoneSales::reportByPartner($from_y . '-' . $from_m . '-00', $to_y . '-' . $to_m . '-00')
-          ]));
+    function _getPhoneSellByPeriod( & $reports, $fromY, $fromM, $toY, $toM, $month_list, $sum = false )
+    {
+        global $db;
 
-    $design->assign("from_y", $from_y);
-    $design->assign("from_m", $from_m);
-    $design->assign("to_y", $to_y);
-    $design->assign("to_m", $to_m);
-    $design->assign("select_year", $selector_yy);
-    $design->assign("select_month", $selector_mm);
-    $design->assign("regions", $regions);
-    $design->assign("region_clients_count", $region_clients_count);
-    $design->assign('reports',$reports);
-    $design->assign('curr_phones',$curr_phones);
-    $design->assign('curr_vpbx',$curr_vpbx);
-    $design->assign('curr_8800',$curr_8800);
-    $design->assign('curr_no_nums',$curr_no_nums);
-    $design->AddMain('stats/report_phone_sales.tpl');
+        $tmp_date_from = $fromY . '-' . $fromM . '-01';
+        $tmp_date_to = date("Y-m-t", mktime(0,0,0,$toM,1,$toY));
+
+        $client_ids = array();
+
+        $region_sums = $db->AllRecordsAssoc($q = "
+            SELECT
+                b.region,
+                ROUND(SUM(a.sum)) as sum
+            FROM
+                newbills as a
+            LEFT JOIN
+                clients as b ON a.client_id = b.id
+            LEFT JOIN
+                client_contract as c ON c.id = b.contract_id
+            LEFT JOIN
+                client_contragent as d ON c.contragent_id = d.id
+            WHERE
+                a.bill_date >= CAST('" . $tmp_date_from . "' AS DATE) AND
+                a.bill_date <= CAST('" . $tmp_date_to . "' AS DATE) AND
+                b.region > 0 AND
+                b.status IN ('testing', 'conecting', 'work') AND
+                d.legal_type IN ('legal', 'ip') AND
+                sum > 0
+            GROUP BY
+                b.region
+            ORDER BY
+                b.region DESC
+          ", 'region', 'sum');
+
+        $region_sums['all'] = 0;
+
+        foreach ($region_sums as $k => $v) {
+            $region_sums['all'] += $v;
+        }
+
+        $res = $db->AllRecords("
+            select
+                u.region,
+                u.E164 as phone,
+                u.no_of_lines,
+                c.id as client_id,
+                ifnull(c.created >= date_add('" . $tmp_date_from . "',interval - 1 month), 0) as is_new,
+                s.name as sale_channel,
+                s.id as sale_channel_id,
+                s.courier_id as courier_id
+            from usage_voip u
+            left join clients c on c.client=u.client
+            left join sale_channels_old s on s.id=c.sale_channel
+            where
+                u.actual_from>=CAST('" . $tmp_date_from . "' AS DATE)
+                and u.actual_from<=CAST('" . $tmp_date_to . "' AS DATE)
+            group by
+                u.region, u.E164, c.id, c.created, s.name  ");
+
+        $res_vpbx = $db->AllRecords("
+            select
+                c.region,
+                u.id,
+                c.id as client_id,
+                ifnull(c.created >= date_add('" . $tmp_date_from . "',interval - 1 month), 0) as is_new,
+                s.name as sale_channel,
+                s.id as sale_channel_id,
+                s.courier_id as courier_id
+            from usage_virtpbx u
+            left join clients c on c.client=u.client
+            left join sale_channels_old s on s.id=c.sale_channel
+            where
+                u.actual_from>=CAST('" . $tmp_date_from . "' AS DATE)
+                and u.actual_from<=CAST('" . $tmp_date_to . "' AS DATE)
+            group by
+                c.region, c.id, c.created, s.name  ");
+
+        $sale_nums = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_8800 = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_vpbx = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_nonums = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_lines = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_clients = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+        $sale_channels = array('all' => array('vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'visits' => 0), "managers" => array());
+        $clients = array();
+        $clients_vpbx = array();
+        $vpbx_clients = array('all' => array('new' => 0, 'old' => 0, 'all' => 0));
+
+        foreach ($res as $r) {
+            $client_ids[$r['client_id']] = 0;
+            if (strlen($r['phone']) > 4) //номера
+            {
+                if (strpos($r['phone'], '7800') === 0) {
+                    if (!isset($sale_8800[$r['region']])) {
+                        $sale_8800[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+                    }
+                    if ($r['is_new'] > 0) {
+                        $sale_8800[$r['region']]['new'] += 1;
+                        $sale_8800['all']['new'] += 1;
+                    } else {
+                        $sale_8800[$r['region']]['old'] += 1;
+                        $sale_8800['all']['old'] += 1;
+                    }
+                    $sale_8800[$r['region']]['all'] += 1;
+                    $sale_8800['all']['all'] += 1;
+                } else {
+                    if (!isset($sale_nums[$r['region']])) {
+                        $sale_nums[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+                    }
+                    if ($r['is_new'] > 0) {
+                        $sale_nums[$r['region']]['new'] += 1;
+                        $sale_nums['all']['new'] += 1;
+                    } else {
+                        $sale_nums[$r['region']]['old'] += 1;
+                        $sale_nums['all']['old'] += 1;
+                    }
+                    $sale_nums[$r['region']]['all'] += 1;
+                    $sale_nums['all']['all'] += 1;
+                }
+
+            } else { //линия без номера
+
+                if (!isset($sale_nonums[$r['region']]))
+                    $sale_nonums[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+                if ($r['is_new'] > 0) {
+                    $sale_nonums[$r['region']]['new'] += 1;
+                    $sale_nonums['all']['new'] += 1;
+                } else {
+                    $sale_nonums[$r['region']]['old'] += 1;
+                    $sale_nonums['all']['old'] += 1;
+                }
+                $sale_nonums[$r['region']]['all'] += 1;
+                $sale_nonums['all']['all'] += 1;
+            }
+
+            //линии
+            if (!isset($sale_lines[$r['region']]))
+                $sale_lines[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+            $sale_lines[$r['region']][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+            $sale_lines['all'][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+
+            $sale_lines[$r['region']]['all'] += $r["no_of_lines"];
+            $sale_lines['all']['all'] += $r["no_of_lines"];
+
+
+            if (!isset($clients[$r['client_id']])) {
+                $clients[$r['client_id']] = $r['client_id'];
+
+                if (!isset($sale_clients[$r['region']]))
+                    $sale_clients[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+                if ($r['is_new'] > 0) {
+                    $sale_clients[$r['region']]['new'] += 1;
+                    $sale_clients['all']['new'] += 1;
+                } else {
+                    $sale_clients[$r['region']]['old'] += 1;
+                    $sale_clients['all']['old'] += 1;
+                }
+                $sale_clients[$r['region']]['all'] += 1;
+                $sale_clients['all']['all'] += 1;
+            }
+
+            if (!isset($sale_channels['managers'][$r['sale_channel']]))
+                $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id' => $r['sale_channel_id'], 'vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+            $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
+            $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
+            $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
+            $sale_channels['managers'][$r['sale_channel']]['clients'][] = $r['client_id'];
+            $sale_channels['all']['nums']['all'] += 1;
+            if ($r['is_new']) {
+                $sale_channels['managers'][$r['sale_channel']]['nums']['new'] += 1;
+                $sale_channels['managers'][$r['sale_channel']]['lines']['new'] += $r['no_of_lines'];
+                $sale_channels['all']['nums']['new'] += 1;
+                $sale_channels['all']['lines']['new'] += $r['no_of_lines'];
+            } else {
+                $sale_channels['managers'][$r['sale_channel']]['nums']['old'] += 1;
+                $sale_channels['managers'][$r['sale_channel']]['lines']['old'] += $r['no_of_lines'];
+                $sale_channels['all']['nums']['old'] += 1;
+                $sale_channels['all']['lines']['old'] += $r['no_of_lines'];
+            }
+        }
+        foreach ($res_vpbx as $r) {
+            $client_ids[$r['client_id']] = 0;
+
+            if (!isset($sale_vpbx[$r['region']]))
+                $sale_vpbx[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+            if ($r['is_new'] > 0) {
+                $sale_vpbx[$r['region']]['new'] += 1;
+                $sale_vpbx['all']['new'] += 1;
+            } else {
+                $sale_vpbx[$r['region']]['old'] += 1;
+                $sale_vpbx['all']['old'] += 1;
+            }
+            $sale_vpbx[$r['region']]['all'] += 1;
+            $sale_vpbx['all']['all'] += 1;
+
+            if (!isset($clients_vpbx[$r['client_id']])) {
+                $clients_vpbx[$r['client_id']] = $r['client_id'];
+
+                if (!isset($vpbx_clients[$r['region']]))
+                    $vpbx_clients[$r['region']] = array('new' => 0, 'old' => 0, 'all' => 0);
+
+                if ($r['is_new'] > 0) {
+                    $vpbx_clients[$r['region']]['new'] += 1;
+                    $vpbx_clients['all']['new'] += 1;
+                } else {
+                    $vpbx_clients[$r['region']]['old'] += 1;
+                    $vpbx_clients['all']['old'] += 1;
+                }
+                $vpbx_clients[$r['region']]['all'] += 1;
+                $vpbx_clients['all']['all'] += 1;
+            }
+
+
+            if (!isset($sale_channels['managers'][$r['sale_channel']]))
+                $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id' => $r['sale_channel_id'], 'vpbx' => array('new' => 0, 'old' => 0, 'all' => 0), 'nums' => array('new' => 0, 'old' => 0, 'all' => 0), 'lines' => array('new' => 0, 'old' => 0, 'all' => 0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+            $sale_channels['managers'][$r['sale_channel']]['vpbx']['all'] += 1;
+            $sale_channels['managers'][$r['sale_channel']]['clients'][] = $r['client_id'];
+            $sale_channels['all']['vpbx']['all'] += 1;
+            if ($r['is_new']) {
+                $sale_channels['managers'][$r['sale_channel']]['vpbx']['new'] += 1;
+                $sale_channels['all']['vpbx']['new'] += 1;
+            } else {
+                $sale_channels['managers'][$r['sale_channel']]['vpbx']['old'] += 1;
+                $sale_channels['all']['vpbx']['old'] += 1;
+            }
+        }
+        /*
+  //Выезды
+  $res = $db->AllRecords("
+          select
+            count(*) as cnt,
+            c.id as client_id
+          from
+            tt_stages ts
+          left join tt_troubles tt on tt.id=ts.trouble_id
+          left join clients c on c.client=tt.client
+          where
+            ts.state_id=4 and
+            ts.date_edit>=date_add('$date',interval -$mm month) and
+            ts.date_edit<date_add('$date',interval -$mm+1 month) and
+            c.id in (" . implode(',', array_keys($client_ids)) . ")
+          group by c.id
+          ");
+  foreach ($res as $r) {
+    foreach ($sale_channels['managers'] as $manager=>&$val) {
+        if (in_array($r['client_id'], $val['clients'])) {
+            $val['visits'] += $r['cnt'];
+            $sale_channels['all']['visits'] += $r['cnt'];
+        }
+    }
   }
+*/
+        //Выезды
+        foreach ($sale_channels["managers"] as $manager => &$d) {
+            if ($d['courier_id'] > 0) {
+                $res = $db->GetValue($qq = 'SELECT
+                        COUNT(*)
+                    FROM
+                        tt_stages as st
+                    LEFT JOIN
+                        tt_troubles as tt ON tt.id = st.trouble_id
+                    LEFT JOIN
+                        tt_doers as td ON td.stage_id = st.stage_id
+                    WHERE
+                        tt.id IN (SELECT
+                                DISTINCT(t.id)
+                            FROM
+                                tt_doers as d
+                            LEFT JOIN
+                                tt_stages as s ON d.stage_id = s.stage_id
+                            LEFT JOIN
+                                tt_troubles as t ON s.trouble_id = t.id
+                            WHERE
+                                    d.doer_id = ' . $d['courier_id'] . '
+                                AND
+                                    s.date_start >= CAST("' . $tmp_date_from . '" AS DATE)
+                                AND
+                                    s.date_start <= CAST("' . $tmp_date_to . '" AS DATE)
+                            )
+                        AND
+                            st.state_id = 4
+                        AND
+                            st.date_start >= CAST("' . $tmp_date_from . '" AS DATE)
+                        AND
+                            st.date_start <= CAST("' . $tmp_date_to . '" AS DATE)
+                        AND
+                            td.doer_id = ' . $d['courier_id']);
+
+
+                $sale_channels['all']['visits'] += $res;
+                $d['visits'] = $res;
+            }
+        }
+        foreach ($sale_channels["managers"] as $mamager => &$d) {
+            if ($sale_channels["all"]["nums"]['all'] > 0) {
+                $d["nums_perc"]['new'] = round($d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
+                $d["nums_perc"]['old'] = round($d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
+            } else {
+                $d["nums_perc"]['new'] = 0;
+                $d["nums_perc"]['old'] = 0;
+            }
+            if ($sale_channels["all"]["lines"]['all'] > 0) {
+                $d["lines_perc"]['new'] = round($d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
+                $d["lines_perc"]['old'] = round($d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
+            } else {
+                $d["lines_perc"]['new'] = 0;
+                $d["lines_perc"]['old'] = 0;
+            }
+            if ($sale_channels["all"]["vpbx"]['all'] > 0) {
+                $d["vpbx_perc"]['new'] = round($d["vpbx"]['new'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+                $d["vpbx_perc"]['old'] = round($d["vpbx"]['old'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+            } else {
+                $d["vpbx_perc"]['new'] = 0;
+                $d["vpbx_perc"]['old'] = 0;
+            }
+            $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round($d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
+        }
+
+
+        $del_nums = array('all' => 0);
+        $del_8800 = array('all' => 0);
+        $del_nonums = array('all' => 0);
+        $del_lines = array('all' => 0);
+        $del_vpbx = array('all' => 0);
+
+        $res = $db->AllRecords("
+            select
+                u.region,
+                u.E164 as phone,
+                u.no_of_lines,
+                c.id as client_id
+            from usage_voip u
+            left join clients c on c.client=u.client
+            where
+                u.actual_to>=CAST('" . $tmp_date_from . "' AS DATE)
+            and u.actual_to<=CAST('" . $tmp_date_to . "' AS DATE)
+            group by u.region, u.E164, c.id  ");
+
+        $res_vpbx = $db->AllRecords("
+            select
+                c.region,
+                u.id,
+                c.id as client_id
+            from usage_virtpbx u
+            left join clients c on c.client=u.client
+            where
+                u.actual_to>=CAST('" . $tmp_date_from . "' AS DATE)
+            and u.actual_to<=CAST('" . $tmp_date_to . "' AS DATE)
+            group by c.region, u.id, c.id  ");
+
+        foreach ($res as $r) {
+            if (strlen($r['phone']) > 4) {
+                if (strpos($r['phone'], '7800') === 0) {
+                    if (!isset($del_8800[$r['region']]))
+                        $del_8800[$r['region']] = 0;
+
+                    $del_8800[$r['region']] += 1;
+                    $del_8800['all'] += 1;
+                } else {
+                    if (!isset($del_nums[$r['region']]))
+                        $del_nums[$r['region']] = 0;
+
+                    $del_nums[$r['region']] += 1;
+                    $del_nums['all'] += 1;
+                }
+            } else {
+                if (!isset($del_nonums[$r['region']]))
+                    $del_nonums[$r['region']] = 0;
+
+                $del_nonums[$r['region']] += 1;
+                $del_nonums['all'] += 1;
+            }
+
+            if (!isset($del_lines[$r['region']]))
+                $del_lines[$r['region']] = 0;
+
+            $del_lines[$r['region']] += $r['no_of_lines'];
+            $del_lines['all'] += $r['no_of_lines'];
+        }
+
+        foreach ($res_vpbx as $r) {
+            if (!isset($del_vpbx[$r['region']]))
+                $del_vpbx[$r['region']] = 0;
+
+            $del_vpbx[$r['region']] += 1;
+            $del_vpbx['all'] += 1;
+        }
+
+
+        if ($toM < 1) $toM = 12;
+
+        $reports[] = array(
+            'date' => (!$sum) ? $month_list[$toM - 1] . " " . $toY . " " : $tmp_date_from . ' - ' . $tmp_date_to,
+            'month' => 0 + $toM,
+            'year' => $toY,
+            'region_sums' => $region_sums,
+            'sale_nums' => $sale_nums,
+            'sale_8800' => $sale_8800,
+            'sale_nonums' => $sale_nonums,
+            'sale_lines' => $sale_lines,
+            'sale_clients' => $sale_clients,
+            'sale_channels' => $sale_channels,
+            'del_nums' => $del_nums,
+            'del_8800' => $del_8800,
+            'del_nonums' => $del_nonums,
+            'del_lines' => $del_lines,
+            'del_vpbx' => $del_vpbx,
+            'sale_vpbx' => $sale_vpbx,
+            'vpbx_clients' => $vpbx_clients
+        );
+
+        if (--$tmp_m < 1) {
+                $tmp_m = 12;
+                $tmp_y--;
+            }
+
+        return $reports;
+    }
+
+    function stats_report_by_one_manager()
+    {
+        $requestData = isset($_POST['data']) ? json_decode($_POST['data']) : '';
+        $reportType = isset($_POST['type']) ? $requestData->report . '_' . $requestData->type : $requestData->report;
+        $managerReport = \app\classes\stats\PhoneSales::reportBySingleManager($requestData->manager, '2015-11-01', $reportType);
+
+        if (!empty($managerReport))
+        {
+            echo json_encode([
+                'status' => 'OK',
+                'data' => $managerReport
+            ], JSON_UNESCAPED_UNICODE);
+        }
+        else
+        {
+            echo json_encode([
+                'status' => 'ERROR',
+                'data' => 'Не найдено статистики по указанным параметрам.'
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
 	function stats_report_vpbx_stat_space($fixclient)
 	{
 		global $design;
