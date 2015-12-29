@@ -3962,7 +3962,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 }
 
 
-        public function stats_report_phone_sales()
+    public function stats_report_phone_sales()
     {
         global $db, $design;
         $from_y = get_param_raw("from_y", date('Y'));
