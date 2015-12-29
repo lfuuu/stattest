@@ -5,6 +5,51 @@ use Yii;
 
 class PhoneSales
 {
+    public static function reportBySingleManager($manager, $from, $numberType)
+    {
+        $managerStat = Yii::$app->db->createCommand("
+            SELECT
+              uu.name AS manager_name,
+              reg.name AS region,
+              ccagnt.name_full AS contragent,
+
+              uvi.id,
+              uvi.actual_from,
+              uvi.client,
+              uvi.type_id,
+              uvi.E164,
+              uvi.no_of_lines,
+              uvi.status,
+              uvi.address
+
+            FROM
+              client_contract ccont
+
+            JOIN clients cl ON ccont.id = cl.contract_id
+            JOIN usage_voip uvi ON cl.client = uvi.client
+            JOIN user_users uu ON
+                                 uu.user = ccont.account_manager
+                                 OR uu.user = ccont.manager
+            JOIN regions reg ON uvi.region = reg.id
+            JOIN client_contragent ccagnt ON ccont.contragent_id = ccagnt.id
+
+            WHERE
+                  ccont.account_manager = :manager_name
+              AND uu.user = :manager_name
+              AND uvi.actual_from >= CAST(:date_from AS DATE)
+              AND uvi.type_id = :type_name
+
+            ORDER BY
+              actual_from ASC,
+              ccagnt.name_full ASC
+            ")
+            ->bindValue(':manager_name', $manager)
+            ->bindValue(':date_from', $from)
+            ->bindValue(':type_name', $numberType)
+            ->queryAll(\PDO::FETCH_ASSOC);
+
+        return $managerStat;
+    }
 
     public static function reportByManager($dateFrom, $dateTo)
     {

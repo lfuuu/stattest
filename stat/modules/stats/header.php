@@ -35,6 +35,7 @@ class m_stats_head extends IModuleHead{
         'save_agent_settings' => array('stats', 'vip_report'),
         'report_agent_details' => array('stats','vip_report'),
 		'onlime_details'	    => array('stats','report'),
+		'report_by_one_manager' => array('stats','report'),
 	);
 
     var $menu=[];
