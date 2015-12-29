@@ -488,7 +488,9 @@ class ApiLk
         if (!$account)
             return $ret;
 
-        // По каждому номеру (E164) выбрать активную запись. Если активной нет, то последнюю активную в недалеком прошлом (2 месяца)
+        // По каждому номеру (E164) выбрать активную запись.
+        // Если активной нет, то последнюю активную в недалеком прошлом (2 месяца).
+        // Плюс все активные в будущем, даже если их несколько
         // Средствами SQL эту логику делать слишком извращенно. Проще выбрать все и отфильтровать лишнее средствами PHP
         $usageRows =
             Yii::$app->db->createCommand("
@@ -499,8 +501,9 @@ class ApiLk
                         actual_to,
                         no_of_lines,
                         region,
-                        actual_from <= CAST(NOW() AS DATE) AND CAST(NOW() AS DATE) <= actual_to AS actual,
-                        CAST(NOW() - interval 2 month AS DATE) <= actual_to AS actual_present_perfect
+                        CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AS actual,
+                        actual_to BETWEEN CAST(NOW() - interval 2 month AS DATE) AND CAST(NOW() AS DATE) AS actual_present_perfect,
+                        CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite
                     FROM
                         usage_voip
                     WHERE
@@ -513,7 +516,7 @@ class ApiLk
         foreach($usageRows as $usageRow)
         {
             $line = $usageRow;
-            unset($line['actual_present_perfect']); // это временное служебное поле, которое не надо отдавать
+            unset($line['actual_present_perfect'], $line['actual_future_indefinite']); // это временное служебное поле, которое не надо отдавать
 
             $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
@@ -529,6 +532,8 @@ class ApiLk
                 ($usageRow['actual_present_perfect'] && !isset($ret[$usageRow['number']]))
             ) {
                 $ret[$usageRow['number']] = $isSimple ? $line["number"] : $line;
+            } elseif ($usageRow['actual_future_indefinite']) {
+                $ret['id' . $line["id"]] = $isSimple ? $line["number"] : $line;
             }
         }
 
