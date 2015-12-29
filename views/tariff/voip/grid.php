@@ -1,16 +1,16 @@
 <?php
 
-use kartik\grid\GridView;
 use app\classes\Html;
+use kartik\grid\GridView;
 
 echo Html::formLabel('Тарифы IP Телефонии');
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
-    'beforeHeader'=>[
+    'beforeHeader' => [
         [
-            'columns'=>[
+            'columns' => [
                 ['content' => '', 'options' => ['colspan' => 10]],
                 ['content' => 'Ежемесячно', 'options' => ['colspan' => 2]],
                 ['content' => 'Подключение', 'options' => ['colspan' => 2]],
@@ -110,7 +110,7 @@ echo GridView::widget([
         ],
     ],
     'pjax' => true,
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -127,7 +127,7 @@ echo GridView::widget([
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

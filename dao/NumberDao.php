@@ -4,6 +4,7 @@ namespace app\dao;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use app\classes\Assert;
@@ -244,9 +245,9 @@ class NumberDao extends Singleton
     }
 
     /**
-     * @return ActiveRecord[]
+     * @return ActiveQuery
      */
-    private function getFreeNumbers()
+    public function getFreeNumbers()
     {
         return
             Number::find()

@@ -17,7 +17,7 @@ trait GetListServiceTypeTrait
      * @param bool $isWithEmpty
      * @return self[]
      */
-    public static function getList($isWithEmpty = false, $serviceTypeId = null)
+    public static function getList($serviceTypeId = null, $isWithEmpty = false)
     {
         $list = self::find()
             ->where('service_type_id IS NULL')

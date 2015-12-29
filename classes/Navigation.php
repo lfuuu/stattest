@@ -1,9 +1,11 @@
 <?php
 namespace app\classes;
 
+use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\TariffPeriod;
 use app\models\billing\Pricelist;
-use app\models\BusinessProcess;
 use app\models\Business;
+use app\models\BusinessProcess;
 use Yii;
 use yii\helpers\Url;
 
@@ -18,8 +20,8 @@ class Navigation
             NavigationBlock::create()
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
-                ->addItem('Новый клиент',Url::toRoute(['client/create']), 'clients.read')
-                ->addItem('Мои клиенты',Url::toRoute([
+                ->addItem('Новый клиент', Url::toRoute(['client/create']), 'clients.read')
+                ->addItem('Мои клиенты', Url::toRoute([
                     'client/search',
                     'manager' => Yii::$app->user->identity->user,
                     'account_manager' => Yii::$app->user->identity->user
@@ -51,7 +53,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
-                ->addItem('Отчёт по файлам',  ['/file/report'], ['stats.report'])
+                ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
                 ->addItem('Отчет по OnLime', ['reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['reports/onlime-devices-report'], ['stats.report'])
                 ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
@@ -124,6 +126,8 @@ class Navigation
                 ->addItem('Страны', ['dictionary/country/?CountryFilter[in_use]=1'])
                 ->addItem('Города', ['dictionary/city/'])
         );
+
+        $this->addBlockUniversalUsage();
     }
 
     /**
@@ -156,14 +160,14 @@ class Navigation
         }
 
         if ($block->rights) {
-          foreach ($block->rights as $right) {
-            if (Yii::$app->user->can($right)) {
-              $this->blocks[] = $block;
-              break;
+            foreach ($block->rights as $right) {
+                if (Yii::$app->user->can($right)) {
+                    $this->blocks[] = $block;
+                    break;
+                }
             }
-          }
         } else {
-          $this->blocks[] = $block;
+            $this->blocks[] = $block;
         }
 
         return $this;
@@ -207,29 +211,67 @@ class Navigation
         $businesses = Business::find()
             ->innerJoinWith('businessProcesses')
             ->orderBy([
-                Business::tableName().'.sort' => SORT_ASC,
-                BusinessProcess::tableName().'.sort' => SORT_ASC,
+                Business::tableName() . '.sort' => SORT_ASC,
+                BusinessProcess::tableName() . '.sort' => SORT_ASC,
             ])
             ->all();
 
-        foreach($businesses as $business)
-        {
+        foreach ($businesses as $business) {
             $block = NavigationBlock::create()
-                ->setId('client_'.$business->id)
+                ->setId('client_' . $business->id)
                 ->setRights(['clients.read'])
                 ->setTitle($business->name);
 
-            foreach($business->businessProcesses as $process)
-            {
+            foreach ($business->businessProcesses as $process) {
                 $block->addItem($process->name,
                     isset($exclusion[$process->id])
-                    ? $exclusion[$process->id]
-                    : Url::toRoute(['client/grid', 'businessProcessId' => $process->id])
+                        ? $exclusion[$process->id]
+                        : Url::toRoute(['client/grid', 'businessProcessId' => $process->id])
                 );
             }
 
             $this->addBlock($block);
         }
     }
-    
+
+    /**
+     *
+     */
+    private function addBlockUniversalUsage()
+    {
+        $block = NavigationBlock::create();
+        $block->setTitle(Yii::t('tariff', 'Universal tariffs'));
+
+        $block2 = NavigationBlock::create();
+        $block2->setTitle(Yii::t('tariff', 'Universal services'));
+
+        $serviceTypes = ServiceType::find()->all();
+        foreach ($serviceTypes as $serviceType) {
+            $block->addItem($serviceType->name, Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id]), ['tarifs.read']);
+            $block2->addItem($serviceType->name, Url::to([
+                'uu/accounttariff',
+                'serviceTypeId' => $serviceType->id,
+                'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
+            ]), ['tarifs.read']);
+        }
+
+        $this->addBlock($block);
+        $this->addBlock($block2);
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
+                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/accountlog/setup'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/accountlog/period'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/accountlog/resource'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Monitoring'), [
+                    'uu/accountlog/monitor',
+                    'AccountLogMonitorFilter[service_type_id]' => ServiceType::ID_VPBX,
+                    'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
+                    'AccountLogMonitorFilter[month]' => date('Y-m'),
+                ],
+                    ['tarifs.read'])
+        );
+    }
+
 }

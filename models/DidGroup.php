@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property int $beauty_level
+ * @property int city_id
  *
  * @property City $city
  */
@@ -48,6 +49,9 @@ class DidGroup extends ActiveRecord
         return 'did_group';
     }
 
+    /**
+     * @return DidGroupDao
+     */
     public static function dao()
     {
         return DidGroupDao::me();

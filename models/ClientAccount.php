@@ -35,8 +35,27 @@ use yii\helpers\ArrayHelper;
  */
 class ClientAccount extends HistoryActiveRecord
 {
-
     const STATUS_INCOME = 'income';
+    const STATUS_NEGOTIATIONS = 'negotiations';
+    const STATUS_TESTING = 'testing';
+    const STATUS_CONNECTING = 'connecting';
+    const STATUS_WORK = 'work';
+    const STATUS_CLOSED = 'closed';
+    const STATUS_TECH_DENY = 'tech_deny';
+    const STATUS_TELEMARKETING = 'telemarketing';
+    const STATUS_DENY = 'deny';
+    const STATUS_DEBT = 'debt';
+    const STATUS_DOUBLE = 'double';
+    const STATUS_TRASH = 'trash';
+    const STATUS_MOVE = 'move';
+    const STATUS_ALREADY = 'already';
+    const STATUS_DENIAL = 'denial';
+    const STATUS_ONCE = 'once';
+    const STATUS_RESERVED = 'reserved';
+    const STATUS_SUSPENDED = 'suspended';
+    const STATUS_OPERATOR = 'operator';
+    const STATUS_DISTR = 'distr';
+    const STATUS_BLOCKED = 'blocked';
 
     const DEFAULT_REGION = Region::MOSCOW;
     const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 1000;

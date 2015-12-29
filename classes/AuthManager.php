@@ -318,13 +318,11 @@ class AuthManager extends BaseManager
     }
 
     /**
-     * Returns all user IDs assigned to the role specified.
+     * @todo Необходимо реализовать этот метод, иначе класс будет абстрактным. Пока сделал заглушку
      * @param string $roleName
-     * @return array array of user ID strings
-     * @since 2.0.7
+     * @return array
      */
-    public function getUserIdsByRole($roleName)
-    {
-        // TODO: Implement getUserIdsByRole() method.
+    public function getUserIdsByRole($roleName) {
+        return [];
     }
 }

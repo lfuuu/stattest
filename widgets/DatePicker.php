@@ -48,16 +48,16 @@ class DatePicker extends \kartik\date\DatePicker
             $picker = $this->renderAddon($this->pickerButton);
             if ($this->removeButton)
                 $remove = $this->renderAddon($this->removeButton, 'remove');
+            else
+                $remove = '';
 
             $addons = [];
             if (is_array($this->addons)) {
                 foreach ($this->addons as $addon => $addon_options) {
                     if (method_exists($this, $addon)) {
-                        $addons[] = $this->renderAddon($this->{$addon}($addon_options));
+                        $addon_options = $this->{$addon}($addon_options);
                     }
-                    else {
-                        $addons[] = $this->renderAddon($addon_options);
-                    }
+                    $addons[] = $this->renderAddon($addon_options);
                 }
             }
 

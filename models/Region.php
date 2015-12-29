@@ -16,6 +16,9 @@ use yii\helpers\ArrayHelper;
  */
 class Region extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
+
     const MOSCOW = 99;
     const HUNGARY = 81;
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
@@ -28,12 +31,6 @@ class Region extends ActiveRecord
     public static function dao()
     {
         return RegionDao::me();
-    }
-
-    public static function getList()
-    {
-        $arr = self::find()->all();
-        return ArrayHelper::map($arr, 'id', 'name');
     }
 
     public static function getTimezoneList()

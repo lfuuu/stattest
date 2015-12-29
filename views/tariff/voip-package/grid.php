@@ -1,7 +1,7 @@
 <?php
 
-use kartik\grid\GridView;
 use app\classes\Html;
+use kartik\grid\GridView;
 
 echo Html::formLabel('Тарифы IP Телефонии - Пакеты');
 
@@ -62,7 +62,7 @@ echo GridView::widget([
         ],
     ],
     'pjax' => true,
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -79,7 +79,7 @@ echo GridView::widget([
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

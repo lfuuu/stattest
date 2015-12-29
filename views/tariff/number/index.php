@@ -1,11 +1,11 @@
 <?php
-use kartik\grid\GridView;
+use app\classes\grid\column\CityColumn;
+use app\classes\grid\column\CountryColumn;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
-use app\classes\grid\column\CountryColumn;
-use app\classes\grid\column\CityColumn;
-use kartik\grid\DataColumn;
 use app\classes\Html;
+use kartik\grid\DataColumn;
+use kartik\grid\GridView;
 
 echo Html::formLabel('Телефония Номера');
 
@@ -22,8 +22,8 @@ echo GridView::widget([
         ['class' => CountryColumn::className()],
         ['class' => DataColumn::className(), 'attribute' => 'currency_id', 'label' => 'Валюта'],
     ],
-    'toolbar' =>  [
-        ['content'=> Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить', ['add'], ['data-pjax'=>0, 'class' => 'btn btn-success btn-sm']),],
+    'toolbar' => [
+        ['content' => Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить', ['add'], ['data-pjax' => 0, 'class' => 'btn btn-success btn-sm']),],
         '{toggleData}',
         '{export}',
     ],

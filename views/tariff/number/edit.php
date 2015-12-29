@@ -1,14 +1,14 @@
 <?php
-use yii\helpers\Url;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use app\models\Currency;
-use app\models\Region;
-use app\models\Country;
-use app\models\DidGroup;
 use app\models\City;
+use app\models\Country;
+use app\models\Currency;
+use app\models\DidGroup;
+use app\models\Region;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 $statuses = [
     'public' => 'Публичный',
@@ -42,12 +42,12 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> City::dao()->getListWithCountries(true), 'options' => ['id' => 'city_id', 'class' => 'select2'] + $optionDisabled ],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true), 'options' => ['class' => 'select2'] + $optionDisabled ],
-            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Country::dao()->getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionDisabled ],
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getListWithCountries(true), 'options' => ['id' => 'city_id', 'class' => 'select2'] + $optionDisabled],
+            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Region::dao()->getList(true), 'options' => ['class' => 'select2'] + $optionDisabled],
+            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::dao()->getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionDisabled],
             'activation_fee' => ['type' => Form::INPUT_TEXT],
             'periodical_fee' => ['type' => Form::INPUT_TEXT],
-            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Currency::map(), 'options' => ['class' => 'select2'] + $optionDisabled ],
+            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2'] + $optionDisabled],
         ],
     ]);
 
@@ -57,9 +57,9 @@ echo Breadcrumbs::widget([
         'columns' => 2,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
-            'period' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> $periods, 'options' => ['class' => 'select2'] ],
-            'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> $statuses, 'options' => ['class' => 'select2'] ],
-            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2'] ],
+            'period' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $periods, 'options' => ['class' => 'select2']],
+            'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
+            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2']],
         ],
     ]);
 
@@ -94,7 +94,7 @@ echo Breadcrumbs::widget([
         $('#scenario').val(scenario);
         $('#<?=$form->getId()?>').submit();
     }
-    $('#city_id').change(function() {
+    $('#city_id').change(function () {
         submitForm('default');
     });
 </script>

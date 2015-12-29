@@ -1,0 +1,147 @@
+<?php
+
+namespace app\classes\uu\forms;
+
+use app\classes\Form;
+use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffPeriod;
+use app\classes\uu\model\TariffResource;
+use app\classes\uu\model\TariffVoipCity;
+use InvalidArgumentException;
+use yii;
+
+abstract class TariffForm extends Form
+{
+    use CrudMultipleTrait;
+
+    /** @var int ID сохраненный модели */
+    public $id;
+
+    /** @var bool */
+    public $isSaved = false;
+
+    /** @var Tariff */
+    public $tariff;
+
+    /** @var TariffPeriod[] */
+    public $tariffPeriods;
+
+    /** @var TariffResource[] */
+    public $tariffResources;
+
+    /** @var TariffVoipCity[] */
+    public $tariffVoipCities;
+
+    /** @var string[] */
+    public $validateErrors = [];
+
+    /**
+     * @return TariffResource[]
+     */
+    abstract public function getTariffResources();
+
+    /**
+     * @return TariffPeriod[]
+     */
+    abstract public function getTariffPeriods();
+
+    /**
+     * @return TariffVoipCity[]
+     */
+    abstract public function getTariffVoipCities();
+
+    /**
+     * @return Tariff
+     */
+    abstract public function getTariffModel();
+
+    /**
+     * конструктор
+     */
+    public function init()
+    {
+        $this->tariff = $this->getTariffModel();
+        $this->tariffPeriods = $this->getTariffPeriods();
+        $this->tariffResources = $this->getTariffResources();
+
+        // Обработать submit (создать, редактировать, удалить)
+        $this->loadFromInput();
+    }
+
+    /**
+     * Обработать submit (создать, редактировать, удалить)
+     */
+    protected function loadFromInput()
+    {
+        switch ($this->tariff->service_type_id) {
+
+            case ServiceType::ID_VPBX:
+                // только для ВАТС
+                break;
+
+            case ServiceType::ID_VOIP:
+            case ServiceType::ID_VOIP_PACKAGE:
+                // только для телефонии
+                $this->tariffVoipCities = $this->getTariffVoipCities();
+                break;
+        }
+
+        // загрузить параметры от юзера
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $post = Yii::$app->request->post();
+            if ($this->tariff->load($post)) {
+
+                if ($this->tariff->validate()) {
+                    $this->tariff->save();
+                    $this->id = $this->tariff->id;
+                    $this->isSaved = true;
+                } else {
+                    // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
+                    $this->validateErrors += $this->tariff->getFirstErrors();
+                }
+
+                $tariffPeriod = new TariffPeriod();
+                $tariffPeriod->tariff_id = $this->id;
+                $this->tariffPeriods = self::crudMultiple($this->tariffPeriods, $post, $tariffPeriod);
+
+                $tariffResource = new TariffResource();
+                $tariffResource->tariff_id = $this->id;
+                $this->tariffResources = self::crudMultiple($this->tariffResources, $post, $tariffResource);
+
+                switch ($this->tariff->service_type_id) {
+
+                    case ServiceType::ID_VPBX:
+                        // только для ВАТС
+                        break;
+
+                    case ServiceType::ID_VOIP:
+                    case ServiceType::ID_VOIP_PACKAGE:
+                        // только для телефонии
+                        $tariffVoipCity = new TariffVoipCity();
+                        $tariffVoipCity->tariff_id = $this->id;
+                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                        break;
+                }
+
+            }
+
+            if ($this->validateErrors) {
+                throw new InvalidArgumentException();
+            }
+
+            $transaction->commit();
+
+        } catch (InvalidArgumentException $e) {
+            $transaction->rollBack();
+            $this->isSaved = false;
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            $this->isSaved = false;
+            $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+        }
+    }
+}
