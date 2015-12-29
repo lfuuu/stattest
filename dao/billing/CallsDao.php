@@ -1,13 +1,12 @@
 <?php
 namespace app\dao\billing;
 
-use app\classes\Assert;
-use app\models\ClientAccount;
-use app\widgets\select_multiply\Asset;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
+use app\classes\Assert;
 use app\classes\Singleton;
+use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\billing\Calls;
 use yii\helpers\ArrayHelper;
@@ -67,7 +66,7 @@ class CallsDao extends Singleton
      * @param int $limit
      * @return array
      */
-    public function getCalls($accountId = 0, $number = '', $year, $month, $offset = 0, $limit = 1000)
+    public function getCalls($accountId, $number, $year, $month, $offset = 0, $limit = 1000)
     {
         $firstDayOfDate = new DateTime;
         $firstDayOfDate = $firstDayOfDate->setDate($year, $month, 1);
@@ -96,18 +95,36 @@ class CallsDao extends Singleton
 
         $query->andWhere(['account_id' => $clientAccount->id]);
 
-        $regions = ArrayHelper::getColumn(UsageVoip::find()->select('region')->client($clientAccount->client)->distinct()->all(), 'region');
+        $regions = ArrayHelper::getColumn(
+            UsageVoip::find()
+                ->select('region')
+                ->client($clientAccount->client)
+                ->distinct()
+                ->all(),
+            'region'
+        );
         if (count($regions)) {
             $query->andWhere(['in', 'server_id', $regions]);
         }
 
-        if ($number) {
-            $usage = UsageVoip::find()->where(['E164' => $number])->actual()->one();
-            Assert::isObject($usage, 'Number "' . $number . '"');
+        $usage = UsageVoip::find()->where(['E164' => $number])->one();
+        Assert::isObject($usage, 'Number "' . $number . '"');
 
-            $query->andWhere(['number_service_id' => $usage->id]);
-            $query->andWhere(['server_id' => $usage->region]);
+        $usages = ArrayHelper::getColumn(
+            UsageVoip::find()
+                ->select('id')
+                ->where(['E164' => $number])
+                ->client($clientAccount->client)
+                ->distinct()
+                ->all(),
+            'id'
+        );
+
+        if (!count($usages)) {
+            return [];
         }
+
+        $query->andWhere(['in', 'number_service_id', $usages]);
 
         if ($offset) {
             $query->offset($offset);

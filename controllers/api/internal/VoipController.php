@@ -20,14 +20,14 @@ class VoipController extends ApiInternalController
 
     public function actionCalls()
     {
-        $requestData = $this->getRequestParams();
+        $requestData = $this->requestData;
 
         $model = DynamicModel::validateData(
             $requestData,
             [
                 [['account_id', 'offset', 'limit', 'year', 'month'], 'integer'],
                 ['number', 'trim'],
-                ['account_id', 'required'],
+                [['account_id', 'number'], 'required'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
