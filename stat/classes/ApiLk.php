@@ -488,45 +488,32 @@ class ApiLk
         if (!$account)
             return $ret;
 
+        // По каждому номеру (E164) выбрать активную запись. Если активной нет, то последнюю активную в недалеком прошлом (2 месяца)
+        // Средствами SQL эту логику делать слишком извращенно. Проще выбрать все и отфильтровать лишнее средствами PHP
         $usageRows =
             Yii::$app->db->createCommand("
                     SELECT
-                            u.id,
-                            u.E164 AS number,
-                            actual_from,
-                            actual_to,
-                            no_of_lines,
-                            IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-                            u.region
-                        FROM (
-                            SELECT
-                                u.*
-                            FROM
-                                usage_voip u, (
-                                    SELECT
-                                        MAX(actual_from) AS max_actual_from,
-                                        E164
-                                    FROM
-                                        usage_voip
-                                    WHERE
-                                        client=:client
-                                    GROUP BY E164
-                                ) a
-                            WHERE
-                                    a.e164 = u.e164
-                                AND client=:client
-                                AND max_actual_from = u.actual_from
-                                AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
-                            ) AS `u`
-
-                         ORDER BY
-                             `u`.`actual_from` DESC
+                        id,
+                        E164 AS `number`,
+                        actual_from,
+                        actual_to,
+                        no_of_lines,
+                        region,
+                        actual_from <= CAST(NOW() AS DATE) AND CAST(NOW() AS DATE) <= actual_to AS actual,
+                        CAST(NOW() - interval 2 month AS DATE) <= actual_to AS actual_present_perfect
+                    FROM
+                        usage_voip
+                    WHERE
+                        client = :client
+                   ORDER BY
+                        actual_from DESC
                 ",
                 [':client' => $account->client ]
             )->queryAll();
         foreach($usageRows as $usageRow)
         {
             $line = $usageRow;
+            unset($line['actual_present_perfect']); // это временное служебное поле, которое не надо отдавать
 
             $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
@@ -536,10 +523,16 @@ class ApiLk
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
             $line["vpbx"] = 0;
 
-            $ret[] = $isSimple ? $line["number"] : $line;
+            // активные сейчас - всегда записываем
+            // активные в недавнем прошлом - только если нет активных сейчас
+            if ($usageRow['actual'] ||
+                ($usageRow['actual_present_perfect'] && !isset($ret[$usageRow['number']]))
+            ) {
+                $ret[$usageRow['number']] = $isSimple ? $line["number"] : $line;
+            }
         }
 
-        return $ret;
+        return array_values($ret);
     }
 
     public static function getVpbxList($clientId)
