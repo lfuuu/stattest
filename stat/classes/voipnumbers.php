@@ -20,7 +20,7 @@ class voipNumbersChecker
             c.id as client_id,
             trim(e164) as e164,
             u.no_of_lines,
-            (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block
+            c.is_blocked as is_block
         FROM 
             usage_voip u, clients c
         WHERE 
