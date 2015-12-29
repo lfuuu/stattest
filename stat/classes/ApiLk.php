@@ -489,8 +489,7 @@ class ApiLk
             return $ret;
 
         // По каждому номеру (E164) выбрать активную запись.
-        // Если активной нет, то последнюю активную в недалеком прошлом (2 месяца).
-        // Плюс все активные в будущем, даже если их несколько
+        // Если активной нет, то последнюю активную в недалеком прошлом (2 месяца) или в любом будущем.
         // Средствами SQL эту логику делать слишком извращенно. Проще выбрать все и отфильтровать лишнее средствами PHP
         $usageRows =
             Yii::$app->db->createCommand("
@@ -500,10 +499,10 @@ class ApiLk
                         actual_from,
                         actual_to,
                         no_of_lines,
-                        region,
                         CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AS actual,
                         actual_to BETWEEN CAST(NOW() - interval 2 month AS DATE) AND CAST(NOW() AS DATE) AS actual_present_perfect,
-                        CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite
+                        CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite,
+                        region
                     FROM
                         usage_voip
                     WHERE
@@ -526,14 +525,18 @@ class ApiLk
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
             $line["vpbx"] = 0;
 
+            // даты начала и конца расширить до максимальных, не зависимо от того, активно оно сейчас или нет
+            if (!$isSimple && isset($ret[$usageRow['number']])) {
+                $ret[$usageRow['number']]['actual_from'] = $line['actual_from'] = min($ret[$usageRow['number']]['actual_from'], $line['actual_from']);
+                $ret[$usageRow['number']]['actual_to'] = $line['actual_to'] = max($ret[$usageRow['number']]['actual_to'], $line['actual_to']);
+            }
+
             // активные сейчас - всегда записываем
-            // активные в недавнем прошлом - только если нет активных сейчас
+            // активные в недавнем прошлом или в будущем - только если нет активных сейчас
             if ($usageRow['actual'] ||
-                ($usageRow['actual_present_perfect'] && !isset($ret[$usageRow['number']]))
+                (($usageRow['actual_present_perfect'] || $usageRow['actual_future_indefinite']) && !isset($ret[$usageRow['number']]))
             ) {
                 $ret[$usageRow['number']] = $isSimple ? $line["number"] : $line;
-            } elseif ($usageRow['actual_future_indefinite']) {
-                $ret['id' . $line["id"]] = $isSimple ? $line["number"] : $line;
             }
         }
 
