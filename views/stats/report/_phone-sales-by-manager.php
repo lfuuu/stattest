@@ -183,9 +183,9 @@
                         else
                         {
                             beautyData = r.data;
+                            $table = $('<div>' + r.data + '</div>');
                         }
 
-                        $("#report_details").html('');
                         $("#report_details").dialog(
                             {
                                 width: '80%',
