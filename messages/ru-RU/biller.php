@@ -35,8 +35,8 @@ return [
 
     'test' => '',
 
-    'paypal_payment_description' => 'Пополнение личевого счета {account} на сумму {sum} {currency}',
+    'paypal_payment_description' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',
+    'RUB' => 'руб.',
 
-    'RUB' => 'руб.'
-
+    'incomming_payment' => 'Авансовый платеж за услуги связи',
 ];
