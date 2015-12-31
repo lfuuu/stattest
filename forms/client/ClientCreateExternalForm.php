@@ -135,11 +135,15 @@ class ClientCreateExternalForm extends Form
 
             if ($this->account_id) {
                 $this->createTroubleAndWizard();
-                if ($this->vats_tariff_id) {
-                    $resVats = $this->createVats();
-                }
             }
         }
+
+        if ($this->account_id) {
+            if ($this->vats_tariff_id) {
+                $resVats = $this->createVats();
+            }
+        }
+
         $transaction->commit();
 
         $result = null;
@@ -258,81 +262,84 @@ class ClientCreateExternalForm extends Form
         $client = ClientAccount::findOne(['id' => $this->account_id]);
         $tarif = TariffVirtpbx::findOne([['id' => $this->vats_tariff_id], ['!=', 'status', 'archive']]);
 
-        if ($client && $tarif)
-        {
-            $actual_from = date('Y-m-d');
-            $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+        $vats = UsageVirtpbx::findOne(['client' => $client->client]);
 
-            $vats = new UsageVirtpbx;
-            $vats->client = $client->client;
-            $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-            $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-            $vats->actual_from = $actual_from;
-            $vats->actual_to = $actual_to;
-            $vats->amount = 1;
-            $vats->status = 'connecting';
-            $vats->region = \app\models\Region::MOSCOW;
-            $vats->save();
+        if (!$vats) {
+            if ($client && $tarif) {
+                $actual_from = date('Y-m-d');
+                $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
-            $logTarif = new LogTarif;
-            $logTarif->service = 'usage_virtpbx';
-            $logTarif->id_service = $vats->id;
-            $logTarif->id_tarif = $tarif->id;
-            $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-            $logTarif->date_activation = date('Y-m-d');
-            $logTarif->id_user = User::LK_USER_ID;
-            $logTarif->save();
+                $vats = new UsageVirtpbx;
+                $vats->client = $client->client;
+                $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $vats->actual_from = $actual_from;
+                $vats->actual_to = $actual_to;
+                $vats->amount = 1;
+                $vats->status = 'connecting';
+                $vats->region = \app\models\Region::MOSCOW;
+                $vats->save();
 
-            $result['status'] = 'ok';
-            $result['info'][] = 'created';
+                $logTarif = new LogTarif;
+                $logTarif->service = 'usage_virtpbx';
+                $logTarif->id_service = $vats->id;
+                $logTarif->id_tarif = $tarif->id;
+                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $logTarif->date_activation = date('Y-m-d');
+                $logTarif->id_user = User::LK_USER_ID;
+                $logTarif->save();
 
-            if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
-                $usage = UsageVoip::findOne(['client' => $client->client]);
+                $result['status'] = 'ok';
+                $result['info'][] = 'created';
 
-                if (!($usage instanceof UsageVoip)) {
-                    $result['info'][] = 'voip';
+                if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
+                    $usage = UsageVoip::findOne(['client' => $client->client]);
 
-                    $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
+                    if (!($usage instanceof UsageVoip)) {
+                        $result['info'][] = 'voip';
 
-                    if (!($freeNumber instanceof Number)) {
-                        throw new Exception('Not found free number into 499 DID group', 500);
-                    }
+                        $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
 
-                    $transaction = Yii::$app->db->beginTransaction();
-                    try {
-                        $form = new UsageVoipEditForm;
-                        $form->scenario = 'add';
-                        $form->initModel($client);
-                        $form->did = $freeNumber->number;
-                        $form->prepareAdd();
-                        $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
-                        $form->create_params = \yii\helpers\Json::encode([
-                            'vpbx_stat_product_id' => $vats->id,
-                        ]);
-
-                        if (!$form->validate() || !$form->add()) {
-                            if ($form->errors) {
-                                \Yii::error($form);
-                                $errorKeys = array_keys($form->errors);
-                                throw new Exception($form->errors[$errorKeys[0]][0], 500);
-                            } else {
-                                throw new Exception('Unknown error', 500);
-                            }
+                        if (!($freeNumber instanceof Number)) {
+                            throw new Exception('Not found free number into 499 DID group', 500);
                         }
 
-                        $usageVoipId = $form->id;
+                        $transaction = Yii::$app->db->beginTransaction();
+                        try {
+                            $form = new UsageVoipEditForm;
+                            $form->scenario = 'add';
+                            $form->initModel($client);
+                            $form->did = $freeNumber->number;
+                            $form->prepareAdd();
+                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
+                            $form->create_params = \yii\helpers\Json::encode([
+                                'vpbx_stat_product_id' => $vats->id,
+                            ]);
 
-                        $transaction->commit();
-                        $result['info'][] = 'added';
-                    } catch (\Exception $e) {
-                        $result['info'][] = 'failed';
-                        $transaction->rollBack();
-                        throw $e;
+                            if (!$form->validate() || !$form->add()) {
+                                if ($form->errors) {
+                                    \Yii::error($form);
+                                    $errorKeys = array_keys($form->errors);
+                                    throw new Exception($form->errors[$errorKeys[0]][0], 500);
+                                } else {
+                                    throw new Exception('Unknown error', 500);
+                                }
+                            }
+
+                            $usageVoipId = $form->id;
+
+                            $transaction->commit();
+                            $result['info'][] = 'added';
+                        } catch (\Exception $e) {
+                            $result['info'][] = 'failed';
+                            $transaction->rollBack();
+                            throw $e;
+                        }
                     }
                 }
+            } else {
+                $result['info'][] = 'not_found_tariff';
             }
-        } else {
-            $result['info'][] = 'not_found_tariff';
         }
 
         $result['info'] = implode(':', $result['info']);
