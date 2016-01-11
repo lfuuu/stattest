@@ -59,8 +59,8 @@ class VoipTrunkBiller extends Biller
             Yii::$app->get('dbPg')
                 ->createCommand('
                     SELECT
-                        CAST(- SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_orig,
-                        CAST(- SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_term
+                        CAST(- ABS(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END)) AS NUMERIC(10,2)) AS price_orig,
+                        CAST(- ABS(SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END)) AS NUMERIC(10,2)) AS price_term
                     FROM calls_aggr.calls_aggr
                     WHERE
                         trunk_service_id = :trunk_service_id
