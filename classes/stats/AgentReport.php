@@ -81,7 +81,9 @@ class AgentReport
                    INNER JOIN newbills nb ON nb.bill_no = nbl.bill_no
 
                    WHERE /* cg.partner_contract_id = :partnerId AND */ nb.is_payed = 1
-        ", [':partnerId' => $partnerId])
+        ", [
+                //':partnerId' => $partnerId
+            ])
             ->queryAll(\PDO::FETCH_ASSOC);
     }
 
@@ -106,7 +108,9 @@ class AgentReport
                    INNER JOIN newbills nb ON nb.bill_no = nbl.bill_no
 
                    WHERE /* cg.partner_contract_id = :partnerId AND */ nb.is_payed = 1
-        ", [':partnerId' => $partnerId])
+        ", [
+            //    ':partnerId' => $partnerId
+            ])
             ->queryAll(\PDO::FETCH_ASSOC);
     }
 }
