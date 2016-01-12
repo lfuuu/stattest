@@ -50,7 +50,7 @@ class VoipController extends BaseController
                                 's.name AS connection_point',
                                 'g.name AS destination',
 
-                                'COUNT(rc.*) AS calls_count',
+                                'COUNT(rc.id) AS calls_count',
                                 'SUM(rc.cost) AS cost',
                                 'SUM(rc.tax_cost) AS tax_nds_cost',
                                 'SUM(rc.billed_time) AS billed_time',
