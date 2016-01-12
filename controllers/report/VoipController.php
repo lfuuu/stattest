@@ -27,7 +27,7 @@ class VoipController extends BaseController
             [
                 'allow' => true,
                 'actions' => ['lost-calls', 'cost-report'],
-                'roles' => ['clients.read', '@'],
+                'roles' => ['clients.read'],
             ],
         ];
         //return $behaviors;
