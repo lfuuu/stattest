@@ -31,7 +31,7 @@ abstract class UsageFactory
     const USAGE_VOIP = 'usage_voip';
     const USAGE_VIRTBPX = 'usage_virtpbx';
     const USAGE_EXTRA = 'usage_extra';
-    const USAGE_EMAIL = 'usage_email';
+    const USAGE_EMAIL = 'emails';
     const USAGE_TECH_CPE = 'usage_tech_cpe';
     const USAGE_SMS = 'usage_sms';
     const USAGE_IP_PORTS = 'usage_ip_ports';

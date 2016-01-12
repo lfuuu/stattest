@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use Yii;
+use DateTime;
 use app\classes\Form;
 use app\models\UsageIpPorts;
 
@@ -34,6 +35,8 @@ class UsageIpPortsForm extends Form
             ],
             [['port_id', 'amount'], 'integer'],
             ['status', 'in', 'range' => ['connecting', 'working']],
+            [['date_last_writeoff', 'speed_update'], 'default', 'value' => (new DateTime())->format('Y-m-d H:i:s')],
+            ['speed_mgts', 'default', 'value' => ''],
         ];
     }
 

@@ -243,7 +243,7 @@ class m_services extends IModule{
             clients.client
         ');
         $nPorts = array();
-        $ord = 1; 
+        $ord = 1;
 
         //printdbg($ports);
         foreach ($ports as $p){
@@ -295,7 +295,7 @@ class m_services extends IModule{
                 $R[]=$r['router'];
 
             $design->assign('serv_routers',$R);
-            $design->AddMain('services/internet_select.tpl');            
+            $design->AddMain('services/internet_select.tpl');
             return $R;
         } else {
             $connections=array();
@@ -325,7 +325,7 @@ class m_services extends IModule{
             $connections[$id_port]['nets']=$this->get_nets($id_port,'(actual_to>NOW())');
             $connections[$id_port]['data']=$port;
         };
-        
+
         $design->assign('services_conn',$connections);
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
@@ -342,7 +342,7 @@ class m_services extends IModule{
             $connections[$id_port]['nets']=$this->get_nets($id_port,'(actual_to>NOW())');
             $connections[$id_port]['data']=$port;
         };
-        
+
         $design->assign('services_conn',$connections);
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
@@ -422,7 +422,7 @@ class m_services extends IModule{
             $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'Услуги','Редактировать сеть');
         }
     }
-    
+
     function services_in_act($fixclient,$suffix="internet"){
         global $design,$db;
         $id=get_param_protected('id');
@@ -435,7 +435,7 @@ class m_services extends IModule{
             $t=explode('.',$t[0]);
             $t[3]++;
             $r['gate']=implode(".",$t);
-            $routes[]=$r;    
+            $routes[]=$r;
         }
         //if (!$routes || !$conn) {trigger_error2('Сеть и подключения не найдены'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
@@ -528,7 +528,7 @@ class m_services extends IModule{
         }
         $design->ProcessEx('../store/acts/'.$suffix.'_act_pon.tpl');
     }
-    
+
     function services_in_close($fixclient,$suffix='internet'){
         global $design,$db;
 
@@ -549,15 +549,15 @@ class m_services extends IModule{
 
             $this->routes_check($r['client']);
         }
-    
+
         if ($suffix=='internet') {
             $this->services_in_view($fixclient);
         } else {
             $this->services_co_view($fixclient);
         }
     }
-    
-// =========================================================================================================================================    
+
+// =========================================================================================================================================
     function services_co_view($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)){
@@ -567,11 +567,11 @@ class m_services extends IModule{
                 $connections[$id_port]['nets']=$this->get_nets($id_port,'(usage_ip_routes.actual_to>NOW())');
                 $connections[$id_port]['data']=$port;
             };
-            
+
             $design->assign('services_conn',$connections);
             $design->assign('show_client',1);
             $design->assign('internet_suffix','collocation');
-            $design->AddMain('services/internet_tiny.tpl',1); 
+            $design->AddMain('services/internet_tiny.tpl',1);
         } else {
             $connections=array();
             $ports=$this->get_ports($fixclient,1);
@@ -579,14 +579,14 @@ class m_services extends IModule{
                 $connections[$id_port]['nets']=$this->get_nets($id_port);
                 $connections[$id_port]['data']=$port;
             };
-            
+
             $design->assign('services_conn',$connections);
             $design->assign('internet_suffix','collocation');
-            $design->AddMain('services/internet.tpl'); 
+            $design->AddMain('services/internet.tpl');
         }
         return $connections;
     }
-    
+
     function services_co_add($fixclient){
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $this->services_in_add($fixclient,'collocation','C');
@@ -594,15 +594,15 @@ class m_services extends IModule{
     function services_co_add2($fixclient,$id=''){
         $this->services_in_add2($fixclient,$id,'collocation');
     }
-    
+
     function services_co_act($fixclient){
         $this->services_in_act($fixclient,'collocation');
-    }    
-    
+    }
+
     function services_co_close($fixclient){
         $this->services_in_close($fixclient,'collocation');
     }
-    
+
     function services_co_apply($fixclient){
         $this->services_in_apply($fixclient,'collocation','co');
     }
@@ -662,7 +662,7 @@ class m_services extends IModule{
             $design->assign('phone',$phone);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
-            $design->AddMain('services/voip_all.tpl'); 
+            $design->AddMain('services/voip_all.tpl');
             return $R;
         } else {
 
@@ -686,11 +686,11 @@ class m_services extends IModule{
                 '.$order
             );
 
-            $R=array(); 
+            $R=array();
             $actualNumbers = array();
             while ($r=$db->NextRecord()) {
-                $R[]=$r; 
-                if ($r['is_trunk'] == '1') 
+                $R[]=$r;
+                if ($r['is_trunk'] == '1')
                     $has_trunk = true;
 
                 if ( $r["actual"] )
@@ -789,7 +789,7 @@ class m_services extends IModule{
             $design->assign('is_vo_view', get_param_raw("action", "") == "vo_view");
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
             $design->assign('cur_region', $db->GetValue('select region from clients where id="'.$fixclient.'"') );
-            $design->AddMain('services/voip.tpl'); 
+            $design->AddMain('services/voip.tpl');
 
             if(get_param_raw("action", "") == "vo_view")
                 $this->services_vo_permit($fixclient);
@@ -886,7 +886,7 @@ class m_services extends IModule{
 
         $design->assign('voip_permit',$regs);
         $design->assign('voip_permit_filtred',$phone);
-        $design->AddMain('services/voip_permit.tpl'); 
+        $design->AddMain('services/voip_permit.tpl');
     }
 
     private function getInOldSchema($numbers)
@@ -896,7 +896,7 @@ class m_services extends IModule{
 
         $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
 
-        if (!$conn) 
+        if (!$conn)
         {
             //mail(ADMIN_EMAIL, "[pg connect]", "services/getInOldSchema");
             throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")..");
@@ -904,14 +904,14 @@ class m_services extends IModule{
 
         $res = @pg_query("SELECT exten FROM extensions WHERE exten in ('".implode("', '", $numbers)."') AND enabled = 't'");
 
-        if (!$res) 
+        if (!$res)
             throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
 
         while($l = pg_fetch_assoc($res))
         {
             $number = $l["exten"];
             $resultNumbers[] = $number;
-        } 
+        }
 
         return $resultNumbers;
     }
@@ -935,7 +935,7 @@ class m_services extends IModule{
             $dbname = "voipdb";
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
-        
+
             if(in_array($region, array(94, 95, 96, 87, 97, 98, 88, 89, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
@@ -959,7 +959,7 @@ class m_services extends IModule{
             $reg = Region::first(array("id" => $region));
             $regionInfo = $reg ? '"' . $reg->name . '" (id: ' . $reg->id . ')' : '';
             trigger_error2("Ошибка соединения с сервером регистрации SIP в регионе " . $regionInfo);
-            return array();    
+            return array();
         }
 
 
@@ -973,44 +973,44 @@ class m_services extends IModule{
             }
 
             $result = pg_query($q = "
-                    SELECT 
-                    a.id, a.callerid, a.name, 
-                    a.secret, a.context, a.host, 
+                    SELECT
+                    a.id, a.callerid, a.name,
+                    a.secret, a.context, a.host,
                     a.permit, a.deny, 'reg".$region."' as ippbx,
-                    to_char(a.registered, 'DD-MM-YYYY HH24:MI:SS') as registered, 
-                    a.insecure, a.enabled, b.fullcontact, 
-                    b.ipaddr, b.port, 
+                    to_char(a.registered, 'DD-MM-YYYY HH24:MI:SS') as registered,
+                    a.insecure, a.enabled, b.fullcontact,
+                    b.ipaddr, b.port,
                     /*TIMESTAMP 'epoch' + b.regseconds::integer * INTERVAL '1 second' as registered, */
-                    b.regseconds::integer::abstime::timestamp as registered, 
-                    b.regseconds::integer - extract(epoch from now())::integer as regtime, 
-                    extract(epoch from (b.regseconds::integer::abstime::timestamp - abstime(now()))) as regtime, 
+                    b.regseconds::integer::abstime::timestamp as registered,
+                    b.regseconds::integer - extract(epoch from now())::integer as regtime,
+                    extract(epoch from (b.regseconds::integer::abstime::timestamp - abstime(now()))) as regtime,
                     b.useragent, n.ds as direction, a.autolink_ip, b.invite_ip, b.invite_contact
-                    FROM 
-                    sipdevices a 
+                    FROM
+                    sipdevices a
                     INNER JOIN sipregs b ON a.name = b.name
                     LEFT JOIN numbers n ON n.number::varchar = a.callerid
-                    WHERE 
+                    WHERE
                     a.client_id='".$cl["id"]."' ".($needRegion ? "and a.region ='".$region."'" : "")."
-                    ORDER BY 
+                    ORDER BY
                     callerid, name");
         }else{
             $result = pg_query($q ="
-                    SELECT 
-                    ast_ds, client, callerid, 
-                    name, ipaddr, permit, 
+                    SELECT
+                    ast_ds, client, callerid,
+                    name, ipaddr, permit,
                     deny, ast_ds as direction, ".
-                    ($region == 99 ? "":"'reg".$region."' as ")." ippbx, 
-                    enabled, 
-                    to_char(registered, 'DD-MM-YYYY HH24:MI:SS') as registered, 
-                    round((EXTRACT (EPOCH FROM regseconds)-EXTRACT (EPOCH FROM registered)+1)) as regtime, 
-                    useragent, fullcontact, 
-                    current_timestamp<=regseconds as regvalid, 
-                    secret 
-                    FROM 
-                    sip_users 
-                    WHERE 
-                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$cl["client"]."'")." 
-                    ORDER BY 
+                    ($region == 99 ? "":"'reg".$region."' as ")." ippbx,
+                    enabled,
+                    to_char(registered, 'DD-MM-YYYY HH24:MI:SS') as registered,
+                    round((EXTRACT (EPOCH FROM regseconds)-EXTRACT (EPOCH FROM registered)+1)) as regtime,
+                    useragent, fullcontact,
+                    current_timestamp<=regseconds as regvalid,
+                    secret
+                    FROM
+                    sip_users
+                    WHERE
+                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$cl["client"]."'")."
+                    ORDER BY
                     name, callerid");
         }
 
@@ -1133,10 +1133,10 @@ class m_services extends IModule{
             $e164s[$l["number"]] = $l["number"];
         }
 
-        foreach($db->AllRecords("SELECT data as email 
-                    FROM `client_contacts` cc, clients c 
+        foreach($db->AllRecords("SELECT data as email
+                    FROM `client_contacts` cc, clients c
                     where c.id = $fixclient and client_id = c.id and cc.type = 'email'
-                    and cc.is_active 
+                    and cc.is_active
                     order by data") as $l)
             $emails[$l["email"]] = $l["email"];
 
@@ -1212,8 +1212,8 @@ class m_services extends IModule{
         }
 
         $db->Query('select * from usage_voip where (client="'.$clientNick.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from, E164');
-        $R=array(); 
-        while ($r=$db->NextRecord()) 
+        $R=array();
+        while ($r=$db->NextRecord())
         {
             $isFind = false;
             foreach($rr as $l)
@@ -1234,7 +1234,7 @@ class m_services extends IModule{
             $R[]=$r;
         }
         $design->assign('voip_connections',$R);
-                
+
         $db->Query('
             SELECT utc.*, uip.address
             FROM
@@ -1276,14 +1276,14 @@ class m_services extends IModule{
             echo $design->fetch('wellsend.html');
             exit();
         }
-        
-        $design->ProcessEx('../store/acts/voip_act.tpl'); 
+
+        $design->ProcessEx('../store/acts/voip_act.tpl');
     }
 
     function services_vo_act_trunk($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-    
+
         ClientCS::Fetch($fixclient);
         ClientCS::FetchMain($fixclient);
         //** Выпилить */
@@ -1299,7 +1299,7 @@ class m_services extends IModule{
 
         $design->ProcessEx('../store/acts/voip_act_trunk.tpl');
     }
-    
+
 
     function services_in_dev_act($fixclient){
         global $design,$db;
@@ -1307,7 +1307,7 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         $client=get_param_raw('client','');
         $db->Query('select * from usage_tech_cpe where (client="'.$client.'")
-        #and (actual_from<=NOW()) and (actual_to>NOW()) 
+        #and (actual_from<=NOW()) and (actual_to>NOW())
         and id='.$id.'');
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         $numbers = $R[0]['numbers'];
@@ -1330,7 +1330,7 @@ class m_services extends IModule{
             {
                 $item = "(495) ".$match[1]."-".$match[2]."-".$match[3];
             }
-            $newItemsArray[] = $item.($count > 1 ? " на ".$count." лииях" : "");    
+            $newItemsArray[] = $item.($count > 1 ? " на ".$count." лииях" : "");
         }
         $R[0]['numbers'] = '';
         foreach($newItemsArray as $item)
@@ -1339,7 +1339,7 @@ class m_services extends IModule{
         }
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($client);
-        $design->ProcessEx('../store/acts/dev_act.tpl'); 
+        $design->ProcessEx('../store/acts/dev_act.tpl');
     }
 
     function services_vo_add($fixclient){
@@ -1390,7 +1390,7 @@ class m_services extends IModule{
         $cl = ClientCS::FetchClient($r["client"]);
         $db->QueryInsert("log_block", array(
                     "service" => "usage_voip",
-                    "id_service" => $id, 
+                    "id_service" => $id,
                     "id_user" => $user->Get("id"),
                     "ts" => array("now()"),
                     "comment" => "Подключение закрыто"
@@ -1426,7 +1426,7 @@ class m_services extends IModule{
         $db->Query('select domains.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from domains'.($clientNick?' where client="'.$clientNick.'"':'').' ORDER BY IF((actual_from<=NOW()) and (actual_to>NOW()),0,1) ASC,'.$order);
         while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('domains',$R);
-        $design->AddMain('services/domains.tpl'); 
+        $design->AddMain('services/domains.tpl');
     }
     function services_dn_add($fixclient){
         global $design,$db;
@@ -1483,11 +1483,11 @@ class m_services extends IModule{
 
         $design->assign('mailservers_id',null);
 
-        $design->AddMain('services/mail.tpl'); 
+        $design->AddMain('services/mail.tpl');
 
         return $res;
     }
-    
+
     function whitelist_load($fixclient,$filter,&$domains,&$mails,&$MCN,&$whlist){
         global $db,$design;
         $M=array(/*0=>'Доставлять всё',*/1=>'Добавлять в тему письма метку ---SPAM---',2=>'Уничтожать');
@@ -1512,7 +1512,7 @@ class m_services extends IModule{
         $domains=array(); $db->Query('select domain from domains where (client="'.$clientNick.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_domain_q);
         while ($r=$db->NextRecord()) $domains[]=$r['domain'];
         $design->assign('domains',$domains);
-        
+
         $MCN=array();
         $db->Query('select emails.* from emails where (client="'.$clientNick.'") and (actual_from<=NOW()) and (actual_to>NOW())'.$filter_mail_q);
         $mails=array(); while ($r=$db->NextRecord()) {
@@ -1527,11 +1527,11 @@ class m_services extends IModule{
             $dq=""; if (count($domains)>0) $dq='(domain IN ("'.implode('","',$domains).'")) OR ';
         }
         $mq=""; if (count($MCN)>0) $mq='(domain="mcn.ru" and local_part IN ("'.implode('","',$MCN).'")) OR ';
-        
+
         $db->Query('select * from email_whitelist where '.$dq.$mq.'0 order by id');
         $whlist=array(); while ($r=$db->NextRecord()) $whlist[$r['id']]=$r;
         $design->assign('whlist',$whlist);
-        
+
     }
     function services_em_whitelist_toggle($fixclient){
         global $db,$design;
@@ -1580,7 +1580,7 @@ class m_services extends IModule{
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
 
         if (!count($mails)) {trigger_error2('У вас нет ни одного почтового ящика'); return;}
-        $design->AddMain('services/mail_wh_list.tpl'); 
+        $design->AddMain('services/mail_wh_list.tpl');
     }
     function services_em_whitelist_delete($fixclient){
         global $db,$design;
@@ -1588,17 +1588,17 @@ class m_services extends IModule{
 
         $id=get_param_integer("id",0);
         if (!$id) return;
-            
+
         $filter=get_param_integer("filter","");
         $domains=array();
         $mails=array();
         $MCN=array();    //ящики с mcn.ru
         $whlist=array();
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
-                
+
         if (!isset($whlist[$id])) return;
         $db->Query('delete from email_whitelist where id='.$id);
-        
+
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
     }
     function services_em_whitelist_add($fixclient){
@@ -1683,7 +1683,7 @@ class m_services extends IModule{
 
         $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
         if($user->Get('user')=='client'){
-            $dbf = new DbFormEmailsSimple();    
+            $dbf = new DbFormEmailsSimple();
         }else{
             $dbf = new DbFormEmails();
         }
@@ -1723,7 +1723,7 @@ class m_services extends IModule{
             $design->ProcessX('empty.tpl');
         } else $dbf->Display(array('module'=>'services','action'=>'em_apply'),'Услуги','Редактировать e-mail ящик');
     }
-    
+
     function services_em_chpass($fixclient){
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
@@ -1755,13 +1755,13 @@ class m_services extends IModule{
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
     }
     function services_em_activate($fixclient){
-        global $design,$db;    
+        global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,
             IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
-                (actual_from<=NOW()) as save_from 
+                (actual_from<=NOW()) as save_from
             from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
 
@@ -1789,7 +1789,7 @@ class m_services extends IModule{
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
     }
 /*    function services_em_toggle($fixclient){
-        global $design,$db;    
+        global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
@@ -1819,7 +1819,7 @@ class m_services extends IModule{
         }
 
         $design->assign('services_ex', $items);
-        $design->AddMain('services/ex.tpl'); 
+        $design->AddMain('services/ex.tpl');
         return $items;
     }
     function services_ex_act($fixclient){
@@ -1829,14 +1829,14 @@ class m_services extends IModule{
         $id=get_param_integer('id',0);
         $db->Query('select S.*,
             IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) AS actual,
-                T.* 
+                T.*
             from usage_extra as S inner join tarifs_extra as T ON T.id=S.tarif_id where (S.id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
         if ($r['period']=='month') $r['period_rus']='ежемесячно'; else
         if ($r['period']=='year') $r['period_rus']='ежегодно';
         $design->assign('ad_item',$r);
         ClientCS::Fetch($r['client']);
-        $design->ProcessEx('../store/acts/ex_act.tpl'); 
+        $design->ProcessEx('../store/acts/ex_act.tpl');
     }
     function services_ex_add($fixclient){
         global $design,$db;

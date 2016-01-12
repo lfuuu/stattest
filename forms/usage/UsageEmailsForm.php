@@ -30,14 +30,16 @@ class UsageEmailsForm extends Form
             [['client'], 'required'],
             [
                 [
-                    'actual_from', 'actual_to', 'client', 'local_part', 'domain',
-                    'password', 'ip_nat', 'ip_cidr', 'ip_gw', 'admin_login', 'admin_pass',
-                    'numbers', 'logins', 'node', 'service', ''
+                    'actual_from', 'actual_to', 'client', 'local_part', 'domain', 'password',
                 ], 'string'
             ],
             ['spam_act', 'in', 'range' => ['pass', 'mark', 'discard']],
             ['status', 'in', 'range' => ['connecting', 'working']],
             [['box_size', 'box_quota', 'enabled', 'smtp_auth',], 'integer'],
+            [['box_size', 'smtp_auth'], 'default', 'value' => 0],
+            ['box_quota', 'default', 'value' => 50000],
+            ['enabled', 'default', 'value' => 1],
+            ['spam_act', 'default', 'value' => 'pass'],
         ];
     }
 

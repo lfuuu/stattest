@@ -24,14 +24,15 @@ class UsageWelltimeForm extends Form
     public function rules()
     {
         return [
-            [['client'], 'required'],
             [
                 [
                     'client', 'ip', 'status', 'comment',
-                    'actual_from', 'actual_to', 'amount', 'router'
+                    'actual_from', 'actual_to', 'router'
                 ], 'string'
             ],
+            [['amount',], 'number'],
             [['tarif_id',], 'integer'],
+            [['client', 'amount', ], 'required'],
         ];
     }
 

@@ -24,10 +24,11 @@ class UsageExtraForm extends Form
     public function rules()
     {
         return [
-            [['client'], 'required'],
             [['actual_from', 'actual_to', 'client', 'param_value', 'comment', 'code'], 'string'],
+            [['tarif_id'], 'integer'],
             [['amount'], 'number'],
             ['status', 'in', 'range' => ['connecting', 'working']],
+            [['client', 'tarif_id',], 'required'],
         ];
     }
 
@@ -39,6 +40,7 @@ class UsageExtraForm extends Form
             'actual_to' => 'Активна до',
             'tarif_id' => 'Услуга',
             'comment' => 'Комментарий',
+            'code' => 'Группа услуг',
         ];
     }
 
