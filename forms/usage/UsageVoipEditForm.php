@@ -97,7 +97,10 @@ class UsageVoipEditForm extends UsageVoipForm
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $expireDate = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'));
+        $expireDate->modify("+1 day");
+        $expireDate->modify("-1 second");
+        $expireDt = $expireDate->format('Y-m-d H:i:s');
 
         $usage = new UsageVoip();
         $usage->region = $this->connection_point_id;
@@ -167,10 +170,10 @@ class UsageVoipEditForm extends UsageVoipForm
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
-            $expireDt =
-                (new DateTime($actualTo, $this->timezone))
-                    ->setTimezone(new DateTimeZone('UTC'))
-                    ->format('Y-m-d H:i:s');
+            $expireDate = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'));
+            $expireDate->modify("+1 day");
+            $expireDate->modify("-1 second");
+            $expireDt = $expireDate->format('Y-m-d H:i:s');
 
             $this->usage->actual_to = $actualTo;
             $this->usage->expire_dt = $expireDt;
@@ -584,7 +587,10 @@ class UsageVoipEditForm extends UsageVoipForm
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
 
         $actualTo = $closeDate->format('Y-m-d');
-        $expireDt = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $expireDate = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'));
+        $expireDate->modify("+1 day");
+        $expireDate->modify("-1 second");
+        $expireDt = $expireDate->format('Y-m-d H:i:s');
 
         $this->usage->actual_to = $actualTo;
         $this->usage->expire_dt = $expireDt;
