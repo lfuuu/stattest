@@ -327,6 +327,11 @@ if (!$model->id) {
                 </div>
                 <div class="col-sm-2">
                     <?= $file->ts ?>
+                    <?php if (!\Yii::$app->user->can('clients.can_delete_contract_documents')): ?>
+                        <a href="#" class="deleteFile" data-id="<?= $file->id ?>" title="Удалить документ">
+                            <img class=icon src="/images/icons/delete.gif" alt="Удалить документ" style="margin: -3px 0 0 -2px;" />
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -406,6 +411,29 @@ if (!$model->id) {
             });
         });
 
+        $('.deleteFile').on('click', function (e) {
+            e.preventDefault();
+            var fid = $(this).data('id');
+            var row = $(this).closest('.row');
+            if (confirm('Вы уверены, что хотите удалить файл?')) {
+                $.ajax({
+                    url: '/file/delete-client-file',
+                    data: {id: fid},
+                    success: function(data) {
+                        if (data['status'] == 'ok')
+                            row.remove();
+                    },
+                    error: function (request, textStatus, errorThrown) {
+                        if (request.status == 403) {
+                            alert('У Вас недостаточно прав для удаления документа');
+                        }
+                        else {
+                            alert('При удалении документа произошла ошибка "' + textStatus + '"')
+                        }
+                    }
+                });
+            }
+        });
     </script>
 
     <style>
