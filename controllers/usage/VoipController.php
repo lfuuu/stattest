@@ -7,6 +7,7 @@ use app\classes\BaseController;
 use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
+use app\forms\usage\UsageVoipEditPackageForm;
 
 use app\models\ClientAccount;
 use app\models\LogTarif;
@@ -135,16 +136,21 @@ class VoipController extends BaseController
 
     public function actionDetachPackage($id)
     {
-        $usageVoipPackage = UsageVoipPackage::findOne($id);
-        Assert::isObject($usageVoipPackage);
+        $package = UsageVoipPackage::findOne($id);
+        Assert::isObject($package);
 
-        $usage_id = $usageVoipPackage->usage_voip_id;
+        $now = new \DateTime('now', $package->clientAccount->timezone);
+
+        Assert::isTrue($package->actual_from > $now->format('Y-m-d'));
+
+        $usage_id = $package->usage_voip_id;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $usageVoipPackage->delete();
+            $package->delete();
 
             $transaction->commit();
+            Yii::$app->session->addFlash('success', 'Пакет удален');
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
@@ -153,4 +159,23 @@ class VoipController extends BaseController
         return $this->redirect(['edit', 'id' => $usage_id]);
     }
 
+    public function actionEditPackage($id = null)
+    {
+        Assert::isNotNull($id);
+
+        $package = UsageVoipPackage::findOne($id);
+        Assert::isObject($package);
+
+        $model = new UsageVoipEditPackageForm();
+        $model->initModel($package);
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            Yii::$app->session->addFlash('success', 'Пакет отключен');
+            return $this->redirect(['/usage/voip/edit', 'id' => $package->usageVoip->id]);
+        }
+
+        return $this->render('package', [
+            'model' => $model
+        ]);
+    }
 }

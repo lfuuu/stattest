@@ -475,7 +475,11 @@ echo Breadcrumbs::widget([
             $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
             ?>
             <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">
-                <td nowrap="nowrap"><?= $package->actual_from . ' - ' . $actualTo; ?></td>
+                <td nowrap="nowrap">
+                    <?php
+                        echo Html::a($package->actual_from . ' - ' . $actualTo, ['/usage/voip/edit-package', 'id' => $package->id]);
+                    ?>
+                </td>
                 <td><?= $package->tariff->name; ?></td>
                 <? if ($packageStat[$package->id]) { 
                     $stat = $packageStat[$package->id];
@@ -502,10 +506,16 @@ echo Breadcrumbs::widget([
                 <td align="center">
                     <?php
                     if ($package->actual_from > $now->format('Y-m-d')) {
-                        echo Html::a('Удалить', '/usage/voip/detach-package?id=' . $package->id, [
+                        echo Html::a('Удалить', ['/usage/voip/detach-package', 'id' => $package->id], [
                             'class' => 'btn btn-primary btn-xs',
                             'onClick' => 'return confirm("Вы уверены, что хотите отменить пакет ?")',
                         ]);
+                    } else {
+                        if ($package->actual_from <= $now->format('Y-m-d') && $now->format('Y-m-d') <= $package->actual_to) {
+                            echo Html::a('Редактировать', ['/usage/voip/edit-package', 'id' => $package->id], [
+                                'class' => 'btn btn-info btn-link btn-xs'
+                            ]);
+                        }
                     }
                     ?>
                 </td>
@@ -564,6 +574,7 @@ echo Form::widget([
 ActiveForm::end();
 
 ?>
+
 <br />
 <br />
 <br />
