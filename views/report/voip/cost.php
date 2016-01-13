@@ -149,8 +149,15 @@
                         'destination',
                         'calls_count',
                         'billed_time',
-                        'no_interconnect_cost',
                         'interconnect_cost',
+                        'cost',
+                        [
+                            'attribute' => 'No Interconnect Cost',
+                            'format' => 'raw',
+                            'value' => function($model, $key, $index, $column) {
+                                return $model['cost'] - $model['interconnect_cost'];
+                            }
+                        ]
                     ]
                 ]);
                 ?>
