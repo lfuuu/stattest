@@ -7,8 +7,9 @@ use DateTimeZone;
 use Exception;
 use VoipReservNumber;
 use app\classes\Form;
-use app\models\Number;
+use app\classes\validators\FormFieldValidator;
 use app\classes\StatModule;
+use app\models\Number;
 use app\models\LkWizardState;
 use app\models\Business;
 use app\models\BusinessProcessStatus;
@@ -22,8 +23,8 @@ use app\models\UsageVirtpbx;
 use app\models\DidGroup;
 use app\models\ClientContact;
 use app\models\LogTarif;
-use app\classes\validators\FormFieldValidator;
 use app\models\usages\UsageInterface;
+use app\helpers\DateTimeZoneHelper;
 
 /**
  * Форма добавления клиента из внешнего мира.
@@ -272,7 +273,7 @@ class ClientCreateExternalForm extends Form
                 $vats = new UsageVirtpbx;
                 $vats->client = $client->client;
                 $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $vats->expire_dt = DateTimeZoneHelper::getExpireDateTime($actual_to, $client->timezone_name);
                 $vats->actual_from = $actual_from;
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
