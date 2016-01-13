@@ -2,21 +2,9 @@
 namespace app\controllers\report;
 
 use app\classes\report\LostCalls;
-use app\dao\VoipDestinationDao;
-use app\models\billing\Calls;
-use app\models\billing\GeoCity;
-use app\models\billing\GeoCountry;
-use app\models\billing\GeoRegion;
-use app\models\billing\Operator;
-use app\models\billing\Server;
-use app\models\billing\Trunk;
-use app\models\Region;
-use app\queries\CallsRawQuery;
 use Yii;
 use app\classes\BaseController;
-use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
-use yii\db\Query;
 
 class VoipController extends BaseController
 {
@@ -26,159 +14,19 @@ class VoipController extends BaseController
         $behaviors['access']['rules'] = [
             [
                 'allow' => true,
-                'actions' => ['lost-calls', 'cost-report'],
+                'actions' => ['lost-calls'],
                 'roles' => ['clients.read'],
             ],
         ];
         //return $behaviors;
     }
 
-    public function actionCostReport()
-    {
-        ini_set('max_execution_time', 9000);
-
-        $query =
-            \Yii::$app->dbPg->cache(function($pgDb) {
-                $query = (new Query())
-                            ->select([
-                                'rc.prefix AS prefix',
-                                'rc.operator_id',
-                                'rc.mob as mob',
-                                'rc.interconnect_cost',
-                                '(rc.cost - rc.interconnect_cost) AS no_interconnect_cost',
-
-                                's.name AS connection_point',
-                                'g.name AS destination',
-
-                                'COUNT(rc.id) AS calls_count',
-                                'SUM(rc.cost) AS cost',
-                                'SUM(rc.tax_cost) AS tax_nds_cost',
-                                'SUM(rc.billed_time) AS billed_time',
-                            ])
-                            ->from('calls_raw.calls_raw rc')
-
-                            ->leftJoin('public.server s', 's.id = rc.server_id' )
-                            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
-                            ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
-                            ->leftJoin('auth.trunk tr', 'rc.trunk_id = tr.id')
-                            ->leftJoin('voip.operator op', 'rc.operator_id = op.id')
-
-                            ->andWhere('rc.destination_id IS NOT NULL')
-
-                            ->groupBy([
-                                'rc.prefix',
-                                'rc.operator_id',
-                                'rc.mob',
-                                'rc.cost',
-                                'rc.interconnect_cost',
-                                //'rc.interconnect_rate',
-
-                                'connection_point',
-                                'destination',
-                            ]);
-
-                if ( !empty( \Yii::$app->request->post('trunk') ) ) {
-                    $query->andWhere('tr.id = :trunkId', [ ':trunkId' => \Yii::$app->request->post('trunk') ]);
-                }
-
-                if ( !empty( \Yii::$app->request->post('server') ) ) {
-                    $query->andWhere('rc.server_id = :serverId', [':serverId' => \Yii::$app->request->post('server')]);
-                }
-
-                if ( !empty( \Yii::$app->request->post('operator') ) ) {
-                    $query->andWhere('op.id = :operatorId', [ ':operatorId' => \Yii::$app->request->post('operator') ]);
-                }
-
-                if ( !empty( \Yii::$app->request->post('dateRange') ) ) {
-                    list($startDate, $endDate) = explode('-', \Yii::$app->request->post('dateRange'));
-                    $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
-                }
-
-                if ( !empty( \Yii::$app->request->post('mob_or_base') ) ) {
-                    switch (\Yii::$app->request->post('mob_or_base')) {
-                        case 2:
-                            $query->andWhere('mob = TRUE');
-                            break;
-
-                        case 3:
-                            $query->andWhere('mob = FALSE');
-                            break;
-                    }
-                }
-
-                if ( !empty( \Yii::$app->request->post('orig_term') ) ) {
-                    switch (\Yii::$app->request->post('orig_term')) {
-                        case 1:
-                        case 2:
-                            break;
-
-                        case 3:
-                            $query->andWhere('rc.orig = TRUE');
-                            break;
-
-                        case 4:
-                            $query->andWhere('rc.orig = FALSE');
-                            break;
-                    }
-                }
-
-                if ( !empty( \Yii::$app->request->post('time') ) ) {
-                    switch (\Yii::$app->request->post('time')) {
-                        case 1:
-                            $query->andWhere('rc.billed_time > 0');
-                            break;
-
-                        case 2:
-                            $query->andWhere('rc.billed_time = 0');
-                            break;
-
-                        case 3: // don't needed, but for readability :)
-                            break;
-                    }
-                }
-
-
-                if ( !empty( \Yii::$app->request->post('region') ) ) {
-                    $query->andWhere('g.region = :region', [ ':region' => \Yii::$app->request->post('region') ]);
-                }
-
-                if ( !empty( \Yii::$app->request->post('country') ) ) {
-                    $query->andWhere('g.country = :country', [ ':country' => \Yii::$app->request->post('country') ]);
-                }
-
-                return $query;
-            });
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'db' => \Yii::$app->dbPg,
-
-            'pagination' => [
-                'pageSize' => 20,
-            ],
-        ]);
-
-
-        return $this->render('cost',
-            [
-                'dataProvider' => $dataProvider,
-
-                'trunkModel' => Trunk::find()->where(['show_in_stat' => true])->all(),
-                'regionModel' => GeoRegion::find()->all(),
-                'destination' => VoipDestinationDao::me()->getList(),
-                'operator' => Operator::find()->all(),
-                'server' => Server::find()->all(),
-                'geoCountry' => GeoCountry::find()->all(),
-            ]);
-    }
-
     public function actionLostCalls($mode = LostCalls::CALL_MODE_OUTCOMING, $date = false, $region = 99)
     {
-        if (!$date) {
+        if(!$date)
             $date = date('Y-m-d');
-        }
         $count = LostCalls::getCount($date, $region, $mode);
-        if (!$count) {
+        if(!$count) {
             LostCalls::prepare($date, $region, $mode);
             $count = LostCalls::getCount($date, $region, $mode);
         }
@@ -196,7 +44,6 @@ class VoipController extends BaseController
             ],
         ]);
 
-        return $this->render('grid',
-            ['dataProvider' => $dataProvider, 'date' => $date, 'region' => $region, 'mode' => $mode]);
+        return $this->render('grid', ['dataProvider' => $dataProvider, 'date' => $date, 'region' => $region, 'mode' => $mode]);
     }
 }
