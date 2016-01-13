@@ -1,18 +1,19 @@
 <?php
 namespace app\forms\usage;
 
+use Yii;
+use DateTime;
+use DateTimeZone;
 use app\classes\Assert;
+use app\helpers\DateTimeZoneHelper;
+use yii\helpers\ArrayHelper;
 use app\models\City;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffVoip;
 use app\models\UsageVoip;
-use Yii;
-use DateTimeZone;
-use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
-use yii\helpers\ArrayHelper;
 use app\models\usages\UsageInterface;
 
 class UsageVoipEditForm extends UsageVoipForm
@@ -97,12 +98,9 @@ class UsageVoipEditForm extends UsageVoipForm
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $expireDate = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'));
-        $expireDate->modify("+1 day");
-        $expireDate->modify("-1 second");
-        $expireDt = $expireDate->format('Y-m-d H:i:s');
+        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
 
-        $usage = new UsageVoip();
+        $usage = new UsageVoip;
         $usage->region = $this->connection_point_id;
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
@@ -170,10 +168,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
-            $expireDate = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'));
-            $expireDate->modify("+1 day");
-            $expireDate->modify("-1 second");
-            $expireDt = $expireDate->format('Y-m-d H:i:s');
+            $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
 
             $this->usage->actual_to = $actualTo;
             $this->usage->expire_dt = $expireDt;
@@ -587,10 +582,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
 
         $actualTo = $closeDate->format('Y-m-d');
-        $expireDate = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'));
-        $expireDate->modify("+1 day");
-        $expireDate->modify("-1 second");
-        $expireDt = $expireDate->format('Y-m-d H:i:s');
+        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $timezone);
 
         $this->usage->actual_to = $actualTo;
         $this->usage->expire_dt = $expireDt;
