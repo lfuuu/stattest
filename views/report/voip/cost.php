@@ -10,7 +10,7 @@
 ?>
 
 <div class="filter-head">
-    <form action="/report/voip/cost-report" method="post">
+    <form action="/report/voip/cost-report" method="get">
     <div class="row">
         <!-- Транк -->
         <div class="col-md-3">
@@ -137,30 +137,50 @@
         </div>
     </form>
 
-        <div class="row">
-            <div class="col-md-12">
-                <?php
-                echo \kartik\grid\GridView::widget([
-                    'dataProvider' => $dataProvider,
-                    'pjax' => true,
-                    'responsive' => true,
-                    'columns' => [
-                        'prefix',
-                        'destination',
-                        'calls_count',
-                        'billed_time',
-                        'interconnect_cost',
-                        'cost',
-                        [
-                            'attribute' => 'No Interconnect Cost',
-                            'format' => 'raw',
-                            'value' => function($model, $key, $index, $column) {
-                                return $model['cost'] - $model['interconnect_cost'];
-                            }
-                        ]
-                    ]
-                ]);
-                ?>
-            </div>
+    <div class="row">
+        <div class="col-md-3">
+            Время: <?= $totals['billed_time'] ?>
         </div>
+
+        <div class="col-md-3">
+            Стоимость: <?= round($totals['cost'], 2) ?>
+        </div>
+
+        <div class="col-md-3">
+            Стоимость интерконнекта: <?= round($totals['interconnect_cost'], 2) ?>
+        </div>
+
+        <div class="col-md-3">
+            Стоимость с интерконнектом: <?= round( ($totals['cost'] + $totals['interconnect_cost'] ), 2) ?>
+        </div>
+    </div>
+
+    <?php// echo print_r($totals, true); ?>
+
+    <div class="row">
+        <div class="col-md-12">
+            <?php
+            echo \kartik\grid\GridView::widget([
+                'dataProvider' => $dataProvider,
+                'pjax' => true,
+                'responsive' => true,
+                'columns' => [
+                    'prefix',
+                    'destination',
+                    'calls_count',
+                    'billed_time',
+                    'interconnect_cost',
+                    'cost',
+                    [
+                        'attribute' => 'No Interconnect Cost',
+                        'format' => 'raw',
+                        'value' => function($model, $key, $index, $column) {
+                            return $model['cost'] + $model['interconnect_cost'];
+                        }
+                    ]
+                ]
+            ]);
+            ?>
+        </div>
+    </div>
 </div>

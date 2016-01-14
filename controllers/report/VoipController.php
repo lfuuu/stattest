@@ -72,85 +72,8 @@ class VoipController extends BaseController
                 'destination',
             ]);
 
+        $this->addFilters($query);
 
-        if ( !empty( \Yii::$app->request->post('trunk') ) ) {
-            $query->andWhere('rc.trunk_id = :trunkId', [ ':trunkId' => \Yii::$app->request->post('trunk') ]);
-        }
-
-        if ( !empty( \Yii::$app->request->post('server') ) ) {
-            $query->andWhere('rc.server_id = :serverId', [':serverId' => \Yii::$app->request->post('server')]);
-        } else {
-            $query->andWhere('rc.server_id = 99');
-        }
-
-        if ( !empty( \Yii::$app->request->post('operator') ) ) {
-            $query->andWhere('rc.operator_id = :operatorId', [ ':operatorId' => \Yii::$app->request->post('operator') ]);
-        } else {
-            $query->andWhere('rc.operator_id = 2');
-        }
-
-        if ( !empty( \Yii::$app->request->post('dateRange') ) ) {
-            list($startDate, $endDate) = explode(' - ', \Yii::$app->request->post('dateRange'));
-
-            $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
-        } else {
-            $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
-        }
-
-        if ( !empty( \Yii::$app->request->post('mob_or_base') ) ) {
-            switch (\Yii::$app->request->post('mob_or_base')) {
-                case 2:
-                    $query->andWhere('rc.mob = TRUE');
-                    break;
-
-                case 3:
-                    $query->andWhere('rc.mob = FALSE');
-                    break;
-            }
-        }
-
-        if ( !empty( \Yii::$app->request->post('orig_term') ) ) {
-            switch (\Yii::$app->request->post('orig_term')) {
-                case 1:
-                case 2:
-                    break;
-
-                case 3:
-                    $query->andWhere('rc.orig = TRUE');
-                    break;
-
-                case 4:
-                    $query->andWhere('rc.orig = FALSE');
-                    break;
-            }
-        }
-
-        if ( !empty( \Yii::$app->request->post('time') ) ) {
-            switch (\Yii::$app->request->post('time')) {
-                case 1:
-                    $query->andWhere('rc.billed_time > 0');
-                    break;
-
-                case 2:
-                    $query->andWhere('rc.billed_time = 0');
-                    break;
-
-                case 3: // don't needed, but for readability :)
-                    break;
-            }
-        }
-
-
-        if ( !empty( \Yii::$app->request->post('region') ) ) {
-            $query->andWhere('g.region = :region', [ ':region' => \Yii::$app->request->post('region') ]);
-        }
-
-        if ( !empty( \Yii::$app->request->post('country') ) ) {
-            $query->andWhere('g.country = :country', [ ':country' => \Yii::$app->request->post('country') ]);
-        }
-
-        $query->andWhere('NOT rc.our');
-        $query->andWhere('NOT rc.orig');
 
 
                 //return $query;
@@ -165,7 +88,6 @@ class VoipController extends BaseController
             ],
         ]);
 
-
         return $this->render('cost',
             [
                 'dataProvider' => $dataProvider,
@@ -176,6 +98,7 @@ class VoipController extends BaseController
                 'operator' => Operator::find()->all(),
                 'server' => Server::find()->all(),
                 'geoCountry' => GeoCountry::find()->all(),
+                'totals' => $this->getTotalStat(),
             ]);
     }
 
@@ -205,5 +128,125 @@ class VoipController extends BaseController
 
         return $this->render('grid',
             ['dataProvider' => $dataProvider, 'date' => $date, 'region' => $region, 'mode' => $mode]);
+    }
+
+    private function addFilters(Query $query)
+    {
+        if ( !empty( \Yii::$app->request->get('trunk') ) ) {
+            $query->andWhere('rc.trunk_id = :trunkId', [ ':trunkId' => 36 /*\Yii::$app->request->get('trunk')*/ ]);
+        }
+
+        if ( !empty( \Yii::$app->request->get('server') ) ) {
+            $query->andWhere('rc.server_id = :serverId', [':serverId' => \Yii::$app->request->get('server')]);
+        } else {
+            $query->andWhere('rc.server_id = 99');
+        }
+
+        if ( !empty( \Yii::$app->request->get('operator') ) ) {
+            $query->andWhere('rc.operator_id = :operatorId', [ ':operatorId' => \Yii::$app->request->get('operator') ]);
+        } else {
+            $query->andWhere('rc.operator_id = 2');
+        }
+
+        if ( !empty( \Yii::$app->request->get('dateRange') ) ) {
+            list($startDate, $endDate) = explode(' - ', \Yii::$app->request->get('dateRange'));
+
+            $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
+        } else {
+            $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
+        }
+
+        if ( !empty( \Yii::$app->request->get('mob_or_base') ) ) {
+            switch (\Yii::$app->request->get('mob_or_base')) {
+                case 2:
+                    $query->andWhere('rc.mob = TRUE');
+                    break;
+
+                case 3:
+                    $query->andWhere('rc.mob = FALSE');
+                    break;
+            }
+        }
+
+        if ( !empty( \Yii::$app->request->get('orig_term') ) ) {
+            switch (\Yii::$app->request->get('orig_term')) {
+                case 1:
+                case 2:
+                    break;
+
+                case 3:
+                    $query->andWhere('rc.orig = TRUE');
+                    break;
+
+                case 4:
+                    $query->andWhere('rc.orig = FALSE');
+                    break;
+            }
+        }
+
+        if ( !empty( \Yii::$app->request->get('time') ) ) {
+            switch (\Yii::$app->request->get('time')) {
+                case 1:
+                    $query->andWhere('rc.billed_time > 0');
+                    break;
+
+                case 2:
+                    $query->andWhere('rc.billed_time = 0');
+                    break;
+
+                case 3: // don't needed, but for readability :)
+                    break;
+            }
+        }
+
+
+        if ( !empty( \Yii::$app->request->get('region') ) ) {
+            $query->andWhere('g.region = :region', [ ':region' => \Yii::$app->request->get('region') ]);
+        }
+
+        if ( !empty( \Yii::$app->request->get('country') ) ) {
+            $query->andWhere('g.country = :country', [ ':country' => \Yii::$app->request->get('country') ]);
+        }
+
+        $query->andWhere('NOT rc.our');
+        $query->andWhere('NOT rc.orig');
+    }
+
+    private function getTotalStat()
+    {
+        $query = (new Query())
+            ->select([
+                'SUM(rc.cost) AS cost',
+                'SUM(rc.billed_time) AS billed_time',
+                'SUM(rc.interconnect_cost) AS interconnect_cost',
+            ])
+            ->from('calls_raw.calls_raw rc')
+
+            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
+            ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
+
+            ->andWhere('rc.destination_id IS NOT NULL');
+
+        $this->addFilters($query);
+
+        $baseStat = $query->one(\Yii::$app->dbPg);
+
+        $noLocalMinutesQuery = (new Query())
+            ->select([
+                'SUM(rc.billed_time) AS billed_time',
+            ])
+            ->from('calls_raw.calls_raw rc')
+
+            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
+            ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
+
+            ->andWhere('rc.interconnect_cost != 0 AND rc.interconnect_cost is not null')
+            ->andWhere('rc.destination_id IS NOT NULL');
+
+        $this->addFilters($noLocalMinutesQuery);
+
+        $baseStat['billed_time'] = round($noLocalMinutesQuery->one(\Yii::$app->dbPg)['billed_time'] / 60);
+
+        return $baseStat;
     }
 }
