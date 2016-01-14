@@ -139,7 +139,7 @@
 
     <div class="row">
         <div class="col-md-3">
-            Время: <?= $totals['billed_time'] ?>
+            Время: <?= round($totals['billed_time'] / 60) ?>
         </div>
 
         <div class="col-md-3">

@@ -228,24 +228,7 @@ class VoipController extends BaseController
             ->andWhere('rc.destination_id IS NOT NULL');
 
         $this->addFilters($query);
-
         $baseStat = $query->one(\Yii::$app->dbPg);
-
-        $noLocalMinutesQuery = (new Query())
-            ->select([
-                'SUM(rc.billed_time) AS billed_time',
-            ])
-            ->from('calls_raw.calls_raw rc')
-
-            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
-            ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
-
-            ->andWhere('rc.interconnect_cost != 0 AND rc.interconnect_cost is not null')
-            ->andWhere('rc.destination_id IS NOT NULL');
-
-        $this->addFilters($noLocalMinutesQuery);
-
-        $baseStat['billed_time'] = round($noLocalMinutesQuery->one(\Yii::$app->dbPg)['billed_time'] / 60);
 
         return $baseStat;
     }
