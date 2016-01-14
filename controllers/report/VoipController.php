@@ -90,7 +90,8 @@ class VoipController extends BaseController
         }
 
         if ( !empty( \Yii::$app->request->post('dateRange') ) ) {
-            list($startDate, $endDate) = explode('-', \Yii::$app->request->post('dateRange'));
+            list($startDate, $endDate) = explode(' - ', \Yii::$app->request->post('dateRange'));
+
             $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
         } else {
             $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
