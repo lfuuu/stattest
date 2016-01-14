@@ -30,14 +30,6 @@ class AgentController extends BaseController
         $partnerId = Yii::$app->request->get('partner_contract_id', 0);
         list($dateFrom, $dateTo) = explode(' - ', Yii::$app->request->get('date', 0));
 
-//        var_dump(implode(',', array_keys(ArrayHelper::map(ClientContract::find()
-//                ->andWhere(['business_id' => Business::PARTNER])
-//                ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
-//                ->select([ClientContract::tableName() . '.id'])
-//                ->orderBy(ClientContragent::tableName() . '.name')
-//                ->createCommand()
-//                ->queryAll(\PDO::FETCH_ASSOC), 'id')))); die();
-
         $partnerList = ArrayHelper::map(
             ClientContract::find()
                 ->andWhere(['business_id' => Business::PARTNER])

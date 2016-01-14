@@ -97,9 +97,9 @@ class AgentReport
             ->innerJoin('newbills', 'newbills.bill_no = newbill_lines.bill_no')
 
             ->where('newbills.is_payed = 1')
-//            ->andWhere('client_contract.id = :partnerId', [
-//                ':partnerId' => $partnerId,
-//            ])
+            ->andWhere('client_contragent.partner_contract_id = :partnerId', [
+                ':partnerId' => $partnerId,
+            ])
         ;
 
         return $query->all();

@@ -18,24 +18,16 @@ $excess = 0;
             <div class="col-sm-2"><label>Партнер</label></div>
             <div class="col-sm-3">
                 <?=
-                \yii\bootstrap\Html::dropDownList(
-                    'partner_contract_id',
-                    $_GET['partner_contract_id'],
-                    ['-- Выберите --'] + $partnerList,
-                    [
-                        'style' => 'padding: 8px;'
-                    ]
-                );
-//                \kartik\select2\Select2::widget([
-//                    'name' => 'partner_contract_id',
-//                    'data' => $partnerList,
-//                    'theme' => \kartik\select2\Select2::THEME_BOOTSTRAP,
-//                    'options' => [
-//                    ],
-//                    'pluginOptions' => [
-//                        'allowClear' => true
-//                    ],
-//                ])
+                \kartik\select2\Select2::widget([
+                    'name' => 'partner_contract_id',
+                    'data' => $partnerList,
+                    'theme' => \kartik\select2\Select2::THEME_BOOTSTRAP,
+                    'options' => [
+                    ],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ])
                 ?>
             </div>
         </div>
