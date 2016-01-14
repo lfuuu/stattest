@@ -34,8 +34,10 @@ class AgentController extends BaseController
             ->andWhere(['business_id' => Business::PARTNER])
             ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
             ->select([ClientContract::tableName() . '.id', ClientContragent::tableName() . '.name'])
+            ->orderBy(ClientContragent::tableName() . '.name')
             ->createCommand()
             ->queryAll(\PDO::FETCH_ASSOC), 'id', 'name');
+
 
         $partner = ClientContract::findOne($partnerId);
         $data = [];

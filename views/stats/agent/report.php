@@ -8,20 +8,39 @@ $excess = 0;
 
 <form>
 <div class="row">
+
     <div class="col-sm-12">
-        <h2>Отчет по партнерам(агентам)</h2>
+        <h2>Отчет по партнерам (агентам)</h2>
     </div>
+
     <div class="col-sm-12">
         <div class="row form-group">
             <div class="col-sm-2"><label>Партнер</label></div>
             <div class="col-sm-3">
-                <?= \kartik\select2\Select2::widget([
-                    'name' => 'partner_contract_id',
-                    'data' => $partnerList,
-                ]) ?>
+                <?=
+                \yii\bootstrap\Html::dropDownList(
+                    'partner_contract_id',
+                    $_GET['partner_contract_id'],
+                    ['-- Выберите --'] + $partnerList,
+                    [
+                        'style' => 'padding: 8px;'
+                    ]
+                );
+//                \kartik\select2\Select2::widget([
+//                    'name' => 'partner_contract_id',
+//                    'data' => $partnerList,
+//                    'theme' => \kartik\select2\Select2::THEME_BOOTSTRAP,
+//                    'options' => [
+//                    ],
+//                    'pluginOptions' => [
+//                        'allowClear' => true
+//                    ],
+//                ])
+                ?>
             </div>
         </div>
     </div>
+
     <div class="col-sm-12">
         <div class="row form-group">
             <div class="col-sm-2"><label>Период отчета</label></div>
@@ -39,9 +58,11 @@ $excess = 0;
             </div>
         </div>
     </div>
+
     <div class="col-sm-2">
         <input type="submit" class="form-control" name="exportToCSV" value="Экспорт в CSV"/>
     </div>
+
     <div class="col-sm-12">
         Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>
         <br/>
