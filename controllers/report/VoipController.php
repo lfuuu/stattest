@@ -19,6 +19,7 @@ use yii\data\SqlDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\pgsql\QueryBuilder;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 class VoipController extends BaseController
 {
@@ -38,6 +39,39 @@ class VoipController extends BaseController
 
     public function actionCostReport()
     {
+        if (\Yii::$app->request->getIsAjax()) {
+
+            $post = \Yii::$app->request->post();
+
+            switch ( $post['operation'] ) {
+
+                case 'update_trunks':
+                    $query = Trunk::find()->where('show_in_stat = true');
+
+                    if (!empty($post['server_id'])) {
+                        $query->andWhere('server_id = :serverId', [':serverId' => $post['server_id']]);
+                    }
+
+                    $result = $query->all();
+                    $json = [];
+
+                    if ($result) {
+                        $json['status'] = 'success';
+
+                        foreach ($result as $trunk) {
+                            $json['data'][] = [
+                                'id' => $trunk['id'],
+                                'text' => $trunk['name'],
+                            ];
+                        }
+                    }
+
+                    return json_encode( $json, JSON_UNESCAPED_UNICODE );
+
+                    break;
+            }
+        }
+
         ini_set('max_execution_time', 9000);
 
         $query = (new Query())
