@@ -24,6 +24,7 @@ $excess = 0;
                     $partnerList,
                     [
                         'class' => 'select2',
+                        'style' => 'width: 100%;'
                     ]
                 )
                 ?>
@@ -54,7 +55,7 @@ $excess = 0;
     </div>
 
     <div class="col-sm-12">
-        Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>
+        Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>l
         <br/>
         Партнер: <b><?= $partner->contragent->name ?></b>
         <br/>
