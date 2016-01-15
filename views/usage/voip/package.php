@@ -42,7 +42,8 @@ echo Breadcrumbs::widget([
                     'type' => Form::INPUT_WIDGET,
                     'widgetClass' => CustomDateControl::className(),
                     'options' => [
-                        'readonly' => 'readonly',
+                        'readonly' => true,
+                        'disabled' => true,
                         'autoWidgetSettings' => [
                             DateControl::FORMAT_DATE => [
                                 'class' => '\app\widgets\DatePicker',
