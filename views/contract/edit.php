@@ -327,7 +327,7 @@ if (!$model->id) {
                 </div>
                 <div class="col-sm-2">
                     <?= $file->ts ?>
-                    <?php if (!\Yii::$app->user->can('clients.can_delete_contract_documents')): ?>
+                    <?php if (\Yii::$app->user->can('clients.can_delete_contract_documents')): ?>
                         <a href="#" class="deleteFile" data-id="<?= $file->id ?>" title="Удалить документ">
                             <img class=icon src="/images/icons/delete.gif" alt="Удалить документ" style="margin: -3px 0 0 -2px;" />
                         </a>
