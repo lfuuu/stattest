@@ -155,8 +155,6 @@
         </div>
     </div>
 
-    <?php// echo print_r($totals, true); ?>
-
     <div class="row">
         <div class="col-md-12">
             <?php
