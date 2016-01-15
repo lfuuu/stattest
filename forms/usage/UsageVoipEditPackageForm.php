@@ -27,7 +27,7 @@ class UsageVoipEditPackageForm extends Form
         $rules[] = ['id', 'integer'];
         $rules[] = ['disconnecting_date', 'default', 'value' => UsageInterface::MAX_POSSIBLE_DATE];
         $rules[] = [['connecting_date', 'disconnecting_date'], 'string'];
-        $rules[] = [['connecting_date'], 'date'];
+        $rules[] = [['connecting_date'], 'date', 'format' => 'Y-m-d'];
         $rules[] = ['disconnecting_date', 'validateDisconnectDate'];
 
         return $rules;
