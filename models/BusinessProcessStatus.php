@@ -108,8 +108,18 @@ class BusinessProcessStatus extends ActiveRecord
 
     public static function getList()
     {
-        $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();;
+        $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
         return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public static function getStatusesByBusinessId($id)
+    {
+        return
+            self::find()
+            ->leftJoin(BusinessProcess::tableName() . ' bp', 'bp.`id` = ' . self::tableName() . '.`business_process_id`')
+            ->leftJoin(Business::tableName() . ' b', 'b.`id` = bp.`business_id`')
+            ->where(['b.`id`' => $id])
+            ->all();
     }
 
     public static function getTree()

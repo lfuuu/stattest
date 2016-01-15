@@ -12,6 +12,9 @@ use app\models\User;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Number;
+use app\models\Business;
+use app\models\BusinessProcessStatus;
+use yii\helpers\ArrayHelper;
 
 abstract class MonitorGridColumns
 {
@@ -90,7 +93,7 @@ abstract class MonitorGridColumns
 
                     return Html::a($value->name, ['/client/view', 'id' => $client->id]);
                 },
-            'width' => '500px',
+            'width' => '400px',
         ];
     }
 
@@ -261,6 +264,29 @@ abstract class MonitorGridColumns
                 list ($title, $description, $other) = (array) $data->helper->description;
                 return $title . ' ' . $description;
             }
+        ];
+    }
+
+    public static function getTelecomClientBusinessProcessStatuses()
+    {
+        $filterValues =
+            ['' => 'Статус бизнесс процесса'] +
+            ['Телеком-клиент' => ArrayHelper::map(BusinessProcessStatus::getStatusesByBusinessId(Business::TELEKOM), 'id', 'name')];
+
+        return [
+            'label' => 'Статус бизнес процесса',
+            'format' => 'raw',
+            'value' => function ($data) {
+                $businessProcessStatus = BusinessProcessStatus::findOne($data->clientAccount->business_process_status_id);
+                return $businessProcessStatus->name;
+            },
+            'filter' =>
+                Html::dropDownList(
+                    'business_process_status_id',
+                    Yii::$app->request->get('business_process_status_id'),
+                    $filterValues,
+                    ['class' => 'form-control select2']
+                ),
         ];
     }
 
