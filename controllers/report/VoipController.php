@@ -32,15 +32,13 @@ class VoipController extends BaseController
                 'roles' => ['clients.read'],
             ],
         ];
-        //return $behaviors;
+
+        return $behaviors;
     }
 
     public function actionCostReport()
     {
         ini_set('max_execution_time', 9000);
-
-        //$query =
-        //    \Yii::$app->dbPg->cache(function($pgDb) {
 
         $query = (new Query())
             ->select([
@@ -73,11 +71,6 @@ class VoipController extends BaseController
             ]);
 
         $this->addFilters($query);
-
-
-
-                //return $query;
-            //});
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
