@@ -55,7 +55,7 @@ $excess = 0;
     </div>
 
     <div class="col-sm-12">
-        Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>l
+        Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>
         <br/>
         Партнер: <b><?= $partner->contragent->name ?></b>
         <br/>
