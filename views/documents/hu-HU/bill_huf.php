@@ -1,194 +1,196 @@
 <?php
 
 use app\classes\Utils;
-use app\classes\Html;
-use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
-$hasDiscount = $document->sum_discount > 0;
-
-$currency_w_o_value = Utils::money('', $document->getCurrency());
-
 $organization = $document->organization;
 
-$director = $organization->director;
-$accountant = $organization->accountant;
-
 $payer_company = $document->getPayer();
+
+$bill_date = Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y.m.d');
 ?>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
         <title>Díjbekérő No <?= $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style type="text/css">
-            <?php readfile(Yii::$app->basePath . '/web/bill.css'); ?>
+            body {margin-top: 0px;margin-left: 0px;}
+
+            #page_1 {position:relative; overflow: hidden;margin: 19px 0px 23px 0px;padding: 0px;border: none;width: 793px;}
+            #page_1 #id_1 {border:none;margin: 2px 0px 0px 304px;padding: 0px;border:none;width: 489px;overflow: hidden;}
+            #page_1 #id_2 {border:none;margin: 5px 0px 0px 0px;padding: 0px;border:none;width: 793px;overflow: hidden;}
+            #page_1 #id_2 #id_2_1 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 408px;overflow: hidden;}
+            #page_1 #id_2 #id_2_2 {float:left;border:none;margin: 35px 0px 0px 0px;padding: 0px;border:none;width: 385px;overflow: hidden;}
+            #page_1 #id_3 {border:none;margin: 24px 0px 0px 19px;padding: 0px;border:none;width: 774px;overflow: hidden;}
+            #page_1 #id_4 {border:none;margin: 47px 0px 0px 370px;padding: 0px;border:none;width: 423px;overflow: hidden;}
+
+            .dclr {clear:both;float:none;height:1px;margin:0px;padding:0px;overflow:hidden;}
+
+            .ft0{font: bold 16px 'Arial';line-height: 19px;}
+            .ft1{font: 12px 'Arial';line-height: 15px;}
+            .ft2{font: bold 13px 'Gabriola';line-height: 22px;}
+            .ft3{font: 13px 'Arial';line-height: 16px;}
+            .ft4{font: 11px 'Arial';line-height: 14px;}
+            .ft5{font: bold 12pt 'Gabriola';line-height: 23px;}
+            .ft6{font: bold 12pt 'Gabriola'; line-height: 15px;}
+            .ft8{font: 1px 'Arial';line-height: 8px;}
+            .ft9{font: 1px 'Arial';line-height: 2px;}
+            .ft10{font: 1px 'Arial';line-height: 1px;}
+            .ft11{font: 9px 'Arial';line-height: 12px;}
+
+            .p0{text-align: left;margin-top: 0px;margin-bottom: 0px;}
+            .p1{text-align: right;padding-right: 12px;margin-top: 0px;margin-bottom: 0px;}
+            .p2{text-align: left;padding-left: 30px;margin-top: 19px;margin-bottom: 0px;}
+            .p3{text-align: left;padding-left: 38px;margin-top: 1px;margin-bottom: 0px;}
+            .p4{text-align: left;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p5{text-align: left;padding-left: 46px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p6{text-align: left;padding-left: 8px;margin-top: 16px;margin-bottom: 0px;}
+            .p7{text-align: left;padding-left: 8px;margin-top: 0px;margin-bottom: 0px;}
+            .p8{text-align: left;padding-left: 46px;margin-top: 84px;margin-bottom: 0px;}
+            .p9{text-align: left;padding-left: 38px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p10{text-align: left;padding-left: 30px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p11{text-align: left;padding-left: 2px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p12{text-align: left;padding-left: 1px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p13{text-align: left;padding-left: 19px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p14{text-align: center;padding-left: 104px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p15{text-align: center;padding-left: 15px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p16{text-align: left;padding-left: 56px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+            .p17{text-align: left;padding-left: 98px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+
+            .td0{padding: 0px;margin: 0px;width: 116px;vertical-align: bottom;}
+            .td1{padding: 0px;margin: 0px;width: 215px;vertical-align: bottom;}
+            .td2{padding: 0px;margin: 0px;width: 140px;vertical-align: bottom;}
+            .td3{padding: 0px;margin: 0px;width: 142px;vertical-align: bottom;}
+            .td4{padding: 0px;margin: 0px;width: 123px;vertical-align: bottom;}
+            .td5{padding: 0px;margin: 0px;width: 181px;vertical-align: bottom;}
+            .td6{padding: 0px;margin: 0px;width: 170px;vertical-align: bottom;}
+            .td7{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 140px;vertical-align: bottom;}
+
+            .tr0{height: 17px;}
+            .tr1{height: 19px;}
+            .tr2{height: 23px;}
+            .tr3{height: 8px;}
+            .tr4{height: 2px;}
+            .tr5{height: 29px;}
+            .tr6{height: 16px;}
+            .tr7{height: 36px;}
+            .tr8{height: 26px;}
+            .tr9{height: 15px;}
+            .tr10{height: 20px;}
+
+            .t0{width: 331px;margin-left: 38px;font: 12px 'Arial';}
+            .t1{width: 756px;font: bold 9px 'Gabriola';}
         </style>
     </head>
-
-    <body bgcolor="#FFFFFF" style="background:#FFFFFF">
-        <table width="100%">
-            <tr>
-                <td>
-                    <?php
-                    echo Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
-                        'organization' => $organization,
-                        'payer_company' => $payer_company,
-                    ]);
-                    ?>
-                </td>
-                <td align=right>
-                    <table border="0" align="right">
-                        <div style="width: 110px;  text-align: center;padding-right: 10px;">
-                            <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
-                                <?php
-                                if ($inline_img):
-                                    echo Html::inlineImg(MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name), ['width' => 115, 'border' => 0]);
-                                else: ?>
-                                    <img src="<?= MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name); ?>" width="115" border="0" />
-                                <?php endif; ?>
-                            <?php endif; ?>
-
-                            <?php if (isset($company['site']) && !empty($company['site'])): ?>
-                                <?= $company['site']; ?>
-                            <?php endif; ?>
-                        </div>
-                        <tr>
-                            <td colspan="2" align="center">
-                                <?php
-                                if ($inline_img):
-                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
-                                else: ?>
-                                    <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0" />
-                                <?php endif; ?>
-
-                            </td>
-                        </tr>
-                    </table>
-
-                </td>
-            </tr>
-        </table>
-        <hr />
-
-        <center><h2>Díjbekérő No <?= $document->bill->bill_no; ?></h2></center>
-
-        <p align=right>Dátum <b><?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y.m.d'); ?></b></p>
-
-        <hr />
-        <br />
-        <p>
-            <b>Vevő: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
-        </p>
-
-        <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
-            <tbody>
+    <body>
+    <div id="page_1">
+        <div class="dclr"></div>
+        <div id="id_1">
+            <P class="p0 ft0">Számviteli bizonylat</P>
+        </div>
+        <div id="id_2">
+            <div id="id_2_1">
+                <p class="p1 ft1">&nbsp;</p>
+                <p class="p2 ft2"><?= $organization->name; ?></p>
+                <p class="p3 ft3"><?= $organization->post_address; ?></p>
+                <table cellpadding="0" cellspacing="0" class="t0">
+                    <tr>
+                        <td class="tr0 td0"><P class="p4 ft1">Adószám</P></td>
+                        <td class="tr0 td1"><P class="p5 ft1"><?= $organization->tax_registration_id; ?></P></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><P class="p4 ft1">Bank</P></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->bank_name; ?></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><p class="p4 ft1">Számlaszám</p></td>
+                        <td class="tr1 td1"><P class="p5 ft4"><nobr><?= nl2br($organization->bank_account); ?></nobr></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><p class="p4 ft1">Telefon</p></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_phone; ?></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><p class="p4 ft1">Fax</p></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_fax; ?></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><P class="p4 ft1">Email</P></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_email; ?></p></td>
+                    </tr>
+                    <tr>
+                        <td class="tr1 td0"><p class="p4 ft1">Weboldal</p></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_site; ?></p></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="id_2_2">
+                <p class="p0 ft5">Vevő</p>
+                <p class="p6 ft3"><?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></p>
+                <p class="p7 ft3"><?= $payer_company['address_post']; ?></p>
+                <p class="p8 ft4">Ügyfélazonosító: <?= $payer_company['id']; ?></p>
+            </div>
+        </div>
+        <div id="id_3">
+            <table cellpadding="0" cellspacing="0" class="t1">
                 <tr>
-                    <td align="center"><b>No</b></td>
-                    <td align="center"><b>Megnevezés</b></td>
-                    <td align="center"><b>Tört havidíj szorzója</b></td>
-                    <td align="center"><b>Nettó egységár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <?php if ($hasDiscount): ?>
-                        <td align="center"><b>Áfa érték</b></td>
-                    <?php endif; ?>
-                    <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Áfa, &nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td class="tr0 td2"><p class="p9 ft6">Fizetés módja</p></td>
+                    <td class="tr0 td3"><p class="p10 ft6">Kelt</p></td>
+                    <td class="tr0 td4"><p class="p11 ft6">Teljesítés dátuma</p></td>
+                    <td class="tr0 td5"><p class="p10 ft6">Fizetési határidő</p></td>
+                    <td class="tr0 td6"><p class="p4 ft6">Sorszám</p></td>
                 </tr>
-
+                <tr>
+                    <td class="tr2 td2"><p class="p9 ft1">Átutalás</p></td>
+                    <td class="tr2 td3"><p class="p10 ft1"><?= $bill_date; ?></p></td>
+                    <td class="tr2 td4"><p class="p12 ft1"><?= $bill_date; ?></p></td>
+                    <td class="tr2 td5"><p class="p10 ft1"><?= $bill_date; ?></p></td>
+                    <td class="tr2 td6"><P class="p4 ft1"><nobr><?= $document->bill->bill_no; ?></nobr></p></td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="tr3 td7 p4 ft8">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="tr4 td7 p4 ft9">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="tr5 td2 p13 ft6">Megnevezés</td>
+                    <td class="tr5 td3 p14 ft6">M.e.</td>
+                    <td class="tr5 td4 p15 ft6">Mennyiség</td>
+                    <td class="tr5 td5 p16 ft6">Egységár</td>
+                    <td class="tr5 td6 p17 ft6">Jóváírt összeg</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="tr6 td7 p4 ft10">&nbsp;</td>
+                </tr>
                 <?php foreach ($document->lines as $position => $line): ?>
                     <tr>
-                        <td align="right"><?= ($position + 1); ?></td>
-                        <td><?= $line['item']; ?></td>
-                        <td align="center"><?= Utils::mround($line['amount'], 4,6); ?></td>
-                        <td align="center"><?= Utils::round($line['price'], 4); ?></td>
-                        <?php if ($hasDiscount): ?>
-                            <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
-                        <?php endif; ?>
-                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                        <td align="center"><?= Utils::round($line['sum_tax'], 2); ?></td>
-                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                        <td class="tr7 td2"><p class="ft1"><?= $line['item']; ?></p></td>
+                        <td class="tr7 td3" align="center"><p class="ft1">alkalom</p></td>
+                        <td class="tr7 td4" align="center"><p class="ft1"><?= Utils::mround($line['amount'], 4,6); ?></p></td>
+                        <td class="tr7 td5"><p class="ft1"><?= Utils::round($line['price'], 4); ?></p></td>
+                        <td class="tr7 td6"><p class="ft1"><?= Utils::round($line['sum'], 2); ?></p></td>
                     </tr>
                 <?php endforeach; ?>
-
                 <tr>
-                    <td colspan="<?=$hasDiscount ? '5' : '4'?>" align="right">
-                        <div style="padding-top: 3px; height: 15px;">
-                            <b>Összesen:</b>
-                        </div>
-                    </td>
-                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                    <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
-                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+                    <td class="tr8 td2"><p class="p13 ft11">(<?= $bill_date; ?> - <?= $bill_date; ?>)</p></td>
+                    <td class="tr8 td3"><p class="p4 ft10">&nbsp;</p></td>
+                    <td class="tr8 td4"><p class="p4 ft10">&nbsp;</p></td>
+                    <td class="tr8 td5"><p class="p4 ft10">&nbsp;</p></td>
+                    <td class="tr8 td6"><p class="p4 ft10">&nbsp;</p></td>
                 </tr>
-
-            </tbody>
-        </table>
-        <br />
-
-        <table border="0" align=center cellspacing="1" cellpadding="0">
-            <tbody>
                 <tr>
-                    <td><?= $director->post_nominative; ?></td>
-                    <?php if ($document->sendEmail): ?>
-                        <td>
-                            <?php
-                            if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
-                                $image_options = [
-                                    'width' => 140,
-                                    'border' => 0,
-                                    'align' => 'top',
-                                ];
-
-                                if ($inline_img):
-                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
-                                else:
-                                    array_walk($image_options, function(&$item, $key) {
-                                        $item = $key . '="' . $item . '"';
-                                    });
-                                    ?>
-                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
-                                <?php endif; ?>
-                            <?php else: ?>
-                                _________________________________
-                            <?php endif; ?>
-                        </td>
-                    <?php else: ?>
-                        <td>
-                            <br /><br />_________________________________<br /><br />
-                        </td>
-                    <?php endif; ?>
-                    <td>/ <?= $director->name_nominative; ?> /</td>
+                    <td class="tr9 td2"><p class="p13 ft11">SZJ: 64.20.16</p></td>
+                    <td colspan="4" class="tr9 td3 p4 ft10">&nbsp;</td>
                 </tr>
-                <?php if ($document->sendEmail): ?>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td align=left>
-                            <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
-                                $image_options = [
-                                    'width' => 200,
-                                    'border' => 0,
-                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
-                                ];
-
-                                if ($inline_img):
-                                    echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
-                                else:
-                                    array_walk($image_options, function(&$item, $key) {
-                                        $item = $key . '="' . $item . '"';
-                                    });
-                                    ?>
-                                    <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </td>
-                        <td>&nbsp;</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
+                <tr>
+                    <td colspan="5" class="tr10 td7 p4 ft10">&nbsp;</td>
+                </tr>
+            </table>
+        </div>
+    </div>
     </body>
 </html>

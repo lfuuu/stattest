@@ -2,6 +2,7 @@
 namespace app\classes\stats;
 
 use Yii;
+use yii\db\Query;
 
 class AgentReport
 {
@@ -61,28 +62,47 @@ class AgentReport
 
     private static function voipPartnerInfo($partnerId)
     {
-        return Yii::$app->db
-            ->createCommand("
-                SELECT c.id, cg.name, DATE(c.created) AS created, DATE(u.activation_dt) AS activation_dt,
-                       rw.once_only, rw.percentage_of_fee, rw.percentage_of_over, rw.period_type, rw.period_month,
-                       DATE(nb.bill_date) AS bill_date, nb.sum, t.name AS tariff_name, 'voip' AS `usage`,
-                       IF( nb.bill_date > nbl.date_to, 'excess', 'fee' ) AS `type`,
-                       (SELECT SUM(sum) FROM newbills WHERE client_id = c.id) AS `amount`,
-                       (SELECT SUM(sum) FROM newbills WHERE client_id = c.id AND is_payed = 1) AS `amount_is_payed`,
-                       (SELECT bill_date FROM newbills WHERE client_id = c.id AND is_payed = 1 LIMIT 1) AS `first_payment_date`
-                   FROM clients c
-                   INNER JOIN client_contract cr ON cr.id = c.contract_id
-                   INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
-                   INNER JOIN usage_voip u ON u.client = c.client
-                   INNER JOIN log_tarif lt ON lt.service = 'usage_voip' AND id_service = u.id
-                   INNER JOIN tarifs_voip t ON t.id = lt.id_tarif
-                   INNER JOIN client_contract_reward rw ON rw.contract_id = cg.partner_contract_id AND rw.usage_type = 'voip'
-                   INNER JOIN newbill_lines nbl ON nbl.service = 'usage_voip' AND nbl.id_service = u.id
-                   INNER JOIN newbills nb ON nb.bill_no = nbl.bill_no
+        $query = (new Query())
+            ->select([
+                'clients.id',
+                'client_contragent.name',
+                'DATE(clients.created) AS created',
+                'DATE(usage_voip.activation_dt) AS activation_dt',
+                'client_contract_reward.once_only',
+                'client_contract_reward.percentage_of_fee',
+                'client_contract_reward.percentage_of_over',
+                'client_contract_reward.period_type',
+                'client_contract_reward.period_month',
+                'DATE(newbills.bill_date) AS bill_date',
+                'newbills.sum',
+                'tarifs_voip.name AS tariff_name',
+                '\'voip\' AS `usage`',
 
-                   WHERE /* cg.partner_contract_id = :partnerId AND */ nb.is_payed = 1
-        ", [':partnerId' => $partnerId])
-            ->queryAll(\PDO::FETCH_ASSOC);
+                'IF( newbills.bill_date > newbill_lines.date_to, \'excess\', \'fee\' ) AS `type`',
+
+                '(SELECT SUM(sum) FROM newbills WHERE newbills.client_id = clients.id) AS `amount`',
+                '(SELECT SUM(sum) FROM newbills WHERE newbills.client_id = clients.id AND is_payed = 1) AS `amount_is_payed`',
+                '(SELECT bill_date FROM newbills WHERE newbills.client_id = clients.id AND is_payed = 1 LIMIT 1) AS `first_payment_date`',
+            ])
+            ->from('clients')
+            ->innerJoin('client_contract', 'clients.contract_id = client_contract.id')
+            ->innerJoin('client_contragent', 'client_contragent.id = client_contract.contragent_id')
+            ->innerJoin('usage_voip', 'usage_voip.client = clients.client')
+            ->innerJoin('log_tarif', 'log_tarif.service = \'usage_voip\' AND id_service = usage_voip.id')
+            ->innerJoin('tarifs_voip', 'tarifs_voip.id = log_tarif.id_tarif')
+            ->innerJoin('client_contract_reward',
+                'client_contract_reward.contract_id = client_contragent.partner_contract_id AND client_contract_reward.usage_type = \'voip\''
+            )
+            ->innerJoin('newbill_lines', 'newbill_lines.service = \'usage_voip\' AND newbill_lines.id_service = usage_voip.id')
+            ->innerJoin('newbills', 'newbills.bill_no = newbill_lines.bill_no')
+
+            ->where('newbills.is_payed = 1')
+            ->andWhere('client_contragent.partner_contract_id = :partnerId', [
+                ':partnerId' => $partnerId,
+            ])
+        ;
+
+        return $query->all();
     }
 
     private static function vpbxPartnerInfo($partnerId)
@@ -105,7 +125,7 @@ class AgentReport
                    INNER JOIN newbill_lines nbl ON nbl.service = 'usage_virtpbx' AND nbl.id_service = u.id
                    INNER JOIN newbills nb ON nb.bill_no = nbl.bill_no
 
-                   WHERE /* cg.partner_contract_id = :partnerId AND */ nb.is_payed = 1
+                   WHERE cg.partner_contract_id = :partnerId AND nb.is_payed = 1
         ", [':partnerId' => $partnerId])
             ->queryAll(\PDO::FETCH_ASSOC);
     }

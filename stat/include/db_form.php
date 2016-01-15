@@ -186,7 +186,7 @@ class DbForm {
         $client = is_numeric($this->dbform['client']) ? ClientAccount::findOne($this->dbform['client']) : ClientAccount::findOne(['client' => $this->dbform['client']]);
         Assert::isObject($client);
         $this->dbform['activation_dt'] = (new DateTime($this->dbform['actual_from'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $this->dbform['expire_dt'] = (new DateTime($this->dbform['actual_to'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $this->dbform['expire_dt'] = \app\helpers\DateTimeZoneHelper::getExpireDateTime($this->dbform['actual_to'], $client->timezone_name);
     }
 }
 class HelpDbForm {

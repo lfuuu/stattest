@@ -32,9 +32,14 @@ class FileController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['report', 'upload-client-file', 'delete-client-file'],
+                        'actions' => ['report', 'upload-client-file'],
                         'roles' => ['clients.edit', 'clients.file'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete-client-file'],
+                        'roles' => ['clients.can_delete_contract_documents'],
+                    ]
                 ],
             ],
         ];
