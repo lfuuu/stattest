@@ -9,11 +9,14 @@ class m_voipreports_cost_report
 
     function voipreports_cost_report()
     {
-        global $design, $pg_db;
+        global $design, $db, $pg_db;
+
         set_time_limit(0);
+        session_write_close();
 
         $f_instance_id = (int)get_param_protected('f_instance_id', '99');
-        $f_operator_id = (int)get_param_protected('f_operator_id', '0');
+        $f_trunk_id = get_param_integer('f_trunk_id', '0');
+        $f_service_trunk_id = get_param_integer('f_service_trunk_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_prefix_type = get_param_protected('f_prefix_type', 'op');
@@ -25,15 +28,21 @@ class m_voipreports_cost_report
         $f_volume = get_param_protected('f_volume', '');
 
         $report = array();
-        $totals = array('operators' => array());
-        $reportOperators = array();
+        $totals = array('trunks' => array());
+        $reportTrunks = array();
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
             $where = " and r.connect_time >= '{$date_from}'";
             $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
 
-            if ($f_operator_id != '0')
-                $where .= " and r.operator_id='{$f_operator_id}' ";
+            if ($f_trunk_id > 0) {
+                $where .= " and r.trunk_id=" . $f_trunk_id;
+            }
+
+            if ($f_service_trunk_id > 0) {
+                $where .= " and r.trunk_service_id=" . $f_service_trunk_id;
+            }
+
             if ($f_prefix != '')
                 $where .= " and r.prefix::varchar like '" . intval($f_prefix) . "%' ";
             if ($f_dest_group != '') {
@@ -59,7 +68,7 @@ class m_voipreports_cost_report
             $preReport = $pg_db->AllRecords("
                         select
                               r.prefix as prefix,
-                              r.operator_id,
+                              r.trunk_id,
                               r.mob as mob,
                               r.destination_id,
                               count(*) as count,
@@ -70,7 +79,7 @@ class m_voipreports_cost_report
                         left join voip_destinations d on d.ndef=r.prefix
                         left join geo.geo g on g.id=d.geo_id
                         where not orig and not our and server_id = {$f_instance_id} and billed_time>0 {$where} 
-                        group by r.prefix, r.mob, r.operator_id, g.name, r.destination_id
+                        group by r.prefix, r.mob, r.trunk_id, g.name, r.destination_id
                         order by destination, r.prefix
                                      ");
 
@@ -86,74 +95,70 @@ class m_voipreports_cost_report
                 $k = $r['prefix'];
 
                 if (!isset($report[$k])) {
-                    $r['operators'] = array();
+                    $r['trunks'] = array();
                     $report[$k] = array(
                         'prefix' => $r['prefix'],
                         'destination' => $r['destination'],
                         'mob' => $r['mob'],
-                        'operators' => array(),
+                        'trunks' => array(),
                         'count' => 0,
                     );
                 }
                 $report[$k]['count'] += $r['count'];
 
-                if (!isset($reportOperators[$r['operator_id']])) {
-                    $reportOperators[$r['operator_id']] = VoipOperator::getByIdAndInstanceId($r['operator_id'], $f_instance_id);
+                if (!isset($reportTrunks[$r['trunk_id']])) {
+                    $reportTrunks[$r['trunk_id']] = \app\models\billing\Trunk::findOne($r['trunk_id']);
                 }
-                if (!isset($report[$k]['operators'][$r['operator_id']])) {
-                    $report[$k]['operators'][$r['operator_id']] = array(
+                if (!isset($report[$k]['trunks'][$r['trunk_id']])) {
+                    $report[$k]['trunks'][$r['trunk_id']] = array(
                         'duration' => 0,
                         'cost' => 0,
                         'count' => 0,
                     );
                 }
-                $report[$k]['operators'][$r['operator_id']]['duration'] += $r['duration'];
-                $report[$k]['operators'][$r['operator_id']]['cost'] += $r['cost'];
-                $report[$k]['operators'][$r['operator_id']]['count'] += $r['count'];
+                $report[$k]['trunks'][$r['trunk_id']]['duration'] += $r['duration'];
+                $report[$k]['trunks'][$r['trunk_id']]['cost'] += $r['cost'];
+                $report[$k]['trunks'][$r['trunk_id']]['count'] += $r['count'];
             }
         }
 
         foreach ($report as $k => $r) {
-            foreach($r['operators'] as $k_op => $op) {
-                if (!isset($totals['operators'][$k_op])) {
-                    $totals['operators'][$k_op] = array(
+            foreach($r['trunks'] as $k_op => $op) {
+                if (!isset($totals['trunks'][$k_op])) {
+                    $totals['trunks'][$k_op] = array(
                         'duration' => 0,
                         'cost' => 0,
                         'count' => 0,
                     );
                 }
-                $totals['operators'][$k_op]['duration'] += $op['duration'];
-                $totals['operators'][$k_op]['cost'] += $op['cost'];
-                $totals['operators'][$k_op]['count'] += $op['count'];
+                $totals['trunks'][$k_op]['duration'] += $op['duration'];
+                $totals['trunks'][$k_op]['cost'] += $op['cost'];
+                $totals['trunks'][$k_op]['count'] += $op['count'];
 
-                $duration = $report[$k]['operators'][$k_op]['duration'] / 60;
-                $report[$k]['operators'][$k_op]['duration'] = number_format(  $duration, 2, ',', '');
-                $report[$k]['operators'][$k_op]['price'] =
-                                            number_format(  $report[$k]['operators'][$k_op]['cost'] / $duration , 2, ',', '');
+                $duration = $report[$k]['trunks'][$k_op]['duration'] / 60;
+                $report[$k]['trunks'][$k_op]['duration'] = number_format(  $duration, 2, ',', '');
+                $report[$k]['trunks'][$k_op]['price'] =
+                                            number_format(  $report[$k]['trunks'][$k_op]['cost'] / $duration , 2, ',', '');
             }
         }
 
-        foreach($totals['operators'] as $k_op => $op) {
-            $totals['operators'][$k_op]['duration'] =
-                number_format(  $totals['operators'][$k_op]['duration'] / 60, 2, ',', '');
-            $totals['operators'][$k_op]['cost'] =
-                number_format(  $totals['operators'][$k_op]['cost'], 2, ',', '');
-        }
-
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
+        foreach($totals['trunks'] as $k_op => $op) {
+            $totals['trunks'][$k_op]['duration'] =
+                number_format(  $totals['trunks'][$k_op]['duration'] / 60, 2, ',', '');
+            $totals['trunks'][$k_op]['cost'] =
+                number_format(  $totals['trunks'][$k_op]['cost'], 2, ',', '');
         }
 
         if (!isset($_GET['export'])) {
+            $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+            $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
+
             $design->assign('report', $report);
             $design->assign('totals', $totals);
-            $design->assign('reportOperators', $reportOperators);
+            $design->assign('reportTrunks', $reportTrunks);
             $design->assign('f_instance_id', $f_instance_id);
-            $design->assign('f_operator_id', $f_operator_id);
+            $design->assign('f_trunk_id', $f_trunk_id);
+            $design->assign('f_service_trunk_id', $f_service_trunk_id);
             $design->assign('date_from', $date_from);
             $design->assign('date_to', $date_to);
             $design->assign('f_prefix_type', $f_prefix_type);
@@ -163,15 +168,11 @@ class m_voipreports_cost_report
             $design->assign('f_mob', $f_mob);
             $design->assign('f_dest_group', $f_dest_group);
             $design->assign('f_volume', $f_volume);
-            $design->assign('operators', $operators);
+            $design->assign('trunks', $trunks);
+            $design->assign('serviceTrunks', $serviceTrunks);
             $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
             $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
             $design->assign('regions', Region::getListAssoc());
-            $design->assign(
-                'pricelists',
-                $pg_db->AllRecords("    select p.id, p.name, o.short_name as operator from voip.pricelist p
-                                        left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id')
-            );
             $design->AddMain('voipreports/cost_report_show.html');
         } else {
             header('Content-type: application/csv');
@@ -180,22 +181,22 @@ class m_voipreports_cost_report
             ob_start();
 
             echo ';;';
-            foreach ($reportOperators as $k => $op) {
-                echo '"' . $op->short_name . ' (' . $k . ')";;;';
+            foreach ($reportTrunks as $k => $trunk) {
+                echo '"' . $trunk->name . ' (' . $k . ')";;;';
             }
             echo "\n";
             echo '"Префикс номера";"Назначение";';
-            foreach ($reportOperators as $k => $op) {
+            foreach ($reportTrunks as $k => $trunk) {
                 echo '"кол.";"мин";"руб/мин";';
             }
             echo "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
                 echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'') . '";';
-                foreach ($reportOperators as $k => $op) {
-                    echo '"' . $r['operators'][$k]['count'] . '";';
-                    echo '"' . $r['operators'][$k]['duration'] . '";';
-                    echo '"' . $r['operators'][$k]['price'] . '";';
+                foreach ($reportTrunks as $k => $trunk) {
+                    echo '"' . $r['trunks'][$k]['count'] . '";';
+                    echo '"' . $r['trunks'][$k]['duration'] . '";';
+                    echo '"' . $r['trunks'][$k]['price'] . '";';
                 }
                 echo "\n";
             }

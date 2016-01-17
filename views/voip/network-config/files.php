@@ -71,7 +71,7 @@ echo GridView::widget([
             'label' => 'Имя файла',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data->file_name, Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'network_file_show', 'id' => $data->id]));
+                return Html::a($data->filename, Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'network_file_show', 'id' => $data->id]));
             },
         ],
         [

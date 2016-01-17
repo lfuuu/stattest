@@ -7,57 +7,6 @@ class m_voipnew_network
         if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
     }
 
-    function voipnew_network_list()
-    {
-        global $design;
-
-        $networkConfigs = VoipNetworkConfig::find('all', array('order' => 'instance_id desc, operator_id asc, name asc'));
-
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op;
-            }
-        }
-
-        $networksByConfig = array();
-        foreach (VoipNetwork::find('all', array('order' => 'network_type_id')) as $network) {
-            if (!isset($networksByConfig[$network->network_config_id])) {
-                $networksByConfig[$network->network_config_id] = array();
-            }
-            $networksByConfig[$network->network_config_id][] = $network;
-        }
-
-        $design->assign('networkTypes', VoipNetworkType::getListAssoc());
-        $design->assign('networkConfigs', $networkConfigs);
-        $design->assign('networksByConfig', $networksByConfig);
-        $design->assign('operators', $operators);
-        $design->assign('regions', Region::getListAssoc());
-        $design->assign('pricelists', Pricelist::getListAssoc());
-        $design->AddMain('voipnew/network_list.html');
-    }
-
-    function voipnew_network_config_show()
-    {
-        global $design;
-
-        $networkConfig = VoipNetworkConfig::find($_GET['id']);
-        $files =
-            VoipNetworkFile::find(
-                'all',
-                array(
-                    'conditions' => array('network_config_id' => $networkConfig->id),
-                    'order' => 'startdate desc, created_at desc'
-                )
-            );
-
-        $design->assign('currentDate', date('Y-m-d', time()));
-        $design->assign('files', $files);
-        $design->assign('networkConfig', $networkConfig);
-        $design->AddMain('voipnew/network_config_show.html');
-    }
-
     function voipnew_network_file_upload()
     {
         global $pg_db;
@@ -91,7 +40,7 @@ class m_voipnew_network
             $networkFile->startdate = $startDate;
             $networkFile->created_at = date('Y-m-d H:i:s', time());
             $networkFile->rows = count($table);
-            $networkFile->file_name = $_FILES['file']['name'];
+            $networkFile->filename = $_FILES['file']['name'];
             $networkFile->save();
 
             $query = '';
@@ -188,20 +137,6 @@ class m_voipnew_network
 
         header('location: index.php?module=voipnew&action=network_file_show&id=' . $file->id);
         exit;
-    }
-
-    public function voipnew_network_prices()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator from voip.pricelist p
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.type = 'network_prices'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->AddMain('voipnew/network_prices.html');
     }
 
     public function voipnew_network_price()

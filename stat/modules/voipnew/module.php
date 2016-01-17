@@ -2,8 +2,6 @@
 include_once 'prices_parser.php';
 
 include_once 'network.php';
-include_once 'operators.php';
-include_once 'pricelists.php';
 include_once 'trunks.php';
 
 use app\classes\voip\DefInfo;
@@ -15,9 +13,7 @@ class m_voipnew extends IModule
 
     public function __construct()
     {
-        $this->_addInheritance(new m_voipnew_operators);
         $this->_addInheritance(new m_voipnew_network);
-        $this->_addInheritance(new m_voipnew_pricelists);
         $this->_addInheritance(new m_voipnew_trunks);
     }
 
@@ -36,16 +32,18 @@ class m_voipnew extends IModule
 
     public function voipnew_view_raw_file()
     {
+        set_time_limit(0);
+        session_write_close();
+
         global $pg_db, $design;
 
         $id = get_param_protected('id', 0);
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
 
-        $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
+        $query = "  select p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
-                    left join voip.operator o on o.id=p.operator_id
                     WHERE f.id=" . $id;
         $file = $pg_db->GetRow($query);
         $design->assign('file', $file);
@@ -104,16 +102,18 @@ class m_voipnew extends IModule
 
     public function voipnew_compare_raw_file()
     {
+        set_time_limit(0);
+        session_write_close();
+
         global $pg_db, $design;
 
         $id = get_param_protected('id', 0);
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
 
-        $query = "  select o.name as operator, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
+        $query = "  select p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
-                    left join voip.operator o on o.id=p.operator_id
                     WHERE f.id=" . $id;
         $design->assign('file', $pg_db->GetRow($query));
 
@@ -179,10 +179,11 @@ class m_voipnew extends IModule
 
     public function voipnew_activatedeactivate()
     {
+        set_time_limit(0);
+        session_write_close();
+
         global $pg_db, $design;
         $id = get_param_protected('id', 0);
-
-        set_time_limit(0);
 
         if (isset($_POST['activate'])) {
             $req = $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'active' => 1));
@@ -279,6 +280,7 @@ class m_voipnew extends IModule
     {
         global $pg_db;
         set_time_limit(0);
+        session_write_close();
         if (isset($_POST['step']) && $_POST['step'] == 'upfile') {
             if (!$_FILES['upfile']) {
                 trigger_error2('Пожалуйста, загрузите файл для обработки');
@@ -542,12 +544,11 @@ class m_voipnew extends IModule
         foreach ($_GET['ids'] as $id)
             $ids[] = (int)$id;
 
-        $query = "  select  p.*, f.id as rawfile_id, o.short_name as operator
+        $query = "  select  p.*, f.id as rawfile_id
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
-                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
                     where f.id in (" . implode(',', $ids) . ")
-                    order by p.region desc, p.operator_id, p.name";
+                    order by p.region desc, p.name";
 
         $design->assign('list', $pg_db->AllRecords($query));
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
@@ -557,6 +558,9 @@ class m_voipnew extends IModule
 
     public function voipnew_defs()
     {
+        set_time_limit(0);
+        session_write_close();
+
         global $pg_db, $design;
 
         $pricelist_id = get_param_protected('pricelist', '');
@@ -572,23 +576,34 @@ class m_voipnew extends IModule
         $design->assign('pricelists', $pg_db->AllRecords($query));
 
         if ($pricelist_id != '') {
+            $pricelist = $pg_db->GetRow("select * from voip.pricelist where id=" . intval($pricelist_id));
+
             $filter = 'WHERE 1=1';
-            if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
-            if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
-            if ($f_mob == 't') $filter .= " and d.mob=true ";
-            if ($f_mob == 'f') $filter .= " and d.mob=false ";
+            if ($pricelist['type'] != 'network_prices') {
+                if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
+                if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
+                if ($f_mob == 't') $filter .= " and d.mob=true ";
+                if ($f_mob == 'f') $filter .= " and d.mob=false ";
+            }
 
             $pg_db->Query('BEGIN');
             try {
-                $query = "
-                        select d.defcode, r.date_from, r.date_to, r.price,
-                                    g.name as destination, d.mob,
-                                    r.price as price
+                if ($pricelist['type'] == 'network_prices') {
+                    $query = "
+                        select r.ndef as defcode, r.date_from, r.date_to, r.price, nt.name as destination, false as mob, r.price as price
                         from select_defs_price('$pricelist_id', '$f_date') r
-                                                    LEFT JOIN voip_destinations d ON r.ndef=d.ndef
-                                        LEFT JOIN geo.geo g ON g.id=d.geo_id
+                             LEFT JOIN voip.network_type nt ON nt.id = r.ndef
+                        {$filter}
+                        order by r.ndef";
+                } else {
+                    $query = "
+                        select d.defcode, r.date_from, r.date_to, r.price, g.name as destination, d.mob, r.price as price
+                        from select_defs_price('$pricelist_id', '$f_date') r
+                             LEFT JOIN voip_destinations d ON r.ndef=d.ndef
+                             LEFT JOIN geo.geo g ON g.id=d.geo_id
                         {$filter}
                         order by g.name, d.mob, r.price, d.defcode";
+                }
                 $page = get_param_integer("page", 1);
                 $recCount = 0;
                 $recPerPage = 1000000;
@@ -705,7 +720,9 @@ class m_voipnew extends IModule
                 return strcmp(iconv('utf-8', 'windows-1251', $a["destination"]) . $a["defcode"], iconv('utf-8', 'windows-1251', $b["destination"]) . $b["defcode"]);
             }
 
-            usort($res, "defs_cmp");
+            if ($pricelist['type'] != 'network_prices') {
+                usort($res, "defs_cmp");
+            }
 
         } else {
             $res = array();
@@ -748,151 +765,6 @@ class m_voipnew extends IModule
         }
 
 
-    }
-
-    /*
-    public function voipnew_operator_networks()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.type = 'network'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->AddMain('voipnew/operator_networks.html');
-    }
-    */
-
-    public function voipnew_priority_list()
-    {
-        global $db, $pg_db, $design;
-
-        if (isset($_POST['add_priority'])) {
-            $region_operator = explode('_', $_POST['region_operator_id']);
-            $region_id = intval($region_operator[0]);
-            $operator_id = intval($region_operator[1]);
-            $prefix = intval($_POST['prefix']);
-            $priority = intval($_POST['priority']);
-            if ($region_id && $operator_id > 0 && $prefix > 0 && access('voip', 'admin')) {
-                $pg_db->QueryDelete('voip.priority_codes', array('region_id' => $region_id, 'operator_id' => $operator_id, 'prefix' => $prefix));
-                $pg_db->QueryInsert('voip.priority_codes', array('region_id' => $region_id, 'operator_id' => $operator_id, 'prefix' => $prefix, 'priority' => $priority), false);
-            }
-
-            header('location: ./index.php?module=voipnew&action=priority_list');
-            exit;
-        }
-        if (isset($_GET['del_code'])) {
-            $del_code = explode('_', $_GET['del_code']);
-            $region_id = intval($del_code[0]);
-            $operator_id = intval($del_code[1]);
-            $prefix = intval($del_code[2]);
-            if ($region_id && $operator_id > 0 && $prefix > 0 && access('voip', 'admin')) {
-                $pg_db->QueryDelete('voip.priority_codes', array('region_id' => $region_id, 'operator_id' => $operator_id, 'prefix' => $prefix));
-            }
-            header('location: ./index.php?module=voipnew&action=priority_list');
-            exit;
-        }
-
-        $list = $pg_db->AllRecords("select p.region_id, p.operator_id, o.short_name as operator, p.prefix, p.priority, p.created, g.name as geo, d.mob from voip.priority_codes p
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region_id
-                                    left join voip_destinations d on d.defcode=p.prefix
-                                    left join geo.geo g on g.id=d.geo_id
-                                    order by p.region_id desc, p.operator_id, p.prefix");
-        $design->assign('list', $list);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->assign('operators', $pg_db->AllRecords('select id, short_name as name, region from voip.operator where region!=0 order by region desc, id'));
-        $design->AddMain('voipnew/priority_list.html');
-    }
-
-    public function voipnew_set_lock_prefix()
-    {
-        global $pg_db;
-        $report_id = intval($_REQUEST['report_id']);
-        $region_id = $pg_db->GetValue("select region from voip.routing_report where id={$report_id}");
-        $prefix = $_REQUEST['prefix'];
-        $value = $_REQUEST['value'];
-        $pg_db->QueryDelete('voip.lock_prefix', array('region_id' => $region_id, 'prefix' => $prefix));
-        echo $pg_db->mError;
-        if ($value == 't') {
-            $pg_db->QueryInsert('voip.lock_prefix', array('region_id' => $region_id, 'prefix' => $prefix, 'locked' => 'true'), false);
-            echo $pg_db->mError;
-        } elseif ($value == 'f') {
-            $pg_db->QueryInsert('voip.lock_prefix', array('region_id' => $region_id, 'prefix' => $prefix, 'locked' => 'false'), false);
-            echo $pg_db->mError;
-        }
-        die('{}');
-    }
-
-    public function voipnew_lock_by_price()
-    {
-        global $pg_db;
-        $report_id = intval($_REQUEST['report_id']);
-        $region_id = $pg_db->GetValue("select region from voip.routing_report where id={$report_id}");
-        $price = intval($_REQUEST['price']);
-        $report = $pg_db->AllRecords("
-                                        select r.prefix AS defcode, r.prices[1] as price
-										from voip.prepare_routing_report({$report_id}) r");
-
-
-        $lock_prefix = array();
-
-
-        $pre_def = '';
-        $pre_locked = '';
-        $pre_l = 0;
-        $m_def = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-        $m_locked = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-        foreach ($report as $k => $v) {
-
-            $def = $v['defcode'];
-            $locked = ($v['price'] >= $price ? 'true' : 'false');
-
-            $cur_l = strlen($def);
-            if ($pre_l <> $cur_l || substr($def, 0, $cur_l - 1) <> substr($def, 0, $pre_l - 1)) {
-                if ($pre_l > $cur_l) $n = $pre_l; else $n = $cur_l;
-                while ($n > 0) {
-                    if ($m_def[$n] == '' || $m_def[$n] <> substr($def, 0, strlen($m_def[$n]))) {
-                        $m_def[$n] = '';
-                        $m_locked[$n] = '';
-                    }
-                    $n = $n - 1;
-                }
-                $pre_def = '';
-                $pre_locked = '';
-                $n = $cur_l - 1;
-                while ($n > 0) {
-                    if ($pre_def === '' && $m_def[$n] !== '')
-                        $pre_def = $m_def[$n];
-                    if ($pre_locked === '' && $m_locked[$n] !== '')
-                        $pre_locked = $m_locked[$n];
-                    $n = $n - 1;
-                }
-            }
-            $m_def[$cur_l] = $def;
-            $m_locked[$cur_l] = $locked;
-
-
-            if (($pre_locked !== '' || $locked == 'true') && $locked !== $pre_locked) {
-                $lock_prefix[$def] = $locked;
-            }
-
-        }
-
-        $pg_db->Query('BEGIN');
-        echo $pg_db->mError;
-        $pg_db->QueryDelete('voip.lock_prefix', array('region_id' => $region_id));
-        echo $pg_db->mError;
-        foreach ($lock_prefix as $prefix => $locked) {
-            $pg_db->QueryInsert('voip.lock_prefix', array('region_id' => $region_id, 'prefix' => $prefix, 'locked' => $locked), false);
-            echo $pg_db->mError;
-        }
-        $pg_db->Query('COMMIT');
-        echo $pg_db->mError;
-        exit;
     }
 
     function voipnew_calls_recalc()
@@ -1002,20 +874,4 @@ class m_voipnew extends IModule
         $design->AddMain('voipnew/catalog_prefix.html');
     }
 
-
-    public function voipnew_mass_upload_mcn_price()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.operator_id = 999 and p.type = 'client'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-
-        $design->AddMain('voipnew/mass_upload_mcn_price.html');
-    }
 }

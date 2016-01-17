@@ -8,6 +8,9 @@ use app\classes\voip\UniversalPricelistLoader;
 use app\forms\billing\PricelistAddForm;
 use app\models\billing\NetworkConfig;
 use app\models\billing\PricelistFile;
+use app\models\TariffVoip;
+use app\models\TariffVoipPackage;
+use app\models\UsageTrunkSettings;
 use Yii;
 use app\classes\BaseController;
 use app\forms\billing\PricelistForm;
@@ -33,7 +36,7 @@ class PricelistController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'file-upload', 'file-parse'],
+                        'actions' => ['add', 'edit', 'file-upload', 'file-parse', 'delete'],
                         'roles' => ['voip.admin'],
                     ],
                 ],
@@ -265,5 +268,28 @@ class PricelistController extends BaseController
         readfile($file->getStorageFilePath());
 
         exit;
+    }
+
+    public function actionDelete($id)
+    {
+        /** @var Pricelist $pricelist */
+        $pricelist = Pricelist::findOne($id);
+        Assert::isObject($pricelist);
+
+        $pricelistFiles = PricelistFile::findAll(['pricelist_id' => $pricelist->id]);
+        Assert::isEmpty($pricelistFiles);
+
+        $trunkSettingsList = UsageTrunkSettings::findAll(['pricelist_id' => $pricelist->id]);
+        Assert::isEmpty($trunkSettingsList);
+
+        $tariffs = TariffVoip::findAll(['pricelist_id' => $pricelist->id]);
+        Assert::isEmpty($tariffs);
+
+        $tariffPackages = TariffVoipPackage::findAll(['pricelist_id' => $pricelist->id]);
+        Assert::isEmpty($tariffPackages);
+
+        $pricelist->delete();
+
+        $this->redirect(['voip/pricelist/list', 'type' => $pricelist->type, 'orig' => $pricelist->orig ? 1 : 0]);
     }
 }

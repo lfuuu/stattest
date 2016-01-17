@@ -9,10 +9,13 @@ class m_voipreports_calls_report
 
     function voipreports_calls_report()
     {
-        global $design, $pg_db;
-        set_time_limit(0);
+        global $design, $db, $pg_db;
 
-        $f_operator_id = (int)get_param_protected('f_operator_id', '0');
+        set_time_limit(0);
+        session_write_close();
+
+        $f_trunk_id = get_param_integer('f_trunk_id', '0');
+        $f_service_trunk_id = get_param_integer('f_service_trunk_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_country_id = get_param_protected('f_country_id', '0');
@@ -24,8 +27,6 @@ class m_voipreports_calls_report
         $offset = get_param_integer('offset', 0);
 
 
-        if ($f_operator_id == 'all') $f_operator_id = '0';
-
         $report = array();
 
         if (isset($_GET['makeFile']) || isset($_GET['make'])) {
@@ -36,8 +37,13 @@ class m_voipreports_calls_report
             $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
             $where .= $f_direction_out == 'f' ?  " and r.orig=true " : " and r.orig=false ";
 
-            if ($f_operator_id != '0')
-                $where .= " and r.operator_id='{$f_operator_id}' ";
+            if ($f_trunk_id > 0) {
+                $where .= " and r.trunk_id=" . $f_trunk_id;
+            }
+
+            if ($f_service_trunk_id > 0) {
+                $where .= " and r.trunk_service_id=" . $f_service_trunk_id;
+            }
 
             if ($f_country_id != '0')
                 $where .= " and g.country='{$f_country_id}' ";
@@ -96,14 +102,14 @@ class m_voipreports_calls_report
                         select
                               r.id,
                               r.connect_time,
-                              r.operator_id,
+                              r.trunk_id,
+                              r.trunk_service_id,
                               r.mob as mob,
                               r.src_number,
                               r.dst_number,
                               r.orig,
                               r.billed_time,
                               r.cost,
-                              r.operator_id,
                               g.name as destination,
                               r.server_id
                         from calls_raw.calls_raw r
@@ -116,13 +122,8 @@ class m_voipreports_calls_report
 
         }
 
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
-        }
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         $design->assign('report', $report);
         $design->assign('previous_offset', $offset > 0 ? ($offset - $limit > 0 ? $offset - $limit : 0) : 'none');
@@ -131,22 +132,19 @@ class m_voipreports_calls_report
         $design->assign('item_from', count($report) ? $offset + 1 : 0);
         $design->assign('item_to', count($report) ? $offset + $limit : 0);
         $design->assign('f_server_id', $f_server_id);
-        $design->assign('f_operator_id', $f_operator_id);
+        $design->assign('f_trunk_id', $f_trunk_id);
+        $design->assign('f_service_trunk_id', $f_service_trunk_id);
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
         $design->assign('f_direction_out', $f_direction_out);
         $design->assign('f_mob', $f_mob);
-        $design->assign('operators', $operators);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
         $design->assign('regions', Region::getListAssoc());
-        $design->assign(
-            'pricelists',
-            $pg_db->AllRecords("    select p.id, p.name, o.short_name as operator from voip.pricelist p
-                                    left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id')
-        );
         $design->AddMain('voipreports/calls_report_show.html');
     }
 }

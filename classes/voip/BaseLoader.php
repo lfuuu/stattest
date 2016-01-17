@@ -9,10 +9,6 @@ use yii\base\Object;
 
 abstract class BaseLoader extends Object
 {
-    /**
-     * @var PricelistFile;
-     */
-    public $file;
 
     /**
      * @return string
@@ -28,11 +24,6 @@ abstract class BaseLoader extends Object
     public static function overrideSettings()
     {
         return [];
-    }
-
-    public function load(PricelistFile $file)
-    {
-        $this->file = $file;
     }
 
     /**
@@ -126,6 +117,7 @@ abstract class BaseLoader extends Object
         $nPrefix2_from   = isset($settings['cols']['prefix2_from']) ? $settings['cols']['prefix2_from'] : null;
         $nPrefix2_to     = isset($settings['cols']['prefix2_to']) ? $settings['cols']['prefix2_to'] : null;
         $nRate           = isset($settings['cols']['rate']) ? $settings['cols']['rate'] : null;
+        $nNetworkType    = isset($settings['cols']['network_type']) ? $settings['cols']['network_type'] : null;
         $nDestination    = isset($settings['cols']['destination']) ? $settings['cols']['destination'] : null;
         $nComment        = isset($settings['cols']['comment']) ? $settings['cols']['comment'] : null;
 
@@ -141,6 +133,7 @@ abstract class BaseLoader extends Object
             $prefix2_from = '';
             $prefix2_to = '';
             $rate = '';
+            $networkType = '';
             $destination = '';
             $comment = '';
 
@@ -157,6 +150,8 @@ abstract class BaseLoader extends Object
                     $prefix2_to = $value;
                 } elseif ($nRate == $nCol) {
                     $rate = $value;
+                } elseif ($nNetworkType == $nCol) {
+                    $networkType = $value;
                 } elseif ($nDestination == $nCol) {
                     $destination = $value;
                 } elseif ($nComment == $nCol) {
@@ -166,7 +161,7 @@ abstract class BaseLoader extends Object
                 $nCol++;
             }
 
-            if (!$prefix1 && !$prefix2_smart && !$prefix2_from && !$prefix2_to &!$rate) {
+            if (!$prefix1 && !$prefix2_smart && !$prefix2_from && !$prefix2_to && !$rate && !$networkType) {
                 continue;
             }
 
@@ -183,6 +178,7 @@ abstract class BaseLoader extends Object
                         $result[] = [
                             'prefix' => $prefix,
                             'rate' => $rate,
+                            'network_type_id' => $networkType,
                             'deleting' => false,
                             'mob' => false,
                         ];
@@ -196,6 +192,7 @@ abstract class BaseLoader extends Object
                     $result[] = [
                         'prefix' => $prefix,
                         'rate' => $rate,
+                        'network_type_id' => $networkType,
                         'deleting' => false,
                         'mob' => false,
                     ];
@@ -204,6 +201,7 @@ abstract class BaseLoader extends Object
                 $result[] = [
                     'prefix' => $prefix0 . $prefix1,
                     'rate' => $rate,
+                    'network_type_id' => $networkType,
                     'deleting' => false,
                     'mob' => false,
                 ];

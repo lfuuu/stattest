@@ -1,17 +1,15 @@
 <?php
-use app\models\billing\Pricelist;
-use app\models\billing\PricelistFile;
-use app\classes\voip\BasePricelistLoader;
+use app\models\billing\NetworkFile;
+use app\classes\voip\BaseNetworkLoader;
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 
-/** @var Pricelist $pricelist */
-/** @var PricelistFile $file */
+/** @var NetworkFile $file */
 /** @var array $data */
 /** @var array $settings */
 /** @var array $loaders */
-/** @var BasePricelistLoader $parser */
+/** @var BaseNetworkLoader $parser */
 
 $overrideSettings = $parser->overrideSettings();
 
@@ -25,13 +23,8 @@ echo Breadcrumbs::widget([
 ]);
 
 $columnTypes = [
-    'prefix1'       => 'Префикс 1',
-    'prefix2_smart' => 'Префикс 2 Умный',
-    'prefix2_from'  => 'Префикс 2 От',
-    'prefix2_to'    => 'Префикс 2 До',
-    'rate'          => 'Цена',
-    'destination'   => 'Направление',
-    'comment'       => 'Комментарий',
+    'prefix1'       => 'Префикс',
+    'network_type'  => 'Код смежности',
 ];
 
 $colCount = 0;
