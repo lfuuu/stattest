@@ -49,6 +49,9 @@ echo Breadcrumbs::widget([
                                 'class' => '\app\widgets\DatePicker',
                                 'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                                 'options' => [
+                                    'pluginOptions' => [
+                                        'orientation' => 'top left',
+                                    ],
                                     'addons' => [
                                         'todayButton' => [],
                                     ],
@@ -68,6 +71,9 @@ echo Breadcrumbs::widget([
                                 'options' => [
                                     'options' => [
                                         'placeholder' => $model->disconnecting_date ?: 'Не задано',
+                                    ],
+                                    'pluginOptions' => [
+                                        'orientation' => 'top left',
                                     ],
                                     'addons' => [
                                         'todayButton' => [],
