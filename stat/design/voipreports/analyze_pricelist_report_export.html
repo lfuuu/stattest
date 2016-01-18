@@ -16,7 +16,7 @@
         {foreach from=$volumes key='instance_id' item='v'}
             <td align=center><b>Объем</b></td>
         {/foreach}
-        {foreach from=$volumesByOper key='operator_id' item='v'}
+        {foreach from=$volumesByPricelist key='pricelist_id' item='v'}
             <td align=center><b>Объем</b></td>
         {/foreach}
     {/if}
@@ -34,8 +34,8 @@
         {foreach from=$volumes key='instance_id' item='v'}
             <td  class=header>{$regions[$instance_id]->name}</td>
         {/foreach}
-        {foreach from=$volumesByOper key='operator_id' item='v'}
-            <td  class=header>{$operators[$operator_id]}</td>
+        {foreach from=$volumesByPricelist key='pricelist_id' item='v'}
+            <td  class=header>{$pricelists[pricelist_id]->name}</td>
         {/foreach}
     {/if}
 </tr>
@@ -64,7 +64,7 @@
     {foreach from=$volumes key='instance_id' item='v'}
         <td>{$v[$rd.prefix].volume}</td>
     {/foreach}
-    {foreach from=$volumesByOper key='operator_id' item='v'}
+    {foreach from=$volumesByPricelist key='pricelist_id' item='v'}
         <td>{$v[$rd.prefix].volume}</td>
     {/foreach}
   {/if}

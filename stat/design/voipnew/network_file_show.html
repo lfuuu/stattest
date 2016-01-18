@@ -1,9 +1,9 @@
-<p>Сеть: <b>{$networkConfig->name}</b>. Файл: {$file->file_name} <a href="/voip/network-config/files?networkConfigId={$networkConfig->id}">Назад</a>
+<p>Сеть: <b>{$networkConfig->name}</b>. Файл: {$file->filename} <a href="/voip/network-config/files?networkConfigId={$networkConfig->id}">Назад</a>
 <div style="position:relative;left:50;">
     <table>
         <tr>
             <td valign=top>
-                файл: {$file->file_name}<br>
+                файл: {$file->filename}<br>
                 дата загрузки: {$file->created_at}<br>
                 количество строк: {$file->rows}<br>
             </td>

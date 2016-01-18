@@ -10,6 +10,16 @@ use yii\base\Object;
 abstract class BasePricelistLoader extends BaseLoader
 {
     /**
+     * @var PricelistFile;
+     */
+    public $file;
+
+    public function load(PricelistFile $file)
+    {
+        $this->file = $file;
+    }
+
+    /**
      * @return PricelistFile
      */
     public function uploadFile($uploadedFile, $pricelistId)

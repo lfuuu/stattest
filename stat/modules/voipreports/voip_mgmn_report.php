@@ -16,7 +16,8 @@ class m_voipreports_voip_mgmn_report
         $date_to_y = get_param_raw('date_to_y', date('Y'));
         $date_to_m = get_param_raw('date_to_m', date('m'));
         $date_to_d = get_param_raw('date_to_d', date('d'));
-        $operator = get_param_raw('operator', 'all');
+        $trunk = get_param_integer('trunk', '0');
+        $serviceTrunk = get_param_integer('serviceTrunk', '0');
         $groupp = get_param_raw('groupp',0);
         $details = get_param_integer('details', 0);
 
@@ -35,7 +36,8 @@ class m_voipreports_voip_mgmn_report
 
         $regions = $db->AllRecords('select * from regions','id');
 
-        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id",'id');
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
@@ -44,22 +46,26 @@ class m_voipreports_voip_mgmn_report
             $where  = " and (connect_time between '".$date_from."' and '".$date_to."') ";
             $where .= ' and not orig and destination_id >= 0 ';
 
-            if ($operator>0) {
-                $where .= " and operator_id=".$operator;
+            if ($trunk > 0) {
+                $where .= " and trunk_id=" . $trunk;
+            }
+
+            if ($serviceTrunk > 0) {
+                $where .= " and trunk_service_id=" . $serviceTrunk;
             }
 
             if ($groupp == 1) {
-                $god = " group by date_trunc('day',connect_time),operator_id, dest2 ";
+                $god = " group by date_trunc('day',connect_time), trunk_id, trunk_service_id, dest2 ";
                 $sod = " ,date_trunc('day',connect_time) as date";
-                $ob = " order by date, operator_id";
+                $ob = " order by date, trunk_id, trunk_service_id";
             } elseif ($groupp == 2) {
-                $god = " group by date_trunc('month',connect_time), operator_id, dest2 ";
+                $god = " group by date_trunc('month',connect_time), trunk_id, trunk_service_id, dest2 ";
                 $sod = " ,date_trunc('month',connect_time) as date";
-                $ob = " order by date, operator_id";
+                $ob = " order by date, trunk_id, trunk_service_id";
             }else{
-                $god = ' group by operator_id, dest2 ';
+                $god = ' group by trunk_id, trunk_service_id, dest2 ';
                 $sod = '';
-                $ob = " order by operator_id ";
+                $ob = " order by trunk_id, trunk_service_id";
             }
 
             $query = "
@@ -67,7 +73,8 @@ class m_voipreports_voip_mgmn_report
                     count(*) as count,
                     sum(billed_time) / 60.0 as len_op,
                     sum(cost) as amount_op,
-                    operator_id as operator_id,
+                    trunk_id,
+                    trunk_service_id,
                     case dst_number::varchar like '7800%' when true then
                         7800
                     else
@@ -90,12 +97,12 @@ class m_voipreports_voip_mgmn_report
 
             $report = array();
             foreach($pg_db->AllRecords($query) as $r) {
-                $k = $r['operator_id'];
+                $k = $r['trunk_id'] . '_' . $r['trunk_service_id'];
                 if (isset($r['date'])) {
                     $k .= '_' . $r['date'];
                 }
                 if (!isset($report[$k])) {
-                    $report[$k] = array('operator_id' => $r['operator_id']);
+                    $report[$k] = array('trunk_id' => $r['trunk_id'], 'trunk_service_id' => $r['trunk_service_id']);
                     if (isset($r['date'])) {
                         $report[$k]['date'] = $r['date'];
                     }
@@ -128,8 +135,10 @@ class m_voipreports_voip_mgmn_report
         $design->assign('date_to_yy',$date_to_y);
         $design->assign('date_to_mm',$date_to_m);
         $design->assign('date_to_dd',$date_to_d);
-        $design->assign('operator',$operator);
-        $design->assign('operators', $operators);
+        $design->assign('trunk',$trunk);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunk',$serviceTrunk);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('groupp',$groupp);
         $design->assign('details',$details);
         $design->assign('region',$region);

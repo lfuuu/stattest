@@ -14,12 +14,23 @@
             <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select> (время в UTC)</td>
         </tr>
         <tr>
-            <td>Оператор</td>
+            <td>Транк</td>
             <td colspan="8">
-                <select name="operator">
-                    <option value="all">Все</option>
-                    {foreach from=$operators item='o'}
-                    <option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+                <select class="select2" style="width: 300px" name="trunk">
+                    <option value="0">Все</option>
+                    {foreach from=$trunks item='o'}
+                    <option value="{$o.id}"{if $trunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Услуга транк</td>
+            <td colspan="8">
+                <select class="select2" style="width: 300px" name="serviceTrunk">
+                    <option value="0">Все</option>
+                    {foreach from=$serviceTrunks item='o'}
+                    <option value="{$o.id}"{if $serviceTrunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
                     {/foreach}
                 </select>
             </td>
@@ -35,7 +46,7 @@
             </td>
             <td>Регион</td>
             <td colspan="8">
-                <select name="region">
+                <select class="select2" style="width: 200px" name="region">
                     <option value="0">Все</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
@@ -51,7 +62,8 @@
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
     <tr>
         {if $groupp}<td class='header'>Дата</td>{/if}
-        <td class='header'>Оператор</td>
+        <td class='header' vAlign='bottom' width="150">Транк</td>
+        <td class='header' vAlign='bottom' width="150">Услуга транк</td>
         <td class='header'>Зона Стац</td>
         <td class='header'>Зона Моб</td>
         <td class='header'>7800</td>
@@ -62,7 +74,8 @@
     {foreach from=$report item='r'}
     <tr class="{cycle values='even,odd'}">
         {if $groupp}<td>{$r.date}</td>{/if}
-        <td>{$operators[$r.operator_id].name} ({$r.operator_id})</td>
+        <td nowrap>{$trunks[$r.trunk_id].name} ({$r.trunk_id})</td>
+        <td nowrap>{$serviceTrunks[$r.trunk_service_id].name} ({$r.trunk_service_id})</td>
         <td>{if $r.1001}
                 {if $details}
                     Длительность (мин): <b>{$r.1001.len_op|round:0}</b><br />

@@ -20,7 +20,7 @@ class m_voipreports_head extends IModuleHead
 
         'pricelist_report_list' => array('voipreports', 'access'),
         'pricelist_report_routing_list' => array('voipreports', 'access'),
-        'pricelist_report_operator_list' => array('voipreports', 'access'),
+        //'pricelist_report_operator_list' => array('voipreports', 'access'),
         'pricelist_report_analyze_list' => array('voipreports', 'access'),
         'pricelist_report_show' => array('voipreports', 'access'),
         'pricelist_report_edit' => array('voipreports', 'admin'),
@@ -31,7 +31,7 @@ class m_voipreports_head extends IModuleHead
 
     public $menu = array(
         array('Анализ прайс-листов', 'pricelist_report_analyze_list'),
-        array('Сравнение операторов', 'pricelist_report_operator_list'),
+        //array('Сравнение операторов', 'pricelist_report_operator_list'),
         array('По маршрутизации', 'pricelist_report_routing_list'),
         array('Себестоимость', 'cost_report'),
         array('Отчет для сверок', 'reconciliation_report'),

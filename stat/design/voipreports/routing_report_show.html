@@ -9,7 +9,7 @@
 
     (  {foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}
-    {$pricelists[$pl].operator}
+    {$pricelists[$pl].name}
     {/foreach})
     </small>
 </h1>
@@ -157,7 +157,7 @@ td.lock_default {
   <td class=header style="min-width: 100px;">Назначение</td>
   <td nowrap class=header style="min-width: 100px;text-align: center">Лучшая цена</td>
   {foreach from=$rep->pricelist_ids item='p'}
-    <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].operator}</td>
+    <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].name}</td>
 	{/foreach}
   {if $volume.calc_date}<td nowrap class=header style="text-align: center">Объем<br/>(мин)</td>{/if}
   <td nowrap class=header style="min-width: 100px;text-align: center">Порядок</td>
@@ -176,7 +176,7 @@ td.lock_default {
   <td nowrap align=center>
   {foreach from=$rd.routes key='i' item='pl'}
     {if $i > 0}->{/if}
-    {$pricelists[$pl].operator}
+    {$pricelists[$pl].name}
   {/foreach}
   </td>
   <td nowrap align=center prefix="{$rd.prefix}" value="{$rd.locked_raw}" onclick="lock_click(this);"

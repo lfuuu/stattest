@@ -8,6 +8,10 @@ class m_voipreports_voip_local_report
 
     function voipreports_voip_local_report() {
         global $design,$db, $pg_db;
+
+        set_time_limit(0);
+        session_write_close();
+
         $region = get_param_integer('region', '0');
 
         $date_from_y = get_param_raw('date_from_y', date('Y'));
@@ -16,7 +20,8 @@ class m_voipreports_voip_local_report
         $date_to_y = get_param_raw('date_to_y', date('Y'));
         $date_to_m = get_param_raw('date_to_m', date('m'));
         $date_to_d = get_param_raw('date_to_d', date('d'));
-        $operator = get_param_raw('operator', 'all');
+        $trunk = get_param_integer('trunk', '0');
+        $serviceTrunk = get_param_integer('serviceTrunk', '0');
         $groupp = get_param_raw('groupp',0);
         $details = get_param_integer('details', 0);
 
@@ -35,7 +40,8 @@ class m_voipreports_voip_local_report
 
         $regions = $db->AllRecords('select * from regions','id');
 
-        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id",'id');
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
@@ -45,27 +51,30 @@ class m_voipreports_voip_local_report
             $where .= ' and ( destination_id < 0 or orig = true) ';
 
             $link = "index.php?module=voipreports&action=calls_report&make=";
-            $link .= "&f_instance_id={$region}&f_operator_id={$operator}";
+            $link .= "&f_instance_id={$region}&f_operator_id=000";
             $link .= "&date_from={$date_from_y}-{$date_from_m}-{$date_from_d}";
             $link .= "&date_to={$date_to_y}-{$date_to_m}-{$date_to_d}";
 
+            if ($trunk > 0) {
+                $where .= " and trunk_id=" . $trunk;
+            }
 
-            if ($operator>0) {
-                $where .= " and operator_id=".$operator;
+            if ($serviceTrunk > 0) {
+                $where .= " and trunk_service_id=" . $serviceTrunk;
             }
 
             if ($groupp == 1) {
-                $god = " group by orig, date_trunc('day',connect_time),operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
+                $god = " group by orig, date_trunc('day',connect_time), trunk_id, trunk_service_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
                 $sod = " ,date_trunc('day',connect_time) as date";
-                $ob = " order by date, operator_id ";
+                $ob = " order by orig, date, trunk_id, trunk_service_id ";
             } elseif ($groupp == 2) {
-                $god = " group by orig, date_trunc('month',connect_time), operator_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
+                $god = " group by orig, date_trunc('month',connect_time), trunk_id, trunk_service_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
                 $sod = " ,date_trunc('month',connect_time) as date";
-                $ob = " order by date, operator_id";
+                $ob = " order by orig, date, trunk_id, trunk_service_id";
             }else{
-                $god = " group by orig, operator_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
+                $god = " group by orig, trunk_id, trunk_service_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
                 $sod = '';
-                $ob = " order by operator_id ";
+                $ob = " order by orig, trunk_id, trunk_service_id ";
             }
 
             $networkGroups = $pg_db->AllRecords('select id, name from voip.network_type', 'id');
@@ -77,7 +86,8 @@ class m_voipreports_voip_local_report
                     sum(billed_time) / 60.0 as len_op,
                     sum(cost) as amount_op,
                     orig,
-                    operator_id as operator_id,
+                    trunk_id,
+                    trunk_service_id,
                     prefix as prefix_op
                     ".$sod."
                 from calls_raw.calls_raw
@@ -90,12 +100,12 @@ class m_voipreports_voip_local_report
 
             $report = array();
             foreach($pg_db->AllRecords($query) as $r) {
-                $k = $r['operator_id'];
+                $k = $r['trunk_id'] . '_' . $r['trunk_service_id'];
                 if (isset($r['date'])) {
                     $k .= '_' . $r['date'];
                 }
                 if (!isset($report[$k])) {
-                    $report[$k] = array('operator_id' => $r['operator_id']);
+                    $report[$k] = array('trunk_id' => $r['trunk_id'], 'trunk_service_id' => $r['trunk_service_id']);
                     if (isset($r['date'])) {
                         $report[$k]['date'] = $r['date'];
                     }
@@ -112,11 +122,11 @@ class m_voipreports_voip_local_report
                 if (!isset($report[$k][$r['prefix_op']])) {
                     $report[$k][$r['prefix_op']] = $r;
                     if ($r['prefix_op'] == '9000') {
-                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=f&f_operator_id={$r['operator_id']}";
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=f&f_operator_id=000";
                     } elseif ($r['prefix_op'] == '') {
-                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}&f_without_prefix_op=1";
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id=000&f_without_prefix_op=1";
                     } else {
-                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}&f_prefix_op={$r['prefix_op']}";
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id=000&f_prefix_op={$r['prefix_op']}";
                     }
                 }
                 else {
@@ -131,7 +141,7 @@ class m_voipreports_voip_local_report
                 if ($r['orig'] == 'f') {
                     if (!isset($report[$k]['8000'])) {
                         $report[$k]['8000'] = $r;
-                        $report[$k]['8000']['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}";
+                        $report[$k]['8000']['link'] = $link . "&f_direction_out=t&f_operator_id=000";
                     }
                     else {
                         $report[$k]['8000']['count'] += $r['count'];
@@ -173,8 +183,10 @@ class m_voipreports_voip_local_report
         $design->assign('date_to_yy',$date_to_y);
         $design->assign('date_to_mm',$date_to_m);
         $design->assign('date_to_dd',$date_to_d);
-        $design->assign('operator',$operator);
-        $design->assign('operators', $operators);
+        $design->assign('trunk',$trunk);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunk',$serviceTrunk);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('groupp',$groupp);
         $design->assign('details',$details);
         $design->assign('region',$region);

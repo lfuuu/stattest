@@ -15,7 +15,7 @@
             ajaxTrunkUpdate();
         });
 
-        $('#operator').change(function (event) {
+        $('#trunk').change(function (event) {
             event.preventDefault();
             ajaxTrunkUpdate();
         });
@@ -27,7 +27,7 @@
                 {
                     'operation': 'update_trunks',
                     'server_id': $('#server').val(),
-                    'operator_id': $('#operator').val()
+                    'trunk_id': $('#trunk').val()
                 },
                 function(r) {
                     if (r.status == 'success') {
@@ -93,15 +93,15 @@ use yii\helpers\Html;
 
         <!-- Оператор -->
         <div class="col-md-3">
-            <label for="operator">Оператор</label>
+            <label for="trunk">Транк</label>
             <?php echo Html::dropDownList(
-                'operator',
+                'trunk',
                 null,
-                ['-- Оператор --'] +
-                    \yii\helpers\ArrayHelper::map($operator, 'id', 'short_name'),
+                ['-- Транк --'] +
+                    \yii\helpers\ArrayHelper::map($trunk, 'id', 'name'),
                 [
                     'class' => 'select2 fit-container',
-                    'id' => 'operator',
+                    'id' => 'trunk',
                 ]
             ) ?>
         </div>
