@@ -397,7 +397,7 @@ class ApiLk
                 'periodical_fee' => (float)$tariff->month_number,
                 'line_activation_fee' => (float)$tariff->once_line,
                 'line_periodical_fee' => (float)$tariff->month_line,
-                'currency_id' => $tariff->currency,
+                'currency_id' => $tariff->currency_id,
                 'free_local_min' => $tariff->free_local_min,
             ];
         }
