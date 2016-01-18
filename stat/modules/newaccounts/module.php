@@ -1283,8 +1283,6 @@ class m_newaccounts extends IModule
                 $design->ProcessEx('newaccounts/bill_mass_print_frames.tpl');
                 return;
             }
-        } else {
-            $design->AddMain('newaccounts/bill_mass.tpl');
         }
     }
 
