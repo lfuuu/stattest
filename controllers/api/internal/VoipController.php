@@ -34,7 +34,7 @@ class VoipController extends ApiInternalController
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000],
                 ['account_id', AccountIdValidator::className()],
-                ['number', UsageVoipValidator::className()],
+                ['number', UsageVoipValidator::className(), 'account_id_field' => 'account_id'],
             ]
         );
 

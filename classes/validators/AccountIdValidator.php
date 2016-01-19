@@ -2,24 +2,26 @@
 namespace app\classes\validators;
 
 use app\models\ClientAccount;
-use yii\validators\RequiredValidator;
+use yii\validators\NumberValidator;
 
-class AccountIdValidator extends RequiredValidator
+class AccountIdValidator extends NumberValidator
 {
 
-    public $account = null;
+    public $integerOnly = true;
+    public $skipOnEmpty = false;
 
     public function validateAttribute($model, $attribute)
     {
         parent::validateAttribute($model, $attribute);
 
+        if ($this->isEmpty($model->$attribute)) {
+            $this->addError($model, $attribute, 'Client account required');
+        }
+
         if (!$model->hasErrors($attribute)) {
             $account = ClientAccount::findOne($model->$attribute);
             if ($account === null) {
-                $this->addError($model, $attribute, "Client account with id {$model->$attribute} not found");
-            }
-            if ($this->account) {
-                $model->{$this->account} = $account;
+                $this->addError($model, $attribute, 'Client account with id {account_id} not found', ['account_id' => $model->$attribute]);
             }
         }
     }

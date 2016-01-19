@@ -107,7 +107,7 @@ class CallsDao extends Singleton
             $query->andWhere(['in', 'server_id', $regions]);
         }
 
-        $usage = UsageVoip::find()->where(['E164' => $number])->one();
+        $usage = UsageVoip::find()->where(['E164' => $number])->client($clientAccount->client)->one();
         Assert::isObject($usage, 'Number "' . $number . '"');
 
         $usages = ArrayHelper::getColumn(
