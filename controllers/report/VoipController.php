@@ -160,7 +160,7 @@ class VoipController extends BaseController
     private function addFilters(Query $query)
     {
         if ( !empty( \Yii::$app->request->get('trunk') ) ) {
-            $query->andWhere('rc.trunk_id = :trunkId', [ ':trunkId' => 36 /*\Yii::$app->request->get('trunk')*/ ]);
+            $query->andWhere('rc.trunk_id = :trunkId', [ ':trunkId' =>\Yii::$app->request->get('trunk') ]);
         }
 
         if ( !empty( \Yii::$app->request->get('server') ) ) {
