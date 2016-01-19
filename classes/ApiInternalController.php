@@ -35,7 +35,7 @@ class ApiInternalController extends ApiController
             ];
         } catch (\Exception $e)
         {
-            $result = $e->getMessage() ?: array_values($e->getErrors());
+            $result = $e->getMessage();
             $code = $e->getCode();
 
             if ($e instanceof HttpException) {

@@ -2,11 +2,11 @@
 namespace app\classes\validators;
 
 use app\models\ClientAccount;
-use yii\validators\NumberValidator;
+use yii\validators\RequiredValidator;
 
-class AccountIdValidator extends NumberValidator
+class AccountIdValidator extends RequiredValidator
 {
-    public $integerOnly = true;
+
     public $account = null;
 
     public function validateAttribute($model, $attribute)
@@ -23,4 +23,5 @@ class AccountIdValidator extends NumberValidator
             }
         }
     }
+
 }

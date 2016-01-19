@@ -39,7 +39,7 @@ class TicketController extends ApiController
               [
                   ['client_account_id', AccountIdValidator::className()],
                   ['ticket_id', TicketIdValidator::className()],
-                  [['client_account_id', 'ticket_id'], 'required'],
+                  [['ticket_id'], 'required'],
               ]
           );
 
@@ -100,7 +100,7 @@ class TicketController extends ApiController
               [
                   ['client_account_id', AccountIdValidator::className()],
                   ['ticket_id', TicketIdValidator::className()],
-                  [['client_account_id', 'ticket_id'], 'required'],
+                  [['ticket_id'], 'required'],
               ]
           );
 

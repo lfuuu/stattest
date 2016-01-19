@@ -19,7 +19,6 @@ class TicketListForm extends ListForm
     {
         return [
             ['client_account_id', AccountIdValidator::className()],
-            ['client_account_id', 'required'],
             ['status', ArrayValidator::className(), 'validator' => ['class' => EnumValidator::className(), 'enum' => TicketStatusEnum::className()]],
         ];
     }
