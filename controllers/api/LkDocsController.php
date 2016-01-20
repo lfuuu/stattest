@@ -20,7 +20,6 @@ class LkDocsController extends ApiController
             Yii::$app->request->bodyParams, 
             [
                 ['account_id', AccountIdValidator::className()],
-                ["account_id", "required"]
             ]
         );
 
@@ -175,8 +174,8 @@ class LkDocsController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams, 
             [
-                ["account_id", AccountIdValidator::className()],
-                [["account_id", "id"], "required"],
+                ['account_id', AccountIdValidator::className()],
+                [["id"], "required"],
             ]
         );
 
