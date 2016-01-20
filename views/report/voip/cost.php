@@ -15,7 +15,7 @@
             ajaxTrunkUpdate();
         });
 
-        $('#trunk').change(function (event) {
+        $('#operator').change(function (event) {
             event.preventDefault();
             ajaxTrunkUpdate();
         });
@@ -27,7 +27,7 @@
                 {
                     'operation': 'update_trunks',
                     'server_id': $('#server').val(),
-                    'trunk_id': $('#trunk').val()
+                    'operator_id': $('#operator').val()
                 },
                 function(r) {
                     if (r.status == 'success') {
@@ -67,7 +67,7 @@ use yii\helpers\Html;
             <?php
             echo Html::dropDownList(
                 'trunk',
-                null,
+                \Yii::$app->request->get('trunk'),
                 ['-- Транк --'] + \yii\helpers\ArrayHelper::map($trunkModel, 'id', 'name'),
                 [
                     'class' => 'select2 fit-container',
@@ -81,7 +81,7 @@ use yii\helpers\Html;
             <label for="server">Точка присоединения</label>
             <?php echo Html::dropDownList(
                 'server',
-                null,
+                \Yii::$app->request->get('server'),
                 ['-- Точка присоединения --'] +
                     \yii\helpers\ArrayHelper::map($server, 'id', 'name'),
                 [
@@ -93,15 +93,15 @@ use yii\helpers\Html;
 
         <!-- Оператор -->
         <div class="col-md-3">
-            <label for="trunk">Транк</label>
+            <label for="operator">Оператор</label>
             <?php echo Html::dropDownList(
-                'trunk',
-                null,
-                ['-- Транк --'] +
-                    \yii\helpers\ArrayHelper::map($trunk, 'id', 'name'),
+                'operator',
+                \Yii::$app->request->get('operator'),
+                ['-- Оператор --'] +
+                    \yii\helpers\ArrayHelper::map($operator, 'id', 'short_name'),
                 [
                     'class' => 'select2 fit-container',
-                    'id' => 'trunk',
+                    'id' => 'operator',
                 ]
             ) ?>
         </div>
@@ -110,7 +110,7 @@ use yii\helpers\Html;
         <div class="col-md-3">
             <label for="contract_number">Номер договора</label>
             <?php
-            echo \yii\helpers\Html::textInput('contract_number', null, ['class' => 'form-control active']);
+            echo \yii\bootstrap\Html::textInput('contract_number', \Yii::$app->request->get('contract_number'));
             ?>
         </div>
     </div>
@@ -129,7 +129,7 @@ use yii\helpers\Html;
             <label for="mob_or_base">Моб./Стац.</label>
             <?php echo Html::dropDownList(
                 'mob_or_base',
-                null,
+                \Yii::$app->request->get('mob_or_base'),
                 [
                     1 => 'Моб./Стац.',
                     2 => 'Мобильные',
@@ -147,7 +147,7 @@ use yii\helpers\Html;
             <label for="orig_term">Оригинация / терминация</label>
             <?php echo Html::dropDownList(
                 'orig_term',
-                null,
+                \Yii::$app->request->get('orig_term'),
                 [
                     1 => 'Все',
                     2 => 'Оригинация / терминация',
@@ -166,7 +166,7 @@ use yii\helpers\Html;
             <label for="time">С длительностью</label>
             <?php echo Html::dropDownList(
                 'time',
-                null,
+                \Yii::$app->request->get('time'),
                 [
                     1 => 'С длительностью',
                     2 => 'Без длительности',
@@ -187,7 +187,7 @@ use yii\helpers\Html;
             <label for="region">Регион</label>
             <?php echo Html::dropDownList(
                 'region',
-                null,
+                \Yii::$app->request->get('region'),
                 ['-- Регион --'] +
                     \yii\helpers\ArrayHelper::map($regionModel, 'id', 'name'),
                 [
@@ -202,7 +202,7 @@ use yii\helpers\Html;
             <label for="country">Страна</label>
             <?php echo Html::dropDownList(
                 'country',
-                null,
+                \Yii::$app->request->get('country'),
                 ['-- Страна --'] +
                     \yii\helpers\ArrayHelper::map($geoCountry, 'id', 'name'),
                 [
