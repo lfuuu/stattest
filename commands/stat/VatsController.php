@@ -142,11 +142,13 @@ class VatsController extends Controller
             ];
 
             $this->stdout(
-                $day . ':' .
+                'AccountID: ' . $record['account_id'] . ',' .
+                'VirtPBXID: ' . $record['stat_product_id'] . ',' .
+                'Date: ' . $day . "\n" .
                 $this->ansiFormat(' space:' . $record['disk_space_bytes'], Console::FG_GREY) .
                 $this->ansiFormat(' ports:' . $record['int_number_count'], Console::FG_GREY) .
                 $this->ansiFormat(' ext DID counts:' . $record['ext_did_count'], Console::FG_GREY) .
-                "\n",
+                "\n\n",
                 Console::FG_YELLOW
             );
         }
@@ -174,6 +176,7 @@ class VatsController extends Controller
             $transaction->rollBack();
             $this->throwError($e->getMessage());
         }
+        $transaction->commit();
     }
 
     /**
