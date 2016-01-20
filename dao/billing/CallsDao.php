@@ -133,6 +133,7 @@ class CallsDao extends Singleton
         $query->andWhere(['between', 'connect_time', $firstDayOfDate->format('Y-m-d H:i:s'), $lastDayOfDate->format('Y-m-d H:i:s')]);
 
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
+        $query->orderBy('connect_time');
 
         return $query->all(Calls::getDb());
     }

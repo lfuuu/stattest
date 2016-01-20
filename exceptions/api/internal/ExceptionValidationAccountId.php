@@ -1,9 +1,9 @@
 <?php
 namespace app\exceptions\api\internal;
 
-use Exception;
+use yii\base\Exception;
 
-class AccountIdValidationException extends Exception
+class ExceptionValidationAccountId extends Exception
 {
 
     public function __construct()

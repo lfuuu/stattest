@@ -5,7 +5,7 @@ namespace app\controllers\api\internal;
 use Yii;
 use DateTime;
 use app\exceptions\web\NotImplementedHttpException;
-use app\exceptions\api\internal\FormValidationException;
+use app\exceptions\api\internal\ExceptionValidationForm;
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
@@ -39,7 +39,7 @@ class VoipController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new FormValidationException($model);
+            throw new ExceptionValidationForm($model);
         }
 
         return

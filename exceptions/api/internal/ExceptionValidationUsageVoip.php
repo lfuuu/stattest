@@ -3,7 +3,7 @@ namespace app\exceptions\api\internal;
 
 use Exception;
 
-class UsageVoipValidationException extends Exception
+class ExceptionValidationUsageVoip extends Exception
 {
 
     public function __construct()

@@ -4,11 +4,10 @@ namespace app\exceptions\api\internal;
 use yii\base\Model;
 use app\exceptions\web\BadRequestHttpException;
 
-class FormValidationException extends \app\exceptions\FormValidationException
+class ExceptionValidationForm extends \app\exceptions\FormValidationException
 {
 
-    const EXCEPTION_PATH = '\\app\\exceptions\\api\\internal\\';
-    const EXCEPTION_POSTFIX = 'ValidationException';
+    const EXCEPTION_PREFIX = 'Validation';
 
     private $exceptions = [
         'AccountId' => ['client_id', 'account_id', 'client_account_id'],
@@ -18,20 +17,14 @@ class FormValidationException extends \app\exceptions\FormValidationException
     public function __construct(Model $form)
     {
         $errorKey = reset(array_keys($form->getFirstErrors()));
-        $exceptionName = null;
 
         foreach ($this->exceptions as $exceptionKey => $fields) {
             if (in_array($errorKey, $fields, true)) {
-                $exceptionName = self::EXCEPTION_PATH . $exceptionKey . self::EXCEPTION_POSTFIX;
-                break;
+                throw ExceptionFactory::get(self::EXCEPTION_PREFIX . $exceptionKey);
             }
         }
 
-        if (!class_exists($exceptionName)) {
-            throw new BadRequestHttpException($form->getFirstError($errorKey));
-        }
-
-        throw new $exceptionName;
+        throw new BadRequestHttpException($form->getFirstError($errorKey));
     }
 
 }
