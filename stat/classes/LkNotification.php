@@ -52,8 +52,7 @@ class LkNotification {
     {
         switch( $this->Contact->type) {
             case 'email': return $this->sendMail();
-
-            case 'phone': 
+            case 'phone':
             case 'sms': return $this->sendSMS();
         }
 
@@ -68,11 +67,17 @@ class LkNotification {
             $contactType = "phone";
         }
 
-        $assigns = array('value'=>$this->value, 'balance' => $this->balance, "account" => $this->Client->id);
+        $assigns = [
+            'value' => $this->value,
+            'balance' => $this->balance,
+            'account' => $this->Client->id,
+            'organization' => $this->Client->organization->name,
+            'currency' => Yii::t('biller', $this->Client->currency, [], $this->Client->country->lang),
+            'country' => $this->Client->country_id,
+        ];
 
         $this->design->assign($assigns);
         $message = $this->design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
-
 
         if ($contactType == "email") {
             if (in_array($this->type, array("day_limit", "min_balance", "zero_balance"))) {
@@ -81,7 +86,6 @@ class LkNotification {
             }
             $message .= $this->design->fetch($this->tpl_dir . $contactType . '__footer.tpl'); 
         }
-
 
         return $message;
     }

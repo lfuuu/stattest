@@ -37,6 +37,8 @@ return [
 
     'paypal_payment_description' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',
     'RUB' => 'руб.',
+    'HUF' => 'Ft',
+    'USD' => '$',
 
     'incomming_payment' => 'Авансовый платеж за услуги связи',
 ];
