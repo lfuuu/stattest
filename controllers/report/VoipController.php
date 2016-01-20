@@ -3,23 +3,15 @@ namespace app\controllers\report;
 
 use app\classes\report\LostCalls;
 use app\dao\VoipDestinationDao;
-use app\models\billing\Calls;
-use app\models\billing\GeoCity;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoRegion;
-use app\models\billing\Operator;
 use app\models\billing\Server;
 use app\models\billing\Trunk;
-use app\models\Region;
-use app\queries\CallsRawQuery;
 use Yii;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
-use yii\db\ActiveQuery;
-use yii\db\pgsql\QueryBuilder;
 use yii\db\Query;
-use yii\helpers\ArrayHelper;
 
 class VoipController extends BaseController
 {
@@ -77,7 +69,7 @@ class VoipController extends BaseController
         $query = (new Query())
             ->select([
                 'rc.prefix AS prefix',
-                'rc.operator_id',
+                'rc.trunk_id',
                 'rc.mob as mob',
 
                 'g.name AS destination',
@@ -97,7 +89,7 @@ class VoipController extends BaseController
 
             ->groupBy([
                 'rc.prefix',
-                'rc.operator_id',
+                'rc.trunk_id',
                 'rc.mob',
                 'rc.cost',
                 'rc.interconnect_cost',
@@ -122,7 +114,7 @@ class VoipController extends BaseController
                 'trunkModel' => Trunk::find()->where(['show_in_stat' => true])->all(),
                 'regionModel' => GeoRegion::find()->all(),
                 'destination' => VoipDestinationDao::me()->getList(),
-                'operator' => Operator::find()->all(),
+                'trunk' => Trunk::find()->all(),
                 'server' => Server::find()->all(),
                 'geoCountry' => GeoCountry::find()->all(),
                 'totals' => $this->getTotalStat(),

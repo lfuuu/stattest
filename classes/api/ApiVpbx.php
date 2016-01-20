@@ -4,9 +4,9 @@ namespace app\classes\api;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
-use app\models\Usage;
 use app\models\UsageVirtpbx;
 use app\models\ClientAccount;
+use app\models\Region;
 
 class ApiVpbx
 {
@@ -53,7 +53,7 @@ class ApiVpbx
     {
         $tariff = self::getTariff($usageId);
 
-        $regionId = 99;
+        $regionId = Region::MOSCOW;
 
         try {
             $u = UsageVirtpbx::findOne($usageId);
@@ -142,6 +142,16 @@ class ApiVpbx
     public static function getUsageNumbersStatistic($clientId, $usageId, $date)
     {
         return self::getStatistic($clientId, $usageId, $date, "get_int_number_usage", "int_number_amount");
+    }
+
+    /**
+     * @param \DateTime $date
+     * @return mixed JSON array
+     * @throws Exception
+     */
+    public static function getResourceStatistics(\DateTime $date)
+    {
+        return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format('Y-m-d')]);
     }
 
     public static function getStatistic($clientId, $usageId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")

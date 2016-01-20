@@ -10,7 +10,7 @@ use yii\db\ActiveRecord;
  * @property int    $network_config_id
  * @property string $date
  * @property string $format
- * @property string $file_name
+ * @property string $filename
  * @property bool   $active
  * @property int    $rows
  * @property string $startdate

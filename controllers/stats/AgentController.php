@@ -30,6 +30,10 @@ class AgentController extends BaseController
         $partnerId = Yii::$app->request->get('partner_contract_id', 0);
         list($dateFrom, $dateTo) = explode(' - ', Yii::$app->request->get('date', 0));
 
+        $dateFrom = (!empty($dateFrom)) ? $dateFrom : date("Y-m-d", strtotime("first day of previous month"));
+        $dateTo = (!empty($dateTo)) ? $dateTo : date("Y-m-d", strtotime("last day of previous month"));
+
+
         $partnerList = ArrayHelper::map(
             ClientContract::find()
                 ->andWhere(['business_id' => Business::PARTNER])

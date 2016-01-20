@@ -14,12 +14,23 @@
 			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
 		</tr>
 		<tr>
-			<td>Оператор</td>
+			<td>Транк</td>
 			<td colspan="8">
-				<select name="operator">
-					<option value="all">Все</option>
-					{foreach from=$operators item='o'}
-						<option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+				<select class="select2" style="width: 300px" name="trunk">
+					<option value="0">Все</option>
+					{foreach from=$trunks item='o'}
+					<option value="{$o.id}"{if $trunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Услуга транк</td>
+			<td colspan="8">
+				<select class="select2" style="width: 300px" name="serviceTrunk">
+					<option value="0">Все</option>
+					{foreach from=$serviceTrunks item='o'}
+					<option value="{$o.id}"{if $serviceTrunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
 					{/foreach}
 				</select>
 			</td>
@@ -59,7 +70,7 @@
 			</td>
 			<td>Регион</td>
 			<td colspan="8">
-                <select name="region">
+                <select class="select2" style="width: 200px" name="region">
                     <option value="0">Все</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
@@ -76,7 +87,6 @@
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
 	<tr>
 		{if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
-        <td class='header' vAlign='bottom'>ID</td>
 		<td class='header' vAlign='bottom' width="110">Оператор</td>
 		{foreach from=$report_dest item='dd' key='d'}
 		{if $d<>'sum'}
@@ -86,10 +96,10 @@
 	</tr>
 	{assign var='co' value='0'}
 	{foreach from=$report item='o' key='operator'}
-	{if $groupp && $operator<>$co}
+	{if $groupp}
 	{if $co<>'0'}
 	<tr>
-		<td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co].name}:</td>
+		<td colspan="2" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co]}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
@@ -114,9 +124,7 @@
 	{foreach from=$o item='d' key='day'}
 	<tr class="{cycle values='even,odd'}">
 		{if $groupp}<td>{$day}</td>{/if}
-        <td>{$operator}</td>
-        {assign var='op' value="`$operators[$operator]`"}
-        <td>{$op.name}</td>
+        <td nowrap="">{$operators[$operator]}</td>
 	{foreach from=$report_dest item='rd' key='dkey'}
 	{if $dkey<>'sum'}
 	{if isset($d[$dkey])}
@@ -138,7 +146,7 @@
 	{/foreach}
 	{if $groupp && count($report)>1}
 	<tr>
-        <td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co].name}:</td>
+        <td colspan="2" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co]}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
@@ -158,7 +166,7 @@
 	</tr>
 	{/if}
 	<tr>
-		<td class="header" style="background-color: {$bg}; color: {$fg};" colspan="{if $groupp}3{else}2{/if}" vAlign='bottom'>Итого по всем операторам:</td>
+		<td class="header" style="background-color: {$bg}; color: {$fg};" colspan="{if $groupp}2{else}1{/if}" vAlign='bottom'>Итого по всем операторам:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if $dkey<>900}

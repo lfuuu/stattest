@@ -18,7 +18,8 @@ class m_voipreports_operators_traf
         $date_to_y = get_param_raw('date_to_y', date('Y'));
         $date_to_m = get_param_raw('date_to_m', date('m'));
         $date_to_d = get_param_raw('date_to_d', date('d'));
-        $operator = get_param_raw('operator', 'all');
+        $trunk = get_param_integer('trunk', '0');
+        $serviceTrunk = get_param_integer('serviceTrunk', '0');
         $destination = get_param_raw('destination', 'all');
         $direction = get_param_raw('direction', 'both');
         $groupp = get_param_raw('groupp',0);
@@ -35,8 +36,6 @@ class m_voipreports_operators_traf
             $date_to_m = date('m');
         if(!is_numeric($date_to_d))
             $date_to_d = date('d');
-        if(!in_array($operator,array(0,1,2,3,4,9)))
-            $operator = 0;
         if(!in_array($destination,array('all',10,11,101,102,103)))
             $destination = 'all';
         if(!in_array($direction,array('both','in','out')))
@@ -44,26 +43,21 @@ class m_voipreports_operators_traf
 
         $regions = $db->AllRecords('select * from regions','id');
 
-        /*
-        $operators = $pg_db->AllRecords("select id::varchar||'_'||case region when 0 then ".$region." else region end as idregion, * from voip.operator  order by id, region",'idregion');
-        foreach($operators as $k=>$v){
-            $operators[$k]['fullname'] = $v['name'];
-            if (isset($regions[$v['region']]))
-                $operators[$k]['fullname'] .= ' - '.$regions[$v['region']]['name'];
-        }
-        */
-        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id order by id",'id');
-
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
             $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59.999999';
 
             $wm = " (connect_time between '".$date_from."' and '".$date_to."') ";
 
-            if($operator>0)
-                $wo = " and operator_id=".$operator;
-            else
-                $wo = '';
+            $wo = '';
+
+            if ($trunk > 0) {
+                $wo .= " and trunk_id=" . $trunk;
+            }
+
+            if ($serviceTrunk > 0) {
+                $wo .= " and trunk_service_id=" . $serviceTrunk;
+            }
 
             if($destination != 'all'){
                 if ($destination == 10){
@@ -84,23 +78,24 @@ class m_voipreports_operators_traf
             if($groupp){
                 $god = " group by ";
                 if ($groupp==1)        $god .= " date_trunc('day',connect_time), ";
-                else $god .= " month, ";
-                $god .= "    operator_id,
+                else $god .= " date_trunc('month',connect_time), ";
+                $god .= "    trunk_id, trunk_service_id,
                             dest2";
                 if ($groupp==1)        $sod = " ,date_trunc('day',connect_time) as date";
                 else    $sod = " ,date_trunc('month',connect_time) as date";
-                $ob = " order by date, operator_id, dest2";
+                $ob = " order by date, trunk_id, trunk_service_id, dest2";
             }else{
-                $god = ' group by operator_id, dest2';
+                $god = ' group by trunk_id, trunk_service_id, dest2';
                 $sod = '';
-                $ob = " order by operator_id, dest2";
+                $ob = " order by trunk_id, trunk_service_id, dest2";
             }
 
             $query = "
                 select
                     sum(billed_time) as length,
                     sum(cost) as price,
-                    operator_id as operator_id,
+                    trunk_id,
+                    trunk_service_id,
                     case orig when false then
                         case dst_number::varchar like '7800%' when true then
                             100
@@ -126,17 +121,28 @@ class m_voipreports_operators_traf
                     billed_time > 0 and
                     ".$wm.$wo.$wde.$wdi.$god.$ob;
 
-            $pg_db->Query($query);
+            $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+            $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
+
             $report = array();
             $report_dest = array();
             $report_oper = array();
-            while($row=$pg_db->NextRecord(MYSQL_ASSOC)){
-                if(!isset($report[$row['operator_id']]))
-                    $report[$row['operator_id']] = array();
-                $r =& $report[$row['operator_id']];
+            $operators = [];
 
-                if(!isset($report_oper[$row['operator_id']]))
-                    $report_oper[$row['operator_id']] = array();
+            $pg_db->Query($query);
+            while($row=$pg_db->NextRecord(MYSQL_ASSOC)){
+                $trunk = isset($trunks[$row['trunk_id']]) ? $trunks[$row['trunk_id']] : ['id' => '', 'name' => ''];
+                $serviceTrunk = isset($serviceTrunks[$row['trunk_service_id']]) ? $serviceTrunks[$row['trunk_service_id']] : ['id' => '', 'name' => ''];
+
+                $key = $row['trunk_id'] . '_' . $row['trunk_service_id'];
+                $operators[$key] = $trunk['name'] . ' (' . $trunk['id'] . ') / ' . $serviceTrunk['name'] . ' (' . $serviceTrunk['id'] . ')';
+
+                if(!isset($report[$key]))
+                    $report[$key] = array();
+                $r =& $report[$key];
+
+                if(!isset($report_oper[$key]))
+                    $report_oper[$key] = array();
 
                 if($groupp){
                     if(!isset($r[$row['date']]))
@@ -148,8 +154,8 @@ class m_voipreports_operators_traf
                     $r =& $r[0];
                 }
 
-                if(!isset($report_oper[$row['operator_id']][$row['dest2']])){
-                    $report_oper[$row['operator_id']][$row['dest2']] = array(
+                if(!isset($report_oper[$key][$row['dest2']])){
+                    $report_oper[$key][$row['dest2']] = array(
                         'clean'=>0,
                         'human'=>0,
                         'price'=>0,
@@ -165,17 +171,12 @@ class m_voipreports_operators_traf
                 $report_dest[$row['dest2']]['clean'] += $row['length'];
                 $report_dest[$row['dest2']]['price'] += $row['price'];
 
-                //$h = (int)($report_dest[$row['dest2']]['clean']/3600);
-                //$m = (int)(($report_dest[$row['dest2']]['clean']-($h*3600))/60);
-                //$s = $report_dest[$row['dest2']]['clean'] - ($m*60+$h*3600);
                 $report_dest[$row['dest2']]['human'] = round($report_dest[$row['dest2']]['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
 
                 $row['length'] = (int)$row['length'];
-                //$h = (int)($row['length']/3600);
-                //$m = (int)(($row['length']-($h*3600))/60);
-                //$s = $row['length'] - ($m*60+$h*3600);
-                $report_oper[$row['operator_id']][$row['dest2']]['clean'] += $row['length'];
-                $report_oper[$row['operator_id']][$row['dest2']]['price'] += $row['price'];
+
+                $report_oper[$key][$row['dest2']]['clean'] += $row['length'];
+                $report_oper[$key][$row['dest2']]['price'] += $row['price'];
                 if($row['dest2']==900){
                     $r[900] = array(
                         'clean'=>$row['length'],
@@ -204,16 +205,10 @@ class m_voipreports_operators_traf
                     }
                     $r['sum']['clean'] += $row['length'];
                     $r['sum']['price'] += $row['price'];
-                    //$h = (int)($r['sum']['clean']/3600);
-                    //$m = (int)(($r['sum']['clean']-($h*3600))/60);
-                    //$s = $r['sum']['clean'] - ($m*60+$h*3600);
                     $r['sum']['human'] = round($r['sum']['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
 
                     $report_dest['sum']['clean'] += $row['length'];
                     $report_dest['sum']['price'] += $row['price'];
-                    //$h = (int)($report_dest['sum']['clean']/3600);
-                    //$m = (int)(($report_dest['sum']['clean']-($h*3600))/60);
-                    //$s = $report_dest['sum']['clean'] - ($m*60+$h*3600);
                     $report_dest['sum']['human'] = round($report_dest['sum']['clean']/3600,2); //$h.'ч '.$m.'м '.$s.'с';
                 }
                 ksort($r);
@@ -229,14 +224,8 @@ class m_voipreports_operators_traf
                         $report_oper[$op]['sum']['clean'] += $dd['clean'];
                         $report_oper[$op]['sum']['price'] += $dd['price'];
                     }
-                    //$h = (int)($report_oper[$op][$dk]['clean']/3600);
-                    //$m = (int)(($report_oper[$op][$dk]['clean']-($h*3600))/60);
-                    //$s = $report_oper[$op][$dk]['clean'] - ($m*60+$h*3600);
                     $report_oper[$op][$dk]['human'] = round($report_oper[$op][$dk]['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
                 }
-                //$h = (int)($report_oper[$op]['sum']['clean']/3600);
-                //$m = (int)(($report_oper[$op]['sum']['clean']-($h*3600))/60);
-                //$s = $report_oper[$op]['sum']['clean'] - ($m*60+$h*3600);
                 $report_oper[$op]['sum']['human'] = round($report_oper[$op]['sum']['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
             }
             $design->assign('report_oper',$report_oper);
@@ -252,8 +241,11 @@ class m_voipreports_operators_traf
         $design->assign('date_to_yy',$date_to_y);
         $design->assign('date_to_mm',$date_to_m);
         $design->assign('date_to_dd',$date_to_d);
-        $design->assign('operator',$operator);
-        $design->assign('operators', $operators);
+        $design->assign('operators',$operators);
+        $design->assign('trunk',$trunk);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunk',$serviceTrunk);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
         $design->assign('groupp',$groupp);

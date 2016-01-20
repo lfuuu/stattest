@@ -27,18 +27,11 @@ class m_voipreports_analyze_pricelist_report
         else
             $volume_task_id = 0;
         $volumes = array();
-        $volumesByOper = array();
+        $volumesByPricelist = array();
         $showOperator = false;
 
         $pricelists = Pricelist::getListAssoc();
         $regions = Region::getListAssoc();
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'id, region desc')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
-        }
 
         $report = array();
         if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])) {
@@ -52,7 +45,6 @@ class m_voipreports_analyze_pricelist_report
             if ($f_mob == 'f')
                 $where .= " and d.mob=false ";
 
-            $showOperator = $f_mob == 't';
             $showOperator = false;
 
             $sql = "
@@ -63,7 +55,7 @@ class m_voipreports_analyze_pricelist_report
                     from voip.select_pricelist_report({$report_id}, {$recalc}) r
                             LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                             LEFT JOIN geo.geo g ON g.id=d.geo_id
-                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=d.defcode
+                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.pricelist_id=0 and v.prefix=d.defcode
                             " . ($showOperator ? 'left join geo.prefix pp on pp.prefix=r.prefix' :'' ) . "
                             where true {$where}
                             order by g.name, r.prefix
@@ -90,7 +82,7 @@ class m_voipreports_analyze_pricelist_report
             $res_volumes = $pg_db->AllRecords("
                                         select prefix, instance_id, round(seconds_op/60.0) as volume
                                         from voip.volume_calc_data
-                                        where task_id={$volume_task_id} and operator_id=0
+                                        where task_id={$volume_task_id} and pricelist_id=0
                                   ");
             foreach($rep->getFields() as $field) {
                 $volumes[$field['pricelist']->region] = array();
@@ -103,19 +95,15 @@ class m_voipreports_analyze_pricelist_report
             }
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, operator_id, round(seconds_op/60.0) as volume
+                                        select prefix, pricelist_id, round(seconds_op/60.0) as volume
                                         from voip.volume_calc_data
-                                        where task_id={$volume_task_id} and instance_id=0 and operator_id!=0
+                                        where task_id={$volume_task_id} and instance_id=0 and pricelist_id!=0
                                   ");
-            foreach($rep->getFields() as $field) {
-                $volumesByOper[$field['pricelist']->operator_id] = array();
-            }
-
             foreach ($res_volumes as $r) {
-                if (!isset($volumesByOper[$r['operator_id']])) {
-                    continue;
+                if (!isset($volumesByPricelist[$r['pricelist_id']])) {
+                    $volumesByPricelist[$r['pricelist_id']] = array();
                 }
-                $volumesByOper[$r['operator_id']][$r['prefix']] = $r;
+                $volumesByPricelist[$r['pricelist_id']][$r['prefix']] = $r;
             }
 
         }
@@ -133,7 +121,7 @@ class m_voipreports_analyze_pricelist_report
         $design->assign('rep', $rep);
         $design->assign('volume', $volume);
         $design->assign('volumes', $volumes);
-        $design->assign('volumesByOper', $volumesByOper);
+        $design->assign('volumesByPricelist', $volumesByPricelist);
         $design->assign('report', $report);
         $design->assign('report_id', $report_id);
         $design->assign('showOperator', $showOperator);
@@ -146,7 +134,6 @@ class m_voipreports_analyze_pricelist_report
 
         $design->assign('pricelists', $pricelists);
         $design->assign('regions', $regions);
-        $design->assign('operators', $operators);
         $design->assign('geoOperators', $geoOperators);
 
         if (!isset($_GET['export'])) {

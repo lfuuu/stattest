@@ -31,7 +31,11 @@ class Navigation
         $this->addBlockNewClients();
 
         $this->addBlockForStatModule('services');
-        $this->addBlockForStatModule('newaccounts');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Бухгалтерия')
+                ->addStatModuleItems('newaccounts')
+        );
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Тарифы')

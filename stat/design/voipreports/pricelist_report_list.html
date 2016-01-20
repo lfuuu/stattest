@@ -52,10 +52,6 @@
             {foreach from=$r->getFields() item='f'}
             <tr>
                 <td nowrap>
-                    {php} echo $this->_tpl_vars['f']['pricelist']->getOperator()->short_name; {/php}
-                </td>
-                <td nowrap>/</td>
-                <td nowrap>
                      {$f.pricelist->name}
                 </td>
                 <td nowrap bgcolor="white">
