@@ -37,7 +37,16 @@ $I->amOnPage('/?module=services&action=welltime_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 
-// Trying send form
+
+/*
+ *  Negative test
+ */
+$I->submitForm('//form[@id="dbform"]', []);
+$I->seeElement('div.alert-danger');
+
+/*
+ * Positive test
+ */
 $tariffSelector = '//select[@id="tarif_id"]';
 $tariffValue = $I->grabAttributeFrom($tariffSelector . '/option[last()]', 'value');
 $I->selectOption($tariffSelector, $tariffValue);
@@ -61,10 +70,10 @@ $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 /** @var \app\models\UsageWelltime $usage */
 $usage = \app\models\UsageWelltime::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotEmpty($usage->client, 'Client is good');
+$I->assertNotNull($usage->clientAccount, 'Client is good');
 $I->assertNotEmpty($usage->amount, 'Amount is good');
 $I->assertNotEmpty($usage->status, 'Status is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');
 $I->assertNotEmpty($usage->expire_dt, 'Expire datetime is good');
-$I->assertNotEmpty($usage->tarif_id, 'Tariff is good');
+$I->assertNotNull($usage->tariff, 'Tariff is good');
 $I->assertNotEmpty($usage->router, 'Router is good');

@@ -32,7 +32,7 @@ class UsageWelltimeForm extends Form
             ],
             [['amount',], 'number'],
             [['tarif_id',], 'integer'],
-            [['client', 'amount', ], 'required'],
+            [['client', 'amount', 'tarif_id',], 'required'],
         ];
     }
 

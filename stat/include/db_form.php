@@ -157,11 +157,13 @@ class DbForm {
                 }
             }
 
+            $p = null;
             if (!$no_real_update) {
                 if ($this->dbform['id']) {
                     if ($sDiff) {
                         $this->dbform["t_fields_changes"] = $sDiff;
                     }
+
 
                     $model = (new $usageForm->model)->findOne($this->dbform['id']);
 
@@ -172,17 +174,12 @@ class DbForm {
                             &&
                         $usageForm->saveModel($model, true, true)
                     ) {
+                        $p = 'edit';
                         Yii::$app->session->addFlash('success', 'Запись обновлена');
                         Yii::$app->response->redirect($model->helper->editLink);
                     }
-
-                    if ($usageForm->hasErrors()) {
-                        $this->data = $this->dbform;
-                        foreach ($usageForm->firstErrors as $error) {
-                            Yii::$app->session->addFlash('error', $error);
-                        }
-                    }
-                } else {
+                }
+                else {
                     $model = new $usageForm->model;
 
                     if (
@@ -192,22 +189,24 @@ class DbForm {
                             &&
                         $usageForm->saveModel($model, true, true)
                     ) {
+                        $p = 'add';
                         Yii::$app->session->addFlash('success', 'Запись добавлена');
                         Yii::$app->response->redirect($model->helper->editLink);
                     }
-
-                    if ($usageForm->hasErrors()) {
-                        $this->data = $this->dbform;
-                        foreach ($usageForm->firstErrors as $error) {
-                            Yii::$app->session->addFlash('error', $error);
-                        }
-                    }
                 }
 
-            } else {
-                $p='add';
+                if ($usageForm->hasErrors()) {
+                    $this->data = $this->dbform;
+                    foreach ($usageForm->firstErrors as $error) {
+                        Yii::$app->session->addFlash('error', $error);
+                    }
+                }
+            }
+            else {
+                $p = 'add';
                 $this->data=$this->dbform;
             }
+
             return $p;
         }
     }
@@ -217,7 +216,7 @@ class DbForm {
         $client = is_numeric($this->dbform['client']) ? ClientAccount::findOne($this->dbform['client']) : ClientAccount::findOne(['client' => $this->dbform['client']]);
         Assert::isObject($client);
         $this->dbform['activation_dt'] = (new DateTime($this->dbform['actual_from'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $this->dbform['expire_dt'] = (new DateTime($this->dbform['actual_to'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $this->dbform['expire_dt'] = \app\helpers\DateTimeZoneHelper::getExpireDateTime($this->dbform['actual_to'], $client->timezone_name);
     }
 }
 class HelpDbForm {
@@ -1277,7 +1276,7 @@ class DbFormUsageWelltime extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
             HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
 

@@ -9,7 +9,12 @@ use DateTimeZone;
 class DateTimeZoneHelper extends \yii\helpers\FileHelper
 {
 
-    public static function getDateTime($date, $format = 'Y-m-d H:i:s', $showTimezoneName = true)
+    const DATETIME_FORMAT = 'Y-m-d H:i:s';
+
+    const TIMEZONE_DEFAULT = 'UTC';
+    const TIMEZONE_MOSCOW = 'Europe/Moscow';
+
+    public static function getDateTime($date, $format = self::DATETIME_FORMAT, $showTimezoneName = true)
     {
         if (!$date) {
             return;
@@ -19,6 +24,25 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
             return $showTimezoneName ? $datetime->format($format) . ' (' . static::getTimezoneDescription() . ')' : $datetime->format($format);
         }
         return $datetime;
+    }
+
+    /**
+     * @param string $date
+     * @param DateTimeZone|string $timezone
+     * @param string $format
+     * @return string
+     */
+    public static function getExpireDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
+    {
+        if (!($timezone instanceof DateTimeZone)) {
+            $timezone = new DateTimeZone($timezone ?: self::TIMEZONE_DEFAULT);
+        }
+
+        return
+            (new DateTime($date, $timezone))
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->modify('+1 day -1 second')
+                ->format($format);
     }
 
     public static function setDateTime($date, $format = false)
@@ -31,17 +55,14 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     private static function getTimezoneDescription()
     {
         $timezone = static::getUserTimeZone();
-        if ($timezone == "Europe/Moscow") {
-            return "Msk";
-        } else
-        if (strpos($timezone, "/") !== false) {
-
-            list($zone, $region) = explode("/", $timezone);
-
-            $region = str_replace(["a", "o", "e", "u", "i", "y"], "", $region);
-
-            return substr($region, 0, 3);
-        } else {
+        if ($timezone == self::TIMEZONE_MOSCOW) {
+            return 'Msk';
+        }
+        else if (strpos($timezone, '/') !== false) {
+            list(, $region) = explode('/', $timezone);
+            return substr(str_replace(['a', 'o', 'e', 'u', 'i', 'y'], '', $region), 0, 3);
+        }
+        else {
             return $timezone;
         }
     }
