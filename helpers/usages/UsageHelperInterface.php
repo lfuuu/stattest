@@ -2,6 +2,8 @@
 
 namespace app\helpers\usages;
 
+use yii\db\ActiveRecord;
+
 interface UsageHelperInterface
 {
 
@@ -29,5 +31,12 @@ interface UsageHelperInterface
      * @return string
      */
     public function getEditLink();
+
+    /**
+     * Получение услуги с которой был осуществлен перенос
+     *
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom();
 
 }

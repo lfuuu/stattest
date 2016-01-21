@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageEmails;
@@ -48,6 +49,14 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
     public function getEditLink()
     {
         return Url::toRoute(['/pop_services.php', 'table' => UsageEmails::tableName(), 'id' => $this->usage->id]);
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom()
+    {
+        return UsageEmails::findOne($this->usage->prev_usage_id);
     }
 
 }
