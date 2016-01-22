@@ -35,7 +35,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload']],
+            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true), 'options' => ['class' => 'select2 form-reload']],
             ['type' => Form::INPUT_RAW, 'value' => '
                 <div class="form-group">
                     <label class="control-label">Страна</label>
