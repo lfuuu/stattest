@@ -2,7 +2,7 @@
 class m_voipreports_head extends IModuleHead
 {
     public $module_name = 'voipreports';
-    public $module_title = 'IP Телефония (Отчеты)';
+    public $module_title = 'Межоператорка (Отчеты)';
 
     public $actions = array(
         'voip_7800_report' => array('voipreports','access'),
