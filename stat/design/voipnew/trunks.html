@@ -8,7 +8,6 @@
     <td class=header>Транк</td>
     <td class=header></td>
     <td class=header>Описание</td>
-    <td class=header>Ид оператора</td>
 </tr>
 {foreach from=$trunks item='t'}
 	<tr class="{cycle values='even,odd'}">
@@ -17,7 +16,6 @@
         <td><a href='/usage/trunk/edit?id={$t.id}'>({$t.id}) {$bill_trunks[$t.trunk_id]}</a></td>
         <td>{if $t.orig_enabled > 0}Оригинация{/if} {if $t.term_enabled > 0}Терминация{/if}</td>
         <td>{$t.description}</td>
-        <td>{$t.operator_id}</td>
     </tr>
 {/foreach}
 </table>

@@ -42,6 +42,8 @@ class m_voipreports_operators_traf
             $direction = 'both';
 
         $regions = $db->AllRecords('select * from regions','id');
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
@@ -121,9 +123,6 @@ class m_voipreports_operators_traf
                     billed_time > 0 and
                     ".$wm.$wo.$wde.$wdi.$god.$ob;
 
-            $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
-            $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
-
             $report = array();
             $report_dest = array();
             $report_oper = array();
@@ -131,11 +130,11 @@ class m_voipreports_operators_traf
 
             $pg_db->Query($query);
             while($row=$pg_db->NextRecord(MYSQL_ASSOC)){
-                $trunk = isset($trunks[$row['trunk_id']]) ? $trunks[$row['trunk_id']] : ['id' => '', 'name' => ''];
-                $serviceTrunk = isset($serviceTrunks[$row['trunk_service_id']]) ? $serviceTrunks[$row['trunk_service_id']] : ['id' => '', 'name' => ''];
+                $tTrunk = isset($trunks[$row['trunk_id']]) ? $trunks[$row['trunk_id']] : ['id' => '', 'name' => ''];
+                $tServiceTrunk = isset($serviceTrunks[$row['trunk_service_id']]) ? $serviceTrunks[$row['trunk_service_id']] : ['id' => '', 'name' => ''];
 
                 $key = $row['trunk_id'] . '_' . $row['trunk_service_id'];
-                $operators[$key] = $trunk['name'] . ' (' . $trunk['id'] . ') / ' . $serviceTrunk['name'] . ' (' . $serviceTrunk['id'] . ')';
+                $operators[$key] = $tTrunk['name'] . ' (' . $tTrunk['id'] . ') / ' . $tServiceTrunk['name'] . ' (' . $tServiceTrunk['id'] . ')';
 
                 if(!isset($report[$key]))
                     $report[$key] = array();

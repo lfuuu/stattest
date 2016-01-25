@@ -93,6 +93,11 @@ abstract class BasePricelistLoader extends BaseLoader
             if (!isset($row['deleting']))
                 $row['deleting'] = 0;
 
+            if ($row['rate'] === 'DEL') {
+                $row['deleting'] = 1;
+                $row['rate'] = 0;
+            }
+
             $deleting = isset($row['deleting']) && $row['deleting'] ? 'TRUE' : 'FALSE';
 
             $q .= "('" . pg_escape_string($file->id) . "','" . pg_escape_string($row['prefix']) . "'," . $deleting . ",'" . pg_escape_string($row['rate']) . "'," . $mob . ")";

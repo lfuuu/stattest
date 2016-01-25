@@ -276,17 +276,45 @@ class PricelistController extends BaseController
         $pricelist = Pricelist::findOne($id);
         Assert::isObject($pricelist);
 
+        $errors = '';
+
+        /** @var PricelistFile[] $pricelistFiles */
         $pricelistFiles = PricelistFile::findAll(['pricelist_id' => $pricelist->id]);
-        Assert::isEmpty($pricelistFiles);
+        if (!empty($pricelistFiles)) {
+            $errors .= "<br/>\nНеобходимо деактивировать и удалить файлы прайслистов.<br/>\n";
+        }
 
+        /** @var UsageTrunkSettings[] $trunkSettingsList */
         $trunkSettingsList = UsageTrunkSettings::findAll(['pricelist_id' => $pricelist->id]);
-        Assert::isEmpty($trunkSettingsList);
+        if (!empty($trunkSettingsList)) {
+            $errors .= "<br/>\nПрайслист используется в настройках транков:<br/>\n";
+        }
+        foreach ($trunkSettingsList as $trunkSettings) {
+            $errors .= $trunkSettings->usage->description . " (" . $trunkSettings->usage_id . ")" . "(ЛС: " . $trunkSettings->usage->clientAccount->id . ")<br/>\n";
+        }
 
+        /** @var TariffVoip[] $tariffs */
         $tariffs = TariffVoip::findAll(['pricelist_id' => $pricelist->id]);
-        Assert::isEmpty($tariffs);
+        if (!empty($tariffs)) {
+            $errors .= "<br/>\nПрайслист используется в тарифах телефонии:<br/>\n";
+        }
+        foreach ($tariffs as $tariff) {
+            $errors .= $tariff->name . " (" . $tariff->id. ")<br/>\n";
+        }
 
+        /** @var TariffVoipPackage[] $tariffPackages */
         $tariffPackages = TariffVoipPackage::findAll(['pricelist_id' => $pricelist->id]);
-        Assert::isEmpty($tariffPackages);
+        if (!empty($tariffs)) {
+            $errors .= "<br/>\nПрайслист используется в тарифах на пакеты телефонии:<br/>\n";
+        }
+        foreach ($tariffPackages as $tariffPackage) {
+            $errors .= $tariffPackage->name . " (" . $tariffPackage->id. ")<br/>\n";
+        }
+
+        if ($errors) {
+            Yii::$app->session->addFlash('error', $errors);
+            $this->redirect(Yii::$app->request->referrer);
+        }
 
         $pricelist->delete();
 
