@@ -23,6 +23,7 @@ class m_voipnew_network
         $startDate = get_param_protected('startdate');
 
         $table = null;
+        /*
         if ($networkConfig->operator_id == 15){
             $table = prices_parser::read_mgts_networks($_FILES['file']['tmp_name']);
             $table = VoipUtils::reducePrefixes($table, 'prefix', array('network_type_id'));
@@ -33,6 +34,7 @@ class m_voipnew_network
             $table = prices_parser::read_mts_networks($_FILES['file']['tmp_name']);
             $table = VoipUtils::reducePrefixes($table, 'prefix', array('network_type_id'));
         }
+        */
 
         if ($table) {
             $networkFile = new VoipNetworkFile();

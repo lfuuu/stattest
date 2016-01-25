@@ -115,7 +115,6 @@ echo Breadcrumbs::widget([
         'attributes' => [
             '' => ['type' => Form::INPUT_RAW],
             'description' => ['type' => Form::INPUT_TEXT],
-            'operator_id' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 

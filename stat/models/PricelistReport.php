@@ -40,7 +40,7 @@ class PricelistReport extends ActiveRecord\Model
         while (isset($pricelist_ids[$i]) && isset($dates[$i])) {
             $fields[] = array(
                 'pricelist_id' => (int)$pricelist_ids[$i],
-                'pricelist' => Pricelist::getCachedById((int)$pricelist_ids[$i]),
+                'pricelist' => \app\models\billing\Pricelist::findOne((int)$pricelist_ids[$i]),
                 'date' => $dates[$i] !== 'NULL' ? DateTime::createFromFormat('Y-m-d', $dates[$i])->setTime(0, 0, 0) : null,
             );
             $i++;

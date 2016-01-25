@@ -161,12 +161,6 @@ class VoipController extends BaseController
             $query->andWhere('rc.server_id = 99');
         }
 
-        if ( !empty( \Yii::$app->request->get('operator') ) ) {
-            $query->andWhere('rc.operator_id = :operatorId', [ ':operatorId' => \Yii::$app->request->get('operator') ]);
-        } else {
-            $query->andWhere('rc.operator_id = 2');
-        }
-
         if ( !empty( \Yii::$app->request->get('dateRange') ) ) {
             list($startDate, $endDate) = explode(' - ', \Yii::$app->request->get('dateRange'));
 
