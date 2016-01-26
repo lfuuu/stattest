@@ -70,7 +70,7 @@ $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 /** @var \app\models\UsageWelltime $usage */
 $usage = \app\models\UsageWelltime::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotNull($usage->clientAccount, 'Client is good');
+$I->assertNotNull($usage->clientAccount, 'Client #' . $clientAccountId . ' is good');
 $I->assertNotEmpty($usage->amount, 'Amount is good');
 $I->assertNotEmpty($usage->status, 'Status is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');

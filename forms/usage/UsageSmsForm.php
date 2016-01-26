@@ -21,9 +21,9 @@ class UsageSmsForm extends Form
     public function rules()
     {
         return [
-            [['client'], 'required'],
+            [['tarif_id',], 'number'],
             [['client', 'status', 'comment', 'actual_from', 'actual_to',], 'string'],
-            [['tarif_id',], 'integer'],
+            [['client', 'tarif_id',], 'required', 'skipOnEmpty' => false],
         ];
     }
 
@@ -35,7 +35,7 @@ class UsageSmsForm extends Form
             'actual_to' => 'Активна до',
             'status' => 'Состояние',
             'comment' => 'Комментарий',
-            'tarif_id' => 'Тариф',
+            'tarif_id' => 'Услуга',
         ];
     }
 

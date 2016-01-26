@@ -46,7 +46,7 @@ class UsageWelltimeForm extends Form
             'amount' => 'Количество',
             'status' => 'Состояние',
             'comment' => 'Комментарий',
-            'tarif_id' => 'Тариф',
+            'tarif_id' => 'Услуга',
             'router' => 'Роутер',
         ];
     }

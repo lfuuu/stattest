@@ -33,11 +33,19 @@ $loginPage = LoginPage::loginAsAdmin($I);
 
 $I->amOnPage('/client/view?id=' . $clientAccountId);
 
-$I->amOnPage('/?module=services&action=sms_add');
+    $I->amOnPage('/?module=services&action=sms_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 
-// Trying send form
+/*
+ *  Negative test
+ */
+$I->submitForm('//form[@id="dbform"]', []);
+$I->seeElement('div.alert-danger');
+
+/*
+ * Positive test
+ */
 $tariffSelector = '//select[@id="tarif_id"]';
 $tariffText = $I->grabTextFrom($tariffSelector . '/option[last()]');
 $I->selectOption($tariffSelector, $tariffText);
@@ -54,7 +62,7 @@ $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 /** @var \app\models\UsageSms $usage */
 $usage = \app\models\UsageSms::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotEmpty($usage->client, 'Client is good');
-$I->assertNotEmpty($usage->tarif_id, 'Tariff is good');
+$I->assertNotNull($usage->clientAccount, 'Client #' . $clientAccountId . ' is good');
+$I->assertNotNull($usage->tariff, 'Tariff is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');
 $I->assertNotEmpty($usage->expire_dt, 'Expire datetime is good');
