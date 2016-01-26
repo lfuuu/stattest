@@ -842,29 +842,6 @@ class DbFormEmails extends DbForm {
         if(!isset($this->dbform['id']))
             return '';
 
-        if($this->dbform_action!='delete'){
-            $this->dbform['actual_from'] = date('Y-m-d',strtotime($this->dbform['actual_from']));
-            $this->dbform['actual_to'] = date('Y-m-d',strtotime($this->dbform['actual_to']));
-            $query = "
-                select
-                    *
-                from
-                    emails
-                where
-                    id!=".intval($this->dbform['id'])."
-                and
-                    actual_from<='".($this->dbform['actual_from'])."'
-                and
-                    actual_to>'".($this->dbform['actual_from'])."'
-                and
-                    domain='".addslashes($this->dbform['domain'])."'
-                and
-                    local_part='".addslashes($this->dbform['local_part'])."'";
-            if($db->GetRow($query)) {
-                trigger_error2('Такой адрес уже занят');
-                return '';
-            }
-        }
         $current = $db->GetRow("select * from emails where id = '".$this->dbform["id"]."'");
 
         $v=DbForm::Process();
@@ -1313,7 +1290,7 @@ class DbFormUsageWelltime extends DbForm{
                 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
                 " order by description"
             );
-            $R=array('');
+            $R = ['' => ''];
             while($r=$db->NextRecord())
                 $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
             $this->fields['tarif_id']['type']='select';
@@ -1547,7 +1524,7 @@ class DbFormUsageSms extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
             HelpDbForm::assign_tt('usage_sms',$this->data['id'],$this->data['client']);
 
@@ -1581,7 +1558,7 @@ class DbFormUsageSms extends DbForm{
                 price_include_vat = "' . $client_price_include_vat . '"
             order by per_sms_price desc, per_month_price desc'
             );
-            $R=array('');
+            $R = ['' => ''];
             while($r=$db->NextRecord())
                 $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
             $this->fields['tarif_id']['type']='select';

@@ -37,7 +37,15 @@ $I->amOnPage('/?module=services&action=em_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 
-// Trying send form
+/*
+ *  Negative test
+ */
+$I->submitForm('//form[@id="dbform"]', []);
+$I->seeElement('div.alert-danger');
+
+/*
+ * Positive test
+ */
 $domainSelector = '//select[@id="domain"]';
 $domainText = $I->grabTextFrom($domainSelector . '/option[last()]');
 $I->selectOption($domainSelector, $domainText);
@@ -59,7 +67,7 @@ $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 /** @var \app\models\UsageEmails $usage */
 $usage = \app\models\UsageEmails::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotEmpty($usage->client, 'Client is good');
+$I->assertNotNull($usage->clientAccount, 'Client #' . $clientAccountId . ' is good');
 $I->assertNotEmpty($usage->local_part, 'Email account is good');
 $I->assertNotEmpty($usage->domain, 'Email domain is good');
 $I->assertNotEmpty($usage->actual_from, 'Activation date is good');
