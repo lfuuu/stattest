@@ -37,7 +37,7 @@ class UsageEmailsForm extends Form
             ],
             ['spam_act', 'in', 'range' => ['pass', 'mark', 'discard']],
             ['status', 'in', 'range' => ['connecting', 'working']],
-            [['box_size', 'box_quota', 'enabled', 'smtp_auth',], 'integer'],
+            [['id', 'box_size', 'box_quota', 'enabled', 'smtp_auth',], 'integer'],
             [['box_size', 'smtp_auth'], 'default', 'value' => 0],
             ['box_quota', 'default', 'value' => 50000],
             ['enabled', 'default', 'value' => 1],
@@ -65,6 +65,7 @@ class UsageEmailsForm extends Form
         if(!is_null(
             UsageEmails::find()
                 ->where(new Expression('id IS NOT NULL'))
+                ->andWhere(['!=', 'id', $this->id])
                 ->andWhere(['<=', 'actual_from', new Expression('CAST("' . $this->actual_from . '" AS DATE)')])
                 ->andWhere(['>', 'actual_to', new Expression('CAST("' . $this->actual_from . '" AS DATE)')])
                 ->andWhere(['domain' => $this->domain])

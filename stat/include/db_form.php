@@ -168,7 +168,7 @@ class DbForm {
                     $model = (new $usageForm->model)->findOne($this->dbform['id']);
 
                     if (
-                        $usageForm->load([$usageForm->formName() => $s])
+                        $usageForm->load([$usageForm->formName() => ['id' => $this->dbform['id']] + $s])
                             &&
                         $usageForm->validate()
                             &&
@@ -823,7 +823,7 @@ class DbFormEmails extends DbForm {
         if (!$client) $client=$this->fields['client']['default'];
         if ($this->isData('domain')) $domain=$this->data['domain'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('emails',$this->data['id']);
         }
 
@@ -1034,7 +1034,7 @@ class DbFormUsageExtra extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
 
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1063,7 +1063,7 @@ class DbFormUsageExtra extends DbForm{
                 (isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
                 'and status!="archive" order by description'
             );
-            $R=array('');
+            $R = ['' => ''];
             while ($r=$db->NextRecord()) {
                 $sName = $r['description'].' ('.$r['price'].' '.$r['currency'].')';
                 $allTarif[$r['id']] = $sName;
