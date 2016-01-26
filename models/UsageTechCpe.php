@@ -41,6 +41,14 @@ class UsageTechCpe extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    /**
      * @param $usage
      * @return TechCpeTransfer
      */

@@ -42,7 +42,7 @@ foreach ($result as $usageTitle => $records) {
             ?>
             <tr>
                 <td><?= $description; ?></td>
-                <td><?= Html::a($usage->helper->transferedFrom->id, $usage->helper->transferedFrom->id, ['target' => '_blank']); ?></td>
+                <td><?= Html::a($usage->helper->transferedFrom->id, $usage->helper->transferedFrom->helper->editLink, ['target' => '_blank']); ?></td>
                 <td><?= Html::a($usage->helper->transferedFrom->clientAccount->contragent->name, ['/client/view', 'id' => $usage->helper->transferedFrom->clientAccount->id], ['target' => '_blank']); ?></td>
                 <td><?= $usage->helper->transferedFrom->actual_from; ?></td>
                 <td style="border-right: 2px solid #A5A5A5;"><?= $usage->helper->transferedFrom->actual_to; ?></td>
