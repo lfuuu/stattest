@@ -2015,6 +2015,8 @@ class ApiLk
     {
         global $design, $db;
 
+        $clientAccount = \app\models\ClientAccount::findOne($client_id);
+
         $res = false;
         if ($type == 'email') {
             $key = md5($client_id.'SeCrEt-KeY'.$contact_id);
@@ -2024,16 +2026,29 @@ class ApiLk
                     array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
                     );
 
-            $url = 'https://'.\Yii::$app->params['CORE_SERVER'].'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
-            $design->assign(array('url'=>$url));
-            $message = $design->fetch('letters/notification/approve.tpl');
-            $params = array(
-                            'data'=>$data,
-                            'subject'=>'Подтверждение Email адреса для уведомлений',
-                            'message'=>$message,
-                            'type'=>'email',
-                            'contact_id'=>$contact_id
-                        );
+            $assigns = [
+                'url' =>
+                    'https://' .
+                    Yii::t('settings', 'lk_domain', [], $clientAccount->country->lang) .
+                    '/lk/accounts_notification/activate_by_email?' .
+                    'client_id=' . $client_id .
+                    '&contact_id=' . $contact_id .
+                    '&key=' . $key,
+                'organization' => $clientAccount->organization->name,
+            ];
+
+            $design->assign($assigns);
+            $message = $design->fetch('letters/notification/' . $clientAccount->country->lang . '/approve.tpl');
+
+            $params = [
+                'data' => $data,
+                'subject' => Yii::t('settings', 'email_subject_approve', [], $clientAccount->country->lang),
+                'message' => $message,
+                'type' => 'email',
+                'contact_id' => $contact_id,
+                'lang' => $clientAccount->country->lang,
+            ];
+
             $id = $db->QueryInsert('lk_notice', $params);
             if ($id) $res = true;
         } else if ($type == 'phone') {
