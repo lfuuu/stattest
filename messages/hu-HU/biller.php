@@ -16,7 +16,9 @@ return [
     '' => '{}',
 
     'paypal_payment_description' => '{account} számú egyenleg feltőltése {sum} {currency}',
-    'HUF' => 'forinttal',
+    'RUB' => 'rub',
+    'HUF' => 'Ft',
+    'USD' => '$',
 
     'incomming_payment' => 'Fizetés',
 ];
