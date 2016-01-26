@@ -20,7 +20,7 @@ $excess = 0;
                 <?=
                 \yii\helpers\Html::dropDownList(
                     'partner_contract_id',
-                    null,
+                    \Yii::$app->request->get('partner_contract_id', 0),
                     $partnerList,
                     [
                         'class' => 'select2',
