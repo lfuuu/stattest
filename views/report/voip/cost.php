@@ -67,7 +67,7 @@ use yii\helpers\Html;
             <?php
             echo Html::dropDownList(
                 'trunk',
-                \Yii::$app->request->get('trunk'),
+                \Yii::$app->request->get('trunk', 0),
                 ['-- Транк --'] + \yii\helpers\ArrayHelper::map($trunkModel, 'id', 'name'),
                 [
                     'class' => 'select2 fit-container',
@@ -81,7 +81,7 @@ use yii\helpers\Html;
             <label for="server">Точка присоединения</label>
             <?php echo Html::dropDownList(
                 'server',
-                \Yii::$app->request->get('server'),
+                \Yii::$app->request->get('server', 0),
                 ['-- Точка присоединения --'] +
                     \yii\helpers\ArrayHelper::map($server, 'id', 'name'),
                 [
@@ -96,7 +96,7 @@ use yii\helpers\Html;
             <label for="operator">Оператор</label>
             <?php echo Html::dropDownList(
                 'operator',
-                \Yii::$app->request->get('operator'),
+                \Yii::$app->request->get('operator', 0),
                 ['-- Оператор --'] +
                     \yii\helpers\ArrayHelper::map($operator, 'id', 'short_name'),
                 [
@@ -110,7 +110,7 @@ use yii\helpers\Html;
         <div class="col-md-3">
             <label for="contract_number">Номер договора</label>
             <?php
-            echo \yii\bootstrap\Html::textInput('contract_number', \Yii::$app->request->get('contract_number'));
+            echo \yii\bootstrap\Html::textInput('contract_number', \Yii::$app->request->get('contract_number', 0));
             ?>
         </div>
     </div>
@@ -129,7 +129,7 @@ use yii\helpers\Html;
             <label for="mob_or_base">Моб./Стац.</label>
             <?php echo Html::dropDownList(
                 'mob_or_base',
-                \Yii::$app->request->get('mob_or_base'),
+                \Yii::$app->request->get('mob_or_base', 0),
                 [
                     1 => 'Моб./Стац.',
                     2 => 'Мобильные',
@@ -147,7 +147,7 @@ use yii\helpers\Html;
             <label for="orig_term">Оригинация / терминация</label>
             <?php echo Html::dropDownList(
                 'orig_term',
-                \Yii::$app->request->get('orig_term'),
+                \Yii::$app->request->get('orig_term', 0),
                 [
                     1 => 'Все',
                     2 => 'Оригинация / терминация',
@@ -166,7 +166,7 @@ use yii\helpers\Html;
             <label for="time">С длительностью</label>
             <?php echo Html::dropDownList(
                 'time',
-                \Yii::$app->request->get('time'),
+                \Yii::$app->request->get('time', 0),
                 [
                     1 => 'С длительностью',
                     2 => 'Без длительности',
@@ -187,7 +187,7 @@ use yii\helpers\Html;
             <label for="region">Регион</label>
             <?php echo Html::dropDownList(
                 'region',
-                \Yii::$app->request->get('region'),
+                \Yii::$app->request->get('region', 0),
                 ['-- Регион --'] +
                     \yii\helpers\ArrayHelper::map($regionModel, 'id', 'name'),
                 [
@@ -202,7 +202,7 @@ use yii\helpers\Html;
             <label for="country">Страна</label>
             <?php echo Html::dropDownList(
                 'country',
-                \Yii::$app->request->get('country'),
+                \Yii::$app->request->get('country', 0),
                 ['-- Страна --'] +
                     \yii\helpers\ArrayHelper::map($geoCountry, 'id', 'name'),
                 [
