@@ -20,7 +20,8 @@ class UserGrantUsers extends ActiveRecord
         try {
             self::deleteAll(['name' => $user->user]);
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -31,14 +32,16 @@ class UserGrantUsers extends ActiveRecord
 
         foreach ($rights as $resource => $actions) {
             foreach ($baseRights as $baseRight) {
-                if ($resource != $baseRight->resource)
+                if ($resource != $baseRight->resource) {
                     continue;
+                }
 
                 $groupRightsAccess = explode(',', $baseRight->values);
                 $userRights = [];
-                for ($i=0, $s=sizeof($actions); $i<$s; $i++) {
-                    if (in_array($actions[$i], $groupRightsAccess))
-                        $userRights[] = $actions[$i];
+                foreach ($actions as $action) {
+                    if (in_array($action, $groupRightsAccess, true)) {
+                        $userRights[] = $action;
+                    }
                 }
 
                 $transaction = Yii::$app->db->beginTransaction();
@@ -50,7 +53,10 @@ class UserGrantUsers extends ActiveRecord
                     $rights->save();
 
                     $transaction->commit();
-                } catch (\Exception $e) {
+
+                    continue(2);
+                }
+                catch (\Exception $e) {
                     $transaction->rollBack();
                     throw $e;
                 }

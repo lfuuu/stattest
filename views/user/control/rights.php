@@ -54,14 +54,14 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
                             <div>
                                 <input
                                     type="checkbox"
-                                    id="<?= $groupKey . '_' . $value; ?>"
+                                    id="<?= $groupItemKey . '_' . $value; ?>"
                                     value="<?= $value; ?>"
-                                    name="<?= $model->formName(); ?>[rights][<?= $groupKey; ?>][]"
+                                    name="<?= $model->formName(); ?>[rights][<?= $groupItemKey; ?>][]"
                                     class="checkbox_<?= $groupKey; ?>"
                                     <?= (in_array($value, $applied_rights) ? ' checked="checked"' : ''); ?>
                                     <?= (!isset($userRights[$groupItemKey]) ? ' disabled="disabled"' : '');?> />
                                 <label
-                                    for="<?= $groupKey . '_' . $value; ?>"
+                                    for="<?= $groupItemKey . '_' . $value; ?>"
                                     <?= (!isset($userRights[$groupItemKey]) ? ' class="disabled-label"' : ''); ?>>
                                     <?= $item['values_desc'][$num]; ?> (<b><?= $value; ?></b>)
                                 </label>
