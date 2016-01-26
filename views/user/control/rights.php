@@ -56,7 +56,7 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
                                     type="checkbox"
                                     id="<?= $groupItemKey . '_' . $value; ?>"
                                     value="<?= $value; ?>"
-                                    name="<?= $model->formName(); ?>[rights][<?= $groupKey; ?>][]"
+                                    name="<?= $model->formName(); ?>[rights][<?= $groupItemKey; ?>][]"
                                     class="checkbox_<?= $groupKey; ?>"
                                     <?= (in_array($value, $applied_rights) ? ' checked="checked"' : ''); ?>
                                     <?= (!isset($userRights[$groupItemKey]) ? ' disabled="disabled"' : '');?> />
