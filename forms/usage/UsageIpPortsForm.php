@@ -26,7 +26,7 @@ class UsageIpPortsForm extends Form
     public function rules()
     {
         return [
-            [['client'], 'required'],
+            [['client', 'address'], 'required'],
             [
                 [
                     'actual_from', 'actual_to', 'client', 'address', 'date_last_writeoff',

@@ -37,7 +37,15 @@ $I->amOnPage('/?module=services&action=in_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 
-// Trying send form
+/*
+ *  Negative test
+ */
+$I->submitForm('//form[@id="dbform"]', []);
+$I->seeElement('div.alert-danger');
+
+/*
+ * Positive test
+ */
 $portTypeSelector = '//select[@id="port_type"]';
 $portTypeText = $I->grabTextFrom($portTypeSelector . '/option[@value="adsl"]');
 $I->selectOption($portTypeSelector, $portTypeText);
@@ -54,7 +62,7 @@ $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 /** @var \app\models\UsageIpPorts $usage */
 $usage = \app\models\UsageIpPorts::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotEmpty($usage->client, 'Client is good');
+$I->assertNotNull($usage->clientAccount, 'Client #' . $clientAccountId . ' is good');
 $I->assertNotEmpty($usage->amount, 'Amount is good');
 $I->assertNotEmpty($usage->port_id, 'Port is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');
