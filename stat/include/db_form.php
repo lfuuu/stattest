@@ -175,6 +175,7 @@ class DbForm {
                         $usageForm->saveModel($model, true, true)
                     ) {
                         $p = 'edit';
+
                         Yii::$app->session->addFlash('success', 'Запись обновлена');
                         Yii::$app->response->redirect($model->helper->editLink);
                     }
@@ -190,6 +191,8 @@ class DbForm {
                         $usageForm->saveModel($model, true, true)
                     ) {
                         $p = 'add';
+                        $this->dbform['id'] = $model->id;
+
                         Yii::$app->session->addFlash('success', 'Запись добавлена');
                         Yii::$app->response->redirect($model->helper->editLink);
                     }
@@ -1405,7 +1408,7 @@ class DbFormUsageVirtpbx extends DbForm{
             $account = ClientAccount::findOne($fixclient_data['id']);
         }
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);

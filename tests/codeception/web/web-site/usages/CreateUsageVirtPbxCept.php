@@ -37,10 +37,16 @@ $I->amOnPage('/?module=services&action=virtpbx_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 
-// Trying send form
+/*
+ * Positive test
+ */
 $regionSelector = '//select[@id="region"]';
 $regionText = $I->grabTextFrom($regionSelector . '/option[last()]');
 $I->selectOption($regionSelector, $regionText);
+
+$tariffSelector = '//select[@id="t_id_tarif_public"]';
+$tariffText = $I->grabAttributeFrom($tariffSelector . '/option[last()]', 'value');
+$I->selectOption($tariffSelector, trim($tariffText));
 
 $I->submitForm('//form[@id="dbform"]', []);
 
@@ -49,9 +55,10 @@ $I->seeInCurrentUrl('/pop_services.php?table=usage_virtpbx&id=');
 $usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
 
 // Checking usage
-/** @var \app\models\UsageIpPorts $usage */
-$usage = \app\models\UsageIpPorts::findOne($usageId);
+/** @var \app\models\UsageVirtpbx $usage */
+$usage = \app\models\UsageVirtpbx::findOne($usageId);
 $I->assertNotNull($usage, 'UsageID:' . $usageId);
-$I->assertNotEmpty($usage->client, 'Client is good');
+$I->assertNotNull($usage->clientAccount, 'Client #' . $clientAccountId . ' is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');
 $I->assertNotEmpty($usage->expire_dt, 'Expire datetime is good');
+$I->assertNotNull($usage->tariff, 'Tariff is good');
