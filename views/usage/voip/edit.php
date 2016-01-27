@@ -463,15 +463,7 @@ echo Breadcrumbs::widget([
     <tbody>
         <?php foreach ($usagePackages as $package): ?>
             <?php
-            $actualTo =
-                round(
-                    (
-                        (new DateTime($package->expire_dt))->getTimestamp() - $now->getTimestamp()
-                    ) / 365 / 24 / pow(60, 2)
-                ) > 20
-                    ? '&#8734' :
-                    $package->actual_to;
-
+            $actualTo = DateTimeZoneHelper::getDateTimeLimit($checkDate = $package->expire_dt, $showDate = $package->actual_to);
             $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
             ?>
             <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">

@@ -2,6 +2,7 @@
 
 namespace app\helpers;
 
+use app\models\usages\UsageInterface;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -13,6 +14,8 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
     const TIMEZONE_DEFAULT = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
+
+    const INFINITY = '&#8734;';
 
     public static function getDateTime($date, $format = self::DATETIME_FORMAT, $showTimezoneName = true)
     {
@@ -50,6 +53,24 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));
         $datetime->setTimezone(new DateTimeZone('UTC'));
         return $format !== false ? $datetime->format($format) : $datetime;
+    }
+
+    /**
+     * @param string $checkDate
+     * @param string $showDate
+     * @return DateTime|string
+     */
+    public static function getDateTimeLimit($checkDate, $showDate = '')
+    {
+        $date = (new DateTime($checkDate));
+
+        return
+            $date->format('Y-m-d') == UsageInterface::MAX_POSSIBLE_DATE
+                ||
+            round(($date->getTimestamp() - (new DateTime('now'))->getTimestamp()) / 365 / 24 / pow(60, 2)) > 20
+                ?
+                    self::INFINITY :
+                    self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
     }
 
     private static function getTimezoneDescription()
