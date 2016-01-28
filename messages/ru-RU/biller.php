@@ -32,6 +32,7 @@ return [
     'vpbx_service' => '{tariff}{date_range}',
     'vpbx_over_disk_usage' => 'Превышение дискового пространства{date_range}',
     'vpbx_over_ports_count' => 'Превышение количества портов{date_range}',
+    'vpbx_over_ext_did_count' => 'Превышение количества внешних номеров{date_range}',
 
     'test' => '',
 

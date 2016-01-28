@@ -138,7 +138,7 @@ class DbFormSimpleLog extends DbForm {
 		global $db,$user;
 		$this->Get();
 		if(!isset($this->dbform['id']))
-			return '';
+            return '';
 		$this->dbform['edit_user']=$user->Get('id');
 		$this->dbform['edit_time']=array('NOW()');
 		return DbForm::Process();
@@ -410,33 +410,35 @@ class DbViewTarifsWelltime extends DbView{
 	}
 }
 
-class DbViewTarifsVirtpbx extends DbView{
-	public function __construct(){
-		$this->table = 'tarifs_virtpbx';
-		$this->Headers['z'] = 'Тарифы на виртуальную АТС';
-        $this->FieldSets['z']=array(
+class DbViewTarifsVirtpbx extends DbView {
+    public function __construct(){
+        $this->table = 'tarifs_virtpbx';
+        $this->Headers['z'] = 'Тарифы на виртуальную АТС';
+        $this->FieldSets['z'] = [
             'description' => 'Описание',
             'price_include_vat' => 'НДС',
-			'currency' => 'Валюта',
+            'currency' => 'Валюта',
             'price' => 'Стоимость',
             'period' => 'Период',
-        );
-		$this->fieldset = 'z';
+        ];
+        $this->fieldset = 'z';
 
-		$this->SQLFilterGroups['Состояние'] = array('public', 'special', 'archive');
+        $this->SQLFilterGroups['Состояние'] = ['public', 'special', 'archive',];
 
+        $this->SQLFilters =[
+            'public' => 'status="public"',
+            'special' => 'status="special"',
+            'archive' => 'status="archive"',
+        ];
 
-		$this->SQLFilters['public']='status="public"';
-		$this->SQLFilters['special']='status="special"';
-		$this->SQLFilters['archive']='status="archive"';
-		$this->SQLFilterNames['public']='публичный';
-		$this->SQLFilterNames['special']='специальный';
-		$this->SQLFilterNames['archive']='архивный';
+        $this->SQLFilterNames = [
+            'public' => 'публичный',
+            'special' => 'специальный',
+            'archive' => 'архивный',
+        ];
 
-
-
-		$this->filters = array('virtpbx','public');
-	}
+        $this->filters = ['virtpbx', 'public',];
+    }
 }
 
 class DbViewTarifsSms extends DbView{
@@ -534,22 +536,75 @@ class DbFormTarifsWelltime extends DbFormSimpleLog {
 }
 
 class DbFormTarifsVirtpbx extends DbFormSimpleLog {
-	public function constructChild() {
-		DbForm::__construct('tarifs_virtpbx');
-		$this->fields['currency']=array('enum'=>Currency::enum(),'default'=>'RUB');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
-		$this->fields['description']=array();
-		$this->fields['price']=array('default'=>0);
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ежемесячно'));
-        $this->fields['num_ports']=array('default'=>50);
-        $this->fields['overrun_per_port']=array('default'=>1);
-        $this->fields['space']=array('default'=>100);
-        $this->fields['overrun_per_gb']=array('default'=>1);
-        $this->fields['is_record']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
-        $this->fields['is_web_call']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
-        $this->fields['is_fax']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
-        $this->fields['price_include_vat'] = array('type' => 'checkbox');
-	}
+    public function constructChild() {
+        DbForm::__construct('tarifs_virtpbx');
+
+        $this->fields += [
+            'currency' => [
+                'enum' => Currency::enum(),
+                'default' => 'RUB',
+            ],
+            'status' => [
+                'assoc_enum' => [
+                    'public' => 'публичный',
+                    'special' => 'специальный',
+                    'archive' => 'архивный',
+                ],
+            ],
+            'description' => [],
+            'price' => [
+                'default' => 0,
+            ],
+            'period' => [
+                'assoc_enum' => [
+                    'month' => 'ежемесячно',
+                ],
+            ],
+            'num_ports' => [
+                'default' => 50,
+            ],
+            'overrun_per_port' => [
+                'default' => 1,
+            ],
+            'space' => [
+                'default' => 100,
+            ],
+            'overrun_per_gb' => [
+                'default' => 1,
+            ],
+            'ext_did_count' => [
+                'default' => 0,
+            ],
+            'ext_did_monthly_payment' => [
+                'default' => 190,
+            ],
+            'is_record' => [
+                'assoc_enum' => [
+                    '1' => 'Да',
+                    '0' => 'Нет',
+                ],
+                'default' => 1,
+            ],
+            'is_web_call' => [
+                'assoc_enum' => [
+                    '1' => 'Да',
+                    '0' => 'Нет',
+                ],
+                'default' => 1,
+            ],
+            'is_fax' => [
+                'assoc_enum' => [
+                    '1' => 'Да',
+                    '0' => 'Нет',
+                ],
+                'default' => 1,
+            ],
+            'price_include_vat' => [
+                'type' => 'checkbox',
+            ],
+        ];
+
+    }
 }
 
 class DbFormTarifsSms extends DbFormSimpleLog {

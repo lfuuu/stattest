@@ -92,27 +92,34 @@ class VirtpbxStat extends ActiveRecord\Model
                     'for_space' => 0, 
                     'for_number' => 0, 
                     'sum_number' => 0, 
-                    'sum_space' => 0, 
+                    'sum_space' => 0,
+                    'sum_ext_dids' => 0,
                     'overrun_per_gb' => 0, 
-                    'overrun_per_port' => 0
+                    'overrun_per_port' => 0,
+                    'ext_did_count' => 0,
+                    'ext_did_monthly_payment' => 0,
                 );
 		$options['select'] = '
 					UNIX_TIMESTAMP(date) as mdate, 
 					use_space, 
-					numbers, 
+					numbers,
+					ext_did_count,
 					0 as diff, 
-					0 as diff_number, 
+					0 as diff_number,
+					0 as diff_ext_dids,
 					0 as sum_space, 
-					0 as sum_number, 
+					0 as sum_number,
+					0 as sum_ext_dids,
 					0 as sum,
 					0 as for_space,
-					0 as for_number';
+					0 as for_number,
+					0 as for_ext_did_count';
 		$options['conditions'] = array(
-						"date >= ? AND date <= ? AND client_id = ? AND usage_id = ?",
+						'date >= ? AND date <= ? AND client_id = ? AND usage_id = ?',
 						date('Y-m-d', $from),
 						date('Y-m-d', $to),
 						$client_id,
-                        $usage_id,
+						$usage_id,
 		);
 		$stat_detailed = self::find('all', $options);
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
@@ -133,22 +140,30 @@ class VirtpbxStat extends ActiveRecord\Model
 				$v->sum_number = $nds * ($v->for_number*$tarif_info->overrun_per_port)/date('t', $v->mdate);
 				$totals['sum_number'] +=  $v->sum_number;
 			}
-			$v->sum = $v->sum_space + $v->sum_number;
+			if ($v->ext_did_count > $tarif_info->ext_did_count)
+			{
+				$v->for_ext_did_count = $v->ext_did_count - $tarif_info->ext_did_count;
+				$v->sum_ext_dids = $nds * ($v->for_ext_did_count * $tarif_info->ext_did_monthly_payment) / date('t', $v->mdate);
+				$totals['sum_ext_dids'] += $v->sum_ext_dids;
+			}
+			$v->sum = $v->sum_space + $v->sum_number + $v->sum_ext_dids;
 			$totals['sum'] +=  $v->sum;
 			$totals['overrun_per_gb'] = $tarif_info->overrun_per_gb;
 			$totals['overrun_per_port'] = $tarif_info->overrun_per_port;
+            $totals['ext_did_monthly_payment'] = $tarif_info->ext_did_monthly_payment;
 			if (isset($stat_detailed[$k-1])) 
 			{
 				$v->diff = $v->use_space -$stat_detailed[$k-1]->use_space;
 				$v->diff_number = $v->numbers -$stat_detailed[$k-1]->numbers;
+				$v->diff_ext_dids = $v->ext_did_count - $stat_detailed[$k - 1]->ext_did_count;
 			} else 	{
 				$options = array();
-				$options['select'] = 'use_space, numbers';
+				$options['select'] = 'use_space, numbers, ext_did_count';
 				$options['conditions'] = array(
-								"date < ? AND client_id = ? AND client_id = ?",
+								'date < ? AND client_id = ? AND client_id = ?',
 								date('Y-m-d', $v->mdate),
 								$client_id,
-                                $usage_id,
+								$usage_id,
 				);
 				$options['limit'] = 1;
 				$options['order'] = 'date desc';
@@ -157,9 +172,11 @@ class VirtpbxStat extends ActiveRecord\Model
 				if (!empty($prev_day_use_spase)) {
 					$v->diff = $v->use_space -$prev_day_use_spase->use_space;
 					$v->diff_number = $v->numbers -$prev_day_use_spase->numbers;
+					$v->diff_ext_dids = $v->ext_did_count - $prev_day_use_spase->ext_did_count;
 				} else {
 					$v->diff = $v->use_space;
 					$v->diff_number = $v->numbers;
+					$v->diff_ext_dids = $v->ext_did_count;
 				}
 			}
 			
@@ -176,44 +193,51 @@ class VirtpbxStat extends ActiveRecord\Model
 	*/
 	public static function getVpbxStatDetailsFormated($client_id, $usage_id, $from, $to)
     {
-
-        if (!$from || strtotime("2000-01-01") > $from || $to < $from || round(($to-$from)/86400) > 100)
+        if (!$from || strtotime('2000-01-01') > $from || $to < $from || round(($to-$from)/86400) > 100)
         {
-            $total = array();
-            $total["sum_space"]  = 0;
-            $total["sum_number"] = 0;
-            $total["sum"]        = 0;
+            $total = [
+                'sum_space' => 0,
+                'sum_number' => 0,
+                'sum_ext_dids' => 0,
+                'sum' => 0,
+            ];
 
-            return array("data" => array(), "total" => $total);
+            return ['data' => [], 'total' => $total];
         }
 
         list($_data, $total) = self::getVpbxStatDetails($client_id, $usage_id, $from, $to);
 
-        $data = array();
-
-        $fields = array("mdate", "use_space", "numbers", "diff", "diff_number", "sum_space", "sum_number", "sum", "for_space", "for_number");
-
+        $data = [];
+        $fields = [
+            'mdate',
+            'use_space', 'numbers', 'ext_did_count',
+            'diff', 'diff_number', 'diff_ext_dids',
+            'sum_space', 'sum_number', 'sum_ext_dids', 'sum',
+            'for_space', 'for_number'
+        ];
 
         foreach($_data as $l)
         {
             $line = ApiLk::_exportModelRow($fields, $l);
 
-            $line["mdate"]      = $line["mdate"];
-            $line["use_space"]  = smarty_modifier_bytesize($line["use_space"], 'b');
-            $line["diff"]       = smarty_modifier_bytesize($line["diff"], 'b');
-            $line["for_space"]  = smarty_modifier_bytesize($line["for_space"], 'Gb');
-            $line["sum_space"]  = number_format($line["sum_space"], 2, ',', ' ');
-            $line["sum_number"] = number_format($line["sum_number"], 2, ',', ' ');
-            $line["sum"]        = number_format($line["sum"], 2, ',', ' ');
+            $line['use_space']  = smarty_modifier_bytesize($line['use_space'], 'b');
+            $line['diff']       = smarty_modifier_bytesize($line['diff'], 'b');
+            $line['for_space']  = smarty_modifier_bytesize($line['for_space'], 'Gb');
+
+            $line['sum_space']    = number_format($line['sum_space'], 2, ',', ' ');
+            $line['sum_number']   = number_format($line['sum_number'], 2, ',', ' ');
+            $line['sum_ext_dids'] = number_format($line['sum_ext_dids'], 2, ',', ' ');
+            $line['sum']          = number_format($line['sum'], 2, ',', ' ');
 
             $data[] = $line;
         }
 
-        $total["sum_space"]  = number_format($total["sum_space"],  2, ',', ' ');
-        $total["sum_number"] = number_format($total["sum_number"], 2, ',', ' ');
-        $total["sum"]        = number_format($total["sum"], 2, ',', ' ');
+        $total['sum_space']  = number_format($total['sum_space'],  2, ',', ' ');
+        $total['sum_number'] = number_format($total['sum_number'], 2, ',', ' ');
+        $total['sum_ext_dids'] = number_format($total['sum_ext_dids'], 2, ',', ' ');
+        $total['sum']        = number_format($total['sum'], 2, ',', ' ');
 
-        return array("data" => $data, "total" => $total);
+        return ['data' => $data, 'total' => $total];
     }
 
 }

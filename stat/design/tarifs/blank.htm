@@ -201,6 +201,9 @@
                 <p><span><b>Стоимость<br /> дополнительного<br /> дискового<br /> пространства,<br /> руб./1Гб.</b></span></p>
             </th>
             <th>
+                <p><span><b>Стоимость<br /> дополнительного<br /> внешнего номера,<br /> руб./мес.</b></span></p>
+            </th>
+            <th>
                 <p><span><b>Дата<br />подключения</b></span></p>
             </th>
         </tr>
@@ -223,6 +226,9 @@
                 </td>
                 <td align="center">
                     <p><span>{$i.tariff.overrun_per_gb|round:2}</span></p>
+                </td>
+                <td align="center">
+                    <p><span>{$i.tariff.ext_did_monthly_payment|round:2}</span></p>
                 </td>
                 <td>
                     <p><span>{if $i.from < 32503669200}{$i.from|mdate:"Y-m-d"}{else}&nbsp;{/if}</span></p>

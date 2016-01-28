@@ -2140,7 +2140,7 @@ $GLOBALS['translate_arr']=array(
     '*.per_sms_price' => 'за 1 СМС (с НДС)',
     '*.gpon_reserv' => 'Сеть под GPON',
     '*.trunk_vpbx_id' => 'Транк на VPBX',
-    'newpayments.ecash_operator' => "Оператор платежа",
+    'newpayments.ecash_operator' => 'Оператор платежа',
     'usage_voip.region' => 'Регион',
     'usage_virtpbx.region' => 'Регион',
     'usage_voip.line7800_id' => 'Линия без номера для номера 8800',
@@ -2150,5 +2150,7 @@ $GLOBALS['translate_arr']=array(
     'usage_virtpbx.moved_numbers' => 'Номера перемещенные с АТС',
     '*.moved_from' => 'Перемещен с ',
     '*.moved_to' => 'Перемещен на ',
+    'tarifs_virtpbx.ext_did_count' => 'Кол-во номеров сторонних операторов',
+    'tarifs_virtpbx.ext_did_monthly_payment' => 'Плата за 1 номер сторонних операторов, мес.',
     );
 ?>

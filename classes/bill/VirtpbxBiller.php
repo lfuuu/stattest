@@ -81,6 +81,24 @@ class VirtpbxBiller extends Biller
                     );
                 }
             }
+
+            if ($stats['sum_ext_dids'] > 0) {
+                $price = $stats['ext_did_monthly_payment'];
+                $amount = $stats['sum_ext_dids'] / $stats['ext_did_monthly_payment'];
+
+                if ($price > 0) {
+                    $template = 'vpbx_over_ext_did_count';
+
+                    $this->addPackage(
+                        BillerPackageResource::create($this)
+                            ->setPeriodType($range['tariff']->period)
+                            ->setActualPeriod($range['from'], $range['to'])
+                            ->setAmount($amount)
+                            ->setPrice($price)
+                            ->setTemplate($template)
+                    );
+                }
+            }
         }
     }
 
@@ -91,13 +109,15 @@ class VirtpbxBiller extends Biller
             //'amount_space' => 0,
             'sum_number' => 0,
             'sum_space' => 0,
+            'sum_ext_dids' => 0,
             'overrun_per_gb' => 0,
-            'overrun_per_port' => 0
+            'overrun_per_port' => 0,
+            'ext_did_count' => 0,
         );
 
         $vpbxStatList =
             Virtpbx::find()
-                ->select('use_space,numbers')
+                ->select('use_space,numbers,ext_did_count')
                 ->andWhere(['client_id' => $this->clientAccount->id])
                 ->andWhere(['usage_id' => $this->usage->id])
                 ->andWhere('date >= :from', [':from' => $from->format('Y-m-d')])
@@ -126,8 +146,18 @@ class VirtpbxBiller extends Biller
                 $totals['sum_number'] += $sumForNumbers;
             }
 
+            if ($vpbxStat['ext_did_count'] > $tariff->ext_did_count) {
+                $totals['sum_ext_dids'] +=
+                    (
+                        ($vpbxStat['ext_did_count'] - $tariff->ext_did_count)
+                            *
+                        $tariff->ext_did_monthly_payment
+                    ) / $from->format('t');
+            }
+
             $totals['overrun_per_gb'] = $tariff->overrun_per_gb;
             $totals['overrun_per_port'] = $tariff->overrun_per_port;
+            $totals['ext_did_monthly_payment'] = $tariff->ext_did_monthly_payment;
         }
 
         return $totals;
