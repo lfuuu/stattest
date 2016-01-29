@@ -34,15 +34,17 @@ class AgentController extends BaseController
         $dateTo = (!empty($dateTo)) ? $dateTo : date("Y-m-d", strtotime("last day of previous month"));
 
 
-        $partnerList = ArrayHelper::map(
-            ClientContract::find()
+        $partners = ClientContract::find()
                 ->andWhere(['business_id' => Business::PARTNER])
                 ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
-                ->select([ClientContract::tableName() . '.id', ClientContragent::tableName() . '.name'])
                 ->orderBy(ClientContragent::tableName() . '.name')
-                ->createCommand()
-                ->queryAll(\PDO::FETCH_ASSOC)
-            , 'id', 'name');
+                ->all();
+
+        $partnerList = [];
+        foreach($partners as $partner) {
+            $account = $partner->accounts[0];
+            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $account->id . ')';
+        }
 
 
         $partner = ClientContract::findOne($partnerId);
