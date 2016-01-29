@@ -106,7 +106,15 @@ function do_func($function)
 
         case 'getServiceOptions': return ApiLk::getServiceOptions(get_param_raw("service"), get_param_integer("client_id")); break;
         case 'getAccountsNotification': return ApiLk::getAccountsNotification(get_param_integer("client_id")); break;
-        case 'addAccountNotification': return ApiLk::addAccountNotification(get_param_integer("client_id"), get_param_raw("type"), get_param_raw("data")); break;
+        case 'addAccountNotification': {
+            return ApiLk::addAccountNotification(
+                get_param_integer('client_id'),
+                get_param_raw('type'),
+                get_param_raw('data'),
+                get_param_raw('lang', \app\classes\Language::DEFAULT_LANGUAGE)
+            );
+            break;
+        }
         case 'editAccountNotification': return ApiLk::editAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("type"), get_param_raw("data")); break;
         case 'disableAccountNotification': return ApiLk::disableAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id")); break;
         case 'saveAccountNotification': return ApiLk::saveAccountNotification(get_param_integer("client_id"), get_param_raw("data"), get_param_raw("min_balance"), get_param_raw("day_limit")); break;
