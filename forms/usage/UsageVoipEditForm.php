@@ -116,8 +116,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
         $usage->one_sip = 0;
-        $usage->is_moved = 0;
-        $usage->is_moved_with_pbx = 0;
         $usage->create_params = $this->create_params;
 
         $transaction = Yii::$app->db->beginTransaction();

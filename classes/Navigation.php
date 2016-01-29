@@ -63,7 +63,8 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Мониторинг')
                 ->addStatModuleItems('monitoring')
-                ->addItem('Ключевые события',  ['/monitoring'], [])
+                ->addItem('Перемещаемые услуги',  ['/monitoring/transfered-usages'], [])
+                ->addItem('Ключевые события', ['/monitoring'], [])
         );
 
         $this->addBlock(

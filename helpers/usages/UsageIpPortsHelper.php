@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageIpPorts;
@@ -48,6 +49,14 @@ class UsageIpPortsHelper extends Object implements UsageHelperInterface
     public function getEditLink()
     {
         return Url::toRoute(['/pop_services.php', 'table' => UsageIpPorts::tableName(), 'id' => $this->usage->id]);
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom()
+    {
+        return UsageIpPorts::findOne($this->usage->prev_usage_id);
     }
 
 }

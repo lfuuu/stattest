@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\classes\Html;
 use app\models\usages\UsageInterface;
@@ -77,6 +78,14 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
     public function getEditLink()
     {
         return Url::toRoute(['/usage/voip/edit', 'id' => $this->usage->id]);
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom()
+    {
+        return UsageVoip::findOne($this->usage->prev_usage_id);
     }
 
 }
