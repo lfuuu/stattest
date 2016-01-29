@@ -1703,7 +1703,7 @@ class ApiLk
      *@param string $type тип (телефон или Email)
      *@param string $data значение
      */
-    public static function addAccountNotification($client_id = '', $type = '', $data = '')
+    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = Language::DEFAULT_LANGUAGE)
     {
         global $db;
         if (!self::validateClient($client_id))
@@ -1750,7 +1750,7 @@ class ApiLk
         } else
             return array('status'=>'error','message'=>'contact_add_error');
 
-        self::sendApproveMessage($client_id, $type, $data, $contact_id);
+        self::sendApproveMessage($client_id, $type, $data, $contact_id, $lang);
 
         return array('status'=>'ok','message'=>'contact_add_ok');
     }
@@ -2011,25 +2011,29 @@ class ApiLk
         return $ret;
     }
 
-    public static function sendApproveMessage($client_id, $type, $data, $contact_id)
+    public static function sendApproveMessage($client_id, $type, $data, $contact_id, $lang = Language::DEFAULT_LANGUAGE)
     {
         global $design, $db;
 
         $clientAccount = \app\models\ClientAccount::findOne($client_id);
+        $language = Language::normalizeLang($lang);
 
-        $res = false;
         if ($type == 'email') {
-            $key = md5($client_id.'SeCrEt-KeY'.$contact_id);
+            $key = md5($client_id . 'SeCrEt-KeY' . $contact_id);
             $db->QueryUpdate(
-                    'lk_notice_settings',
-                    array('client_contact_id','client_id'),
-                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
-                    );
+                'lk_notice_settings',
+                ['client_contact_id', 'client_id'],
+                [
+                    'client_contact_id' => $contact_id,
+                    'client_id' => $client_id,
+                    'activate_code' => $key
+                ]
+            );
 
             $assigns = [
                 'url' =>
                     'https://' .
-                    Yii::t('settings', 'lk_domain', [], $clientAccount->country->lang) .
+                    Yii::t('settings', 'lk_domain', [], $language) .
                     '/lk/accounts_notification/activate_by_email?' .
                     'client_id=' . $client_id .
                     '&contact_id=' . $contact_id .
@@ -2038,37 +2042,54 @@ class ApiLk
             ];
 
             $design->assign($assigns);
-            $message = $design->fetch('letters/notification/' . $clientAccount->country->lang . '/approve.tpl');
+            $message = $design->fetch('letters/notification/' . $language . '/approve.tpl');
 
             $params = [
                 'data' => $data,
-                'subject' => Yii::t('settings', 'email_subject_approve', [], $clientAccount->country->lang),
+                'subject' => Yii::t('settings', 'email_subject_approve', [], $language),
                 'message' => $message,
                 'type' => 'email',
                 'contact_id' => $contact_id,
-                'lang' => $clientAccount->country->lang,
+                'lang' => $language,
             ];
 
             $id = $db->QueryInsert('lk_notice', $params);
-            if ($id) $res = true;
-        } else if ($type == 'phone') {
-            $code = '';
-            for ($i=0;$i<6;$i++) $code .= rand(0,9);
-            $db->QueryUpdate(
-                    'lk_notice_settings',
-                    array('client_contact_id','client_id'),
-                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$code)
-                    );
-            $params = array(
-                            'data'=>$data,
-                            'message'=>'Код активации: ' . $code,
-                            'type'=>'phone',
-                            'contact_id'=>$contact_id
-                        );
-            $id = $db->QueryInsert('lk_notice', $params);
-            if ($id) $res = true;
+
+            if ($id) {
+                return true;
+            }
         }
-        return $res;
+        else if ($type == 'phone') {
+            $code = '';
+            for ($i=0; $i<6; $i++) {
+                $code .= mt_rand(0, 9);
+            }
+
+            $db->QueryUpdate(
+                'lk_notice_settings',
+                ['client_contact_id', 'client_id'],
+                [
+                    'client_contact_id' => $contact_id,
+                    'client_id' => $client_id,
+                    'activate_code' => $code
+                ]
+            );
+            $params = [
+                'data' => $data,
+                'message' => 'Код активации: ' . $code,
+                'type' => 'phone',
+                'contact_id' => $contact_id,
+                'lang' => $language,
+            ];
+
+            $id = $db->QueryInsert('lk_notice', $params);
+
+            if ($id){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

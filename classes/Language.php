@@ -45,7 +45,7 @@ class Language
 
     public static function normalizeLang($lang)
     {
-        $lang = str_replace("_", "-", $lang);
+        $lang = str_replace('_', '-', $lang);
 
         if (self::languageExists($lang)) {
             return $lang;
