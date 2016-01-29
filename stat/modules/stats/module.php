@@ -4968,7 +4968,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		$from = $dateFrom->getSqlDay();
 		$to = $dateTo->getSqlDay();
 
-        $clientNick = ClientAccount::findOne($fixclient)->client;
+        $clientAccount = ClientAccount::findOne($fixclient);
 
 		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
 		DatePickerPeriods::assignPeriods(new DateTime());
@@ -4978,7 +4978,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		$vpbx_id = 0;
 		$design->assign('client_id', $fixclient);
 
-		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $fixclient, $vpbx_id, $from, $to);
+		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($clientAccount, $vpbx_id, $from, $to);
 		$design->assign('stats', $stats);
 		$design->assign('stat_detailed', $stat_detailed);
 
@@ -5017,10 +5017,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         $to,
                         $from
 		);
-		if ($clientNick)
+		if ($clientAccount !== null)
 		{
 			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $clientNick;
+			$condition_values[] = $clientAccount->client;
 		}
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
@@ -5043,31 +5043,32 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	 *	@param int $from timestamp начала периода
 	 *	@param int $to timestamp конца периода
 	 */
-	function getReportVpbxStatSpace($client_id, $vpbx_id, $from, $to)
+	function getReportVpbxStatSpace($clientAccount, $vpbx_id, $from, $to)
 	{
-		global $db;
-        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
 		$stat_detailed = array();
 		$options = array();
 		$options['select'] = '
 				stat.usage_id, 
-				stat.client_id, 
+				stat.client_id,
+
 				MAX(stat.use_space) as max, 
 				MIN(stat.use_space) as min, 
 				AVG(stat.use_space) as avg,
+
 				MAX(stat.numbers) as max_number, 
 				MIN(stat.numbers) as min_number, 
 				AVG(stat.numbers) as avg_number,
+
+				MAX(stat.ext_did_count) as max_ext_did_count,
+				MIN(stat.ext_did_count) as min_ext_did_count,
+				AVG(stat.ext_did_count) as avg_ext_did_count,
+
 				UNIX_TIMESTAMP(LT.date_activation) as actual,
 				T.description as tarif,
-				T.id as tarif_id,
-				0 as profit,
-				0 as deficit,
-				0 as profit_number,
-				0 as deficit_number';
-				
+				T.id as tarif_id';
+
 		$options['from'] = 'virtpbx_stat as stat';
-		
+
 		$options['joins'] = 
 			'LEFT JOIN clients as C ON C.id = stat.client_id ' . 
             'LEFT JOIN usage_virtpbx as UV ON UV.id = stat.usage_id ' .
@@ -5100,28 +5101,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         AND LT.service = ? 
                         AND UV.actual_from <= ? 
                         AND UV.actual_to >= ?";
-			
-		$condition_values = array(
-			$from,
-			$to,
-			'usage_virtpbx',
-                        $to,
-                        $from
-		);
+
+        $condition_values = array(
+            $from,
+            $to,
+            'usage_virtpbx',
+            $to,
+            $from
+        );
 		if ($vpbx_id)
 		{
 			$condition_string .=' AND stat.usage_id = ?';
 			$condition_values[] = $vpbx_id;
 		}
-		if ($client_id)
-		{
+        if ($clientAccount !== null)
+        {
 			$condition_string .=' AND stat.client_id = ?';
-			$condition_values[] = $client_id;
-		}
-		if ($clientNick)
-		{
-			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $clientNick;
+			$condition_values[] = $clientAccount->id;
 		} else {
 			$options['select'] .= ',UV.client';
 		}
@@ -5132,40 +5128,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		}
 		$stats = VirtpbxStat::find('all', $options);
 
-		if ($client_id && !empty($stats)) 
+		if ($clientAccount !== null && !empty($stats))
 		{
-			$stat_detailed = VirtpbxStat::getVpbxStatDetails($client_id, $vpbx_id, strtotime($from), strtotime($to));
+			$stat_detailed = VirtpbxStat::getVpbxStatDetails($clientAccount->id, $vpbx_id, strtotime($from), strtotime($to));
 		}
-		foreach ($stats as $k => &$v) 
-		{
-			$options = array();
-			$options['select'] = '
-				SUM(IF (b.use_space > a.use_space, b.use_space - a.use_space, 0)) as deficit, 
-				SUM(IF (b.use_space < a.use_space, a.use_space - b.use_space, 0)) as profit, 
-				SUM(IF (b.numbers > a.numbers, b.numbers - a.numbers, 0)) as deficit_number, 
-				SUM(IF (b.numbers < a.numbers, a.numbers - b.numbers, 0)) as profit_number' ;
-			$options['from'] = 'virtpbx_stat as a';
-			$options['joins'] = 'LEFT JOIN virtpbx_stat as b ON a.date > b.date';
-			$options['conditions'] = array(
-				"b.date = (
-					SELECT MAX(date) 
-					FROM virtpbx_stat 
-					WHERE 
-						a.date > date AND 
-						a.client_id = client_id
-				) AND a.client_id = ? AND b.client_id = ? AND a.date >= ? AND a.date <= ?", 
-				$v->client_id, 
-				$v->client_id, 
-				$from, 
-				$to
-			);
-			$sums = VirtpbxStat::find('first', $options);
-			$v->profit = $sums->profit;
-			$v->deficit = $sums->deficit;
-			$v->profit_number = $sums->profit_number;
-			$v->deficit_number = $sums->deficit_number;
-		}
-		unset($v);
 		return array($stats, $stat_detailed);
 	}
 
