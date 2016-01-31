@@ -42,6 +42,13 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
         $item->src_number_id = $this->src_number_id;
         $item->dst_number_id = $this->dst_number_id;
         $item->pricelist_id = $this->pricelist_id;
+        if ($item->type == UsageTrunkSettings::TYPE_DESTINATION) {
+            $item->minimum_minutes = $this->minimum_minutes;
+            $item->minimum_cost = $this->minimum_cost;
+        } else {
+            $item->minimum_minutes = 0;
+            $item->minimum_cost = 0;
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

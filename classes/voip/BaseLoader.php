@@ -33,6 +33,7 @@ abstract class BaseLoader extends Object
     {
         if (preg_match('/\.csv$/', $this->file->filename)) {
             $reader = \PHPExcel_IOFactory::createReader('CSV');
+            $reader->setDelimiter(';');
         } elseif (preg_match('/\.xls$/', $this->file->filename)) {
             $reader = \PHPExcel_IOFactory::createReader('Excel5');
         } elseif (preg_match('/\.xlsx$/', $this->file->filename)) {

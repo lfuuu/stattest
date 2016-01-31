@@ -10,6 +10,7 @@ class m_voipnew_head extends IModuleHead
         'view_raw_file' => array('voip', 'access'),
         'compare_raw_file' => array('voip', 'access'),
         'delete_raw_file' => array('voip', 'admin'),
+        'delete_network_file' => array('voip', 'admin'),
         'defs' => array('voip', 'access'),
         'activatedeactivate' => array('voip', 'admin'),
         'change_raw_file_start_date' => array('voip', 'admin'),

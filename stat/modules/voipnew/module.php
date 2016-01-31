@@ -6,6 +6,7 @@ include_once 'trunks.php';
 
 use app\classes\voip\DefInfo;
 use app\models\billing\PricelistFile;
+use app\models\billing\NetworkFile;
 
 class m_voipnew extends IModule
 {
@@ -174,6 +175,18 @@ class m_voipnew extends IModule
         $file->delete();
 
         header("location: /voip/pricelist/files?pricelistId={$file->pricelist_id}");
+        exit;
+    }
+
+    public function voipnew_delete_network_file()
+    {
+        $id = get_param_protected('id', 0);
+
+        $file = NetworkFile::findOne($id); /** @var NetworkFile $file */
+        unlink($file->getStorageFilePath());
+        $file->delete();
+
+        header("location: /voip/network-config/files?networkConfigId={$file->network_config_id}");
         exit;
     }
 
