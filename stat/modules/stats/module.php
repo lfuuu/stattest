@@ -3734,7 +3734,7 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_22,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200')
+                        where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200', '3a0a1bfe-c8c2-11e5-af87-00155d881200')
                         and nl.bill_no = t.bill_no) as count_28,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
@@ -3872,7 +3872,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_22,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200')
+                        where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200', '3a0a1bfe-c8c2-11e5-af87-00155d881200')
                         and nl.bill_no = t.bill_no) as count_28,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
