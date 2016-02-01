@@ -220,15 +220,7 @@ abstract class MonitorGridColumns
                 return
                     DateTimeZoneHelper::getDateTime($data->actual_from)
                     . ' -> ' .
-                    (
-                        round(
-                            (
-                            (new DateTime($data->actual_to))->getTimestamp() - (new DateTime('now'))->getTimestamp()
-                            ) / 365 / 24 / pow(60, 2)
-                        ) > 20
-                            ? '&#8734' :
-                            DateTimeZoneHelper::getDateTime($data->actual_to)
-                    );
+                    DateTimeZoneHelper::getDateTimeLimit($checkDate = $data->actual_to);
             },
         ];
     }

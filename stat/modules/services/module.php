@@ -2675,51 +2675,6 @@ class m_services extends IModule{
         exit();
     }
     
-     /**
-     * Функция проверяет, есть ли у данного сервиса сервис, с которой возможно был осуществлен переход
-     */
-    function services_rpc_check_move()
-    {
-        $table = isset($_REQUEST['table']) ? $_REQUEST['table'] : '';
-        $result = array('is_moved' => false, 'is_moved_with_pbx' => false, 'posible_pbx' => false);
-        if ($table == 'usage_voip')
-        {
-            $result['posible_pbx'] = 'NO';
-            $number = isset($_REQUEST['number']) ? $_REQUEST['number'] : '';
-            $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
-            if ($number && $actual_from)
-            {
-                $check_move = UsageVoip::checkNumberIsMoved($number, $actual_from);
-                if (!empty($check_move))
-                {
-                    $result['is_moved'] = true;
-                    $options = array();
-                    $options['select'] = 'client';
-                    $options['conditions'] = array('E164 = ? AND actual_from = ?', $number, $actual_from);
-                    $client = UsageVoip::first($options)->client;
-                    $check_move_with_pbx = UsageVirtpbx::checkNumberIsMovedWithPbx( $check_move->client, $client, $actual_from);
-                    if (!empty($check_move_with_pbx))
-                    {
-                        $result['is_moved_with_pbx'] = true;
-                    }
-                }
-            }
-        } elseif ($table == 'usage_virtpbx') {
-            $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
-            $client = isset($_REQUEST['client']) ? $_REQUEST['client'] : '';
-            $result['is_moved_with_pbx'] = 'NO';
-            if ($actual_from && $client)
-            {
-                $check_move = UsageVirtpbx::getAllPosibleMovedPbx($actual_from, $client);
-                $result['is_moved'] = !empty($check_move);
-                
-                $result['posible_pbx'] = $check_move;
-            }
-        }
-
-        return $result;
-    }
-    
     /**
      * Функция проверяет, можно ли использовать введенный номер
      */
@@ -2869,18 +2824,10 @@ class m_services extends IModule{
         header('Content-Type: application/json');
         $data = array();
         $data['e164'] = $this->services_rpc_check_e164();
-        $data['move'] = $this->services_rpc_check_move();
         echo json_encode($data);
         exit();
     }
-    
-    function services_check_services_move($fixclient)
-    {
-        header('Content-Type: application/json');
-        $data = $this->services_rpc_check_move();
-        echo json_encode($data);
-        exit();
-    }
+
 }
 
 class voipRegion
