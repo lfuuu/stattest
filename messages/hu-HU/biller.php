@@ -12,6 +12,7 @@ return [
     'vpbx_service' => '{tariff} virtuális alközpont előfizetési díja{date_range}',
     'vpbx_over_disk_usage' => 'Tárhely túllépés{date_range}',
     'vpbx_over_ports_count' => 'Portok számának a túllépése{date_range}',
+    'vpbx_over_ext_did_count' => 'Számának túllépése külső számok{date_range}',
 
     '' => '{}',
 

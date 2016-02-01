@@ -844,7 +844,16 @@ class ApiLk
                 `id`
             ", array($currency, $status)) as $service)
         {
-            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
+            $line = self::_exportModelRow(
+                [
+                    'id', 'description', 'period', 'price',
+                    'num_ports', 'overrun_per_port',
+                    'space', 'overrun_per_gb',
+                    'ext_did_count', 'ext_did_monthly_payment',
+                    'is_record', 'is_web_call', 'is_fax'
+                ],
+                $service
+            );
             $line["price"] = number_format($line["price"], 2, ".", "");
             $ret[] = $line;
         }
