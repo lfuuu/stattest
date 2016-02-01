@@ -12,11 +12,13 @@ class UsageTrunkSettingsForm extends Form
     public $src_number_id;
     public $dst_number_id;
     public $pricelist_id;
+    public $minimum_minutes;
+    public $minimum_cost;
 
     public function rules()
     {
         return [
-            [['id','usage_id','type','src_number_id','dst_number_id','pricelist_id'], 'integer'],
+            [['id','usage_id','type','src_number_id','dst_number_id','pricelist_id', 'minimum_minutes', 'minimum_cost'], 'integer'],
         ];
     }
 

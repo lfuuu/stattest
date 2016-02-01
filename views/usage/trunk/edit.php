@@ -212,6 +212,8 @@ echo Breadcrumbs::widget([
                 <th width="33%">A номер</th>
                 <th width="33%">B номер</th>
                 <th width="33%">Прайслист</th>
+                <th width="10%">Минут</th>
+                <th width="10%">Денег</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -227,6 +229,8 @@ echo Breadcrumbs::widget([
                     <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers,  ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($termPricelists, ['class' => 'select2']) ?></td>
+                    <td><?= $form->field($formModel, 'minimum_minutes', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
+                    <td><?= $form->field($formModel, 'minimum_cost', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
                 </tr>
                 <?php
@@ -244,7 +248,7 @@ echo Breadcrumbs::widget([
                 echo Html::activeHiddenInput($formModel, 'type');
             ?>
             <tr>
-                <td colspan="3"></td>
+                <td colspan="5"></td>
                 <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
             </tr>
             <?php

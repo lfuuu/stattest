@@ -23,7 +23,7 @@
             <td valign=top>
                 <form action="./index.php" method="post" style="margin-left:10px">
                     <input type="hidden" name="module" value="voipnew" />
-                    <input type="hidden" name="action" value="delete_raw_file" />
+                    <input type="hidden" name="action" value="delete_network_file" />
                     <input type="hidden" name="id" value="{$file->id}" />
                     {if $file->active neq 't'}
                     <input type="submit" value="Удалить" />

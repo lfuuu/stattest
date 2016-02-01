@@ -11,6 +11,8 @@ use yii\db\ActiveRecord;
  * @property int $src_number_id
  * @property int $dst_number_id
  * @property int $pricelist_id
+ * @property int $minimum_minutes
+ * @property int $minimum_cost
  *
  * @property UsageTrunk $usage
  * @property
