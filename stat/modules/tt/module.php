@@ -555,10 +555,14 @@ class m_tt extends IModule{
         $tst = $this->getTroubleSubTypes(true);
         $trouble["trouble_subtype"] = $tst[$trouble["trouble_subtype"]];
 
-        $d = $db->GetRow("select doer_id from tt_troubles t, tt_stages s
+        $d = false;
+        
+        if ($trouble['bill_no']) {
+            $d = $db->GetRow("select doer_id from tt_troubles t, tt_stages s
                 left join tt_doers d using (stage_id)
                 where t.bill_no ='".$trouble["bill_no"]."' and t.id = s.trouble_id
                 order by d.id desc limit 1");
+        }
         $trouble["doer_id"] = $d ? $d["doer_id"] : false;
 
         $design->assign(
