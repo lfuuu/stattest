@@ -87,7 +87,8 @@ class NumberController extends BaseController
         $didGroups = Yii::$app->request->post('didGroups');
         $statuses = Yii::$app->request->post('statuses');
         $prefix = Yii::$app->request->post('prefix');
-        $viewType = Yii::$app->request->post('view-minimal');
+        $viewTypeFile = Yii::$app->request->post('view-minimal');
+        $viewType = $viewTypeFile || Yii::$app->request->post('make');
 
         $cityList = City::dao()->getList(true);
         $didGroupList = DidGroup::dao()->getList(false, $cityId);
@@ -104,16 +105,15 @@ class NumberController extends BaseController
         $headMonths = [];
         $numbers = [];
 
-        if (Yii::$app->request->post("make")) {
-
+        if ($viewType) {
             $dt = new \DateTime();
-            $dt->setDate(date("Y"), date("m"), 15);
-            $dt->modify("-6 month");
+            $dt->setDate(date('Y'), date('m'), 15);
+            $dt->modify('-6 month');
             $emptyMonths = [];
             for($i = 0; $i < 6; $i++) {
-                $dt->modify("+1 month");
-                $headMonths[(int)$dt->format("m")] = DateFunction::mdate($dt->getTimestamp(), "месяц");
-                $emptyMonths[(int)$dt->format("m")] = 0;
+                $dt->modify('+1 month');
+                $headMonths[(int)$dt->format('m')] = DateFunction::mdate($dt->getTimestamp(), 'месяц');
+                $emptyMonths[(int)$dt->format('m')] = 0;
             }
 
             $numbers =
@@ -133,7 +133,17 @@ class NumberController extends BaseController
                 ])->queryAll();
 
             $city = City::findOne($cityId);
-            if ($city && $city->connection_point_id && (in_array('hold', $statuses) || in_array('instock', $statuses))) {
+            if (
+                $city
+                    &&
+                $city->connection_point_id
+                    &&
+                (
+                    in_array(Number::STATUS_HOLD, $statuses, true)
+                        ||
+                    in_array(Number::STATUS_INSTOCK, $statuses, true)
+                )
+            ) {
 
                 $callsCount = Number::dao()->getCallsWithoutUsages($city->connection_point_id);
 
@@ -143,18 +153,18 @@ class NumberController extends BaseController
                         $callsCountByNumber[$calls['u']] = $emptyMonths;
                     }
 
-                    $callsCountByNumber[$calls['u']][(int)$calls["m"]] = $calls['c'];
+                    $callsCountByNumber[$calls['u']][(int)$calls['m']] = $calls['c'];
                 }
 
                 foreach($numbers as $k => $n) {
-                    if (isset($callsCountByNumber[$n["number"]])) {
-                        $numbers[$k]['month'] = $callsCountByNumber[$n["number"]];
+                    if (isset($callsCountByNumber[$n['number']])) {
+                        $numbers[$k]['month'] = $callsCountByNumber[$n['number']];
                     }
                 }
             }
         }
 
-        if (!empty($viewType)) {
+        if (!empty($viewTypeFile)) {
             $result = implode("\r\n", ArrayHelper::getColumn($numbers, 'number'));
             Yii::$app->response->sendContentAsFile($result, 'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
             Yii::$app->end();
