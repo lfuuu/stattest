@@ -5043,7 +5043,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	 *	@param int $from timestamp начала периода
 	 *	@param int $to timestamp конца периода
 	 */
-	function getReportVpbxStatSpace(ClientAccount $clientAccount, $vpbx_id, $from, $to)
+	function getReportVpbxStatSpace($clientAccount, $vpbx_id, $from, $to)
 	{
 		$stat_detailed = array();
 		$options = array();
