@@ -82,7 +82,7 @@ a.nohover:hover { color: #000; }
 
     .layout_main {
         overflow-y: auto;
-        overflow-x: hidden;
+        overflow-x: auto;
         font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
         position: fixed;
         top: 100px;
