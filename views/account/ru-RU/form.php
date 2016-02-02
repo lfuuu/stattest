@@ -60,8 +60,51 @@ use app\models\Currency;
 
             'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
             'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
-            ['type' => Form::INPUT_RAW,],
-            ['type' => Form::INPUT_RAW,],
+            [
+                'type' => Form::INPUT_RAW,
+                'columnOptions' => [
+                    'colspan' => 2,
+                ],
+                'value' => function() use ($f, $model) {
+                    return
+                        $f
+                            ->field($model, 'options[mail_delivery_variant]', [
+                                'options' => [
+                                    'class' => 'col_sm_12',
+                                    'style' => 'margin-left: 15px;',
+                                ],
+                            ])
+                            ->checkboxList([
+                                'payment' => 'Платная рассылка почтой РФ',
+                                'by_self' => 'Самовывоз',
+                                'black_list' => 'Черный список',
+                                'undefined' => 'Не определились',
+                            ])
+                            ->label('Тип рассылки документов');
+                },
+            ],
+            [
+                'type' => Form::INPUT_RAW,
+                'columnOptions' => [
+                    'colspan' => 2,
+
+                ],
+                'value' => function() use ($f, $model) {
+                    return
+                        $f
+                            ->field($model, 'options[mail_delivery]', [
+                                'options' => [
+                                    'class' => 'col-sm-12',
+                                    'style' => 'display: none;',
+                                ]
+                            ])
+                            ->radioList([
+                                'yes' => 'Массовая печать конвертов и закрывающих документов',
+                                'no' => 'Нет рассылки',
+                            ])
+                            ->label('Рассылка документов');
+                },
+            ],
 
             'address_post' => ['columnOptions' => ['colspan' => 2],],
             'head_company' => ['columnOptions' => ['colspan' => 2],],
