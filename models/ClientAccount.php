@@ -448,6 +448,19 @@ class ClientAccount extends HistoryActiveRecord
         return $organization->vat_rate;
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOptions()
+    {
+        return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
+    }
+
+    public function getOption($name)
+    {
+        return $this->getOptions()->where(['option' => $name])->all();
+    }
+
     public function convertSum($originalSum, $taxRate = null)
     {
         if ($taxRate === null) {
