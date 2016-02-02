@@ -39,8 +39,8 @@ if ($curtype) {
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <a href="/client/view?id=<?= $account->id ?>" style="font-weight: bold;"><?= $account->client ?></a>
-                    <?= Html::hiddenInput('client', $account->client) ?>
+                    <a href="/client/view?id=<?= $account? $account->id: '' ?>" style="font-weight: bold;"><?= $account? $account->client: '' ?></a>
+                    <?= Html::hiddenInput('client', $account? $account->client: '') ?>
                 </div>
             </div>
         </div>
