@@ -306,12 +306,12 @@ if ($has) :
                                                 <?php
                                                 list($description) = $package->helper->description;
                                                 ?>
-                                                <?= $description; ?>
+                                                <span style="padding: 0 5px 0 5px; <?= ($package->status == 'connecting' ? 'background-color: #ffc0c0;' : '')?>"> <?= $description; ?>
                                                 (
                                                     <abbr title="Кол-во минут по тарифу"><?= $package->tariff->minutes_count; ?></abbr> /
                                                     <abbr title="Кол-во оплаченных минут"><?= floor($package->stat->paid_seconds / 60); ?></abbr> /
                                                     <abbr title="Кол-во израсходованных минут"><?= floor($package->stat->used_seconds / 60); ?></abbr>
-                                                )<br />
+                                                )</span><br />
                                             <?endforeach;
                                             ?>
                                         </div>

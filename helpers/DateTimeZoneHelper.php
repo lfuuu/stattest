@@ -48,6 +48,25 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
                 ->format($format);
     }
 
+    /**
+     * @param string $date
+     * @param DateTimeZone|string $timezone
+     * @param string $format
+     * @return string
+     */
+    public static function getActivationDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
+    {
+        if (!($timezone instanceof DateTimeZone)) {
+            $timezone = new DateTimeZone($timezone ?: self::TIMEZONE_DEFAULT);
+        }
+
+        return
+            (new DateTime($date, $timezone))
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->format($format);
+    }
+
+
     public static function setDateTime($date, $format = false)
     {
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));

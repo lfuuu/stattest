@@ -135,12 +135,14 @@
 
                     <div style="color: #DD0000;">
                         {foreach from=$item.packages item=package}
+                             <span style="padding: 0 5px 0 5px; {if $package.status == 'connecting'}background-color: #ffc0c0;{/if}">
                             {$package.description}
                             (
-                            <abbr title="Кол-во минут по тарифу">{$package.tariff.minutes_count}</abbr> /
-                            <abbr title="Кол-во оплаченных минут">{$package.stat.paid_seconds/60|floor}</abbr> /
-                            <abbr title="Кол-во израсходованных минут">{$package.stat.used_seconds/60|floor}</abbr>
-                            )<br />
+                                <abbr title="Кол-во минут по тарифу">{$package.tariff.minutes_count}</abbr> /
+                                <abbr title="Кол-во оплаченных минут">{$package.stat.paid_seconds/60|floor}</abbr> /
+                                <abbr title="Кол-во израсходованных минут">{$package.stat.used_seconds/60|floor}</abbr>
+                            )</span>
+                            <br />
                         {/foreach}
                     </div>
                 </td>
