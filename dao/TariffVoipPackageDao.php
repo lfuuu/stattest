@@ -27,15 +27,16 @@ class TariffVoipPackageDao extends Singleton
             $query->andWhere(['currency_id' => $currencyId]);
         }
 
-        $list =
-            ArrayHelper::map(
-                $query
-                    ->orderBy('name asc')
-                    ->asArray()
-                    ->all(),
-                'id',
-                'name'
-            );
+        $list = [];
+        foreach($query
+            ->orderBy('name asc')
+            ->all() as $row) {
+                $list[$row->id] = $row->name . " (" . 
+                    $row->periodical_fee." " . $row->currency->symbol . ", " . 
+                    $row->minutes_count . " минут" . 
+                    ($row->min_payment ? ", Мин. платеж: " . $row->min_payment . " " .$row->currency->symbol : "") .
+                    ")";
+            }
 
         if ($withEmpty) {
             $list = ['' => '-- Тариф --'] + $list;

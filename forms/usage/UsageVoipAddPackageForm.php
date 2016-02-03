@@ -15,7 +15,8 @@ class UsageVoipAddPackageForm extends Form
     public
         $usage_voip_id,
         $tariff_id,
-        $actual_from;
+        $actual_from,
+        $status;
 
     private
         $usage,
@@ -27,6 +28,7 @@ class UsageVoipAddPackageForm extends Form
             [['usage_voip_id','tariff_id',], 'integer'],
             [['actual_from',], 'string'],
             [['tariff_id','actual_from',], 'required'],
+            ['status', 'default', 'value' => 'connecting']
         ];
     }
 

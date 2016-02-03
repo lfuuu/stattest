@@ -169,8 +169,13 @@ class VoipController extends BaseController
         $model = new UsageVoipEditPackageForm();
         $model->initModel($package);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            Yii::$app->session->addFlash('success', 'Пакет отключен');
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+            $answer = $model->save();
+            if ($answer) {
+                Yii::$app->session->addFlash('success', $answer);
+            }
+
             return $this->redirect(['/usage/voip/edit', 'id' => $package->usageVoip->id]);
         }
 

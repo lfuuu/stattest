@@ -754,6 +754,7 @@ class m_services extends IModule{
                     $r['packages'][] = [
                         'description' => $description,
                         'tariff' => $package->tariff,
+                        'status' => $package->status,
                         'stat' => $package->stat,
                     ];
                 }
