@@ -173,7 +173,7 @@ class VoipController extends BaseController
 
             $answer = $model->save();
             if ($answer) {
-                Yii::$app->session->addFlash('success', $answer);
+                Yii::$app->session->addFlash('success', 'Данные по пакету сохранены');
             }
 
             return $this->redirect(['/usage/voip/edit', 'id' => $package->usageVoip->id]);

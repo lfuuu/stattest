@@ -124,13 +124,13 @@ class UsageVoipEditPackageForm extends Form
 
                 $transaction->commit();
 
-                return 'Данные по пакету сохранены';
+                return true;
             } catch (\Exception $e) {
                 $transaction->rollBack();
                 throw $e;
             }
         }
 
-        return '';
+        return null;
     }
 }
