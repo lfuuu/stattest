@@ -1070,7 +1070,7 @@ class SmartyStat
      * @param string $type
      * @return array
      */
-    function &get_template_vars($name=null)
+    function get_template_vars($name=null)
     {
         if(!isset($name)) {
             return $this->_tpl_vars;

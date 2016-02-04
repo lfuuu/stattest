@@ -1346,7 +1346,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if (isset($_SESSION['get_folders']) && $_SESSION['get_folders'])
         {
-            $clientNick = ClientAccount::findOne($client)->client;
+            $clientAccount = ClientAccount::findOne($client);
+            $clientNick = $clientAccount? $clientAccount->client: '';
             if($clientNick)
                 $W_folders[] = " T.client = \"$clientNick\" ";
             unset($_SESSION['get_folders']);
