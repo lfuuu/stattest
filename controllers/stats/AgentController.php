@@ -4,6 +4,7 @@ namespace app\controllers\stats;
 use app\classes\stats\AgentReport;
 use app\classes\stats\PhoneSales;
 use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use Yii;
@@ -27,7 +28,7 @@ class AgentController extends BaseController
 
     public function actionReport()
     {
-        $partnerId = Yii::$app->request->get('partner_contract_id', 0);
+        $partnerContractId = Yii::$app->request->get('partner_contract_id', 0);
         list($dateFrom, $dateTo) = explode(' - ', Yii::$app->request->get('date', 0));
 
         $dateFrom = (!empty($dateFrom)) ? $dateFrom : date("Y-m-d", strtotime("first day of previous month"));
@@ -43,14 +44,15 @@ class AgentController extends BaseController
         $partnerList = [];
         foreach($partners as $partner) {
             $account = $partner->accounts[0];
-            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $account->id . ')';
+            $partnerList[$account->id] = $partner->contragent->name . ' (#' . $account->id . ')';
         }
 
 
-        $partner = ClientContract::findOne($partnerId);
+        $account = ClientAccount::findOne($partnerContractId);
+
         $data = [];
-        if ($partner) {
-            $data = AgentReport::run($partnerId, $dateFrom, $dateTo);
+        if ($account) {
+            $data = AgentReport::run($partnerContractId, $dateFrom, $dateTo);
         }
 
         if (Yii::$app->request->get('exportToCSV')) {
@@ -59,10 +61,12 @@ class AgentController extends BaseController
         } else {
             return $this->render('report', [
                 'data' => $data,
+                'contractsWithoutReward' => AgentReport::getWithoutRewardContracts(),
+                'contractsWithIncorrectBP' => AgentReport::getContractsWithIncorrectBP(),
                 'partnerList' => $partnerList,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
-                'partner' => $partner
+                'partner' => $account
             ]);
         }
     }
