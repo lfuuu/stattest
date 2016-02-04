@@ -10,6 +10,7 @@ use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
 use app\models\usages\UsageInterface;
 use app\models\billing\StatPackage;
+use app\queries\UsageQuery;
 
 /**
  * @property int $id
@@ -23,6 +24,11 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public static function tableName()
     {
         return 'usage_voip_package';
+    }
+
+    public static function find()
+    {
+        return new UsageQuery(get_called_class());
     }
 
     public function getTariff()
