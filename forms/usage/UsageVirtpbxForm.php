@@ -18,7 +18,6 @@ class UsageVirtpbxForm extends Form
         $amount,
         $status,
         $comment,
-        $is_moved,
         $moved_from;
 
     public function rules()
@@ -27,7 +26,7 @@ class UsageVirtpbxForm extends Form
             [['client', 'region'], 'required'],
             [['actual_from', 'actual_to', 'client', 'comment'], 'string'],
             [['amount'], 'number'],
-            [['region',  'is_moved', 'moved_from'], 'integer'],
+            [['region', 'moved_from'], 'integer'],
             ['status', 'in', 'range' => ['connecting', 'working']],
             ['moved_from', 'default', 'value' => 0],
         ];

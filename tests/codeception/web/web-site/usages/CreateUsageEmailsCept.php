@@ -60,8 +60,12 @@ $I->selectOption($quotaSelector, $domainText);
 $I->submitForm('//form[@id="dbform"]', []);
 
 // Checking result URL
-$I->seeInCurrentUrl('/pop_services.php?table=emails&id=');
-$usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
+$I->seeInCurrentUrl('/?module=services&action=em_view');
+$I->seeElement('div.alert-success');
+$I->see('usage_tests@mcn.ru');
+
+$usageId = $I->grabTextFrom('~<a href=".*id=([0-9]+)&[^>]+>usage_tests@mcn.ru</a>~');
+
 
 // Checking usage
 /** @var \app\models\UsageEmails $usage */
