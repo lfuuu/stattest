@@ -51,8 +51,8 @@ $I->selectOption($tariffSelector, trim($tariffText));
 $I->submitForm('//form[@id="dbform"]', []);
 
 // Checking result URL
-$I->seeInCurrentUrl('/pop_services.php?table=usage_virtpbx&id=');
-$usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
+$I->seeInCurrentUrl('/?module=services&action=virtpbx_view');
+$usageId = $I->grabTextFrom('~<a href=".*usage_virtpbx&id=(\d+)[^>]+>~');
 
 // Checking usage
 /** @var \app\models\UsageVirtpbx $usage */

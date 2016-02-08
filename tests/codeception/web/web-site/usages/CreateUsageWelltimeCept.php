@@ -63,8 +63,8 @@ $I->fillField('//input[@id="comment"]', 'test comment');
 $I->submitForm('//form[@id="dbform"]', []);
 
 // Checking result URL
-$I->seeInCurrentUrl('/pop_services.php?table=usage_welltime&id=');
-$usageId = $I->grabFromCurrentUrl('~id=(\d+)~');
+$I->seeInCurrentUrl('/?module=services&action=welltime_view');
+$usageId = $I->grabTextFrom('~<a href=".*usage_welltime&id=(\d+)[^>]+>~');
 
 // Checking usage
 /** @var \app\models\UsageWelltime $usage */

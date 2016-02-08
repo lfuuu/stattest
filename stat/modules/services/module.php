@@ -377,8 +377,8 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action='.$suffix2.'_view');
+        if ($result=='add' || $result=='delete') {
+            header('Location: /?module=services&action='.$suffix2.'_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -416,7 +416,7 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: ?module=services&action=in_view');
+            header('Location: /?module=services&action=in_view');
             exit;
         } else {
             $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'Услуги','Редактировать сеть');
@@ -1367,7 +1367,7 @@ class m_services extends IModule{
         Event::go('ats2_numbers_check');
 
         if ($result=='delete') {
-            header('Location: ?module=services&action=vo_view');
+            header('Location: /?module=services&action=vo_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -1443,7 +1443,7 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: ?module=services&action=dn_view');
+            header('Location: /?module=services&action=dn_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -1599,7 +1599,7 @@ class m_services extends IModule{
         if (!isset($whlist[$id])) return;
         $db->Query('delete from email_whitelist where id='.$id);
 
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_whitelist&filter='.$filter.'";</script>');
     }
     function services_em_whitelist_add($fixclient){
         global $db,$design;
@@ -1671,7 +1671,7 @@ class m_services extends IModule{
             trigger_error2("<script type='text/javascript'>alert('Ошибка! Попробуйте снова. Если ошибка будет повторяться - обратитесь к программисту.')</script>");
         }else
             $db->Query('insert into email_whitelist ('.implode(',',$q1).') values ('.implode(',',$q2).')');
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_whitelist&filter='.$filter.'";</script>');
     }
 
     function services_em_add($fixclient){
@@ -1708,7 +1708,7 @@ class m_services extends IModule{
         if($id)
             $dbf->Load($id);
         $result=$dbf->Process();
-        if($result && include_once(INCLUDE_PATH.'welltime_integration.php')){
+        if($result && defined('WELLTIME_INTEGRATION') && WELLTIME_INTEGRATION && include_once(INCLUDE_PATH.'welltime_integration.php')){
             $ms = new \welltime\MBox_syncer($db);
             if($result <> 'delete')
                 $ms->UpdateMailBox(array(
@@ -1718,7 +1718,7 @@ class m_services extends IModule{
                 ));
         }
         if($result=='delete' || $result=='add') {
-            header('Location: ?module=services&action=em_view');
+            header('Location: /?module=services&action=em_view');
             exit;
             $design->ProcessX('empty.tpl');
         } else $dbf->Display(array('module'=>'services','action'=>'em_apply'),'Услуги','Редактировать e-mail ящик');
@@ -1748,11 +1748,11 @@ class m_services extends IModule{
         if ($pass1!=$pass2) {
             trigger_error2('Пароли не совпадают');
             $this->services_em_chpass($fixclient);
-//            trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_chpass&id='.$id.'";</script>');
+//            trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_chpass&id='.$id.'";</script>');
             return;
         }
         $db->Query('update emails set password="'.$pass1.'" where id='.$id);
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_view";</script>');
     }
     function services_em_activate($fixclient){
         global $design,$db;
@@ -1767,12 +1767,12 @@ class m_services extends IModule{
 
         if ($r['actual']) {
             $db->Query("update emails set actual_to=NOW(),enabled=0, status='archived' where id=".$id);
-            if(include_once(INCLUDE_PATH.'welltime_integration.php')){
+            if(defined('WELLTIME_INTEGRATION') && WELLTIME_INTEGRATION && include_once(INCLUDE_PATH.'welltime_integration.php')){
                 $mb = new \welltime\MBox_syncer($db);
                 $mb->DeleteMailBox($r['local_part'].'@'.$r['domain']);
             }
         } else {
-            if(include_once(INCLUDE_PATH.'welltime_integration.php')){
+            if(defined('WELLTIME_INTEGRATION') && WELLTIME_INTEGRATION && include_once(INCLUDE_PATH.'welltime_integration.php')){
                 $mb = new \welltime\MBox_syncer($db);
                 $mb->UpdateMailBox(array(
                     'local_part'=>$r['local_part'],
@@ -1786,7 +1786,7 @@ class m_services extends IModule{
                 $db->Query("update emails set actual_from=NOW(),actual_to='4000-01-01',enabled=1,status='working' where id=".$id);
             }
         }
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_view";</script>');
     }
 /*    function services_em_toggle($fixclient){
         global $design,$db;
@@ -1797,7 +1797,7 @@ class m_services extends IModule{
         if (!($r=$db->NextRecord())) return;
         if ($r['actual']==0) $r['enabled']=0; else $r['enabled']=1-$r['enabled'];
         $db->Query('update emails set enabled='.$r['enabled'].' where id='.$id);
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=em_view";</script>');
     }*/
 
 
@@ -1854,8 +1854,8 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action=ex_view');
+        if ($result=='add' || $result=='delete') {
+            header('Location: /?module=services&action=ex_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -1882,7 +1882,7 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('update usage_extra set actual_to=NOW() where id='.$id);
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ex_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=ex_view";</script>');
     }
 
 // =========================================================================================================================================
@@ -2035,8 +2035,8 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action=virtpbx_view');
+        if ($result=='add' || $result=='delete') {
+            header('Location: /?module=services&action=virtpbx_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -2166,8 +2166,8 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action=sms_view');
+        if ($result=='add' || $result=='delete') {
+            header('Location: /?module=services&action=sms_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -2264,8 +2264,8 @@ class m_services extends IModule{
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action=welltime_view');
+        if ($result=='add' || $result=='delete') {
+            header('Location: /?module=services&action=welltime_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -2328,7 +2328,7 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: ?module=services&action=ppp_view');
+            header('Location: /?module=services&action=ppp_view');
             exit;
             $design->ProcessX('empty.tpl');
         }
@@ -2464,7 +2464,7 @@ class m_services extends IModule{
             return;
         }
         $db->Query('update usage_ip_ppp set password="'.$pass1.'" where id='.$id);
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="/?module=services&action=ppp_view";</script>');
     }
     
     function services_ppp_activate($fixclient){

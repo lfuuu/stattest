@@ -63,5 +63,7 @@ return array(
 
   'paypal_user' => '',
   'paypal_password' => '',
-  'paypal_signature' => ''
+  'paypal_signature' => '',
+
+  'WELLTIME_INTEGRATION' => false
 );

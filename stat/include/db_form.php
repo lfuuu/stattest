@@ -177,7 +177,6 @@ class DbForm {
                         $p = 'edit';
 
                         Yii::$app->session->addFlash('success', 'Запись обновлена');
-                        Yii::$app->response->redirect($model->helper->editLink);
                     }
                 }
                 else {
@@ -194,7 +193,6 @@ class DbForm {
                         $this->dbform['id'] = $model->id;
 
                         Yii::$app->session->addFlash('success', 'Запись добавлена');
-                        Yii::$app->response->redirect($model->helper->editLink);
                     }
                 }
 
@@ -1100,7 +1098,7 @@ class DbFormUsageExtra extends DbForm{
                     'sms_gate'=>'SMS Gate',
                     'uspd' => "УСПД",
                     //'welltime'=>'WellTime',
-                    'wellsystems'=>'WellSystems'
+                    //'wellsystems'=>'WellSystems'
                     );//$groups;
             $this->fields['code']['type']='no';
         }
