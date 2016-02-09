@@ -49,7 +49,12 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
                 'value' => function($data) {
                     $usage = UsageVoip::findOne($data['id']);
 
-                    return Html::a($usage->id, $usage->helper->editLink, ['target' => '_blank']);
+                    return
+                        Html::a(
+                            $usage->id,
+                            $usage->helper->editLink,
+                            ['target' => '_blank']
+                        );
                 },
 
             ],
