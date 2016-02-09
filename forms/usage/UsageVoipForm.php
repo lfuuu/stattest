@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use app\classes\Form;
+use app\models\UsageVoip;
 
 class UsageVoipForm extends Form
 {
@@ -47,7 +48,8 @@ class UsageVoipForm extends Form
             [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
             [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
             ['status', 'default', 'value' => 'connecting'],
-            [['connecting_date'], 'validateDate', 'on' => 'edit']
+            [['connecting_date'], 'validateDate', 'on' => 'edit'],
+            [['connecting_date'], 'validateUsageDate']
         ];
     }
 
@@ -92,6 +94,25 @@ class UsageVoipForm extends Form
             $this->addError('disconnecting_date', 'Услуга отключена '.($expireDt->format('d.m.Y')));
         }
     }
+
+    public function validateUsageDate($attr, $params)
+    {
+        $from = $this->connecting_date;
+        $to = $this->disconnecting_date ?: '4000-01-01';
+
+        $queryVoip =
+            UsageVoip::find()
+                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)', [':from' => $from, ':to' => $to])
+                ->andWhere(['E164' => $this->did]);
+        if ($this->id) {
+            $queryVoip->andWhere('id != :id', [':id' => $this->id]);
+        }
+
+        foreach ($queryVoip->all() as $usage) {
+            $this->addError('did', "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
+        }
+    }
+
 
 
 }

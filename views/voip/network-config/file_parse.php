@@ -1,17 +1,15 @@
 <?php
-use app\models\billing\Pricelist;
-use app\models\billing\PricelistFile;
-use app\classes\voip\BasePricelistLoader;
+use app\models\billing\NetworkFile;
+use app\classes\voip\BaseNetworkLoader;
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 
-/** @var Pricelist $pricelist */
-/** @var PricelistFile $file */
+/** @var NetworkFile $file */
 /** @var array $data */
 /** @var array $settings */
 /** @var array $loaders */
-/** @var BasePricelistLoader $parser */
+/** @var BaseNetworkLoader $parser */
 
 $overrideSettings = $parser->overrideSettings();
 
@@ -29,9 +27,7 @@ $columnTypes = [
     'prefix2_smart' => 'Префикс 2 Умный',
     'prefix2_from'  => 'Префикс 2 От',
     'prefix2_to'    => 'Префикс 2 До',
-    'rate'          => 'Цена',
-    'destination'   => 'Направление',
-    'comment'       => 'Комментарий',
+    'network_type'  => 'Код смежности',
 ];
 
 $colCount = 0;
@@ -43,7 +39,7 @@ foreach ($data as $row) {
 ?>
 
 <form method="post">
-
+    <input type="hidden" name="load_type" value="full"/>
     <table>
         <tr>
             <td>
@@ -61,15 +57,6 @@ foreach ($data as $row) {
             </td>
         </tr>
         <tr>
-            <td>
-                <label>Тип загрузки:
-                    <select name="load_type" class="select2" <?=isset($overrideSettings['full']) ? 'readonly disabled' : ''?> >
-                        <option value="full"     <?=isset($settings['full']) &&  $settings['full'] ? 'selected' : ''?> >Полная загрузка</option>
-                        <option value="changes"  <?=isset($settings['full']) && !$settings['full'] ? 'selected' : ''?> >Изменения</option>
-                    </select>
-                </label>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-            </td>
             <td>
                 <label>Префикс 0 <input name="prefix" value="<?=isset($settings['prefix']) ? $settings['prefix'] : '' ?>" <?=isset($overrideSettings['prefix']) ? 'readonly  disabled' : ''?> ></label>
                 &nbsp;&nbsp;&nbsp;&nbsp;

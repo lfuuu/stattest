@@ -10,16 +10,15 @@ class NetworkConfigAddForm extends NetworkConfigForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['name','connection_point_id','pricelist_id'], 'required'];
+        $rules[] = [['name','connection_point_id'], 'required'];
         return $rules;
     }
 
     public function save()
     {
         $networkConfig = new NetworkConfig();
-        $networkConfig->connection_point_id = $this->connection_point_id;
+        $networkConfig->instance_id = $this->connection_point_id;
         $networkConfig->name = $this->name;
-        $networkConfig->pricelist_id = $this->pricelist_id;
         $networkConfig->geo_city_id = $this->geo_city_id;
         $networkConfig->geo_operator_id = $this->geo_operator_id;
 

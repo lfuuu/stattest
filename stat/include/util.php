@@ -810,9 +810,9 @@ class ClientCS {
 
         try{
 
-            $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
-                                                CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
-                                                CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
+            $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(10,2)) as amount_sum,
+                                                CAST(amount_day_sum as NUMERIC(10,2)) as amount_day_sum,
+                                                CAST(amount_month_sum as NUMERIC(10,2)) as amount_month_sum
                                         FROM billing.counters
                                         WHERE client_id='".$clientId."'");
 

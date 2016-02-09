@@ -49,4 +49,12 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
         return Url::toRoute(['/usage/trunk/edit', 'id' => $this->usage->id]);
     }
 
+    /**
+     * @return null
+     */
+    public function getTransferedFrom()
+    {
+        return null;
+    }
+
 }

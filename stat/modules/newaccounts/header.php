@@ -95,7 +95,11 @@ class m_newaccounts_head extends IModuleHead{
             array('Курс доллара',		'usd'),
             array('',					'pi_list'),
             array('Импорт платежей',	'pi_list'),
-            array('Массовые счета',		'bill_mass'),
+            array('Массовые счета', function() {
+                if (Yii::$app->user->can('newaccounts_mass.access')) {
+                    return ['bill/publish/index'];
+                }
+            }),
             array('Книга продаж',		'balance_sell'),
             array('Отчёт по платежам',	'pay_report'),
             array('Отчёт по долгам',	'debt_report'),

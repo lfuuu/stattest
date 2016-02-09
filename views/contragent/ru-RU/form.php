@@ -246,7 +246,7 @@ use app\models\Business;
                 foreach($cts as $ct){
                     $accounts = $ct->getAccounts();
                     if($accounts){
-                        $partners[$accounts[0]->id] = $ct->getContragent()->name;
+                        $partners[$accounts[0]->id] = $ct->getContragent()->name . ' (#' . $accounts[0]->id . ')';
                     }
                 }
             ?>

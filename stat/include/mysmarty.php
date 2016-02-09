@@ -334,6 +334,37 @@ function smarty_modifier_rus_plural($value, $s1, $s2, $s3) {
     return Utils::rus_plural($value, $s1, $s2, $s3);
 }
 
+function smarty_modifier_usage_link($usageType, $usageId)
+{
+    switch ($usageType) {
+        case 'emails':
+            return \app\models\UsageEmails::findOne($usageId)->helper->editLink;
+        case 'tech_cpe':
+            return \app\models\UsageTechCpe::findOne($usageId)->helper->editLink;
+        case 'usage_extra':
+            return \app\models\UsageExtra::findOne($usageId)->helper->editLink;
+        case 'usage_ip_ports':
+            return \app\models\UsageIpPorts::findOne($usageId)->helper->editLink;
+        case 'usage_sms':
+            return \app\models\UsageSms::findOne($usageId)->helper->editLink;
+        case 'usage_trunk':
+            return \app\models\UsageTrunk::findOne($usageId)->helper->editLink;
+        case 'usage_virtpbx':
+            return \app\models\UsageVirtpbx::findOne($usageId)->helper->editLink;
+        case 'usage_voip':
+            return \app\models\UsageVoip::findOne($usageId)->helper->editLink;
+        case 'usage_welltime':
+            return \app\models\UsageWelltime::findOne($usageId)->helper->editLink;
+        case 'usage_voip_package':
+            return
+                \app\models\UsageVoip::findOne(
+                    \app\models\UsageVoipPackage::findOne($usageId)->usage_voip_id
+                )->helper->editLink;
+        default:
+            return 'javascript:void(0)';
+    }
+}
+
 class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
@@ -375,6 +406,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
         $this->register_modifier('find_urls','smarty_modifier_find_urls');
 		$this->register_modifier('rus_fin','smarty_modifier_rus_plural');
+		$this->register_modifier('usage_link','smarty_modifier_usage_link');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

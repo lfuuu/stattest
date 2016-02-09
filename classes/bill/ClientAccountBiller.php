@@ -14,6 +14,7 @@ use app\models\UsageIpPorts;
 use app\models\UsageSms;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
+use app\models\UsageVoipPackage;
 use app\models\UsageTrunk;
 use app\models\UsageWelltime;
 
@@ -100,6 +101,14 @@ class ClientAccountBiller
 
         $this->processUsages(
             UsageVoip::find()
+                ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->all()
+        );
+
+        $this->processUsages(
+            UsageVoipPackage::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
@@ -256,7 +265,6 @@ class ClientAccountBiller
 
     private function processUsages(array $usages)
     {
-
         foreach ($usages as $usage) {
             $this->processUsage($usage);
         }

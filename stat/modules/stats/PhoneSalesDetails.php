@@ -62,6 +62,7 @@
 			$field = ($disabled) ? 'actual_to' : 'actual_from';
 			$replace[0] = (!$disabled) ? 'проданных' : 'отключенных';
 			$add_fields = '';
+
 			if (empty($month)) 
 			{
 				$replace[0] = 'подключенных';
@@ -85,6 +86,7 @@
 				$condition .= " AND u.E164 LIKE '7800%'";
 				$replace[1] = '8800 номерах';
 			}
+
 			$phones = $db->AllRecords('
 				select 
 					u.E164,

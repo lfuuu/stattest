@@ -10,10 +10,6 @@ class Pricelist extends ActiveRecord\Model
 
     static $cachedList;
 
-    static $belongs_to = array(
-        array('operator', 'class_name' => 'VoipOperator', 'foreign_key' => array('region', 'operator_id')),
-    );
-
     public function __construct(array $attributes=array(), $guard_attributes=true, $instantiating_via_find=false, $new_record=true)
     {
         parent::__construct($attributes, $guard_attributes, $instantiating_via_find, $new_record);
@@ -21,7 +17,6 @@ class Pricelist extends ActiveRecord\Model
         if ($new_record) {
             $this->assign_attribute('id', null);
             $this->assign_attribute('region', null);
-            $this->assign_attribute('operator_id', null);
             $this->assign_attribute('name', null);
             $this->assign_attribute('tariffication_by_minutes', null);
             $this->assign_attribute('tariffication_full_first_minute', null);
@@ -61,16 +56,4 @@ class Pricelist extends ActiveRecord\Model
             return null;
         }
     }
-
-    public function getOperator()
-    {
-        $operator = VoipOperator::getByIdAndInstanceId($this->operator_id, $this->region);
-
-        if ($operator === null) {
-            $operator = VoipOperator::getByIdAndInstanceId($this->operator_id, 0);
-        }
-
-        return $operator;
-    }
-
 }

@@ -31,7 +31,11 @@ class Navigation
         $this->addBlockNewClients();
 
         $this->addBlockForStatModule('services');
-        $this->addBlockForStatModule('newaccounts');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Бухгалтерия')
+                ->addStatModuleItems('newaccounts')
+        );
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Тарифы')
@@ -51,6 +55,7 @@ class Navigation
                 ->addItem('Отчет по OnLime', ['reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['reports/onlime-devices-report'], ['stats.report'])
                 ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
+                ->addItem('Себестоимость звонков', ['report/voip/cost-report'], ['stats.report'])
         );
         $this->addBlockForStatModule('routers');
 
@@ -58,7 +63,8 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Мониторинг')
                 ->addStatModuleItems('monitoring')
-                ->addItem('Ключевые события',  ['/monitoring'], [])
+                ->addItem('Перемещаемые услуги',  ['/monitoring/transfered-usages'], [])
+                ->addItem('Ключевые события', ['/monitoring'], [])
         );
 
         $this->addBlock(

@@ -22,9 +22,9 @@ class Counter extends ActiveRecord
     {
         $query = parent::find();
         $query->select([
-            'CAST(amount_sum as NUMERIC(8,2)) as amount_sum',
-            'CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum',
-            'CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum'
+            'CAST(amount_sum as NUMERIC(10,2)) as amount_sum',
+            'CAST(amount_day_sum as NUMERIC(10,2)) as amount_day_sum',
+            'CAST(amount_month_sum as NUMERIC(10,2)) as amount_month_sum'
         ]);
         return $query;
     }

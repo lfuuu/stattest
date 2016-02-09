@@ -7,6 +7,7 @@ use app\models\billing\Pricelist;
 
 /**
  * @property int $id
+ * @property string $name
  * @property
  */
 class TariffVoip extends ActiveRecord

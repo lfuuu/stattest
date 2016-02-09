@@ -1,6 +1,9 @@
 <?php
 namespace app\controllers\voip;
 
+use app\classes\voip\BaseNetworkLoader;
+use app\forms\billing\NetworkConfigForm;
+use app\models\billing\Pricelist;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -30,7 +33,7 @@ class NetworkConfigController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'geo-upload', 'file-upload', 'file-parse'],
+                        'actions' => ['add', 'edit', 'delete', 'geo-upload', 'file-upload', 'file-parse'],
                         'roles' => ['voip.admin'],
                     ],
                 ],
@@ -83,6 +86,23 @@ class NetworkConfigController extends BaseController
         ]);
     }
 
+    public function actionDelete($id)
+    {
+        /** @var NetworkConfig $networkConfig */
+        $networkConfig = NetworkConfig::findOne($id);
+        Assert::isObject($networkConfig);
+
+        $networkFiles = NetworkFile::findAll(['network_config_id' => $networkConfig->id]);
+        Assert::isEmpty($networkFiles);
+
+        $pricelists = Pricelist::findAll(['local_network_config_id' => $networkConfig->id]);
+        Assert::isEmpty($pricelists);
+
+        $networkConfig->delete();
+
+        $this->redirect('/voip/network-config/list');
+    }
+
     public function actionFiles($networkConfigId)
     {
         $networkConfig = NetworkConfig::findOne($networkConfigId);
@@ -110,6 +130,21 @@ class NetworkConfigController extends BaseController
             'dataProvider' => $dataProvider,
             'files' => $files,
         ]);
+    }
+
+    public function actionFileUpload($networkConfigId)
+    {
+        $networkConfig = NetworkConfig::findOne($networkConfigId);
+        Assert::isObject($networkConfig);
+
+        if (!$_FILES['upfile'] && $_FILES['upfile']['error']) {
+            throw new \Exception('Файл не был загружен');
+        }
+
+        $parser = new UniversalNetworkLoader();
+        $file = $parser->uploadFile($_FILES['upfile'], $networkConfig->id);
+
+        return $this->redirect(['file-parse', 'fileId' => $file->id]);
     }
 
     public function actionGeoUpload($networkConfigId)
@@ -141,11 +176,6 @@ class NetworkConfigController extends BaseController
             'compress' => 0,
         ];
 
-        $savedSettings = json_decode($file->pricelist->parser_settings, true);
-        if ($savedSettings) {
-            $settings = array_merge($settings, $savedSettings);
-        }
-
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_set_loader') !== null) {
             $settings['loader'] = Yii::$app->request->post('loader', '');
             $file->config->pricelist->parser_settings = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -169,15 +199,11 @@ class NetworkConfigController extends BaseController
                 $n++;
             }
 
-            if (Yii::$app->request->post('save_settings', 0) > 0) {
-                $file->config->pricelist->parser_settings = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                $file->config->pricelist->save();
-            }
             $file->save();
         }
 
         $loaderClass = $settings['loader'];
-        $parser = new $loaderClass(); /** @var BasePricelistLoader $parser */
+        $parser = new $loaderClass(); /** @var BaseNetworkLoader $parser */
 
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_upload') !== null) {
 
@@ -202,13 +228,12 @@ class NetworkConfigController extends BaseController
 
         $loaders = [
             UniversalNetworkLoader::className() => UniversalNetworkLoader::getName(),
-            MgtsNetworkLoader::className() => MgtsNetworkLoader::getName(),
+            //MgtsNetworkLoader::className() => MgtsNetworkLoader::getName(),
         ];
 
         return $this->render("file_parse", [
             'parser' => $parser,
             'loaders' => $loaders,
-            'pricelist' => $file->pricelist,
             'file' => $file,
             'settings' => $settings,
             'data' => $data,

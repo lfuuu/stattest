@@ -9,7 +9,7 @@ class BalanceSellToExcel extends Excel
 {
 
     private
-        $insertPosition = 13;
+        $insertPosition = 12;
     public
         /** @var \app\models\Organization $organization */
         $organization,

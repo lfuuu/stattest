@@ -281,6 +281,14 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
+        foreach (\app\models\UsageVoipPackage::find()->client($client)->actual()->all() as $usage) {
+            $data['voip_packages'][] = [
+                'usage_voip' => $usage->usageVoip,
+                'tariff' => $usage->tariff,
+                'from' => $usage->actual_from,
+            ];
+        }
+
         $design->assign('blank_data', $data);
         return $design->fetch('tarifs/blank.htm');
     }

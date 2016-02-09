@@ -24,7 +24,7 @@ class VoipNetworkFile extends ActiveRecord\Model
             $this->assign_attribute('active', 'f');
             $this->assign_attribute('created_at', null);
             $this->assign_attribute('rows', 0);
-            $this->assign_attribute('file_name', '');
+            $this->assign_attribute('filename', '');
         }
     }
 

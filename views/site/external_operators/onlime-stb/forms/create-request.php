@@ -110,6 +110,10 @@ use yii\widgets\MaskedInput;
         </div>
     </div>
 
+    <div class="alert alert-danger">
+        <b>При указании даты и времени доставки просим учитывать режим работы службы доставки в праздничные дни:<br /> с 31.12.2015 по 05.01.2016 включительно - не рабочие</b>
+    </div>
+
     <?php
     echo Form::widget([
         'model' => $model,

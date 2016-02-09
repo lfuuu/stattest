@@ -2,6 +2,7 @@
 namespace app\forms\client;
 
 use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
 use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
@@ -15,6 +16,7 @@ use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 use app\models\Bik;
 use app\classes\validators\BikValidator;
+use app\classes\validators\ArrayValidator;
 
 class AccountEditForm extends Form
 {
@@ -65,7 +67,9 @@ class AccountEditForm extends Form
         $bank_properties,
         $bank_city,
         $admin_email,
-        $lk_balance_view_mode;
+        $lk_balance_view_mode,
+        $anti_fraud_disabled,
+        $options;
 
     public function rules()
     {
@@ -91,7 +95,7 @@ class AccountEditForm extends Form
                 [
                     'id', 'super_id', 'contract_id', 'stamp', 'credit', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active'
+                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active', 'anti_fraud_disabled'
                 ],
                 'integer'
             ],
@@ -117,6 +121,7 @@ class AccountEditForm extends Form
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
             ['bik', BikValidator::className()],
             ['lk_balance_view_mode', 'in', 'range' => array_keys(ClientAccount::$balanceViewMode)],
+            [['options',], ArrayValidator::className()],
         ];
         return $rules;
     }
@@ -139,21 +144,26 @@ class AccountEditForm extends Form
     public function init()
     {
         if ($this->id) {
-
             $this->clientM = ClientAccount::findOne($this->id);
+
             if($this->clientM && $this->historyVersionRequestedDate) {
                 $this->clientM->loadVersionOnDate($this->historyVersionRequestedDate);
             }
+
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
+
             $this->setAttributes($this->clientM->getAttributes(), false);
-        } elseif ($this->contract_id) {
+        }
+        elseif ($this->contract_id) {
             $contract = ClientContract::findOne($this->contract_id);
             $contragent = ClientContragent::findOne($contract->contragent_id);
+
             if (!$this->super_id) {
                 $this->super_id = $contract->super_id;
             }
+
             $this->clientM = new ClientAccount();
             $this->clientM->contract_id = $this->contract_id;
             $this->clientM->super_id = $this->super_id;
@@ -164,13 +174,18 @@ class AccountEditForm extends Form
             $this->admin_is_active = 0;
             $this->voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY;
             $this->voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC;
+            $this->anti_fraud_disabled = 0;
             $this->bill_rename1 = 'no';
-        } else {
+        }
+        else {
             $this->clientM = new ClientAccount();
         }
 
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
+
+        $this->options = ArrayHelper::merge($this->options, ArrayHelper::map($this->clientM->getOption('mail_delivery'), 'option', 'value'));
+        $this->options = ArrayHelper::merge($this->options, ['mail_delivery_variant' => array_map(function($r) { return $r->value; },$this->clientM->getOption('mail_delivery_variant'))]);
     }
 
     public function save()
@@ -213,6 +228,36 @@ class AccountEditForm extends Form
                         'р/с ' . ($client->pay_acc ?: '') . "\n" .
                         $client->bank_name . ' ' . $client->bank_city .
                         ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
+                }
+            }
+        }
+
+        if (is_array($this->options)) {
+            ClientAccountOptions::deleteAll([
+                'and',
+                'client_account_id = :clientAccountId',
+                ['in', 'option', array_keys($this->options)]
+            ],
+            [
+                ':clientAccountId' => $client->id,
+            ]);
+
+                foreach ($this->options as $option => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $record) {
+                        (new ClientAccountOptionsForm)
+                            ->setClientAccountId($client->id)
+                            ->setOption($option)
+                            ->setValue($record)
+                            ->save();
+                    }
+                }
+                else {
+                    (new ClientAccountOptionsForm)
+                        ->setClientAccountId($client->id)
+                        ->setOption($option)
+                        ->setValue($value)
+                        ->save();
                 }
             }
         }

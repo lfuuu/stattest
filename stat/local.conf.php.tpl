@@ -5,6 +5,7 @@ return array(
     'WEB_ADDRESS'        => 'http://stat',
     'USE_MD5'        => 0, //использование md5-хеширование для паролей
     'ADMIN_EMAIL'   => 'admin@mcn.loc',
+    //'MONITORING_EMAIL' => '1@1.ru', //оповещения клиентам дублировать на почту
 
 /* voip regions db
     'R_CALLS_HOST'        =>    '',

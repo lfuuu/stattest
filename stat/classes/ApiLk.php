@@ -397,7 +397,7 @@ class ApiLk
                 'periodical_fee' => (float)$tariff->month_number,
                 'line_activation_fee' => (float)$tariff->once_line,
                 'line_periodical_fee' => (float)$tariff->month_line,
-                'currency_id' => $tariff->currency,
+                'currency_id' => $tariff->currency_id,
                 'free_local_min' => $tariff->free_local_min,
             ];
         }
@@ -488,45 +488,34 @@ class ApiLk
         if (!$account)
             return $ret;
 
+        // По каждому номеру (E164) выбрать активную запись.
+        // Если активной нет, то последнюю активную в недалеком прошлом (2 месяца) или в любом будущем.
+        // Средствами SQL эту логику делать слишком извращенно. Проще выбрать все и отфильтровать лишнее средствами PHP
         $usageRows =
             Yii::$app->db->createCommand("
                     SELECT
-                            u.id,
-                            u.E164 AS number,
-                            actual_from,
-                            actual_to,
-                            no_of_lines,
-                            IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-                            u.region
-                        FROM (
-                            SELECT
-                                u.*
-                            FROM
-                                usage_voip u, (
-                                    SELECT
-                                        MAX(actual_from) AS max_actual_from,
-                                        E164
-                                    FROM
-                                        usage_voip
-                                    WHERE
-                                        client=:client
-                                    GROUP BY E164
-                                ) a
-                            WHERE
-                                    a.e164 = u.e164
-                                AND client=:client
-                                AND max_actual_from = u.actual_from
-                                AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
-                            ) AS `u`
-
-                         ORDER BY
-                             `u`.`actual_from` DESC
+                        id,
+                        E164 AS `number`,
+                        actual_from,
+                        actual_to,
+                        no_of_lines,
+                        CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AS actual,
+                        actual_to BETWEEN CAST(NOW() - interval 2 month AS DATE) AND CAST(NOW() AS DATE) AS actual_present_perfect,
+                        CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite,
+                        region
+                    FROM
+                        usage_voip
+                    WHERE
+                        client = :client
+                   ORDER BY
+                        actual_from DESC
                 ",
                 [':client' => $account->client ]
             )->queryAll();
         foreach($usageRows as $usageRow)
         {
             $line = $usageRow;
+            unset($line['actual_present_perfect'], $line['actual_future_indefinite']); // это временное служебное поле, которое не надо отдавать
 
             $usage = app\models\UsageVoip::findOne(["id" => $usageRow['id']]);
 
@@ -536,10 +525,22 @@ class ApiLk
             //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
             $line["vpbx"] = 0;
 
-            $ret[] = $isSimple ? $line["number"] : $line;
+            // даты начала и конца расширить до максимальных, не зависимо от того, активно оно сейчас или нет
+            if (!$isSimple && isset($ret[$usageRow['number']])) {
+                $ret[$usageRow['number']]['actual_from'] = $line['actual_from'] = min($ret[$usageRow['number']]['actual_from'], $line['actual_from']);
+                $ret[$usageRow['number']]['actual_to'] = $line['actual_to'] = max($ret[$usageRow['number']]['actual_to'], $line['actual_to']);
+            }
+
+            // активные сейчас - всегда записываем
+            // активные в недавнем прошлом или в будущем - только если нет активных сейчас
+            if ($usageRow['actual'] ||
+                (($usageRow['actual_present_perfect'] || $usageRow['actual_future_indefinite']) && !isset($ret[$usageRow['number']]))
+            ) {
+                $ret[$usageRow['number']] = $isSimple ? $line["number"] : $line;
+            }
         }
 
-        return $ret;
+        return array_values($ret);
     }
 
     public static function getVpbxList($clientId)
@@ -843,7 +844,16 @@ class ApiLk
                 `id`
             ", array($currency, $status)) as $service)
         {
-            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
+            $line = self::_exportModelRow(
+                [
+                    'id', 'description', 'period', 'price',
+                    'num_ports', 'overrun_per_port',
+                    'space', 'overrun_per_gb',
+                    'ext_did_count', 'ext_did_monthly_payment',
+                    'is_record', 'is_web_call', 'is_fax'
+                ],
+                $service
+            );
             $line["price"] = number_format($line["price"], 2, ".", "");
             $ret[] = $line;
         }
@@ -1702,7 +1712,7 @@ class ApiLk
      *@param string $type тип (телефон или Email)
      *@param string $data значение
      */
-    public static function addAccountNotification($client_id = '', $type = '', $data = '')
+    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = Language::DEFAULT_LANGUAGE)
     {
         global $db;
         if (!self::validateClient($client_id))
@@ -1749,7 +1759,7 @@ class ApiLk
         } else
             return array('status'=>'error','message'=>'contact_add_error');
 
-        self::sendApproveMessage($client_id, $type, $data, $contact_id);
+        self::sendApproveMessage($client_id, $type, $data, $contact_id, $lang);
 
         return array('status'=>'ok','message'=>'contact_add_ok');
     }
@@ -2010,49 +2020,85 @@ class ApiLk
         return $ret;
     }
 
-    public static function sendApproveMessage($client_id, $type, $data, $contact_id)
+    public static function sendApproveMessage($client_id, $type, $data, $contact_id, $lang = Language::DEFAULT_LANGUAGE)
     {
         global $design, $db;
 
-        $res = false;
-        if ($type == 'email') {
-            $key = md5($client_id.'SeCrEt-KeY'.$contact_id);
-            $db->QueryUpdate(
-                    'lk_notice_settings',
-                    array('client_contact_id','client_id'),
-                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
-                    );
+        $clientAccount = \app\models\ClientAccount::findOne($client_id);
+        $language = Language::normalizeLang($lang);
 
-            $url = 'https://'.\Yii::$app->params['CORE_SERVER'].'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
-            $design->assign(array('url'=>$url));
-            $message = $design->fetch('letters/notification/approve.tpl');
-            $params = array(
-                            'data'=>$data,
-                            'subject'=>'Подтверждение Email адреса для уведомлений',
-                            'message'=>$message,
-                            'type'=>'email',
-                            'contact_id'=>$contact_id
-                        );
-            $id = $db->QueryInsert('lk_notice', $params);
-            if ($id) $res = true;
-        } else if ($type == 'phone') {
-            $code = '';
-            for ($i=0;$i<6;$i++) $code .= rand(0,9);
+        if ($type == 'email') {
+            $key = md5($client_id . 'SeCrEt-KeY' . $contact_id);
             $db->QueryUpdate(
-                    'lk_notice_settings',
-                    array('client_contact_id','client_id'),
-                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$code)
-                    );
-            $params = array(
-                            'data'=>$data,
-                            'message'=>'Код активации: ' . $code,
-                            'type'=>'phone',
-                            'contact_id'=>$contact_id
-                        );
+                'lk_notice_settings',
+                ['client_contact_id', 'client_id'],
+                [
+                    'client_contact_id' => $contact_id,
+                    'client_id' => $client_id,
+                    'activate_code' => $key
+                ]
+            );
+
+            $assigns = [
+                'url' =>
+                    'https://' .
+                    Yii::t('settings', 'lk_domain', [], $language) .
+                    '/lk/accounts_notification/activate_by_email?' .
+                    'client_id=' . $client_id .
+                    '&contact_id=' . $contact_id .
+                    '&key=' . $key,
+                'organization' => $clientAccount->organization->name,
+            ];
+
+            $design->assign($assigns);
+            $message = $design->fetch('letters/notification/' . $language . '/approve.tpl');
+
+            $params = [
+                'data' => $data,
+                'subject' => Yii::t('settings', 'email_subject_approve', [], $language),
+                'message' => $message,
+                'type' => 'email',
+                'contact_id' => $contact_id,
+                'lang' => $language,
+            ];
+
             $id = $db->QueryInsert('lk_notice', $params);
-            if ($id) $res = true;
+
+            if ($id) {
+                return true;
+            }
         }
-        return $res;
+        else if ($type == 'phone') {
+            $code = '';
+            for ($i=0; $i<6; $i++) {
+                $code .= mt_rand(0, 9);
+            }
+
+            $db->QueryUpdate(
+                'lk_notice_settings',
+                ['client_contact_id', 'client_id'],
+                [
+                    'client_contact_id' => $contact_id,
+                    'client_id' => $client_id,
+                    'activate_code' => $code
+                ]
+            );
+            $params = [
+                'data' => $data,
+                'message' => 'Код активации: ' . $code,
+                'type' => 'phone',
+                'contact_id' => $contact_id,
+                'lang' => $language,
+            ];
+
+            $id = $db->QueryInsert('lk_notice', $params);
+
+            if ($id){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

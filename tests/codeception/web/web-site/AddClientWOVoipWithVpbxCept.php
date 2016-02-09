@@ -47,7 +47,7 @@ $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
 $I->see('ok:' . $accountId);
 $I->dontSee('vpbx:not_found_tariff');
-$I->see('vpbx:created');
+$I->see('vats:ok:created');
 $I->dontSee('Exception');
 $I->dontSee('voip:failed');
 $I->see('voip:added');

@@ -3,9 +3,10 @@ namespace app\forms\usage;
 
 use Yii;
 use DateTimeZone;
-use app\models\UsageTrunk;
 use app\classes\Assert;
 use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
+use app\models\UsageTrunk;
 
 class UsageTrunkCloseForm extends Form
 {
@@ -40,8 +41,6 @@ class UsageTrunkCloseForm extends Form
         $nextDay->setTime(0, 0, 0);
 
         $actualTo = new \DateTime($this->actual_to, $timezone);
-        $expireDt = clone $actualTo;
-        $expireDt->setTimezone(new DateTimeZone('UTC'));
 
         if ($actualTo < $nextDay) {
             Yii::$app->session->addFlash('error', 'Закрыть услугу можно только со следующего дня');
@@ -49,7 +48,7 @@ class UsageTrunkCloseForm extends Form
         }
 
         $usage->actual_to = $actualTo->format('Y-m-d');
-        $usage->expire_dt = $expireDt->format('Y-m-d H:i:s');
+        $usage->expire_dt = DateTimeZoneHelper::getExpireDateTime($this->actual_to, $timezone);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

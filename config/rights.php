@@ -24,8 +24,10 @@ $rights = [
             'inn_double'    =>  'заведение совпадающих ИНН',
             'all4net'       =>  'синхронизация с all4net',
             'history_edit'  =>  'редактирование истории',
-            'client_type_change' => 'изменение тип договора',
-            'changeback_contract_state' => 'изменение статуса проверки документов на "не проверено"',
+
+            'client_type_change'            => 'договора: изменение типа',
+            'can_delete_contract_documents' => 'договора: удаление документов',
+            'changeback_contract_state'     => 'договора: изменение статуса проверки документов на "не проверено"',
         ],
     ],
     'data' => [

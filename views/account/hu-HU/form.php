@@ -51,7 +51,7 @@ use app\models\Currency;
             'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
             'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 1, 'style' => 'margin-top: 35px;'],],
             'voip_credit_limit' => ['columnOptions' => ['colspan' => 1]],
-            ['type' => Form::INPUT_RAW,],
+            'anti_fraud_disabled' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 1, 'style' => 'margin-top: 35px;'],],
             ['type' => Form::INPUT_RAW,],
 
             ['type' => Form::INPUT_RAW,],

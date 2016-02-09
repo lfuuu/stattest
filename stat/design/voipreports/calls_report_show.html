@@ -9,12 +9,20 @@
         <option value="{$r->id}" {if $r->id eq $f_server_id} selected{/if}>{$r->name} ({$r->id})</option>
         {/foreach}
     </select>
-    <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
-        {foreach from=$operators key='id' item='name'}
-        <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
+    <select class="select2" style="width: 300px" name="f_trunk_id">
+        <option value="0">-- Транк --</option>
+        {foreach from=$trunks item='o'}
+        <option value="{$o.id}"{if $trunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
         {/foreach}
     </select>
+    <select class="select2" style="width: 300px" name="f_service_trunk_id">
+        <option value="0">-- Услуга транк --</option>
+        {foreach from=$serviceTrunks item='o'}
+        <option value="{$o.id}"{if $serviceTrunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+        {/foreach}
+    </select>
+
+    <div style="height: 5px"></div>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -84,7 +92,8 @@
     <td class=header>Стоимость</td>
     <td class=header>Направление</td>
     <td class=header>Точка присоединения</td>
-    <td class=header>Оператор</td>
+    <td class=header>Транк</td>
+    <td class=header>Услуга транк</td>
 </tr>
 </thead>
 <tbody>
@@ -98,7 +107,9 @@
     <td>{$rd.cost}</td>
     <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
     <td>{$regions[$rd.server_id]->name} ({$rd.server_id})</td>
-    <td>{$operators[$rd.operator_id]} ({$rd.operator_id})</td>
+    <td>{$trunks[$rd.trunk_id].name} ({$rd.trunk_id})</td>
+    <td>{$serviceTrunks[$rd.trunk_service_id].name} ({$rd.trunk_service_id})</td>
+
 </tr>
 {/foreach}
 </tbody>

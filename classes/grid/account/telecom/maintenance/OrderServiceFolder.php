@@ -21,7 +21,6 @@ class OrderServiceFolder extends AccountGridFolder
             'id',
             'company',
             'created',
-            'currency',
             'sale_channel',
             'manager',
             'region',

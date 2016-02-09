@@ -4,6 +4,7 @@ namespace app\controllers\stats;
 use app\classes\stats\AgentReport;
 use app\classes\stats\PhoneSales;
 use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use Yii;
@@ -27,20 +28,31 @@ class AgentController extends BaseController
 
     public function actionReport()
     {
-        $partnerId = Yii::$app->request->get('partner_contract_id', 0);
+        $partnerContractId = Yii::$app->request->get('partner_contract_id', 0);
         list($dateFrom, $dateTo) = explode(' - ', Yii::$app->request->get('date', 0));
 
-        $partnerList = ArrayHelper::map(ClientContract::find()
-            ->andWhere(['business_id' => Business::PARTNER])
-            ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
-            ->select([ClientContract::tableName() . '.id', ClientContragent::tableName() . '.name'])
-            ->createCommand()
-            ->queryAll(\PDO::FETCH_ASSOC), 'id', 'name');
+        $dateFrom = (!empty($dateFrom)) ? $dateFrom : date("Y-m-d", strtotime("first day of previous month"));
+        $dateTo = (!empty($dateTo)) ? $dateTo : date("Y-m-d", strtotime("last day of previous month"));
 
-        $partner = ClientContract::findOne($partnerId);
+
+        $partners = ClientContract::find()
+                ->andWhere(['business_id' => Business::PARTNER])
+                ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
+                ->orderBy(ClientContragent::tableName() . '.name')
+                ->all();
+
+        $partnerList = [];
+        foreach($partners as $partner) {
+            $account = $partner->accounts[0];
+            $partnerList[$account->id] = $partner->contragent->name . ' (#' . $account->id . ')';
+        }
+
+
+        $account = ClientAccount::findOne($partnerContractId);
+
         $data = [];
-        if ($partner) {
-            $data = AgentReport::run($partnerId, $dateFrom, $dateTo);
+        if ($account) {
+            $data = AgentReport::run($partnerContractId, $dateFrom, $dateTo);
         }
 
         if (Yii::$app->request->get('exportToCSV')) {
@@ -49,10 +61,12 @@ class AgentController extends BaseController
         } else {
             return $this->render('report', [
                 'data' => $data,
+                'contractsWithoutReward' => AgentReport::getWithoutRewardContracts(),
+                'contractsWithIncorrectBP' => AgentReport::getContractsWithIncorrectBP(),
                 'partnerList' => $partnerList,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
-                'partner' => $partner
+                'partner' => $account
             ]);
         }
     }

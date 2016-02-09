@@ -6,7 +6,6 @@ include_once 'voip_mgmn_report.php';
 include_once 'by_dest_operator_report.php';
 include_once 'by_source_operator_report.php';
 include_once 'analyze_pricelist_report.php';
-include_once 'operator_report.php';
 include_once 'routing_report.php';
 include_once 'pricelist_report.php';
 include_once 'cost_report.php';
@@ -31,7 +30,6 @@ class m_voipreports extends IModule
         $this->_addInheritance(new m_voipreports_unrecognized_report);
 
         $this->_addInheritance(new m_voipreports_analyze_pricelist_report);
-        $this->_addInheritance(new m_voipreports_operator_report);
         $this->_addInheritance(new m_voipreports_routing_report);
         $this->_addInheritance(new m_voipreports_pricelist_report);
         $this->_addInheritance(new m_voipreports_cost_report);

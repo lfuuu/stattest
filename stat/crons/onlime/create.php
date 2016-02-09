@@ -117,7 +117,8 @@ class Onlime1CCreateBill
            from 22.10.2015
            28=d78e0644-6dbc-11e5-9421-00155d881200 17609   Приставка, SML-482 HD Base с опцией Wi-Fi
 
-
+           from 01.02.2016
+           28=3a0a1bfe-c8c2-11e5-af87-00155d881200 17990   Приставка, SML-482 HD Base с опцией Wi-Fi
 
          */
 
@@ -135,7 +136,7 @@ class Onlime1CCreateBill
                 case '20':  $goodId = "e147d6bc-73f0-11e1-afcc-00155d881200"; break;
                 case '21':  $goodId = "e5f617a4-8f97-11e1-afcc-00155d881200"; break;
                 case '22':  $goodId = "4454e4d5-a79e-11e4-a330-00155d881200"; break;
-                case '28':  $goodId = "d78e0644-6dbc-11e5-9421-00155d881200"; break;
+                case '28':  $goodId = "3a0a1bfe-c8c2-11e5-af87-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])

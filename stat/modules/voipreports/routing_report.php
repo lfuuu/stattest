@@ -13,6 +13,7 @@ class m_voipreports_routing_report
         if (isset($_GET['id'])) $report_id = intval($_GET['id']); else $report_id = 0;
 
         set_time_limit(0);
+        session_write_close();
 
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
@@ -65,7 +66,7 @@ class m_voipreports_routing_report
                                             from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                             LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                             LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=r.prefix
+                                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.pricelist_id=0 and v.prefix=r.prefix
                                             where true {$where}
                                             order by g.name, r.prefix
                                      ");
@@ -88,8 +89,7 @@ class m_voipreports_routing_report
 
         $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
         $regions = $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name");
-        $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator from voip.pricelist p
-                                          left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id');
+        $pricelists = $pg_db->AllRecords("select id, name from voip.pricelist order by name", 'id');
 
 
         if (!isset($_GET['export'])) {
@@ -116,7 +116,7 @@ class m_voipreports_routing_report
 
             echo '"Префикс";"Направление";"Лучшая цена";';
             foreach ($rep->pricelist_ids as $pl) {
-                echo '"' . $pricelists[$pl]['operator'] . '";';
+                echo '"' . $pricelists[$pl]['name'] . '";';
             }
             echo '"Порядок"' . "\n";
             foreach ($report as $r) {
@@ -129,7 +129,7 @@ class m_voipreports_routing_report
                 echo '"';
                 foreach ($r['routes'] as $i => $pl) {
                     if ($i > 0) echo ' -> ';
-                    echo $pricelists[$pl]['operator'];
+                    echo $pricelists[$pl]['name'];
                 }
                 echo '"' . "\n";
             }

@@ -9,10 +9,11 @@ class m_voipreports_by_dest_operator_report
 
     function voipreports_by_dest_operator()
     {
-        global $pg_db, $design;
+        global $db, $pg_db, $design;
 
         $f_instance_id = (int)get_param_protected('f_instance_id', '99');
-        $f_operator_id = (int)get_param_protected('f_operator_id', '0');
+        $f_trunk_id = get_param_integer('f_trunk_id', '0');
+        $f_service_trunk_id = get_param_integer('f_service_trunk_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_country_id = get_param_protected('f_country_id', '0');
@@ -24,8 +25,13 @@ class m_voipreports_by_dest_operator_report
         if ($f_instance_id) {
             $where = "r.orig=false and billed_time > 0 and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
 
-            if ($f_operator_id)
-                $where .= " and r.operator_id = '{$f_operator_id}' ";
+            if ($f_trunk_id) {
+                $where .= " and r.trunk_id = '{$f_trunk_id}' ";
+            }
+
+            if ($f_service_trunk_id) {
+                $where .= " and r.trunk_service_id = '{$f_service_trunk_id}' ";
+            }
 
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
@@ -69,17 +75,13 @@ class m_voipreports_by_dest_operator_report
             $report = array();
         }
 
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
-        }
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         $design->assign('report', $report);
         $design->assign('f_instance_id', $f_instance_id);
-        $design->assign('f_operator_id', $f_operator_id);
+        $design->assign('f_trunk_id', $f_trunk_id);
+        $design->assign('f_service_trunk_id', $f_service_trunk_id);
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
         $design->assign('f_country_id', $f_country_id);
@@ -87,7 +89,8 @@ class m_voipreports_by_dest_operator_report
         $design->assign('f_mob', $f_mob);
         $design->assign('f_dest_group', $f_dest_group);
         $design->assign('f_exclude_other_numbers', $f_exclude_other_numbers);
-        $design->assign('operators', $operators);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('regions', Region::getListAssoc());
         $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));

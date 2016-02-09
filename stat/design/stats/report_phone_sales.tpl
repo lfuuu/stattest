@@ -515,7 +515,29 @@
   <br/>
 {/foreach}
 
-
 {$RManager}
 <br/><br/>
 {$RPartner}
+
+<div id="report_details" title="Подробная информация" style="display: none;"></div>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script>
+    {literal}
+    function phone_sales_details(type, region, month, year, subtype, disabled, channel_id)
+    {
+        $('a.ui-dialog-titlebar-close').click();
+        subtype = subtype || '';
+        disabled = disabled || 0;
+        channel_id = channel_id || 0;
+        $("#report_details").html('');
+        $("#report_details").dialog(
+                {
+                    width: 850,
+                    height: 400,
+                    open: function() {
+                        $(this).load('./index_lite.php?module=stats&action=phone_sales_details&type=' + type + '&region=' + region + '&month=' + month + '&year=' + year + '&subtype=' + subtype + '&disabled=' + disabled + '&channel_id=' + channel_id);
+                    }
+                });
+    }
+    {/literal}
+</script>

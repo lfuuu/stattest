@@ -111,6 +111,8 @@ function do_events()
 
                     /* проверка необходимости включить или выключить услугу UsageVirtPbx */
                     Event::go('check__virtpbx3');
+
+                    break;
                 }
 
                 /* проверка необходимости включить или выключить услугу UsageVoip */

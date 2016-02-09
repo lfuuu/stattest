@@ -32,11 +32,14 @@ return [
     'vpbx_service' => '{tariff}{date_range}',
     'vpbx_over_disk_usage' => 'Превышение дискового пространства{date_range}',
     'vpbx_over_ports_count' => 'Превышение количества портов{date_range}',
+    'vpbx_over_ext_did_count' => 'Абонентская плата за услугу подключения номера стороннего оператора{date_range}',
 
     'test' => '',
 
-    'paypal_payment_description' => 'Пополнение личевого счета {account} на сумму {sum} {currency}',
+    'paypal_payment_description' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',
+    'RUB' => 'руб.',
+    'HUF' => 'Ft',
+    'USD' => '$',
 
-    'RUB' => 'руб.'
-
+    'incomming_payment' => 'Авансовый платеж за услуги связи',
 ];

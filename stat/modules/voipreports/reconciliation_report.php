@@ -10,10 +10,12 @@ class m_voipreports_reconciliation_report
 
     function voipreports_reconciliation_report()
     {
-        global $pg_db, $design;
+        global $db, $pg_db, $design;
 
         $f_instance_id = (int)get_param_protected('f_instance_id', '99');
-        $f_operator_id = (int)get_param_protected('f_operator_id', '0');
+        $f_trunk_id = get_param_integer('f_trunk_id', '0');
+        $f_service_trunk_id = get_param_integer('f_service_trunk_id', '0');
+
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_include_initiate = get_param_protected('f_include_initiate', 't');
@@ -21,8 +23,12 @@ class m_voipreports_reconciliation_report
 
         $totals = array('count'=>0, 'minutes'=>0, 'amount'=>0, 'nds'=>0, 'amount_with_nds' => 0);
 
-        if ($f_instance_id && $f_operator_id) {
-            $where = "r.orig=false and billed_time > 0 and r.operator_id = '{$f_operator_id}' and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
+        if ($f_instance_id && $f_trunk_id) {
+            $where = "r.orig=false and billed_time > 0 and r.trunk_id = '{$f_trunk_id}' and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
+
+            if ($f_service_trunk_id) {
+                $where .= " and r.trunk_service_id = '{$f_service_trunk_id}' ";
+            }
 
             if ($exclude_local > 0) {
                 $where .= ' and r.destination_id >= 0 ';
@@ -91,23 +97,20 @@ class m_voipreports_reconciliation_report
             $report = array();
         }
 
-        $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'id, region desc')) as $op)
-        {
-            if (!isset($operators[$op->id])) {
-                $operators[$op->id] = $op->short_name;
-            }
-        }
+        $trunks = $pg_db->AllRecords("select id, name from auth.trunk group by id, name",'id');
+        $serviceTrunks = $db->AllRecords("select id, description as name from usage_trunk where actual_from < now() and actual_to > now() group by id, name",'id');
 
         $design->assign('report', $report);
         $design->assign('totals', $totals);
         $design->assign('f_instance_id', $f_instance_id);
-        $design->assign('f_operator_id', $f_operator_id);
+        $design->assign('f_trunk_id', $f_trunk_id);
+        $design->assign('f_service_trunk_id', $f_service_trunk_id);
         $design->assign('f_include_initiate', $f_include_initiate);
         $design->assign('exclude_local', $exclude_local);
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
-        $design->assign('operators', $operators);
+        $design->assign('trunks', $trunks);
+        $design->assign('serviceTrunks', $serviceTrunks);
         $design->assign('regions', Region::getListAssoc());
         $design->AddMain('voipreports/reconciliation_report.html');
     }

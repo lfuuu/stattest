@@ -52,8 +52,7 @@ class LkNotification {
     {
         switch( $this->Contact->type) {
             case 'email': return $this->sendMail();
-
-            case 'phone': 
+            case 'phone':
             case 'sms': return $this->sendSMS();
         }
 
@@ -68,11 +67,17 @@ class LkNotification {
             $contactType = "phone";
         }
 
-        $assigns = array('value'=>$this->value, 'balance' => $this->balance, "account" => $this->Client->id);
+        $assigns = [
+            'value' => $this->value,
+            'balance' => $this->balance,
+            'account' => $this->Client->id,
+            'organization' => $this->Client->organization->name,
+            'currency' => Yii::t('biller', $this->Client->currency, [], $this->Client->country->lang),
+            'country' => $this->Client->country_id,
+        ];
 
         $this->design->assign($assigns);
         $message = $this->design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
-
 
         if ($contactType == "email") {
             if (in_array($this->type, array("day_limit", "min_balance", "zero_balance"))) {
@@ -81,7 +86,6 @@ class LkNotification {
             }
             $message .= $this->design->fetch($this->tpl_dir . $contactType . '__footer.tpl'); 
         }
-
 
         return $message;
     }
@@ -113,32 +117,29 @@ class LkNotification {
         $subject = $this->getSubject();
         $msg = $this->getMessage();
 
-        if (defined("TEST_NOTICE") && defined("ADMIN_EMAIL"))
-        {
-            $params = array(
-                    'data'=>ADMIN_EMAIL,
-                    'subject'=>$this->Contact->data." - ".$subject,
-                    'message'=>$msg,
-                    'type'=>'email',
-                    'contact_id'=>$this->Contact->id
-                    );
+        if (defined("MONITORING_EMAIL")) {
+            $params = [
+                'data'    => MONITORING_EMAIL,
+                'subject' => $this->Contact->data." - ".$subject,
+                'message' => $msg,
+                'type'    => 'email',
+                'contact_id' => $this->Contact->id
+            ];
 
             $res = $db->QueryInsert('lk_notice', $params);
         }
 
-        $params = array(
-                    'data'=> $this->Contact->data,
-                    'subject' => $subject,
-                    'message' => $msg,
-                    'type'=>'email',
-                    'contact_id'=>$this->Contact->id
-                );
+        $params = [
+            'data'    => $this->Contact->data,
+            'subject' => $subject,
+            'message' => $msg,
+            'type'    => 'email',
+            'contact_id' => $this->Contact->id
+        ];
 
         $res = $db->QueryInsert('lk_notice', $params);
-        if ($res) 
-            return true;
-        else
-            return false;
+
+        return (bool) $res;
     }
 
     function sendSMS()
@@ -147,25 +148,25 @@ class LkNotification {
 
         $phoneNumber = preg_replace("/[^\d]+/", "", $this->Contact->data);
 
-        if (defined("TEST_NOTICE") && defined("ADMIN_PHONE"))
-        {
-            $params = array(
-                    'data'=> ADMIN_PHONE,
-                    'message'=>$this->getMessage(),
-                    'type'=>'phone',
-                    'contact_id'=>$this->Contact->id
-                    );
+        if (defined("MONITORING_EMAIL")) {
+            $params = [
+                'data'    => MONITORING_EMAIL,
+                'message' => 'SMS: '. $this->getMessage(),
+                'subject' => 'SMS - '.$phoneNumber,
+                'type'    => 'email',
+                'contact_id' => $this->Contact->id
+            ];
 
             $res = $db->QueryInsert('lk_notice', $params);
         }
 
-        $params = array(
-                    'data'=> $phoneNumber,
-                    'message'=> $this->getMessage(),
-                    'type'=>'phone',
-                    'contact_id'=>$this->Contact->id
-                );
-        
+        $params = [
+            'data'=> $phoneNumber,
+            'message'=> $this->getMessage(),
+            'type'=>'phone',
+            'contact_id'=>$this->Contact->id
+        ];
+
         $res = $db->QueryInsert('lk_notice', $params);
         if ($res) 
             return true;

@@ -12,7 +12,6 @@ class m_monitoring {
 	var $menu=array(
 					array('Отчет: Динамика звоноков',	'report_voip_graph'),
 					array('Отчет: Динамика счетов',	'report_bill_graph'),
-					array('Перемещаемые услуги',    'report_move_numbers'),
 				);
 	function m_monitoring(){	
 		
@@ -672,10 +671,6 @@ class m_monitoring {
 		$design->assign('graphs', $graphs);
 		$design->AddMain('monitoring/report_bill_graph.tpl');
 	}
-	function monitoring_report_move_numbers($fixclient)
-        {
-            include 'ReportMovedNumbers.php';
-            ReportMovedNumbers::getReport();
-        }
+
 }
 ?>

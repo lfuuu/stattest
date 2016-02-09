@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\models\ClientAccount;
 
 class ClientContact extends ActiveRecord
 {
@@ -65,6 +66,11 @@ class ClientContact extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    public function getClient()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
 }

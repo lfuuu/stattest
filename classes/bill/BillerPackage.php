@@ -158,7 +158,7 @@ abstract class BillerPackage
 
             $i18n_params['date_range'] = Yii::t(
                 'biller',
-                $this->biller->getPeriodTemplate($period, $from2, $to2),
+                $this->biller->getPeriodTemplate($this->periodType, $from2, $to2),
                 [
                     $from2->getTimestamp(),
                     $to2->getTimestamp()

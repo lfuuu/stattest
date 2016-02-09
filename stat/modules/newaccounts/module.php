@@ -1283,8 +1283,6 @@ class m_newaccounts extends IModule
                 $design->ProcessEx('newaccounts/bill_mass_print_frames.tpl');
                 return;
             }
-        } else {
-            $design->AddMain('newaccounts/bill_mass.tpl');
         }
     }
 
@@ -4362,10 +4360,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['bill']['inn'] = '-----';
                             $A['bill']['kpp'] = '-----';
                         }elseif($p['type'] == 'legal'){
-                            $A['bill']['inn'] = $p['inn'];
-                            $A['bill']['kpp'] = $p['kpp'];
+                            $A['bill']['inn'] = trim($p['inn']);
+                            $A['bill']['kpp'] = trim($p['kpp']);
                         }else{
-                            $A['bill']['inn'] = $p['inn'];
+                            $A['bill']['inn'] = trim($p['inn']);
                             $A['bill']['kpp'] = '-----';
                         }
 

@@ -9,10 +9,6 @@ use yii\base\Object;
 
 abstract class BaseLoader extends Object
 {
-    /**
-     * @var PricelistFile;
-     */
-    public $file;
 
     /**
      * @return string
@@ -30,11 +26,6 @@ abstract class BaseLoader extends Object
         return [];
     }
 
-    public function load(PricelistFile $file)
-    {
-        $this->file = $file;
-    }
-
     /**
      * @return bool|\PHPExcel_Worksheet
      */
@@ -42,6 +33,7 @@ abstract class BaseLoader extends Object
     {
         if (preg_match('/\.csv$/', $this->file->filename)) {
             $reader = \PHPExcel_IOFactory::createReader('CSV');
+            $reader->setDelimiter(';');
         } elseif (preg_match('/\.xls$/', $this->file->filename)) {
             $reader = \PHPExcel_IOFactory::createReader('Excel5');
         } elseif (preg_match('/\.xlsx$/', $this->file->filename)) {
@@ -126,6 +118,7 @@ abstract class BaseLoader extends Object
         $nPrefix2_from   = isset($settings['cols']['prefix2_from']) ? $settings['cols']['prefix2_from'] : null;
         $nPrefix2_to     = isset($settings['cols']['prefix2_to']) ? $settings['cols']['prefix2_to'] : null;
         $nRate           = isset($settings['cols']['rate']) ? $settings['cols']['rate'] : null;
+        $nNetworkType    = isset($settings['cols']['network_type']) ? $settings['cols']['network_type'] : null;
         $nDestination    = isset($settings['cols']['destination']) ? $settings['cols']['destination'] : null;
         $nComment        = isset($settings['cols']['comment']) ? $settings['cols']['comment'] : null;
 
@@ -141,6 +134,7 @@ abstract class BaseLoader extends Object
             $prefix2_from = '';
             $prefix2_to = '';
             $rate = '';
+            $networkType = '';
             $destination = '';
             $comment = '';
 
@@ -157,6 +151,8 @@ abstract class BaseLoader extends Object
                     $prefix2_to = $value;
                 } elseif ($nRate == $nCol) {
                     $rate = $value;
+                } elseif ($nNetworkType == $nCol) {
+                    $networkType = $value;
                 } elseif ($nDestination == $nCol) {
                     $destination = $value;
                 } elseif ($nComment == $nCol) {
@@ -166,7 +162,7 @@ abstract class BaseLoader extends Object
                 $nCol++;
             }
 
-            if (!$prefix1 && !$prefix2_smart && !$prefix2_from && !$prefix2_to &!$rate) {
+            if (!$prefix1 && !$prefix2_smart && !$prefix2_from && !$prefix2_to && !$rate && !$networkType) {
                 continue;
             }
 
@@ -183,6 +179,7 @@ abstract class BaseLoader extends Object
                         $result[] = [
                             'prefix' => $prefix,
                             'rate' => $rate,
+                            'network_type_id' => $networkType,
                             'deleting' => false,
                             'mob' => false,
                         ];
@@ -196,6 +193,7 @@ abstract class BaseLoader extends Object
                     $result[] = [
                         'prefix' => $prefix,
                         'rate' => $rate,
+                        'network_type_id' => $networkType,
                         'deleting' => false,
                         'mob' => false,
                     ];
@@ -204,6 +202,7 @@ abstract class BaseLoader extends Object
                 $result[] = [
                     'prefix' => $prefix0 . $prefix1,
                     'rate' => $rate,
+                    'network_type_id' => $networkType,
                     'deleting' => false,
                     'mob' => false,
                 ];
@@ -439,56 +438,4 @@ abstract class BaseLoader extends Object
         $defs = $defs3;
         return $defs;
     }
-
-    public function savePrices(PricelistFile $file, $data)
-    {
-        $transaction = Yii::$app->dbPg->beginTransaction();
-        try {
-
-            $new_rows = array();
-            foreach ($data as $row) {
-                $new_rows[] = $row;
-                if (count($new_rows) >= 10000) {
-                    $this->insertPrices($file, $new_rows);
-                    $new_rows = array();
-                }
-            }
-            if (count($new_rows) >= 0) {
-                $this->insertPrices($file, $new_rows);
-            }
-
-            $file->rows = count($data);
-            $file->parsed = true;
-            $file->save();
-
-            Yii::$app->dbPg->createCommand("select new_destinations(" . (int)$file->id . ")")->execute();
-            //Event::go('update_voip_destination', $file->id);
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    private function insertPrices(PricelistFile $file, $new_rows)
-    {
-        $q = "INSERT INTO voip.raw_price (rawfile_id, ndef, deleting, price, mob) VALUES ";
-        $is_first = true;
-        foreach ($new_rows as $row) {
-            if ($is_first == false) $q .= ","; else $is_first = false;
-
-            $mob = false ? 'TRUE' : 'NULL';
-
-            if (!isset($row['deleting']))
-                $row['deleting'] = 0;
-
-            $deleting = isset($row['deleting']) && $row['deleting'] ? 'TRUE' : 'FALSE';
-
-            $q .= "('" . pg_escape_string($file->id) . "','" . pg_escape_string($row['prefix']) . "'," . $deleting . ",'" . pg_escape_string($row['rate']) . "'," . $mob . ")";
-        }
-
-        Yii::$app->dbPg->createCommand($q)->execute();
-    }
-
 }

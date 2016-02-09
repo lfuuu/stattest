@@ -17,7 +17,10 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
             'id' => 17609,
             'name' => 'SML-482 HD Base с Wi-Fi',
             'nameFull' => 'Приставка, SML-482 HD Base с опцией Wi-Fi',
-            'id_1c' => 'd78e0644-6dbc-11e5-9421-00155d881200',
+            'id_1c' => [
+                'd78e0644-6dbc-11e5-9421-00155d881200',
+                '3a0a1bfe-c8c2-11e5-af87-00155d881200',
+            ],
         ],
         [
             'id' => 13619,

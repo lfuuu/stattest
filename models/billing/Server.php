@@ -1,19 +1,21 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: alex
+ * Date: 1/11/16
+ * Time: 5:02 PM
+ */
+
 namespace app\models\billing;
 
-use app\dao\billing\OperatorDao;
-use Yii;
+use yii;
 use yii\db\ActiveRecord;
 
-/**
- * @property int $id
- * @property
- */
-class Operator extends ActiveRecord
+class Server extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'voip.operator';
+        return 'public.server';
     }
 
     public static function getDb()
@@ -25,6 +27,4 @@ class Operator extends ActiveRecord
     {
         return OperatorDao::me();
     }
-
-
 }

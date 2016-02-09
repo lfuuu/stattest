@@ -11,6 +11,17 @@ use yii\base\Object;
 
 abstract class BaseNetworkLoader extends BaseLoader
 {
+    /**
+     * @var NetworkFile;
+     */
+    public $file;
+
+
+    public function load(NetworkFile $file)
+    {
+        $this->file = $file;
+    }
+
     public function uploadFileByGeo(NetworkConfig $networkConfig)
     {
         $transaction = Yii::$app->dbPg->beginTransaction();
@@ -19,7 +30,7 @@ abstract class BaseNetworkLoader extends BaseLoader
             $file = new NetworkFile();
             $file->network_config_id = $networkConfig->id;
             $file->created_at = (new \DateTime())->format('Y-m-d H:i:s');
-            $file->file_name = '';
+            $file->filename = '';
             $file->active = false;
             $file->parsed = false;
             $file->rows = false;
@@ -56,7 +67,7 @@ abstract class BaseNetworkLoader extends BaseLoader
         $file = new NetworkFile();
         $file->network_config_id = $networkConfigId;
         $file->created_at = (new \DateTime())->format('Y-m-d H:i:s');
-        $file->file_name = '';
+        $file->filename = $uploadedFile['name'];
         $file->active = false;
         $file->parsed = false;
         $file->rows = false;
@@ -105,7 +116,7 @@ abstract class BaseNetworkLoader extends BaseLoader
         }
     }
 
-    private function insertPrices(PricelistFile $file, $new_rows)
+    private function insertPrices(NetworkFile $file, $new_rows)
     {
         $q = "insert into voip.network_file_data(network_file_id, prefix, network_type_id) values ";
         $is_first = true;

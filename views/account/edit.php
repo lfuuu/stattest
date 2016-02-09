@@ -12,7 +12,7 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
 <div class="row">
     <div class="col-sm-12">
-        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> Лицевого Счета</h2>
+        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> лицевого счета</h2>
 
         <?php $f = ActiveForm::begin(); ?>
 
@@ -253,3 +253,4 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 <script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
 <script type="text/javascript" src="/js/behaviors/change-doc-template.js"></script>
+<script type="text/javascript" src="/js/behaviors/client-account-options.js"></script>

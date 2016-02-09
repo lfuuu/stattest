@@ -48,4 +48,12 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
         return '';
     }
 
+    /**
+     * @return null
+     */
+    public function getTransferedFrom()
+    {
+        return null;
+    }
+
 }

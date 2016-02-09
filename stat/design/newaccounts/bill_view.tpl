@@ -223,8 +223,9 @@
             </span>
         </td>
         <td>
+
             {if $item.service && $item.service != '1C'}
-                <a target="_blank" href="/usage/voip/edit?id={$item.id_service}">
+                <a target="_blank" href="{$item.service|usage_link:$item.id_service}">
                     {$item.item}
                 </a>
             {else}

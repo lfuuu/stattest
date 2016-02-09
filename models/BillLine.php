@@ -34,6 +34,13 @@ use yii\db\ActiveRecord;
  */
 class BillLine extends ActiveRecord
 {
+
+    const LINE_TYPE_SERVICE = 'service';
+    const LINE_TYPE_ZALOG = 'zalog';
+    const LINE_TYPE_ZADATOK = 'zadatok';
+    const LINE_TYPE_GOOD = 'good';
+    const LINE_TYPE_ALL4NET = 'all4net';
+
     public static function tableName()
     {
         return 'newbill_lines';

@@ -1,0 +1,56 @@
+<?php
+
+namespace app\controllers\api\internal;
+
+use Yii;
+use DateTime;
+use app\exceptions\web\NotImplementedHttpException;
+use app\exceptions\api\internal\ExceptionValidationForm;
+use app\classes\ApiInternalController;
+use app\classes\DynamicModel;
+use app\classes\validators\AccountIdValidator;
+use app\classes\validators\UsageVoipValidator;
+use app\models\billing\Calls;
+
+class VoipController extends ApiInternalController
+{
+
+    public function actionIndex()
+    {
+        throw new NotImplementedHttpException;
+    }
+
+    public function actionCalls()
+    {
+        $requestData = $this->requestData;
+
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                [['account_id', 'offset', 'limit', 'year', 'month'], 'integer'],
+                ['number', 'trim'],
+                ['year', 'default', 'value' => (new DateTime())->format('Y')],
+                ['month', 'default', 'value' => (new DateTime())->format('m')],
+                ['offset', 'default', 'value' => 0],
+                ['limit', 'default', 'value' => 1000],
+                ['account_id', AccountIdValidator::className()],
+                ['number', UsageVoipValidator::className(), 'account_id_field' => 'account_id'],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            throw new ExceptionValidationForm($model);
+        }
+
+        return
+            Calls::dao()->getCalls(
+                $model->account_id,
+                $model->number,
+                $model->year,
+                $model->month,
+                $model->offset,
+                $model->limit
+            );
+    }
+
+}

@@ -1,4 +1,7 @@
 <?php
+
+use yii\helpers\Url;
+
 $amount = 0;
 $amountIsPayed = 0;
 $oncet = 0;
@@ -8,20 +11,31 @@ $excess = 0;
 
 <form>
 <div class="row">
+
     <div class="col-sm-12">
-        <h2>Отчет по партнерам(агентам)</h2>
+        <h2>Отчет по партнерам (агентам)</h2>
     </div>
+
+
     <div class="col-sm-12">
         <div class="row form-group">
             <div class="col-sm-2"><label>Партнер</label></div>
             <div class="col-sm-3">
-                <?= \kartik\select2\Select2::widget([
-                    'name' => 'partner_contract_id',
-                    'data' => $partnerList,
-                ]) ?>
+                <?=
+                \yii\helpers\Html::dropDownList(
+                    'partner_contract_id',
+                    \Yii::$app->request->get('partner_contract_id', 0),
+                    $partnerList,
+                    [
+                        'class' => 'select2',
+                        'style' => 'width: 100%;'
+                    ]
+                )
+                ?>
             </div>
         </div>
     </div>
+
     <div class="col-sm-12">
         <div class="row form-group">
             <div class="col-sm-2"><label>Период отчета</label></div>
@@ -30,7 +44,7 @@ $excess = 0;
                     'name' => 'date',
                     'value' => $dateFrom && $dateTo ? "$dateFrom - $dateTo" : '',
                     'pluginOptions' => [
-                        'format' => 'DD-MM-YYYY'
+                        'format' => 'YYYY-MM-DD'
                     ]
                 ]) ?>
             </div>
@@ -39,16 +53,42 @@ $excess = 0;
             </div>
         </div>
     </div>
+
+
     <div class="col-sm-2">
         <input type="submit" class="form-control" name="exportToCSV" value="Экспорт в CSV"/>
     </div>
+
     <div class="col-sm-12">
-        Договор № <?= $partner->number ?> ЛС № <?= $partner->accounts[0]->id ?>
+        Договор № <?= $partner->contract->number ?> ЛС № <?= $partner->id ?>
         <br/>
         Партнер: <b><?= $partner->contragent->name ?></b>
         <br/>
         Расчетный период с <?= $dateFrom ?> по <?= $dateTo ?>
     </div>
+
+    <div style="float: left;margin-left: 100px; margin-top: 10px; padding: 0 5px 0 5px;" class="bg-danger">
+        <?php if ($contractsWithoutReward) { ?>
+            <h2 style="padding: 0; margin: 3px 0 3px 0;">Отсутствуют настройки вознаграждений для договоров:</h2>
+            <ul>
+            <?php foreach($contractsWithoutReward as $contract) { ?>
+                <li><a href="<?=Url::to(["contract/edit", "id" => $contract['id']])?>"><?=$contract['name']?> (#<?=$contract['account_id']?>)</a></li>
+            <?php } ?>
+            </ul>
+        <?php } ?>
+    </div>
+
+    <div style="float: left;margin-left: 100px; margin-top: 10px; padding: 0 5px 0 5px;" class="bg-danger">
+        <?php if ($contractsWithIncorrectBP) { ?>
+            <h2 style="padding: 0; margin: 3px 0 3px 0;">Договора с неправильным бизнес-процессом:</h2>
+            <ul>
+            <?php foreach($contractsWithIncorrectBP as $contract) { ?>
+                <li><a href="<?=Url::to(["contract/edit", "id" => $contract['id']])?>"><?=$contract['name']?> (#<?=$contract['account_id']?>)</a></li>
+            <?php } ?>
+            </ul>
+        <?php } ?>
+    </div>
+
 </div>
 </form>
 <div class="row">
@@ -88,7 +128,7 @@ $excess = 0;
                 <tr>
                     <td><a href="/client/view?id=<?= $line['id'] ?>"><?= $line['name'] ?></a></td>
                     <td><?= $line['created'] ?></td>
-                    <td><?= $line['usage'] == 'voip' ? 'Телефония' : $line['usage'] == 'virtpbx' ? 'ВАТС' : '' ?></td>
+                    <td><?= ($line['usage'] == 'voip' ? 'Телефония' : ($line['usage'] == 'vpbx' ? 'ВАТС' : '')) ?></td>
                     <td><?= $line['tariffName'] ?></td>
                     <td><?= $line['activationDate'] ?></td>
                     <td><?= number_format($line['amount'], 2) ?></td>
@@ -125,6 +165,6 @@ $excess = 0;
     }
 
     .report tbody tr:nth-child(2n) {
-        background: lightgrey;
+        background: #eee;
     }
 </style>

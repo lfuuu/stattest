@@ -20,15 +20,13 @@ class PartnerController extends ApiInternalController
 
     public function actionClients()
     {
-        $requestData = $this->getRequestParams();
-
-        $partnerId = isset($requestData['partner_id']) ? $requestData['partner_id'] : null;
+        $partnerId = isset($this->requestData['partner_id']) ? $this->requestData['partner_id'] : null;
 
         if (!$partnerId || !($account = ClientAccount::findOne(['id' => $partnerId]))) {
             throw new BadRequestHttpException;
         }
 
-        if ($account->contract->business_id == Business::PARTNER) {
+        if ($account->isPartner()) {
             return PartnerDao::getClientsStructure($account);
         } else {
             throw new PartnerNotFoundException;

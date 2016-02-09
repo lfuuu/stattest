@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Language;
 use app\models\ClientAccount;
 
 class NewBill extends ActiveRecord\Model
@@ -72,14 +73,19 @@ class NewBill extends ActiveRecord\Model
      */
     public static function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
     {
-        $currency = "RUB";
-        $bill = new Bill(null,$clientId,time(),0,$currency, true, true);
-        $bill->AddLine("Авансовый платеж за услуги связи",1, $paySum, "zadatok");
+        $clientAccount = ClientAccount::findOne($clientId);
+        $bill = new Bill(null, $clientAccount->id, time(), 0, $clientAccount->currency, true, true);
+        $bill->AddLine(
+            Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
+            1,
+            $paySum,
+            \app\models\BillLine::LINE_TYPE_ZADATOK
+        );
         $bill->Save();
         $billNo = $bill->GetNo();
-        if ($createAutoLkLog) 
-        {
-            LogBill::log($billNo, "Создание счета из личного кабинета", true);
+
+        if ($createAutoLkLog) {
+            LogBill::log($billNo, 'Создание счета из личного кабинета', true);
         }
 
         return NewBill::find_by_bill_no($billNo);

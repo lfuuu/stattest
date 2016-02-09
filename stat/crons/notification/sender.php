@@ -38,12 +38,14 @@ runChecker::run();
         echo "\n";
         print_r($email);
         try{
-            if ($email["type"] == "email")
+            if ($email['type'] == 'email')
             {
-                $mailer->send($email["data"], $email["subject"], $email["message"]);
-            } elseif ($email["type"] == "phone") {
-
-
+                $mailer
+                    ->setFrom(\Yii::t('settings', 'notification_from_email', [], $email['lang']))
+                    ->setFromName(\Yii::t('settings', 'notification_from_name', [], $email['lang']))
+                    ->send($email['data'], $email['subject'], $email['message']);
+            }
+            elseif ($email["type"] == "phone") {
                 $data = array(
                         "action" => "send",
                         "client" => $client,

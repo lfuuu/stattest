@@ -19,7 +19,6 @@ class MessageController extends ApiController
                         [
                             ['client_account_id', AccountIdValidator::className()],
                             ['order', 'in', 'range' => ['desc', 'asc']],
-                            [['client_account_id'], 'required'],
                         ]
         );
 
@@ -49,7 +48,7 @@ class MessageController extends ApiController
                         Yii::$app->request->bodyParams, [
                             ['client_account_id', AccountIdValidator::className()],
                             ['id', 'integer'],
-                            [['client_account_id', 'id'], 'required'],
+                            [['id'], 'required'],
                         ]
         );
 
@@ -79,7 +78,7 @@ class MessageController extends ApiController
                         Yii::$app->request->bodyParams, [
                             ['client_account_id', AccountIdValidator::className()],
                             ['id', 'integer'],
-                            [['client_account_id', 'id'], 'required'],
+                            [['id'], 'required'],
                         ]
         );
 

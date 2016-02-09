@@ -3,7 +3,9 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\db\ActiveRecord;
 use yii\helpers\Url;
+use app\models\UsageTechCpe;
 
 class UsageTechCpeHelper extends Object implements UsageHelperInterface
 {
@@ -46,6 +48,14 @@ class UsageTechCpeHelper extends Object implements UsageHelperInterface
     public function getEditLink()
     {
         return Url::toRoute(['/', 'module' => 'routers', 'action' => 'd_edit', 'id' => $this->usage->id]);
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom()
+    {
+        return UsageTechCpe::findOne($this->usage->prev_usage_id);
     }
 
 }

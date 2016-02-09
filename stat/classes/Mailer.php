@@ -10,12 +10,12 @@ class Mailer
     public function __construct($fromName = "МСН Телеком", $fromEmail = "info@mcn.ru")
     {
         $this->doer = new PHPMailer();
-        $this->doer->SetLanguage("en",INCLUDE_PATH);
-        $this->doer->CharSet = "utf-8";
+        $this->doer->SetLanguage('en', INCLUDE_PATH);
+        $this->doer->CharSet = 'utf-8';
         $this->doer->From = $fromEmail;
         $this->doer->FromName = $fromName;
-        $this->doer->Mailer='smtp';
-        $this->doer->Host=SMTP_SERVER;
+        $this->doer->Mailer = 'smtp';
+        $this->doer->Host = SMTP_SERVER;
     }
 
     public function send($to, $subject, $text)
@@ -27,6 +27,7 @@ class Mailer
 
         $this->doer->AddAddress($to);
         $error = "";
+
         if(!(@$this->doer->Send()))
         {
             $error = $this->doer->ErrorInfo;
@@ -38,5 +39,18 @@ class Mailer
 
         return true;
     }
+
+    public function setFrom($fromEmail)
+    {
+        $this->doer->From = $fromEmail;
+        return $this;
+    }
+
+    public function setFromName($fromName)
+    {
+        $this->doer->FromName = $fromName;
+        return $this;
+    }
+
 }
 

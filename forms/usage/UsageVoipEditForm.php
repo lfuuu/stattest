@@ -1,18 +1,19 @@
 <?php
 namespace app\forms\usage;
 
+use Yii;
+use DateTime;
+use DateTimeZone;
 use app\classes\Assert;
+use app\helpers\DateTimeZoneHelper;
+use yii\helpers\ArrayHelper;
 use app\models\City;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffVoip;
 use app\models\UsageVoip;
-use Yii;
-use DateTimeZone;
-use DateTime;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
-use yii\helpers\ArrayHelper;
 use app\models\usages\UsageInterface;
 
 class UsageVoipEditForm extends UsageVoipForm
@@ -97,9 +98,9 @@ class UsageVoipEditForm extends UsageVoipForm
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $expireDt = (new DateTime($actualTo, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
 
-        $usage = new UsageVoip();
+        $usage = new UsageVoip;
         $usage->region = $this->connection_point_id;
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
@@ -115,8 +116,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
         $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
         $usage->one_sip = 0;
-        $usage->is_moved = 0;
-        $usage->is_moved_with_pbx = 0;
         $usage->create_params = $this->create_params;
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -167,15 +166,11 @@ class UsageVoipEditForm extends UsageVoipForm
 
         if (!$this->disconnecting_date) {
             $actualTo = (new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
-            $expireDt =
-                (new DateTime($actualTo, $this->timezone))
-                    ->setTimezone(new DateTimeZone('UTC'))
-                    ->format('Y-m-d H:i:s');
+            $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
 
             $this->usage->actual_to = $actualTo;
             $this->usage->expire_dt = $expireDt;
-        }
-        else {
+        } else {
             $this->setDisconnectionDate();
         }
 
@@ -426,6 +421,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->addError('did', 'Номер ' . $this->did . ' из другого города');
             }
         }
+
         if ($this->type_id == 'line') {
             if (!preg_match('/^\d{4,5}$/', $this->did)) {
                 $this->addError('did', 'Не верный формат номера');
@@ -442,20 +438,8 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         }
 
-        $actualFrom = $this->connecting_date;
-        $actualTo = '2029-01-01';
-
-        $queryVoip =
-            UsageVoip::find()
-                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)', [':from' => $actualFrom, ':to' => $actualTo])
-                ->andWhere(['E164' => $this->did]);
-        if ($this->id) {
-            $queryVoip->andWhere('id != :id', [':id' => $this->id]);
-        }
-        foreach ($queryVoip->all() as $usage) {
-            $this->addError('did', "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
-        }
     }
+
 
     private function saveTariff(UsageVoip $usage, $tariffDate)
     {
@@ -596,7 +580,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
 
         $actualTo = $closeDate->format('Y-m-d');
-        $expireDt = (new DateTime($actualTo, $timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $timezone);
 
         $this->usage->actual_to = $actualTo;
         $this->usage->expire_dt = $expireDt;

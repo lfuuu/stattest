@@ -70,7 +70,7 @@ class PayPal {
    public function getPaymentToken($accountId, $sum, $currency, $lang)
    {
        $descr = \Yii::t(
-               'biller', 'paypal_payment_description', 
+               'biller', 'paypal_payment_description',
                [
                    'account' => $accountId, 
                    'sum' => $sum,

@@ -8,12 +8,20 @@
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name} ({$r->id})</option>
         {/foreach}
     </select>
-    <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
-        {foreach from=$operators key='id' item='name'}
-        <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
+    <select class="select2" style="width: 300px" name="f_trunk_id">
+        <option value="0">-- Транк --</option>
+        {foreach from=$trunks item='o'}
+        <option value="{$o.id}"{if $trunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
         {/foreach}
     </select>
+    <select class="select2" style="width: 300px" name="f_service_trunk_id">
+        <option value="0">-- Услуга транк --</option>
+        {foreach from=$serviceTrunks item='o'}
+        <option value="{$o.id}"{if $serviceTrunk eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+        {/foreach}
+    </select>
+
+    <div style="height: 5px"></div>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -58,14 +66,14 @@
 <thead>
 <tr>
     <td nowrap class=header colspan="2">&nbsp;</td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td nowrap class=header colspan="3">{$op->short_name} ({$k})</td>
+    {foreach from=$reportTrunks key='k' item='trunk'}
+    <td nowrap class=header colspan="3">{$trunk->name} ({$k})</td>
     {/foreach}
 </tr>
 <tr>
     <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
     <td class=header style="min-width: 100px;">Назначение</td>
-    {foreach from=$reportOperators key='k' item='op'}
+    {foreach from=$reportTrunks key='k' item='trunk'}
     <td class=header>кол.</td>
     <td class=header>мин</td>
     <td class=header>руб/мин</td>
@@ -77,10 +85,10 @@
 <tr class="{cycle values='even,odd'}">
 	<td>{$rd.prefix}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td align=right>{$rd.operators[$k].count}</td>
-    <td align=right>{$rd.operators[$k].duration}</td>
-    <td align=right>{$rd.operators[$k].price}</td>
+    {foreach from=$reportTrunks key='k' item='trunk'}
+    <td align=right>{$rd.trunks[$k].count}</td>
+    <td align=right>{$rd.trunks[$k].duration}</td>
+    <td align=right>{$rd.trunks[$k].price}</td>
     {/foreach}
 </tr>
 {/foreach}
@@ -88,9 +96,9 @@
 <tfoot>
 <tr>
     <td colspan="2"><b>Итого:</b></td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td align=right><b>{$totals.operators[$k].count}</b></td>
-    <td align=right><b>{$totals.operators[$k].duration}</b></td>
+    {foreach from=$reportTrunks key='k' item='trunk'}
+    <td align=right><b>{$totals.trunks[$k].count}</b></td>
+    <td align=right><b>{$totals.trunks[$k].duration}</b></td>
     <td align=right></td>
     {/foreach}
 </tr>

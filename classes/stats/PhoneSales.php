@@ -5,11 +5,61 @@ use Yii;
 
 class PhoneSales
 {
+    public static function reportBySingleManager($manager, $from, $numberType)
+    {
+        $managerStat = Yii::$app->db->createCommand("
+            SELECT
+              uu.name AS manager_name,
+              reg.name AS region,
+              ccagnt.name_full AS contragent,
+
+              uvi.id,
+              uvi.actual_from,
+              uvi.client,
+              uvi.type_id,
+              uvi.E164,
+              uvi.no_of_lines,
+              uvi.status,
+              uvi.address
+
+            FROM
+              client_contract ccont
+
+            JOIN clients cl ON ccont.id = cl.contract_id
+            JOIN usage_voip uvi ON cl.client = uvi.client
+            JOIN user_users uu ON
+                                 uu.user = ccont.account_manager
+                                 OR uu.user = ccont.manager
+            JOIN regions reg ON uvi.region = reg.id
+            JOIN client_contragent ccagnt ON ccont.contragent_id = ccagnt.id
+
+            WHERE
+                  ccont.account_manager = :manager_name
+              AND uu.user = :manager_name
+              AND uvi.actual_from >= CAST(:date_from AS DATE)
+              AND uvi.type_id = :type_name
+
+            ORDER BY
+              actual_from ASC,
+              ccagnt.name_full ASC
+            ")
+            ->bindValue(':manager_name', $manager)
+            ->bindValue(':date_from', $from)
+            ->bindValue(':type_name', $numberType)
+            ->queryAll(\PDO::FETCH_ASSOC);
+
+        return $managerStat;
+    }
 
     public static function reportByManager($dateFrom, $dateTo)
     {
         $usages = Yii::$app->db->createCommand("
-            SELECT us.*, u.`name`, u.id, c.id AS `client_id`
+            SELECT
+              us.*,
+              u.`name`,
+              u.id,
+              c.id AS `client_id`,
+              u.user AS manager_name
                 FROM user_users u
                 INNER JOIN client_contract cr ON cr.account_manager = u.`user`
                 INNER JOIN clients c ON c.contract_id = cr.id
@@ -32,18 +82,24 @@ class PhoneSales
                         WHERE status = 'working' AND prev_usage_id = 0
                 ) us ON us.`client` = c.`client`
                 WHERE u.usergroup = 'account_managers' OR u.usergroup = 'manager'
+                ORDER BY u.`name`
         ")->queryAll(\PDO::FETCH_ASSOC);
 
         $managers = [];
         $clients = [];
 
+
         $dateFrom = strtotime($dateFrom);
         $dateTo = strtotime($dateTo);
 
-        foreach ($usages as $usage) {
-            if (!isset($managers[$usage['id']])) {
+        foreach ($usages as $usage)
+        {
+            if (!isset($managers[$usage['id']]))
+            {
                 $managers[$usage['id']]['name'] = $usage['name'];
+
                 $managers[$usage['id']]['data'] = [
+                    'manager_name' => $usage['manager_name'],
                     'number_new' => 0,
                     'number_old' => 0,
                     'line_new' => 0,
@@ -60,20 +116,38 @@ class PhoneSales
 
             $type = $usage['type'];
 
-            if ($type == 'departure' && strtotime($usage['dateFrom']) <= $dateTo && strtotime($usage['dateFrom']) >= $dateFrom) {
+            if (
+                $type == 'departure'
+                && strtotime($usage['dateFrom']) <= $dateTo
+                && strtotime($usage['dateFrom']) >= $dateFrom
+            )
+            {
                 $managers[$usage['id']]['data'][$type]++;
-            } else {
-                if (isset($clients[$usage['client_id']][$type])) {
+            }
+            else
+            {
+                if (isset($clients[$usage['client_id']][$type]))
+                {
                     $suffix = '_old';
-                } else {
+                }
+                else
+                {
                     $clients[$usage['client_id']][$type] = true;
                     $suffix = '_new';
                 }
-                if (strtotime($usage['dateFrom']) <= $dateTo && strtotime($usage['dateFrom']) >= $dateFrom) {
-                    if ($type == 'number') {
+
+                if (
+                    strtotime($usage['dateFrom']) <= $dateTo
+                    && strtotime($usage['dateFrom']) >= $dateFrom
+                )
+                {
+                    if ($type == 'number')
+                    {
                         $managers[$usage['id']]['data'][$type . $suffix]++;
                         $managers[$usage['id']]['data']['line' . $suffix] += $usage['count'];
-                    } else {
+                    }
+                    else
+                    {
                         $managers[$usage['id']]['data'][$type . $suffix]++;
                     }
                 }

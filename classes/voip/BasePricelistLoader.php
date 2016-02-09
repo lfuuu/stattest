@@ -10,6 +10,16 @@ use yii\base\Object;
 abstract class BasePricelistLoader extends BaseLoader
 {
     /**
+     * @var PricelistFile;
+     */
+    public $file;
+
+    public function load(PricelistFile $file)
+    {
+        $this->file = $file;
+    }
+
+    /**
      * @return PricelistFile
      */
     public function uploadFile($uploadedFile, $pricelistId)
@@ -82,6 +92,11 @@ abstract class BasePricelistLoader extends BaseLoader
 
             if (!isset($row['deleting']))
                 $row['deleting'] = 0;
+
+            if ($row['rate'] === 'DEL') {
+                $row['deleting'] = 1;
+                $row['rate'] = 0;
+            }
 
             $deleting = isset($row['deleting']) && $row['deleting'] ? 'TRUE' : 'FALSE';
 

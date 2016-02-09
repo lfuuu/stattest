@@ -9,10 +9,16 @@
         {/foreach}
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
-        {foreach from=$operators key='id' item='name'}
-        <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
+    <select class="select2" style="width: 300px" name="f_trunk_id">
+        <option value="0">-- Транк --</option>
+        {foreach from=$trunks item='o'}
+        <option value="{$o.id}"{if $f_trunk_id eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+        {/foreach}
+    </select>
+    <select class="select2" style="width: 300px" name="f_service_trunk_id">
+        <option value="0">-- Услуга транк --</option>
+        {foreach from=$serviceTrunks item='o'}
+        <option value="{$o.id}"{if $f_service_trunk_id eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
         {/foreach}
     </select>
 

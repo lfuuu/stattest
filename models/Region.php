@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
 class Region extends ActiveRecord
 {
     const MOSCOW = 99;
+    const HUNGARY = 81;
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
 
     public static function tableName()

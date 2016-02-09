@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageSms;
@@ -48,6 +49,14 @@ class UsageSmsHelper extends Object implements UsageHelperInterface
     public function getEditLink()
     {
         return Url::toRoute(['/pop_services.php', 'table' => UsageSms::tableName(), 'id' => $this->usage->id]);
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    public function getTransferedFrom()
+    {
+        return UsageSms::findOne($this->usage->prev_usage_id);
     }
 
 }

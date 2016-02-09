@@ -10,8 +10,8 @@ class BadRequestHttpException extends \yii\web\BadRequestHttpException
      * @param integer $code error code
      * @param \Exception $previous The previous exception used for the exception chaining.
      */
-    public function __construct()
+    public function __construct($message = '')
     {
-        parent::__construct("Bad Request");
+        parent::__construct($message ?: 'Bad Request');
     }
 }

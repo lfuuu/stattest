@@ -14,6 +14,7 @@ class m_voipreports_pricelist_report
     function voipreports_pricelist_report_show()
     {
         set_time_limit(0);
+        session_write_close();
 
         $report_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -31,7 +32,9 @@ class m_voipreports_pricelist_report
     function voipreports_pricelist_report_edit()
     {
         global $design;
+
         set_time_limit(0);
+        session_write_close();
 
         $report_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 

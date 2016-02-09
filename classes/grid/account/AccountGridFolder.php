@@ -69,6 +69,7 @@ abstract class AccountGridFolder extends Model
                 'inn' => 'ИНН',
                 'managerName' => 'Менеджер',
                 'channelName' => 'Канал продаж',
+                'sale_channel' => 'Откуда узнали о нас',
                 'contractNo' => '№ договора',
                 'contract_created' => 'Дата договора',
                 'status' => '#',
@@ -549,7 +550,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'account_manager',
                         'data' => \app\models\SaleChannelOld::getList(),
                         'value' => \Yii::$app->request->get('sale_channel'),
-                        'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100px;',],
+                        'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100%;',],
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
