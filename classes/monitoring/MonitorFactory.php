@@ -18,6 +18,7 @@ class MonitorFactory extends Singleton
             $this->getVoipNumbersIntegrity(),
             $this->getClientAccountWODayLimit(),
             $this->getClientAccountDisabledCredit(),
+            $this->getUsageVoipNotFilledTariffs(),
         ];
     }
 
@@ -104,6 +105,14 @@ class MonitorFactory extends Singleton
     public function getClientAccountDisabledCredit()
     {
         return new ClientAccountDisabledCredit;
+    }
+
+    /**
+     * @return UsageVoipNotFilledTariffs
+     */
+    public function getUsageVoipNotFilledTariffs()
+    {
+        return new UsageVoipNotFilledTariffs;
     }
 
 }
