@@ -44,14 +44,16 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
     {
         return [
             [
-                'label' => 'ID услуги',
+                'label' => 'Услуга',
                 'format' => 'raw',
                 'value' => function($data) {
                     $usage = UsageVoip::findOne($data['id']);
 
+                    list ($title, $description) = (array) $usage->helper->description;
+
                     return
                         Html::a(
-                            $usage->id,
+                            $title . ' ' . $description,
                             $usage->helper->editLink,
                             ['target' => '_blank']
                         );
