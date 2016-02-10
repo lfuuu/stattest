@@ -213,8 +213,8 @@ class UsageVoipEditForm extends UsageVoipForm
         return true;
     }
 
-    public function initModel(ClientAccount $clientAccount, UsageVoip $usage = null) {
-        
+    public function initModel(ClientAccount $clientAccount, UsageVoip $usage = null)
+    {
         $this->clientAccount = $clientAccount;
         $this->client_account_id = $clientAccount->id;
         $this->timezone = $clientAccount->timezone;
@@ -238,41 +238,38 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $usage->line7800->E164;
             }
 
-            if (!($currentTariff = $usage->getLogTariff()))
-                $currentTariff = $usage->getLogTariff($usage->actual_from);
+            $currentTariff = $usage->logTariff;
 
-            if ($currentTariff) {
-                $this->tariff_main_id = $currentTariff->id_tarif;
-                $this->tariff_local_mob_id = $currentTariff->id_tarif_local_mob;
-                $this->tariff_russia_id = $currentTariff->id_tarif_russia;
-                $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
-                $this->tariff_intern_id = $currentTariff->id_tarif_intern;
+            $this->tariff_main_id = $currentTariff->id_tarif;
+            $this->tariff_local_mob_id = $currentTariff->id_tarif_local_mob;
+            $this->tariff_russia_id = $currentTariff->id_tarif_russia;
+            $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
+            $this->tariff_intern_id = $currentTariff->id_tarif_intern;
 
-                $this->tariff_group_price = $currentTariff->minpayment_group;
-                $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
-                $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
-                $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
+            $this->tariff_group_price = $currentTariff->minpayment_group;
+            $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
+            $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
+            $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
 
-                $i = 0;
-                while ($i < strlen($currentTariff->dest_group)) {
-                    $g = $currentTariff->dest_group[$i];
-                    if ($g == '5') $this->tariff_group_local_mob = 1;
-                    if ($g == '1') $this->tariff_group_russia = 1;
-                    if ($g== '2') $this->tariff_group_intern = 1;
-                    $i++;
-                }
-
-                $tariff = TariffVoip::findOne($this->tariff_main_id);
-                $this->tariff_main_status = $tariff->status;
+            $i = 0;
+            while ($i < strlen($currentTariff->dest_group)) {
+                $g = $currentTariff->dest_group[$i];
+                if ($g == '5') $this->tariff_group_local_mob = 1;
+                if ($g == '1') $this->tariff_group_russia = 1;
+                if ($g== '2') $this->tariff_group_intern = 1;
+                $i++;
             }
 
-        } else {
+            $tariff = TariffVoip::findOne($this->tariff_main_id);
+            $this->tariff_main_status = $tariff->status;
+        }
+        else {
             $this->connecting_date = $this->today->format('Y-m-d');
         }
     }
 
-    protected function preProcess() {
-
+    protected function preProcess()
+    {
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
             $this->connection_point_id = $this->city->connection_point_id;
@@ -373,15 +370,15 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function processDependenciesTariff()
     {
-        if ($this->tariff_local_mob_id) {
+        if ($this->tariff_local_mob_id && !$this->tariff_group_local_mob_price) {
             $tariff = TariffVoip::findOne($this->tariff_local_mob_id);
             $this->tariff_group_local_mob_price = $tariff->month_min_payment;
         }
-        if ($this->tariff_russia_id) {
+        if ($this->tariff_russia_id && !$this->tariff_group_russia_price) {
             $tariff = TariffVoip::findOne($this->tariff_russia_id);
             $this->tariff_group_russia_price = $tariff->month_min_payment;
         }
-        if ($this->tariff_intern_id) {
+        if ($this->tariff_intern_id && !$this->tariff_group_intern_price) {
             $tariff = TariffVoip::findOne($this->tariff_intern_id);
             $this->tariff_group_intern_price = $tariff->month_min_payment;
         }
