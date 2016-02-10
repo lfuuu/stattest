@@ -14,6 +14,9 @@ use yii\db\ActiveRecord;
  */
 class CurrencyRate extends ActiveRecord
 {
+    // Перевод названий полей модели
+    use \app\classes\traits\AttributeLabelsTraits;
+
     public static function tableName()
     {
         return 'bill_currency_rate';
