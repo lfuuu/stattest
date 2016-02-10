@@ -222,7 +222,7 @@ class ClientContract extends HistoryActiveRecord
     public function getDocument()
     {
         return ClientDocument::find()
-            ->andWhere(['contract_id' => $this->id, 'type' => 'contract', 'is_active' => 1])
+            ->contractId($this->id)->active()->contract()
             ->orderBy('id DESC')
             ->one();
     }
