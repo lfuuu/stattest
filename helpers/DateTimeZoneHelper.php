@@ -66,7 +66,6 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
                 ->format($format);
     }
 
-
     public static function setDateTime($date, $format = false)
     {
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));

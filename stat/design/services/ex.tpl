@@ -2,7 +2,7 @@
 {if !isset($is_secondary_output)}
 <H2>Услуги</H2>
 <H3>Дополнительные услуги</H3>
-{if access_action('services','ex_add')}<a href='{$LINK_START}module=services&action=ex_add'>Добавить услугу</a>{/if}
+{if access_action('services','ex_add')}<a href='/?module=services&action=ex_add'>Добавить услугу</a>{/if}
 {else}
 <H3><a href='?module=services&action=ex_view'>Дополнительные услуги</a></H3>
 {/if}

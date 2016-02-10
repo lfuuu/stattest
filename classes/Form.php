@@ -10,8 +10,19 @@ use yii\db\Query;
 
 abstract class Form extends Model
 {
-    public function saveModel(ActiveRecord $model, $runValidation = true)
+
+    const PAGE_SIZE = 200;
+    const EVENT_AFTER_SAVE = 'afterSave';
+
+    public function saveModel(ActiveRecord $model, $runValidation = true, $autoSetAttributes = false)
     {
+        if ($autoSetAttributes) {
+            $attributes = $this->getAttributes();
+            foreach ($attributes as $name => $value) {
+                $model->$name = $value;
+            }
+        }
+
         if (!$model->save($runValidation)) {
             foreach ($model->getErrors() as $attribute => $errors) {
                 foreach($errors as $error) {
@@ -20,10 +31,14 @@ abstract class Form extends Model
             }
             return false;
         }
+
         return true;
     }
 
-    const PAGE_SIZE = 200;
+    public function getModel()
+    {
+        return static::$formModel;
+    }
 
     /**
      * @return ActiveDataProvider

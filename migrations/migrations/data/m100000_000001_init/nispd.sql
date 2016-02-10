@@ -2202,6 +2202,21 @@ CREATE TABLE `modules` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `monitor_5min`
+--
+
+DROP TABLE IF EXISTS `monitor_5min`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `monitor_5min` (
+  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
+  `time300` int(11) unsigned NOT NULL DEFAULT '0',
+  `value` smallint(5) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ip_int`,`time300`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `monitor_5min_ins`
 --
 

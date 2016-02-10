@@ -29,7 +29,7 @@ class SourceColumn extends DataColumn
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        return $model->source->title ?: parent::getDataCellValue($model, $key, $index);
+        return ($model->source->title ?: ($model->source->code ?: parent::getDataCellValue($model, $key, $index)));
     }
 
 }

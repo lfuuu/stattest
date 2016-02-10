@@ -31,6 +31,15 @@ use app\models\usages\UsageInterface;
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
+
+    public function behaviors()
+    {
+        return [
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_trunk';
@@ -54,6 +63,12 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public function getServiceType()
     {
         return Transaction::SERVICE_TRUNK;
+    }
+
+    /** Заглушка, чтобы не падало из-за различий в client и client_account_id */
+    public function getClient()
+    {
+        return $this->clientAccount->client;
     }
 
     public function getClientAccount()

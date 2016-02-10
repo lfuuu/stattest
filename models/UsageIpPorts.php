@@ -25,6 +25,14 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
 
     public $actual5d;
 
+    public function behaviors()
+    {
+        return [
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_ip_ports';
