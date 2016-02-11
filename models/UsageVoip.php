@@ -128,6 +128,14 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPackages()
+    {
+        return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+    }
+
+    /**
      * @param $usage
      * @return VoipServiceTransfer
      */
