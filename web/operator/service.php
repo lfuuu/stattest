@@ -269,7 +269,18 @@ if ($action=='add_client') {
     $dt = new DateTime();
     $dt->setTimeZone(new DateTimeZone('Europe/Moscow'));
 
-    $a = $s->GetStatsVoIP($region,$from+$dt->getOffset(),$to+$dt->getOffset(),$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, "Europe/Moscow");
+    $a = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
+        $region,
+        $from + $dt->getOffset(),
+        $to + $dt->getOffset(),
+        $detality,
+        $client_id,
+        $usage_arr,
+        $paidonly,
+        $destination,
+        $direction,
+        'Europe/Moscow'
+    );
 
 
     echo serialize($a);

@@ -277,14 +277,14 @@ class m_stats extends IModule{
         }
         $design->assign('phones',$phones);
 
-	$dateFrom = new DatePickerValues('date_from', 'first');
-	$dateTo = new DatePickerValues('date_to', 'last');
+        $dateFrom = new DatePickerValues('date_from', 'first');
+        $dateTo = new DatePickerValues('date_to', 'last');
 
-	$from = $dateFrom->getTimestamp();
-	$to = $dateTo->getTimestamp();
-	
-	DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
-	DatePickerPeriods::assignPeriods(new DateTime());
+        $from = $dateFrom->getTimestamp();
+        $to = $dateTo->getTimestamp();
+
+        DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+        DatePickerPeriods::assignPeriods(new DateTime());
 
         $destination = get_param_raw('destination', 'all');
         if(!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3')))
@@ -304,11 +304,37 @@ class m_stats extends IModule{
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
+                $stats[$region] = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
+                    $region,
+                    $from,
+                    $to,
+                    $detality,
+                    $account->id,
+                    $phones_sel,
+                    $paidonly,
+                    $destination,
+                    $direction,
+                    $timezone
+                );
             }
             $stats = $this->prepareStatArray($account, $stats, $detality);
         } else {
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$account->id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
+
+
+            if (!(
+                $stats = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
+                    $region,
+                    $from,
+                    $to,
+                    $detality,
+                    $account->id,
+                    $phones_sel,
+                    $paidonly,
+                    $destination,
+                    $direction,
+                    $timezone
+                )
+            )) {
                 return;
             }
         }
@@ -962,6 +988,7 @@ class m_stats extends IModule{
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
+
             $pg_db->Query($sql);
 
             if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');

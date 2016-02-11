@@ -8,6 +8,7 @@ use app\classes\bill\VoipPackageBiller;
 use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
+use app\queries\UsageVoipQuery;
 use app\models\usages\UsageInterface;
 use app\models\billing\StatPackage;
 
@@ -23,6 +24,11 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public static function tableName()
     {
         return 'usage_voip_package';
+    }
+
+    public static function find()
+    {
+        return new UsageVoipQuery(get_called_class());
     }
 
     public function getTariff()
@@ -44,11 +50,24 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
+     * @param string $date_range_from
+     * @param string $date_range_to
      * @return \yii\db\ActiveQuery
      */
-    public function getStat()
+    public function getStat($date_range_from = '', $date_range_to = '')
     {
-        return $this->hasOne(StatPackage::className(), ['package_id' => 'id']);
+        $link = $this->hasMany(StatPackage::className(), ['package_id' => 'id']);
+
+        if ($date_range_from || $date_range_to) {
+            if ($date_range_from) {
+                $link->filterWhere(['>', 'activation_dt', (new DateTime($date_range_from))->setTime(0, 0, 0)->format('Y-m-d H:i:s')]);
+            }
+            if ($date_range_to) {
+                $link->filterWhere(['>', 'activation_dt', (new DateTime($date_range_from))->setTime(23, 59, 59)->format('Y-m-d H:i:s')]);
+            }
+        }
+
+        return $link->all();
     }
 
     /**
