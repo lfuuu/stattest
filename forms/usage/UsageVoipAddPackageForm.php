@@ -4,6 +4,7 @@ namespace app\forms\usage;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
 use app\models\LogTarif;
@@ -15,7 +16,8 @@ class UsageVoipAddPackageForm extends Form
     public
         $usage_voip_id,
         $tariff_id,
-        $actual_from;
+        $actual_from,
+        $status;
 
     private
         $usage,
@@ -27,6 +29,7 @@ class UsageVoipAddPackageForm extends Form
             [['usage_voip_id','tariff_id',], 'integer'],
             [['actual_from',], 'string'],
             [['tariff_id','actual_from',], 'required'],
+            ['status', 'default', 'value' => 'connecting']
         ];
     }
 
@@ -85,6 +88,8 @@ class UsageVoipAddPackageForm extends Form
             $transaction->rollBack();
             throw $e;
         }
+
+        $usageVoipPackage->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
 
         return false;
     }

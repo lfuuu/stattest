@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\behaviors;
+namespace app\classes\behaviors\important_events;
 
 use Yii;
 use yii\base\Behavior;
@@ -8,7 +8,7 @@ use yii\db\ActiveRecord;
 use app\classes\important_events\ImportantEventsRunner;
 use app\models\important_events\ImportantEventsProperties;
 
-class ImportantEvents extends Behavior
+class ImportantEventsBehavior extends Behavior
 {
     public function events()
     {

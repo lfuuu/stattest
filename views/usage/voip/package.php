@@ -27,6 +27,12 @@ echo Breadcrumbs::widget([
         'Редактирование пакета'
     ],
 ]);
+
+$status = [
+    'connecting' => 'Подключаемый',
+    'working' => 'Включенный',
+];
+
 ?>
 
 <div class="well">
@@ -42,8 +48,6 @@ echo Breadcrumbs::widget([
                     'type' => Form::INPUT_WIDGET,
                     'widgetClass' => CustomDateControl::className(),
                     'options' => [
-                        'readonly' => true,
-                        'disabled' => true,
                         'autoWidgetSettings' => [
                             DateControl::FORMAT_DATE => [
                                 'class' => '\app\widgets\DatePicker',
@@ -84,12 +88,24 @@ echo Breadcrumbs::widget([
                         ],
                     ],
                 ],
+                'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
             ]
         ];
 
-        if (!$model->is_package_active) {
-            $widgetConf['attributes']['disconnecting_date']['options']['readonly'] = 'readonly';
+
+        if (!$model->is_package_in_future) {
+            $widgetConf['attributes']['connecting_date']['options']['readonly'] = true;
+            $widgetConf['attributes']['connecting_date']['options']['disabled'] = true;
+
+            if (!$model->is_package_active) {
+                $widgetConf['attributes']['disconnecting_date']['options']['readonly'] = true;
+                $widgetConf['attributes']['disconnecting_date']['options']['disabled'] = true;
+                $widgetConf['attributes']['status']['options']['readonly'] = true;
+                $widgetConf['attributes']['status']['options']['disabled'] = true;
+            }
+
         }
+
 
     echo Form::widget($widgetConf);
 
@@ -113,7 +129,7 @@ echo Breadcrumbs::widget([
         'onClick' => 'self.location = "' . Url::toRoute(['/usage/voip/edit', 'id' => $model->package->usageVoip->id]) . '";',
     ]);
 
-    if ($model->is_package_active) {
+    if ($model->is_package_active || $model->is_package_in_future) {
         $btns = Html::button('Отменить', [
             'class' => 'btn btn-link',
             'style' => 'margin-right: 15px;',

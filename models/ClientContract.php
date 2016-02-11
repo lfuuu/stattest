@@ -99,6 +99,7 @@ class ClientContract extends HistoryActiveRecord
             'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
             'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
             'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
         ];
     }
 
@@ -221,7 +222,7 @@ class ClientContract extends HistoryActiveRecord
     public function getDocument()
     {
         return ClientDocument::find()
-            ->andWhere(['contract_id' => $this->id, 'type' => 'contract', 'is_active' => 1])
+            ->contractId($this->id)->active()->contract()
             ->orderBy('id DESC')
             ->one();
     }

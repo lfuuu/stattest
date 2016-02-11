@@ -1,9 +1,11 @@
 <?php
+
 namespace app\models;
 
 use app\classes\media\TroubleMedia;
 use app\dao\TroubleDao;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * @property int $id
@@ -28,6 +30,9 @@ use yii\db\ActiveRecord;
  */
 class Trouble extends ActiveRecord
 {
+
+    const EVENT_AFTER_SAVE = 'afterSave';
+
     const DEFAULT_SUPPORT_USER = 'nick';     // Михайлов Николай
     const DEFAULT_SUPPORT_SALES = 'ava';      // Ан Владимир
     const DEFAULT_SUPPORT_ACCOUNTING = 'istomina'; // Истомина Ирина
@@ -67,6 +72,36 @@ class Trouble extends ActiveRecord
     ];
 
     public $tt_files = [];
+
+    public function rules()
+    {
+        return [
+            [['trouble_type', 'trouble_subtype', 'client', ], 'required'],
+            [
+                [
+                    'trouble_type', 'trouble_subtype', 'client', 'user_author',
+                    'problem', 'service', 'bill_no', 'bill_id', 'doer_comment',
+                    'folder',
+                ],
+                'trim'
+            ],
+            [
+                [
+                    'service_id', 'cur_stage_id', 'is_important',
+                    'all4geo_id', 'support_ticket_id', 'server_id'
+                ],
+                'integer'
+            ],
+            [['date_creation', 'date_close'], 'string'],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\Troubles::className(),
+        ];
+    }
 
     public static function tableName()
     {

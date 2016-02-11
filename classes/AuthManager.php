@@ -317,4 +317,14 @@ class AuthManager extends BaseManager
         return md5($password);
     }
 
+    /**
+     * Returns all user IDs assigned to the role specified.
+     * @param string $roleName
+     * @return array array of user ID strings
+     * @since 2.0.7
+     */
+    public function getUserIdsByRole($roleName)
+    {
+        // TODO: Implement getUserIdsByRole() method.
+    }
 }

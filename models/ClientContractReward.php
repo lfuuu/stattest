@@ -17,6 +17,11 @@ class ClientContractReward extends ActiveRecord
         self::USAGE_VIRTPBX => 'Параметры вознаграждения - ВАТС',
     ];
 
+    public static $period = [
+        self::PERIOD_MONTH => 'Кол-во месяцев',
+        self::PERIOD_ALWAYS => 'Всегда',
+    ];
+
     public static function tableName()
     {
         return 'client_contract_reward';

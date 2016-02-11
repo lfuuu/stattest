@@ -169,6 +169,63 @@
     </table>
 {/if}
 
+{if $blank_data.voip_packages}
+    <p>
+        <strong>
+            <em>
+                    <span>
+                        Дополнительная услуга "Пакеты минут"
+                    </span>
+            </em>
+        </strong>
+    </p>
+
+    <table style="border-collapse: collapse;" border="1" class="service_table">
+        <tr>
+            <th>
+                <p><span><b>Телефонный номер, на<br />который подключен пакет</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Название пакета минут</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Абонентская<br /> плата,<br />руб./мес.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Минимальный<br />гарантированный платеж, руб.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Объем включенных минут</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Дата подключения</b></span></p>
+            </th>
+        </tr>
+        {foreach from=$blank_data.voip_packages item=i}
+            <tr>
+                <td>
+                    <p><span>{$i.usage_voip.E164}</span></p>
+                </td>
+                <td>
+                    <p><span>{$i.tariff.name}</span></p>
+                </td>
+                <td align="center">
+                    <p><span>{$i.tariff.periodical_fee}</span></p>
+                </td>
+                <td align="center">
+                    <p><span>{$i.tariff.min_payment}</span></p>
+                </td>
+                <td align="center">
+                    <p><span>{$i.tariff.minutes_count}</span></p>
+                </td>
+                <td align="center">
+                    <p><span>{$i.actual_from|mdate:"Y-m-d"}</span></p>
+                </td>
+            </tr>
+        {/foreach}
+    </table>
+{/if}
+
 {if $blank_data.vats}
     <p>
         <strong>

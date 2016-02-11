@@ -4,11 +4,17 @@
 {if !isset($hl)}
     {assign var="hl" value=''}
 {/if}
-<form action="?" method=post id=dbform name=dbform>
+<form action="?1=1" method=post id=dbform name=dbform>
     {foreach from=$dbform_params item=item key=key}
         <input type=hidden name={$key} value='{$item}'>
     {/foreach}
     <table class="table table-condensed table-striped">
+        {if isset($smarty.session.trash) && $smarty.session.trash.price_voip}
+            <tr>
+                <td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>Пакетная заливка</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        {/if}
         {foreach from=$dbform_data item=item key=key name=outer}
             {if isset($item.visible)}
                 {assign var="visible" value=$item.visible}
@@ -136,13 +142,13 @@
                 </tr>
             {/if}
         {/foreach}
-
+        
         {if $dbform_table == "usage_voip"}
             <script>
                 form_usagevoip_hide();
             </script>
         {/if}
-
+        
         {if $dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx"}
             <script>
                     optools.voip.check_e164.move_checking(1);
@@ -166,16 +172,16 @@
     {foreach from=$dbform_includesPre item=item name=outer}{include file=$item}{/foreach}
 
 <DIV align=center>
-    <input id=b_submit class=button
-    {if $dbform_table=="usage_voip"}{literal}
+    <input id=b_submit class=button 
+    {if $dbform_table=="usage_voip"}{literal} 
         type=button onclick="
             if(optools.check_submit() && ($('#voip_ats3_add').length ? checkVoipAts3Add() : true)) {
                 document.getElementById('dbform').submit();
             }
             "{/literal}
-    {elseif $dbform_table=="usage_virtpbx"}
+    {elseif $dbform_table=="usage_virtpbx"} 
         type=button onclick="
-            if(optools.check_vpbx_submit())
+            if(optools.check_vpbx_submit()) 
                 document.getElementById('dbform').submit();"
     {else}
         type=submit

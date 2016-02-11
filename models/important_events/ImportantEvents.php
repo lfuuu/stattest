@@ -2,18 +2,18 @@
 
 namespace app\models\important_events;
 
-use app\classes\Assert;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
-use yii\helpers\ArrayHelper;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 
 class ImportantEvents extends ActiveRecord
 {
+
+    const ROWS_PER_PAGE = 100;
 
     public $propertiesCollection = [];
 
@@ -23,9 +23,6 @@ class ImportantEvents extends ActiveRecord
             [['event', 'source_id', ], 'required', 'on' => 'create'],
             [['event', ], 'trim'],
             ['source_id', 'integer'],
-            ['client_id', 'required', 'on' => 'create', 'when' => function($model) {
-                return in_array($model->event, ArrayHelper::getColumn(ImportantEventsNames::find()->all(), 'code'), true);
-            }],
             ['client_id', 'integer', 'integerOnly' => true],
         ];
     }
@@ -51,7 +48,7 @@ class ImportantEvents extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\ImportantEvents::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ImportantEventsBehavior::className(),
         ];
     }
 
@@ -156,8 +153,12 @@ class ImportantEvents extends ActiveRecord
         $client = ClientAccount::findOne($this->client_id);
         $balance = $client->balance;
         if ($client->credit > -1) {
-            $clientAmountSum = ClientCounter::dao()->getAmountSumByAccountId($client->id);
-            $balance += $clientAmountSum['amount_sum'];
+            try {
+                $clientAmountSum = ClientCounter::dao()->getAmountSumByAccountId($client->id);
+                $balance += $clientAmountSum['amount_sum'];
+            }
+            catch (\yii\db\Exception $e) {
+            }
         }
         return $balance;
     }
@@ -173,6 +174,9 @@ class ImportantEvents extends ActiveRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => self::ROWS_PER_PAGE,
+            ],
         ]);
         $dataProvider->sort = false;
 

@@ -22,6 +22,13 @@ class TroubleStage extends ActiveRecord
 {
     public $dif_time = '00:00';
 
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\TroubleStages::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'tt_stages';

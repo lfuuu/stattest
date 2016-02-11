@@ -234,14 +234,8 @@ if ($has) :
                                 <?php
                                 /** @var TariffVoip $currentTariff */
                                 /** @var \app\models\LogTarif $log */
-                                $currentTariff = $log = null;
-                                if (!($currentTariff = $service->tariff)) {
-                                    $log = $service->getLogTariff($service->actual_from);
-                                    $currentTariff = TariffVoip::findOne($log->id_tarif);
-                                }
-                                else {
-                                    $log = $service->logTariff;
-                                }
+                                $log = $service->logTariff;
+                                $currentTariff = TariffVoip::findOne($log->id_tarif);
                                 ?>
                                 <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                                     <td width="10%">
@@ -290,7 +284,7 @@ if ($has) :
                                         }
                                         if (strpos($log->dest_group, '1') === false) {
                                             $tariff = TariffVoip::findOne($log->id_tarif_russia);
-                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0) ? '(' . $log->minpayment_russia . ')' : '';
+                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0 ? '(' . $log->minpayment_russia . ')' : '');
                                             $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
                                             echo '/ МГ ' . ($tariff ? $tariff->name : '');
                                         }
@@ -306,12 +300,12 @@ if ($has) :
                                                 <?php
                                                 list($description) = $package->helper->description;
                                                 ?>
-                                                <?= $description; ?>
+                                                <span style="padding: 0 5px 0 5px; <?= ($package->status == 'connecting' ? 'background-color: #ffc0c0;' : '')?>"> <?= $description; ?>
                                                 (
                                                     <abbr title="Кол-во минут по тарифу"><?= $package->tariff->minutes_count; ?></abbr> /
                                                     <abbr title="Кол-во оплаченных минут"><?= floor($package->stat->paid_seconds / 60); ?></abbr> /
                                                     <abbr title="Кол-во израсходованных минут"><?= floor($package->stat->used_seconds / 60); ?></abbr>
-                                                )<br />
+                                                )</span><br />
                                             <?endforeach;
                                             ?>
                                         </div>

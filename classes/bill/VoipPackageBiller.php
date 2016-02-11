@@ -32,6 +32,7 @@ class VoipPackageBiller extends Biller
         $this->addPackage($package);
     }
 
+    //TODO: Билинговать тип пакета по прайс-листу
     /*
     protected function processResource()
     {

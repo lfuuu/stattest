@@ -18,10 +18,10 @@ class DbForm {
         $this->fields['id']=array('type'=>'hidden');
     }
     public function SetDefault($key,$val) {
-        $this->fields[$key]['default']=$val;    
+        $this->fields[$key]['default']=$val;
     }
     public function isData($param) {
-        return (is_array($this->data) && isset($this->data[$param]));    
+        return (is_array($this->data) && isset($this->data[$param]));
     }
     public function Display($form_params = array(),$h2='',$h3='') {
         global $design,$translate_arr;
@@ -83,8 +83,8 @@ class DbForm {
         if (!$this->dbform_action || !$this->dbform)  {
             $this->dbform=get_param_raw('dbform',array());
             $this->dbform_action=get_param_raw('dbform_action','save');
-            
-            if (isset($this->dbform['actual_from']) && isset($this->dbform['actual_to'])) 
+
+            if (isset($this->dbform['actual_from']) && isset($this->dbform['actual_to']))
             {
                 global $db;
                 $ts = strtotime($this->dbform['actual_from']);
@@ -95,8 +95,8 @@ class DbForm {
                     $this->dbform['actual_from'] = $db->GetValue('SELECT actual_from FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
                 } else {
                     $this->dbform['actual_from'] = '4000-01-01';
-                } 
-                
+                }
+
                 $ts = strtotime($this->dbform['actual_to']);
                 if ($ts !== false)
                 {
@@ -112,7 +112,7 @@ class DbForm {
     public function Load($id) {
         global $db;
         $add_select = '';
-        if (isset($this->fields['actual_from']) && isset($this->fields['actual_to'])) 
+        if (isset($this->fields['actual_from']) && isset($this->fields['actual_to']))
         {
             $add_select = ',DATE_FORMAT(actual_from, "%d-%m-%Y") as actual_from,DATE_FORMAT(actual_to, "%d-%m-%Y") as actual_to';
         }
@@ -124,24 +124,27 @@ class DbForm {
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+        $usageForm = \app\models\usages\UsageFactory::getUsageForm($this->table);
+
         if($this->dbform_action=='delete'){
-            $db->Query('delete from '.$this->table.' where id='.$this->dbform['id']);
+            (new $usageForm->model)->findOne($this->dbform['id'])->delete();
             return 'delete';
         }elseif($this->dbform_action=='save'){
-            $R=array();
-            $s='';
+            $R = [];
+            $s = [];
             $sDiff = "";
 
             foreach($this->fields as $f=>$F){
                 if($f!='id' && !(isset($F['db_ignore']) && $F['db_ignore']==1)){
                     if(isset($F["type"]) && $F["type"] == "password" && $this->dbform[$f] == "*******") continue;
-                    if($s)
-                        $s.=',';
-                    $s .= $f.'='.(
+
+                    $s[$f] = (
                         isset($this->dbform[$f])
-                            ? (is_array($this->dbform[$f])?$this->dbform[$f][0]:'"'.addslashes($this->dbform[$f]).'"')
-                            : '""'
+                            ? (is_array($this->dbform[$f]) ? $this->dbform[$f][0] : addslashes($this->dbform[$f]))
+                            : ''
                     );
+
                     if($this->dbform['id'] && isset($this->dbform[$f]) && isset($this->data[$f])){
                         if($this->dbform[$f] != $this->data[$f]){
                             $sDiff .= ($sDiff?", ":"").$f;
@@ -154,29 +157,57 @@ class DbForm {
                 }
             }
 
-
-
+            $p = null;
             if (!$no_real_update) {
                 if ($this->dbform['id']) {
-
-                    if ($sDiff)
-                    {
+                    if ($sDiff) {
                         $this->dbform["t_fields_changes"] = $sDiff;
                     }
-                    $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
-                    $p='edit';
-                    Yii::$app->session->addFlash('success', 'Запись обновлена');
-                } else {
-                    $db->Query('insert into '.$this->table.' SET '.$s);
-                    $this->dbform['id']=$db->GetInsertId();
-                    $p='add';
-                    Yii::$app->session->addFlash('success', 'Запись добавлена');
+
+
+                    $model = (new $usageForm->model)->findOne($this->dbform['id']);
+
+                    if (
+                        $usageForm->load([$usageForm->formName() => ['id' => $this->dbform['id']] + $s])
+                            &&
+                        $usageForm->validate()
+                            &&
+                        $usageForm->saveModel($model, true, true)
+                    ) {
+                        $p = 'edit';
+
+                        Yii::$app->session->addFlash('success', 'Запись обновлена');
+                    }
                 }
-                $this->Load($this->dbform['id']);
-            } else {
-                $p='add';
+                else {
+                    $model = new $usageForm->model;
+
+                    if (
+                        $usageForm->load([$usageForm->formName() => $s])
+                            &&
+                        $usageForm->validate()
+                            &&
+                        $usageForm->saveModel($model, true, true)
+                    ) {
+                        $p = 'add';
+                        $this->dbform['id'] = $model->id;
+
+                        Yii::$app->session->addFlash('success', 'Запись добавлена');
+                    }
+                }
+
+                if ($usageForm->hasErrors()) {
+                    $this->data = $this->dbform;
+                    foreach ($usageForm->firstErrors as $error) {
+                        Yii::$app->session->addFlash('error', $error);
+                    }
+                }
+            }
+            else {
+                $p = 'add';
                 $this->data=$this->dbform;
             }
+
             return $p;
         }
     }
@@ -221,11 +252,11 @@ class HelpDbForm {
         $db->Query('insert into log_tarif (service,id_service,id_tarif,id_user,ts,comment,date_activation) VALUES '.
                                     '("'.$service.'",'.$id.','.intval($tarifId).','.
                                             $user->Get('id').',NOW(),"","'.addslashes($dateActivation).'")');
-        
+
     }
     public static function logTarifUsage($service,$id,$dateActivation,
                                         $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,
-                                        $dest_group, $minpayment_group, 
+                                        $dest_group, $minpayment_group,
                                         $minpayment_local_mob, $minpayment_russia, $minpayment_intern)
     {
         global $db,$user;
@@ -239,9 +270,9 @@ class HelpDbForm {
                                         intval($dest_group).','.intval($minpayment_group).','.
                                         intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
                                     ')');
-        
+
     }
-    public static function saveChangeHistory($cur = array(), $new = array(), $usage_name = '') 
+    public static function saveChangeHistory($cur = array(), $new = array(), $usage_name = '')
     {
         global $user, $db;
 
@@ -277,12 +308,12 @@ class HelpDbForm {
     public static function assign_log_history($service, $id) {
         global $design, $db;
         $all = $db->AllRecords('
-                SELECT 
-                    l.*, u.user 
-                FROM 
-                    log_usage_history l 
-                LEFT JOIN user_users u ON u.id=l.user_id 
-                WHERE 
+                SELECT
+                    l.*, u.user
+                FROM
+                    log_usage_history l
+                LEFT JOIN user_users u ON u.id=l.user_id
+                WHERE
                     service="'.$service.'" AND service_id='.$id
                 );
         foreach ($all as $k=>$v) {
@@ -293,7 +324,7 @@ class HelpDbForm {
         }
         $design->assign('dbform_log_usage_history', $all);
     }
-    public static function _log_history__getFieldName($fld = '') 
+    public static function _log_history__getFieldName($fld = '')
     {
         $names = array(
             'address'=>'адрес',
@@ -324,7 +355,7 @@ class DbFormUsageIpPorts extends DbForm{
         $this->fields['activation_dt']=array('type'=>'hidden');
         $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['address']=array();
-        
+
         $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
 
         $this->fields['node']=array('db_ignore'=>1,'add'=>' onchange="form_ip_ports_get_ports()" ');
@@ -424,14 +455,14 @@ class DbFormUsageIpPorts extends DbForm{
             $this->dbform['port']='mgts';
         } else if ($this->dbform['port_type']=='wimax' || $this->dbform['port_type']=='yota') {
             $this->dbform['node']='';
-            $this->dbform['port']='';    
+            $this->dbform['port']='';
         }
         $db->Query('select id from tech_ports where node="'.$this->dbform['node'].'" AND '.
                         'port_name="'.@$this->dbform['port'].'" AND port_type="'.$this->dbform['port_type'].'"');
         if ($r=$db->NextRecord()) {
             $this->dbform['port_id']=$r['id'];
         } else {
-            $db->QueryInsert('tech_ports',array('node'=>$this->dbform['node'],'port_name'=>$this->dbform['port'],'port_type'=>$this->dbform['port_type']));    
+            $db->QueryInsert('tech_ports',array('node'=>$this->dbform['node'],'port_name'=>$this->dbform['port'],'port_type'=>$this->dbform['port_type']));
             $this->dbform['port_id']=$db->GetInsertId();
         }
         $current = $db->GetRow("select * from usage_ip_ports where id = '".$this->dbform["id"]."'");
@@ -439,7 +470,7 @@ class DbFormUsageIpPorts extends DbForm{
         $this->fillUTCPeriod();
 
         $v=DbForm::Process();
-        
+
         if ($v=='add' || $v=='edit') {
             HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_ports');
             if (!($olddata=get_tarif_current("usage_ip_ports",$this->data['id']))) $b=1; else $b=0;
@@ -500,7 +531,7 @@ class DbFormUsageVoip extends DbForm {
             $client = $this->data["client"];
         }else{
             $this->fields['ats3']=array(
-                "type" => "include", 
+                "type" => "include",
                 "file" => "services/voip_ats3_add.tpl"
             );
 
@@ -514,7 +545,7 @@ class DbFormUsageVoip extends DbForm {
             and (
                 cast(now() as date) between actual_from and actual_to
                 and id not in (select line7800_id from usage_voip where client = '".$client."')
-        
+
         )".($this->data["line7800_id"] ? " or id = '".$this->data["line7800_id"]."'" : "")."
             ", "id", "E164")?:array();
 
@@ -582,7 +613,7 @@ class DbFormUsageVoip extends DbForm {
             if ($this->dbform['t_minpayment_intern'] == '') $b=0;
 
             $this->dbform["E164"] = trim($this->dbform["E164"]);
-            
+
             if(preg_match("/^8/", $this->dbform["E164"], $o))
             {
                 die("<font style='color:red'><b>Номер начинается на 8-ку!</b></font>");
@@ -600,7 +631,7 @@ class DbFormUsageVoip extends DbForm {
                 {
                     $res = $db->AllRecords("select id from usage_voip where client='".$this->dbform['client']."' and cast(now() as date) between actual_from and actual_to");
                     foreach($res as $r) $usages[] = $r['id'];
-                }else 
+                }else
                     $usages[] = $this->data['id'];
 
                 foreach ($usages as $usage_id) {
@@ -742,8 +773,8 @@ class DbFormEmails extends DbForm {
         if ($this->isData('client')) $client=$this->data['client'];
         if (!$client) $client=$this->fields['client']['default'];
         if ($this->isData('domain')) $domain=$this->data['domain'];
-        
-        if ($this->isData('id')) {
+
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('emails',$this->data['id']);
         }
 
@@ -752,7 +783,7 @@ class DbFormEmails extends DbForm {
         $design->assign('_domain',array('enum'=>$R,'value'=>$domain,'add'=>$this->fields['domain']['add']));
         unset($this->fields['domain']);
         $this->fields['local_part']['comment']=$design->fetch('dbform_emails_domain.tpl');
-        
+
         DbForm::Display($form_params,$h2,$h3);
     }
     public function Process($no_real_update = 0){
@@ -762,33 +793,10 @@ class DbFormEmails extends DbForm {
         if(!isset($this->dbform['id']))
             return '';
 
-        if($this->dbform_action!='delete'){
-            $this->dbform['actual_from'] = date('Y-m-d',strtotime($this->dbform['actual_from']));
-            $this->dbform['actual_to'] = date('Y-m-d',strtotime($this->dbform['actual_to']));
-            $query = "
-                select
-                    *
-                from
-                    emails
-                where
-                    id!=".intval($this->dbform['id'])."
-                and
-                    actual_from<='".($this->dbform['actual_from'])."'
-                and
-                    actual_to>'".($this->dbform['actual_from'])."'
-                and
-                    domain='".addslashes($this->dbform['domain'])."'
-                and
-                    local_part='".addslashes($this->dbform['local_part'])."'";
-            if($db->GetRow($query)) {
-                trigger_error2('Такой адрес уже занят');
-                return '';
-            }
-        }
         $current = $db->GetRow("select * from emails where id = '".$this->dbform["id"]."'");
-        
+
         $v=DbForm::Process();
-        
+
         if ($v=='add' || $v=='edit') {
             HelpDbForm::saveChangeHistory($current, $this->dbform, 'emails');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
@@ -912,9 +920,9 @@ class DbFormUsageIpRoutes extends DbForm{
                     where
                     (
                         "'.$from.'" between actual_from and actual_to
-                    or 
+                    or
                         "'.$to.'" between actual_from and actual_to
-                    or 
+                    or
                         (actual_from between "'.$from.'" and "'.$to.'" and actual_to between "'.$from.'" and "'.$to.'")
                     )
                     and
@@ -978,7 +986,7 @@ class DbFormUsageExtra extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
 
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1007,7 +1015,7 @@ class DbFormUsageExtra extends DbForm{
                 (isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
                 'and status!="archive" order by description'
             );
-            $R=array(''); 
+            $R = ['' => ''];
             while ($r=$db->NextRecord()) {
                 $sName = $r['description'].' ('.$r['price'].' '.$r['currency'].')';
                 $allTarif[$r['id']] = $sName;
@@ -1038,15 +1046,15 @@ class DbFormUsageExtra extends DbForm{
                     'mailserver'=>'Почтовый сервер',
                     'phone_ats'=>'АТС',
                     'site'=>'Сайт',
-                    'sms_gate'=>'SMS Gate', 
+                    'sms_gate'=>'SMS Gate',
                     'uspd' => "УСПД",
                     //'welltime'=>'WellTime',
-                    'wellsystems'=>'WellSystems'
+                    //'wellsystems'=>'WellSystems'
                     );//$groups;
             $this->fields['code']['type']='no';
         }
         DbForm::Display($form_params,$h2,$h3);
-    }    
+    }
     public function Process($no_real_update = 0) {
         global $db,$user;
         $this->Get();
@@ -1197,7 +1205,7 @@ class DbFormUsageWelltime extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
             HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
 
@@ -1234,7 +1242,7 @@ class DbFormUsageWelltime extends DbForm{
                 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').
                 " order by description"
             );
-            $R=array('');
+            $R = ['' => ''];
             while($r=$db->NextRecord())
                 $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
             $this->fields['tarif_id']['type']='select';
@@ -1289,7 +1297,7 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->fields['moved_from']=array('type' => 'select', 'visible' => false, 'with_hidden' => true);
-        
+
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
         $this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
@@ -1309,7 +1317,7 @@ class DbFormUsageVirtpbx extends DbForm{
             $account = ClientAccount::findOne($fixclient_data['id']);
         }
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
             HelpDbForm::assign_tarif('usage_virtpbx',$this->data['id']);
@@ -1384,7 +1392,7 @@ class DbFormUsageSms extends DbForm{
             ->asArray()
             ->one()['price_include_vat'];
 
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
             HelpDbForm::assign_tt('usage_sms',$this->data['id'],$this->data['client']);
 
@@ -1418,7 +1426,7 @@ class DbFormUsageSms extends DbForm{
                 price_include_vat = "' . $client_price_include_vat . '"
             order by per_sms_price desc, per_month_price desc'
             );
-            $R=array('');
+            $R = ['' => ''];
             while($r=$db->NextRecord())
                 $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
             $this->fields['tarif_id']['type']='select';
@@ -1594,13 +1602,13 @@ class DbFormUsageIPPPP extends DbForm{
             $this->fields['tarif_str']['type']='no';*/
         }
         DbForm::Display($form_params,$h2,$h3);
-    }    
+    }
     public function Process($no_real_update = 0) {
         global $db,$user;
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
         $current = $db->GetRow("select * from usage_ip_ppp where id = '".$this->dbform["id"]."'");
-        
+
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
             HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_ppp');
@@ -1627,7 +1635,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['deposit_sumRUB']=array();
         $this->fields['serial']=array('type'=>'first_text');
         $this->fields['mac']=array('type'=>'text');
-        
+
         $this->fields['ip']=array();
         $this->fields['ip_nat']=array();
         $this->fields['ip_cidr']=array();
@@ -1703,7 +1711,7 @@ class DbFormTechCPE extends DbForm{
             }
             unset($this->dbform['t_C2U']);
         }
-        
+
        $res = DbForm::Process($v);
 
             $db->QueryInsert(
@@ -1717,7 +1725,7 @@ class DbFormTechCPE extends DbForm{
 
        return $res;
     }
-    
+
     public function Display($form_params = array(),$h2='',$h3='') {
         global $db,$design;
         $this->fields['id_model']['assoc_enum']=array(''=>'');
@@ -1770,7 +1778,7 @@ class DbFormUsagePhoneRedirConditions extends DbForm {
             $this->includesPost2 = array('dbform_redir_rules.tpl');
         }
         DbForm::Display($form_params,$h2,$h3);
-    }    
+    }
 }
 
 class DbFormDataCenter extends DbForm{
@@ -1871,7 +1879,7 @@ $GLOBALS['translate_arr']=array(
     '*.status'                => 'состояние',
     'usage_voip.is_trunk'              => 'Оператор',
     'usage_voip.allowed_direction'      => 'Разрешенные направления',
-        
+
     'emails.local_part'        => 'почтовый ящик',
     'emails.box_size'        => 'занято, Kb',
     'emails.box_quota'        => 'размер ящика',
@@ -1897,7 +1905,7 @@ $GLOBALS['translate_arr']=array(
     'usage_voip.no_of_lines'            => 'число линий',
     'usage_voip.tech_voip_device_id'    => 'устройство',
     'usage_voip.tarif'                    => 'тариф',
-        
+
     'clients_vip.num_unsucc'            => 'Текущее число неудачных попыток',
     'clients_vip.email'                    => 'Адрес e-mail',
     'clients_vip.phone'                    => 'Номер телефона',
@@ -1931,12 +1939,12 @@ $GLOBALS['translate_arr']=array(
     '*.vendor'                                => 'вендор',
     'tech_cpe_models.part_no'                => 'парт. номер',
     'usage_tech_cpe.id_model'                        => 'модель устройства',
-    '*.comment'                    =>    'комментарий',        
-    '*.t_comment'                    =>    'комментарий',        
-    
+    '*.comment'                    =>    'комментарий',
+    '*.t_comment'                    =>    'комментарий',
+
     'usage_phone_redir_conditions.type'        => 'тип условия',
     'usage_phone_redir_conditions.title'    => 'название условия',
-    
+
     '*.currency'    => 'валюта',
     '*.name'        => 'название',
     '*.pay_once'    => 'плата за подключение',

@@ -466,7 +466,7 @@ echo Breadcrumbs::widget([
             $actualTo = DateTimeZoneHelper::getDateTimeLimit($checkDate = $package->expire_dt, $showDate = $package->actual_to);
             $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
             ?>
-            <tr style="<?= ($isActive ? 'font-weight: bold;' : ''); ?>">
+            <tr style="<?= ($isActive ? 'font-weight: bold;' : '') . ($package->status == 'connecting' ? 'background-color: #ffe0e0;' : ''); ?>">
                 <td nowrap="nowrap">
                     <?php
                         echo Html::a($package->actual_from . ' - ' . $actualTo, ['/usage/voip/edit-package', 'id' => $package->id]);

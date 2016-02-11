@@ -1,9 +1,10 @@
 <?php
 
 use yii\data\ActiveDataProvider;
-use app\widgets\GridViewCustomFilters;
 use app\classes\Html;
+use app\widgets\GridViewCustomFilters;
 use app\models\important_events\ImportantEvents;
+use app\classes\grid\column\important_events\details\DetailColumnFactory;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -20,15 +21,23 @@ echo GridViewCustomFilters::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
+            'class' => 'kartik\grid\ExpandRowColumn',
+            'width' => '50px',
+            'value' => function ($model, $key, $index, $column) {
+                return GridViewCustomFilters::ROW_COLLAPSED;
+            },
+            'detail' => function ($model, $key, $index, $column) {
+                return implode('<br />', (array) DetailColumnFactory::getColumn($model)) . '<br /><br />';
+            },
+            'headerOptions' => ['class' => 'kartik-sheet-style'],
+        ],
+        [
             'class' => 'app\classes\grid\column\important_events\ClientColumn',
-            'width' => '15%',
-            'options' => [
-                'placeholder'=>'Enter username...'
-            ],
+            'width' => '25%',
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '15%',
+            'width' => '25%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
@@ -53,24 +62,20 @@ echo GridViewCustomFilters::widget([
         ],
         [
             'class' => 'app\classes\grid\column\important_events\EventNameColumn',
-            'width' => '15%',
+            'width' => '25%',
         ],
         [
             'class' => 'app\classes\grid\column\important_events\SourceColumn',
-            'width' => '15%',
-        ],
-        [
-            'class' => 'app\classes\grid\column\important_events\PropertiesColumn',
-            'width' => '40%',
+            'width' => '25%',
         ],
     ],
     'pjax' => false,
-    'toolbar'=> [],
+    'toolbar' => [],
     'bordered' => true,
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridViewCustomFilters::TYPE_DEFAULT,
     ],
 ]);

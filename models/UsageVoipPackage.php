@@ -8,9 +8,9 @@ use app\classes\bill\VoipPackageBiller;
 use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
-use app\queries\UsageVoipQuery;
 use app\models\usages\UsageInterface;
 use app\models\billing\StatPackage;
+use app\queries\UsageQuery;
 
 /**
  * @property int $id
@@ -21,6 +21,13 @@ use app\models\billing\StatPackage;
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
 
+    public function behaviors()
+    {
+        return [
+            'ImportantEvent' => \app\classes\behaviors\important_events\UsageVoipPackage::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_voip_package';
@@ -28,7 +35,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
 
     public static function find()
     {
-        return new UsageVoipQuery(get_called_class());
+        return new UsageQuery(get_called_class());
     }
 
     public function getTariff()

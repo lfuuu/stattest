@@ -253,3 +253,4 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 <script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
 <script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
 <script type="text/javascript" src="/js/behaviors/change-doc-template.js"></script>
+<script type="text/javascript" src="/js/behaviors/client-account-options.js"></script>

@@ -23,7 +23,7 @@ $recordBtns = [
     },
 ];
 
-echo Html::formLabel('Список групп событий');
+echo Html::formLabel('Список источников событий');
 echo Breadcrumbs::widget([
     'links' => [
         ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],

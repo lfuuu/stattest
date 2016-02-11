@@ -19,6 +19,15 @@ use app\models\usages\UsageInterface;
  */
 class UsageSms extends ActiveRecord implements UsageInterface
 {
+
+    public function behaviors()
+    {
+        return [
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'usage_sms';

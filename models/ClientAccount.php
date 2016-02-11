@@ -110,10 +110,11 @@ class ClientAccount extends HistoryActiveRecord
     {
         return [
             'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryChanges' =>         \app\classes\behaviors\HistoryChanges::className(),
-            'SetOldStatus' =>           \app\classes\behaviors\SetOldStatus::className(),
-            'ActaulizeClientVoip' =>    \app\classes\behaviors\ActaulizeClientVoip::className(),
-            'ClientAccountComments' =>  \app\classes\behaviors\ClientAccountComments::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
+            'ActaulizeClientVoip' => \app\classes\behaviors\ActaulizeClientVoip::className(),
+            'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
+            'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::className(),
         ];
     }
 
@@ -446,6 +447,19 @@ class ClientAccount extends HistoryActiveRecord
         Assert::isObject($organization, 'Organization not found');
 
         return $organization->vat_rate;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOptions()
+    {
+        return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
+    }
+
+    public function getOption($name)
+    {
+        return $this->getOptions()->where(['option' => $name])->all();
     }
 
     public function convertSum($originalSum, $taxRate = null)

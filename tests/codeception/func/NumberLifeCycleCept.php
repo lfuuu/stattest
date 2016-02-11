@@ -8,10 +8,9 @@ use app\models\ClientAccount;
 $I = new _FuncTester($scenario);
 $I->wantTo('Test Number life cycle');
 
+$transaction = Yii::$app->db->beginTransaction();
 
-
-$accountId = ClientAccount::find()->select('max(id)')->scalar();//35800;
-$account = ClientAccount::findOne(["id" => $accountId]);
+$account = createSingleClientAccount();
 $I->assertNotNull($account);
 
 $numberNum = "74992130007";
@@ -202,7 +201,20 @@ app\commands\NumberController::actionReleaseFromHold();
 $number->refresh();
 checkInStock($I, $number);
 
+$transaction->rollBack();
 
-
+/**
+ * Создание болванки аккаунта
+ * @return int
+ */
+function createSingleClientAccount() {
+    $client = new ClientAccount;
+    $client->is_active = 0;
+    $client->validate();
+    $client->save();
+    $client->client = 'id' . $client->id;
+    $client->save();
+    return $client;
+}
 
 

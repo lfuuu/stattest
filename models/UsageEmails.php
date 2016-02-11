@@ -16,6 +16,14 @@ use app\models\usages\UsageInterface;
  */
 class UsageEmails extends ActiveRecord implements UsageInterface
 {
+
+    public function behaviors()
+    {
+        return [
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+        ];
+    }
+
     public static function tableName()
     {
         return 'emails';

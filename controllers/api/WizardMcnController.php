@@ -203,7 +203,6 @@ class WizardMcnController extends /*BaseController*/ApiController
                 ||  UsageVirtpbx::find()->client($this->account->client)->count()
             )
             {
-
                 $clientDocument = new ClientDocument();
                 $clientDocument->contract_id = $this->account->contract->id;
                 $clientDocument->type = 'agreement';
@@ -214,6 +213,15 @@ class WizardMcnController extends /*BaseController*/ApiController
                 $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'Zakaz_Uslug'])['id'];
                 $clientDocument->save();
 
+                $clientDocument = new ClientDocument;
+                $clientDocument->contract_id = $this->account->contract->id;
+                $clientDocument->type = 'agreement';
+                $clientDocument->contract_no = 1;
+                $clientDocument->contract_date = date('Y-m-d');
+                $clientDocument->comment = 'ЛК - wizard';
+                $clientDocument->user_id = User::CLIENT_USER_ID;
+                $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'DC_telefonia'])['id'];
+                $clientDocument->save();
             }
         }
 
@@ -225,30 +233,31 @@ class WizardMcnController extends /*BaseController*/ApiController
 
         $content = "";
 
-        if (!$contract || !$contract->fileContent)
-        {
+        if (!$contract || !$contract->fileContent) {
             $content = "Ошибка в данных";
-        } else {
+        }
+        else {
             $content = $contract->fileContent;
 
-            $agreement = ClientDocument::findOne([
-                "contract_id" => $this->account->contract->id,
-                "user_id" => User::CLIENT_USER_ID,
-                "type" => "agreement"
-                ]);
+            $agreements =
+                ClientDocument::find()
+                    ->where(['contract_id' => $this->account->contract->id])
+                    ->andWhere(['user_id' => User::CLIENT_USER_ID])
+                    ->andWhere(['type' => 'agreement'])
+                    ->all();
 
-
-            if ($agreement && $agreement->fileContent)
-            {
-                $content .= "<p style=\"page-break-after: always;\"></p>";
-                $content .= $agreement->fileContent;
+            foreach ($agreements as $agreement) {
+                if ($agreement && $agreement->fileContent) {
+                    $content .= '<p style="page-break-after: always;"></p>';
+                    $content .= $agreement->fileContent;
+                }
             }
 
         }
 
-        $content = "<html><head><meta charset=\"UTF-8\"/></head><body>".$content."</body></html>";
+        $content = '<html><head><meta charset="UTF-8"/></head><body>' . $content . '</body></html>';
 
-        if (isset($this->postData["as_html"]))
+        if (isset($this->postData['as_html']))
         {
             return $content;
         }

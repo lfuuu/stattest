@@ -104,9 +104,9 @@
 {if !isset($is_secondary_output)}
 <br><br>
 {if $internet_suffix=="collocation"}
-{if access_action('services','co_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
+{if access_action('services','co_add')}<a href='/?module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
 {else}
-{if access_action('services','in_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
+{if access_action('services','in_add')}<a href='/?module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
 {/if}
 
 {/if}

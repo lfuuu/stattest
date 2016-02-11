@@ -240,15 +240,13 @@ use app\models\ClientContract;
                                 <div class="col-sm-9">
                                     <div class="form-group">
                                         <label class="control-label" for="">Период выплат</label>
-                                        <select value="<?= $reward->period_type ?>" class="form-control period-type"
+                                        <select class="form-control period-type"
                                                 name="ContractEditForm[rewards][<?= $usage ?>][period_type]">
-                                            <option value="<?= ClientContractReward::PERIOD_MONTH ?>">Кол-во месяцев
-                                            </option>
-                                            <option value="<?= ClientContractReward::PERIOD_ALWAYS ?>">Всегда</option>
+                                            <?= Html::renderSelectOptions($reward->period_type, ClientContractReward::$period) ?>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-3" style="padding: 0;">
+                                <div class="col-sm-3" style="padding: 0;<?= ($reward->period_type == ClientContractReward::PERIOD_ALWAYS ? 'display: none;' : '') ?>">
                                     <div class="form-group">
                                         <label class="control-label" for="">&nbsp;</label>
                                         <input type="text" value="<?= $reward->period_month ?>" class="form-control"
