@@ -31,6 +31,16 @@ class ActualNumber extends Behavior
         ]);
     }
 
+    public function ActualNumberUpdateEvent($event)
+    {
+        ImportantEvents::create('updated_usage', self::EVENT_SOURCE, [
+            'client_id' => $event->sender->client_id,
+            'usage' => 'usage_voip',
+            'number' => $event->sender->number,
+            'user_id' => Yii::$app->user->id,
+        ]);
+    }
+
     public function ActualNumberDeleteEvent($event)
     {
         ImportantEvents::create('disabled_usage', self::EVENT_SOURCE, [
