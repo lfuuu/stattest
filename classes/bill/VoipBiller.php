@@ -112,20 +112,6 @@ class VoipBiller extends Biller
                     ->setTemplateData($template_data)
             );
         }
-
-        $packages =
-            $this->usage->getUsagePackages()
-                ->where(['>=', 'actual_to', $this->billerPeriodFrom->format('Y-m-d')])
-                ->all();
-
-        foreach ($packages as $package) {
-            $transactions =
-                $package->getBiller($this->billerDate, $this->clientAccount)
-                    ->process(false, false, true, false)
-                    ->getTransactions();
-
-            $this->transactions = array_merge($this->transactions, $transactions);
-        }
     }
 
     protected function processResource()
@@ -215,21 +201,6 @@ class VoipBiller extends Biller
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
             );
-        }
-
-        /** @var UsageVoipPackage[] $packages */
-        $packages =
-            $this->usage->getUsagePackages()
-                ->andWhere(['<=', 'actual_from', $this->billerActualTo->format('Y-m-d')])
-                ->andWhere(['>=', 'actual_to', $this->billerActualTo->format('Y-m-d')])
-                ->all();
-
-        foreach ($packages as $package) {
-            $transactions =
-                $package->getBiller($this->billerDate, $this->clientAccount)
-                    ->process(false, false, false, true)
-                    ->getTransactions();
-            $this->transactions = array_merge($this->transactions, $transactions);
         }
     }
 
