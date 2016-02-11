@@ -26,7 +26,7 @@ class UsageIpRoutesForm extends Form
     public function rules()
     {
         return [
-            [['port_id'], 'required'],
+            [['port_id', 'net'], 'required'],
             [
                 [
                     'actual_from', 'actual_to', 'net', 'nat_net',

@@ -62,17 +62,34 @@ $I->assertNotEmpty($usage->port_id, 'Port is good');
 $I->assertNotEmpty($usage->activation_dt, 'Activation datetime is good');
 $I->assertNotEmpty($usage->expire_dt, 'Expire datetime is good');
 
-$I->amOnPage('/pop_services.php?table=usage_ip_routes&id=' . $usageId);
+$I->amOnPage('/?module=services&action=in_add2&id=' . $usageId);
 // Don't see alert about missed client
-$I->dontSeeElement('div.alert-danger');
+$I->seeElement('//input[@name="dbform[port_id]"][@value=' . $usageId . ']');
+
+$netSelector = '//select[@id="getnet_size"]';
+$netText = $I->grabAttributeFrom($netSelector . '/option[last()]', 'value');
+
+$I->haveHttpHeader('Content-Type', 'application/json');
+$I->sendGET('/', [
+    'test' => 1,
+    'module' => 'routers',
+    'action' => 'n_acquire_as',
+    'query' => $netText
+]);
+
+$I->seeResponseIsJSON();
+$netAddress = $I->grabDataFromJsonResponse();
+$I->assertNotEmpty($netAddress['data'], 'Net address is good');
 
 /*
  * Positive test
  */
+$I->fillField('//input[@id="net"]', $netAddress['data']);
 $I->fillField('//input[@id="comment"]', 'test comment');
 
 $I->submitForm('//form[@id="dbform"]', []);
 
 // Checking result URL
-$I->seeInCurrentUrl('/pop_services.php');
+$I->seeInCurrentUrl('?1=1');
+$I->dontSeeElement('div.alert-danger', $netAddress);
 $I->seeElement('div.alert-success');
