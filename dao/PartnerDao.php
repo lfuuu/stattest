@@ -26,6 +26,7 @@ class PartnerDao extends Singleton
 
                 $contracts[] = [
                     'id' => $cc->id, 
+                    'number' => $cc->number,
                     'date' => $cc->document ? $cc->document->contract_date : null,
                     'accounts' => $accounts,
                 ];
