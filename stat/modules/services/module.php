@@ -416,9 +416,14 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: /?module=services&action=in_view');
+            Header('Location: /?module=services&action=in_view');
             exit;
-        } else {
+        }
+        else if (($result == 'add' || $result == 'edit') && !Yii::$app->session->get('error')) {
+            Header('Location: /?module=services&action=in_view');
+            exit;
+        }
+        else {
             $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'Услуги','Редактировать сеть');
         }
     }

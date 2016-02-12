@@ -885,7 +885,7 @@ class DbFormUsageIpRoutes extends DbForm{
     }
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
-        if ($this->isData('id') && $this->data['id']) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             $design->assign('dbform_f_route',$db->AllRecords('select log_usage_ip_routes.*,user_users.user from log_usage_ip_routes inner join user_users ON user_users.id=log_usage_ip_routes.user_id where usage_ip_routes_id='.$this->data['id'].' order by ts desc'));
         } elseif (isset($this->fields['port_id']['default'])) {
             $this->fields['actual_from']['default']=date('d-m-Y');
@@ -898,46 +898,11 @@ class DbFormUsageIpRoutes extends DbForm{
         global $db,$user;
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
-        $p=0;
-        if($this->dbform_action=='save' && !$this->dbform['net']){
-            $p=1;
-            trigger_error2('Адрес сети отсутствует');
-        }
 
-        $from = $this->dbform['actual_from'];
-        $to = $this->dbform['actual_to'];
-
-        $v=(
-                $this->dbform_action=='save'
-            &&
-                $this->dbform['net']
-            &&
-                $db->GetRow($q='
-                    select
-                        *
-                    from
-                        usage_ip_routes
-                    where
-                    (
-                        "'.$from.'" between actual_from and actual_to
-                    or
-                        "'.$to.'" between actual_from and actual_to
-                    or
-                        (actual_from between "'.$from.'" and "'.$to.'" and actual_to between "'.$from.'" and "'.$to.'")
-                    )
-                    and
-                        net="'.addslashes($this->dbform['net']).'"
-                    and 
-                        actual_from != "4000-01-01"
-                    and
-                        id!="'.addslashes($this->dbform['id']).'"')
-        );
-
-        if ($v) {$this->dbform['net']=''; trigger_error2('Сеть уже занята'); header("Location: ./?module=services&action=in_add2"); exit();}
         $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");
-        $action=DbForm::Process($p);
+        $action = DbForm::Process();
 
-        if (!$v && !$p && $action!='delete') {
+        if ($action!='delete') {
             HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_routes');
             $db->QueryInsert('log_usage_ip_routes',$qq = array(
                         'usage_ip_routes_id'    => $this->dbform['id']?:$db->GetValue("select last_insert_id()"), // edit or add
@@ -949,7 +914,7 @@ class DbFormUsageIpRoutes extends DbForm{
                         ));
         }
 
-        return $v;
+        return $action;
     }
 }
 
