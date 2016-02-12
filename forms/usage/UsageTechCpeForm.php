@@ -27,7 +27,6 @@ class UsageTechCpeForm extends Form
         $logins,
         $owner,
         $tech_support,
-        $node,
         $service,
         $id_service,
         $deposit_sumUSD,
@@ -43,7 +42,7 @@ class UsageTechCpeForm extends Form
                 [
                     'actual_from', 'actual_to', 'client', 'serial', 'mac',
                     'ip', 'ip_nat', 'ip_cidr', 'ip_gw', 'admin_login', 'admin_pass',
-                    'numbers', 'logins', 'node', 'service', ''
+                    'numbers', 'logins', 'service',
                 ], 'string'
             ],
             ['owner', 'in', 'range' => ['', 'mcn', 'client', 'mgts']],
