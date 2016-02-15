@@ -82,6 +82,7 @@ abstract class BaseLoader extends Object
                     }
                 } else {
                     $emptyRow = false;
+                    $emptyColsCount = 0;
                 }
 
             }
