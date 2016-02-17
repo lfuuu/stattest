@@ -5,6 +5,7 @@ namespace app\classes\grid\column\important_events\details;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use app\classes\Html;
+use app\models\important_events\ImportantEvents;
 use app\models\usages\UsageFactory;
 use app\models\LogUsageHistory;
 
@@ -13,6 +14,10 @@ abstract class UsageColumn
 
     use DetailsTrait;
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderCreatedUsageDetails($column)
     {
         $result = [];
@@ -45,6 +50,10 @@ abstract class UsageColumn
         return $result;
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderUpdatedUsageDetails($column)
     {
         $result = self::renderCreatedUsageDetails($column);
@@ -63,7 +72,7 @@ abstract class UsageColumn
         }
 
         $changes =
-            Html::beginTag('div', ['style' => 'float: right; margin-top: 10px; width: 50%;']) .
+            Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
                 Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
                     Html::beginTag('tr') .
                         Html::tag('th', 'Поле').
@@ -79,21 +88,37 @@ abstract class UsageColumn
         return $result;
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderDeletedUsageDetails($column)
     {
         return self::renderCreatedUsageDetails($column);
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderEnabledUsageDetails($column)
     {
         return self::renderCreatedUsageDetails($column);
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderDisabledUsageDetails($column)
     {
         return self::renderCreatedUsageDetails($column);
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderTransferUsageDetails($column)
     {
         $result = [];
@@ -125,6 +150,11 @@ abstract class UsageColumn
         return $result;
     }
 
+    /**
+     * @param string $usage
+     * @param int $usageId
+     * @return string
+     */
     private static function renderUsage($usage, $usageId)
     {
         $usage = UsageFactory::getUsage($usage)->findOne($usageId);

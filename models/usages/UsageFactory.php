@@ -70,6 +70,11 @@ abstract class UsageFactory
         self::USAGE_TRUNK => UsageTrunkEditForm::class,
     ];
 
+    /**
+     * @param string $usage
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
     public static function getUsage($usage)
     {
         if (array_key_exists($usage, self::$usage)) {
@@ -79,6 +84,11 @@ abstract class UsageFactory
         Assert::isUnreachable('Usage "' . $usage . '" not found');
     }
 
+    /**
+     * @param string $usage
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
     public static function getUsageForm($usage)
     {
         if (array_key_exists($usage, self::$usageForms)) {

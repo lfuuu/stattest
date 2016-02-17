@@ -12,6 +12,7 @@ use app\models\ClientCounter;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
 use app\models\Number;
+use app\models\important_events\ImportantEventsNames;
 
 class ApiLk
 {
@@ -1700,7 +1701,13 @@ class ApiLk
                 where c.client_id='".$client_id."'
                 and u.user='AutoLK'
                 ") as $v) {
-                    $ret[] = self::_exportModelRow(array('id','type','info','min_balance','day_limit', 'add_pay_notif', 'status'), $v);
+                    $ret[] = self::_exportModelRow([
+                        'id', 'type', 'info',
+                        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
+                        ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT,
+                        ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+                        'status'
+                    ], $v);
         }
         return $ret;
     }
@@ -1921,11 +1928,12 @@ class ApiLk
             $tmp = explode('__', $name);
 
             if(!isset($res[$tmp[1]]))
-                $res[$tmp[1]] = array(
-                        'client_contact_id'=>$tmp[1],
-                        'min_balance'=>0,
-                        'day_limit'=>0,
-                        'add_pay_notif'=>0);
+                $res[$tmp[1]] = [
+                    'client_contact_id' => $tmp[1],
+                    ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
+                    ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 0,
+                    ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0
+                ];
 
             $res[$tmp[1]][$tmp[0]] = 1;
         }
@@ -1946,13 +1954,13 @@ class ApiLk
                     from lk_notice_settings 
                     where client_contact_id='".$d['client_contact_id']."' and client_id='".$client_id."'");
 
-            $data = array(
-                    'client_contact_id'=>$d['client_contact_id'],
-                    'client_id'=>$client_id,
-                    'min_balance'=>$d['min_balance'],
-                    'day_limit'=>$d['day_limit'],
-                    'add_pay_notif'=>$d['add_pay_notif']
-                    );
+            $data = [
+                'client_contact_id' => $d['client_contact_id'],
+                'client_id' => $client_id,
+                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $d[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE],
+                ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => $d[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT],
+                ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => $d[ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF]
+            ];
             if ($cc_id) {
                 $db->QueryUpdate('lk_notice_settings',array('client_contact_id','client_id'),$data);
             } else {
@@ -1964,31 +1972,42 @@ class ApiLk
         {
             foreach($db->AllRecords("select client_contact_id as id from lk_notice_settings where client_contact_id in ('".implode("','", array_keys($allSavedContacts))."')", "id") as $contact_id => $data)
             {
-                $db->QueryUpdate("lk_notice_settings", "client_contact_id", array(
-                            "client_contact_id" => $contact_id,
-                            "min_balance" => 0,
-                            "day_limit" => 0,
-                            "add_pay_notif" => 0));
+                $db->QueryUpdate(
+                    "lk_notice_settings",
+                    "client_contact_id",
+                    [
+                        "client_contact_id" => $contact_id,
+                        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
+                        ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 0,
+                        ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0
+                    ]
+                );
             }
         }
 
         $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='".$client_id."'");
 
-        $data = array(
-                'client_id'=>$client_id,
-                'min_balance'=>$min_balance,
-                'day_limit'=>$day_limit
-                );
+        $data = [
+            'client_id' => $client_id,
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $min_balance,
+            ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => $day_limit
+        ];
         if ($clientSettings)
         {
-            if ($clientSettings["is_min_balance_sent"] && $clientSettings["min_balance"] < $data["min_balance"])
-            {
-                $data["is_min_balance_sent"] = 0;
+            if (
+                $clientSettings['is_' . ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE . '_sent']
+                    &&
+                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE]
+            ) {
+                $data['is_' . ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE . '_sent'] = 0;
             }
 
-            if ($clientSettings["is_day_limit_sent"] && $clientSettings["day_limit"] < $data["day_limit"])
-            {
-                $data["is_day_limit_sent"] = 0;
+            if (
+                $clientSettings['is_' . ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT . '_sent']
+                    &&
+                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT] < $data[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT]
+            ) {
+                $data['is_' . ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT . '_sent'] = 0;
             }
 
             $db->QueryUpdate('lk_client_settings',array('client_id'),$data);
@@ -2015,7 +2034,7 @@ class ApiLk
                 from lk_client_settings
                 where client_id='".$client_id."'
                 ") as $v) {
-                    $ret = self::_exportModelRow(array('client_id','min_balance','day_limit'), $v);
+                    $ret = self::_exportModelRow(['client_id', ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE, ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT], $v);
         }
         return $ret;
     }

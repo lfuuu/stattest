@@ -9,8 +9,9 @@ use app\models\ClientAccount;
 
 class ClientColumn extends DataColumn
 {
-    public $attribute = 'client_id';
-    public $label = 'Клиент';
+    public
+        $attribute = 'client_id',
+        $label = 'Клиент';
 
     public function __construct($config = [])
     {

@@ -7,26 +7,48 @@ use app\models\important_events\ImportantEventsNames;
 class EventNameColumn extends \kartik\grid\DataColumn
 {
 
-    public $label = 'Событие';
-    public $attribute = 'event';
-    public $value = 'event';
-    public $filterType = '\app\widgets\select_multiply\SelectMultiply';
-    public $filterInputOptions = null;
+    public
+        $label = 'Событие',
+        $attribute = 'event',
+        $value = 'event',
+        $filterType = '\app\widgets\multiselect\MultiSelect',
+        $filterInputOptions = [];
 
+    private $eventsList = [];
+
+    /**
+     * @param array $config
+     */
     public function __construct($config = [])
     {
         $eventsList = [];
 
         foreach (ImportantEventsNames::find()->all() as $event) {
             $eventsList[$event->group->title][$event->code] = $event->value;
+            $this->eventsList[$event->code] = $event->value;
         }
 
-        $this->filterWidgetOptions['items'] = $eventsList;
-        $this->filterWidgetOptions['clientOptions']['multiple'] = true;
-        $this->filterWidgetOptions['clientOptions']['placeholder'] = '- Выберите событие(я) -';
-        $this->filterWidgetOptions['clientOptions']['width'] = '100%';
+        $this->filterWidgetOptions['data'] = $eventsList;
+        $this->filterWidgetOptions['nonSelectedText'] = '- Выберите событие(я) -';
+        $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '230px';
+        $this->filterWidgetOptions['clientOptions']['enableCollapsibleOptGroups'] =  true;
+        $this->filterWidgetOptions['clientOptions']['enableClickableOptGroups'] =  true;
+
+        $this->filterInputOptions['multiple'] = 'multiple';
 
         parent::__construct($config);
+    }
+
+    /**
+     * @param mixed $model
+     * @param mixed $key
+     * @param int $index
+     * @return string
+     */
+    protected function renderDataCellContent($model, $key, $index)
+    {
+        $value = parent::getDataCellValue($model, $key, $index);
+        return isset($this->eventsList[$value]) ? $this->eventsList[$value] : $value;
     }
 
 }

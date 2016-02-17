@@ -5,6 +5,7 @@ use app\classes\Html;
 use app\widgets\GridViewCustomFilters;
 use app\models\important_events\ImportantEvents;
 use app\classes\grid\column\important_events\details\DetailColumnFactory;
+use app\helpers\DateTimeZoneHelper;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -42,14 +43,9 @@ echo GridViewCustomFilters::widget([
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
                 'presetDropdown' => true,
-                'value' => $filterModel->date ?: (new DateTime('first day of this month'))->format('Y-m-d') . ' - ' . (new DateTime('last day of this month'))->format('Y-m-d'),
+                'value' => $filterModel->date ?: (new DateTime)->format('Y-m-d') . ' - ' . (new DateTime)->format('Y-m-d'),
                 'pluginOptions' => [
                     'format' => 'YYYY-MM-DD',
-                    'ranges' => [
-                        'Текущий месяц' => ['moment().startOf("month")', 'moment().endOf("month")'],
-                        'Прошлый месяц' => ['moment().subtract(1,"month").startOf("month")', 'moment().subtract(1,"month").endOf("month")'],
-                        'Сегодня' => ['moment().startOf("day")', 'moment()'],
-                    ],
                 ],
                 'containerOptions' => [
                     'style' => 'overflow: hidden;',
@@ -58,7 +54,14 @@ echo GridViewCustomFilters::widget([
                 'options' => [
                     'style' => 'font-size: 12px; height: 30px;',
                 ],
-            ])
+            ]),
+            'value' => function ($model, $key, $index, $column) {
+                return
+                    Yii::$app->formatter->asDateTime(
+                        (new DateTime($model->date))
+                            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()))
+                    );
+            },
         ],
         [
             'class' => 'app\classes\grid\column\important_events\EventNameColumn',

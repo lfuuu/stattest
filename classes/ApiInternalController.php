@@ -15,26 +15,32 @@ class ApiInternalController extends ApiController
 {
     protected $requestData = null;
 
-    private function loadRequestData()
+    /**
+     * @return null|array
+     */
+    public function getRequestParams()
     {
-        $this->requestData = Yii::$app->request->get();
-        if (!$this->requestData) {
-            $this->requestData = Yii::$app->request->bodyParams;
-        }
+        $this->loadRequestData();
+
+        return $this->requestData;
     }
 
+    /**
+     * @param string $id
+     * @param string $params
+     * @return array
+     */
     public function runAction($id, $params = [])
     {
         $this->loadRequestData();
 
-        try 
-        {
+        try {
             return [
                 'status' => 'OK',
                 'result' => parent::runAction($id, $params)
             ];
-        } catch (\Exception $e)
-        {
+        }
+        catch (\Exception $e) {
             $result = $e->getMessage();
             $code = $e->getCode();
 
@@ -47,6 +53,17 @@ class ApiInternalController extends ApiController
                 'result' => $result,
                 'code' => $code
             ];
+        }
+    }
+
+    /**
+     * Получение входящих данных
+     */
+    private function loadRequestData()
+    {
+        $this->requestData = Yii::$app->request->get();
+        if (!$this->requestData) {
+            $this->requestData = Yii::$app->request->bodyParams;
         }
     }
 

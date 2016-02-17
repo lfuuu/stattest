@@ -5,8 +5,9 @@ namespace app\classes\grid\column\important_events\details;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Html;
+use app\models\important_events\ImportantEvents;
 use app\models\Trouble;
-use app\models\TroubleState;
+use app\models\TroubleStage;
 use app\models\User;
 
 abstract class TroubleColumn
@@ -14,6 +15,10 @@ abstract class TroubleColumn
 
     use DetailsTrait;
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderCreatedTroubleDetails($column)
     {
         $result = [];
@@ -46,6 +51,10 @@ abstract class TroubleColumn
         return $result;
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderClosedTroubleDetails($column)
     {
         return self::renderSetStateTroubleDetails($column);
@@ -56,57 +65,96 @@ abstract class TroubleColumn
         $result = self::renderCreatedTroubleDetails($column);
         $properties = ArrayHelper::map($column->properties, 'property', 'value');
 
-        if (
-            isset($properties['stage_id'])
-            &&
-            ($stage = TroubleState::findOne($properties['stage_id'])) !== false
-        ) {
-            $result[] =
-                Html::tag('b', 'Комментарий') .
-                $stage->comment;
+        $stageId = null;
+
+        if (isset($properties['stage_id'])) {
+            $stageId = $properties['stage_id'];
+        }
+        else if (isset($properties['trouble_id'])) {
+            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                $stageId = $trouble->cur_stage_id;
+            }
+        }
+
+        if (!is_null($stageId)) {
+            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                $result[] =
+                    Html::tag('b', 'Комментарий: ') .
+                    $stage->comment;
+            }
         }
 
         return $result;
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderSetStateTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
         $properties = ArrayHelper::map($column->properties, 'property', 'value');
 
-        if (
-            isset($properties['stage_id'])
-            &&
-            ($stage = TroubleState::findOne($properties['stage_id'])) !== false
-        ) {
-            $result[] =
-                Html::tag('b', 'Статус') .
-                $stage->state->name;
+        $stageId = null;
+
+        if (isset($properties['stage_id'])) {
+            $stageId = $properties['stage_id'];
+        }
+        else if (isset($properties['trouble_id'])) {
+            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                $stageId = $trouble->cur_stage_id;
+            }
+        }
+
+        if (!is_null($stageId)) {
+            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                $result[] =
+                    Html::tag('b', 'Статус: ') .
+                    $stage->state->name;
+            }
         }
 
         return $result;
     }
 
+    /**
+     * @param ImportantEvents $column
+     * @return array
+     */
     public static function renderSetResponsibleTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
         $properties = ArrayHelper::map($column->properties, 'property', 'value');
 
-        if (
-            isset($properties['stage_id'])
-            &&
-            ($stage = TroubleState::findOne($properties['stage_id'])) !== false
-        ) {
-            $user = User::findOne(['user' => $stage->user_main]);
+        $stageId = null;
 
-            $result[] =
-                Html::tag('b', 'Ответственный') .
-                $user->name;
+        if (isset($properties['stage_id'])) {
+            $stageId = $properties['stage_id'];
+        }
+        else if (isset($properties['trouble_id'])) {
+            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                $stageId = $trouble->cur_stage_id;
+            }
+        }
+
+        if (!is_null($stageId)) {
+            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                $user = User::findOne(['user' => $stage->user_main]);
+
+                $result[] =
+                    Html::tag('b', 'Ответственный: ') .
+                    $user->name;
+            }
         }
 
         return $result;
     }
 
+    /**
+     * @param int $troubleId
+     * @return bool|string
+     */
     private static function renderTrouble($troubleId)
     {
         $trouble = Trouble::findOne($troubleId);
@@ -115,13 +163,24 @@ abstract class TroubleColumn
             return false;
         }
 
-        return
-            Html::tag('b', 'Зяавка: ') .
-            Html::a(
-                $trouble->problem,
-                Url::toRoute(['/', 'module' => 'tt', 'action' => 'view', 'id' => $trouble->id]),
-                ['target' => '_blank']
-            );
+        if ($trouble->bill_no) {
+            return
+                Html::tag('b', 'Счет №' . $trouble->bill_no . ': ') .
+                Html::a(
+                    $trouble->bill_no,
+                    Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $trouble->bill_no]),
+                    ['target' => '_blank']
+                );
+        }
+        else {
+            return
+                Html::tag('b', 'Заявка №' . $troubleId . ': ') .
+                Html::a(
+                    $trouble->problem,
+                    Url::toRoute(['/', 'module' => 'tt', 'action' => 'view', 'id' => $trouble->id]),
+                    ['target' => '_blank']
+                );
+        }
     }
 
 }

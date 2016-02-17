@@ -3,7 +3,7 @@
 namespace app\controllers\api;
 
 use Yii;
-use app\exceptions\FormValidationException;
+use app\exceptions\api\internal\ExceptionValidationForm;
 use app\classes\DynamicModel;
 use app\classes\ApiInternalController;
 use app\models\important_events\ImportantEvents;
@@ -24,7 +24,7 @@ class ImportantEventsController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new FormValidationException($model);
+            throw new ExceptionValidationForm($model);
         }
 
         if (ImportantEvents::create($model->event, $model->source, (array) $data)) {
