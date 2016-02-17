@@ -57,21 +57,19 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @param string $date_range_from
-     * @param string $date_range_to
-     * @return \yii\db\ActiveQuery
+     * @param string $dateRangeFrom
+     * @param string $dateRangeTo
+     * @return array|\yii\db\ActiveRecord[]
      */
-    public function getStat($date_range_from = '', $date_range_to = '')
+    public function getStat($dateRangeFrom = '', $dateRangeTo = '')
     {
         $link = $this->hasMany(StatPackage::className(), ['package_id' => 'id']);
 
-        if ($date_range_from || $date_range_to) {
-            if ($date_range_from) {
-                $link->filterWhere(['>', 'activation_dt', (new DateTime($date_range_from))->setTime(0, 0, 0)->format('Y-m-d H:i:s')]);
-            }
-            if ($date_range_to) {
-                $link->filterWhere(['>', 'activation_dt', (new DateTime($date_range_from))->setTime(23, 59, 59)->format('Y-m-d H:i:s')]);
-            }
+        if ($dateRangeFrom) {
+            $link->filterWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
+        }
+        if ($dateRangeTo) {
+            $link->filterWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
         }
 
         return $link->all();

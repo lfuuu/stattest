@@ -8,6 +8,7 @@ use DateTimeZone;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 use app\classes\Singleton;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
@@ -16,38 +17,61 @@ use app\models\UsageVoipPackage;
 class ReportUsageDao extends Singleton
 {
 
+    const REPORT_MAX_ITEMS = 50000;
+    const REPORT_MAX_VIEW_ITEMS = 5000;
+
+    /**
+     * @param string $region
+     * @param string $from
+     * @param string $to
+     * @param string $detality
+     * @param int $clientId
+     * @param array $usages
+     * @param int $paidonly
+     * @param string $destination
+     * @param string $direction
+     * @param string $timezone
+     * @param bool|false $isFull
+     * @param array $packages
+     * @return array
+     * @throws \Exception
+     */
     public static function getUsageVoipStatistic(
-        $region, $from, $to, $detality, $client_id, $usage_arr = [],
-        $paidonly = 0, $destination = 'all', $direction = 'both', $timezone = 'Europe/Moscow', $is_full = false,
+        $region, $from, $to, $detality, $clientId, $usages = [],
+        $paidonly = 0, $destination = 'all', $direction = 'both', $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW, $isFull = false,
         $packages = []
     )
     {
         if (!$timezone) {
-            $timezone = 'Europe/Moscow';
+            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         }
 
         if (!($timezone instanceof DateTimeZone)) {
             $timezone = new DateTimeZone($timezone);
         }
 
-        $from = (new DateTime(date('Y-m-d', $from), $timezone))->setTime(0, 0, 0);
-        $to = (new DateTime(date('Y-m-d', $to), $timezone))->setTime(23, 59, 59);
+        $from =
+            (new DateTime('now', $timezone))
+                ->setTimestamp($from)
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->setTime(0, 0, 0);
+        $to =
+            (new DateTime('now', $timezone))
+                ->setTimestamp($to)
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->setTime(23, 59, 59);
 
-        $from->setTimezone(new DateTimeZone('UTC'));
-        $to->setTimezone(new DateTimeZone('UTC'));
-
-        $clientAccount = ClientAccount::findOne($client_id);
+        $clientAccount = ClientAccount::findOne($clientId);
         $query = Calls::find();
 
-        $query->andWhere(['>=', 'connect_time', $from->format('Y-m-d H:i:s')]);
-        $query->andWhere(['<=', 'connect_time', $to->format('Y-m-d H:i:s.999999')]);
+        $query->andWhere(['between', 'connect_time', $from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s.999999')]);
 
         if ($direction != 'both') {
             $query->andWhere(['orig' => ($direction == 'in' ? 'false' : 'true')]);
         }
 
-        if (isset($usage_arr) && count($usage_arr) > 0) {
-            $query->andWhere(['in', 'number_service_id', $usage_arr]);
+        if (isset($usages) && count($usages) > 0) {
+            $query->andWhere(['in', 'number_service_id', $usages]);
         }
 
         if ($paidonly) {
@@ -64,13 +88,13 @@ class ReportUsageDao extends Singleton
                 $query->andWhere(['destination_id' => (int) $dest]);
             }
 
-            if ($mobile) {
-                if ($mobile == 'm') {
-                    $query->andWhere('mob = true');
-                }
-                else if ($mobile == 'f') {
-                    $query->andWhere('mob = false');
-                }
+            switch ($mobile) {
+                case 'm':
+                    $query->andWhere('mob');
+                    break;
+                case 'f':
+                    $query->andWhere('NOT mob');
+                    break;
             }
         }
 
@@ -79,64 +103,82 @@ class ReportUsageDao extends Singleton
                 return self::voipStatisticByDestination($query, $clientAccount, $region);
                 break;
             default:
-                return self::voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $is_full);
+                return self::voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
                 break;
         }
     }
 
-    public static function getUsageVoipPackagesStatistic($usage_id, $package_id = 0, $date_range_from = '', $date_range_to = '')
+    /**
+     * @param int $usageId
+     * @param int $packageId
+     * @param string $dateRangeFrom
+     * @param string $dateRangeTo
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0, $dateRangeFrom = '', $dateRangeTo = '')
     {
-        $packages = UsageVoipPackage::find()->where(['usage_voip_id' => $usage_id]);
+        $packages = UsageVoipPackage::find()->where(['usage_voip_id' => $usageId]);
 
-        if ((int) $package_id) {
-            $packages->andWhere(['id' => $package_id]);
+        if ((int) $packageId) {
+            $packages->andWhere(['id' => $packageId]);
         }
 
-        if ($date_range_from instanceof DateTime) {
-            $packages->andWhere(['<', 'actual_from', $date_range_from->format('Y-m-d H:i:s')]);
+        if ($dateRangeFrom instanceof DateTime) {
+            $packages->andWhere(['>=', 'actual_from', new Expression('CAST(:dateRangeFrom AS DATE)')]);
         }
 
-        if ($date_range_to instanceof DateTime) {
-            $packages->andWhere(['>', 'actual_to', $date_range_to->format('Y-m-d H:i:s')]);
+        if ($dateRangeTo instanceof DateTime) {
+            $packages->andWhere(['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]);
         }
+
+        $packages->addParams([
+            ':dateRangeFrom' => $dateRangeFrom->format(DateTime::ATOM),
+            ':dateRangeTo' => $dateRangeTo->format(DateTime::ATOM),
+        ]);
 
         return $packages->all();
     }
 
-    private static function voipStatistic(ActiveQuery $query, ClientAccount $clientAccount, DateTime $from, $packages = [], $detality, $paid_only, $is_full)
+    /**
+     * @param ActiveQuery $query
+     * @param ClientAccount $clientAccount
+     * @param DateTime $from
+     * @param array $packages
+     * @param string $detality
+     * @param int $paidOnly
+     * @param boolean $isFull
+     * @return array
+     * @throws \Exception
+     */
+    private static function voipStatistic(ActiveQuery $query, ClientAccount $clientAccount, DateTime $from, $packages = [], $detality, $paidOnly = 0, $isFull = false)
     {
         $offset = $from->getOffset();
-        $format = 'd месяца Y г. H:i:s';
-        $groupBy = '';
-
-        switch ($detality) {
-            case 'call': {
-                $format = 'd месяца Y г. H:i:s';
-                break;
-            }
-            case 'day': {
-                $groupBy = "date_trunc('day', connect_time + '" . $offset . " second'::interval)";
-                $format = 'd месяца Y г.';
-                break;
-            }
-            case 'year': {
-                $groupBy = "date_trunc('year', connect_time + '" . $offset . " second'::interval)";
-                $format = 'Y г.';
-                break;
-            }
-            case 'month': {
-                $groupBy = "date_trunc('month', connect_time + '" . $offset . " second'::interval)";
-                $format = 'Месяц Y г.';
-                break;
-            }
-        }
 
         if (isset($packages) && count($packages) > 0) {
             $query->andWhere(['in', 'service_package_id', $packages]);
         }
 
-        if ($query->count() >= 5000) {
-            throw new \Exception('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+        if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
+            throw new \InvalidArgumentException('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+        }
+
+        switch ($detality) {
+            case 'day':
+            case 'year':
+            case 'month': {
+                $groupBy = "date_trunc(:detality, connect_time + ':offset second'::interval)";
+                $query->addSelect([
+                    'ts1' => "date_trunc(:detality, connect_time + ':offset second'::interval)",
+                ]);
+                break;
+            }
+            default: {
+                $groupBy = '';
+                $query->addSelect([
+                    'ts1' => new Expression("connect_time + ':offset second'::interval"),
+                ]);
+                break;
+            }
         }
 
         if ($groupBy) {
@@ -144,7 +186,7 @@ class ReportUsageDao extends Singleton
         }
 
         if (!$groupBy) {
-            $query->select([
+            $query->addSelect([
                 'id',
                 'src_number',
                 'geo_id',
@@ -154,36 +196,19 @@ class ReportUsageDao extends Singleton
             ]);
         }
 
-        switch ($detality) {
-            case 'day':
-                $query->addSelect([
-                    'ts1' => "date_trunc('day', connect_time + '" . $offset . " second'::interval)",
-                ]);
-                break;
-            case 'month':
-                $query->addSelect([
-                    'ts1' => "date_trunc('month', connect_time + '" . $offset . " second'::interval)",
-                ]);
-                break;
-            case 'year':
-                $query->addSelect([
-                    'ts1' => "date_trunc('year', connect_time + '" . $offset . " second'::interval)",
-                ]);
-                break;
-            default:
-                $query->addSelect([
-                    'ts1' => new Expression("connect_time + '" . $offset . " second'::interval"),
-                ]);
-        }
-
         $query->addSelect([
             'price' => ($groupBy ? '-sum' : '-') . '(cost)',
-            'ts2' => ($groupBy ? 'sum' : '') . '(' . ($paid_only ? 'case abs(cost)>0.0001 when true then billed_time else 0 end' : 'billed_time') . ')',
-            'cnt' => $groupBy ? 'sum(' . ($paid_only ? 'case abs(cost) > 0.0001 when true then 1 else 0 end' : new Expression('1')) .')' : new Expression('1'),
+            'ts2' => ($groupBy ? 'sum' : '') . '(' . ($paidOnly ? 'case abs(cost) > 0.0001 when true then billed_time else 0 end' : 'billed_time') . ')',
+            'cnt' => $groupBy ? 'sum(' . ($paidOnly ? 'case abs(cost) > 0.0001 when true then 1 else 0 end' : new Expression('1')) .')' : new Expression('1'),
         ]);
 
         $query->orderBy('ts1 ASC');
-        $query->limit($is_full ? 50000 : 5000);
+        $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
+
+        $query->addParams([
+            ':detality' => $detality,
+            ':offset' => $offset,
+        ]);
 
         $records = $query->asArray()->all();
 
@@ -203,22 +228,11 @@ class ReportUsageDao extends Singleton
                 }
             }
 
-            $dt = explode(' ', $record['ts1']);
-            $d = explode('-', $dt[0]);
-            if (count($dt) > 1) {
-                $t = explode(':', $dt[1]);
-            }
-            else {
-                $t = [0, 0, 0];
-            }
-
-            $ts =
-                (new DateTime)
-                    ->setDate($d[0], $d[1], $d[2])
-                    ->setTime($t[0], $t[1], (int) $t[2]);
-
-            $record['tsf1'] = $ts->format('Y-m-d H:i:s');
-            $record['mktime'] = $ts;
+            $record['tsf1'] = Yii::$app->formatter->asDatetime(
+                (new DateTime($record['ts1']))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()))
+            );
+            $record['mktime'] = $record['tsf1'];
             $record['is_total'] = false;
 
             if ($record['ts2'] >= 24 * 60 * 60) {
@@ -250,18 +264,7 @@ class ReportUsageDao extends Singleton
         }
 
         $rt['tsf2'] = ($d ? $d . 'd ' : '') . gmdate('H:i:s', $rt['ts2'] - $d * 24 * 60 * 60);
-
-        $tax_rate = $clientAccount->getTaxRate();
-        if ($clientAccount->price_include_vat) {
-            $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
-            $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-            $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
-        }
-        else {
-            $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-            $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
-            $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
-        }
+        $rt = self::getTotalPrices($clientAccount, $rt);
 
         $result['total'] = $rt;
 
@@ -362,7 +365,6 @@ class ReportUsageDao extends Singleton
             $result[$destination]['price'] = number_format($data['price'], 2, '.','');
         }
 
-        $tax_rate = $clientAccount->getTaxRate();
         $delta = 0;
         $total_row = [
             'is_total' => true,
@@ -374,22 +376,30 @@ class ReportUsageDao extends Singleton
         }
 
         $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
-
-        if ($clientAccount->price_include_vat) {
-            $total_row['price_without_tax'] = number_format($price * 100 / (100 + $tax_rate), 2, '.', '');
-            $total_row['price_with_tax'] = number_format($price, 2, '.', '');
-            $total_row['price'] = $total_row['price_with_tax'] . ' (включая НДС)';
-        }
-        else {
-            $total_row['price_without_tax'] = number_format($price, 2, '.', '');
-            $total_row['price_with_tax'] = number_format($price * (100 + $tax_rate) / 100, 2, '.', '');
-            $total_row['price'] = $total_row['price_without_tax'] . ' (<b>' . $total_row['price_with_tax'] . ' - Сумма с НДС</b>)';
-        }
-
+        $total_row = self::getTotalPrices($clientAccount, $total_row);
         $total_row['cnt'] = $cnt;
+
         $result['total'] = $total_row;
 
         return $result;
+    }
+
+    private static function getTotalPrices(ClientAccount $clientAccount, $row = [])
+    {
+        $taxRate = $clientAccount->getTaxRate();
+
+        if ($clientAccount->price_include_vat) {
+            $row['price_without_tax'] = number_format($row['price'] * 100 / (100 + $taxRate), 2, '.', '');
+            $row['price_with_tax'] = number_format($row['price'], 2, '.', '');
+            $row['price'] = $row['price_with_tax'] . ' (включая НДС)';
+        }
+        else {
+            $row['price_without_tax'] = number_format($row['price'], 2, '.', '');
+            $row['price_with_tax'] = number_format($row['price'] * (100 + $taxRate) / 100, 2, '.', '');
+            $row['price'] = $row['price_without_tax'] . ' (<b>' . $row['price_with_tax'] . ' - Сумма с НДС</b>)';
+        }
+
+        return $row;
     }
 
 }

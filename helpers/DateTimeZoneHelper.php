@@ -91,6 +91,11 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
                     self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
     }
 
+    public static function getUserTimeZone()
+    {
+        return isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
+    }
+
     private static function getTimezoneDescription()
     {
         $timezone = static::getUserTimeZone();
@@ -104,11 +109,6 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         else {
             return $timezone;
         }
-    }
-
-    private static function getUserTimeZone()
-    {
-        return isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
     }
 
 }

@@ -6,6 +6,7 @@ use DateTime;
 use yii\filters\AccessControl;
 use app\classes\DynamicModel;
 use app\classes\BaseController;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
@@ -14,6 +15,12 @@ use app\dao\reports\ReportUsageDao;
 class VoipPackageController extends BaseController
 {
 
+    const FILTER_VOIP_PACKAGE_BY_PACKAGE = 'by_package';
+    const FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS = 'by_package_calls';
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return array_merge(parent::behaviors(), [
@@ -29,6 +36,10 @@ class VoipPackageController extends BaseController
         ]);
     }
 
+    /**
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionUseReport()
     {
         global $fixclient_data;
@@ -45,12 +56,17 @@ class VoipPackageController extends BaseController
             $filter = DynamicModel::validateData($data, [
                 ['number', 'integer'],
                 ['number', 'required', 'message' => 'Необходимо выбрать номер'],
-                ['mode', 'in', 'range' => ['by_package', 'by_package_calls']],
+                ['mode', 'in', 'range' => [self::FILTER_VOIP_PACKAGE_BY_PACKAGE, self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS]],
                 [['range', 'date_range_from', 'date_range_to'], 'string'],
                 ['range', 'required', 'message' => 'Необходимо указать период'],
-                ['packages', 'required', 'when' => function ($model) {
-                    return $model->mode === 'by_package_calls' && $model->packages != 0;
-                }, 'message' => 'Необходимо выбрать пакет'],
+                [
+                    'packages',
+                    'required',
+                    'when' => function ($model) {
+                        return $model->mode === 'by_package_calls' && $model->packages != 0;
+                    },
+                    'message' => 'Необходимо выбрать пакет'
+                ],
             ]);
 
             if ($filter->hasErrors()) {
@@ -61,7 +77,7 @@ class VoipPackageController extends BaseController
                 list($filter->date_range_from, $filter->date_range_to) = explode(':', $filter->range);
 
                 switch ($filter->mode) {
-                    case 'by_package': {
+                    case self::FILTER_VOIP_PACKAGE_BY_PACKAGE: {
                         $report = ReportUsageDao::getUsageVoipPackagesStatistic(
                             $usage->id,
                             $filter->packages,
@@ -70,7 +86,7 @@ class VoipPackageController extends BaseController
                         );
                         break;
                     }
-                    case 'by_package_calls': {
+                    case self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS: {
                         $report = ReportUsageDao::getUsageVoipStatistic(
                             $usage->region,
                             (new DateTime($filter->date_range_from))->getTimeStamp(),
@@ -80,7 +96,7 @@ class VoipPackageController extends BaseController
                             [$usage->id],
                             $paidonly = 0, $destination = 'all',
                             $direction = 'both',
-                            $timezone = 'Europe/Moscow',
+                            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
                             $is_full = false,
                             ($filter->packages ? [$filter->packages] : [])
                         );
