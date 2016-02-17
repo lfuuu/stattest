@@ -90,7 +90,7 @@ abstract class UsageFactory
             return new self::$usageForms[$usage];
         }
 
-        Assert::isUnreachable('Usage form "' . $usage . '" not found');
+        return false;
     }
 
 }
