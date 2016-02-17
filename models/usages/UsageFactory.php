@@ -37,7 +37,7 @@ abstract class UsageFactory
     const USAGE_TECH_CPE = 'usage_tech_cpe';
     const USAGE_SMS = 'usage_sms';
     const USAGE_IP_PORTS = 'usage_ip_ports';
-    const USAGE_IP_ROUTERS = 'usage_ip_routes';
+    const USAGE_IP_ROUTES = 'usage_ip_routes';
     const USAGE_WELLTIME = 'usage_welltime';
     const USAGE_VOIP_PACKAGE = 'usage_voip_package';
     const USAGE_TRUNK = 'usage_trunk';
@@ -50,7 +50,7 @@ abstract class UsageFactory
         self::USAGE_TECH_CPE => UsageTechCpe::class,
         self::USAGE_SMS => UsageSms::class,
         self::USAGE_IP_PORTS => UsageIpPorts::class,
-        self::USAGE_IP_ROUTERS => UsageIpRoutes::class,
+        self::USAGE_IP_ROUTES => UsageIpRoutes::class,
         self::USAGE_WELLTIME => UsageWelltime::class,
         self::USAGE_VOIP_PACKAGE => UsageVoipPackage::class,
         self::USAGE_TRUNK => UsageTrunk::class,
@@ -64,7 +64,7 @@ abstract class UsageFactory
         self::USAGE_TECH_CPE => UsageTechCpeForm::class,
         self::USAGE_SMS => UsageSmsForm::class,
         self::USAGE_IP_PORTS => UsageIpPortsForm::class,
-        self::USAGE_IP_ROUTERS => UsageIpRoutesForm::class,
+        self::USAGE_IP_ROUTES => UsageIpRoutesForm::class,
         self::USAGE_WELLTIME => UsageWelltimeForm::class,
         self::USAGE_VOIP_PACKAGE => UsageVoipAddPackageForm::class,
         self::USAGE_TRUNK => UsageTrunkEditForm::class,

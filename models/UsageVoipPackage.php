@@ -69,7 +69,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
             $link->filterWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
         }
         if ($dateRangeTo) {
-            $link->filterWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
+            $link->filterWhere(['<=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
         }
 
         return $link->all();
