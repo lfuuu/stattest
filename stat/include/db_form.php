@@ -1622,32 +1622,6 @@ class DbFormTechCPE extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
-        $v =
-            ($this->dbform_action=='save')
-        &&
-            (!$this->dbform['id'])
-        &&
-            ($this->dbform['serial']!='')
-        &&
-            $db->GetRow("
-                select
-                    *
-                from
-                    usage_tech_cpe
-                where
-                    actual_from <= NOW()
-                and
-                    actual_to >= NOW()
-                and
-                    serial = '".addslashes($this->dbform['serial'])."'
-                and
-                    id != '".addslashes($this->dbform['id'])."'
-            ");
-
-        if($v){
-            $this->dbform['serial']='';
-            trigger_error2('Такой серийный номер занят');
-        }
 
         $this->dbform['service'] = 'usage_ip_ports';
         if(!$v && $this->dbform_action!='delete'){
@@ -1696,7 +1670,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['id_model']['assoc_enum']=array(''=>'');
         $db->Query('select id,vendor,model from tech_cpe_models order by vendor,model');
         while ($r=$db->NextRecord()) $this->fields['id_model']['assoc_enum'][$r['id']]=$r['vendor'].' '.$r['model'];
-        if ($this->isData('id')) {
+        if ($this->isData('id') && (int) $this->data['id']) {
             $design->assign('dbform_f_history',$db->AllRecords('select log_tech_cpe.*,user_users.user from log_tech_cpe inner join user_users ON user_users.id=log_tech_cpe.user_id where tech_cpe_id='.$this->data['id'].' order by ts desc'));
             $db->Query('select U.id,U.E164,U.no_of_lines,T.line_number from usage_voip as U LEFT JOIN tech_cpe2voip as T ON T.cpe_id='.$this->data['id'].' AND T.usage_id=U.id where U.actual_from<=NOW() and U.actual_to>=NOW() and U.client="'.$this->data['client'].'"');
             $R = array();
