@@ -96,32 +96,19 @@ class UsageVoipEditPackageForm extends Form
 
     public function save()
     {
-        $timezone = $this->package->clientAccount->timezone;
-
         if ($this->is_package_in_future) {
-            $connecting_date = new DateTime($this->connecting_date, $timezone);
-
             $this->package->actual_from = $this->connecting_date;
-            $this->package->activation_dt = DateTimeZoneHelper::getActivationDateTime($this->connecting_date, $timezone);
         }
 
         if ($this->is_package_active || $this->is_package_in_future) {
-            $disconnect_date = new DateTime($this->disconnecting_date, $timezone);
-
             $this->package->actual_to = $this->disconnecting_date;
-            $this->package->expire_dt = DateTimeZoneHelper::getExpireDateTime($this->disconnecting_date, $timezone);
-
             $this->package->status = $this->status;
         }
 
-
+        $transaction = Yii::$app->db->beginTransaction();
         if ($this->is_package_active || $this->is_package_in_future) {
             try {
-
-                $transaction = Yii::$app->db->beginTransaction();
-
                 $this->package->save();
-
                 $transaction->commit();
 
                 return true;
