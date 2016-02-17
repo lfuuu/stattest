@@ -103,17 +103,6 @@ $config = [
 //                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             )
         ],
-        'response' => [
-            'formatters' => [
-                Response::FORMAT_HTML => 'yii\web\HtmlResponseFormatter',
-                Response::FORMAT_XML => 'yii\web\XmlResponseFormatter',
-                Response::FORMAT_JSON => 'app\classes\JsonResponseFormatter',
-                Response::FORMAT_JSONP => [
-                    'class' => 'app\classes\JsonResponseFormatter',
-                    'useJsonp' => true,
-                ],
-            ],
-        ],
         'i18n' => [
             'translations' => [
                 '*' => [

@@ -3,7 +3,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
-        "yiisoft/yii2": "dev-master#492aeb7",
+        "yiisoft/yii2": "2.0.7",
         "welltime/graylog-target": "dev-master#4ad58f3",
         "aferrandini/phpqrcode": "1.0.1",
         "phpoffice/phpexcel": "1.8.1",

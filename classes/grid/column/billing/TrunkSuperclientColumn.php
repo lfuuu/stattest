@@ -1,15 +1,14 @@
 <?php
 
-namespace app\classes\grid\column\universal;
+namespace app\classes\grid\column\billing;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\Currency;
+use app\models\billing\Trunk;
+use app\models\UsageTrunk;
 use kartik\grid\GridView;
-use Yii;
 
-
-class CurrencyColumn extends DataColumn
+class TrunkSuperclientColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -18,8 +17,8 @@ class CurrencyColumn extends DataColumn
 
     public function __construct($config = [])
     {
+        $this->filter = UsageTrunk::getSuperClientList(true);
         parent::__construct($config);
-        $this->filter = Currency::getList(true);
-        $this->filterInputOptions['class'] .= ' destination-column';
+        $this->filterInputOptions['class'] .= ' trunk-superclient-column';
     }
 }

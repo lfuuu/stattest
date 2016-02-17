@@ -1,15 +1,12 @@
 <?php
 
-namespace app\classes\grid\column\universal;
+namespace app\classes\grid\column\billing;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\Currency;
 use kartik\grid\GridView;
-use Yii;
 
-
-class CurrencyColumn extends DataColumn
+class MobColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -18,8 +15,12 @@ class CurrencyColumn extends DataColumn
 
     public function __construct($config = [])
     {
+        $this->filter = [
+            '' => ' ---- ',
+            0 => 'Стационарные',
+            1 => 'Мобильные',
+        ];
         parent::__construct($config);
-        $this->filter = Currency::getList(true);
-        $this->filterInputOptions['class'] .= ' destination-column';
+        $this->filterInputOptions['class'] .= ' mob-column';
     }
 }

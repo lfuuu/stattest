@@ -18,7 +18,6 @@ class CountryColumn extends DataColumn
         parent::__construct($config);
 
         $filterModel = $this->grid->filterModel;
-
         $this->filter = Html::activeDropDownList(
             $filterModel,
             $this->attribute,
