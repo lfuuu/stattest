@@ -164,6 +164,14 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+    }
+
+    /**
      * @param $clientId
      * @return float
      */
@@ -189,7 +197,10 @@ class ImportantEvents extends ActiveRecord
     {
         global $fixclient_data;
 
-        $query = self::find()->orderBy('date DESC');
+        $query =
+            self::find()
+                ->joinWith('clientAccount')
+                ->orderBy(['date' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

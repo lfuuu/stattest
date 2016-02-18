@@ -23,7 +23,7 @@ class EventNameColumn extends \kartik\grid\DataColumn
     {
         $eventsList = [];
 
-        foreach (ImportantEventsNames::find()->all() as $event) {
+        foreach (ImportantEventsNames::find()->each() as $event) {
             $eventsList[$event->group->title][$event->code] = $event->value;
             $this->eventsList[$event->code] = $event->value;
         }

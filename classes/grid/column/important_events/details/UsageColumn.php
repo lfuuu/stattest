@@ -164,7 +164,7 @@ abstract class UsageColumn
         }
 
         list($value) = $usage->helper->description;
-        return Html::tag('b', 'Услуга: ') . Html::a($value, $usage->helper->editLink, ['target' => '_blank']);
+        return Html::tag('b', 'Услуга: ') . Html::tag('u', $usage->helper->title) . ' ' . Html::a($value, $usage->helper->editLink, ['target' => '_blank']);
     }
 
 }
