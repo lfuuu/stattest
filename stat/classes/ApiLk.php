@@ -116,7 +116,7 @@ class ApiLk
 
         if(!$bill)
         {
-            NewBill::createBillOnPay($clientId, $sum, true);
+            NewBill::createBillOnPay($clientId, $sum, '', true);
 
             $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
         }
