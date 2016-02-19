@@ -5,7 +5,7 @@ namespace app\classes\grid\column\universal;
 use app\classes\grid\column\DataColumn;
 use app\models\Region;
 use Yii;
-use yii\bootstrap\Html;
+use app\classes\Html;
 
 
 class RegionColumn extends DataColumn
