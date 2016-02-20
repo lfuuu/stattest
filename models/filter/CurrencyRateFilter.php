@@ -43,13 +43,13 @@ class CurrencyRateFilter extends CurrencyRate
             ]
         ]);
 
-        $this->date_from !== '' && $query->andWhere('date >= :date_from', [':date_from' => $this->date_from]);
-        $this->date_to !== '' && $query->andWhere('date <= :date_to', [':date_to' => $this->date_to]);
+        $this->date_from !== '' && $query->andWhere(['>=', 'date', $this->date_from]);
+        $this->date_to !== '' && $query->andWhere(['<=', 'date', $this->date_to]);
 
         $this->currency !== '' && $query->andWhere(['currency' => $this->currency]);
 
-        $this->rate_from !== '' && $query->andWhere('rate >= :rate_from', [':rate_from' => $this->rate_from]);
-        $this->rate_to !== '' && $query->andWhere('rate <= :rate_to', [':rate_to' => $this->rate_to]);
+        $this->rate_from !== '' && $query->andWhere(['>=', 'rate', $this->rate_from]);
+        $this->rate_to !== '' && $query->andWhere(['<=', 'rate', $this->rate_to]);
 
         return $dataProvider;
     }

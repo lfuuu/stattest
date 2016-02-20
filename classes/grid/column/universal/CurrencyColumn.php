@@ -3,27 +3,23 @@
 namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
+use app\classes\grid\column\ListTrait;
 use app\models\Currency;
+use kartik\grid\GridView;
 use Yii;
-use app\classes\Html;
 
 
 class CurrencyColumn extends DataColumn
 {
-    public $filterType = '';
-    public $filter = '';
+    // Отображение в ячейке строкового значения из selectbox вместо ID
+    use ListTrait;
+
+    public $filterType = GridView::FILTER_SELECT2;
 
     public function __construct($config = [])
     {
+        $this->filter = Currency::getList(true);
         parent::__construct($config);
-
-        $filterModel = $this->grid->filterModel;
-
-        $this->filter = Html::activeDropDownList(
-            $filterModel,
-            $this->attribute,
-            Currency::getList(true),
-            ['class' => 'form-control input-sm input-currency']
-        );
+        $this->filterInputOptions['class'] .= ' destination-column';
     }
 }

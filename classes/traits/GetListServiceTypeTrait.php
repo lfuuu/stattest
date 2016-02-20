@@ -27,7 +27,7 @@ trait GetListServiceTypeTrait
             ->all();
 
         if ($isWithEmpty) {
-            $list = ['' => ''] + $list;
+            $list = array_merge(['' => ' ---- '], $list);
         }
 
         return $list;

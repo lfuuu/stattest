@@ -62,9 +62,6 @@ return [
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
         'dbPg' => $dbPg,
-        'dbAts' => $dbAts,
-        'dbAts2' => $dbAts2,
-        'dbPgAts' => $dbPgAts,
         'i18n' => [
             'translations' => [
                 '*' => [

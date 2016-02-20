@@ -17,7 +17,7 @@ trait YesNoTraits
         ];
 
         if ($isWithEmpty) {
-            $list = ['' => ''] + $list;
+            $list = array_merge(['' => ' ---- '], $list);
         }
         return $list;
     }
