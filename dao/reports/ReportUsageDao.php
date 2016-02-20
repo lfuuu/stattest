@@ -128,7 +128,11 @@ class ReportUsageDao extends Singleton
         }
 
         if ($dateRangeTo instanceof DateTime) {
-            $packages->andWhere(['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]);
+            $packages->andWhere([
+                'or',
+                ['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')],
+                ['>=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]
+            ]);
         }
 
         $packages->addParams([
@@ -166,16 +170,16 @@ class ReportUsageDao extends Singleton
             case 'day':
             case 'year':
             case 'month': {
-                $groupBy = "date_trunc(:detality, connect_time + ':offset second'::interval)";
+                $groupBy = new Expression("date_trunc(" . $detality . ", connect_time + '" . $offset . " second'::interval)");
                 $query->addSelect([
-                    'ts1' => "date_trunc(:detality, connect_time + ':offset second'::interval)",
+                    'ts1' => new Expression("date_trunc(" . $detality . ", connect_time + '" . $offset . " second'::interval)"),
                 ]);
                 break;
             }
             default: {
                 $groupBy = '';
                 $query->addSelect([
-                    'ts1' => new Expression("connect_time + ':offset second'::interval"),
+                    'ts1' => new Expression("connect_time + '" . $offset . " second'::interval"),
                 ]);
                 break;
             }
@@ -204,11 +208,6 @@ class ReportUsageDao extends Singleton
 
         $query->orderBy('ts1 ASC');
         $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
-
-        $query->addParams([
-            ':detality' => $detality,
-            ':offset' => $offset,
-        ]);
 
         $records = $query->asArray()->all();
 
