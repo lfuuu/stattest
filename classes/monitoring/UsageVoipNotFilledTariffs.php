@@ -129,9 +129,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
                     't.date_activation',
                 ])
                 ->leftJoin(LogTarif::tableName() . ' t', 't.id_service = uv.id AND t.service="usage_voip"')
-                ->where(new Expression('uv.actual_from <= CAST(NOW() AS DATE)'))
-                ->andWhere(new Expression('uv.actual_to > CAST(NOW() AS DATE)'))
-                ->orWhere(new Expression('uv.actual_to > DATE_ADD(NOW(), INTERVAL -1 MONTH)'))
+                ->where(['between', new Expression('CAST(NOW() AS DATE)'), 'actual_from', 'actual_to'])
                 ->andWhere(new Expression('!t.id_tarif OR !t.id_tarif_local_mob OR !t.id_tarif_russia OR !t.id_tarif_russia_mob OR !t.id_tarif_intern'))
                 ->asArray()
                 ->all();
