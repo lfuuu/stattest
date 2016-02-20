@@ -4518,7 +4518,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $from = $dateFrom->getDay();
         $to = $dateTo->getDay();
         
-        $sort = get_param_raw('sort', 'channel');
+        $sort = get_param_raw('sort', 'manager');
         $design->assign('sort', $sort);
 
         if(get_param_raw('process', 'stop') != 'stop') {
@@ -4528,8 +4528,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $query = $db->AllRecords('SELECT user, name FROM user_users');
             foreach($query as $row) $usersData[$row['user']] = $row['name'];
 
-            $channels=array(); $query=$db->AllRecords("select * from sale_channels_old ORDER BY id");
-            $channels[''] = 'не определено';
             foreach($query as $key => $value) $channels[$value['id']] = $value['name'];
 
             $query1 = $db->AllRecords("
@@ -4564,13 +4562,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             foreach($sortedArray as $client => $clientData){
                 $clientData = $db->AllRecords("
-SELECT cr.manager, c.sale_channel FROM clients c
+SELECT cr.manager, cr.account_manager FROM clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
  where client='".$client."'");
 
                 $sortedArray[$client]['manager'] = isset($usersData[$clientData[0]['manager']])?$usersData[$clientData[0]['manager']]:$clientData[0]['manager'];
-                $sortedArray[$client]['channel'] =isset($channels[$clientData[0]['sale_channel']])?$channels[$clientData[0]['sale_channel']]:$clientData[0]['sale_channel'];
+                $sortedArray[$client]['account_manager'] =isset($usersData[$clientData[0]['account_manager']])?$usersData[$clientData[0]['account_manager']]:$clientData[0]['account_manager'];
                 $sortedArray[$client]['voip'] = $db->AllRecords("
                         SELECT
                         tarifs_voip.name as tarif,
