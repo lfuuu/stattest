@@ -287,7 +287,7 @@ class m_stats extends IModule{
 	DatePickerPeriods::assignPeriods(new DateTime());
 
         $destination = get_param_raw('destination', 'all');
-        if(!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3')))
+        if(!in_array($destination,array('all','0','0-m','0-f','0-f-z','1','1-m','1-f','2','3')))
             $destination = 'all';
 
         $direction = get_param_raw('direction','both');
@@ -885,13 +885,13 @@ class m_stats extends IModule{
             $group='';
             $format='d месяца Y г. H:i:s';
         } elseif ($detality=='year'){
-            $group=" group by date_trunc('year',connect_time + '{$offset} second'::interval)";
+            $group=" group by date_trunc('year',cr.connect_time + '{$offset} second'::interval)";
             $format='Y г.';
         } elseif ($detality=='month'){
-            $group=" group by date_trunc('month',connect_time + '{$offset} second'::interval)";
+            $group=" group by date_trunc('month',cr.connect_time + '{$offset} second'::interval)";
             $format='Месяц Y г.';
         } elseif ($detality=='day'){
-            $group=" group by date_trunc('day',connect_time + '{$offset} second'::interval)";
+            $group=" group by date_trunc('day',cr.connect_time + '{$offset} second'::interval)";
             $format='d месяца Y г.';
         } else {
             $group='';
@@ -899,38 +899,49 @@ class m_stats extends IModule{
         }
         $W=array('AND');
 
-        $W[] = "connect_time>='".$from->format('Y-m-d H:i:s')."'";
-        $W[] = "connect_time<='".$to->format('Y-m-d H:i:s.999999')."'";
+        $W[] = "cr.connect_time>='".$from->format('Y-m-d H:i:s')."'";
+        $W[] = "cr.connect_time<='".$to->format('Y-m-d H:i:s.999999')."'";
 
+        $zone_filter = false;
 
-
-        if($destination<>'all'){
-            $dg = explode("-", $destination);
-            $dest = intval($dg[0]);
+        if($destination != 'all'){
+            list($dg, $mobile, $zone) = explode("-", $destination);
+            $dest = intval($dg);
             if ($dest == 0)
-                $W[] = 'destination_id<='.$dest;
+                $W[] = 'cr.destination_id<='.$dest;
             else
-                $W[] = 'destination_id='.$dest;
-            if(count($dg)>1){
-                if ($dg[1] == 'm') {
-                    $W[] = 'mob=true';
-                }elseif ($dg[1] == 'f') {
-                    $W[] = 'mob=false';
+                $W[] = 'cr.destination_id='.$dest;
+            if(isset($mobile)){
+                if ($mobile == 'm') {
+                    $W[] = 'cr.mob=true';
+                }elseif ($mobile == 'f') {
+                    $W[] = 'cr.mob=false';
+                }
+            }
+            if ($dg == 0 && $mobile = 'f') {
+                $zone_filter = true;
+                switch ($zone) {
+                    case 'z':
+                        $W[] = 'g.id is null';
+                        break;
+                    default:
+                        $W[] = 'g.id is not null';
+                        break;
                 }
             }
         }
 
         if($direction <> 'both'){
             if($direction == 'in')
-                $W[] = 'orig=false';
+                $W[] = 'cr.orig=false';
             else
-                $W[] = 'orig=true';
+                $W[] = 'cr.orig=true';
         }
 
-        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'number_service_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE';
+        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'cr.number_service_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE';
 
         if ($paidonly) {
-            $W[]='abs(cost)>0.0001';
+            $W[]='abs(cr.cost)>0.0001';
         }
 
         global $db;
@@ -939,29 +950,33 @@ class m_stats extends IModule{
             $R=array();
             $sql="
                             select
-                                    ".($group?'':'id,')."
-                                    ".($group?'':'src_number,')."
-                                    ".($group?'':'geo_id,')."
-                                    ".($group?'':'geo_mob,')."
-                                    ".($group?'':'dst_number,')."
-                                    ".($group?'':'orig,');
-            if ($detality == 'day') $sql.= " date_trunc('day',connect_time + '{$offset} second'::interval) as ts1, ";
-            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time + '{$offset} second'::interval) as ts1, ";
-            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time + '{$offset} second'::interval) as ts1, ";
-            else $sql.= " connect_time + '{$offset} second'::interval as ts1, ";
-
-
+                                    ".($group?'':'cr.id,')."
+                                    ".($group?'':'cr.src_number,')."
+                                    ".($group?'':'cr.geo_id,')."
+                                    ".($group?'':'cr.geo_mob,')."
+                                    ".($group?'':'cr.dst_number,')."
+                                    ".($group?'':'cr.orig,');
+            if ($detality == 'day') $sql.= " date_trunc('day',cr.connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'month') $sql.= " date_trunc('month',cr.connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'year') $sql.= " date_trunc('year',cr.connect_time + '{$offset} second'::interval) as ts1, ";
+            else $sql.= " cr.connect_time + '{$offset} second'::interval as ts1, ";
 
             $sql .=
-            ($group?'-sum':'-').'(cost) as price,
-                                    '.($group?'sum':'').'('.($paidonly?'case abs(cost)>0.0001 when true then billed_time else 0 end':'billed_time').') as ts2,
-                                    '.($group?'sum('.($paidonly?'case abs(cost)>0.0001 when true then 1 else 0 end':1).')':'1').' as cnt
-                            from
-                                    calls_raw.calls_raw
-                            where '.MySQLDatabase::Generate($W).$group."
-                            ORDER BY
-                                    ts1 ASC
-                            LIMIT ".($isFull ? "50000" : "5000");
+                ($group ? '-sum' : '-') . '(cr.cost) as price,' .
+                ($group ? 'sum' : '') . '(' . ($paidonly ? 'case abs(cr.cost)>0.0001 when true then cr.billed_time else 0 end' : 'cr.billed_time') . ') as ts2,' .
+                ($group ? 'sum(' . ($paidonly ? 'case abs(cr.cost)>0.0001 when true then 1 else 0 end' : 1) . ')' : '1') . ' as cnt
+                    from
+                        calls_raw.calls_raw cr' .
+                        ($zone_filter
+                            ? ' left join billing.instance_settings iss on iss.city_geo_id = cr.geo_id
+                                    left join geo.geo g on g.id = iss.city_geo_id'
+                            : ''
+                        ) .
+                    ' where ' . MySQLDatabase::Generate($W) . $group . '
+                    order by
+                        ts1 asc
+                    limit ' . ($isFull ? 50000 : 5000);
+
             $pg_db->Query($sql);
 
             if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
