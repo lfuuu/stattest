@@ -110,7 +110,7 @@ use yii\helpers\Html;
         <div class="col-md-3">
             <label for="contract_number">Номер договора</label>
             <?php
-            echo \yii\bootstrap\Html::textInput('contract_number', \Yii::$app->request->get('contract_number', 0));
+            echo \app\classes\Html::textInput('contract_number', \Yii::$app->request->get('contract_number', 0));
             ?>
         </div>
     </div>
