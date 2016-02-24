@@ -350,8 +350,8 @@ class VoipNumbersController extends Controller
 
             $deleted = Number::deleteAll([
                 'and',
-                'region' => $regionId,
-                'city_id' => $cityId,
+                ['region' => $regionId],
+                ['city_id' => $cityId],
                 ['between', 'number', $cityId . $rangeStart, $cityId . $rangeEnd]
             ]);
 
