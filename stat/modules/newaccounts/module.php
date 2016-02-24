@@ -6,6 +6,7 @@ use app\classes\BillQRCode;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
+use app\models\CurrencyRate;
 use app\models\Payment;
 use app\models\Param;
 use app\models\BillDocument;
@@ -3199,7 +3200,8 @@ where b.bill_no = '".$billNo."' and c.id = b.client_id and cr.organization_id in
 
         if(!isset($d[$date])){
             global $db;
-            $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($date).'" and currency="USD"');
+            $tableName = CurrencyRate::tableName();
+            $r = $db->GetRow('select * from '.$tableName.' where date="'.addslashes($date).'" and currency="USD"');
             $d[$date] = $r['rate'];
         }
         return $d[$date];
@@ -3303,7 +3305,8 @@ where b.bill_no = '".$billNo."' and c.id = b.client_id and cr.organization_id in
             }else
                 $p['oper_date'] = '';
 
-            $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($p['date']).'" and currency="USD"');
+            $tableName = CurrencyRate::tableName();
+            $r = $db->GetRow('select * from '.$tableName.' where date="'.addslashes($p['date']).'" and currency="USD"');
             if(!isset($clients[$p['inn']])){
                 $clients[$p['inn']] = $db->AllRecords('
 select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type,
@@ -4614,13 +4617,14 @@ SELECT cr.manager, c.sale_channel FROM clients c
 
     function newaccounts_usd($fixclient) {
         global $design,$db;
-        $design->assign('rates',$db->AllRecords('select * from bill_currency_rate order by date desc limit 30'));
+        $tableName = CurrencyRate::tableName();
+        $design->assign('rates',$db->AllRecords('select * from '.$tableName.' order by date desc limit 30'));
         if (($date=get_param_protected('date')) && ($rate=get_param_protected('rate'))) {
-            if ($db->QuerySelectRow('bill_currency_rate',array('date'=>$date,'currency'=>'USD'))) {
+            if ($db->QuerySelectRow($tableName,array('date'=>$date,'currency'=>'USD'))) {
                 trigger_error2('Курс на эту дату уже введён');
             } else {
                 trigger_error2('Курс занесён');
-                $db->QueryInsert('bill_currency_rate',array('date'=>$date,'currency'=>'USD','rate'=>$rate));
+                $db->QueryInsert($tableName,array('date'=>$date,'currency'=>'USD','rate'=>$rate));
             }
         }
         $design->assign('cur_date',date('Y-m-d'));

@@ -29,7 +29,7 @@ class CurrencyRate extends ActiveRecord
 
     public static function tableName()
     {
-        return 'bill_currency_rate';
+        return 'currency_rate';
     }
 
     public static function dao()

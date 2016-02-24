@@ -14,7 +14,6 @@ use Exception;
 use ParseError;
 use Yii;
 use yii\console\Controller;
-use yii\log\Logger;
 
 class CurrencyController extends Controller
 {
@@ -46,7 +45,7 @@ class CurrencyController extends Controller
         while ($dateTimeFrom->modify('+1 day') <= $dateTimeTomorrow) {
 
             $date = $dateTimeFrom->format('Y-m-d');
-            Yii::trace('CurrencyImport: ' . $date);
+            Yii::info('CurrencyImport: ' . $date);
 
             $currenciesCopy = $currencies;
             if (isset($currencyRates[$date])) {
@@ -58,13 +57,13 @@ class CurrencyController extends Controller
 
             if (!count($currenciesCopy)) {
                 // за этот день все скачано
-                Yii::trace('CurrencyImport: already');
+                Yii::info('CurrencyImport: already');
                 continue;
             }
 
             // скачать
             // иногда курс на завтра уже известен, тогда скачаем. Иначе подождем до завтра (третий параметр - strict)
-            $this->importByDate($currenciesCopy, $dateTimeFrom, $dateTimeFrom != $dateTimeTomorrow);
+            $this->importByDate($currenciesCopy, $dateTimeFrom, $dateTimeFrom == $dateTimeTomorrow);
         }
 
         Yii::info('CurrencyImport: finish');
@@ -86,7 +85,7 @@ class CurrencyController extends Controller
             if ($simplexml === false) {
                 throw new ParseError('loading ' . $fileName);
             }
-            Yii::getLogger()->log('CurrencyImport: ' . print_r($simplexml, true), Logger::LEVEL_TRACE);
+            Yii::trace('CurrencyImport: ' . print_r($simplexml, true));
 
             // дата курса
             $date = (string)$simplexml['Date'];
@@ -94,9 +93,9 @@ class CurrencyController extends Controller
                 throw new ParseError('parsing date ' . $fileName);
             }
             $dateTimeXml = new DateTime($date);
-            Yii::trace('CurrencyImport: ' . $dateTimeXml->format('Y-m-d'));
+            Yii::info('CurrencyImport: ' . print_r($currencies, true));
             if ($isStrictDate && $dateTimeXml->format('Y-m-d') !== $dateTime->format('Y-m-d')) {
-                Yii::trace('CurrencyImport: strict');
+                Yii::info('CurrencyImport: strict');
                 return false;
             }
 
@@ -110,7 +109,11 @@ class CurrencyController extends Controller
 
                 $currencyValue = (string)$valute->Value;
                 $currencyValueFloat = (float)str_replace(',', '.', $currencyValue);
-                Yii::trace('CurrencyImport: ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
+                Yii::info('CurrencyImport: ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
+                if ($currencyValueFloat <= 0) {
+                    Yii::error('CurrencyImport: wrong rate ' . $dateTime->format('Y-m-d') . ' ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
+                    continue;
+                }
 
                 try {
                     $currencyRate = new CurrencyRate();
