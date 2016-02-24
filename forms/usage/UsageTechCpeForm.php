@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use Yii;
+use yii\db\Expression;
 use app\classes\Form;
 use app\models\UsageTechCpe;
 
@@ -11,6 +12,7 @@ class UsageTechCpeForm extends Form
     protected static $formModel = UsageTechCpe::class;
 
     public
+        $id,
         $actual_from,
         $actual_to,
         $id_model,
@@ -37,7 +39,7 @@ class UsageTechCpeForm extends Form
     public function rules()
     {
         return [
-            [['client'], 'required'],
+            [['client', 'id_model'], 'required'],
             [
                 [
                     'actual_from', 'actual_to', 'client', 'serial', 'mac',
@@ -48,7 +50,8 @@ class UsageTechCpeForm extends Form
             ['owner', 'in', 'range' => ['', 'mcn', 'client', 'mgts']],
             ['tech_support', 'in', 'range' => ['', 'mcn', 'client', 'mgts']],
             [['deposit_sumUSD', 'deposit_sumRUB',], 'number'],
-            [['id_model', 'id_service', 'snmp', 'ast_autoconf',], 'integer'],
+            [['id', 'id_model', 'id_service', 'snmp', 'ast_autoconf',], 'integer'],
+            ['serial', 'validateUsingSerialNumber'],
         ];
     }
 
@@ -77,6 +80,31 @@ class UsageTechCpeForm extends Form
             'tech_support' => 'Тех. поддержка',
             'ast_autoconf' => 'Режим конфигурирования asteriskа',
         ];
+    }
+
+    public function validateUsingSerialNumber()
+    {
+        if ($this->id || $this->serial == '') {
+            return false;
+        }
+
+        $query = UsageTechCpe::find();
+
+        $query->where(new Expression('id IS NOT NULL'));
+
+        if ((int) $this->id) {
+            $query->andWhere(['!=', 'id', $this->id]);
+        }
+
+        $result = $query
+            ->andWhere(['serial' => $this->serial])
+            ->andWhere(['<=', 'actual_from', new Expression('NOW()')])
+            ->andWhere(['>=', 'actual_to', new Expression('NOW()')])
+            ->count();
+
+        if ($result) {
+            $this->addError('serial', 'Такой серийный номер занят');
+        }
     }
 
 }

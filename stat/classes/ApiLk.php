@@ -1581,7 +1581,7 @@ class ApiLk
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
 
-        $destination = (!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3'))) ? 'all': $destination;
+        $destination = (!in_array($destination,array('all','0','0-m','0-f','0-f-z','1','1-m','1-f','2','3'))) ? 'all': $destination;
         $direction = (!in_array($direction,array('both','in','out'))) ? 'both' : $direction;
 
         $account = self::getAccount($client_id);

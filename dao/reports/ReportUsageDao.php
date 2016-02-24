@@ -12,6 +12,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
+use app\models\billing\InstanceSettings;
 use app\models\UsageVoipPackage;
 
 class ReportUsageDao extends Singleton
@@ -62,39 +63,56 @@ class ReportUsageDao extends Singleton
                 ->setTime(23, 59, 59);
 
         $clientAccount = ClientAccount::findOne($clientId);
-        $query = Calls::find();
+        $query =
+            Calls::find()
+                ->from(['cr' => Calls::tableName()]);
 
-        $query->andWhere(['between', 'connect_time', $from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s.999999')]);
+        $query->andWhere(['between', 'cr.connect_time', $from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s.999999')]);
 
         if ($direction != 'both') {
-            $query->andWhere(['orig' => ($direction == 'in' ? 'false' : 'true')]);
+            $query->andWhere(['cr.orig' => ($direction == 'in' ? 'false' : 'true')]);
         }
 
         if (isset($usages) && count($usages) > 0) {
-            $query->andWhere(['in', 'number_service_id', $usages]);
+            $query->andWhere(['in', 'cr.number_service_id', $usages]);
         }
 
         if ($paidonly) {
-            $query->andWhere('ABS(cost) > 0.0001');
+            $query->andWhere('ABS(cr.cost) > 0.0001');
         }
 
         if ($destination != 'all') {
-            list ($dest, $mobile) = explode('-', $destination);
+            list ($dest, $mobile, $zone) = explode('-', $destination);
 
             if ((int) $dest == 0) {
-                $query->andWhere(['<=', 'destination_id', (int) $dest]);
+                $query->andWhere(['<=', 'cr.destination_id', (int) $dest]);
             }
             else {
-                $query->andWhere(['destination_id' => (int) $dest]);
+                $query->andWhere(['cr.destination_id' => (int) $dest]);
             }
 
             switch ($mobile) {
                 case 'm':
-                    $query->andWhere('mob');
+                    $query->andWhere('cr.mob');
                     break;
                 case 'f':
-                    $query->andWhere('NOT mob');
+                    $query->andWhere('NOT cr.mob');
                     break;
+            }
+
+            if ((int) $dest == 0 && $mobile === 'f') {
+                $query
+                    ->leftJoin(['iss' => InstanceSettings::tableName()], 'iss.city_geo_id = cr.geo_id')
+                    ->leftJoin(['g' => Geo::tableName()], 'g.id = iss.city_geo_id');
+
+                switch ($zone) {
+                    case 'z':
+                        $query->andWhere('g.id IS NULL');
+                        break;
+                    default:
+                        $query->andWhere('g.id IS NOT NULL');
+                        break;
+                }
             }
         }
 
@@ -131,7 +149,7 @@ class ReportUsageDao extends Singleton
             $packages->andWhere([
                 'or',
                 ['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')],
-                ['>=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]
+                ['>', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]
             ]);
         }
 
@@ -159,7 +177,7 @@ class ReportUsageDao extends Singleton
         $offset = $from->getOffset();
 
         if (isset($packages) && count($packages) > 0) {
-            $query->andWhere(['in', 'service_package_id', $packages]);
+            $query->andWhere(['in', 'cr.service_package_id', $packages]);
         }
 
         if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
@@ -170,16 +188,16 @@ class ReportUsageDao extends Singleton
             case 'day':
             case 'year':
             case 'month': {
-                $groupBy = new Expression("date_trunc(" . $detality . ", connect_time + '" . $offset . " second'::interval)");
+                $groupBy = new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)");
                 $query->addSelect([
-                    'ts1' => new Expression("date_trunc(" . $detality . ", connect_time + '" . $offset . " second'::interval)"),
+                    'ts1' => new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)"),
                 ]);
                 break;
             }
             default: {
                 $groupBy = '';
                 $query->addSelect([
-                    'ts1' => new Expression("connect_time + '" . $offset . " second'::interval"),
+                    'ts1' => new Expression("cr.connect_time + '" . $offset . " second'::interval"),
                 ]);
                 break;
             }
@@ -191,19 +209,19 @@ class ReportUsageDao extends Singleton
 
         if (!$groupBy) {
             $query->addSelect([
-                'id',
-                'src_number',
-                'geo_id',
-                'geo_mob',
-                'dst_number',
-                'orig',
+                'cr.id',
+                'cr.src_number',
+                'cr.geo_id',
+                'cr.geo_mob',
+                'cr.dst_number',
+                'cr.orig',
             ]);
         }
 
         $query->addSelect([
-            'price' => ($groupBy ? '-sum' : '-') . '(cost)',
-            'ts2' => ($groupBy ? 'sum' : '') . '(' . ($paidOnly ? 'case abs(cost) > 0.0001 when true then billed_time else 0 end' : 'billed_time') . ')',
-            'cnt' => $groupBy ? 'sum(' . ($paidOnly ? 'case abs(cost) > 0.0001 when true then 1 else 0 end' : new Expression('1')) .')' : new Expression('1'),
+            'price' => ($groupBy ? '-SUM' : '-') . '(cr.cost)',
+            'ts2' => ($groupBy ? 'SUM' : '') . '(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN cr.billed_time ELSE 0 END' : 'cr.billed_time') . ')',
+            'cnt' => $groupBy ? 'SUM(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN 1 ELSE 0 END' : new Expression('1')) .')' : new Expression('1'),
         ]);
 
         $query->orderBy('ts1 ASC');
@@ -270,18 +288,24 @@ class ReportUsageDao extends Singleton
         return $result;
     }
 
+    /**
+     * @param ActiveQuery $query
+     * @param ClientAccount $clientAccount
+     * @param int $region
+     * @return array
+     */
     private static function voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, $region)
     {
         $query->select([
-            'dest' => 'destination_id',
-            'mob',
-            'price' => '-sum(cost)',
-            'len' => 'sum(billed_time)',
-            'cnt' => 'sum(1)'
+            'dest' => 'cr.destination_id',
+            'cr.mob',
+            'price' => '-SUM(cr.cost)',
+            'len' => 'SUM(cr.billed_time)',
+            'cnt' => 'SUM(1)'
         ]);
 
-        $query->andWhere(['server_id' => (int) $region]);
-        $query->groupBy(['destination_id', 'mob']);
+        $query->andWhere(['cr.server_id' => (int) $region]);
+        $query->groupBy(['cr.destination_id', 'mob']);
 
         $result = [
             'mos_loc' => [
@@ -383,6 +407,11 @@ class ReportUsageDao extends Singleton
         return $result;
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @param array $row
+     * @return array
+     */
     private static function getTotalPrices(ClientAccount $clientAccount, $row = [])
     {
         $taxRate = $clientAccount->getTaxRate();

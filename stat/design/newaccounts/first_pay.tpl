@@ -5,7 +5,7 @@
 
 С: <input type=text name='date_from' id='date_from' value="{$date_from}">
 По: <input type=text name='date_to' id='date_to' value="{$date_to}">
-Сортировка: <SELECT name=sort><option value='channel'{if $sort=='channel'} selected{/if}>по каналу продаж</option><option value='manager'{if $sort=='manager'} selected{/if}>по менеджеру</option><option value='client'{if $sort=='client'} selected{/if}>по клиенту</option></select>
+Сортировка: <SELECT name=sort><option value='manager'{if $sort=='manager'} selected{/if}>по менеджеру</option><option value='account_manager'{if $sort=='account_manager'} selected{/if}>по аккаунт-менеджеру</option><option value='client'{if $sort=='client'} selected{/if}>по клиенту</option></select>
 <input type=submit class=button value='Просмотр' name=process>
 </form>
 {if isset($data)}
@@ -16,7 +16,7 @@
 <td>Номер заказа с&nbsp;сайта</td>
 <td>Организация</td>
 <td>Менеджер</td>
-<td>Канал продаж</td>
+<td>Аккаунт-менеджер</td>
 <td>Услуга</td>
 <td>Активна&nbsp;С:</td>
 <td>Активна&nbsp;По:</td>
@@ -33,7 +33,7 @@
 	<td>{$item.site_req_no}</td>
 	<td>{$item.organisation}</td>
 	<td>{$item.manager}</td>
-	<td>{$item.channel}</td>
+	<td>{$item.account_manager}</td>
 				<td></td>
 				<td></td>
 				<td></td>
