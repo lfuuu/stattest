@@ -10,23 +10,35 @@ use yii\helpers\ArrayHelper;
 class SourceColumn extends DataColumn
 {
 
-    public $label = 'Источник';
-    public $attribute = 'source_id';
-    public $value = 'source_id';
-    public $filterType = '\app\widgets\select_multiply\SelectMultiply';
-    public $filterInputOptions = null;
+    public
+        $label = 'Источник',
+        $attribute = 'source_id',
+        $value = 'source_id',
+        $filterType = '\app\widgets\multiselect\MultiSelect',
+        $filterInputOptions = [];
 
+    /**
+     * @param array $config
+     */
     public function __construct($config = [])
     {
-        $sourcesList =  ArrayHelper::map(ImportantEventsSources::find()->all(), 'id', 'title');
+        $sourcesList = ImportantEventsSources::find()->indexBy('code')->all();
 
-        $this->filterWidgetOptions['items'] = $sourcesList;
-        $this->filterWidgetOptions['clientOptions']['placeholder'] = '- Выберите источник(и) -';
-        $this->filterWidgetOptions['clientOptions']['width'] = '100%';
+        $this->filterWidgetOptions['data'] = $sourcesList;
+        $this->filterWidgetOptions['nonSelectedText'] = '- Выберите источник(и) -';
+        $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '220px';
+
+        $this->filterInputOptions['multiple'] = 'multiple';
 
         parent::__construct($config);
     }
 
+    /**
+     * @param mixed $model
+     * @param mixed $key
+     * @param int $index
+     * @return string
+     */
     protected function renderDataCellContent($model, $key, $index)
     {
         return ($model->source->title ?: ($model->source->code ?: parent::getDataCellValue($model, $key, $index)));

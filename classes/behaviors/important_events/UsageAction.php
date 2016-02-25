@@ -4,9 +4,11 @@ namespace app\classes\behaviors\important_events;
 
 use Yii;
 use yii\base\Behavior;
+use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\classes\Form;
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
 
 class UsageAction extends Behavior
 {
@@ -23,9 +25,13 @@ class UsageAction extends Behavior
         ];
     }
 
+    /**
+     * @param ModelEvent $event
+     * @throws \app\exceptions\FormValidationException
+     */
     public function UsageAfterInsert($event)
     {
-        ImportantEvents::create('created_usage', self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE, self::EVENT_SOURCE, [
             'client_id' => $event->sender->clientAccount->id,
             'usage' =>  $event->sender->tableName(),
             'usage_id' => $event->sender->id,
@@ -33,13 +39,17 @@ class UsageAction extends Behavior
         ]);
     }
 
+    /**
+     * @param ModelEvent $event
+     * @throws \app\exceptions\FormValidationException
+     */
     public function UsageAfterUpdate($event)
     {
         $changed = array_diff_assoc($event->changedAttributes, $event->sender->attributes);
         $changedCount = count($changed);
 
         if ($changedCount) {
-            ImportantEvents::create('updated_usage', self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, self::EVENT_SOURCE, [
                 'client_id' => $event->sender->clientAccount->id,
                 'usage' => $event->sender->tableName(),
                 'usage_id' => $event->sender->id,
@@ -49,9 +59,13 @@ class UsageAction extends Behavior
         }
     }
 
+    /**
+     * @param ModelEvent $event
+     * @throws \app\exceptions\FormValidationException
+     */
     public function UsageAfterDelete($event)
     {
-        ImportantEvents::create('deleted_usage', self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE, self::EVENT_SOURCE, [
             'client_id' => $event->sender->clientAccount->id,
             'usage' => $event->sender->tableName(),
             'usage_id' => $event->sender->id,
@@ -59,9 +73,13 @@ class UsageAction extends Behavior
         ]);
     }
 
+    /**
+     * @param ModelEvent $event
+     * @throws \app\exceptions\FormValidationException
+     */
     public function UsageTransferEvent($event)
     {
-        ImportantEvents::create('transfer_usage', self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE, self::EVENT_SOURCE, [
             'client_id' => $event->sender->service->clientAccount->id,
             'usage' => $event->sender->service->tableName(),
             'usage_id' => $event->sender->service->id,

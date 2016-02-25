@@ -4,29 +4,39 @@ namespace app\models\important_events;
 
 use Yii;
 use DateTime;
+use DateTimeZone;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\classes\validators\ArrayValidator;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 
 class ImportantEvents extends ActiveRecord
 {
 
-    const ROWS_PER_PAGE = 100;
+    const ROWS_PER_PAGE = 50;
 
     public $propertiesCollection = [];
 
+    /*
+     * @return array
+     */
     public function rules()
     {
         return [
             [['event', 'source_id', ], 'required', 'on' => 'create'],
-            [['event', ], 'trim'],
-            ['source_id', 'integer'],
+            [['event', ], 'trim', 'on' => 'create'],
+            ['source_id', 'integer', 'on' => 'create'],
+            [['event', 'source_id'], ArrayValidator::className(), 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function scenarios()
     {
         return [
@@ -35,6 +45,9 @@ class ImportantEvents extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -45,6 +58,9 @@ class ImportantEvents extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -52,6 +68,9 @@ class ImportantEvents extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'important_events';
@@ -71,7 +90,7 @@ class ImportantEvents extends ActiveRecord
         $event = new self;
 
         $event->scenario = 'create';
-        $event->date = (new DateTime($date))->format('Y-m-d H:i:s');
+        $event->date = (new DateTime($date, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
         $event->event = $eventType;
 
         $source = ImportantEventsSources::findOne(['code' => $eventSource]);
@@ -145,6 +164,14 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+    }
+
+    /**
      * @param $clientId
      * @return float
      */
@@ -170,7 +197,10 @@ class ImportantEvents extends ActiveRecord
     {
         global $fixclient_data;
 
-        $query = self::find()->orderBy('date DESC');
+        $query =
+            self::find()
+                ->joinWith('clientAccount')
+                ->orderBy(['date' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -191,13 +221,30 @@ class ImportantEvents extends ActiveRecord
             return $dataProvider;
         }
 
-        $query->andFilterWhere([
-            'client_id' => $this->client_id,
-            'event' => $this->event,
-            'source_id' => $this->source_id,
-        ]);
+        if ((int) $this->client_id) {
+            $query->andFilterWhere(['client_id' => $this->client_id]);
+        }
+        if (is_array($this->event) && count($this->event)) {
+            $query->andFilterWhere(['in', 'event', (array) $this->event]);
+        }
+        if (is_array($this->source_id) && count($this->source_id)) {
+            $query->andFilterWhere(['in', 'source_id', (array) $this->source_id]);
+        }
 
-        $query->andFilterWhere(array_merge(['between', 'date'], preg_split('#\s\-\s#', $this->date)));
+        list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);
+
+        $filter_from =
+            (new DateTime($filter_from, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->setTime(0, 0, 0)
+                ->format(DateTime::ATOM);
+        $filter_to =
+            (new DateTime($filter_to, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->setTime(23, 59, 59)
+                ->format(DateTime::ATOM);
+
+        $query->andFilterWhere(['between', 'date', $filter_from, $filter_to]);
+
+        $query->orderBy('date DESC');
 
         return $dataProvider;
     }

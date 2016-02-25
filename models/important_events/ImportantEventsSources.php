@@ -7,11 +7,17 @@ use yii\db\ActiveRecord;
 class ImportantEventsSources extends ActiveRecord
 {
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'important_events_sources';
     }
 
+    /**
+     * @return []
+     */
     public function rules()
     {
         return [
@@ -21,12 +27,23 @@ class ImportantEventsSources extends ActiveRecord
         ];
     }
 
+    /**
+     * @return []
+     */
     public function attributeLabels()
     {
         return [
             'code' => 'Код',
             'title' => 'Название',
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->title;
     }
 
 }
