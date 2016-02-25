@@ -4,6 +4,7 @@ namespace app\models;
 use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
+use app\queries\BillQuery;
 
 /**
  * @property int    $id
@@ -41,11 +42,18 @@ use yii\db\ActiveRecord;
  */
 class Bill extends ActiveRecord
 {
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'newbills';
     }
 
+    /**
+     * @return array
+     */
     public function transactions()
     {
         return [
@@ -53,6 +61,9 @@ class Bill extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -60,11 +71,25 @@ class Bill extends ActiveRecord
         ];
     }
 
+    /**
+     * @return BillQuery
+     */
+    public static function find()
+    {
+        return new BillQuery(get_called_class());
+    }
+
+    /**
+     * @return BillDao
+     */
     public static function dao()
     {
         return BillDao::me();
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -80,6 +105,11 @@ class Bill extends ActiveRecord
         ];
     }
 
+    /**
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
     public function prepareHistoryValue($field, $value)
     {
         switch ($field) {
@@ -92,31 +122,50 @@ class Bill extends ActiveRecord
         return $value;
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getLines()
     {
         return $this->hasMany(BillLine::className(), ['bill_no' => 'bill_no']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransactions()
     {
         return $this->hasMany(Transaction::className(), ['bill_id' => 'id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
+    /**
+     * @return bool
+     */
     public function isClosed()
     {
         return Bill::dao()->isClosed($this);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getExtendsInfo()
     {
         return $this->hasOne(BillExtendsInfo::className(), ['bill_no' => 'bill_no']);
     }
 
+    /**
+     * @return bool
+     * @throws \yii\db\Exception
+     */
     public function beforeDelete()
     {
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
