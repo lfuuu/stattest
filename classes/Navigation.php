@@ -41,6 +41,7 @@ class Navigation
                 ->setTitle('Тарифы')
                 ->addItem('Телефония', ['tariff/voip'], ['tarifs.read'])
                 ->addItem('Телефония Пакеты', ['tariff/voip-package'], ['tarifs.read'])
+                ->addItem('Звонок_чат', ['tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
                 ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
