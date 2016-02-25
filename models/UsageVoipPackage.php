@@ -26,6 +26,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     {
         return [
             'ImportantEvent' => \app\classes\behaviors\important_events\UsageVoipPackage::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
         ];
     }
 

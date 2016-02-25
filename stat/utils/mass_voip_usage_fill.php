@@ -124,8 +124,6 @@ foreach($numbers as $number)
     $u->actual_from = $actualFrom;
     $u->actual_to = "4000-01-01";
     $u->client = $client->client;
-    $u->activation_dt = (new DateTime($actualFrom, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-    $u->expire_dt =     \app\helpers\DateTimeZoneHelper::getExpireDateTime($actualTo, $client->timezone_name);
     $u->E164 = $number;
     $u->no_of_lines = 10;
     $u->edit_user_id = 54; //Yana
