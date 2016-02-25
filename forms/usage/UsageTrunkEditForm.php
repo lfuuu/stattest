@@ -51,8 +51,6 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->connection_point_id = $this->connection_point_id;
         $usage->actual_from = $actualFrom->format('Y-m-d');
         $usage->actual_to = $actualTo->format('Y-m-d');
-        $usage->activation_dt = $activationDt->format('Y-m-d H:i:s');
-        $usage->expire_dt = DateTimeZoneHelper::getExpireDateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone);
         $usage->trunk_id = $this->trunk_id;
         $usage->orig_enabled = $this->orig_enabled;
         $usage->term_enabled = $this->term_enabled;

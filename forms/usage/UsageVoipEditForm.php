@@ -97,15 +97,10 @@ class UsageVoipEditForm extends UsageVoipForm
          */
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
-        $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
-
         $usage = new UsageVoip;
         $usage->region = $this->connection_point_id;
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
-        $usage->activation_dt = $activationDt;
-        $usage->expire_dt = $expireDt;
         $usage->type_id = $this->type_id;
         $usage->client = $this->clientAccount->client;
         $usage->E164 = $this->did;
@@ -164,13 +159,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->address = $this->address;
         $this->usage->no_of_lines = (int) $this->no_of_lines;
 
-        if (!$this->disconnecting_date) {
-            $actualTo = (new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone))->format('Y-m-d');
-            $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $this->timezone);
-
-            $this->usage->actual_to = $actualTo;
-            $this->usage->expire_dt = $expireDt;
-        } else {
+        if ($this->disconnecting_date) {
             $this->setDisconnectionDate();
         }
 
@@ -575,12 +564,7 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         $timezone = $this->usage->clientAccount->timezone;
         $closeDate = new DateTime($this->disconnecting_date, $timezone);
-
-        $actualTo = $closeDate->format('Y-m-d');
-        $expireDt = DateTimeZoneHelper::getExpireDateTime($actualTo, $timezone);
-
-        $this->usage->actual_to = $actualTo;
-        $this->usage->expire_dt = $expireDt;
+        $this->usage->actual_to = $closeDate->format('Y-m-d');
 
         $nextHistoryItems =
             LogTarif::find()

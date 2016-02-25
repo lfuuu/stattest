@@ -269,13 +269,6 @@ class DbForm {
         return $p;
     }
 
-    public function fillUTCPeriod()
-    {
-        $client = is_numeric($this->dbform['client']) ? ClientAccount::findOne($this->dbform['client']) : ClientAccount::findOne(['client' => $this->dbform['client']]);
-        Assert::isObject($client);
-        $this->dbform['activation_dt'] = (new DateTime($this->dbform['actual_from'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $this->dbform['expire_dt'] = \app\helpers\DateTimeZoneHelper::getExpireDateTime($this->dbform['actual_to'], $client->timezone_name);
-    }
 }
 class HelpDbForm {
     public static function assign_tarif($service,$id, $postfix = '') {
@@ -524,8 +517,6 @@ class DbFormUsageIpPorts extends DbForm{
         }
         $current = $db->GetRow("select * from usage_ip_ports where id = '".$this->dbform["id"]."'");
 
-        $this->fillUTCPeriod();
-
         $v=DbForm::Process();
 
         if ($v=='add' || $v=='edit') {
@@ -644,8 +635,6 @@ class DbFormUsageVoip extends DbForm {
 
         $this->dbform['edit_user_id'] = $user->Get('id');
         $current = $db->GetRow("select * from usage_voip where id = '".$this->dbform["id"]."'");
-
-        $this->fillUTCPeriod();
 
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
         $v=DbForm::Process();
@@ -1084,8 +1073,6 @@ class DbFormUsageExtra extends DbForm{
 
         $current = $db->GetRow("select * from usage_extra where id = '".$this->dbform["id"]."'");
 
-        $this->fillUTCPeriod();
-
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_extra');
 
         $v=DbForm::Process();
@@ -1178,8 +1165,6 @@ class DbFormUsageITPark extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
-
-        $this->fillUTCPeriod();
 
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
@@ -1283,8 +1268,6 @@ class DbFormUsageWelltime extends DbForm{
 
         $current = $db->GetRow("select * from usage_welltime where id = '".$this->dbform["id"]."'");
 
-        $this->fillUTCPeriod();
-
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_welltime');
 
         $v=DbForm::Process();
@@ -1362,8 +1345,6 @@ class DbFormUsageVirtpbx extends DbForm{
             return '';
 
         $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
-
-        $this->fillUTCPeriod();
 
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_virtpbx');
 
@@ -1466,8 +1447,6 @@ class DbFormUsageSms extends DbForm{
 
         $current = $db->GetRow("select * from usage_sms where id = '".$this->dbform["id"]."'");
 
-        $this->fillUTCPeriod();
-
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_sms');
 
         $v=DbForm::Process();
@@ -1563,8 +1542,6 @@ class DbFormUsageWellSystem extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
-
-        $this->fillUTCPeriod();
 
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){

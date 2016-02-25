@@ -64,12 +64,12 @@ class UsageVoipEditPackageForm extends Form
 
     public function validateConnectingDate($attr, $params)
     {
-        $now = new DateTime('now', $package->clientAccount->timezone);
+        $now = new DateTime('now', $this->package->clientAccount->timezone);
 
-        $connect_date = new DateTime($this->connecting_date, $package->clientAccount->timezone);
+        $connect_date = new DateTime($this->connecting_date, $this->package->clientAccount->timezone);
         Assert::isObject($connect_date);
 
-        $disconnect_date = new DateTime($this->disconnecting_date, $package->clientAccount->timezone);
+        $disconnect_date = new DateTime($this->disconnecting_date, $this->package->clientAccount->timezone);
         Assert::isObject($disconnect_date);
 
         if ($connect_date >= $disconnect_date) {
@@ -84,9 +84,9 @@ class UsageVoipEditPackageForm extends Form
             return;
         }
 
-        $now = new DateTime('now', $package->clientAccount->timezone);
+        $now = new DateTime('now', $this->package->clientAccount->timezone);
 
-        $disconnect_date = new DateTime($this->disconnecting_date, $package->clientAccount->timezone);
+        $disconnect_date = new DateTime($this->disconnecting_date, $this->package->clientAccount->timezone);
         Assert::isObject($disconnect_date);
 
         if ($disconnect_date < $now) {
@@ -96,32 +96,19 @@ class UsageVoipEditPackageForm extends Form
 
     public function save()
     {
-        $timezone = $this->package->clientAccount->timezone;
-
         if ($this->is_package_in_future) {
-            $connecting_date = new DateTime($this->connecting_date, $timezone);
-
             $this->package->actual_from = $this->connecting_date;
-            $this->package->activation_dt = DateTimeZoneHelper::getActivationDateTime($this->connecting_date, $timezone);
         }
 
         if ($this->is_package_active || $this->is_package_in_future) {
-            $disconnect_date = new DateTime($this->disconnecting_date, $timezone);
-
             $this->package->actual_to = $this->disconnecting_date;
-            $this->package->expire_dt = DateTimeZoneHelper::getExpireDateTime($this->disconnecting_date, $timezone);
-
             $this->package->status = $this->status;
         }
 
-
         if ($this->is_package_active || $this->is_package_in_future) {
+            $transaction = Yii::$app->db->beginTransaction();
             try {
-
-                $transaction = Yii::$app->db->beginTransaction();
-
                 $this->package->save();
-
                 $transaction->commit();
 
                 return true;

@@ -3,6 +3,7 @@
 namespace app\classes\grid\column\important_events\details;
 
 use yii\helpers\Inflector;
+use app\models\important_events\ImportantEvents;
 
 abstract class DetailColumnFactory
 {
@@ -24,8 +25,21 @@ abstract class DetailColumnFactory
             'set_state_trouble',
             'set_responsible_trouble',
         ],
+
+        ClientAccountColumn::class => [
+            'new_account',
+            'account_changed',
+            'extend_account_contract',
+            'contract_transfer',
+            'account_contract_changed',
+            'transfer_contragent',
+        ],
     ];
 
+    /**
+     * @param ImportantEvents $column
+     * @return mixed
+     */
     public static function getColumn($column)
     {
         foreach (self::$columns as $columnClass => $columnRenders) {

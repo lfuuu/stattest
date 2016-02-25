@@ -182,5 +182,10 @@ a.nohover:hover { color: #000; }
         overflow: hidden;
         width: auto;
     }
-}
 
+    .important-events.table-of-changes {
+        float: right;
+        margin-top: 10px;
+        width: 50%;
+    }
+}

@@ -272,8 +272,6 @@ class ClientCreateExternalForm extends Form
 
                 $vats = new UsageVirtpbx;
                 $vats->client = $client->client;
-                $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-                $vats->expire_dt = DateTimeZoneHelper::getExpireDateTime($actual_to, $client->timezone_name);
                 $vats->actual_from = $actual_from;
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
@@ -285,7 +283,7 @@ class ClientCreateExternalForm extends Form
                 $logTarif->service = 'usage_virtpbx';
                 $logTarif->id_service = $vats->id;
                 $logTarif->id_tarif = $tarif->id;
-                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTime::ATOM);
                 $logTarif->date_activation = date('Y-m-d');
                 $logTarif->id_user = User::LK_USER_ID;
                 $logTarif->save();

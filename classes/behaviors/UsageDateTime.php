@@ -15,6 +15,7 @@ class UsageDateTime extends Behavior
     {
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => 'setActualDateTime',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'setActualDateTime',
         ];
     }
 
@@ -29,7 +30,15 @@ class UsageDateTime extends Behavior
             $timezone = $client->timezone_name;
         }
 
-        $event->sender->activation_dt = (new DateTime($event->sender->actual_from, new DateTimeZone($timezone)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
-        $event->sender->expire_dt = (new DateTime($event->sender->actual_to, new DateTimeZone($timezone)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $event->sender->activation_dt =
+            (new DateTime($event->sender->actual_from, new DateTimeZone($timezone)))
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
+                ->format(DateTime::ATOM);
+
+        $event->sender->expire_dt =
+            (new DateTime($event->sender->actual_to, new DateTimeZone($timezone)))
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
+                ->modify('+1 day -1 second')
+                ->format(DateTime::ATOM);
     }
 }

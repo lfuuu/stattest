@@ -9,8 +9,9 @@ use app\models\ClientAccount;
 
 class ClientColumn extends DataColumn
 {
-    public $attribute = 'client_id';
-    public $label = 'Клиент';
+    public
+        $attribute = 'client_id',
+        $label = 'Клиент';
 
     public function __construct($config = [])
     {
@@ -20,14 +21,11 @@ class ClientColumn extends DataColumn
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        $value = parent::getDataCellValue($model, $key, $index);
-        $clientAccount = ClientAccount::findOne($value);
-
         return
-            $clientAccount instanceof ClientAccount
+            $model->clientAccount !== null
             ? Html::a(
-                $clientAccount->contract->contragent->name,
-                ['client/view', 'id' => $clientAccount->id],
+                $model->clientAccount->contragent->name,
+                ['client/view', 'id' => $model->clientAccount->id],
                 ['target' => '_blank']
               )
             : '';
