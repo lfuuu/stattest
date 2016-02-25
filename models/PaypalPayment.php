@@ -15,6 +15,6 @@ class PayPalPayment extends ActiveRecord
     {
         return [
             'createdAt' => CreatedAt::className(),
-            ];
+        ];
     }
 }

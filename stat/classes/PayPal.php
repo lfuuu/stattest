@@ -1,5 +1,7 @@
 <?php
+
 use app\models\PaypalPayment;
+use app\models\Bill;
 
 class PayPal {
    /**
@@ -157,10 +159,10 @@ class PayPal {
                $objNow = new ActiveRecord\DateTime();
                $now = $objNow->format("db");
 
-               $b = NewBill::getLastUnpayedBill($pay->client_id);
+               $b = Bill::getLastUnpaidBill($pay->client_id);
 
                if (!$b)
-                   $b = NewBill::createBillOnPay($pay->client_id, $pay->sum);
+                   $b = NewBill::createBillOnPay($pay->client_id, $pay->sum, $response["PAYMENTINFO_0_CURRENCYCODE"]);
 
                $payment = new \app\models\Payment();
                $payment->client_id = $pay->client_id;
@@ -244,3 +246,4 @@ class PayPal {
       }
    }
 }
+

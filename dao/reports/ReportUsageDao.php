@@ -21,6 +21,8 @@ class ReportUsageDao extends Singleton
     const REPORT_MAX_ITEMS = 50000;
     const REPORT_MAX_VIEW_ITEMS = 5000;
 
+    private static $timezone;
+
     /**
      * @param string $region
      * @param string $from
@@ -54,12 +56,12 @@ class ReportUsageDao extends Singleton
         $from =
             (new DateTime('now', $timezone))
                 ->setTimestamp($from)
-                ->setTimezone(new DateTimeZone('UTC'))
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(0, 0, 0);
         $to =
             (new DateTime('now', $timezone))
                 ->setTimestamp($to)
-                ->setTimezone(new DateTimeZone('UTC'))
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(23, 59, 59);
 
         $clientAccount = ClientAccount::findOne($clientId);
@@ -129,11 +131,11 @@ class ReportUsageDao extends Singleton
     /**
      * @param int $usageId
      * @param int $packageId
-     * @param string $dateRangeFrom
-     * @param string $dateRangeTo
+     * @param DateTime $dateRangeFrom
+     * @param DateTime $dateRangeTo
      * @return array|\yii\db\ActiveRecord[]
      */
-    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0, $dateRangeFrom = '', $dateRangeTo = '')
+    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0, DateTime $dateRangeFrom, DateTime $dateRangeTo)
     {
         $packages = UsageVoipPackage::find()->where(['usage_voip_id' => $usageId]);
 
@@ -141,16 +143,12 @@ class ReportUsageDao extends Singleton
             $packages->andWhere(['id' => $packageId]);
         }
 
-        if ($dateRangeFrom instanceof DateTime) {
+        if ($dateRangeFrom) {
             $packages->andWhere(['>=', 'actual_from', new Expression('CAST(:dateRangeFrom AS DATE)')]);
         }
 
-        if ($dateRangeTo instanceof DateTime) {
-            $packages->andWhere([
-                'or',
-                ['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')],
-                ['>', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]
-            ]);
+        if ($dateRangeTo) {
+            $packages->andWhere(['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]);
         }
 
         $packages->addParams([

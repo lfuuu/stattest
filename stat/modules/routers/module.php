@@ -1,6 +1,7 @@
 <?php
 
 use \app\models\ClientAccount;
+use app\models\CurrencyRate;
 use \app\models\Organization;
 
 class m_routers {
@@ -515,7 +516,8 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $client = \app\models\ClientAccount::find()->where(['client' => $cpe['client']])->one();
         if (!$client) return;
         if ($client->currency == 'USD') {
-            $currency=$db->GetRow('select * from bill_currency_rate where date="'.$cpe['actual_from'].'" and currency="USD"');
+            $tableName = CurrencyRate::tableName();
+            $currency=$db->GetRow('select * from '.$tableName.' where date="'.$cpe['actual_from'].'" and currency="USD"');
             $cpe['deposit_rub']=round($cpe['deposit_sumUSD']*$currency['rate'],2);
         } else {
             $cpe['deposit_rub']=round($cpe['deposit_sumRUB'],2);

@@ -1,5 +1,7 @@
 <?php 
 
+use app\models\important_events\ImportantEventsNames;
+
 class LkNotification {
 
     /**
@@ -80,7 +82,7 @@ class LkNotification {
         $message = $this->design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
 
         if ($contactType == "email") {
-            if (in_array($this->type, array("day_limit", "min_balance", "zero_balance"))) {
+            if (in_array($this->type, [ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT, ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE, ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])) {
                 $message .= $this->design->fetch($q = $this->tpl_dir . $contactType . '__sms_notification.tpl'); // реклама услуги ""Уведомление о критическом остатке"
 
             }
@@ -94,16 +96,16 @@ class LkNotification {
     {
         $res = 'Уведомление';
         switch ($this->type) {
-            case 'min_balance':
+            case ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE:
                 $res .= ' о критическом остатке на лицевом счете МСН Телеком';
             break;
-            case 'zero_balance':
+            case ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE:
                 $res .= ' о финансовой блокировке услуг связи МСН Телеком';
             break;
-            case 'day_limit':
+            case ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT:
                 $res .= ' о превышении суточного лимита';
             break;
-            case 'add_pay_notif':
+            case ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF:
                 $res .= ' о зачислении средств на лицевой счета МСН Телеком';
             break;
         }
