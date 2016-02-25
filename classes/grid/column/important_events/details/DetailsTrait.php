@@ -10,6 +10,10 @@ use app\models\User;
 trait DetailsTrait
 {
 
+    /**
+     * @param int $clientId
+     * @return bool|string
+     */
     public static function renderClientAccount($clientId)
     {
         $clientAccount = ClientAccount::findOne($clientId);
@@ -27,6 +31,10 @@ trait DetailsTrait
             );
     }
 
+    /**
+     * @param int $userId
+     * @return bool|string
+     */
     public static function renderUser($userId)
     {
         $user = User::findOne($userId);

@@ -6,17 +6,30 @@ use app\queries\CurrencyRateQuery;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
+ * @property int $id
  * @property string $date           дата yyyy-mm-dd
  * @property string $currency       валюта: USD, RUB
- * @property float  $rate           значение курса на дату
- * @property
+ * @property float $rate           значение курса на дату
  */
 class CurrencyRate extends ActiveRecord
 {
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'date' => 'Дата',
+            'currency' => 'Валюта',
+            'rate' => 'Курс',
+        ];
+    }
+
     public static function tableName()
     {
-        return 'bill_currency_rate';
+        return 'currency_rate';
     }
 
     public static function dao()

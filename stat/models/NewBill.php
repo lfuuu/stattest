@@ -19,12 +19,12 @@ class NewBill extends ActiveRecord\Model
     public static function getLastUnpayedBill($clientId)
     {
         $fromDate = "2000-01-01";
-        if($lastSaldo = Saldo::getLastSaldo($clientId))
-        {
+
+        if($lastSaldo = Saldo::getLastSaldo($clientId)) {
             $fromDate = $lastSaldo->date;
         }
 
-        //unpayed
+        // unpayed
         $b = NewBill::find('first', array(
                     "conditions" => array("client_id = ? and is_payed in (0,2) and currency=? and bill_date > ?", $clientId, "RUB", $fromDate), // 0 - not paid, 1 - fully paid, 2 - partly paid
                     "limit" => 1,
@@ -66,15 +66,21 @@ class NewBill extends ActiveRecord\Model
     /**
      * Создает счет на основе суммы платежа
      *
-     * @param $clientId Id клиента
-     * @param $paySum сумма платежа
-     *
+     * @param int $clientId
+     * @param float $paySum
+     * @param string $currency
+     * @param bool|false $createAutoLkLog
      * @return ActiveRecord//Model//NewBill
      */
-    public static function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
+    public static function createBillOnPay($clientId, $paySum, $currency = '', $createAutoLkLog = false)
     {
         $clientAccount = ClientAccount::findOne($clientId);
-        $bill = new Bill(null, $clientAccount->id, time(), 0, $clientAccount->currency, true, true);
+
+        if (!$currency) {
+            $currency = $clientAccount->currency;
+        }
+
+        $bill = new Bill(null, $clientAccount->id, time(), 0, $currency, true, true);
         $bill->AddLine(
             Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
             1,
@@ -90,4 +96,5 @@ class NewBill extends ActiveRecord\Model
 
         return NewBill::find_by_bill_no($billNo);
     }
+
 }

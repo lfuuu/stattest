@@ -15,6 +15,7 @@ use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
 use app\models\UsageWelltime;
+use app\models\Domain;
 
 use app\forms\usage\UsageVoipEditForm;
 use app\forms\usage\UsageVirtpbxForm;
@@ -26,6 +27,7 @@ use app\forms\usage\UsageIpPortsForm;
 use app\forms\usage\UsageWelltimeForm;
 use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageTrunkEditForm;
+use app\forms\usage\DomainsForm;
 
 abstract class UsageFactory
 {
@@ -41,6 +43,7 @@ abstract class UsageFactory
     const USAGE_WELLTIME = 'usage_welltime';
     const USAGE_VOIP_PACKAGE = 'usage_voip_package';
     const USAGE_TRUNK = 'usage_trunk';
+    const USAGE_DOMAINS = 'domains';
 
     public static $usage = [
         self::USAGE_VOIP => UsageVoip::class,
@@ -54,6 +57,7 @@ abstract class UsageFactory
         self::USAGE_WELLTIME => UsageWelltime::class,
         self::USAGE_VOIP_PACKAGE => UsageVoipPackage::class,
         self::USAGE_TRUNK => UsageTrunk::class,
+        self::USAGE_DOMAINS => Domain::class,
     ];
 
     public static $usageForms = [
@@ -68,8 +72,14 @@ abstract class UsageFactory
         self::USAGE_WELLTIME => UsageWelltimeForm::class,
         self::USAGE_VOIP_PACKAGE => UsageVoipAddPackageForm::class,
         self::USAGE_TRUNK => UsageTrunkEditForm::class,
+        self::USAGE_DOMAINS => DomainsForm::class,
     ];
 
+    /**
+     * @param string $usage
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
     public static function getUsage($usage)
     {
         if (array_key_exists($usage, self::$usage)) {
@@ -79,13 +89,18 @@ abstract class UsageFactory
         Assert::isUnreachable('Usage "' . $usage . '" not found');
     }
 
+    /**
+     * @param string $usage
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
     public static function getUsageForm($usage)
     {
         if (array_key_exists($usage, self::$usageForms)) {
             return new self::$usageForms[$usage];
         }
 
-        Assert::isUnreachable('Usage form "' . $usage . '" not found');
+        return false;
     }
 
 }

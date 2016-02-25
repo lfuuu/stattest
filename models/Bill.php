@@ -41,6 +41,9 @@ use yii\db\ActiveRecord;
  */
 class Bill extends ActiveRecord
 {
+
+    const MINIMUM_BILL_DATE = '2000-01-01';
+
     public static function tableName()
     {
         return 'newbills';
@@ -115,6 +118,47 @@ class Bill extends ActiveRecord
     public function getExtendsInfo()
     {
         return $this->hasOne(BillExtendsInfo::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @param $clientId
+     * @return boolean|\app\models\Bill
+     */
+    public static function getLastUnpaidBill($clientId)
+    {
+        $fromDate = self::MINIMUM_BILL_DATE;
+
+        if (($clientAccount = ClientAccount::findOne($clientId)) === null) {
+            return false;
+        }
+
+        if ($lastSaldo = Saldo::getLastSaldo($clientAccount->id)) {
+            $fromDate = $lastSaldo->date;
+        }
+
+        // First unpaid bill
+        $bill =
+            self::find()
+                ->where(['client_id' => $clientAccount->id])
+                ->andWhere(['in', 'is_payed', [0, 2]])
+                ->andWhere(['currency' => $clientAccount->currency])
+                ->andWhere(['>', 'bill_date', $fromDate])
+                ->orderBy('bill_date')
+                ->one();
+
+        if ($bill === null) {
+            // Last bill
+            $bill =
+                self::find()
+                    ->where(['client_id' => $clientAccount->id])
+                    ->andWhere(['is_payed' => 1])
+                    ->andWhere(['currency' => $clientAccount->currency])
+                    ->andWhere(['>', 'bill_date', $fromDate])
+                    ->orderBy(['bill_date' => SORT_DESC])
+                    ->one();
+        }
+
+        return $bill !== null ? $bill : false;
     }
 
     public function beforeDelete()

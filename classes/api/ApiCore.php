@@ -2,6 +2,7 @@
 namespace app\classes\api;
 
 use app\classes\JSONQuery;
+use app\models\important_events\ImportantEventsNames;
 use yii\base\Exception;
 
 class ApiCore
@@ -66,7 +67,7 @@ class ApiCore
 
     public static function transferContragent($contragentId, $fromClientId, $toClientId)
     {
-        self::exec('transfer_contragent', [
+        self::exec(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_CONTRAGENT, [
             'from_client_id' => $fromClientId,
             'to_client_id'   => $toClientId,
             'contragent_id'  => $contragentId,

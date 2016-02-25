@@ -44,6 +44,7 @@
 					<option value="0"{if $destination eq '0'} selected='selected'{/if}>Все местные вызовы</option>
 					<option value="0-m"{if $destination eq '0-m'} selected='selected'{/if}>&nbsp;&nbsp;Местные мобильные</option>
 					<option value="0-f"{if $destination eq '0-f'} selected='selected'{/if}>&nbsp;&nbsp;Местные стационарные</option>
+					<option value="0-f-z"{if $destination eq '0-f-z'} selected='selected'{/if}>&nbsp;&nbsp;Зона - стационарные</option>
 					<option value="1"{if $destination eq '1'} selected='selected'{/if}>Россия</option>
 					<option value="1-m"{if $destination eq '1-m'} selected='selected'{/if}>&nbsp;&nbsp;Россия мобильные</option>
 					<option value="1-f"{if $destination eq '1-f'} selected='selected'{/if}>&nbsp;&nbsp;Россия стационарные</option>

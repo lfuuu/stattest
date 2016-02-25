@@ -1,6 +1,7 @@
 <?php
 use app\classes\StatModule;
 use app\models\User;
+use app\models\important_events\ImportantEventsNames;
 
 class m_logs extends IModule{
 
@@ -79,10 +80,10 @@ class m_logs extends IModule{
 		$design->assign('url', '?' . $url . '&');
 
 		$events_description = array(
-				'min_balance' => 'Критический остаток',
-				'zero_balance' => 'Финансовая блокировка',
-				'day_limit' => 'Суточный лимит',
-				'add_pay_notif' => 'Зачисление средств',
+				ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 'Критический остаток',
+				ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE => 'Финансовая блокировка',
+				ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 'Суточный лимит',
+				ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 'Зачисление средств',
 				'prebil_prepayers_notif' => 'Списание абонентской платы авансовым клиентам'
 				
 			);

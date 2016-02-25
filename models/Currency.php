@@ -6,6 +6,9 @@ use yii\db\ActiveRecord;
 
 class Currency extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
+
     const RUB = 'RUB';
     const USD = 'USD';
     const HUF = 'HUF';

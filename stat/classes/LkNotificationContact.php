@@ -1,5 +1,7 @@
 <?php 
 
+use app\models\important_events\ImportantEventsNames;
+
 class LkNotificationContact
 {
     private static $billingCounters = array();
@@ -190,9 +192,9 @@ class LkNotificationContact
                     $client->balance += self::$billingCounters[$C->client_id]['amount_sum'];
                 }
 
-                LkNotificationLog::addLogRaw($C->client_id, $C->id, 'add_pay_notif', true, $client->balance, 0, $pay->sum);
+                LkNotificationLog::addLogRaw($C->client_id, $C->id, ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF, true, $client->balance, 0, $pay->sum);
 
-                $Notification = new LkNotification($C->client_id, $C->id, 'add_pay_notif', $pay->sum, $client->balance);
+                $Notification = new LkNotification($C->client_id, $C->id, ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF, $pay->sum, $client->balance);
                 $Notification->send();
             }
         }
@@ -214,7 +216,7 @@ class LkNotificationContact
         } else {
 
             $data["min_balance"] = 1000; // default values
-            $data["day_limit"] = 200;
+            $data[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT] = 200;
 
             $db->QueryInsert("lk_client_settings", $data);
         }

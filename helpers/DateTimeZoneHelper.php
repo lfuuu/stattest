@@ -17,6 +17,12 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
     const INFINITY = '&#8734;';
 
+    /**
+     * @param string $date
+     * @param string $format
+     * @param bool|true $showTimezoneName
+     * @return DateTime|string|void
+     */
     public static function getDateTime($date, $format = self::DATETIME_FORMAT, $showTimezoneName = true)
     {
         if (!$date) {
@@ -29,10 +35,47 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         return $datetime;
     }
 
+    /**
+     * @param string $date
+     * @param DateTimeZone|string $timezone
+     * @param string $format
+     * @return string
+     */
+    public static function getExpireDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
+    {
+        if (!($timezone instanceof DateTimeZone)) {
+            $timezone = new DateTimeZone($timezone ?: self::TIMEZONE_DEFAULT);
+        }
+
+        return
+            (new DateTime($date, $timezone))
+                ->setTimezone(new DateTimeZone(self::TIMEZONE_DEFAULT))
+                ->modify('+1 day -1 second')
+                ->format($format);
+    }
+
+    /**
+     * @param string $date
+     * @param DateTimeZone|string $timezone
+     * @param string $format
+     * @return string
+     */
+    public static function getActivationDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
+    {
+        if (!($timezone instanceof DateTimeZone)) {
+            $timezone = new DateTimeZone($timezone ?: self::TIMEZONE_DEFAULT);
+        }
+
+        return
+            (new DateTime($date, $timezone))
+                ->setTimezone(new DateTimeZone(self::TIMEZONE_DEFAULT))
+                ->format($format);
+    }
+
     public static function setDateTime($date, $format = false)
     {
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));
-        $datetime->setTimezone(new DateTimeZone('UTC'));
+        $datetime->setTimezone(new DateTimeZone(self::TIMEZONE_DEFAULT));
         return $format !== false ? $datetime->format($format) : $datetime;
     }
 
@@ -54,6 +97,17 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
                     self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
     }
 
+    /**
+     * @return string
+     */
+    public static function getUserTimeZone()
+    {
+        return isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : self::TIMEZONE_DEFAULT;
+    }
+
+    /**
+     * @return string
+     */
     private static function getTimezoneDescription()
     {
         $timezone = static::getUserTimeZone();
@@ -67,11 +121,6 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         else {
             return $timezone;
         }
-    }
-
-    private static function getUserTimeZone()
-    {
-        return isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
     }
 
 }
