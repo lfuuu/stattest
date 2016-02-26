@@ -2070,7 +2070,7 @@ class ApiLk
             ];
 
             $design->assign($assigns);
-            $message = $design->fetch('letters/notification/' . $language . '/approve.tpl');
+            $message = $design->fetch('letters/notification/' . $language . '/email/approve.tpl');
 
             $params = [
                 'data' => $data,
