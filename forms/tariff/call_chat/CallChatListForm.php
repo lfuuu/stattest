@@ -36,7 +36,6 @@ class CallChatListForm extends CallChatForm
         if ($this->price_include_vat) {
             $query->andWhere(['price_include_vat' => $this->price_include_vat]);
         }
-
     }
 
 }

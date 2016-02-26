@@ -14,7 +14,6 @@ class Navigation
 
     private function __construct()
     {
-
         $this->addBlock(
             NavigationBlock::create()
                 ->setRights(['clients.read'])
