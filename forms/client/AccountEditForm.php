@@ -46,7 +46,6 @@ class AccountEditForm extends Form
         $voip_disabled,
         $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
         $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
-        $mail_print,
         $mail_who,
         $head_company,
         $head_company_address_jur,
@@ -95,13 +94,13 @@ class AccountEditForm extends Form
                 [
                     'id', 'super_id', 'contract_id', 'stamp', 'credit', 'voip_credit_limit',
                     'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'mail_print', 'admin_contact_id', 'admin_is_active', 'anti_fraud_disabled'
+                    'is_agent', 'admin_contact_id', 'admin_is_active', 'anti_fraud_disabled'
                 ],
                 'integer'
             ],
             [
                 [
-                    'stamp', 'credit', 'voip_credit_limit', 'is_agent', 'mail_print',
+                    'stamp', 'credit', 'voip_credit_limit', 'is_agent',
                     'voip_disabled', 'voip_credit_limit_day', 'is_with_consignee', 'is_upd_without_sign',
                 ],
                 'default', 'value' => 0
@@ -181,7 +180,6 @@ class AccountEditForm extends Form
             $this->clientM = new ClientAccount();
         }
 
-        $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
 
         $this->options = ArrayHelper::merge($this->options, ArrayHelper::map($this->clientM->getOption('mail_delivery'), 'option', 'value'));
@@ -200,7 +198,6 @@ class AccountEditForm extends Form
         }
 
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
-        $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
         $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
         if($client && $this->historyVersionStoredDate) {

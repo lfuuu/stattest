@@ -56,7 +56,6 @@ $data = [
         'voip_credit_limit_day' => '1000',
         'voip_is_day_calc' => '0',
         'voip_is_day_calc' => '1',
-        'mail_print' => '0',
         'is_with_consignee' => '0',
         'address_post' => '',
         'head_company' => '',

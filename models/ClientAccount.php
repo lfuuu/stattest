@@ -10,6 +10,8 @@ use yii\base\Exception;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\classes\Utils;
+use yii\helpers\ArrayHelper;
+
 /**
  * @property int $id
  * @property string $client
@@ -42,26 +44,26 @@ class ClientAccount extends HistoryActiveRecord
     public $client_orig = '';
 
     public static $statuses = array(
-        'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
-        'testing'             => array('name'=>'тестируемый','color'=>'#6DCFF6'),
-        'connecting'          => array('name'=>'подключаемый','color'=>'#F49AC1'),
-        'work'                => array('name'=>'включенный','color'=>''),
-        'closed'              => array('name'=>'отключенный','color'=>'#FFFFCC'),
-        'tech_deny'           => array('name'=>'тех. отказ','color'=>'#996666'),
-        'telemarketing'       => array('name'=>'телемаркетинг','color'=>'#A0FFA0'),
-        'income'              => array('name'=>'входящие','color'=>'#CCFFFF'),
-        'deny'                => array('name'=>'отказ','color'=>'#A0A0A0'),
-        'debt'                => array('name'=>'отключен за долги','color'=>'#C00000'),
-        'double'              => array('name'=>'дубликат','color'=>'#60a0e0'),
-        'trash'               => array('name'=>'мусор','color'=>'#a5e934'),
-        'move'                => array('name'=>'переезд','color'=>'#f590f3'),
-        'suspended'           => array('name'=>'приостановленные','color'=>'#C4a3C0'),
-        'denial'              => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
-        'once'                => array('name'=>'Интернет Магазин','color'=>'silver'),
-        'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
-        'blocked'             => array('name'=>'временно заблокирован','color'=>'silver'),
-        'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
-        'operator'            => array('name'=>'Оператор','color'=>'lightblue')
+        'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
+        'testing' => array('name' => 'тестируемый', 'color' => '#6DCFF6'),
+        'connecting' => array('name' => 'подключаемый', 'color' => '#F49AC1'),
+        'work' => array('name' => 'включенный', 'color' => ''),
+        'closed' => array('name' => 'отключенный', 'color' => '#FFFFCC'),
+        'tech_deny' => array('name' => 'тех. отказ', 'color' => '#996666'),
+        'telemarketing' => array('name' => 'телемаркетинг', 'color' => '#A0FFA0'),
+        'income' => array('name' => 'входящие', 'color' => '#CCFFFF'),
+        'deny' => array('name' => 'отказ', 'color' => '#A0A0A0'),
+        'debt' => array('name' => 'отключен за долги', 'color' => '#C00000'),
+        'double' => array('name' => 'дубликат', 'color' => '#60a0e0'),
+        'trash' => array('name' => 'мусор', 'color' => '#a5e934'),
+        'move' => array('name' => 'переезд', 'color' => '#f590f3'),
+        'suspended' => array('name' => 'приостановленные', 'color' => '#C4a3C0'),
+        'denial' => array('name' => 'отказ/задаток', 'color' => '#00C0C0'),
+        'once' => array('name' => 'Интернет Магазин', 'color' => 'silver'),
+        'reserved' => array('name' => 'резервирование канала', 'color' => 'silver'),
+        'blocked' => array('name' => 'временно заблокирован', 'color' => 'silver'),
+        'distr' => array('name' => 'Поставщик', 'color' => 'yellow'),
+        'operator' => array('name' => 'Оператор', 'color' => 'lightblue')
     );
 
     public static $formTypes = [
@@ -88,6 +90,7 @@ class ClientAccount extends HistoryActiveRecord
     /** /Virtual variables */
 
     private $_lastComment = false;
+
     /*For old stat*/
 
     public static function tableName()
@@ -150,7 +153,6 @@ class ClientAccount extends HistoryActiveRecord
             'balance' => 'Баланс',
             'voip_is_day_calc' => 'Пересчет дневного лимита',
             'region' => 'Регион',
-            'mail_print' => 'Массовая печать конвертов и закрывающих документов',
             'mail_who' => '"Кому" письмо',
             'head_company' => 'Головная компания',
             'head_company_address_jur' => 'Юр. адрес головной компании',
@@ -187,7 +189,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getType()
     {
-        return ($this->contract->contragent->legal_type !='person') ? 'org' : 'person';
+        return ($this->contract->contragent->legal_type != 'person') ? 'org' : 'person';
     }
 
     public function getFirma()
@@ -301,7 +303,7 @@ class ClientAccount extends HistoryActiveRecord
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
-/**************/
+    /**************/
 
 
     /**
@@ -310,7 +312,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getContract()
     {
         $contract = ClientContract::findOne($this->contract_id);
-        if($contract && $this->getHistoryVersionRequestedDate())
+        if ($contract && $this->getHistoryVersionRequestedDate())
             $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
         return $contract;
     }
@@ -417,13 +419,13 @@ class ClientAccount extends HistoryActiveRecord
     {
         $contacts = ClientContact::find()
             ->select(['type', 'data'])
-            ->andWhere(['client_id' => $this->id, 'is_official'=>1, 'is_active' => 1])
+            ->andWhere(['client_id' => $this->id, 'is_official' => 1, 'is_active' => 1])
             ->groupBy(['type', 'data'])
             ->orderBy('id')
             ->asArray()
             ->all();
 
-        $result = ['fax'=>[],'phone'=>[],'email'=>[]];
+        $result = ['fax' => [], 'phone' => [], 'email' => []];
         foreach ($contacts as $contact) {
             $result[$contact['type']][] = $contact['data'];
         }
@@ -433,7 +435,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getAdditionalInn($isActive = true)
     {
-        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int) $isActive])->all();
+        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int)$isActive])->all();
     }
 
     public function getAdditionalPayAcc()
@@ -457,9 +459,13 @@ class ClientAccount extends HistoryActiveRecord
         return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
     }
 
+    /**
+     * @param $name
+     * @return array
+     */
     public function getOption($name)
     {
-        return $this->getOptions()->where(['option' => $name])->all();
+        return ArrayHelper::getColumn($this->getOptions()->where(['option' => $name])->all(), 'value');
     }
 
     public function convertSum($originalSum, $taxRate = null)
