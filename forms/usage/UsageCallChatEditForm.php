@@ -4,10 +4,7 @@ namespace app\forms\usage;
 use app\models\UsageCallChat;
 use app\models\usages\UsageInterface;
 use Yii;
-use DateTimeZone;
 use DateTime;
-use app\classes\Assert;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
 
@@ -38,33 +35,18 @@ class UsageCallChatEditForm extends UsageCallChatForm
         $usage = new UsageCallChat();
         $usage->client = $this->clientAccount->client;
 
-        $usage->actual_from = $this->actual_from;
-        $usage->actual_to = $this->actual_to ?: UsageInterface::MAX_POSSIBLE_DATE;
-
-        $usage->status = $this->status;
-        $usage->comment = $this->comment;
-        $usage->tarif_id = $this->tarif_id;
-
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-
-            $usage->save();
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        $this->id = $usage->id;
-
-        return true;
+        return $this->save($usage);
     }
 
     public function edit()
     {
         $usage = $this->usage;
 
+        return $this->save($usage);
+    }
+
+    private function save(UsageCallChat $usage)
+    {
         $usage->actual_from = $this->actual_from;
         $usage->actual_to = $this->actual_to ?: UsageInterface::MAX_POSSIBLE_DATE;
 
@@ -77,6 +59,8 @@ class UsageCallChatEditForm extends UsageCallChatForm
 
             $usage->save();
 
+            $this->id = $usage->id;
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -84,6 +68,7 @@ class UsageCallChatEditForm extends UsageCallChatForm
         }
 
         return true;
+
     }
 
 

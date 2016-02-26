@@ -2,15 +2,9 @@
 namespace app\controllers\usage;
 
 use app\classes\Assert;
-use app\forms\usage\UsageTrunkSettingsAddForm;
-use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\models\UsageCallChat;
-use app\models\UsageTrunkSettings;
 use Yii;
-use app\forms\usage\UsageTrunkCloseForm;
-use app\forms\usage\UsageTrunkEditForm;
 use app\models\ClientAccount;
-use app\models\UsageTrunk;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
 
@@ -40,7 +34,7 @@ class CallChatController extends BaseController
         global $fixclient_data;
 
         $clientAccountId = null;
-        if ($fixclient_data) {
+        if ($fixclient_data && isset($fixclient_data['id'])) {
             $clientAccountId = $fixclient_data['id'];
         }
         $clientAccount = ClientAccount::findOne($clientAccountId);
@@ -65,7 +59,7 @@ class CallChatController extends BaseController
 
         $clientAccountId = null;
 
-        if ($fixclient_data) {
+        if ($fixclient_data && isset($fixclient_data['id'])) {
             $clientAccountId = $fixclient_data['id'];
         }
 

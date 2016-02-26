@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\models\TariffCallChat;
 use app\models\UsageCallChat;
 use yii\db\Query;
 
@@ -10,7 +11,9 @@ class UsageCallChatListForm extends UsageCallChatForm
 
     public function spawnQuery()
     {
-        return UsageCallChat::find()->orderBy('id asc');
+        return UsageCallChat::find()
+            ->with('tariff')
+            ->orderBy(['id' => SORT_ASC]);
     }
 
 

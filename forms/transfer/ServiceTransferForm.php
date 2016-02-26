@@ -2,6 +2,7 @@
 
 namespace app\forms\transfer;
 
+use app\models\UsageCallChat;
 use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
@@ -53,6 +54,7 @@ class ServiceTransferForm extends Form
             UsageTrunk::dao(),
             UsageIpPorts::dao(),
             UsageTechCpe::dao(),
+            UsageCallChat::dao(),
         ];
     }
 

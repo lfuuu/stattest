@@ -19,4 +19,9 @@ class TariffCallChat extends ActiveRecord
     {
         return TariffCallChatDao::me();
     }
+
+    public function getCurrency()
+    {
+        return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+    }
 }

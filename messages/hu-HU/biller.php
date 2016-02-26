@@ -14,6 +14,9 @@ return [
     'vpbx_over_ports_count' => 'Portok számának a túllépése{date_range}',
     'vpbx_over_ext_did_count' => 'Számának túllépése külső számok{date_range}',
 
+    //Call_chat
+    'call_chat_service' => '{tariff}{date_range}',
+
     '' => '{}',
 
     'paypal_payment_description' => '{account} számú egyenleg feltőltése {sum} {currency}',

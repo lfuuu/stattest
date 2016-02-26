@@ -1,11 +1,16 @@
 <?php
 namespace app\models;
 
+
+use DateTime;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
-use app\classes\transfer\ExtraServiceTransfer;
-use app\helpers\usages\UsageExtraHelper;
+use app\classes\bill\CallChatBiller;
+use app\classes\transfer\CallChatServiceTransfer;
+use app\helpers\usages\UsageCallChatHelper;
 use app\models\usages\UsageInterface;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\dao\services\CallChatServiceDao;
 
 /**
  * @property int $id
@@ -29,6 +34,24 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
         return 'usage_call_chat';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'Id',
+            'client' => 'Клиент',
+            'actual_from' => 'Дата подключения',
+            'actual_to' => 'Дата отключения',
+            'tarif_id' => 'Тариф',
+            'status' => 'Статус услуги',
+            'comment' => 'Коментарий'
+        ];
+    }
+
+    public static function dao()
+    {
+        return CallChatServiceDao::me();
+    }
+
     public static function find()
     {
         return new UsageQuery(get_called_class());
@@ -36,19 +59,17 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        //TODO:: realize
-        //return new ExtraBiller($this, $date, $clientAccount);
+        return new CallChatBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
     {
-        return $this->hasOne(TariffExtra::className(), ['id' => 'tarif_id']);
+        return $this->hasOne(TariffCallChat::className(), ['id' => 'tarif_id']);
     }
 
     public function getServiceType()
     {
-        //TODO:: realize
-        //return Transaction::SERVICE_EXTRA;
+        return Transaction::SERVICE_CALL_CHAT;
     }
 
     public function getClientAccount()
@@ -59,29 +80,30 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
 
     /**
      * @param $usage
-     * @return ExtraServiceTransfer
+     * @return CallChatServiceTransfer
      */
 
     public static function getTransferHelper($usage)
     {
         //TODO:: realize
-        //return new ExtraServiceTransfer($usage);
+        return new CallChatServiceTransfer($usage);
     }
 
     /**
-     * @return UsageExtraHelper
+     * @return UsageCallChatHelper
      */
 
     public function getHelper()
     {
-        //TODO:: realize
-        //return new UsageExtraHelper($this);
+        return new UsageCallChatHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
-        //TODO:: realize
-        //return UsagesLostTariffs::intoTariffTable(self::className(), TariffExtra::tableName());
+        return UsagesLostTariffs::intoTariffTable(self::className(), TariffCallChat::tableName());
     }
 
 }

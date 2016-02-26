@@ -16,7 +16,6 @@ echo GridView::widget([
             'vAlign' => 'top',
             'noWrap' => true,
         ],
-
         [
             'attribute' => 'client',
             'label' => 'Клиент'
@@ -26,6 +25,12 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'actual_to'
+        ],
+        [
+            'attribute' => 'tarif_id',
+            'value' => function($model) {
+                return $model->tariff->description;
+            }
         ]
 
     ],

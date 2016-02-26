@@ -12,12 +12,13 @@ use yii\helpers\ArrayHelper;
 class TariffCallChatDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($currencyId, $withEmpty = false)
     {
         $list =
             ArrayHelper::map(
                 TariffCallChat::find()
                     ->orderBy('description')
+                    ->andWhere(['currency_id' => $currencyId])
                     ->asArray()
                     ->all(),
                 'id',
