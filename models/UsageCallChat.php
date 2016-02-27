@@ -26,6 +26,7 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
         return [
             'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ActualCallChatUsage' => \app\classes\behaviors\ActaulizeCallChat::className()
         ];
     }
 

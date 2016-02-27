@@ -1,22 +1,24 @@
 <?php
 
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\ActaulizerCallChatUsage;
 use app\classes\Event;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
-include PATH_TO_ROOT."conf_yii.php";
-include INCLUDE_PATH."runChecker.php";
+include PATH_TO_ROOT . "conf_yii.php";
+include INCLUDE_PATH . "runChecker.php";
 
-echo "\n".date("r").":";
+echo "\n" . date("r") . ":";
 
 
-if (runChecker::isRun())
+if (runChecker::isRun()) {
     exit();
+}
 
 
-    $sleepTime = 3;
-    $workTime = 120;
+$sleepTime = 3;
+$workTime = 120;
 
 runChecker::run();
 
@@ -24,41 +26,41 @@ $counter = 2;
 
 EventQueue::table()->conn->query("SET @@session.time_zone = '+00:00'");
 
-do{
+do {
     do_events();
     sleep($sleepTime);
     echo ".";
-}while($counter++ < round($workTime/$sleepTime));
+} while ($counter++ < round($workTime / $sleepTime));
 
 runChecker::stop();
-echo "\nstop-".date("r").":";
-
-
+echo "\nstop-" . date("r") . ":";
 
 
 function do_events()
 {
-    foreach(EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event)
-    {
+    foreach (EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event) {
         $isError = false;
-        echo "\n".date("r").": event: ".$event->event.", ".$event->param;
+        echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
 
-        $param = $event->param; 
+        $param = $event->param;
 
-        if (strpos($param, "a:") === 0)
-        {
+        if (strpos($param, "a:") === 0) {
             $param = unserialize($param);
-        }else if (strpos($param, "|") !== false) {
-            $param = explode("|", $param);
-        }else if (strpos($param, "{\"") === 0) {
-            $param = json_decode($param, true);
+        } else {
+            if (strpos($param, "|") !== false) {
+                $param = explode("|", $param);
+            } else {
+                if (strpos($param, "{\"") === 0) {
+                    $param = json_decode($param, true);
+                }
+            }
         }
 
-        Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
-        try{
-            switch($event->event)
-            {
+        try {
+            switch ($event->event) {
                 case 'client_set_status':
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
@@ -112,6 +114,9 @@ function do_events()
                     /* проверка необходимости включить или выключить услугу UsageVirtPbx */
                     Event::go('check__virtpbx3');
 
+                    /* проверка необходимости включить или выключить улугу UsageCallChat */
+                    Event::go('check__call_chat');
+
                     break;
                 }
 
@@ -126,6 +131,14 @@ function do_events()
                 case 'check__virtpbx3': {
                     VirtPbx3::check();
                     echo "...VirtPbx3::check()";
+                    break;
+                }
+
+                /* проверка необходимости включить или выключить услугу UsageCallChat */
+                // TODO: перенести в новый демон
+                case 'check__call_chat': {
+                    ActaulizerCallChatUsage::me()->actualizeUsages();
+                    echo "...ActaulizerCallChatUsage::actualizeUsages()";
                     break;
                 }
 
@@ -159,10 +172,8 @@ function do_events()
 
             }
 
-            if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'])
-            {
-                switch($event->event)
-                {
+            if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {
+                switch ($event->event) {
                     case 'add_account':
                         SyncCore::addAccount($param, true);
                         break;
@@ -198,17 +209,26 @@ function do_events()
                         SyncCore::checkProductState('phone', $param['client_id']);
                         break;
                 }
+
+                //события услги звонок_чат
+                if (isset(\Yii::$app->params['FEEDBACK_PRODUCT_ENABLED']) && \Yii::$app->params['FEEDBACK_PRODUCT_ENABLED']) {
+                    switch ($event->event) {
+
+                        case 'call_chat__add':
+                        case 'call_chat__del':
+                            ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
+                            break;
+                    }
+                }
             }
 
-        } catch (Exception $e)
-        {
+        } catch (Exception $e) {
             echo "\n--------------\n";
-            echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage()." in ".$e->getFile()." +".$e->getLine();
+            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->GetMessage() . " in " . $e->getFile() . " +" . $e->getLine();
             $event->setError($e);
             $isError = true;
         }
-        if (!$isError)
-        {
+        if (!$isError) {
             $event->setOk();
         }
     }
