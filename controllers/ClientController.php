@@ -10,6 +10,7 @@ use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Number;
+use app\models\UsageCallChat;
 use app\models\UsageTechCpe;
 use app\models\Trouble;
 use app\models\UsageExtra;
@@ -125,6 +126,12 @@ class ClientController extends BaseController
         $services['trunk'] =
             UsageTrunk::find()
                 ->where(['client_account_id' => $account->id])
+                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+                ->all();
+
+        $services['call_chat'] =
+            UsageCallChat::find()
+                ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 

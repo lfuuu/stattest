@@ -48,6 +48,7 @@ class Transaction extends ActiveRecord
     const SERVICE_VOIP          = 'usage_voip';
     const SERVICE_VOIP_PACKAGE  = 'usage_voip_package';
     const SERVICE_TRUNK         = 'usage_trunk';
+    const SERVICE_CALL_CHAT     = 'usage_call_chat';
 
     const TYPE_CONNECTING = 'connecting';
     const TYPE_PERIODICAL = 'periodical';

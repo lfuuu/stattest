@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\models\UsageCallChat;
 use Yii;
 use DateTime;
 use app\models\Bill;
@@ -161,6 +162,15 @@ class ClientAccountBiller
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
+
+        $this->processUsages(
+            UsageCallChat::find()
+                ->andWhere(['client' => $this->clientAccount->client])
+                ->andWhere(['status' => $status])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->all()
+        );
+
 
         return $this;
     }

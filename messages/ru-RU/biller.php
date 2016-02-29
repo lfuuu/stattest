@@ -34,6 +34,9 @@ return [
     'vpbx_over_ports_count' => 'Превышение количества портов{date_range}',
     'vpbx_over_ext_did_count' => 'Абонентская плата за услугу подключения номера стороннего оператора{date_range}',
 
+    //Call_chat
+    'call_chat_service' => '{tariff}{date_range}',
+
     'test' => '',
 
     'paypal_payment_description' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',

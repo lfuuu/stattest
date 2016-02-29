@@ -10,7 +10,7 @@ use yii\db\ActiveRecord;
 use app\classes\Event;
 
 
-class ActaulizeClientVoip extends Behavior
+class ActualizeClientVoip extends Behavior
 {
     public function events()
     {

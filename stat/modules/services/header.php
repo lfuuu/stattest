@@ -30,7 +30,7 @@ class m_services_head extends IModuleHead {
 					'co_add'			=> array('services_collocation','addnew'),
 					'co_add2'			=> array('services_collocation','addnew'),
 					'co_close'			=> array('services_collocation','close'),
-						
+
 //VOip
 					'trunk_view'		=> array('services_voip','r'),
 					'vo_view'			=> array('services_voip','r'),
@@ -45,7 +45,7 @@ class m_services_head extends IModuleHead {
                                        'get_tarifs'        =>array('services_voip','r'),
                                        'check_pop_services' => array('services_voip','edit'),
                                        'check_services_move' => array('services_voip','edit'),
-					
+
 //Domain Names
 					'dn_view'			=> array('services_domains','r'),
 					'dn_add'			=> array('services_domains','addnew'),
@@ -109,20 +109,36 @@ class m_services_head extends IModuleHead {
 					'ppp_chpass'		=> array('services_ppp','chpass'),
 					'ppp_chreal'		=> array('services_ppp','chpass'),
 				);
-	public $menu=array(
-		array('Телефония Номера',		'vo_view'),
-		array('Телефония Транки',		'trunk_view'),
-		array('Welltime',				'welltime_view'),
-        array('Виртуальная АТС',		'virtpbx_view'),
-        array('СМС',	                'sms_view'),
-		array('Интернет',				'in_view'),
-		array('Collocation',			'co_view'),
-		array('WellSystem',				'wellsystem_view'),
-		array('Доменные имена',			'dn_view'),
-		array('E-Mail',					'em_view'),
-		array('PPP-логины',				'ppp_view'),
-		array('Доп. услуги',			'ex_view'),
-		array('IT Park',				'it_view'),
-	);
+
+	public $menu = [];
+
+	public function __construct()
+	{
+		$this->menu = [
+			['Телефония Номера', 'vo_view'],
+			['Телефония Транки', 'trunk_view'],
+			['Welltime', 'welltime_view'],
+			['Виртуальная АТС', 'virtpbx_view'],
+			['СМС', 'sms_view'],
+			['Интернет', 'in_view'],
+			['Collocation', 'co_view'],
+			['WellSystem', 'wellsystem_view'],
+			['Доменные имена', 'dn_view'],
+			['E-Mail', 'em_view'],
+			//['PPP-логины', 'ppp_view'],
+			['Доп. услуги', 'ex_view'],
+			//['IT Park', 'it_view'],
+			[
+				'Звонок_чат',
+				function () {
+					if (Yii::$app->user->can('services_additional.edit')) {
+						return ['usage/call-chat'];
+					}
+				}
+			]
+		];
+
+        parent::__construct();
+    }
 }
 ?>

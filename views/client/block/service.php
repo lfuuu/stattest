@@ -377,6 +377,40 @@ if ($has) :
                 </div>
             <?php endif; ?>
 
+            <?php if ($services['call_chat']): ?>
+                <div id="trunks">
+                    <h3><a href="/usage/call-chat">Услуга звонок_чат</a></h3>
+                    <table cellspacing="4" cellpadding="2" width="100%" border="0">
+                        <thead>
+                        <tr bgcolor="#FFFFD8">
+                            <th width="5%">id</th>
+                            <th width="30%">Дата подключения</th>
+                            <th width="45%">Тариф</th>
+                            <th width="20%">Абонентская плата</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($services['call_chat'] as $service): ?>
+                            <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#FFFFF5') : '#FFE0E0' ?>">
+                                <td>
+                                    <a href="/usage/call-chat/edit?id=<?= $service->id ?>" target="_blank">
+                                        <?= $service->id; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="/usage/call-chat/edit?id=<?= $service->id ?>" target="_blank">
+                                        <?= $renderDate($service->actual_from, $service->actual_to); ?>
+                                    </a>
+                                </td>
+                                <td><?= $service->tariff->description; ?></td>
+                                <td><?= $service->tariff->price . ' ' . $service->tariff->currency->symbol; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+
             <?php if ($services['device']) : ?>
                 <div id="device">
                     <h3><a href="/?module=routers&action=d_list">Клиентские устройства</a></h3>

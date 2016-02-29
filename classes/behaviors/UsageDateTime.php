@@ -15,7 +15,7 @@ class UsageDateTime extends Behavior
     {
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => 'setActualDateTime',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'setActualDateTime',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'setActualDateTime'
         ];
     }
 

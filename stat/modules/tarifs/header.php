@@ -31,8 +31,8 @@ class m_tarifs_head extends IModuleHead{
             //             array('Междугородняя связь',    'view','&m=russia'),
             //             array('Международная связь',    'view','&m=world'),
             array('Дополнительные услуги',    'view','&m=extra'),
-            //array('IT Park',                'view','&m=itpark'),
-            array('IT Park',                'itpark',''),
+
+            //array('IT Park',                'itpark',''),
             array('Welltime',                'welltime',''),
             array('Виртуальная АТС',        'virtpbx',''),
             array('СМС',                   'sms',''),
