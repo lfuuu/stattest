@@ -5,5 +5,5 @@ return [
     'CORE_SERVER' => 'vpbxphoneapi.mcn.loc',
     'PHONE_SERVER' => 'vpbxphoneapi.mcn.loc',
     'LK_PATH' => 'https://vpbxphoneapi.mcn.loc/lk/',
-    'FEEDBACK_PRODUCT_ENABLED' => false
+    'FEEDBACK_SERVER' => false
 ];

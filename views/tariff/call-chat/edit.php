@@ -1,21 +1,17 @@
 <?php
 
 use yii\helpers\Url;
-use yii\helpers\ArrayHelper;
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\Currency;
-use app\models\Region;
-use app\models\Country;
-use app\models\TariffVoip;
-use app\models\billing\Pricelist;
-use app\models\voip\Destination;
+use app\classes\enum\TariffStatusEnum;
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
 $currencies = ['' => '-- Валюта --'] + Currency::dao()->getList('id', true);
+
 
 echo Html::formLabel($model->description ? 'Редактирование тарифа' : 'Новый тариф');
 echo Breadcrumbs::widget([
@@ -37,7 +33,11 @@ echo Breadcrumbs::widget([
         'columns' => 3,
         'attributes' => [
             'price' => ['type' => Form::INPUT_TEXT],
-            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $currencies, 'options' => ['class' => 'select2'] + $optionDisabled],
+            'currency_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $currencies,
+                'options' => ['class' => 'select2'] + $optionDisabled
+            ],
             'price_include_vat' => ['type' => Form::INPUT_CHECKBOX], // , 'options' => $optionDisabled
         ],
     ]);
@@ -45,9 +45,21 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 2,
+        'columns' => 3,
         'attributes' => [
-            'description' => ['type' => Form::INPUT_TEXT],
+            'description' => [
+                'type' => Form::INPUT_TEXT,
+                'columnOptions' => [
+                    'colspan' => 2
+                ]
+            ],
+            'status' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => TariffStatusEnum::getNames(),
+                'options' => [
+                    'class' => 'select2'
+                ]
+            ]
         ],
     ]);
 

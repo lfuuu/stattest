@@ -3,11 +3,22 @@
 namespace app\classes\grid\column;
 
 use Yii;
-use yii\helpers\Html;
+use kartik\grid\GridView;
+
 
 class EnumColumn extends DataColumn
 {
     public $enum;
+    public $filterType = GridView::FILTER_SELECT2;
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+
+        $enumClass = $this->enum;
+        $this->filter = ['' => ' -------- '] + $enumClass::getNames();
+
+    }
 
     protected function renderDataCellContent($model, $key, $index)
     {

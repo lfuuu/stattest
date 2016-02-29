@@ -2,6 +2,7 @@
 
 use kartik\grid\GridView;
 use app\classes\Html;
+use app\classes\enum\TariffStatusEnum;
 
 echo Html::formLabel('Тарифы Звонок_чат');
 
@@ -28,14 +29,22 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
+            'class' => 'app\classes\grid\column\EnumColumn',
+            'enum' => TariffStatusEnum::className(),
+            'label' => 'Статус тарифа',
+            'attribute' => 'status'
+        ],
+        [
             'class' => 'app\classes\grid\column\BooleanColumn',
-            'values' => [0 => 'Без НДС', 1 => 'Вкл. НДС'],
+            'values' => [
+                0 => 'Без НДС',
+                1 => 'Вкл. НДС'
+            ],
             'attribute' => 'price_include_vat',
             'label' => 'НДС',
             'vAlign' => 'top',
         ],
     ],
-    'pjax' => true,
     'toolbar'=> [
         [
             'content' =>
@@ -43,7 +52,6 @@ echo GridView::widget([
                     '<i class="glyphicon glyphicon-plus"></i> Добавить',
                     ['add'],
                     [
-                        'data-pjax' => 0,
                         'class' => 'btn btn-success btn-sm form-lnk',
                     ]
                 ),

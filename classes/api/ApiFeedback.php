@@ -10,13 +10,13 @@ class ApiFeedback
     {
         return
             isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']
-            && isset(\Yii::$app->params['FEEDBACK_PRODUCT_ENABLED']) && \Yii::$app->params['FEEDBACK_PRODUCT_ENABLED'];
+            && isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER'];
     }
 
     private static function getApiUrl()
     {
         return
-            self::isAvailable() ? 'https://' . \Yii::$app->params['CORE_SERVER'] . '/feedback/api/' : false;
+            self::isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
     }
 
     public static function createChat($clientId, $chatId = 0, $chatName = '')
@@ -31,7 +31,7 @@ class ApiFeedback
 
     public static function removeChat($clientId, $chatId)
     {
-        //TODO реализовать когда feedback/chat будет доработан
+        //TODO реализовать когда feedback/chat::remove() будет доработан
         return true;
 
         /*
