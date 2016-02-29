@@ -58,7 +58,29 @@ use app\models\Currency;
             ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],
 
-            'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2],],
+            [
+                'type' => Form::INPUT_RAW,
+                'columnOptions' => [
+                    'colspan' => 2,
+                ],
+                'value' => function() use ($f, $model) {
+                    return
+                        $f
+                            ->field($model, 'options[mail_delivery_variant]', [
+                                'options' => [
+                                    'class' => 'col_sm_12',
+                                    'style' => 'margin-left: 15px;',
+                                ],
+                            ])
+                            ->checkboxList([
+                                'payment' => 'Платная рассылка почтой РФ',
+                                'by_self' => 'Самовывоз',
+                                'black_list' => 'Черный список',
+                                'undefined' => 'Не определились / Не отправляем',
+                            ])
+                            ->label('Тип рассылки документов');
+                },
+            ],
             'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
             ['type' => Form::INPUT_RAW,],
             ['type' => Form::INPUT_RAW,],

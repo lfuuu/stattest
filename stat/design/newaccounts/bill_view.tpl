@@ -330,7 +330,7 @@
 {/if}
 
 <!--input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br-->
-<input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if $client.mail_print =="no"} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
+<input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if !in_array('payment', $client|client_options:mail_delivery_variant)} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
 
 <input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>
 <input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2 превышение)</label><br>

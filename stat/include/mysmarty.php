@@ -365,6 +365,11 @@ function smarty_modifier_usage_link($usageType, $usageId)
     }
 }
 
+function smarty_modifier_client_options(\app\models\ClientAccount $client, $optionName)
+{
+    return (array) $client->getOption($optionName);
+}
+
 class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
@@ -407,6 +412,7 @@ class MySmarty extends SmartyStat {
         $this->register_modifier('find_urls','smarty_modifier_find_urls');
 		$this->register_modifier('rus_fin','smarty_modifier_rus_plural');
 		$this->register_modifier('usage_link','smarty_modifier_usage_link');
+		$this->register_modifier('client_options', 'smarty_modifier_client_options');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

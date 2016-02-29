@@ -1548,7 +1548,9 @@ class m_newaccounts extends IModule
                 $isAktImport = get_param_raw("akt-1", "") == "1";
 
                 $c = ClientAccount::findOne($bill->client_id);
-                if($c["mail_print"] == "no") continue;
+                if(!in_array('payment', $c->getOption(['mail_delivery_variant']))) {
+                    continue;
+                }
 
                 $d = $this->get_bill_docs($bill);
 
@@ -3026,8 +3028,7 @@ where cg.inn = '".$inn."'";
                 if(/*substr($bill->Get("bill_date"), 7,3) == "-01" && */$bill->Get("postreg") == "0000-00-00" && !$bill->isOneZadatok())
                 {
                     $c = ClientAccount::findOne($bill->client_id);
-                    if($c["mail_print"] == "yes")
-                    {
+                    if (in_array('payment', $c->getOption('mail_delivery_variant'))) {
                         $bills[] = $p["bill_no"];
                     }
                 }
