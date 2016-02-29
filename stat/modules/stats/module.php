@@ -1041,7 +1041,7 @@ class m_stats extends IModule{
                                    left join geo.geo g on g.id = iss.city_geo_id'
                                 : ''
                             ) . "
-                            where server_id=" . intval($region) . " and  ".MySQLDatabase::Generate($W)
+                            where server_id=" . intval($region) . " and  ".MySQLDatabase::Generate($W) . 
                             "GROUP BY destination_id, mob";
             $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
