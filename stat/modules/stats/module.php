@@ -1035,7 +1035,7 @@ class m_stats extends IModule{
             $R['total']=$rt;
         }else{
             $sql="  select destination_id as dest, mob, -sum(cost) as price, sum(billed_time) as len, sum(1) as cnt
-                            from calls_raw.calls_raw
+                            from calls_raw.calls_raw as cr
                             where server_id=" . intval($region) . " and  ".MySQLDatabase::Generate($W)."
                             GROUP BY destination_id, mob";
             $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
