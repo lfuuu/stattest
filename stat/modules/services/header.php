@@ -125,9 +125,9 @@ class m_services_head extends IModuleHead {
 			['WellSystem', 'wellsystem_view'],
 			['Доменные имена', 'dn_view'],
 			['E-Mail', 'em_view'],
-			['PPP-логины', 'ppp_view'],
+			//['PPP-логины', 'ppp_view'],
 			['Доп. услуги', 'ex_view'],
-			['IT Park', 'it_view'],
+			//['IT Park', 'it_view'],
 			[
 				'Звонок_чат',
 				function () {
