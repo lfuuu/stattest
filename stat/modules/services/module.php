@@ -1949,24 +1949,23 @@ class m_services extends IModule{
         if(!$this->fetch_client($fixclient)){
 
             $vpbxs = $db->AllRecords($q='
-            SELECT
-                S.*,
-
-                S.id as id,
-                r.name as regionName,
-                c.status as client_status,
-                c.id as client_id,
-                IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            FROM usage_virtpbx as S
-            LEFT JOIN datacenter d ON d.region = S.region
-            LEFT JOIN regions r ON r.id = d.region
-            LEFT JOIN clients c ON (c.client = S.client)
-
-            HAVING actual
-            ORDER BY client,actual_from'
-
-            );
+                SELECT
+                    S.*,
+                    S.id as id,
+                    r.name as regionName,
+                    c.status as client_status,
+                    c.id as client_id,
+                    IF((CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to),1,0) as actual,
+                    IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+                FROM
+                    usage_virtpbx as S
+                        LEFT JOIN datacenter d ON d.region = S.region
+                            LEFT JOIN regions r ON r.id = d.region
+                                LEFT JOIN clients c ON (c.client = S.client)
+                GROUP BY S.id
+                HAVING actual
+                ORDER BY client,actual_from
+            ');
 
             $R = array();
             $statuses = ClientAccount::$statuses;
@@ -1992,18 +1991,18 @@ class m_services extends IModule{
         $R=array();
         $vpbxs = $db->AllRecords($q='
             SELECT
-                
                 S.*,
                 S.id as id,
                 r.name as regionName,
                 IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to,1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            FROM usage_virtpbx as S
-            LEFT JOIN datacenter d ON d.region = S.region
-            LEFT JOIN regions r ON r.id = d.region
-            
-            WHERE S.client="'.$clientNick.'"'
-        );
+            FROM
+                usage_virtpbx as S
+                    LEFT JOIN datacenter d ON d.region = S.region
+                        LEFT JOIN regions r ON r.id = d.region
+            WHERE S.client="'.$clientNick.'"
+            GROUP BY S.id
+        ');
 
         $isViewAkt = false;
         foreach($vpbxs as $r){
