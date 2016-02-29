@@ -211,7 +211,7 @@ function do_events()
                 }
 
                 //события услги звонок_чат
-                if (isset(\Yii::$app->params['FEEDBACK_PRODUCT_ENABLED']) && \Yii::$app->params['FEEDBACK_PRODUCT_ENABLED']) {
+                if (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']) {
                     switch ($event->event) {
 
                         case 'call_chat__add':

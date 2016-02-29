@@ -4,7 +4,6 @@ namespace app\classes\grid\column;
 
 use app\models\TariffVoip;
 use kartik\grid\GridView;
-use yii\helpers\ArrayHelper;
 
 class VoipStatusesColumn extends DataColumn
 {

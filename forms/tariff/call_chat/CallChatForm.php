@@ -4,7 +4,6 @@ namespace app\forms\tariff\call_chat;
 
 use app\classes\Form;
 use app\models\TariffCallChat;
-use app\models\TariffVoipPackage;
 
 class CallChatForm extends Form
 {
@@ -14,7 +13,7 @@ class CallChatForm extends Form
         $description = '',
         $price = 0,
         $currency_id = 0,
-        $price_include_vat = 1,
+        $price_include_vat = null,
         $status = 'public';
 
 
@@ -44,7 +43,6 @@ class CallChatForm extends Form
 
     public function save(TariffCallChat $tariff = null)
     {
-
         if ($tariff === null) {
             $tariff = new TariffCallChat;
         }
