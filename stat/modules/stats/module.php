@@ -918,7 +918,7 @@ class m_stats extends IModule{
                     $W[] = 'cr.mob=false';
                 }
             }
-            if ($dg == 0 && $mobile = 'f') {
+            if ($dg == 0 && $mobile == 'f') {
                 $zone_filter = true;
                 switch ($zone) {
                     case 'z':
@@ -1042,7 +1042,7 @@ class m_stats extends IModule{
                                 : ''
                             ) . "
                             where server_id=" . intval($region) . " and  ".MySQLDatabase::Generate($W) . 
-                            "GROUP BY destination_id, mob";
+                            "GROUP BY cr.destination_id, cr.mob";
             $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
