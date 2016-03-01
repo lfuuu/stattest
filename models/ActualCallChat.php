@@ -4,7 +4,14 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\dao\ActualCallChatDao;
 
-
+/**
+ * Class ActualCallChat
+ * @package app\models
+ *
+ * @property int $client_id
+ * @property int $usage_id
+ * @property int $tarif_id
+ */
 class ActualCallChat extends ActiveRecord
 {
 

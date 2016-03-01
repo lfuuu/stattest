@@ -19,10 +19,20 @@ class ApiFeedback
             self::isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
     }
 
+    private static function getApiKey()
+    {
+        return
+            isset(\Yii::$app->params['FEEDBACK_API_KEY']) ?
+                \Yii::$app->params['FEEDBACK_API_KEY'] :
+                false;
+    }
+
+
     public static function createChat($clientId, $chatId = 0, $chatName = '')
     {
         $data = [
             'account_id' => $clientId,
+            'chat_id' => $chatId,
             'name' => $chatName ?: ($chatId ? 'Чат #' . $chatId : '')
         ];
 
@@ -53,10 +63,20 @@ class ApiFeedback
         return self::exec('getChatList', $data);
     }
 
-    private static function exec($action, $data)
+    private static function exec($action, $data = null)
     {
         if (!self::isAvailable()) {
             throw new InvalidConfigException('API Feedback was not configured');
+        }
+
+        if (!($apiKey = self::getApiKey())) {
+            throw new \InvalidConfigException("FEEDBACK_API_KEY now set");
+        }
+
+        if (is_array($data)) {
+            $data['api_key'] = $apiKey;
+        } else {
+            $data = ['api_key' => $apiKey];
         }
 
         $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
