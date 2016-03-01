@@ -3,7 +3,9 @@ namespace app\models\usages;
 
 use app\classes\Assert;
 
+use app\forms\usage\UsageCallChatEditForm;
 use app\forms\usage\UsageIpRoutesForm;
+use app\models\UsageCallChat;
 use app\models\UsageEmails;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
@@ -44,6 +46,7 @@ abstract class UsageFactory
     const USAGE_VOIP_PACKAGE = 'usage_voip_package';
     const USAGE_TRUNK = 'usage_trunk';
     const USAGE_DOMAINS = 'domains';
+    const USAGE_CALL_CHAT = 'usage_call_chat';
 
     public static $usage = [
         self::USAGE_VOIP => UsageVoip::class,
@@ -58,6 +61,7 @@ abstract class UsageFactory
         self::USAGE_VOIP_PACKAGE => UsageVoipPackage::class,
         self::USAGE_TRUNK => UsageTrunk::class,
         self::USAGE_DOMAINS => Domain::class,
+        self::USAGE_CALL_CHAT => UsageCallChat::class
     ];
 
     public static $usageForms = [
@@ -73,6 +77,7 @@ abstract class UsageFactory
         self::USAGE_VOIP_PACKAGE => UsageVoipAddPackageForm::class,
         self::USAGE_TRUNK => UsageTrunkEditForm::class,
         self::USAGE_DOMAINS => DomainsForm::class,
+        self::USAGE_CALL_CHAT => UsageCallChatEditForm::class
     ];
 
     /**
