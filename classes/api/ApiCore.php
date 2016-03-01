@@ -19,7 +19,7 @@ class ApiCore
 
     public static function exec($action, $data) {
         if (!self::isAvailable()) {
-            throw new Exception('API Core was not configured');
+            throw new ConfigExceptionException('API Core was not configured');
         }
 
         $result = JSONQuery::exec(self::getApiUrl() . $action, $data);

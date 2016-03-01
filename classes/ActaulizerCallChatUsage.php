@@ -2,6 +2,8 @@
 
 namespace app\classes;
 
+use app\classes\api\ApiCore;
+use app\models\ProductState;
 use Exception;
 use yii\base\InvalidConfigException;
 use app\classes\api\ApiFeedback;
@@ -29,7 +31,7 @@ class ActaulizerCallChatUsage extends Singleton
             ActualCallChatDao::me()->loadSaved($usageId),
             ActualCallChatDao::me()->collectFromUsages($usageId)
         );
-print_r($diff);
+
         if ($diff) {
             $this->applyDiff($diff);
         }
@@ -100,6 +102,7 @@ print_r($diff);
             $callChatRow->save();
 
             $this->sendAddEvent($callChatRow);
+            $this->checkProductToAdd($callChatRow);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollback();
@@ -120,6 +123,8 @@ print_r($diff);
             if ($this->sendDelEvent($callChatRow)) {
                 $callChatRow->delete();
             }
+
+            $this->checkProductToDel($callChatRow);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -152,6 +157,50 @@ print_r($diff);
             throw $e;
         }
 
+    }
+
+    private function checkProductToAdd(ActualCallChat $callChatRow)
+    {
+        $usage = ProductState::findOne([
+            'client_id' => $callChatRow->client_id,
+            'product' => ProductState::FEEDBACK
+        ]);
+
+        if (!$usage) {
+
+            try {
+                ApiCore::addProduct('feedback', $callChatRow->client_id);
+                $state = new ProductState;
+                $state->client_id = $callChatRow->client_id;
+                $state->product = ProductState::FEEDBACK;
+                $state->save();
+
+            } catch (InvalidConfigException $e) {
+                return true;
+            } catch (Exception $e) {
+                throw $e;
+            }
+        }
+        return true;
+    }
+
+    private function checkProductToDel(ActualCallChat $callChatRow)
+    {
+        if ($usage = ProductState::findOne([
+            'client_id' => $callChatRow->client_id,
+            'product'   => ProductState::FEEDBACK
+        ])) {
+
+            try {
+                ApiCore::remoteProduct('feedback', $callChatRow->client_id);
+                $usage->delete();
+            } catch (InvalidConfigException $e) {
+                return true;
+            } catch (Exception $e) {
+                throw $e;
+            }
+        }
+        return true;
     }
 }
 
