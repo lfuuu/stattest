@@ -18,6 +18,7 @@ foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $ev
 
 echo GridViewCustomFilters::widget([
     'id' => 'ImportantEvents',
+    'formAction' => '/important_events/report',
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
