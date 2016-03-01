@@ -11,6 +11,8 @@ use kartik\widgets\ActiveForm;
 class GridViewCustomFilters extends \kartik\grid\GridView
 {
 
+    public $formAction = '';
+
     public function renderTableHeader()
     {
         $cells = [];
@@ -83,7 +85,8 @@ class GridViewCustomFilters extends \kartik\grid\GridView
 
         ActiveForm::begin([
             'type' => ActiveForm::TYPE_VERTICAL,
-            'method' => 'get'
+            'method' => 'get',
+            'action' => $this->formAction,
         ]);
 
             echo Html::beginTag('div', [

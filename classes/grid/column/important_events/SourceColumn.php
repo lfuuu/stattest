@@ -26,7 +26,7 @@ class SourceColumn extends DataColumn
 
         $this->filterWidgetOptions['data'] = $sourcesList;
         $this->filterWidgetOptions['nonSelectedText'] = '- Выберите источник(и) -';
-        $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '220px';
+        $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '100%';
 
         $this->filterInputOptions['multiple'] = 'multiple';
 
