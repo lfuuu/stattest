@@ -10,7 +10,7 @@ use app\helpers\DateTimeZoneHelper;
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
 
-echo Html::formLabel('Логи оповeщений');
+echo Html::formLabel('Лог значимых событий');
 
 foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $event) {
     $eventsList[$event->group->title][$event->code] = $event->value;
@@ -18,6 +18,7 @@ foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $ev
 
 echo GridViewCustomFilters::widget([
     'id' => 'ImportantEvents',
+    'formAction' => '/important_events/report',
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
@@ -82,5 +83,3 @@ echo GridViewCustomFilters::widget([
         'type' => GridViewCustomFilters::TYPE_DEFAULT,
     ],
 ]);
-
-?>
