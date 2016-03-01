@@ -182,8 +182,15 @@ class AccountEditForm extends Form
 
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
 
-        $this->options = ArrayHelper::merge($this->options, ArrayHelper::map($this->clientM->getOption('mail_delivery'), 'option', 'value'));
-        $this->options = ArrayHelper::merge($this->options, ['mail_delivery_variant' => array_map(function($r) { return $r->value; },$this->clientM->getOption('mail_delivery_variant'))]);
+        $options = [];
+        foreach ($this->clientM->options as $element) {
+            $options[$element->option] =
+                !isset($options[$element->option])
+                    ? $element->value
+                    : array_merge((array) $options[$element->option], (array) $element->value);
+        }
+
+        $this->options = ArrayHelper::merge($this->options, $options);
     }
 
     public function save()
