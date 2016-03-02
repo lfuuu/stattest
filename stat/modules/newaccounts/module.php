@@ -1759,10 +1759,6 @@ class m_newaccounts extends IModule
 
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
-        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected("bill");
-        if(!$bill_no)
-            return;
-
 
         self::$object = $object;
         if ($object) {
@@ -1773,6 +1769,18 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUB');
         }
 
+        if($obj == "receipt")
+        {
+            $this->_print_receipt();
+            exit();
+        }
+
+        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected("bill");
+        if(!$bill_no)
+            return;
+
+
+
         $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
         if ($billModel)
         {
@@ -1781,11 +1789,7 @@ class m_newaccounts extends IModule
         }
 
 
-        if($obj == "receipt")
-        {
-            $this->_print_receipt();
-            exit();
-        } elseif ($obj == 'notice_mcm_telekom')
+        if ($obj == 'notice_mcm_telekom')
         {
             if ($billModel)
             {
@@ -1803,7 +1807,6 @@ class m_newaccounts extends IModule
 
         $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
         $design->assign("to_client", $to_client);
-
 
 
         $bill = new Bill($bill_no);
