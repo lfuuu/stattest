@@ -72,8 +72,8 @@ class VoipController extends BaseController
 
         $form = new UsageVoipAddPackageForm;
         if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
-            Yii::$app->session->addFlash('success', 'пакет добавлен');
-            return $this->redirect(['edit', 'id' => $id, 'rnd' => time()]);
+            Yii::$app->session->addFlash('success', 'Пакет добавлен');
+            return $this->redirect(['edit', 'id' => $id]);
         }
 
         $model = new UsageVoipEditForm();
