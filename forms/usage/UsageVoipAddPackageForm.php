@@ -1,6 +1,8 @@
 <?php
 namespace app\forms\usage;
 
+use app\helpers\DateTimeZoneHelper;
+use app\models\usages\UsageInterface;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -60,20 +62,17 @@ class UsageVoipAddPackageForm extends Form
         $usageVoipPackage = new UsageVoipPackage;
         $usageVoipPackage->setAttributes($this->getAttributes(), false);
 
-        $activation_dt = new DateTime($this->actual_from, $this->clientTimezone);
-        $activation_dt->setTime(0, 0, 0);
-
-        $usageVoipPackage->activation_dt = $activation_dt->format('Y-m-d H:i:s');
         $usageVoipPackage->client = $this->usage->clientAccount->client;
+        $usageVoipPackage->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
 
-        $today = new DateTime('now', new DateTimeZone('UTC'));
+        $today = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
 
         $logTarif = new logTarif;
         $logTarif->service = 'usage_voip_package';
         $logTarif->id_tarif = $this->tariff_id;
         $logTarif->id_user = Yii::$app->user->getId();
-        $logTarif->ts = $today->format('Y-m-d H:i:s');
+        $logTarif->ts = $today->format(DateTime::ATOM);
         $logTarif->date_activation = $this->actual_from;
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -89,9 +88,7 @@ class UsageVoipAddPackageForm extends Form
             throw $e;
         }
 
-        $usageVoipPackage->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
-
-        return false;
+        return true;
     }
 
 }

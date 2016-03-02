@@ -325,8 +325,6 @@ class ClientCreateExternalForm extends Form
                                 }
                             }
 
-                            $usageVoipId = $form->id;
-
                             $transaction->commit();
                             $result['info'][] = 'added';
                         } catch (\Exception $e) {
