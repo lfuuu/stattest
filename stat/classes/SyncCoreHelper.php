@@ -103,6 +103,7 @@ class SyncCoreHelper
             "accounts" => array(
                 array(
                     "id" => $cl->id,
+                    "is_partner" => $cl->businessId == \app\models\Business::PARTNER,
                     "products" => array()//self::getProducts($cl->id)
                 )
             )
