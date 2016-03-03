@@ -1,0 +1,218 @@
+<?php
+/**
+ * Себестоимость. Отчет по направлениям
+ *
+ * @var \yii\web\View $this
+ * @var CallsFilter $filterModel
+ */
+
+use app\classes\grid\column\billing\DestinationColumn;
+use app\classes\grid\column\billing\GeoColumn;
+use app\classes\grid\column\billing\MobColumn;
+use app\classes\grid\column\billing\OrigColumn;
+use app\classes\grid\column\billing\ServerColumn;
+use app\classes\grid\column\billing\TrunkColumn;
+use app\classes\grid\column\billing\TrunkSuperСlientColumn;
+use app\classes\grid\column\universal\DateRangeColumn;
+use app\classes\grid\column\universal\FloatRangeColumn;
+use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\UsageTrunkColumn;
+use app\classes\grid\GridView;
+use app\models\billing\Calls;
+use app\models\filter\CallsFilter;
+use yii\widgets\Breadcrumbs;
+
+?>
+
+<?= app\classes\Html::formLabel($this->title = 'Себестоимость. Отчет по направлениям') ?>
+<?= Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Межоператорка (отчеты)'],
+        ['label' => $this->title, 'url' => '/voipreport/calls/cost/'],
+    ],
+]) ?>
+
+<?php
+// отображаемые колонки в гриде
+$columns = [
+    [
+        'attribute' => 'geo_id',
+        'class' => IntegerColumn::className(),
+        'pageSummary' => Yii::t('common', 'Page Summary'),
+        'pageSummaryOptions' => ['colspan' => 2],
+        'headerOptions' => ['colspan' => 2],
+    ],
+    [
+        'attribute' => 'geo_ids', // псевдо-поле
+        'class' => GeoColumn::className(),
+        'pageSummaryOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        'headerOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
+    ],
+    [
+        'attribute' => 'calls_count', // псевдо-поле
+        'class' => IntegerRangeColumn::className(),
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'billed_time_count', // псевдо-поле
+        'class' => IntegerRangeColumn::className(),
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'acd', // псевдо-поле Средняя длительность
+        'class' => IntegerRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+
+    [
+        'attribute' => 'rate_avg', // псевдо-поле
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+    [
+        'attribute' => 'interconnect_rate_avg', // псевдо-поле
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+    [
+        'attribute' => 'rate_with_interconnect_avg', // псевдо-поле
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+
+    [
+        'attribute' => 'cost_sum', // псевдо-поле
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'interconnect_cost_sum', // псевдо-поле
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'cost_with_interconnect_sum',
+        'class' => FloatRangeColumn::className(), // псевдо-поле
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+
+    [
+        'attribute' => 'asr', // псевдо-поле Отношение звонков с длительностью ко всем звонкам
+        'class' => IntegerRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+];
+?>
+
+<?php
+// колонки, от которых выводится только фильтрация
+$filterColumns = [
+    [
+        'attribute' => 'server_id',
+        'class' => ServerColumn::className(),
+    ],
+    [
+        'attribute' => 'trunk_ids', // псевдо-поле
+        'label' => 'Оператор (суперклиент)',
+        'class' => TrunkSuperСlientColumn::className(),
+        'enableSorting' => false,
+        'value' => function (Calls $call) {
+            return $call->trunk_id;
+        },
+    ],
+    [
+        'attribute' => 'trunk_id',
+        'class' => TrunkColumn::className(),
+        'filterByIds' => $filterModel->trunkIdsIndexed,
+        'filterByServerId' => $filterModel->server_id,
+        'filterOptions' => [
+            'class' => $filterModel->trunk_id ? 'alert-success' : 'alert-danger',
+            'title' => 'Фильтр зависит от Точки присоединения и Оператора (суперклиента)',
+        ],
+    ],
+    [
+        'attribute' => 'trunk_service_id',
+        'class' => UsageTrunkColumn::className(),
+        'trunkId' => $filterModel->trunk_id,
+        'filterOptions' => [
+            'title' => 'Фильтр зависит от Транка',
+        ],
+    ],
+    [
+        'attribute' => 'destination_id',
+        'class' => DestinationColumn::className(),
+    ],
+    [
+        'attribute' => 'orig',
+        'class' => OrigColumn::className(),
+    ],
+    [
+        'attribute' => 'mob',
+        'class' => MobColumn::className(),
+    ],
+    [
+        'attribute' => 'account_id',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'rate',
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+    [
+        'attribute' => 'interconnect_rate',
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_AVG,
+    ],
+    [
+        'attribute' => 'cost',
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'interconnect_cost',
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'connect_time',
+        'class' => DateRangeColumn::className(),
+        'filterOptions' => ['class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger'],
+    ],
+];
+?>
+
+<?= GridView::widget([
+    'dataProvider' => $filterModel->searchCost(),
+    'filterModel' => $filterModel,
+    'columns' => $columns,
+    'showPageSummary' => true,
+    'resizableColumns' => false, // все равно не влезает на экран
+    'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
+    'beforeHeader' => $this->render('//layouts/_gridBeforeHeaderFilters', [
+        'filterModel' => $filterModel,
+        'filterColumns' => $filterColumns,
+    ]),
+    'filterSelector' => '.beforeHeaderFilters input, .beforeHeaderFilters select',
+]) ?>
+

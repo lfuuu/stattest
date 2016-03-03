@@ -12,6 +12,8 @@ class IntegerRangeColumn extends DataColumn
     public $filterType = '';
     public $filter = '';
 
+    public $step = 1;
+
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -20,12 +22,14 @@ class IntegerRangeColumn extends DataColumn
         $this->filter =
             Html::activeInput('number', $filterModel, $this->attribute . '_from', [
                 'class' => 'form-control input-sm input-tinyint',
+                'step' => $this->step,
             ]) .
 
             ' ' .
 
             Html::activeInput('number', $filterModel, $this->attribute . '_to', [
                 'class' => 'form-control input-sm input-tinyint',
+                'step' => $this->step,
             ]);
     }
 }

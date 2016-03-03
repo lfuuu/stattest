@@ -10,7 +10,7 @@ use Yii;
 
 class DateRangeColumn extends DataColumn
 {
-    public $filterType = '';
+    public $filterType = ''; // GridView::FILTER_DATE_RANGE;
     public $filter = '';
 
     public function __construct($config = [])
@@ -26,9 +26,12 @@ class DateRangeColumn extends DataColumn
                     'value' => $filterModel->{$this->attribute . '_from'},
                     'removeButton' => false,
                     'type' => DatePicker::TYPE_INPUT,
-                    'options' => ['class' => 'form-control input-sm input-date'],
+                    'options' => [
+                        'class' => 'form-control input-sm input-date',
+                    ],
                     'pluginOptions' => [
                         'autoclose' => true,
+                        'todayHighlight' => true,
                         'format' => 'yyyy-mm-dd',
                     ],
                 ]
@@ -40,9 +43,12 @@ class DateRangeColumn extends DataColumn
                     'value' => $filterModel->{$this->attribute . '_to'},
                     'removeButton' => false,
                     'type' => DatePicker::TYPE_INPUT,
-                    'options' => ['class' => 'form-control input-sm input-date'],
+                    'options' => [
+                        'class' => 'form-control input-sm input-date',
+                    ],
                     'pluginOptions' => [
                         'autoclose' => true,
+                        'todayHighlight' => true,
                         'format' => 'yyyy-mm-dd',
                     ],
                 ]
