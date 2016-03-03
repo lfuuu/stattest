@@ -215,7 +215,7 @@ class LkNotificationContact
             $db->QueryUpdate("lk_client_settings", "client_id", $data);
         } else {
 
-            $data["min_balance"] = 1000; // default values
+            $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] = 1000; // default values
             $data[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT] = 200;
 
             $db->QueryInsert("lk_client_settings", $data);

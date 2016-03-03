@@ -169,4 +169,12 @@ class Organization extends ActiveRecord
 
     }
 
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
 }

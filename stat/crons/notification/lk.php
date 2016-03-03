@@ -2,17 +2,20 @@
 define("PATH_TO_ROOT", "../../");
 include PATH_TO_ROOT."conf_yii.php";
 
+use app\models\important_events\ImportantEventsNames;
+
 $contacts = LkNotificationContact::getList();
 
 $clientUnset = array();
 
 foreach ($contacts as $contact) {
 
-    foreach (array(
-                    "min_balance"  => array("eq" => "lt", "eq_field" => "balance"),
-                    "day_limit"    => array("eq" => "gt", "eq_field" => "day_sum"),
-                    "zero_balance" => array("eq" => "lt", "eq_field" => "balance"),
-                    ) as $fld => $conf)
+    foreach (
+        [
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE  => ['eq' => 'lt', 'eq_field' => 'balance'],
+            ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT    => ['eq' => 'gt', 'eq_field' => 'day_sum'],
+            ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE => ['eq' => 'lt', 'eq_field' => 'balance'],
+        ] as $fld => $conf)
     {
         if (isset($contact->{$fld}) &&  $contact->{'is_'.$fld})
         {
