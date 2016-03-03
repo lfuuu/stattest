@@ -4,7 +4,6 @@ namespace app\queries;
 use app\models\Bill;
 use app\models\BillLine;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
 
 class BillQuery extends ActiveQuery
 {
@@ -20,7 +19,8 @@ class BillQuery extends ActiveQuery
                     ['bl' => BillLine::tableName()],
                     'bl.bill_no = ' . Bill::tableName() . '.bill_no'
                 )
-                ->andWhere(new Expression('bl.pk IS NOT NULL'));
+                ->andWhere(['bl.type' => BillLine::LINE_TYPE_ZADATOK])
+                ->andWhere('bl.pk IS NOT NULL');
     }
 
 }

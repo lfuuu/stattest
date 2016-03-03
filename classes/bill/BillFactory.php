@@ -106,7 +106,6 @@ class BillFactory
                         Bill::tableName() . '.bill_date' => SORT_ASC,
                         Bill::tableName() . '.id' => SORT_ASC
                     ])
-                    ->limit(1)
                     ->one();
 
             if ($bill === null) {
