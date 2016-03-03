@@ -72,11 +72,10 @@ use app\models\Currency;
                                     'style' => 'margin-left: 15px;',
                                 ],
                             ])
-                            ->checkboxList([
+                            ->dropDownList([
+                                'undefined' => 'Не определились / Не отправляем',
                                 'payment' => 'Платная рассылка почтой РФ',
                                 'by_self' => 'Самовывоз',
-                                'black_list' => 'Черный список',
-                                'undefined' => 'Не определились / Не отправляем',
                             ])
                             ->label('Тип рассылки документов');
                 },
