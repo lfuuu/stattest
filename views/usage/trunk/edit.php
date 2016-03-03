@@ -212,8 +212,8 @@ echo Breadcrumbs::widget([
                 <th width="33%">A номер</th>
                 <th width="33%">B номер</th>
                 <th width="33%">Прайслист</th>
-                <th width="10%">Минут</th>
-                <th width="10%">Денег</th>
+                <th width="10%">Квота, минут</th>
+                <th width="10%">Минимальный платеж</th>
                 <th></th>
                 <th></th>
             </tr>
