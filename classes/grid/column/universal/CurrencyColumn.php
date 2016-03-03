@@ -18,8 +18,8 @@ class CurrencyColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = Currency::getList(true);
         parent::__construct($config);
+        $this->filter = Currency::getList(true);
         $this->filterInputOptions['class'] .= ' destination-column';
     }
 }

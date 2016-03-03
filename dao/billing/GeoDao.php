@@ -5,8 +5,7 @@ use app\classes\Singleton;
 use app\models\billing\Geo;
 
 /**
- * @method static GeoCountryDao me($args = null)
- * @property
+ * @method static GeoDao me($args = null)
  */
 class GeoDao extends Singleton
 {
@@ -34,5 +33,4 @@ class GeoDao extends Singleton
                 ->asArray()
                 ->all();
     }
-
 }

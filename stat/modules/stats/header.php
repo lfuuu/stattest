@@ -45,6 +45,7 @@ class m_stats_head extends IModuleHead{
     {
         $this->menu = array(
             array('Телефония',              'voip'),
+            array('Телефония Пакеты',       function() { return '/report/voip-package/use-report'; }),
             array('Интернет',		'internet'),
             array('Collocation',	'internet','&is_coll=1'),
             array('PPP',			'ppp'),

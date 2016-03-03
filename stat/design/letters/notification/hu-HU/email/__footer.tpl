@@ -1,0 +1,5 @@
+
+
+
+Tisztelettel,
+{$organization}

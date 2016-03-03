@@ -10,14 +10,15 @@ use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\DateRangeColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\models\filter\CurrencyRateFilter;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 ?>
 
+<?= app\classes\Html::formLabel($this->title = 'Курс валюты') ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        ['label' => $this->title = Yii::t('currency', 'Currency rate'), 'url' => '/bill/currency/index/'],
+        ['label' => $this->title, 'url' => '/bill/currency/index/'],
     ],
 ]) ?>
 

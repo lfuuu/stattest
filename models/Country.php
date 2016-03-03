@@ -32,10 +32,31 @@ class Country extends ActiveRecord
         return CountryDao::me();
     }
 
-    public static function getList()
+    /**
+     * @param bool $isWithEmpty
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false)
     {
-        $arr = self::find()->where(['in_use' => 1])->orderBy('code DESC')->all();
-        return ArrayHelper::map($arr, 'code', 'name');
+        $list = self::find()
+            ->where(['in_use' => 1])
+            ->orderBy(['code' => SORT_DESC])
+            ->indexBy('code')
+            ->all();
+
+        if ($isWithEmpty) {
+            $list = ['' => ' ---- '] + $list;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 
 }
