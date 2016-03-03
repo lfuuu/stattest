@@ -18,6 +18,7 @@ class ServerColumn extends DataColumn
     {
         $this->filter = Server::getList(true);
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' server-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' server-column';
     }
 }

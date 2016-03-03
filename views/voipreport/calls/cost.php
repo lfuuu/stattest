@@ -7,15 +7,14 @@
  */
 
 use app\classes\grid\column\billing\DestinationColumn;
-use app\classes\grid\column\billing\GeoColumn;
 use app\classes\grid\column\billing\MobColumn;
 use app\classes\grid\column\billing\OrigColumn;
+use app\classes\grid\column\billing\PrefixColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\billing\TrunkSuperСlientColumn;
-use app\classes\grid\column\universal\DateRangeColumn;
+use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
-use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
@@ -26,7 +25,7 @@ use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Себестоимость. Отчет по направлениям') ?>
+<?= app\classes\Html::formLabel($this->title = 'Себестоимость по направлениям') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Межоператорка (отчеты)'],
@@ -38,16 +37,12 @@ use yii\widgets\Breadcrumbs;
 // отображаемые колонки в гриде
 $columns = [
     [
-        'attribute' => 'geo_id',
-        'class' => IntegerColumn::className(),
-        'pageSummary' => Yii::t('common', 'Page Summary'),
-        'pageSummaryOptions' => ['colspan' => 2],
+        'attribute' => 'prefix',
         'headerOptions' => ['colspan' => 2],
     ],
     [
-        'attribute' => 'geo_ids', // псевдо-поле
-        'class' => GeoColumn::className(),
-        'pageSummaryOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        'attribute' => 'prefix',
+        'class' => PrefixColumn::className(),
         'headerOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
     ],
     [
@@ -56,7 +51,7 @@ $columns = [
         'pageSummary' => true,
     ],
     [
-        'attribute' => 'billed_time_count', // псевдо-поле
+        'attribute' => 'billed_time_sum', // псевдо-поле
         'class' => IntegerRangeColumn::className(),
         'pageSummary' => true,
     ],
@@ -196,7 +191,7 @@ $filterColumns = [
     ],
     [
         'attribute' => 'connect_time',
-        'class' => DateRangeColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::className(),
         'filterOptions' => ['class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger'],
     ],
 ];
@@ -209,10 +204,8 @@ $filterColumns = [
     'showPageSummary' => true,
     'resizableColumns' => false, // все равно не влезает на экран
     'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
-    'beforeHeader' => $this->render('//layouts/_gridBeforeHeaderFilters', [
-        'filterModel' => $filterModel,
-        'filterColumns' => $filterColumns,
-    ]),
-    'filterSelector' => '.beforeHeaderFilters input, .beforeHeaderFilters select',
+    'beforeHeader' => [
+        'columns' => $filterColumns,
+    ],
 ]) ?>
 

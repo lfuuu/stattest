@@ -18,6 +18,7 @@ class DestinationColumn extends DataColumn
     {
         $this->filter = Destination::getList(true);
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' destination-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' destination-column';
     }
 }

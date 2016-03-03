@@ -7,7 +7,7 @@
  */
 
 use app\classes\grid\column\universal\CurrencyColumn;
-use app\classes\grid\column\universal\DateRangeColumn;
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\GridView;
 use app\models\filter\CurrencyRateFilter;
@@ -26,7 +26,7 @@ use yii\widgets\Breadcrumbs;
 $columns = [
     [
         'attribute' => 'date',
-        'class' => DateRangeColumn::className(),
+        'class' => DateRangeDoubleColumn::className(),
     ],
     [
         'attribute' => 'rate',

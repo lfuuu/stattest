@@ -21,6 +21,7 @@ class CityColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = City::dao()->getList(true, $this->country_id);
-        $this->filterInputOptions['class'] .= ' city-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' city-column';
     }
 }

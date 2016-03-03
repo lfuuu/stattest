@@ -25,6 +25,9 @@ class GeoColumn extends DataColumn
         foreach ($this->idToName as $geo) {
             // а фильтр строить по другому массиву, у которого в качестве ключа - список id
             // чтобы получить такой массив - строим инвертированный и потом его инвертируем
+            if (!$geo instanceof Geo) {
+                continue;
+            }
             if (isset($filter[$geo->name])) {
                 $filter[$geo->name] .= ',' . $geo->id;
             } else {
@@ -34,7 +37,8 @@ class GeoColumn extends DataColumn
         $this->filter += array_flip($filter);
 
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' geo-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' geo-column';
     }
 
     /**

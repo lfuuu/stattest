@@ -6,7 +6,6 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- * @property
  */
 class StatPackage extends ActiveRecord
 {

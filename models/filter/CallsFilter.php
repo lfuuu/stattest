@@ -85,8 +85,8 @@ class CallsFilter extends Calls
     public $acd_from = '';
     public $acd_to = '';
 
-    public $billed_time_count_from = '';
-    public $billed_time_count_to = '';
+    public $billed_time_sum_from = '';
+    public $billed_time_sum_to = '';
 
     /**
      * @return array
@@ -125,7 +125,7 @@ class CallsFilter extends Calls
             [['asr_from', 'asr_to'], 'integer'],
             [['acd_from', 'acd_to'], 'integer'],
 
-            [['billed_time_count_from', 'billed_time_count_to'], 'integer'],
+            [['billed_time_sum_from', 'billed_time_sum_to'], 'integer'],
         ];
     }
 
@@ -248,8 +248,8 @@ class CallsFilter extends Calls
         $this->acd_from !== '' && $query->andHaving(['>=', 'SUM(billed_time) / COUNT(*)', (int)$this->acd_from]);
         $this->acd_to !== '' && $query->andHaving(['<=', 'SUM(billed_time) / COUNT(*)', (int)$this->acd_to]);
 
-        $this->billed_time_count_from !== '' && $query->andHaving(['>=', 'SUM(billed_time)', (int)$this->billed_time_count_from]);
-        $this->billed_time_count_to !== '' && $query->andHaving(['<=', 'SUM(billed_time)', (int)$this->billed_time_count_to]);
+        $this->billed_time_sum_from !== '' && $query->andHaving(['>=', 'SUM(billed_time)', (int)$this->billed_time_sum_from]);
+        $this->billed_time_sum_to !== '' && $query->andHaving(['<=', 'SUM(billed_time)', (int)$this->billed_time_sum_to]);
 
         return $dataProvider;
     }
@@ -265,12 +265,11 @@ class CallsFilter extends Calls
         /** @var ActiveQuery $query */
         $query = $dataProvider->query;
         $query->select([
-            'geo_id',
-            'geo_ids' => 'geo_id',
+            'prefix',
 
             // эти псевдо-поля надо не забыть определить в Calls
             'calls_count' => 'COUNT(*)',
-            'billed_time_count' => 'SUM(billed_time)',
+            'billed_time_sum' => 'SUM(billed_time)',
             'acd' => 'SUM(billed_time) / COUNT(*)',
 
             'rate_avg' => 'AVG(rate)',
@@ -283,7 +282,8 @@ class CallsFilter extends Calls
 
             'asr' => '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)',
         ]);
-        $query->groupBy('geo_id');
+        $query->groupBy('prefix');
+        $query->orderBy(['prefix' => SORT_ASC]);
         return $dataProvider;
     }
 

@@ -11,7 +11,6 @@ use yii\db\ActiveRecord;
  * @property int $geo_operator_id
  *
  * @property Pricelist $pricelist
- * @property
  */
 class NetworkConfig extends ActiveRecord
 {

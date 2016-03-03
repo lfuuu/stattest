@@ -7,7 +7,6 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- * @property
  */
 class Number extends ActiveRecord
 {

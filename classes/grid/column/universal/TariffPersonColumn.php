@@ -4,12 +4,12 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\DidGroup;
+use app\classes\uu\model\TariffPerson;
 use kartik\grid\GridView;
 use Yii;
 
 
-class BeautyLevelColumn extends DataColumn
+class TariffPersonColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -19,8 +19,8 @@ class BeautyLevelColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = DidGroup::getBeautyLevelList(true);
+        $this->filter = TariffPerson::getList(true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' beauty-level-column';
+        $this->filterOptions['class'] .= ' tariff-person-column';
     }
 }

@@ -21,6 +21,7 @@ class MobColumn extends DataColumn
             1 => 'Мобильные',
         ];
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' mob-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' mob-column';
     }
 }

@@ -31,13 +31,15 @@ AppAsset::register($this);
 // Это фикс бага с select2 v4. Он вызывается раньше инициализации, надо его вызывать позже.
 // Правильнее это сделать в vendor/kartik-v/yii2-krajee-base/WidgetTrait.php::getPluginScript, но vendor менять не могу
 // Мне стыдно за такой говнокод, но по-другому исправить не получается.
-foreach ($this->js as &$scripts) {
-    foreach ($scripts as &$script) {
-        $script = preg_replace('/jQuery\.when\((.*?)\)\.done/', 'jQuery.when(  setTimeout(function(){$1},10)  ).done', $script);
+if ($this->js) {
+    foreach ($this->js as &$scripts) {
+        foreach ($scripts as &$script) {
+            $script = preg_replace('/jQuery\.when\((.*?)\)\.done/', 'jQuery.when(  setTimeout(function(){$1},10)  ).done', $script);
+        }
+        unset($script);
     }
-    unset($script);
+    unset($scripts);
 }
-unset($scripts);
 ?>
 
 <?php $this->endBody() ?>
