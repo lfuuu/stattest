@@ -109,24 +109,22 @@ use app\helpers\DateTimeZoneHelper;
                                             <span class="col-sm-2" style="text-align: right;">
                                                 <?= $contractAccount->regionName ?>
                                             </span>
-                                            <span class="col-sm-2"
-                                                  style="text-align: right;color:<?= ($realtimeBalance < 0) ? 'red' : 'green'; ?>;">
+                                            <span class="col-sm-2" style="text-align: right;color:<?= ($realtimeBalance < 0) ? 'red' : 'green'; ?>;">
                                                 <?= $realtimeBalance ?>
                                                 <?= $contractAccount->currency ?>
                                             </span>
+                                            <?php if ($realtimeBalance < 0 && abs($realtimeBalance) > $contractAccount->credit): ?>
+                                                <span class="col-sm-1" style="text-align: right;color: red;">
+                                                    <abbr title="Превышение кредита при отрицательном балансе">
+                                                        <?= $contractAccount->credit - abs($realtimeBalance); ?>
+                                                        <?= $contractAccount->currency ?>
+                                                    </abbr>
+                                                </span>
+                                            <?php endif; ?>
                                             <span class="col-sm-2">
                                                 <?= $contractAccount->credit >= 0 ? '(Кредит: ' . $contractAccount->credit . ')': '' ?>
                                             </span>
                                             <div class="btn-group" style="float: right;">
-                                                <?php if($contractAccount->hasVoip): ?>
-                                                <button type="button" class="btn btn-sm set-voip-disabled
-                                                <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
-                                                        style="width: 120px;padding: 3px 10px;"
-                                                        data-id="<?= $contractAccount->id ?>"
-                                                    title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
-                                                    <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
-                                                </button>
-                                                    <?php endif; ?>
                                                 <button type="button" class="btn btn-sm set-block
                                                 <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
                                                         style="width: 120px;padding: 3px 10px;"
