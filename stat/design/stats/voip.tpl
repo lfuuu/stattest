@@ -28,7 +28,7 @@
     <TD>{$item.tsf1}</TD>
     {if $phone=='all_regions'}<TD>{$item.reg_id}</TD>{/if}
     <TD>{if isset($item.src_number)}{$item.src_number}{/if}</TD>
-    <TD style="color: {if isset($item.orig) && $item.orig=='f'}blue;">&darr;&nbsp;входящий{elseif isset($item.orig) && $item.orig=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <TD style="color: {if isset($item.orig) && $item.orig === false}blue;">&darr;&nbsp;входящий{elseif isset($item.orig) && $item.orig === true}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
     <TD>{if isset($item.dst_number)}{$item.dst_number}{/if}</TD>
     <TD><b>{$item.tsf2}</b></TD>
     {if $smarty.foreach.outer.last}

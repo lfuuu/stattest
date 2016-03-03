@@ -1,21 +1,12 @@
 <?php
 
 use app\models\Number;
-use app\classes\StatModule;
 use app\models\Trouble;
-use app\models\LkWizardState;
-use app\models\Business;
-use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
-use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
-use app\models\User;
-use app\models\Organization;
 use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
-use app\models\UsageVoip;
-use app\models\DidGroup;
-
+use app\helpers\DateTimeZoneHelper;
 use app\forms\client\ClientCreateExternalForm;
 
 if (isset($_GET) && isset($_GET["test"])) {
@@ -267,9 +258,20 @@ if ($action=='add_client') {
     list($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, $timezone) = $d;
 
     $dt = new DateTime();
-    $dt->setTimeZone(new DateTimeZone('Europe/Moscow'));
+    $dt->setTimeZone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
 
-    $a = $s->GetStatsVoIP($region,$from+$dt->getOffset(),$to+$dt->getOffset(),$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, "Europe/Moscow");
+    $a = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
+        $region,
+        $from + $dt->getOffset(),
+        $to + $dt->getOffset(),
+        $detality,
+        $client_id,
+        $usage_arr,
+        $paidonly,
+        $destination,
+        $direction,
+        DateTimeZoneHelper::TIMEZONE_MOSCOW
+    );
 
 
     echo serialize($a);
