@@ -243,11 +243,12 @@ class ReportUsageDao extends Singleton
                 }
             }
 
-            $record['tsf1'] = Yii::$app->formatter->asDatetime(
+            $ts =
                 (new DateTime($record['ts1']))
-                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()))
-            );
-            $record['mktime'] = $record['tsf1'];
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()));
+
+            $record['tsf1'] = $ts->format(DateTime::ATOM);
+            $record['mktime'] = $ts->getTimestamp();
             $record['is_total'] = false;
 
             if ($record['ts2'] >= 24 * 60 * 60) {
