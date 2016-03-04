@@ -2,7 +2,7 @@
 namespace app\queries;
 
 use app\models\UsageVoip;
-use app\queries\UsageQuery;
+use app\models\ClientAccount;
 
 /**
  * @method UsageVoip[] all($db = null)
