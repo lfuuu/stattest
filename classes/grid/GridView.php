@@ -4,6 +4,8 @@ namespace app\classes\grid;
 class GridView extends \kartik\grid\GridView
 {
 
+    const DEFAULT_HEADER_CLASS = \kartik\grid\GridView::TYPE_INFO; // голубой фон th
+
     /**
      * @var boolean whether the grid table will highlight row on `hover`.
      */
@@ -13,7 +15,7 @@ class GridView extends \kartik\grid\GridView
      * @var array the HTML attributes for the table header row.
      */
     public $headerRowOptions = [
-        'class' => \kartik\grid\GridView::TYPE_INFO, // голубой фон th
+        'class' => self::DEFAULT_HEADER_CLASS,
     ];
     /**
      * @var array the panel settings

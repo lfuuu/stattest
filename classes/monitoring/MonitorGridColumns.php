@@ -3,11 +3,11 @@
 namespace app\classes\monitoring;
 
 use Yii;
-use DateTime;
 use kartik\grid\GridView;
 use app\classes\Html;
 use kartik\daterange\DateRangePicker;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\DateTimeWithUserTimezone;
 use app\models\User;
 use app\models\ClientAccount;
 use app\models\Region;
@@ -220,7 +220,7 @@ abstract class MonitorGridColumns
                 return
                     DateTimeZoneHelper::getDateTime($data->actual_from)
                     . ' -> ' .
-                    DateTimeZoneHelper::getDateTimeLimit($checkDate = $data->actual_to);
+                    (new DateTimeWithUserTimezone($data->actual_to))->formatWithInfinity('Y-m-d');
             },
         ];
     }

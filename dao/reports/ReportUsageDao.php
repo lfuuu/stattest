@@ -131,32 +131,20 @@ class ReportUsageDao extends Singleton
     /**
      * @param int $usageId
      * @param int $packageId
-     * @param DateTime $dateRangeFrom
-     * @param DateTime $dateRangeTo
      * @return array|\yii\db\ActiveRecord[]
      */
-    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0, DateTime $dateRangeFrom, DateTime $dateRangeTo)
+    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0)
     {
-        $packages = UsageVoipPackage::find()->where(['usage_voip_id' => $usageId]);
+        $query =
+            UsageVoipPackage::find()
+                ->actual()
+                ->where(['usage_voip_id' => $usageId]);
 
         if ((int) $packageId) {
-            $packages->andWhere(['id' => $packageId]);
+            $query->andWhere(['id' => $packageId]);
         }
 
-        if ($dateRangeFrom) {
-            $packages->andWhere(['>=', 'actual_from', new Expression('CAST(:dateRangeFrom AS DATE)')]);
-        }
-
-        if ($dateRangeTo) {
-            $packages->andWhere(['<=', 'actual_to', new Expression('CAST(:dateRangeTo AS DATE)')]);
-        }
-
-        $packages->addParams([
-            ':dateRangeFrom' => $dateRangeFrom->format(DateTime::ATOM),
-            ':dateRangeTo' => $dateRangeTo->format(DateTime::ATOM),
-        ]);
-
-        return $packages->all();
+        return $query;
     }
 
     /**

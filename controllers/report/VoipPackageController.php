@@ -4,6 +4,8 @@ namespace app\controllers\report;
 use Yii;
 use DateTime;
 use yii\filters\AccessControl;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use app\classes\DynamicModel;
 use app\classes\BaseController;
 use app\helpers\DateTimeZoneHelper;
@@ -53,6 +55,7 @@ class VoipPackageController extends BaseController
         $filter = null;
 
         if ($data) {
+            /** @var DynamicModel $filter */
             $filter = DynamicModel::validateData($data, [
                 ['number', 'integer'],
                 ['number', 'required', 'message' => 'Необходимо выбрать номер'],
@@ -73,33 +76,38 @@ class VoipPackageController extends BaseController
                 Yii::$app->session->setFlash('error', $filter->getFirstErrors());
             }
             else {
+                /** @var UsageVoip $usage */
                 $usage = UsageVoip::findOne($filter->number);
                 list($filter->date_range_from, $filter->date_range_to) = explode(':', $filter->range);
 
                 switch ($filter->mode) {
                     case self::FILTER_VOIP_PACKAGE_BY_PACKAGE: {
-                        $report = ReportUsageDao::getUsageVoipPackagesStatistic(
-                            $usage->id,
-                            $filter->packages,
-                            (new DateTime($filter->date_range_from))->setTime(0, 0, 0),
-                            (new DateTime($filter->date_range_to))->setTime(23, 59, 59)
-                        );
+                        $report = new ActiveDataProvider([
+                            'query' => ReportUsageDao::getUsageVoipPackagesStatistic($usage->id, $filter->packages),
+                            'sort' => false,
+                        ]);
                         break;
                     }
                     case self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS: {
-                        $report = ReportUsageDao::getUsageVoipStatistic(
-                            $usage->region,
-                            (new DateTime($filter->date_range_from))->getTimeStamp(),
-                            (new DateTime($filter->date_range_to))->getTimeStamp(),
-                            $detality = 'call',
-                            $usage->clientAccount->id,
-                            [$usage->id],
-                            $paidonly = 0, $destination = 'all',
-                            $direction = 'both',
-                            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
-                            $is_full = false,
-                            ($filter->packages ? [$filter->packages] : [])
-                        );
+                        $report = new ArrayDataProvider([
+                            'allModels' =>
+                                ReportUsageDao::getUsageVoipStatistic(
+                                    $usage->region,
+                                    (new DateTime($filter->date_range_from))->getTimeStamp(),
+                                    (new DateTime($filter->date_range_to))->getTimeStamp(),
+                                    $detality = 'call',
+                                    $usage->clientAccount->id,
+                                    [$usage->id],
+                                    $paidonly = 0,
+                                    $destination = 'all',
+                                    $direction = 'both',
+                                    $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
+                                    $is_full = false,
+                                    ($filter->packages ? [$filter->packages] : [])
+                                ),
+                            'sort' => false,
+                            'pagination' => false,
+                        ]);
                         break;
                     }
                 }

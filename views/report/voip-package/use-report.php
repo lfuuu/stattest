@@ -1,17 +1,36 @@
 <?php
 
+use yii\widgets\Breadcrumbs;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use kartik\daterange\DateRangePicker;
 use kartik\widgets\Select2;
 use app\classes\Html;
+use app\classes\DynamicModel;
+use app\models\UsageVoipPackage;
+
+/** @var UsageVoipPackage[] $packages */
+/** @var DynamicModel $filter */
 
 echo Html::formLabel('Отчет по использованию Телефония Пакеты');
+
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Статистика'],
+        ['label' => 'Телефония Пакеты', 'url' => Url::toRoute('/report/voip-package/use-report')]
+    ],
+]);
 
 $packagesList = [];
 foreach ($packages as $package) {
     $packagesList[$package->usageVoip->id][] = [
         'packageId' => $package->id,
-        'packageTitle' => $package->tariff->name,
+        'packageTitle' =>
+            $package->tariff->name .
+            ' / ' .
+            (new DateTime($package->actual_from))->format('Y-m-d') .
+            ' -> ' .
+            (new DateTime($package->actual_to))->format('Y-m-d'),
     ];
 }
 ?>
@@ -45,7 +64,12 @@ foreach ($packages as $package) {
                                     echo DateRangePicker::widget([
                                         'name' => 'filter[range]',
                                         'presetDropdown' => true,
-                                        'value' => $filter->range ?: (new DateTime('first day of this month'))->format('Y-m-d') . ' : ' . (new DateTime('last day of this month'))->format('Y-m-d'),
+                                        'value' =>
+                                            $filter->range
+                                                ?:
+                                                (new DateTime('first day of this month'))->format('Y-m-d') .
+                                                ' : ' .
+                                                (new DateTime('last day of this month'))->format('Y-m-d'),
                                         'pluginOptions' => [
                                             'format' => 'YYYY-MM-DD',
                                             'separator'=>' : ',
@@ -136,7 +160,6 @@ foreach ($packages as $package) {
         ]);
     }
     ?>
-
 <?php endif; ?>
 
 <script type="text/javascript">
