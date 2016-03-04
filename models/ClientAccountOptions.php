@@ -6,6 +6,10 @@ use yii\db\ActiveRecord;
 class ClientAccountOptions extends ActiveRecord
 {
 
+    const OPTION_MAIL_DELIVERY = 'mail_delivery_variant';
+
+    const OPTION_MAIL_DELIVERY_DEFAULT_VALUE = 'undefined';
+
     public static function tableName()
     {
         return 'client_account_options';
