@@ -1,5 +1,7 @@
 <?php 
 
+use app\models\important_events\ImportantEvents;
+
 class LkNotificationLog
 {
 
@@ -27,6 +29,7 @@ class LkNotificationLog
                     "value" => $value
                     )
                 );
+        ImportantEvents::create($clientId, $event, $balance, $limit, $value);
     }
 
 }
