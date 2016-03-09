@@ -53,13 +53,15 @@ class ReportUsageDao extends Singleton
             $timezone = new DateTimeZone($timezone);
         }
 
+        self::$timezone = $timezone;
+
         $from =
-            (new DateTime('now', $timezone))
+            (new DateTime('now', self::$timezone))
                 ->setTimestamp($from)
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(0, 0, 0);
         $to =
-            (new DateTime('now', $timezone))
+            (new DateTime('now', self::$timezone))
                 ->setTimestamp($to)
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(23, 59, 59);
@@ -243,11 +245,9 @@ class ReportUsageDao extends Singleton
                 }
             }
 
-            $ts =
-                (new DateTime($record['ts1']))
-                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()));
+            $ts = (new DateTime($record['ts1'], self::$timezone));
 
-            $record['tsf1'] = $ts->format(DateTime::ATOM);
+            $record['tsf1'] = $ts->format('Y-m-d H:i:s');
             $record['mktime'] = $ts->getTimestamp();
             $record['is_total'] = false;
 
