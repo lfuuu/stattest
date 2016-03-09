@@ -9,6 +9,7 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\DateTimeWithUserTimezone;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
@@ -245,10 +246,12 @@ class ReportUsageDao extends Singleton
                 }
             }
 
-            $ts = (new DateTime($record['ts1'], self::$timezone));
+            $ts =
+                (new DateTimeWithUserTimezone($record['ts1'], new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)))
+                    ->setTimezone(self::$timezone);
 
             $record['tsf1'] = $ts->format('Y-m-d H:i:s');
-            $record['mktime'] = $ts->getTimestamp();
+            $record['mktime'] = $ts->getTimestamp() + $ts->getOffset();
             $record['is_total'] = false;
 
             if ($record['ts2'] >= 24 * 60 * 60) {
