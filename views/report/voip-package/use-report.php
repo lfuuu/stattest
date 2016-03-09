@@ -29,7 +29,7 @@ foreach ($packages as $package) {
             $package->tariff->name .
             ' / ' .
             (new DateTime($package->actual_from))->format('Y-m-d') .
-            ' -> ' .
+            ' : ' .
             (new DateTime($package->actual_to))->format('Y-m-d'),
     ];
 }

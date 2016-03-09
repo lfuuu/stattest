@@ -43,7 +43,7 @@ echo GridView::widget([
                         'i',
                         ' / ' .
                         (new DateTimeWithUserTimezone($package->actual_from))->formatWithInfinity('Y-m-d') .
-                        ' -> ' .
+                        ' : ' .
                         (new DateTimeWithUserTimezone($package->actual_to))->formatWithInfinity('Y-m-d')
                     );
             },
