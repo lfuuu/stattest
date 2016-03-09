@@ -9,6 +9,7 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\DateTimeWithUserTimezone;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
@@ -53,13 +54,15 @@ class ReportUsageDao extends Singleton
             $timezone = new DateTimeZone($timezone);
         }
 
+        self::$timezone = $timezone;
+
         $from =
-            (new DateTime('now', $timezone))
+            (new DateTime('now', self::$timezone))
                 ->setTimestamp($from)
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(0, 0, 0);
         $to =
-            (new DateTime('now', $timezone))
+            (new DateTime('now', self::$timezone))
                 ->setTimestamp($to)
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(23, 59, 59);
@@ -244,11 +247,11 @@ class ReportUsageDao extends Singleton
             }
 
             $ts =
-                (new DateTime($record['ts1']))
-                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()));
+                (new DateTimeWithUserTimezone($record['ts1'], new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)))
+                    ->setTimezone(self::$timezone);
 
-            $record['tsf1'] = $ts->format(DateTime::ATOM);
-            $record['mktime'] = $ts->getTimestamp();
+            $record['tsf1'] = $ts->format('Y-m-d H:i:s');
+            $record['mktime'] = $ts->getTimestamp() + $ts->getOffset();
             $record['is_total'] = false;
 
             if ($record['ts2'] >= 24 * 60 * 60) {
