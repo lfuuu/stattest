@@ -8,11 +8,10 @@ use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 
 class ActualNumber extends Behavior
 {
-
-    const EVENT_SOURCE = 'stat';
 
     public function events()
     {
@@ -29,7 +28,7 @@ class ActualNumber extends Behavior
      */
     public function ActualNumberAddEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->client_id,
             'usage' => 'usage_voip',
             'number' => $event->sender->number,
@@ -43,7 +42,7 @@ class ActualNumber extends Behavior
      */
     public function ActualNumberUpdateEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->client_id,
             'usage' => 'usage_voip',
             'number' => $event->sender->number,
@@ -57,7 +56,7 @@ class ActualNumber extends Behavior
      */
     public function ActualNumberDeleteEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->client_id,
             'usage' => 'usage_voip',
             'number' => $event->sender->number,

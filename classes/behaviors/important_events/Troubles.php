@@ -8,11 +8,10 @@ use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsSources;
 
 class Troubles extends Behavior
 {
-
-    const EVENT_SOURCE = 'stat';
 
     public function events()
     {
@@ -29,7 +28,7 @@ class Troubles extends Behavior
     public function registerAddEvent($event)
     {
         if ($event->sender->trouble_type == 'trouble' || $event->sender->trouble_type == 'task') {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_TROUBLE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'trouble_id' => $event->sender->id,
                 'client_id' => $event->sender->account->id,
                 'user_id' => Yii::$app->user->id,
@@ -44,7 +43,7 @@ class Troubles extends Behavior
     public function registerUpdateEvent($event)
     {
         if ($event->sender->date_close) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'trouble_id' => $event->sender->id,
                 'client_id' => $event->sender->account->id,
                 'user_id' => Yii::$app->user->id,

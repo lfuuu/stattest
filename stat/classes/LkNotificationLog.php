@@ -1,6 +1,7 @@
 <?php 
 
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsSources;
 
 class LkNotificationLog
 {
@@ -29,7 +30,14 @@ class LkNotificationLog
                     "value" => $value
                     )
                 );
-        ImportantEvents::create($clientId, $event, $balance, $limit, $value);
+
+        ImportantEvents::create(($isSet ? $event : 'unset_' . $event), ImportantEventsSources::IMPORTANT_EVENT_SOURCE_BILLING, [
+            'client_id' => $clientId,
+            'contact_id' => $contactId,
+            'limit' => $limit,
+            'value' => $value,
+            'user_id' => Yii::$app->user->id,
+        ]);
     }
 
 }

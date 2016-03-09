@@ -9,11 +9,10 @@ use yii\db\ActiveRecord;
 use app\classes\Form;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 
 class UsageAction extends Behavior
 {
-
-    const EVENT_SOURCE = 'stat';
 
     public function events()
     {
@@ -31,7 +30,7 @@ class UsageAction extends Behavior
      */
     public function UsageAfterInsert($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->clientAccount->id,
             'usage' =>  $event->sender->tableName(),
             'usage_id' => $event->sender->id,
@@ -49,7 +48,7 @@ class UsageAction extends Behavior
         $changedCount = count($changed);
 
         if ($changedCount) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'client_id' => $event->sender->clientAccount->id,
                 'usage' => $event->sender->tableName(),
                 'usage_id' => $event->sender->id,
@@ -65,7 +64,7 @@ class UsageAction extends Behavior
      */
     public function UsageAfterDelete($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->clientAccount->id,
             'usage' => $event->sender->tableName(),
             'usage_id' => $event->sender->id,
@@ -79,7 +78,7 @@ class UsageAction extends Behavior
      */
     public function UsageTransferEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE, self::EVENT_SOURCE, [
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
             'client_id' => $event->sender->service->clientAccount->id,
             'usage' => $event->sender->service->tableName(),
             'usage_id' => $event->sender->service->id,
