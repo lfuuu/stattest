@@ -8,11 +8,10 @@ use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsSources;
 
 class ClientContract extends Behavior
 {
-
-    const EVENT_SOURCE = 'stat';
 
     /**
      * @return array
@@ -32,7 +31,7 @@ class ClientContract extends Behavior
     public function registerAddEvent($event)
     {
         if (($clientAccountId = (int) Yii::$app->request->get('childId'))) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_EXTEND_ACCOUNT_CONTRACT, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_EXTEND_ACCOUNT_CONTRACT, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'client_id' => $clientAccountId,
                 'contract_id' => $event->sender->id,
                 'user_id' => Yii::$app->user->id,
@@ -51,7 +50,7 @@ class ClientContract extends Behavior
 
         if ($changedCount && ($clientAccountId = (int) Yii::$app->request->get('childId'))) {
             if (isset($changed['contragent_id'])) {
-                ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CONTRACT_TRANSFER, self::EVENT_SOURCE, [
+                ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CONTRACT_TRANSFER, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                     'client_id' => $clientAccountId,
                     'contract_id' => $event->sender->id,
                     'to_contragent_id' => $changed['contragent_id'],
@@ -60,7 +59,7 @@ class ClientContract extends Behavior
                 ]);
             }
             else {
-                ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CONTRACT_CHANGED, self::EVENT_SOURCE, [
+                ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CONTRACT_CHANGED, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                     'client_id' => $clientAccountId,
                     'contract_id' => $event->sender->id,
                     'user_id' => Yii::$app->user->id,
