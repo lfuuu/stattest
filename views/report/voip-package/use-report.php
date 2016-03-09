@@ -153,7 +153,7 @@ foreach ($packages as $package) {
     </div>
 
     <?php
-    if ($filter) {
+    if ($filter && count($report)) {
         echo $this->render('@app/views/report/voip-package/use-report-' . $filter->mode . '.php', [
             'report' => $report,
             'filter' => $filter,
