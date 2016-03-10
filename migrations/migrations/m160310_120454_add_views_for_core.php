@@ -29,7 +29,7 @@ class m160310_120454_add_views_for_core extends \app\classes\Migration
 	echo "VIEW For usage_virtpbx\n";
 	$this->execute("CREATE VIEW view_client_usage_virtpbx_ro AS SELECT id,client,region,activation_dt,expire_dt,actual_from,actual_to,amount,status,comment,tarif_id,moved_from FROM usage_virtpbx;");
 	echo "VIEW For usage_voip_package\n";
-	$this->execute("CREATE VIEW view_client_usage_voip_package_ro AS SELECT id,client,activation_dt,expire_dt,actual_from,actual_to,tariff_id,usage_voip_id,usage_trunk_id,status FROM usage_voip_package;");
+	$this->execute("CREATE VIEW view_client_usage_voip_package_ro AS SELECT id,client,activation_dt,expire_dt,actual_from,actual_to,tariff_id,usage_voip_id,status FROM usage_voip_package;");
 	echo "VIEW For usage_welltime\n";
 	$this->execute("CREATE VIEW view_client_usage_welltime_ro AS SELECT id,client,activation_dt,expire_dt,actual_from,actual_to,ip,amount,status,comment,tarif_id,router FROM usage_welltime;");
     }
