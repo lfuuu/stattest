@@ -17,6 +17,46 @@ use app\models\Trouble;
 
 class TicketController extends ApiController
 {
+    /**
+     * @SWG\Definition(
+     *   definition="ticket",
+     *   type="object",
+     *   required={"id","user_id","subject","status","is_with_new_comment","department","created_at","updated_at"},
+     *   @SWG\Property(property="id",type="integer",description="Идентификатор тикета"),
+     *   @SWG\Property(property="user_id",type="integer",description="Ответственный менеджер"),
+     *   @SWG\Property(property="subject",type="string",description="Тема тикета"),
+     *   @SWG\Property(property="status",type="integer",description="Статус",enum={"open|done|closed"}),
+     *   @SWG\Property(property="is_with_new_comment",type="integer",description="Есть ли новые комментарии к тикету"),
+     *   @SWG\Property(property="department",type="integer",description="Отдел",enum={"sales|accounting|technical"}),
+     *   @SWG\Property(property="created_at",type="date",description="Дата создания"),
+     *   @SWG\Property(property="updated_at",type="date",description="Дата изменения")
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с тикетами"},
+     *   path="/ticket/list/",
+     *   summary="Список тикетов",
+     *   operationId="Список тикетов",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="status",type="string",description="статус тикета",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="список тикетов",
+     *     @SWG\Definition(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/ticket"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionList()
     {
         $model = new TicketListForm();
@@ -32,6 +72,54 @@ class TicketController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Definition(
+     *   definition="ticket_comment",
+     *   type="object",
+     *   required={"id","ticket_id","user_id","text","created_at"},
+     *   @SWG\Property(property="id",type="integer",description="Идентификатор комментария"),
+     *   @SWG\Property(property="ticket_id",type="integer",description="Идентификатор тикета"),
+     *   @SWG\Property(property="user_id",type="string",description="Идентификатор сотрудника техподдержки"),
+     *   @SWG\Property(property="text",type="string",description="Текст комментария"),
+     *   @SWG\Property(property="created_at",type="date",description="Дата создания комментария")
+     * ),
+     * @SWG\Definition(
+     *   definition="ticket_ex",
+     *   type="object",
+     *   required={"id","user_id","subject","status","is_with_new_comment","department","created_at","updated_at","comments"},
+     *   @SWG\Property(property="id",type="integer",description="Идентификатор тикета"),
+     *   @SWG\Property(property="user_id",type="integer",description="Ответственный менеджер"),
+     *   @SWG\Property(property="subject",type="string",description="Тема тикета"),
+     *   @SWG\Property(property="status",type="integer",description="Статус",enum={"open|done|closed"}),
+     *   @SWG\Property(property="is_with_new_comment",type="integer",description="Есть ли новые комментарии к тикету"),
+     *   @SWG\Property(property="department",type="integer",description="Отдел",enum={"sales|accounting|technical"}),
+     *   @SWG\Property(property="created_at",type="date",description="Дата создания"),
+     *   @SWG\Property(property="updated_at",type="date",description="Дата изменения"),
+     *   @SWG\Property(property="comments",type="array",description="Комментарии",@SWG\Items(ref="#/definitions/ticket_comment")),
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с тикетами"},
+     *   path="/ticket/details/",
+     *   summary="Информация о тикете",
+     *   operationId="Информация о тикете",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="ticket_id",type="integer",description="идентификатор тикета",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="тикет",
+     *     @SWG\Definition(
+     *       ref="#/definitions/ticket_ex"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionDetails()
     {
         $model = DynamicModel::validateData(
@@ -70,6 +158,30 @@ class TicketController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с тикетами"},
+     *   path="/ticket/create/",
+     *   summary="Создание тикета",
+     *   operationId="Создание тикета",
+     *   @SWG\Parameter(name="user_id",type="integer",description="Ответственный менеджер",in="formData"),
+     *   @SWG\Parameter(name="subject",type="string",description="Тема тикета",in="formData"),
+     *   @SWG\Parameter(name="status",type="integer",description="Статус",enum={"open|done|closed"},in="formData"),
+     *   @SWG\Parameter(name="is_with_new_comment",type="integer",description="Есть ли новые комментарии к тикету",in="formData"),
+     *   @SWG\Parameter(name="department",type="integer",description="Отдел",enum={"sales|accounting|technical"},in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="идентификатор созданного тикета",
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionCreate()
     {
         $model = new SubmitTicketForm();
@@ -82,6 +194,32 @@ class TicketController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с тикетами"},
+     *   path="/ticket/comment/",
+     *   summary="Создание комментария к тикету",
+     *   operationId="Создание комментария к тикету",
+     *   @SWG\Parameter(name="ticket_id",type="integer",description="Идентификатор тикета",in="formData"),
+     *   @SWG\Parameter(name="user_id",type="string",description="Идентификатор сотрудника техподдержки",in="formData"),
+     *   @SWG\Parameter(name="text",type="string",description="Текст комментария",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="идентификаторы",
+     *     @SWG\Definition(
+     *       @SWG\Property(property="ticket_id",type="integer",description="Идентификатор тикета"),
+     *       @SWG\Property(property="comment_id",type="daintegerte",description="Идентификатор комментария")
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionComment()
     {
         $model = new SubmitTicketCommentForm();
@@ -93,6 +231,30 @@ class TicketController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с тикетами"},
+     *   path="/ticket/set_read/",
+     *   summary="Отметить комментарии в тикете как прочитанные",
+     *   operationId="Отметить комментарии в тикете как прочитанные",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="ticket_id",type="integer",description="идентификатор тикета",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="тикет",
+     *     @SWG\Definition(
+     *       ref="#/definitions/ticket"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionSetRead()
     {
         $model = DynamicModel::validateData(

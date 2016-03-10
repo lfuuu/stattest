@@ -95,14 +95,80 @@ class WizardMcnController extends /*BaseController*/ApiController
         }
     }
 
+    /**
+     * @SWG\Definition(
+     *   definition="wizard_state",
+     *   type="object",
+     *   required={"step","good","wizard_type"},
+     *   @SWG\Property(property="step",type="integer",description="текущий шаг визарда"),
+     *   @SWG\Property(property="good",type="integer",description="предыдущий завершённый шаг визарда"),
+     *   @SWG\Property(property="wizard_type",type="integer",description="тип визарда"),
+     *   @SWG\Property(property="step_state",type="integer",description="статус шага"),
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/state/",
+     *   summary="Получение статуса, в котором находится визард",
+     *   operationId="Получение статуса, в котором находится визард",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="список тикетов",
+     *     @SWG\Definition(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/wizard_state"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionState()
     {
         $this->loadAndCheck(false);
 
         return $this->getWizardState();
-
     }
 
+    /**
+     * @SWG\Definition(
+     *   definition="wizard_data",
+     *   type="object",
+     *   @SWG\Property(property="step1",type="object",description="информация по первому шагу"),
+     *   @SWG\Property(property="step2",type="object",description="информация по второму шагу"),
+     *   @SWG\Property(property="step3",type="object",description="информация по третьему шагу"),
+     *   @SWG\Property(property="step4",type="object",description="информация по четвёртому шагу"),
+     *   @SWG\Property(property="state",type="object",description="текущий шаг"),
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/read/",
+     *   summary="Получение всей необходимой информации для визарда",
+     *   operationId="Получение всей необходимой информации для визарда",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="информация по визарду",
+     *     @SWG\Schema(
+     *       ref="#/definitions/wizard_data"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionRead()
     {
         $this->loadAndCheck();
@@ -118,6 +184,34 @@ class WizardMcnController extends /*BaseController*/ApiController
         return $fullWizard;
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/save/",
+     *   summary="Сохранение состояния визарда",
+     *   operationId="Сохранение состояния визарда",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="step1",type="array",items="#/definitions/step1",description="информация по первому шагу",in="formData"),
+     *   @SWG\Parameter(name="step2",type="array",items="#/definitions/step2",description="информация по второму шагу",in="formData"),
+     *   @SWG\Parameter(name="step3",type="array",items="#/definitions/step3",description="информация по третьему шагу",in="formData"),
+     *   @SWG\Parameter(name="step4",type="array",items="#/definitions/step4",description="информация по четвёртому шагу",in="formData"),
+     *   @SWG\Parameter(name="state",type="integer",description="текущий шаг",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="информация по визарду",
+     *     @SWG\Schema(
+     *       ref="#/definitions/wizard_data"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionSave()
     {
         $postData = $this->loadAndCheck();
@@ -129,8 +223,8 @@ class WizardMcnController extends /*BaseController*/ApiController
         if ($step == 1)
         {
             $result = $this->_saveStep1($postData["step1"]);
-
-        } else if ($step == 3)
+        }
+        else if ($step == 3)
         {
             $result = $this->_saveStep3($postData["step3"]);
         }
@@ -166,6 +260,26 @@ class WizardMcnController extends /*BaseController*/ApiController
         return $this->makeWizardFull();
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/get_contract/",
+     *   summary="Получение договора",
+     *   operationId="Получение договора",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="договор в формате HTML или PDF",
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionGetContract()
     {
         $this->loadAndCheck();
@@ -265,7 +379,39 @@ class WizardMcnController extends /*BaseController*/ApiController
         return base64_encode($this->getPDFfromHTML($content));
     }
 
-
+    /**
+     * @SWG\Definition(
+     *   definition="file",
+     *   type="object",
+     *   required={"name","content"},
+     *   @SWG\Property(property="name",type="string",description="название файла"),
+     *   @SWG\Property(property="content",type="string",description="содержимое файла"),
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/save_document/",
+     *   summary="Сохранение документа",
+     *   operationId="Сохранение документа",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="file",type="file",description="скан документа",in="formData",@SWG\Schema(ref="#/definitions/file")),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Загруженный файл",
+     *     @SWG\Schema(
+     *       type="object",
+     *       @SWG\Property(property="file_name",type="string",description="название файла"),
+     *       @SWG\Property(property="file_id",type="integer",description="идентификатор файла"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionSaveDocument()
     {
         $data = $this->loadAndCheck();
@@ -288,6 +434,31 @@ class WizardMcnController extends /*BaseController*/ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с визардом"},
+     *   path="/wizard_mcn/save_contracts/",
+     *   summary="Сохранение договора",
+     *   operationId="Сохранение договора",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="contact_phone",type="string",description="Контактный номер",in="formData"),
+     *   @SWG\Parameter(name="contact_fio",type="string",description="Контактное ФИО",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="информация по визарду",
+     *     @SWG\Schema(
+     *       ref="#/definitions/wizard_data"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionSaveContacts()
     {
         $data = $this->loadAndCheck();

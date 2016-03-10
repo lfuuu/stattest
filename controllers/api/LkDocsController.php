@@ -31,6 +31,37 @@ class LkDocsController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с документами"},
+     *   path="/lk_docs/sections/",
+     *   summary="Получение карточки клиента",
+     *   operationId="Получение списка звонков",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData"),
+     *   @SWG\Parameter(name="year",type="integer",description="год, за который выбирать звонки",in="formData"),
+     *   @SWG\Parameter(name="month",type="integer",description="месяц, за который выбирать звонки",in="formData"),
+     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData"),
+     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о клиентах партнёра",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/call"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionSections()
     {
         $this->validateAccountId();
