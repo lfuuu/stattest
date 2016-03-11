@@ -4,22 +4,23 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\Country;
+use app\models\City;
 use kartik\grid\GridView;
 use Yii;
 
 
-class CountryColumn extends DataColumn
+class CityColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $country_id = null;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Country::getList(true);
-        $this->filterInputOptions['class'] .= ' country-column';
+        $this->filter = City::dao()->getList(true, $this->country_id);
+        $this->filterInputOptions['class'] .= ' city-column';
     }
 }

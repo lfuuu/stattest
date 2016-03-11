@@ -10,7 +10,6 @@ use yii\db\ActiveRecord;
  * @property int $beauty_level
  *
  * @property City $city
- * @property
  */
 class DidGroup extends ActiveRecord
 {
@@ -25,10 +24,24 @@ class DidGroup extends ActiveRecord
     public static $beautyLevelNames = [
         self::BEAUTY_LEVEL_STANDART => 'Стандартный',
         self::BEAUTY_LEVEL_PLATINUM => 'Платиновый',
-        self::BEAUTY_LEVEL_GOLD     => 'Золотой',
-        self::BEAUTY_LEVEL_SILVER   => 'Серебрянный',
-        self::BEAUTY_LEVEL_BRONZE   => 'Бронзовый',
+        self::BEAUTY_LEVEL_GOLD => 'Золотой',
+        self::BEAUTY_LEVEL_SILVER => 'Серебрянный',
+        self::BEAUTY_LEVEL_BRONZE => 'Бронзовый',
     ];
+
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'city_id' => 'Город',
+            'name' => 'Название',
+            'beauty_level' => 'Красивость',
+        ];
+    }
 
     public static function tableName()
     {
@@ -43,5 +56,20 @@ class DidGroup extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * Вернуть список красивостей
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public static function getBeautyLevelList($isWithEmpty = false)
+    {
+        $list = self::$beautyLevelNames;
+
+        if ($isWithEmpty) {
+            $list = ['' => ' ---- '] + $list;
+        }
+        return $list;
     }
 }
