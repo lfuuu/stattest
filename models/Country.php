@@ -6,16 +6,34 @@ use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
- * @property int $id
+ * @property int $code
+ * @property string $alpha_3
  * @property string $name
- * @property string $enabled
- * @property
+ * @property int $in_use
+ * @property string $lang
+ * @property string $currency_id
  */
 class Country extends ActiveRecord
 {
     const RUSSIA = 643;
     const HUNGARY = 348;
     const GERMANY = 276;
+
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'code' => 'ID',
+            'alpha_3' => 'Сокращение',
+            'name' => 'Название',
+            'in_use' => 'Включен',
+            'lang' => 'Язык',
+            'currency_id' => 'Валюта',
+        ];
+    }
 
     public static function tableName()
     {
