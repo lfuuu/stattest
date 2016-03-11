@@ -181,10 +181,6 @@ class ReportUsageDao extends Singleton
             $query->andWhere(['in', 'cr.service_package_id', $packages]);
         }
 
-        if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
-            throw new \InvalidArgumentException('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-        }
-
         switch ($detality) {
             case 'day':
             case 'year':
@@ -227,6 +223,10 @@ class ReportUsageDao extends Singleton
 
         $query->orderBy('ts1 ASC');
         $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
+
+        if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
+            throw new \InvalidArgumentException('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+        }
 
         $records = $query->asArray()->all();
 
