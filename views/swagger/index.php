@@ -25,7 +25,7 @@ $this->beginPage();
             if (url && url.length > 1) {
                 url = decodeURIComponent(url[1]);
             } else {
-                url = '<?= $documentationPath; ?>';
+                url = '<?= $host . $documentationPath; ?>';
             }
 
             apiKeyField
@@ -87,7 +87,7 @@ $this->beginPage();
                 <form id="api_selector">
                     <div class="input">
                         <label>JSON документация</label><br />
-                        <input placeholder="https://<?= $host . $documentationPath; ?>" id="input_baseUrl" name="baseUrl" type="text" />
+                        <input placeholder="<?= $host . $documentationPath; ?>" id="input_baseUrl" name="baseUrl" type="text" />
                     </div>
                     <div class="input">
                         <label>API Key</label><br />
