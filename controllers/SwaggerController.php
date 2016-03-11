@@ -19,7 +19,7 @@ class SwaggerController extends BaseController
     {
         $this->layout = 'empty';
         return $this->render('index', [
-            'host' => Yii::$app->request->serverName,
+            'host' => Yii::$app->params['PROTOCOL_STRING'] . Yii::$app->request->serverName,
             'documentationPath' => '/swagger/documentation',
             'apiKey' => Yii::$app->params['API_SECURE_KEY'],
         ]);
