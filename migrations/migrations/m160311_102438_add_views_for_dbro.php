@@ -23,11 +23,22 @@ class m160311_102438_add_views_for_dbro extends \app\classes\Migration
                 `important_events`.`client_id` AS `client_account_id`
             FROM `important_events`;
         ");
+        $this->execute("
+            CREATE VIEW view_client_account_contacts_ro
+            AS SELECT
+                id AS id,
+                client_id as client_account_id,
+                data as data,
+                type as type,
+                is_active as is_active
+            FROM `client_contacts`;
+        ");
     }
 
     public function down()
     {
         $this->execute("DROP VIEW view_important_events_ro;");
         $this->execute("DROP VIEW view_important_events_names_ro;");
+        $this->execute("DROP VIEW view_client_account_contacts_ro;");
     }
 }
