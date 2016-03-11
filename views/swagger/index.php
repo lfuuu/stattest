@@ -1,38 +1,23 @@
+<?php
+
+use app\classes\Html;
+use app\assets\SwaggerUiAsset;
+
+SwaggerUiAsset::register($this);
+
+$this->beginPage();
+?>
 <!DOCTYPE html>
-<html>
+<html lang="<?= Yii::$app->language ?>">
     <head>
-        <meta charset="UTF-8">
-        <title>API Документация</title>
-
-        <link rel="icon" type="image/png" href="/swagger-data/images/favicon-32x32.png" sizes="32x32" />
-        <link rel="icon" type="image/png" href="/swagger-data/images/favicon-16x16.png" sizes="16x16" />
-
+        <meta charset="<?= Yii::$app->charset ?>"/>
+        <base href="/" />
+        <?= Html::csrfMetaTags() ?>
+        <title><?= Html::encode($this->title) ?></title>
+        <?php $this->head() ?>
         <link href="/css/site.css" media="screen" rel="stylesheet" type="text/css" />
-        <link href="/swagger-data/css/typography.css" media="screen" rel="stylesheet" type="text/css" />
-        <link href="/swagger-data/css/reset.css" media="screen" rel="stylesheet" type="text/css" />
-        <link href="/swagger-data/css/screen.css" media="screen" rel="stylesheet" type="text/css" />
-        <link href="/swagger-data/css/reset.css" media="print" rel="stylesheet" type="text/css" />
-        <link href="/swagger-data/css/print.css" media="print" rel="stylesheet" type="text/css" />
-
-        <script src="/swagger-data/lib/jquery-1.8.0.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/jquery.slideto.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/jquery.wiggle.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/jquery.ba-bbq.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/handlebars-2.0.0.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/js-yaml.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/lodash.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/backbone-min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/highlight.7.3.pack.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/jsoneditor.min.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/marked.js" type="text/javascript"></script>
-        <script src="/swagger-data/lib/swagger-oauth.js" type="text/javascript"></script>
-        <script src="/swagger-data/swagger-ui.js" type="text/javascript"></script>
-
-        <script src="/swagger-data/lang/translator.js" type="text/javascript"></script>
-        <script src="/swagger-data/lang/ru.js" type="text/javascript"></script>
-
         <script type="text/javascript">
-        $(function () {
+        jQuery(document).ready(function() {
             var
                 url = window.location.search.match(/url=([^&]+)/),
                 apiKeyField = $('#input_apiKey');
@@ -54,7 +39,7 @@
                 });
 
             if(window.SwaggerTranslator) {
-                  window.SwaggerTranslator.translate();
+                window.SwaggerTranslator.translate();
             }
 
             window.swaggerUi = new SwaggerUi({
@@ -62,16 +47,9 @@
                 dom_id: 'swagger-ui-container',
                 supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
                 onComplete: function(swaggerApi, swaggerUi) {
-                    if (typeof initOAuth == 'function') {
-                        initOAuth({
-                            clientId: "your-client-id",
-                            clientSecret: "your-client-secret-if-required",
-                            realm: "your-realms",
-                            appName: "your-app-name",
-                            scopeSeparator: ",",
-                            additionalQueryStringParams: {}
-                        });
-                    }
+                    $('li.operation').on('click', function(e) {
+                        e.preventDefault();
+                    });
 
                     if(window.SwaggerTranslator) {
                         window.SwaggerTranslator.translate();
@@ -95,13 +73,15 @@
                 if ('console' in window) {
                     console.log.apply(console, arguments);
                 }
-             }
-        });
+            }
+        })
         </script>
     </head>
-
     <body class="swagger-section">
-        <div id="header">
+
+    <?php $this->beginBody() ?>
+
+        <div id="header" style="background-color: #F0F0F0;">
             <div class="swagger-ui-wrap">
                 <a class="logo" style="margin: 0;" href="/"></a>
                 <form id="api_selector">
@@ -114,7 +94,7 @@
                         <input placeholder="api_key" id="input_apiKey" name="apiKey" type="text" value="<?= $apiKey; ?>" />
                     </div>
                     <div class="input">
-                        <br /><a id="explore" href="#" data-sw-translate="">Explore</a>
+                        <br /><a id="explore" href="#" data-sw-translate="" style="background-color: #000033;">Explore</a>
                     </div>
                 </form>
             </div>
@@ -122,5 +102,10 @@
 
         <div id="message-bar" class="swagger-ui-wrap" data-sw-translate="">&nbsp;</div>
         <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+
+        <?php $this->endBody() ?>
+
     </body>
 </html>
+<?php $this->endPage() ?>
+

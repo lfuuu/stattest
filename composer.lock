@@ -319,6 +319,42 @@
             "time": "2016-01-27 05:14:46"
         },
         {
+            "name": "bower-asset/swagger-ui",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/swagger-api/swagger-ui.git",
+                "reference": "de88706735ebeb43a41d189b07ab851d55c16957"
+            },
+            "dist": {
+            "type": "zip",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/de88706735ebeb43a41d189b07ab851d55c16957",
+                "reference": "de88706735ebeb43a41d189b07ab851d55c16957",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+            "bower-asset-main": "dist/index.html",
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "node_modules",
+                    "bower_components",
+                    "test",
+                    "tests"
+                ],
+                "bower-asset-private": true
+            },
+            "license": [
+                "Copyright 2016 SmartBear Software"
+            ],
+            "description": "Swagger UI",
+            "keywords": [
+                "API",
+                "Swagger"
+            ],
+            "time": "2016-03-09 23:36:32"
+        },
+        {
             "name": "zircote/swagger-php",
             "version": "2.0.5",
             "source": {

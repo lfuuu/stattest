@@ -220,13 +220,15 @@ class WizardMcnController extends /*BaseController*/ApiController
 
         $step = $postData["state"]["step"];
 
-        if ($step == 1)
-        {
-            $result = $this->_saveStep1($postData["step1"]);
-        }
-        else if ($step == 3)
-        {
-            $result = $this->_saveStep3($postData["step3"]);
+        switch ($step) {
+            case 1: {
+                $result = $this->_saveStep1($postData["step1"]);
+                break;
+            }
+            case 3: {
+                $result = $this->_saveStep3($postData["step3"]);
+                break;
+            }
         }
 
         if ($result === true)

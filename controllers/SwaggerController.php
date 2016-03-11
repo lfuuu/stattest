@@ -11,6 +11,10 @@ define('API_HOST', Yii::$app->request->serverName);
 class SwaggerController extends BaseController
 {
 
+    /**
+     * Базовый Swagger UI
+     * @return string
+     */
     public function actionIndex()
     {
         $this->layout = 'empty';
@@ -21,6 +25,10 @@ class SwaggerController extends BaseController
         ]);
     }
 
+    /**
+     * JSON список доступной документации
+     * @throws \yii\base\ExitException
+     */
     public function actionDocumentation()
     {
         $swagger = \Swagger\scan(Yii::$app->controllerPath . '/api');

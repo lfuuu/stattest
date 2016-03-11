@@ -19,8 +19,10 @@ class ImportantEventsController extends ApiInternalController
      *   operationId="Добавление значимого события в лог",
      *   @SWG\Parameter(name="event",type="string",description="событие",in="formData",required=true),
      *   @SWG\Parameter(name="source",type="string",description="источник",in="formData",required=true),
-     *   @SWG\Parameter(name="client_id",type="integer",description="идентификатор лицевого счёта для которого это событие произошло",in="formData",required=true),
-     *   @SWG\Parameter(name="extends_data",type="string",description="объект с дополнительными данными",in="formData"),
+     *   @SWG\Parameter(name="client_id",type="string",description="ID клиента",in="formData",required=false),
+     *   @SWG\Parameter(name="value",type="string",description="текущее состояние счета",in="formData",required=false),
+     *   @SWG\Parameter(name="limit",type="string",description="лимит",in="formData",required=false),
+     *   @SWG\Parameter(name="*",type="string",description="дополнительные параметры",in="formData",required=false),
      *   @SWG\Response(
      *     response=200,
      *     description="результат работы метода",

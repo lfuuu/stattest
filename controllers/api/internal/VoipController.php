@@ -86,7 +86,8 @@ class VoipController extends ApiInternalController
             throw new ExceptionValidationForm($model);
         }
 
-        return
+        $result = [];
+        foreach (
             Calls::dao()->getCalls(
                 $model->account_id,
                 $model->number,
@@ -94,7 +95,14 @@ class VoipController extends ApiInternalController
                 $model->month,
                 $model->offset,
                 $model->limit
-            );
+            ) as $call
+        ) {
+            $call['cost'] = (double) $call['cost'];
+            $call['rate'] = (double) $call['rate'];
+            $result[] = $call;
+        }
+
+        return $result;
     }
 
 }
