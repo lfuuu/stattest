@@ -1,6 +1,13 @@
 <?php
 namespace app\controllers;
 
+use Yii;
+use yii\base\Exception;
+use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
+use yii\helpers\Url;
+use yii\web\Response;
+use app\classes\BaseController;
 use app\classes\grid\GridFactory;
 use app\classes\Assert;
 use app\forms\client\AccountEditForm;
@@ -21,12 +28,8 @@ use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
 use app\models\Saldo;
-use Yii;
-use app\classes\BaseController;
-use yii\base\Exception;
-use yii\filters\AccessControl;
-use yii\helpers\Url;
-use yii\web\Response;
+use app\models\important_events\ImportantEventsNames;
+use app\forms\important_events\ImportantEventsNoticesForm;
 
 class ClientController extends BaseController
 {
@@ -260,6 +263,38 @@ class ClientController extends BaseController
         }
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * @param int $clientAccountId
+     * @return string
+     */
+    public function actionNotices()
+    {
+        if (!($clientAccount = $this->getFixClient()) instanceof ClientAccount) {
+            Yii::$app->session->addFlash('error', 'Выберите клиента');
+            return false;
+        }
+
+        $form = new ImportantEventsNoticesForm;
+        $form->clientAccountId = $clientAccount->id;
+
+        if ($form->load(Yii::$app->request->post(), 'FormData') && $form->validate() && $form->saveData()) {
+            Yii::$app->session->addFlash('success', 'Данные успешно обновлены');
+            Yii::$app->response->redirect('client/notices', ['clientAccountId' => $clientAccount->id]);
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => ImportantEventsNames::find(),
+            'sort' => false,
+            'pagination' => false,
+        ]);
+
+        return $this->render('notices', [
+            'dataProvider' => $dataProvider,
+            'form' => $form,
+            'clientData' => $form->loadData()->clientData,
+        ]);
     }
 
 }
