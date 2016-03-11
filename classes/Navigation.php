@@ -43,7 +43,7 @@ class Navigation
                 ->addItem('Звонок_чат', ['tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
                 ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
-                ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
+                ->addItem('Телефония DID группы', ['tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');

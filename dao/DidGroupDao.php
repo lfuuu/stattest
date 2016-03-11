@@ -3,15 +3,18 @@ namespace app\dao;
 
 use app\classes\Singleton;
 use app\models\DidGroup;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
- * @method static DidGroupDao me($args = null)
- * @property
  */
 class DidGroupDao extends Singleton
 {
-
+    /**
+     * Вернуть список
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
     public function getList($withEmpty = false, $cityId = false)
     {
         $query = DidGroup::find();
@@ -34,5 +37,4 @@ class DidGroupDao extends Singleton
         }
         return $list;
     }
-
 }
