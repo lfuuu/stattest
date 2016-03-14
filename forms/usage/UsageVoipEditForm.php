@@ -79,6 +79,8 @@ class UsageVoipEditForm extends UsageVoipForm
     /**
     * Standart validator method interface. Checks the minimal prices is filled
     *
+    * @param string $attribute
+    * @param [] $params
     */
     public function checkMinTarif($attribute, $params)
     {
