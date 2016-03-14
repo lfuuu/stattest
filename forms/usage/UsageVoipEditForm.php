@@ -80,7 +80,7 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         $field = static::$map[$attribute];
         $val = $this->getMinByTariff($this->$field);
-        if ($this->$attribute < $val) {
+        if (($val > 0) && ($this->$attribute == 0)) {
             $this->addError($attribute, 'Минимальный платеж не должен быть ниже чем в тарифе: ' . $val);
             return;
         }
@@ -90,7 +90,9 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         foreach(static::$map[$attribute] as $to => $id) {
             $val = $this->getMinByTariff($this->$field);
-	    $this->$to = $val;
+            if (($val > 0)&&($this->$to == 0)) {
+	        $this->$to = $val;
+	    }
 	}
     }
 
