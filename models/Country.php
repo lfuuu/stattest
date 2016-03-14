@@ -35,16 +35,25 @@ class Country extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'country';
     }
 
+    /**
+     * @return string[]
+     */
     public static function primaryKey()
     {
         return ['code'];
     }
 
+    /**
+     * @return CountryDao
+     */
     public static function dao()
     {
         return CountryDao::me();

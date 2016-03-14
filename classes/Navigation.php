@@ -122,7 +122,7 @@ class Navigation
                 ->addItem('Источники событий', ['important_events/sources'])
                 ->addItem('Правила на события', ['important_events/rules'])
                 ->addItem('Страны', ['dictionary/country/?CountryFilter[in_use]=1'])
-//                ->addItem('Города', ['dictionary/city/'])
+                ->addItem('Города', ['dictionary/city/'])
         );
     }
 
