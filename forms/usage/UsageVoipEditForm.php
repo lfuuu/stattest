@@ -94,14 +94,32 @@ class UsageVoipEditForm extends UsageVoipForm
     */
     public function fillDefault()
     {
-        foreach(static::$mapPriceToId[$attribute] as $to => $id) {
-            $val = $this->getMinByTariff($this->$field);
-            if (($val > 0)&&($this->$to == 0)) {
-	        $this->$to = $val;
+	foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
+	    $val = $this->getMinByTariff($this->$fieldTariffId);
+	    if ($val > 0) {
+	        if (empty($this->$to) || empty($this->usage)) {
+	            $this->$fieldMinPrice = $val;
+	        }
 	    }
 	}
     }
 
+
+    
+    /**
+     * Populates the model with input data.
+     *
+     * @param array $data the data array to load, typically `$_POST` or `$_GET`.
+     * @param string $formName the form name to use to load the data into the model.
+     * If not set, [[formName()]] is used.
+     * @return boolean whether `load()` found the expected form in `$data`.
+     */
+    public function load($data, $formName = null)
+    {
+	$return = parent::load($data, $formName);
+	$this->fillDefault();
+	return $return;
+    }
 
     public function checkNoUsedLine($attr, $params)
     {
@@ -283,7 +301,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
             $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
 
-            $this->fillDefault();
 
             $i = 0;
             while ($i < strlen($currentTariff->dest_group)) {
