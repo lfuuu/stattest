@@ -4,12 +4,12 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\Country;
+use app\models\DidGroup;
 use kartik\grid\GridView;
 use Yii;
 
 
-class CountryColumn extends DataColumn
+class BeautyLevelColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -19,7 +19,7 @@ class CountryColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Country::getList(true);
-        $this->filterInputOptions['class'] .= ' country-column';
+        $this->filter = DidGroup::getBeautyLevelList(true);
+        $this->filterInputOptions['class'] .= ' beauty-level-column';
     }
 }

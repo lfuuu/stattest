@@ -9,6 +9,7 @@ use yii\db\Expression;
 use app\classes\Html;
 use app\models\UsageVoip;
 use app\models\LogTarif;
+use yii\db\Query;
 
 class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
 {
@@ -121,6 +122,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
                 ->from([UsageVoip::tableName() . ' uv'])
                 ->select([
                     'uv.id',
+                    'tariff_id' => 't.id',
                     't.id_tarif',
                     't.id_tarif_local_mob',
                     't.id_tarif_russia',
@@ -129,8 +131,21 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
                     't.date_activation',
                 ])
                 ->leftJoin(LogTarif::tableName() . ' t', 't.id_service = uv.id AND t.service="usage_voip"')
-                ->where(new Expression('CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to'))
-                ->andWhere(new Expression('!t.id_tarif OR !t.id_tarif_local_mob OR !t.id_tarif_russia OR !t.id_tarif_russia_mob OR !t.id_tarif_intern'))
+                ->where(new Expression('!t.id_tarif OR !t.id_tarif_local_mob OR !t.id_tarif_russia OR !t.id_tarif_russia_mob OR !t.id_tarif_intern'))
+                ->andWhere([
+                    't.id' => new Expression('(
+                        SELECT `id`
+                        FROM `log_tarif`
+                        WHERE
+                            `service` = "usage_voip"
+                            AND `id_service` = uv.`id`
+                        ORDER BY
+                            `date_activation` DESC,
+                            `id` DESC
+                        LIMIT 1
+                    )')
+                ])
+                ->actual()
                 ->asArray()
                 ->all();
 

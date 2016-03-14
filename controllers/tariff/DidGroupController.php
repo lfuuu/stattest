@@ -1,14 +1,10 @@
 <?php
 namespace app\controllers\tariff;
 
-use app\forms\tariff\DidGroupForm;
-use app\forms\tariff\DidGroupListForm;
-use app\models\DidGroup;
-use Yii;
-use yii\data\ActiveDataProvider;
-use yii\filters\AccessControl;
 use app\classes\BaseController;
-use yii\web\BadRequestHttpException;
+use app\models\filter\DidGroupFilter;
+use Yii;
+use yii\filters\AccessControl;
 
 class DidGroupController extends BaseController
 {
@@ -20,34 +16,24 @@ class DidGroupController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['tarifs.read'],
                     ],
                 ],
             ],
         ];
     }
 
-    public function actionList()
+    /**
+     * Список
+     * @return string
+     */
+    public function actionIndex()
     {
-        $model = new DidGroupListForm();
-        $model->load(Yii::$app->request->getQueryParams());
+        $filterModel = new DidGroupFilter();
+        $filterModel->load(Yii::$app->request->getQueryParams());
 
-        return $this->render('list', [
-            'dataProvider' => $model->spawnDataProvider(),
-            'filterModel' => $model,
-        ]);
-    }
-
-    public function actionEdit($id)
-    {
-        $model = new DidGroupForm();
-
-        $tariff = DidGroup::findOne($id);
-        if ($tariff === null) throw new BadRequestHttpException();
-        $model->setAttributes($tariff->getAttributes(), false);
-
-        return $this->render('view', [
-            'model' => $model,
+        return $this->render('index', [
+            'filterModel' => $filterModel,
         ]);
     }
 }
