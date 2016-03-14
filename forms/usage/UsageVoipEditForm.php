@@ -36,7 +36,7 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
-    private static $map = [
+    private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
         'tariff_group_russia_price' => 'tariff_russia_id',
         'tariff_group_local_mob_price' => 'tariff_local_mob_id',
@@ -76,9 +76,13 @@ class UsageVoipEditForm extends UsageVoipForm
         return $rules;
     }
 
+    /**
+    * Standart validator method interface. Checks the minimal prices is filled
+    *
+    */
     public function checkMinTarif($attribute, $params)
     {
-        $field = static::$map[$attribute];
+        $field = static::$mapPriceToId[$attribute];
         $val = $this->getMinByTariff($this->$field);
         if (($val > 0) && ($this->$attribute == 0)) {
             $this->addError($attribute, 'Минимальный платеж не должен быть ниже чем в тарифе: ' . $val);
@@ -86,9 +90,13 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    /**
+    * Fill default values
+    *
+    */
     public function fillDefault()
     {
-        foreach(static::$map[$attribute] as $to => $id) {
+        foreach(static::$mapPriceToId[$attribute] as $to => $id) {
             $val = $this->getMinByTariff($this->$field);
             if (($val > 0)&&($this->$to == 0)) {
 	        $this->$to = $val;
@@ -687,6 +695,10 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    /**
+    * Get minimal price by Id of Tariff
+    *
+    */
     private function getMinByTariff($tariffId)
     {
 	return TariffVoip::find()->select('month_min_payment')->andWhere([ 'id' => $tariffId ])->scalar();
