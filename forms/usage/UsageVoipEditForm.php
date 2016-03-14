@@ -36,7 +36,7 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
-    public function rules()
+    public function rules($appendRules = [])
     {
         $rules = parent::rules();
         $rules[] = [['no_of_lines'], 'default', 'value' => 1];
@@ -48,16 +48,40 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [['did'], 'trim'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
         $rules[] = [['address', 'disconnecting_date'], 'string', 'on' => 'edit'];
+
         $rules[] = [[
             'no_of_lines',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'change-tariff'];
+
+        $rules[] = [[
+            'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
+        ], 'checkMinTarif'];
+
+        $rules[] = [[
+            'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
+        ], 'required'];
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
         $rules[] = [['line7800_id'], 'checkNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
 
         return $rules;
+    }
+
+    public function checkMinTarif($attribute, $params)
+    {
+        $map = [
+            'tariff_group_intern_price' => 'tariff_intern_id',
+            'tariff_group_russia_price' => 'tariff_russia_id',
+            'tariff_group_local_mob_price' => 'tariff_local_mob_id',
+        ];
+        $field = $map[$attribute];
+        $val = $this->getMinByTariff($this->$field);
+        if ($this->$attribute < $val) {
+            $this->addError($attribute, 'Минимальный платеж не должен быть ниже чем в тарифе: ' . $val);
+            return;
+        }
     }
 
     public function checkNoUsedLine($attr, $params)
@@ -646,6 +670,11 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
             $this->tariff_russia_mob_id = $this->tariff_russia_id;
         }
+    }
+
+    private function getMinByTariff($tariffId)
+    {
+	return TariffVoip::find()->select('month_min_payment')->andWhere([ 'id' => $tariffId ])->scalar();
     }
 
 }
