@@ -65,10 +65,6 @@ class UsageVoipEditForm extends UsageVoipForm
             'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
         ], 'checkMinTarif'];
 
-        $rules[] = [[
-            'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
-        ], 'required'];
-
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
         $rules[] = [['line7800_id'], 'checkNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
