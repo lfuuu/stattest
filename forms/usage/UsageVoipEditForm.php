@@ -36,7 +36,14 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
-    public function rules()
+    private static $mapPriceToId = [
+        'tariff_group_intern_price' => 'tariff_intern_id',
+        'tariff_group_russia_price' => 'tariff_russia_id',
+        'tariff_group_local_mob_price' => 'tariff_local_mob_id',
+    ];
+
+
+    public function rules($appendRules = [])
     {
         $rules = parent::rules();
         $rules[] = [['no_of_lines'], 'default', 'value' => 1];
@@ -48,10 +55,15 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [['did'], 'trim'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
         $rules[] = [['address', 'disconnecting_date'], 'string', 'on' => 'edit'];
+
         $rules[] = [[
             'no_of_lines',
             'tariff_main_id', 'tariff_local_mob_id', 'tariff_russia_id', 'tariff_russia_mob_id', 'tariff_intern_id',
         ], 'required', 'on' => 'change-tariff'];
+
+        $rules[] = [[
+            'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
+        ], 'checkMinTarif'];
 
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
@@ -59,6 +71,37 @@ class UsageVoipEditForm extends UsageVoipForm
 
         return $rules;
     }
+
+    /**
+    * Standart validator method interface. Checks the minimal prices is filled
+    *
+    * @param string $attribute
+    * @param [] $params
+    */
+    public function checkMinTarif($attribute, $params)
+    {
+        $field = static::$mapPriceToId[$attribute];
+        $val = $this->getMinByTariff($this->$field);
+        if (($val > 0) && ($this->$attribute == 0)) {
+            $this->addError($attribute, 'Минимальный платеж не должен быть ниже чем в тарифе: ' . $val);
+            return;
+        }
+    }
+
+    /**
+    * Fill default values
+    *
+    */
+    public function fillDefault()
+    {
+        foreach(static::$mapPriceToId[$attribute] as $to => $id) {
+            $val = $this->getMinByTariff($this->$field);
+            if (($val > 0)&&($this->$to == 0)) {
+	        $this->$to = $val;
+	    }
+	}
+    }
+
 
     public function checkNoUsedLine($attr, $params)
     {
@@ -239,6 +282,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
             $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
             $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
+
+            $this->fillDefault();
 
             $i = 0;
             while ($i < strlen($currentTariff->dest_group)) {
@@ -646,6 +691,15 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
             $this->tariff_russia_mob_id = $this->tariff_russia_id;
         }
+    }
+
+    /**
+    * Get minimal price by Id of Tariff
+    *
+    */
+    private function getMinByTariff($tariffId)
+    {
+	return TariffVoip::find()->select('month_min_payment')->andWhere([ 'id' => $tariffId ])->scalar();
     }
 
 }
