@@ -36,6 +36,13 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
+    private static $map = [
+        'tariff_group_intern_price' => 'tariff_intern_id',
+        'tariff_group_russia_price' => 'tariff_russia_id',
+        'tariff_group_local_mob_price' => 'tariff_local_mob_id',
+    ];
+
+
     public function rules($appendRules = [])
     {
         $rules = parent::rules();
@@ -71,18 +78,22 @@ class UsageVoipEditForm extends UsageVoipForm
 
     public function checkMinTarif($attribute, $params)
     {
-        $map = [
-            'tariff_group_intern_price' => 'tariff_intern_id',
-            'tariff_group_russia_price' => 'tariff_russia_id',
-            'tariff_group_local_mob_price' => 'tariff_local_mob_id',
-        ];
-        $field = $map[$attribute];
+        $field = static::$map[$attribute];
         $val = $this->getMinByTariff($this->$field);
         if ($this->$attribute < $val) {
             $this->addError($attribute, 'Минимальный платеж не должен быть ниже чем в тарифе: ' . $val);
             return;
         }
     }
+
+    public function fillDefault()
+    {
+        foreach(static::$map[$attribute] as $to => $id) {
+            $val = $this->getMinByTariff($this->$field);
+	    $this->$to = $val;
+	}
+    }
+
 
     public function checkNoUsedLine($attr, $params)
     {
@@ -263,6 +274,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
             $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
             $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
+
+            $this->fillDefault();
 
             $i = 0;
             while ($i < strlen($currentTariff->dest_group)) {
