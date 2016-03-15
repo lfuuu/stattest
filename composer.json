@@ -3,26 +3,26 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
-        "yiisoft/yii2": "2.0.7",
-        "welltime/graylog-target": "dev-master#4ad58f3",
-        "aferrandini/phpqrcode": "1.0.1",
-        "phpoffice/phpexcel": "1.8.1",
-        "kartik-v/yii2-grid": "3.0.2",
-        "kartik-v/yii2-editable": "1.7.3",
-        "kartik-v/yii2-widgets": "dev-master#b7eb849",
-        "kartik-v/yii2-mpdf": "dev-master#873a4f1",
-        "kartik-v/yii2-builder": "1.6.1",
-        "kartik-v/yii2-datecontrol": "1.9.3",
-        "kartik-v/yii2-date-range": "1.6.5",
-        "tinymce/tinymce": "4.3.1",
-        "smarty/smarty": "3.1.27",
-        "yiisoft/yii2-swiftmailer": "2.0.4",
-        "unclead/yii2-multiple-input": "1.2.8",
-        "bower-asset/bootstrap-multiselect": "0.9.*"
+        "yiisoft/yii2": "@stable",
+        "welltime/graylog-target": "dev-master",
+        "aferrandini/phpqrcode": "@stable",
+        "phpoffice/phpexcel": "@stable",
+        "kartik-v/yii2-grid": "@stable",
+        "kartik-v/yii2-editable": "@stable",
+        "kartik-v/yii2-widgets": "@stable",
+        "kartik-v/yii2-mpdf": "@stable",
+        "kartik-v/yii2-builder": "@stable",
+        "kartik-v/yii2-datecontrol": "@stable",
+        "kartik-v/yii2-date-range": "@stable",
+        "tinymce/tinymce": "@stable",
+        "smarty/smarty": "@stable",
+        "yiisoft/yii2-swiftmailer": "@stable",
+        "unclead/yii2-multiple-input": "@stable",
+        "bower-asset/bootstrap-multiselect": "@stable"
     },
     "require-dev": {
-        "yiisoft/yii2-codeception": "2.0.4",
-        "yiisoft/yii2-faker": "dev-master#66432de"
+        "yiisoft/yii2-codeception": "@stable",
+        "yiisoft/yii2-faker": "@stable"
     },
     "config": {
         "process-timeout": 1800

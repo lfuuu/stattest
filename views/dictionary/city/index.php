@@ -1,0 +1,55 @@
+<?php
+/**
+ * Список городов
+ *
+ * @var \yii\web\View $this
+ * @var CityFilter $filterModel
+ */
+
+use app\classes\grid\column\universal\ConnectionPointColumn;
+use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\GridView;
+use app\models\filter\CityFilter;
+use yii\widgets\Breadcrumbs;
+
+?>
+
+<?= app\classes\Html::formLabel($this->title = 'Города') ?>
+<?= Breadcrumbs::widget([
+    'links' => [
+        'Справочник',
+        ['label' => $this->title, 'url' => '/dictionary/city/'],
+    ],
+]) ?>
+
+<?php
+$columns = [
+    [
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
+    ],
+    [
+        'attribute' => 'name',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'country_id',
+        'class' => CountryColumn::className(),
+    ],
+    [
+        'attribute' => 'connection_point_id',
+        'class' => ConnectionPointColumn::className(),
+    ],
+    [
+        'attribute' => 'voip_number_format',
+        'class' => StringColumn::className(),
+    ],
+];
+
+echo GridView::widget([
+    'dataProvider' => $filterModel->search(),
+    'filterModel' => $filterModel,
+    'columns' => $columns,
+]);

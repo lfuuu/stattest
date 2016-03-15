@@ -4,12 +4,12 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\classes\traits\YesNoTraits;
+use app\models\Region;
 use kartik\grid\GridView;
 use Yii;
 
 
-class YesNoColumn extends DataColumn
+class ConnectionPointColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -19,7 +19,7 @@ class YesNoColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = YesNoTraits::getYesNoList(true);
-        $this->filterInputOptions['class'] .= ' yes-no-column';
+        $this->filter = Region::dao()->getList(true);
+        $this->filterInputOptions['class'] .= ' connection-point-column';
     }
 }
