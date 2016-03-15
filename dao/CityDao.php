@@ -12,10 +12,10 @@ use yii\helpers\ArrayHelper;
  */
 class CityDao extends Singleton
 {
-    public function getList($withEmpty = false, $countryId = false)
+    public function getList($withEmpty = false, $countryId = null)
     {
         $query = City::find();
-        if ($countryId !== false) {
+        if ($countryId) {
             $query->andWhere(['country_id' => $countryId]);
         }
 
