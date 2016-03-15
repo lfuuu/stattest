@@ -6,7 +6,7 @@ use Yii;
 use yii\web\Response;
 use app\classes\BaseController;
 
-define('API_HOST', Yii::$app->request->serverName);
+define('API_HOST', '/');
 
 class SwaggerController extends BaseController
 {
@@ -19,7 +19,6 @@ class SwaggerController extends BaseController
     {
         $this->layout = 'empty';
         return $this->render('index', [
-            'host' => Yii::$app->params['PROTOCOL_STRING'] . Yii::$app->request->serverName,
             'documentationPath' => '/swagger/documentation',
             'apiKey' => Yii::$app->params['API_SECURE_KEY'],
         ]);
