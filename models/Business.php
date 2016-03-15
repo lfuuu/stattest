@@ -19,6 +19,7 @@ class Business extends ActiveRecord
     const INTERNAL_OFFICE = 6;
     const PARTNER = 7;
     const WELLTIME = 8;
+    const ITOUTSOURSING = 9;
 
     public static function tableName()
     {

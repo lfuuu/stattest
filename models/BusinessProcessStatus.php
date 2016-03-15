@@ -99,6 +99,17 @@ class BusinessProcessStatus extends ActiveRecord
     const WELLTIME_MAINTENANCE_TRASH = 100; // Мусор
 
 
+    const ITOUTSOURSING_MAINTENANCE_INCOMING = 132; //Входящие
+    const ITOUTSOURSING_MAINTENANCE_NEGOTIATIONS = 133; // В стадии переговоров
+    const ITOUTSOURSING_MAINTENANCE_VERIFICATION = 134; // Проверка документов
+    const ITOUTSOURSING_MAINTENANCE_CONNECTING = 135; // Подключаемые
+    const ITOUTSOURSING_MAINTENANCE_ONSERVICE = 136; // На обслуживании
+    const ITOUTSOURSING_MAINTENANCE_SUSPENDED = 137; // Приостановленные
+    const ITOUTSOURSING_MAINTENANCE_FAILURE = 138; // Отказ
+    const ITOUTSOURSING_MAINTENANCE_TRASH = 139; // Мусор
+
+
+
     const FOLDER_TELECOM_AUTOBLOCK = 21;
 
     public static function tableName()

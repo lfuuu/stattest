@@ -6,6 +6,7 @@ use app\classes\grid\account\AccountGrid;
 use app\classes\grid\account\InternalOffice;
 use app\classes\grid\account\InternetShopMaintenance;
 use app\classes\grid\account\InternetShopOrders;
+use app\classes\grid\account\ITOutsoursingMaintenance;
 use app\classes\grid\account\OperatorClients;
 use app\classes\grid\account\OperatorInfrastructure;
 use app\classes\grid\account\OperatorOperators;
@@ -46,6 +47,7 @@ class GridFactory extends Singleton
             new ProviderOrders(),
             new PartnerMaintenance(),
             new WelltimeMaintenance(),
+            new ITOutsoursingMaintenance()
         ];
     }
 
