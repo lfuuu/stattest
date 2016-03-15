@@ -67,11 +67,9 @@ echo GridView::widget([
                         'value' => $date,
                         'autoWidgetSettings' => [
                             DateControl::FORMAT_DATE => [
-                                'class' => '\app\widgets\DatePicker',
-                                'type' => \app\widgets\DatePicker::TYPE_COMPONENT_PREPEND,
                                 'options' => [
-                                    'addons' => [
-                                        'todayButton' => [],
+                                    'pluginOptions' => [
+                                        'todayHighlight' => true,
                                     ],
                                 ],
                             ],
