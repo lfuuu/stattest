@@ -4,6 +4,11 @@ namespace app\models;
 use app\dao\CurrencyDao;
 use yii\db\ActiveRecord;
 
+/**
+ * @property string id
+ * @property string name
+ * @property string symbol
+ */
 class Currency extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
@@ -26,6 +31,19 @@ class Currency extends ActiveRecord
         Country::HUNGARY => self::HUF,
         Country::GERMANY => self::EUR,
     ];
+
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'Сокращение',
+            'name' => 'Название',
+            'symbol' => 'Символ',
+        ];
+    }
 
     public static function tableName()
     {

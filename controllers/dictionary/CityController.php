@@ -1,15 +1,15 @@
 <?php
 /**
- * Валюта
+ * Страны
  */
 
-namespace app\controllers\bill;
+namespace app\controllers\dictionary;
 
 use app\classes\BaseController;
-use app\models\filter\CurrencyRateFilter;
+use app\models\filter\CityFilter;
 use Yii;
 
-class CurrencyController extends BaseController
+class CityController extends BaseController
 {
     /**
      * Список
@@ -18,7 +18,7 @@ class CurrencyController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new CurrencyRateFilter();
+        $filterModel = new CityFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
