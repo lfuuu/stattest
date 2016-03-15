@@ -18,7 +18,7 @@
         "smarty/smarty": "@stable",
         "yiisoft/yii2-swiftmailer": "@stable",
         "unclead/yii2-multiple-input": "@stable",
-        "bower-asset/bootstrap-multiselect": "@stable"
+        "bower-asset/bootstrap-multiselect": "@stable",
         "zircote/swagger-php": "^2.0",
         "bower-asset/swagger-ui": "*"
     },
