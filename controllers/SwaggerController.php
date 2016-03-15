@@ -6,7 +6,7 @@ use Yii;
 use yii\web\Response;
 use app\classes\BaseController;
 
-define('API_HOST', '/');
+define('API_HOST', Yii::$app->request->serverName);
 
 class SwaggerController extends BaseController
 {
@@ -30,7 +30,10 @@ class SwaggerController extends BaseController
      */
     public function actionDocumentation()
     {
-        $swagger = \Swagger\scan(Yii::$app->controllerPath . '/api');
+        $swagger = \Swagger\scan([
+            Yii::$app->basePath . '/classes/ApiController.php',
+            Yii::$app->controllerPath . '/api',
+        ]);
 
         $response = Yii::$app->getResponse();
         $response->headers->set('Content-Type', 'application/json');

@@ -10,41 +10,6 @@ use app\models\ActualVirtpbx;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\api\internal\PartnerNotFoundException;
 
-/**
- * @SWG\Info(
- *   title="Внутреннее СТАТа",
- *   version="2016-02-11",
- *   description="Этот документ описывает методы внутреннего API СТАТа"
- * ),
- * consumes={"application/x-www-form-urlencoded"},
- * produces={"application/json"},
- * @SWG\Swagger(
- *   schemes={"http"},
- *   host=API_HOST,
- *   basePath="/api"
- * ),
- * @SWG\Definition(
- *   definition="error_result",
- *   type="object",
- *   required={"status","result","code"},
- *   @SWG\Property(
- *     property="status",
- *     type="string",
- *     default="ERROR",
- *     description="Произошла ошибка"
- *   ),
- *   @SWG\Property(
- *     property="result",
- *     type="string",
- *     description="Сообщение об ошибке"
- *   ),
- *   @SWG\Property(
- *     property="code",
- *     type="integer",
- *     description="Код ошибки"
- *   )
- * )
- */
 class AccountController extends ApiInternalController
 {
     private function getAccountFromParams()
