@@ -46,7 +46,7 @@
                     .prop('selected', true);
 
                 if ($options.withSelect2 === true)
-                    $(this).select2('val', !$items.length ? 0 : $selected.val())
+                    $(this).val(!$items.length ? 0 : $selected.val())
             });
         }
 
