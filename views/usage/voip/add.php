@@ -238,8 +238,8 @@ jQuery(document).ready(function() {
     $('.form-reload').change(function() {
         submitForm('default');
     });
-    if (!$('select[name*="tariff_main_id"] option').length) {
-        $('select[name*="tariff_main_status"').trigger('change');
+    if (!$('select[name="UsageVoipEditForm[tariff_main_id]"] option').length) {
+        $('select[name="UsageVoipEditForm[tariff_main_status]"').trigger('change');
     }
 });
 </script>
