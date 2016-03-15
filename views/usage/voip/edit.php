@@ -150,11 +150,9 @@ echo Breadcrumbs::widget([
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [
-                            'class' => '\app\widgets\DatePicker',
-                            'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                             'options' => [
-                                'addons' => [
-                                    'todayButton' => [],
+                                'pluginOptions' => [
+                                    'todayHighlight' => true,
                                 ],
                             ],
                         ],
@@ -167,15 +165,12 @@ echo Breadcrumbs::widget([
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [
-                            'class' => '\app\widgets\DatePicker',
-                            'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                             'options' => [
                                 'options' => [
                                     'placeholder' => $model->disconnecting_date ?: 'Не задано',
                                 ],
-                                'addons' => [
-                                    'todayButton' => [],
-                                    'clearButton' => [],
+                                'pluginOptions' => [
+                                    'todayHighlight' => true,
                                 ],
                             ],
                         ],
