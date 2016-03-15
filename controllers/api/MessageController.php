@@ -11,7 +11,43 @@ use app\exceptions\FormValidationException;
 
 class MessageController extends ApiController
 {
-
+    /**
+     * @SWG\Definition(
+     *   definition="message",
+     *   type="object",
+     *   required={"id","account_id","subject","created_at","is_read"},
+     *   @SWG\Property(property="id",type="integer",description="Идентификатор сообщения"),
+     *   @SWG\Property(property="account_id",type="integer",description="Идентификатор лицевого счёта"),
+     *   @SWG\Property(property="subject",type="string",description="Тема сообщения"),
+     *   @SWG\Property(property="created_at",type="date",description="Дата создания сообщения"),
+     *   @SWG\Property(property="is_read",type="boolean",description="Прочитано ли сообщение")
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с сообщениями"},
+     *   path="/message/list/",
+     *   summary="Получение списка сообщений",
+     *   operationId="Получение списка сообщений",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="order",type="string",description="порядок сортировки",in="formData",enum={"asc|desc"}),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="список сообщений",
+     *     @SWG\Definition(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/message"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionList()
     {
         $form = DynamicModel::validateData(
@@ -41,7 +77,42 @@ class MessageController extends ApiController
             throw new FormValidationException($form);
         }
     }
-
+    
+    /**
+     * @SWG\Definition(
+     *   definition="message_ex",
+     *   type="object",
+     *   required={"id","account_id","subject","created_at","is_read","text"},
+     *   @SWG\Property(property="id",type="integer",description="Идентификатор сообщения"),
+     *   @SWG\Property(property="account_id",type="integer",description="Идентификатор лицевого счёта"),
+     *   @SWG\Property(property="subject",type="string",description="Тема сообщения"),
+     *   @SWG\Property(property="created_at",type="date",description="Дата создания сообщения"),
+     *   @SWG\Property(property="is_read",type="boolean",description="Прочитано ли сообщение"),
+     *   @SWG\Property(property="text",type="string",description="Текст сообщения")
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с сообщениями"},
+     *   path="/message/details/",
+     *   summary="Получение информации о конкретном сообщения",
+     *   operationId="Получение информации о конкретном сообщения",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="id",type="integer",description="идентификатор сообщения",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="сообщение",
+     *     @SWG\Definition(
+     *       ref="#/definitions/message_ex"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionDetails()
     {
         $form = DynamicModel::validateData(
@@ -72,6 +143,30 @@ class MessageController extends ApiController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с сообщениями"},
+     *   path="/message/read/",
+     *   summary="Отметить сообщение как прочитанное",
+     *   operationId="Отметить сообщение как прочитанное",
+     *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="id",type="integer",description="идентификатор сообщения",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="сообщение",
+     *     @SWG\Definition(
+     *       ref="#/definitions/message"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionRead()
     {
         $form = DynamicModel::validateData(

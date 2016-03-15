@@ -18,6 +18,32 @@ class PartnerController extends ApiInternalController
         throw new NotImplementedHttpException;
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с клиентами"},
+     *   path="/internal/partner/clients/",
+     *   summary="Получение клиентов партнёра",
+     *   operationId="Получение клиентов партнёра",
+     *   @SWG\Parameter(name="partner_id",type="integer",description="идентификатор партнёра",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о клиентах партнёра",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/client"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionClients()
     {
         $partnerId = isset($this->requestData['partner_id']) ? $this->requestData['partner_id'] : null;
