@@ -28,16 +28,6 @@ $this->beginPage();
                 url = '<?= $documentationPath; ?>';
             }
 
-            apiKeyField
-                .on('change', function() {
-                    var key = $(this).val();
-
-                    if(key && key.trim() != '') {
-                        window.swaggerUi.api.clientAuthorizations.add('api_key', new SwaggerClient.ApiKeyAuthorization('Authorization', 'Bearer ' + key, 'header'));
-                        log('Added key ' + key);
-                    }
-                });
-
             if(window.SwaggerTranslator) {
                 window.SwaggerTranslator.translate();
             }
@@ -55,7 +45,7 @@ $this->beginPage();
                         window.SwaggerTranslator.translate();
                     }
 
-                    apiKeyField.trigger('change');
+                    window.swaggerUi.api.clientAuthorizations.add('api_key', new SwaggerClient.ApiKeyAuthorization('Authorization', 'Bearer <?= $apiKey; ?>', 'header'));
                 },
                 onFailure: function(data) {
                     log('Unable to Load SwaggerUI');
@@ -88,10 +78,6 @@ $this->beginPage();
                     <div class="input">
                         <label>JSON документация</label><br />
                         <input placeholder="<?= $documentationPath; ?>" id="input_baseUrl" name="baseUrl" type="text" />
-                    </div>
-                    <div class="input">
-                        <label>API Key</label><br />
-                        <input placeholder="api_key" id="input_apiKey" name="apiKey" type="text" value="<?= $apiKey; ?>" />
                     </div>
                     <div class="input">
                         <br /><a id="explore" href="#" data-sw-translate="" style="background-color: #000033;">Explore</a>
