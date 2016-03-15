@@ -47,11 +47,11 @@ $I->seeElement('div.alert-danger');
  * Positive test
  */
 $codeSelector = '//select[@id="code"]';
-$codeText = $I->grabTextFrom($codeSelector . '/option[1]');
+$codeText = $I->grabAttributeFrom($codeSelector . '/option[last()]', 'value');
 $I->selectOption($codeSelector, $codeText);
 
 $tariffSelector = '//select[@id="tarif_id"]';
-$tariffId = $I->grabTextFrom($tariffSelector . '/option[last()]/@value');
+$tariffId = $I->grabAttributeFrom($tariffSelector . '/option[last()]', 'value');
 $I->selectOption($tariffSelector, $tariffId);
 
 $I->fillField('//input[@id="comment"]', 'test comment');
@@ -62,7 +62,6 @@ $I->submitForm('//form[@id="dbform"]', []);
 $I->seeInCurrentUrl('/?module=services&action=ex_view');
 $I->seeElement('div.alert-success');
 $usageId = $I->grabTextFrom('~<a href=".*usage_extra&id=(\d+)[^>]+>~');
-
 
 // Checking usage
 /** @var \app\models\UsageExtra $usage */

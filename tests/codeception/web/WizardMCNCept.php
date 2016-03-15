@@ -395,7 +395,11 @@ function saveFile($I, $fileName, $accountId)
         "account_id" => $accountId
     ]);
     $I->dontSee("Exception");
-    $I->dontSee("error upload file");
+    $I->dontSeeResponseContainsJson([
+        'errors' => [
+            'file' => ['error upload file']
+        ]
+    ]);
 }
 
 saveFile($I, "a", $accountId);
