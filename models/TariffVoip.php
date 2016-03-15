@@ -25,6 +25,8 @@ class TariffVoip extends ActiveRecord
     const DEST_LOCAL_FIXED = 4;
     const DEST_LOCAL_MOBILE = 5;
 
+    const STATE_DEFAULT = self::STATE_PUBLIC;
+
     public static $statuses = [
         self::STATE_PUBLIC => 'Публичный',
         self::STATE_SPECIAL => 'Специальный',

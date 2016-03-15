@@ -330,6 +330,10 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         }
 
+        if (!$this->tariff_main_status) {
+            $this->tariff_main_status = TariffVoip::STATE_DEFAULT;
+        }
+
         if (!$this->type_id) {
             $this->type_id = 'number';
         }

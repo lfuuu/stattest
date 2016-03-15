@@ -6,7 +6,6 @@ use yii\helpers\Url;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
-use kartik\widgets\DatePicker;
 use app\models\City;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
@@ -25,16 +24,6 @@ $types = [
 $noYes = [
     '0' => 'Нет',
     '1' => 'Да',
-];
-
-$tariffStatus = [
-    'public' => 'Публичный',
-    'special' => 'Специальный',
-    'transit' => 'Переходный',
-    'operator' => 'Оператор',
-    'test' => 'Тестовый',
-    '7800' => '7800',
-    'archive' => 'Архивный',
 ];
 
 $status = [
@@ -164,7 +153,7 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'tariff_main_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getMainList(false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status), 'options' => ['class' => 'select2']],
-            'tariff_main_status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $tariffStatus, 'options' => ['class' => 'form-reload']],
+            'tariff_main_status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::$statuses, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
@@ -236,9 +225,6 @@ jQuery(document).ready(function() {
     $('.form-reload').change(function() {
         submitForm('default');
     });
-    if (!$('select[name="UsageVoipEditForm[tariff_main_id]"] option').length) {
-        $('select[name="UsageVoipEditForm[tariff_main_status]"').trigger('change');
-    }
 });
 </script>
 
