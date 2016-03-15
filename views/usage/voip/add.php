@@ -229,14 +229,19 @@ echo Breadcrumbs::widget([
     ?>
 </div>
 
-<script>
-    function submitForm(scenario) {
-        $('#scenario').val(scenario);
-        $('#<?=$form->getId()?>')[0].submit();
-    }
+<script type="text/javascript">
+function submitForm(scenario) {
+    $('#scenario').val(scenario);
+    $('#<?=$form->getId()?>')[0].submit();
+}
+jQuery(document).ready(function() {
     $('.form-reload').change(function() {
         submitForm('default');
     });
+    if (!$('select[name*="tariff_main_id"] option').length) {
+        $('select[name*="tariff_main_status"').trigger('change');
+    }
+});
 </script>
 
 <link href="/css/behaviors/text-field-help-icon.css" rel="stylesheet" />

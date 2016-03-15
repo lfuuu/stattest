@@ -280,7 +280,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->connection_point_id = $usage->region;
             $this->connecting_date = $usage->actual_from;
             $this->disconnecting_date = (new DateTime($usage->actual_to))->format('Y') === '4000' ? '' : $usage->actual_to;
-            $this->tariff_change_date = $this->tomorrow->format('Y-m-d');
+            $this->tariff_change_date = $this->today->format('Y-m-d');
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
