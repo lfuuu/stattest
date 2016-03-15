@@ -45,6 +45,7 @@ class ImportantEventsNoticesForm extends Form
     public function loadData()
     {
         $client = new Client([
+            'transport' => 'yii\httpclient\CurlTransport',
             'requestConfig' => [
                 'format' => Client::FORMAT_URLENCODED
             ],
@@ -58,7 +59,8 @@ class ImportantEventsNoticesForm extends Form
             $client
                 ->get(
                     Yii::$app->params['TRIGGER_MAILER'] . self::MAILER_METHOD_READ,
-                    ['client_account_id' => $this->clientAccountId]
+                    ['client_account_id' => $this->clientAccountId],
+                    ['Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']]
                 )
                 ->send();
 
@@ -101,7 +103,8 @@ class ImportantEventsNoticesForm extends Form
             $client
                 ->post(
                     Yii::$app->params['TRIGGER_MAILER'] . self::MAILER_METHOD_UPDATE,
-                    ['client_account_id' => $this->clientAccountId, $result]
+                    ['client_account_id' => $this->clientAccountId, $result],
+                    ['Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']]
                 )
                 ->send();
 
