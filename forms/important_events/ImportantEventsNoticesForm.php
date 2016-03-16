@@ -54,13 +54,23 @@ class ImportantEventsNoticesForm extends Form
             ],
         ]);
 
+        $auth = [
+            'Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']
+        ];
+        if (Yii::$app->params['HTTP_CLIENT_BASIC_AUTH'] === 1) {
+            $auth = [
+                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                CURLOPT_USERPWD => Yii::$app->params['HTTP_CLIENT_BASIC_AUTH_USER'] . ':' . Yii::$app->params['HTTP_CLIENT_BASIC_AUTH_PASSWD']
+            ];
+        }
+
         /** @var Response $response */
         $response =
             $client
                 ->get(
                     Yii::$app->params['TRIGGER_MAILER'] . self::MAILER_METHOD_READ,
                     ['client_account_id' => $this->clientAccountId],
-                    ['Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']]
+                    $auth
                 )
                 ->send();
 
@@ -98,13 +108,23 @@ class ImportantEventsNoticesForm extends Form
             ],
         ]);
 
+        $auth = [
+            'Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']
+        ];
+        if (Yii::$app->params['HTTP_CLIENT_BASIC_AUTH'] === 1) {
+            $auth = [
+                CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                CURLOPT_USERPWD => Yii::$app->params['HTTP_CLIENT_BASIC_AUTH_USER'] . ':' . Yii::$app->params['HTTP_CLIENT_BASIC_AUTH_PASSWD']
+            ];
+        }
+
         /** @var Response $response */
         $response =
             $client
                 ->post(
                     Yii::$app->params['TRIGGER_MAILER'] . self::MAILER_METHOD_UPDATE,
                     ['client_account_id' => $this->clientAccountId, $result],
-                    ['Authorization' => 'Bearer ' . Yii::$app->params['API_SECURE_KEY']]
+                    $auth
                 )
                 ->send();
 
