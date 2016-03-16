@@ -23,7 +23,7 @@
         "bower-asset/swagger-ui": "*",
         "wbraganca/yii2-dynamicform": "@stable",
         "KidSysco/jquery-ui-month-picker": "dev-master",
-        "yiisoft/yii2-httpclient": "~2.0.0"
+        "yiisoft/yii2-httpclient": "^2.0@dev"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "@stable",

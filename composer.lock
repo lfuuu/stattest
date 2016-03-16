@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "638e65deee55f722a49c0ef7babfe4e5",
-    "content-hash": "b6abea1edc4caa1d20014af0166f65fd",
+    "hash": "7698ad063029c7e579c1191e218327ce",
+    "content-hash": "4171c8b9836d52907d2997a05b7c9ac1",
     "packages": [
         {
             "name": "KidSysco/jquery-ui-month-picker",
@@ -547,7 +547,8 @@
                 {
                     "name": "Edward Z. Yang",
                     "email": "admin@htmlpurifier.org",
-                    "homepage": "http://ezyang.com"
+                    "homepage": "http://ezyang.com",
+                    "role": "Developer"
                 }
             ],
             "description": "Standards compliant HTML filter written in PHP",
@@ -2507,12 +2508,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "99c455418de3013fe03a0d50c28dd9f42118febc"
+                "reference": "75ac4f99a180d6716a53d94201e8c6d03a1f0ec4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/99c455418de3013fe03a0d50c28dd9f42118febc",
-                "reference": "99c455418de3013fe03a0d50c28dd9f42118febc",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/75ac4f99a180d6716a53d94201e8c6d03a1f0ec4",
+                "reference": "75ac4f99a180d6716a53d94201e8c6d03a1f0ec4",
                 "shasum": ""
             },
             "require": {
@@ -2555,7 +2556,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-04 07:56:56"
+            "time": "2016-03-15 13:46:52"
         },
         {
             "name": "symfony/finder",
@@ -2667,16 +2668,16 @@
         },
         {
             "name": "tinymce/tinymce",
-            "version": "4.3.7",
+            "version": "4.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tinymce/tinymce-dist.git",
-                "reference": "19611cd875c27eed9a96c7734952bc34a41ba397"
+                "reference": "96450a43232ba523ae57d4dc6ea34b8f34e9dd14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/19611cd875c27eed9a96c7734952bc34a41ba397",
-                "reference": "19611cd875c27eed9a96c7734952bc34a41ba397",
+                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/96450a43232ba523ae57d4dc6ea34b8f34e9dd14",
+                "reference": "96450a43232ba523ae57d4dc6ea34b8f34e9dd14",
                 "shasum": ""
             },
             "type": "component",
@@ -2709,7 +2710,7 @@
                 "tinymce",
                 "wysiwyg"
             ],
-            "time": "2016-03-02 13:02:17"
+            "time": "2016-03-15 13:05:10"
         },
         {
             "name": "unclead/yii2-multiple-input",
@@ -3031,6 +3032,53 @@
             "time": "2016-02-06 01:03:32"
         },
         {
+            "name": "yiisoft/yii2-httpclient",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiisoft/yii2-httpclient.git",
+                "reference": "32ed4fe4513855690d7e54e2441fe52507510451"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/32ed4fe4513855690d7e54e2441fe52507510451",
+                "reference": "32ed4fe4513855690d7e54e2441fe52507510451",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii\\httpclient\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "HTTP client extension for the Yii framework",
+            "keywords": [
+                "curl",
+                "http",
+                "httpclient",
+                "yii2"
+            ],
+            "time": "2016-02-15 09:27:06"
+        },
+        {
             "name": "yiisoft/yii2-swiftmailer",
             "version": "2.0.4",
             "source": {
@@ -3306,6 +3354,7 @@
         "bower-asset/bootstrap-multiselect": 0,
         "wbraganca/yii2-dynamicform": 0,
         "kidsysco/jquery-ui-month-picker": 20,
+        "yiisoft/yii2-httpclient": 20,
         "yiisoft/yii2-codeception": 0,
         "yiisoft/yii2-faker": 0
     },
