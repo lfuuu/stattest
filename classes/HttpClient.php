@@ -22,7 +22,7 @@ class HttpClient extends Client
                         CURLOPT_USERPWD =>
                             (isset($config['user']) ? $config['user'] : '') .
                             ':' .
-                            isset($config['passwd']) ? $config['passwd'] : '',
+                            (isset($config['passwd']) ? $config['passwd'] : ''),
                     ];
                 }
 

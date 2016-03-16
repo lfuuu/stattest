@@ -3,7 +3,6 @@ namespace app\controllers;
 
 use Yii;
 use yii\base\Exception;
-use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -266,9 +265,9 @@ class ClientController extends BaseController
         return $this->redirect(Yii::$app->request->referrer);
     }
 
+
     /**
-     * @param int $clientAccountId
-     * @return string
+     * @return bool|string
      */
     public function actionNotices()
     {

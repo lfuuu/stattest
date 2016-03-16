@@ -18,7 +18,7 @@ echo Breadcrumbs::widget([
     ],
 ]);
 
-/** @var [] $dataProvider */
+/** @var \yii\data\ArrayDataProvider $dataProvider */
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
@@ -78,15 +78,13 @@ echo GridView::widget([
         'before' => Html::submitButton(
             '<i class="glyphicon glyphicon-plus"></i> Сохранить',
             [
-                'class' => 'btn btn-primary btn-sm',
-                'style' => 'float: right;',
+                'class' => 'btn btn-primary btn-sm pull-right',
             ]
         ),
         'after' => Html::submitButton(
             '<i class="glyphicon glyphicon-plus"></i> Сохранить',
             [
-                'class' => 'btn btn-primary btn-sm',
-                'style' => 'float: right;',
+                'class' => 'btn btn-primary btn-sm pull-right',
             ]
         ) . Html::tag('div', '', ['class' => 'clearfix']),
     ],

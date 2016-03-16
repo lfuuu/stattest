@@ -30,17 +30,7 @@ class ImportantEventsNoticesForm extends Form
 
     public function attributeLabels()
     {
-        return [
-            'client' => 'Клиент',
-            'actual_from' => 'Активна с',
-            'actual_to' => 'Активна до',
-            'ip' => 'IP',
-            'amount' => 'Количество',
-            'status' => 'Состояние',
-            'comment' => 'Комментарий',
-            'tarif_id' => 'Услуга',
-            'router' => 'Роутер',
-        ];
+        return [];
     }
 
     /**
@@ -71,11 +61,12 @@ class ImportantEventsNoticesForm extends Form
                     ->get(
                         Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_READ,
                         ['client_account_id' => $this->clientAccountId],
+                        [], // Headers array
                         (
-                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                            isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
                             ? $client->auth(Yii::$app->params['MAILER']['auth'])
                             : []
-                        )
+                        ) // Options array
                     )
                     ->send();
         }
@@ -88,20 +79,24 @@ class ImportantEventsNoticesForm extends Form
 
         $eventNames = ArrayHelper::map(ImportantEventsNames::find()->select(['code', 'value'])->all(), 'code', 'value');
 
-        if ($response->isOk) {
-            foreach ($response->data as $record) {
-                $result[] = [
-                    'event_code' => $record['event_code'],
-                    'event_name' => isset($eventNames[$record['event_code']]) ? $eventNames[$record['event_code']] : $record['event_code'],
-                    'do_email' => $record['do_email'],
-                    'do_sms' => $record['do_sms'],
-                    'do_lk' => $record['do_lk'],
-                ];
-            }
-        }
-        else {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER');
+        if (!$response->isOk) {
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Ошибка:' . $response->statusCode);
             return false;
+        }
+
+        if (!count($response->data)) {
+            Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
+            return false;
+        }
+
+        foreach ($response->data as $record) {
+            $result[] = [
+                'event_code' => $record['event_code'],
+                'event_name' => isset($eventNames[$record['event_code']]) ? $eventNames[$record['event_code']] : $record['event_code'],
+                'do_email' => $record['do_email'],
+                'do_sms' => $record['do_sms'],
+                'do_lk' => $record['do_lk'],
+            ];
         }
 
         return $result;
@@ -127,6 +122,7 @@ class ImportantEventsNoticesForm extends Form
         }
 
         $client = new HttpClient([
+            'transport' => 'yii\httpclient\CurlTransport',
             'requestConfig' => [
                 'format' => HttpClient::FORMAT_JSON
             ],
@@ -142,11 +138,12 @@ class ImportantEventsNoticesForm extends Form
                     ->post(
                         Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_UPDATE . 'client_account_id=' . $this->clientAccountId,
                         $result,
+                        [], // Headers array
                         (
-                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                            isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
                             ? $client->auth(Yii::$app->params['MAILER']['auth'])
                             : []
-                        )
+                        ) // Options array
                     )->send();
         }
         catch (\Exception $e) {
@@ -154,14 +151,20 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
-        if ($response->isOk) {
-            Yii::$app->session->addFlash('success', 'Данные успешно обновлены');
-            return true;
-        }
-        else {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER');
+        if (!$response->isOk) {
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Ошибка:' . $response->statusCode);
             return false;
+
         }
+
+        if (!count($response->data) || !$response->data['count']) {
+            Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
+            return false;
+
+        }
+
+        Yii::$app->session->addFlash('success', 'Данные успешно обновлены ( ' . $response->data['count'] . ' позиций)');
+        return true;
     }
 
     /**
