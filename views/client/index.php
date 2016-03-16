@@ -49,28 +49,25 @@ $urlParams = Yii::$app->request->get();
 
 <script>
     $(function () {
-        var substringMatcherC = function () {
-            return function findMatches(q, cb) {
-                $.getJSON('search/index', {
-                    search: $("#searchByCompany").val(),
-                    searchType: 'clients'
-                }, function (matches) {
-                    searchs = true;
-                    cb(matches);
-                    //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
-                });
-            };
-        };
+        var substringMatcherC = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '/search/index?search=%QUERY&searchType=clients',
+                wildcard: '%QUERY'
+            }
+        });
 
         $('#searchByCompany').typeahead({
                 hint: true,
                 highlight: true,
                 minLength: 3,
-                async: true,
+                async: true
             },
             {
                 name: 'states',
-                source: substringMatcherC(),
+                display: 'value',
+                source: substringMatcherC,
                 templates: {
                     suggestion: function (obj) {
                         return '<div>'
@@ -83,28 +80,25 @@ $urlParams = Yii::$app->request->get();
             });
     });
     $(function () {
-        var substringMatcherC = function () {
-            return function findMatches(q, cb) {
-                $.getJSON('search/index', {
-                    search: $("#searchByContractNo").val(),
-                    searchType: 'contractNo'
-                }, function (matches) {
-                    searchs = true;
-                    cb(matches);
-                    //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
-                });
-            };
-        };
+        var substringMatcherC = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '/search/index?search=%QUERY&searchType=contractNo',
+                wildcard: '%QUERY'
+            }
+        });
 
         $('#searchByContractNo').typeahead({
                 hint: true,
                 highlight: true,
                 minLength: 3,
-                async: true,
+                async: true
             },
             {
                 name: 'states',
-                source: substringMatcherC(),
+                display: 'value',
+                source: substringMatcherC,
                 templates: {
                     suggestion: function (obj) {
                         return '<div>' + obj['value'] + '</div>';
