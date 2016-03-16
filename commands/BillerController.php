@@ -10,11 +10,14 @@ use yii\console\Controller;
 class BillerController extends Controller
 {
 
+    /**
+     * @return int
+     */
     public function actionTariffication()
     {
         define('MONTHLY_BILLING', 1);
 
-        Yii::info("Запущен тариффикатор");
+        Yii::info('Запущен тариффикатор');
 
         $partSize = 500;
         $date = new DateTime();
@@ -25,8 +28,9 @@ class BillerController extends Controller
             while ($count >= $partSize) {
                 $clientAccounts =
                     ClientAccount::find()
-                        ->andWhere('status NOT IN ("closed","deny","tech_deny", "trash", "once")')
-                        ->limit($partSize)->offset($offset)
+                        ->andWhere(['NOT IN', 'status', ['closed', 'deny', 'tech_deny', 'trash', 'once']])
+                        ->limit($partSize)
+                        ->offset($offset)
                         ->orderBy('id')
                         ->all();
 
@@ -39,18 +43,26 @@ class BillerController extends Controller
             }
 
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Yii::error('ОШИБКА ТАРИФФИКАТОРА');
             Yii::error($e);
-            return 1;
+            return Controller::EXIT_CODE_ERROR;
         }
 
-        Yii::info("Тариффикатор закончил работу");
+        Yii::info('Тариффикатор закончил работу');
+        return Controller::EXIT_CODE_NORMAL;
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @param DateTime $date
+     * @param int $position
+     * @return int
+     */
     private function tarifficateClientAccount(ClientAccount $clientAccount, DateTime $date, $position)
     {
-        Yii::info("Тариффикатор. $position. Лицевой счет: " . $clientAccount->id);
+        Yii::info('Тариффикатор.' .  $position . '. Лицевой счет: ' . $clientAccount->id);
 
         try {
 
@@ -63,9 +75,13 @@ class BillerController extends Controller
             ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
                 ->process();
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Yii::error('ОШИБКА ТАРИФФИКАТОРА. Лицевой счет: ' . $clientAccount->id);
             Yii::error($e);
+            return Controller::EXIT_CODE_ERROR;
         }
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 }

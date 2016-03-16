@@ -120,6 +120,7 @@ class AccountEditForm extends Form
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
             ['bik', BikValidator::className()],
             ['lk_balance_view_mode', 'in', 'range' => array_keys(ClientAccount::$balanceViewMode)],
+            ['options', 'default', 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]],
             [['options',], ArrayValidator::className()],
         ];
         return $rules;

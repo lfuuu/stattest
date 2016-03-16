@@ -50,14 +50,10 @@ $status = [
                     'options' => [
                         'autoWidgetSettings' => [
                             DateControl::FORMAT_DATE => [
-                                'class' => '\app\widgets\DatePicker',
-                                'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                                 'options' => [
                                     'pluginOptions' => [
+                                        'todayHighlight' => true,
                                         'orientation' => 'top left',
-                                    ],
-                                    'addons' => [
-                                        'todayButton' => [],
                                     ],
                                 ],
                             ],
@@ -70,18 +66,13 @@ $status = [
                     'options' => [
                         'autoWidgetSettings' => [
                             DateControl::FORMAT_DATE => [
-                                'class' => '\app\widgets\DatePicker',
-                                'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                                 'options' => [
                                     'options' => [
                                         'placeholder' => $model->disconnecting_date ?: 'Не задано',
                                     ],
                                     'pluginOptions' => [
                                         'orientation' => 'top left',
-                                    ],
-                                    'addons' => [
-                                        'todayButton' => [],
-                                        'clearButton' => [],
+                                        'todayHighlight' => true,
                                     ],
                                 ],
                             ],

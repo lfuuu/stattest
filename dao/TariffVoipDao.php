@@ -27,7 +27,13 @@ class TariffVoipDao extends Singleton
 
         $list =
             $query
-                ->orderBy('status, month_line, month_min_payment')
+                ->orderBy([
+                    'is_testing' => SORT_DESC,
+                    'status' => SORT_ASC,
+                    'month_line' => SORT_ASC,
+                    'month_min_payment' => SORT_ASC,
+                    'id' => SORT_DESC,
+                ])
                 ->asArray()
                 ->all();
 

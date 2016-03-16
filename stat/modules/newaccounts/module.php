@@ -1174,8 +1174,9 @@ class m_newaccounts extends IModule
                 while ($count >= $partSize) {
                     $clientAccounts =
                         ClientAccount::find()
-                            ->andWhere('status NOT IN ("closed","deny","tech_deny", "trash", "once")')
-                            ->limit($partSize)->offset($offset)
+                            ->andWhere(['NOT IN', 'status', ['closed', 'deny', 'tech_deny', 'trash', 'once']])
+                            ->limit($partSize)
+                            ->offset($offset)
                             ->orderBy('id')
                             ->all();
 

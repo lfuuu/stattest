@@ -12,6 +12,98 @@ use app\forms\client\ClientCreateExternalForm;
 
 class ClientController extends ApiInternalController
 {
+    /**
+     * @SWG\Definition(
+     *   definition="contract",
+     *   type="object",
+     *   required={"id","number","accounts"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="number",
+     *     type="string",
+     *     description="Номер договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="accounts",
+     *     type="array",
+     *     description="Массив идентификаторов лицевых счетов",
+     *     @SWG\Items(
+     *       type="integer"
+     *     )
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="contragent",
+     *   type="object",
+     *   required={"id","name","contracts"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор контрагента"
+     *   ),
+     *   @SWG\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Название контрагента"
+     *   ),
+     *   @SWG\Property(
+     *     property="contracts",
+     *     type="array",
+     *     description="Массив договоров",
+     *     @SWG\Items(
+     *       ref="#/definitions/contract"
+     *     )
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="client",
+     *   type="object",
+     *   required={"id","name","contragents"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор супер-клиента"
+     *   ),
+     *   @SWG\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Название супер-клиента"
+     *   ),
+     *   @SWG\Property(
+     *     property="contragents",
+     *     type="array",
+     *     description="Массив контрагентов",
+     *     @SWG\Items(
+     *       ref="#/definitions/contragent"
+     *     )
+     *   )
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с клиентами"},
+     *   path="/internal/client/",
+     *   summary="Получение данных по клиенту",
+     *   operationId="Получение данных по клиенту",
+     *   @SWG\Parameter(name="client_id",type="integer",description="идентификатор супер-клиента",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о клиенте",
+     *     @SWG\Schema(
+     *       ref="#/definitions/client"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionIndex()
     {
         $superId = isset($this->requestData['client_id']) ? $this->requestData['client_id'] : null;
@@ -53,6 +145,49 @@ class ClientController extends ApiInternalController
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с клиентами"},
+     *   path="/internal/client/create/",
+     *   summary="Создание клиента",
+     *   operationId="Создание клиента",
+     *   @SWG\Parameter(name="company",type="string",description="название клиента",in="formData",required=true),
+     *   @SWG\Parameter(name="address",type="string",description="адрес",in="formData"),
+     *   @SWG\Parameter(name="partner_id",type="integer",description="идентификатор партнёра",in="formData"),
+     *   @SWG\Parameter(name="contact_phone",type="string",description="контактный телефон",in="formData",required=true),
+     *   @SWG\Parameter(name="official_phone",type="string",description="телефон организации",in="formData"),
+     *   @SWG\Parameter(name="fio",type="string",description="Ф.И.О. контактного лица",in="formData",required=true),
+     *   @SWG\Parameter(name="fax",type="string",description="факс",in="formData"),
+     *   @SWG\Parameter(name="email",type="string",description="email",in="formData",required=true),
+     *   @SWG\Parameter(name="comment",type="string",description="комментарий к заказу",in="formData"),
+     *   @SWG\Parameter(name="vats_tariff_id",type="integer",description="идентификатор тарифа для ВАТС",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о созданном клиенте",
+     *     @SWG\Schema(
+     *       type="object",
+     *       required={"id","name","contragents"},
+     *       @SWG\Property(
+     *         property="client_id",
+     *         type="integer",
+     *         description="Идентификатор супер-клиента"
+     *       ),
+     *       @SWG\Property(
+     *         property="is_created",
+     *         type="boolean",
+     *         description="Создан ли клиент"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     public function actionCreate()
     {
         $form = new ClientCreateExternalForm;

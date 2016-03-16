@@ -15,10 +15,12 @@ use app\models\UsageSms;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
+use yii\db\Expression;
 
 
 class BillFactory
 {
+
     /** @var DateTime */
     protected $billerDate;
     /** @var DateTime */
@@ -68,13 +70,17 @@ class BillFactory
         /** @var Transaction[] $transactions */
         $transactions =
             Transaction::find()
-                ->andWhere(['client_account_id' => $this->clientAccount->id, 'source' => Transaction::SOURCE_STAT])
-                ->andWhere('transaction_date >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d H:i:s')])
-                ->andWhere('transaction_date <= :to', [':to' => $this->billerPeriodTo->format('Y-m-d H:i:s')])
-                ->andWhere('bill_id is null and deleted = 0')
+                ->andWhere([
+                    'client_account_id' => $this->clientAccount->id,
+                    'source' => Transaction::SOURCE_STAT,
+                    'deleted' => 0,
+                ])
+                ->andWhere(['>=', 'transaction_date', $this->billerPeriodFrom->format('Y-m-d H:i:s')])
+                ->andWhere(['<=', 'transaction_date', $this->billerPeriodTo->format('Y-m-d H:i:s')])
+                ->andWhere('bill_id IS NULL')
                 ->all();
 
-        if (empty($transactions)) {
+        if (!count($transactions)) {
             return null;
         }
 
@@ -87,15 +93,21 @@ class BillFactory
         try {
             $bill =
                 Bill::find()
-                    ->andWhere(['client_id' => $this->clientAccount->id])
-                    ->andWhere(['currency' => $this->clientAccount->currency])
-                    ->andWhere('bill_date >= :dateFrom', [':dateFrom' => $this->billerPeriodFrom->format('Y-m-d')])
-                    ->andWhere('bill_date <= :dateTo', [':dateTo' => $this->billerPeriodTo->format('Y-m-d')])
-                    ->andWhere(['is_approved' => 1])
-                    ->andWhere('bill_no like :billno', [':billno' => $this->billerPeriodFrom->format('Ym') . '-%'])
-                    ->orderBy('bill_date asc, id asc')
-                    ->limit(1)
+                    ->andWhere([
+                        Bill::tableName() . '.client_id' => $this->clientAccount->id,
+                        Bill::tableName() . '.currency' => $this->clientAccount->currency,
+                        Bill::tableName() . '.is_approved' => 1,
+                    ])
+                    ->andWhere(['>=', Bill::tableName() . '.bill_date', $this->billerPeriodFrom->format('Y-m-d')])
+                    ->andWhere(['<=', Bill::tableName() . '.bill_date', $this->billerPeriodTo->format('Y-m-d')])
+                    ->andWhere(['LIKE', Bill::tableName() . '.bill_no', $this->billerPeriodFrom->format('Ym') . '-%'])
+                    ->noContainsDeposit()
+                    ->orderBy([
+                        Bill::tableName() . '.bill_date' => SORT_ASC,
+                        Bill::tableName() . '.id' => SORT_ASC
+                    ])
                     ->one();
+
             if ($bill === null) {
                 $bill = new Bill();
                 $bill->client_id = $this->clientAccount->id;
@@ -111,7 +123,8 @@ class BillFactory
                 $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();
                 $sort = 1;
-            } else {
+            }
+            else {
                 $sort = count($bill->lines) + 1;
             }
             
@@ -125,7 +138,8 @@ class BillFactory
             $dbTransaction->commit();
 
             return $bill;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }

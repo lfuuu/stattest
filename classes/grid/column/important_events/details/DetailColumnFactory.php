@@ -4,35 +4,46 @@ namespace app\classes\grid\column\important_events\details;
 
 use yii\helpers\Inflector;
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
 
 abstract class DetailColumnFactory
 {
 
     private static $columns = [
         UsageColumn::class => [
-            'created_usage',
-            'updated_usage',
-            'deleted_usage',
-            'enabled_usage',
-            'disabled_usage',
-            'transfer_usage',
+            ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE,
+            ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE,
+            ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE,
+            ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE,
+            ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE,
+            ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE,
         ],
 
         TroubleColumn::class => [
-            'created_trouble',
-            'closed_trouble',
-            'new_comment_trouble',
-            'set_state_trouble',
-            'set_responsible_trouble',
+            ImportantEventsNames::IMPORTANT_EVENT_CREATED_TROUBLE,
+            ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE,
+            ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE,
+            ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE,
+            ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE,
         ],
 
         ClientAccountColumn::class => [
-            'new_account',
-            'account_changed',
-            'extend_account_contract',
-            'contract_transfer',
-            'account_contract_changed',
-            'transfer_contragent',
+            ImportantEventsNames::IMPORTANT_EVENT_NEW_ACCOUNT,
+            ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CHANGED,
+            ImportantEventsNames::IMPORTANT_EVENT_EXTEND_ACCOUNT_CONTRACT,
+            ImportantEventsNames::IMPORTANT_EVENT_CONTRACT_TRANSFER,
+            ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CONTRACT_CHANGED,
+            ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_CONTRAGENT,
+        ],
+
+        NotifyColumn::class => [
+            ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE,
+            ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE,
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
+            ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_BALANCE,
+            ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT,
+            ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+
         ],
     ];
 

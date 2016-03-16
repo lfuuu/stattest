@@ -30,6 +30,8 @@ class BusinessProcess extends ActiveRecord
 
     const WELLTIME_MAINTENANCE = 15;
 
+    const ITOUTSOURSING_MAINTENANCE = 17;
+
     public static function tableName()
     {
         return 'client_contract_business_process';

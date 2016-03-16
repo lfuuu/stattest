@@ -43,7 +43,7 @@ class Navigation
                 ->addItem('Звонок_чат', ['tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
                 ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
-                ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
+                ->addItem('Телефония DID группы', ['tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');
@@ -121,6 +121,8 @@ class Navigation
                 ->addItem('Группы событий', ['important_events/groups'])
                 ->addItem('Источники событий', ['important_events/sources'])
                 ->addItem('Правила на события', ['important_events/rules'])
+                ->addItem('Страны', ['dictionary/country/?CountryFilter[in_use]=1'])
+                ->addItem('Города', ['dictionary/city/'])
         );
     }
 

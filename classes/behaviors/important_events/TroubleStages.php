@@ -8,12 +8,11 @@ use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use app\models\Trouble;
 
 class TroubleStages extends Behavior
 {
-
-    const EVENT_SOURCE = 'stat';
 
     private $closedStates = [2,20,7,8,48];
 
@@ -34,7 +33,7 @@ class TroubleStages extends Behavior
         $trouble = Trouble::findOne($event->sender->trouble_id);
 
         if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id, $this->closedStates, true)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'trouble_id' => $trouble->id,
                 'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,
@@ -43,7 +42,7 @@ class TroubleStages extends Behavior
         }
 
         if ($trouble->stage->user_main != $event->sender->user_main) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'trouble_id' => $trouble->id,
                 'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,
@@ -52,7 +51,7 @@ class TroubleStages extends Behavior
         }
 
         if (!empty($trouble->stage->comment)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE, self::EVENT_SOURCE, [
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                 'trouble_id' => $trouble->id,
                 'stage_id' => $trouble->stage->stage_id,
                 'client_id' => $trouble->account->id,

@@ -15,7 +15,7 @@ class ConnectionPointColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = ['' => ' -------- '] + Region::dao()->getList(false);
+        $this->filter = Region::dao()->getList(true);
         parent::__construct($config);
     }
 

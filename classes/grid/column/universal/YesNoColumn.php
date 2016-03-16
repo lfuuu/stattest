@@ -3,25 +3,23 @@
 namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
+use app\classes\grid\column\ListTrait;
 use app\classes\traits\YesNoTraits;
+use kartik\grid\GridView;
 use Yii;
-use app\classes\Html;
 
 
 class YesNoColumn extends DataColumn
 {
-    public $filterType = '';
-    public $filter = '';
+    // Отображение в ячейке строкового значения из selectbox вместо ID
+    use ListTrait;
+
+    public $filterType = GridView::FILTER_SELECT2;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-
-        $this->filter = Html::activeDropDownList(
-            $this->grid->filterModel,
-            $this->attribute,
-            YesNoTraits::getYesNoList(true),
-            ['class' => 'form-control input-sm input-tinyint']
-        );
+        $this->filter = YesNoTraits::getYesNoList(true);
+        $this->filterInputOptions['class'] .= ' yes-no-column';
     }
 }

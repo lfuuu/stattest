@@ -9,8 +9,8 @@
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\DateRangeColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\models\filter\CurrencyRateFilter;
 use app\classes\grid\GridView;
+use app\models\filter\CurrencyRateFilter;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -24,14 +24,14 @@ use yii\widgets\Breadcrumbs;
 
 <?php
 $columns = [
-    array(
+    [
         'attribute' => 'date',
         'class' => DateRangeColumn::className(),
-    ),
-    array(
+    ],
+    [
         'attribute' => 'rate',
         'class' => IntegerRangeColumn::className(),
-    ),
+    ],
     [
         'attribute' => 'currency',
         'class' => CurrencyColumn::className(),

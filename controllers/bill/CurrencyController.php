@@ -21,7 +21,7 @@ class CurrencyController extends BaseController
         $filterModel = new CurrencyRateFilter();
         $filterModel->load(Yii::$app->request->get());
 
-        return $this->render('list', [
+        return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
     }
