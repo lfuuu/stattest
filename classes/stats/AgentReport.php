@@ -124,7 +124,7 @@ class AgentReport
                    INNER JOIN client_contract cr ON cr.id = c.contract_id
                    INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
                    INNER JOIN usage_virtpbx u ON u.client = c.client
-                   INNER JOIN `log_tarif` lt ON lt.service = 'usage_voip' AND id_service = u.id 
+                   INNER JOIN `log_tarif` lt ON lt.service = 'usage_virtpbx' AND id_service = u.id
                    INNER JOIN tarifs_virtpbx t ON t.id = lt.id_tarif
                    INNER JOIN client_contract_reward rw ON rw.contract_id = cg.partner_contract_id AND rw.usage_type = 'virtpbx'
                    INNER JOIN newbill_lines nbl ON nbl.service = 'usage_virtpbx' AND nbl.id_service = u.id
