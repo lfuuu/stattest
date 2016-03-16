@@ -5,7 +5,6 @@ use Yii;
 use DateTime;
 use DateTimeZone;
 use app\classes\Assert;
-use app\helpers\DateTimeZoneHelper;
 use yii\helpers\ArrayHelper;
 use app\models\City;
 use app\models\LogTarif;
@@ -15,6 +14,7 @@ use app\models\UsageVoip;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
 use app\models\usages\UsageInterface;
+use app\models\LogUsageHistory;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
@@ -63,22 +63,22 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $rules[] = [[
             'tariff_group_intern_price', 'tariff_group_russia_price', 'tariff_group_local_mob_price'
-        ], 'checkMinTarif'];
+        ], 'validateMinTariff'];
 
-        $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == 'number'; }];
-        $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
-        $rules[] = [['line7800_id'], 'checkNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id == '7800'; }];
+        $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id === 'number'; }];
+        $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id === '7800'; }];
+        $rules[] = [['line7800_id'], 'validateNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id === '7800'; }];
 
         return $rules;
     }
 
     /**
-    * Standart validator method interface. Checks the minimal prices is filled
+    * Валидация гарантированных платежей
     *
     * @param string $attribute
     * @param [] $params
     */
-    public function checkMinTarif($attribute, $params)
+    public function validateMinTariff($attribute, $params)
     {
         $field = static::$mapPriceToId[$attribute];
         $val = $this->getMinByTariff($this->$field);
@@ -89,23 +89,104 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     /**
-    * Fill default values
-    *
+     * Валидация если "Тип" = Линия
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validateNoUsedLine($attribute, $params)
+    {
+        if (!UsageVoip::findOne(['client' => $this->clientAccount->client, 'id' => $this->$attribute])) {
+            $this->addError('line7800_id', 'Линия не найдена');
+        }
+
+        if (UsageVoip::findOne(['client' => $this->clientAccount->client, 'line7800_id' => $this->$attribute])) {
+            $this->addError('line7800_id', 'Линия подключена к другому номеру');
+        }
+    }
+
+    /**
+     * Валидация номера
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validateDid($attribute, $params)
+    {
+        if (!$this->did) {
+            return;
+        }
+
+        switch ($this->type_id) {
+            case 'number': {
+                if (!preg_match('/^\d+$/', $this->did)) {
+                    $this->addError('did', 'Не верный формат номера');
+                }
+
+                /** @var \app\models\Number $number */
+                $number = Number::findOne($this->did);
+                if ($number === null) {
+                    $this->addError('did', 'Номер не найден');
+                }
+                else if (
+                    $number->status != Number::STATUS_INSTOCK
+                    && $number->status != Number::STATUS_HOLD
+                    && !($number->status == Number::STATUS_RESERVED && $number->client_id == $this->clientAccount->id)
+                    && $number->status != Number::STATUS_ACTIVE //контроль переноса номера в статусе "активный" регулируется далее
+                ) {
+                    $msg = 'Номер находится в статусе "' . Number::$statusList[$number->status] . '"';
+
+                    if ($number->status == Number::STATUS_RESERVED || $number->status == Number::STATUS_ACTIVE) {
+                        $msg .= ', Л/С: ' . $number->client_id;
+                    }
+
+                    $this->addError('did', $msg);
+                }
+
+                if ($number && $number->city_id != $this->city_id) {
+                    $this->addError('did', 'Номер ' . $this->did . ' из другого города');
+                }
+                break;
+            }
+
+            case 'line': {
+                if (!preg_match('/^\d{4,5}$/', $this->did)) {
+                    $this->addError('did', 'Не верный формат номера');
+                }
+                break;
+            }
+
+            case 'operator': {
+                if (!preg_match('/^\d{3}$/', $this->did)) {
+                    $this->addError('did', 'Не верный формат номера');
+                }
+                break;
+            }
+
+            case '7800': {
+                if (!preg_match('/^7800\d{7}$/', $this->did)) {
+                    $this->addError('did', 'Не верный формат номера');
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+    * Установка гарантированных платежей от тарифа
     */
     public function fillDefault()
     {
-	foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
-	    $val = $this->getMinByTariff($this->$fieldTariffId);
-	    if ($val > 0) {
-	        if (empty($this->$to) || empty($this->usage)) {
-	            $this->$fieldMinPrice = $val;
-	        }
-	    }
-	}
+        foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
+            $val = $this->getMinByTariff($this->$fieldTariffId);
+            if ($val > 0) {
+                if (empty($this->$fieldMinPrice) || empty($this->usage)) {
+                    $this->$fieldMinPrice = $val;
+                }
+            }
+        }
     }
 
-
-    
     /**
      * Populates the model with input data.
      *
@@ -116,31 +197,28 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function load($data, $formName = null)
     {
-	$return = parent::load($data, $formName);
-	$this->fillDefault();
-	return $return;
+        $return = parent::load($data, $formName);
+        $this->fillDefault();
+        return $return;
     }
 
-    public function checkNoUsedLine($attr, $params)
-    {
-        if ( ! UsageVoip::findOne(['client' => $this->clientAccount->client, 'id' => $this->$attr])) {
-            $this->addError('line7800_id', 'Линия не найдена');
-        }
-
-        if (UsageVoip::findOne(['client' => $this->clientAccount->client, 'line7800_id' => $this->$attr])) {
-            $this->addError('line7800_id', 'Линия подключена к другому номеру');
-        }
-    }
-
+    /**
+     * Сохранение данных (scenario = "add")
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
     public function add()
     {
-/*
+        /*
         $connectingDate= new DateTime($this->connecting_date, $this->timezone);
         if ($connectingDate < $this->today) {
             $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
             return false;
         }
-*/
+        */
 
         $tariffMain = TariffVoip::findOne($this->tariff_main_id);
         Assert::isObject($tariffMain);
@@ -155,7 +233,8 @@ class UsageVoipEditForm extends UsageVoipForm
         } else {
             $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
         }
-         */
+        */
+
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $usage = new UsageVoip;
@@ -169,8 +248,8 @@ class UsageVoipEditForm extends UsageVoipForm
         $usage->status = $this->status;
         $usage->address = $this->address;
         $usage->edit_user_id = Yii::$app->user->getId();
-        $usage->line7800_id = $this->type_id == '7800' ? $this->line7800_id : 0;
-        $usage->is_trunk = $this->type_id == 'operator' ? 1 : 0;
+        $usage->line7800_id = $this->type_id === '7800' ? $this->line7800_id : 0;
+        $usage->is_trunk = $this->type_id === 'operator' ? 1 : 0;
         $usage->one_sip = 0;
         $usage->create_params = $this->create_params;
 
@@ -184,7 +263,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveTariff($usage, $this->connecting_date);
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -194,22 +274,96 @@ class UsageVoipEditForm extends UsageVoipForm
         return true;
     }
 
+    /**
+     * Предустановка данных (scenario = "add")
+     */
+    public function prepareAdd()
+    {
+        if ($this->did) {
+            $this->type_id = 'number';
+
+            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
+                $this->type_id = 'line';
+            }
+            else if (substr($this->did, 0, 4) === '7800') {
+                $this->type_id = '7800';
+            }
+
+            if ($this->type_id !== 'number') {
+                $this->number_tariff_id = null;
+            }
+            else {
+                /** @var \app\models\Number $number */
+                $number = Number::findOne(['number' => $this->did]);
+
+                if ($number) {
+                    $tarifNumber = TariffNumber::findOne(['did_group_id' => $number->did_group_id]);
+
+                    if ($tarifNumber) {
+                        $this->connection_point_id = $number->region;
+                        $this->number_tariff_id = $tarifNumber->id;
+                        $this->city_id = $number->city_id;
+                    }
+                    else {
+                        $this->did = null;
+                    }
+                }
+                else {
+                    $this->did = null;
+                }
+            }
+        }
+        else {
+            if ($this->type_id === 'line') {
+                $this->did = UsageVoip::dao()->getNextLineNumber();
+            }
+        }
+
+        if ($this->clientAccount && !$this->connection_point_id) {
+            $this->connection_point_id = $this->clientAccount->region;
+        }
+
+        if (!$this->connecting_date) {
+            $this->connecting_date = date('Y-m-d');
+        }
+
+        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id) {
+            $whereTariffVoip = [
+                'status'              => 'public',
+                'connection_point_id' => $this->connection_point_id,
+                'currency_id'         => $this->clientAccount->currency
+            ];
+
+            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
+            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
+            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
+            $this->tariff_russia_mob_id = $this->tariff_russia_id;
+        }
+    }
+
+    /**
+     * Сохранение данных (scenario = "edit")
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     public function edit()
     {
-/*
+        /*
         $connectingDate= new DateTime($this->connecting_date, $this->timezone);
         if ($connectingDate < $this->today) {
             $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
             return false;
         }
-*/
+        */
 
         /*
         if ($this->usage->actual_from != UsageInterface::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
             Yii::$app->session->setFlash('error', 'Услуга уже отключена');
             return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
         }
-         */
+        */
 
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
@@ -231,7 +385,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->usage->save();
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -239,23 +394,30 @@ class UsageVoipEditForm extends UsageVoipForm
         return true;
     }
 
+    /**
+     * Изменение тарифа
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     public function changeTariff()
     {
-/*
+        /*
         $tariffChangeDate= new \DateTime($this->tariff_change_date, $this->timezone);
         if ($tariffChangeDate < $this->tomorrow) {
             $this->addError('tariff_change_date', 'Дата изменения тарифа не может быть в прошлом');
             return false;
         }
-*/
+        */
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-
             $this->saveTariff($this->usage, $this->tariff_change_date);
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -263,6 +425,12 @@ class UsageVoipEditForm extends UsageVoipForm
         return true;
     }
 
+    /**
+     * Инициализация формы
+     *
+     * @param ClientAccount $clientAccount
+     * @param UsageVoip|null $usage
+     */
     public function initModel(ClientAccount $clientAccount, UsageVoip $usage = null)
     {
         $this->clientAccount = $clientAccount;
@@ -274,6 +442,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->tomorrow = new DateTime('tomorrow', $this->timezone);
         $this->tomorrow->setTime(0, 0, 0);
 
+        // Если услуга известна (scenario = edit)
         if ($usage) {
             $this->usage = $usage;
             $this->id = $usage->id;
@@ -288,30 +457,48 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->line7800_id = $usage->line7800->E164;
             }
 
+            // Включенный на услуге тариф
             $currentTariff = $usage->logTariff;
 
+            // "Тариф Основной" от включенного тарифа
             $this->tariff_main_id = $currentTariff->id_tarif;
+            // "Тариф Местные мобильные" от включенного тарифа
             $this->tariff_local_mob_id = $currentTariff->id_tarif_local_mob;
+            // "Тариф Россия стационарные" от включенного тарифа
             $this->tariff_russia_id = $currentTariff->id_tarif_russia;
+            // "Тариф Россия мобильные" от включенного тарифа
             $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
+            // "Тариф Международка" от включенного тарифа
             $this->tariff_intern_id = $currentTariff->id_tarif_intern;
 
+            // Устанавливает гарантированный платеж для набора (tariff_group_local_mob | tariff_group_russia | tariff_group_intern)
             $this->tariff_group_price = $currentTariff->minpayment_group;
+            // "Тариф Местные мобильные" гарантированный платеж
             $this->tariff_group_local_mob_price = $currentTariff->minpayment_local_mob;
+            // "Тариф Россия стационарные" гарантированный платеж
             $this->tariff_group_russia_price = $currentTariff->minpayment_russia;
+            // "Тариф Международка" гарантированный платеж
             $this->tariff_group_intern_price = $currentTariff->minpayment_intern;
-
 
             $i = 0;
             while ($i < strlen($currentTariff->dest_group)) {
                 $g = $currentTariff->dest_group[$i];
-                if ($g == '5') $this->tariff_group_local_mob = 1;
-                if ($g == '1') $this->tariff_group_russia = 1;
-                if ($g== '2') $this->tariff_group_intern = 1;
+                switch ($g) {
+                    case 5:
+                        $this->tariff_group_local_mob = 1;
+                        break;
+                    case 2:
+                        $this->tariff_group_intern = 1;
+                        break;
+                    case 1:
+                        $this->tariff_group_russia = 1;
+                        break;
+                }
                 $i++;
             }
 
             $tariff = TariffVoip::findOne($this->tariff_main_id);
+            // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
             $this->tariff_main_status = $tariff->status;
         }
         else {
@@ -319,6 +506,9 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    /**
+     * Переопределение родительского метода, вызывается в load
+     */
     protected function preProcess()
     {
         if ($this->city_id) {
@@ -339,167 +529,161 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    /**
+     * Установка зависимостей от типа услуги (номер, линия, 7800 etc)
+     */
     public function processDependenciesNumber()
     {
-        if ($this->type_id == 'number') {
+        // type_id => [number, line, 7800, operator]
 
-            if ($this->city_id && $this->number_tariff_id && !$this->did) {
-                $numberTariff = TariffNumber::findOne($this->number_tariff_id);
-                $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
-                if ($number) {
-                    $this->did = $number->number;
+        switch($this->type_id) {
+            case 'number': {
+                if ($this->city_id && $this->number_tariff_id && !$this->did) {
+                    $numberTariff = TariffNumber::findOne($this->number_tariff_id);
+                    /** @var \app\models\Number $number */
+                    $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
+                    if ($number) {
+                        $this->did = $number->number;
+                    }
                 }
-            } else {
-                if ($this->did) {
-                    $number = Number::findOne($this->did);
+                else {
+                    if ($this->did) {
+                        /** @var \app\models\Number $number */
+                        $number = Number::findOne($this->did);
 
-                    if (!$number) {
+                        if (!$number) {
+                            $this->did = null;
+                        }
+                        else {
+
+                            $numberTariff = TariffNumber::findOne(['did_group_id' => $number->did_group_id]);
+
+                            if ($numberTariff) {
+                                if ($this->city_id != $number->city_id || $this->number_tariff_id != $numberTariff->id) {
+                                    $this->city_id = $number->city_id;
+                                    $this->number_tariff_id = $numberTariff->id;
+                                }
+                            }
+                            else {
+                                $this->did = null;
+                            }
+                        }
+                    }
+                }
+
+
+                /*
+                if ($this->number_tariff_id) {
+                    $numberTariff = TariffNumber::findOne($this->number_tariff_id);
+                    if ($numberTariff->city_id != $this->city_id) {
+                        $this->number_tariff_id = null;
                         $this->did = null;
                     } else {
 
-                        $numberTariff = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
-
-                        if ($numberTariff) {
-                            if ($this->city_id != $number->city_id || $this->number_tariff_id != $numberTariff->id) {
-                                $this->city_id = $number->city_id;
-                                $this->number_tariff_id = $numberTariff->id;
+                        if ($this->did) {
+                            $number = Number::findOne($this->did);
+                            if (!$number || $number->did_group_id != $numberTariff->did_group_id || $number->city_id != $this->city_id) {
+                                $this->did = null;
                             }
-                        } else {
-                            $this->did = null;
                         }
+
+                        if (!$this->did) {
+                            $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
+                            if ($number) {
+                                $this->did = $number->number;
+                            }
+                        }
+
                     }
-                }
-            }
-
-
-            /*
-            if ($this->number_tariff_id) {
-                $numberTariff = TariffNumber::findOne($this->number_tariff_id);
-                if ($numberTariff->city_id != $this->city_id) {
-                    $this->number_tariff_id = null;
-                    $this->did = null;
                 } else {
-
-                    if ($this->did) {
-                        $number = Number::findOne($this->did);
-                        if (!$number || $number->did_group_id != $numberTariff->did_group_id || $number->city_id != $this->city_id) {
-                            $this->did = null;
-                        }
-                    }
-
-                    if (!$this->did) {
-                        $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
-                        if ($number) {
-                            $this->did = $number->number;
-                        }
-                    }
-
+                    $this->did = null;
                 }
-            } else {
-                $this->did = null;
+                */
+                break;
             }
-             */
-        }
-        if ($this->type_id == 'line') {
-            $this->number_tariff_id = null;
-            if (strlen($this->did) < 4 || strlen($this->did) > 5) {
-                $this->did = UsageVoip::dao()->getNextLineNumber();
+
+            case 'line': {
+                $this->number_tariff_id = null;
+                if (strlen($this->did) < 4 || strlen($this->did) > 5) {
+                    $this->did = UsageVoip::dao()->getNextLineNumber();
+                }
+                break;
             }
-        }
-        if ($this->type_id == '7800') {
-            $this->number_tariff_id = null;
-            if (substr($this->did, 0, 4) != '7800') {
-                $this->did = null;
+
+            case '7800': {
+                $this->number_tariff_id = null;
+                if (substr($this->did, 0, 4) != '7800') {
+                    $this->did = null;
+                }
+                break;
             }
-        }
-        if ($this->type_id == 'operator') {
-            $this->number_tariff_id = null;
-            if (strlen($this->did) != 3) {
-                $this->did =
-                    Yii::$app->db->createCommand("
-                        select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)=3
-                    ")->queryScalar();
+
+            case 'operator': {
+                $this->number_tariff_id = null;
+                if (strlen($this->did) != 3) {
+                    $this->did =
+                        UsageVoip::find()
+                            ->select(['number' => 'MAX(CONVERT(E164,UNSIGNED INTEGER))+1'])
+                            ->where('LENGTH(E164)=3')
+                            ->scalar();
+                }
+                break;
             }
         }
     }
 
+    /**
+     * Установка зависимостей (гарантированные платежи) доп. тарифов
+     */
     public function processDependenciesTariff()
     {
+        // Установлен "Тариф Местные мобильные", но не нет "Гарантированный платеж"
         if ($this->tariff_local_mob_id && !$this->tariff_group_local_mob_price) {
+            /** @var \app\models\TariffVoip $tariff */
             $tariff = TariffVoip::findOne($this->tariff_local_mob_id);
+
+            // Установить "Гарантированный платеж"
             $this->tariff_group_local_mob_price = $tariff->month_min_payment;
         }
+
+        // Установлен "Тариф Россия стационарные", но не нет "Гарантированный платеж"
         if ($this->tariff_russia_id && !$this->tariff_group_russia_price) {
+            /** @var \app\models\TariffVoip $tariff */
             $tariff = TariffVoip::findOne($this->tariff_russia_id);
+
+            // Установить "Гарантированный платеж"
             $this->tariff_group_russia_price = $tariff->month_min_payment;
         }
+
+        // Установлен "Тариф Международка", но не нет "Гарантированный платеж"
         if ($this->tariff_intern_id && !$this->tariff_group_intern_price) {
+            /** @var \app\models\TariffVoip $tariff */
             $tariff = TariffVoip::findOne($this->tariff_intern_id);
+
+            // Установить "Гарантированный платеж"
             $this->tariff_group_intern_price = $tariff->month_min_payment;
         }
     }
 
-    public function validateDid($attribute, $params)
-    {
-        if (!$this->did) {
-            return;
-        }
-
-        if ($this->type_id == 'number') {
-            if (!preg_match('/^\d+$/', $this->did)) {
-                $this->addError('did', 'Не верный формат номера');
-            }
-
-            $number = Number::findOne($this->did);
-            if ($number === null) {
-                $this->addError('did', 'Номер не найден');
-            } else if (
-                $number->status != Number::STATUS_INSTOCK 
-                && $number->status != Number::STATUS_HOLD
-                && !($number->status == Number::STATUS_RESERVED && $number->client_id == $this->clientAccount->id)
-                && $number->status != Number::STATUS_ACTIVE //контроль переноса номера в статусе "активный" регулируется далее
-            ) {
-                $msg = 'Номер находится в статусе "' . Number::$statusList[$number->status] . '"';
-
-                if ($number->status == Number::STATUS_RESERVED || $number->status == Number::STATUS_ACTIVE) {
-                    $msg .= ', Л/С: ' . $number->client_id;
-                }
-
-                $this->addError('did', $msg);
-            }
-
-
-            if ($number && $number->city_id != $this->city_id) {
-                $this->addError('did', 'Номер ' . $this->did . ' из другого города');
-            }
-        }
-
-        if ($this->type_id == 'line') {
-            if (!preg_match('/^\d{4,5}$/', $this->did)) {
-                $this->addError('did', 'Не верный формат номера');
-            }
-        }
-        if ($this->type_id == 'operator') {
-            if (!preg_match('/^\d{3}$/', $this->did)) {
-                $this->addError('did', 'Не верный формат номера');
-            }
-        }
-        if ($this->type_id == '7800') {
-            if (!preg_match('/^7800\d{7}$/', $this->did)) {
-                $this->addError('did', 'Не верный формат номера');
-            }
-        }
-
-    }
-
-
+    /**
+     * Сохранение тарифа
+     *
+     * @param UsageVoip $usage
+     * @param $tariffDate
+     */
     private function saveTariff(UsageVoip $usage, $tariffDate)
     {
         $destGroup = '';
-        if ($this->tariff_group_local_mob) $destGroup .= '5';
-        if ($this->tariff_group_russia) $destGroup .= '1';
-        if ($this->tariff_group_intern) $destGroup .= '2';
 
+        if ($this->tariff_group_local_mob) {
+            $destGroup .= '5';
+        }
+        if ($this->tariff_group_russia) {
+            $destGroup .= '1';
+        }
+        if ($this->tariff_group_intern) {
+            $destGroup .= '2';
+        }
 
         if ($this->mass_change_tariff) {
             $tariffUsages = [];
@@ -511,11 +695,13 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $currentTariff = $usage->getLogTariff($tariffDate);
             $massChangeMainTariffId = $currentTariff->id_tarif;
-        } else {
+        }
+        else {
             $tariffUsages = [$usage];
             $massChangeMainTariffId = null;
         }
 
+        /** @var \app\models\UsageVoip $tariffUsage */
         foreach ($tariffUsages as $tariffUsage) {
             $currentTariff = $tariffUsage->getLogTariff($tariffDate);
 
@@ -524,17 +710,31 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             $tariffChanged = false;
-            if ($this->tariff_main_id != $currentTariff->id_tarif) $tariffChanged = true;
-            if ($this->tariff_local_mob_id != $currentTariff->id_tarif_local_mob) $tariffChanged = true;
-            if ($this->tariff_russia_id != $currentTariff->id_tarif_russia) $tariffChanged = true;
-            if ($this->tariff_russia_mob_id != $currentTariff->id_tarif_russia_mob) $tariffChanged = true;
-            if ($this->tariff_intern_id != $currentTariff->id_tarif_intern) $tariffChanged = true;
-            if ($this->connecting_date != $currentTariff->date_activation) $tariffChanged = true;
-            if ($destGroup != $currentTariff->dest_group) $tariffChanged = true;
-            if ($this->tariff_group_price != $currentTariff->minpayment_group) $tariffChanged = true;
-            if ($this->tariff_group_local_mob_price != $currentTariff->minpayment_local_mob) $tariffChanged = true;
-            if ($this->tariff_group_russia_price != $currentTariff->minpayment_russia) $tariffChanged = true;
-            if ($this->tariff_group_intern_price != $currentTariff->minpayment_intern) $tariffChanged = true;
+            if (
+                $this->tariff_main_id != $currentTariff->id_tarif
+                    ||
+                $this->tariff_local_mob_id != $currentTariff->id_tarif_local_mob
+                    ||
+                $this->tariff_russia_id != $currentTariff->id_tarif_russia
+                    ||
+                $this->tariff_russia_mob_id != $currentTariff->id_tarif_russia_mob
+                    ||
+                $this->tariff_intern_id != $currentTariff->id_tarif_intern
+                    ||
+                $this->connecting_date != $currentTariff->date_activation
+                    ||
+                $destGroup != $currentTariff->dest_group
+                    ||
+                $this->tariff_group_price != $currentTariff->minpayment_group
+                    ||
+                $this->tariff_group_local_mob_price != $currentTariff->minpayment_local_mob
+                    ||
+                $this->tariff_group_russia_price != $currentTariff->minpayment_russia
+                    ||
+                $this->tariff_group_intern_price != $currentTariff->minpayment_intern
+            ) {
+                $tariffChanged = true;
+            }
 
             if ($tariffChanged) {
                 $this->logTarifUsage('usage_voip',
@@ -547,6 +747,12 @@ class UsageVoipEditForm extends UsageVoipForm
         }
     }
 
+    /**
+     * Получение списка линий для 7800
+     *
+     * @param ClientAccount $clientAccount
+     * @return array
+     */
     public function getLinesFor7800(ClientAccount $clientAccount)
     {
         $tableName = UsageVoip::tableName();
@@ -573,59 +779,132 @@ class UsageVoipEditForm extends UsageVoipForm
         return $list;
     }
 
-    private function saveChangeHistory($cur = array(), $new = array(), $usage_name = '')
+    /**
+     * Сохранение истории
+     *
+     * @param [] $cur
+     * @param [] $new
+     * @param string $usage_name
+     * @throws \yii\db\Exception
+     */
+    private function saveChangeHistory($cur = [], $new = [], $usage_name = '')
     {
-        if (!$cur || count($cur) == 0 || count($new) == 0 || !strlen($usage_name))
+        if (!$cur || count($cur) == 0 || count($new) == 0 || !strlen($usage_name)) {
             return;
+        }
 
-        $fields = array();
-        foreach ($cur as $k=>$v) {
-            if (isset($new[$k]) && $new[$k] != $v) {
-                $fields[$k] = array('value_from'=>$v, 'value_to'=>$new[$k]);
+        $fields = [];
+        foreach ($cur as $field => $value) {
+            if (isset($new[$field]) && $new[$field] != $value) {
+                $fields[$field] = [
+                    'value_from' => $value,
+                    'value_to' => $new[$field]
+                ];
             }
         }
-        if (!count($fields)) return;
 
-        Yii::$app->db->createCommand("
-            insert into log_usage_history(service, service_id, user_id) values (:service, :serviceId, :userId)
-        ", [
-            'service' => $usage_name,
-            'serviceId' => $cur['id'],
-            'userId' => Yii::$app->user->id,
-        ])->execute();
+        if (!count($fields)) {
+            return;
+        }
 
-        if ($log_usage_history_id = Yii::$app->db->lastInsertID) {
-            foreach ($fields as $field => $v) {
-                Yii::$app->db->createCommand("
-                    insert into log_usage_history_fields(log_usage_history_id, field, value_from, value_to) values (:id, :field, :valueFrom, :valueTo)
-                ", [
-                    'id' => $log_usage_history_id,
-                    'field' => $field,
-                    'valueFrom' => $v['value_from'],
-                    'valueTo' => $v['value_to'],
-                ])->execute();
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $history = new LogUsageHistory;
+            $history->service = $usage_name;
+            $history->service_id = $cur['id'];
+            $history->user_id = Yii::$app->user->id;
+            $history->save();
+
+            if ($history->id) {
+                $insert = [];
+                foreach ($fields as $field => $value) {
+                    $insert[] = [
+                        $history->id,
+                        $field,
+                        $value['value_from'],
+                        $value['value_to'],
+                    ];
+                }
+
+                if (count($insert)) {
+                    Yii::$app->db->createCommand()->batchInsert(
+                        \app\models\LogUsageHistoryFields::tableName(),
+                        ['log_usage_history_id', 'field', 'value_from', 'value_to'],
+                        $insert
+                    )->execute();
+                }
             }
+
+            $transaction->commit();
+        }
+        catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
     }
 
-    private function logTarifUsage($service,$id,$dateActivation,
-                                         $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,
-                                         $dest_group, $minpayment_group,
-                                         $minpayment_local_mob, $minpayment_russia, $minpayment_intern)
-    {
-        Yii::$app->db->createCommand(
-            'insert into log_tarif (service,id_service,id_user,ts,date_activation,comment,
-                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,
-                                        dest_group,minpayment_group,
-                                        minpayment_local_mob,minpayment_russia,minpayment_intern
-                                    ) VALUES '.
-            '("'.$service.'",'.$id.',"'.(Yii::$app->user->id?:0).'",NOW(),"'.addslashes($dateActivation).'","",'.
-            intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
-            intval($dest_group).','.intval($minpayment_group).','.
-            intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
-            ')')->execute();
+
+    /**
+     * Сохранение тарифа в логе
+     *
+     * @param $service
+     * @param $id
+     * @param $dateActivation
+     * @param $tarifId
+     * @param $tarifLocalMobId
+     * @param $tarifRussiaId
+     * @param $tarifRussiaMobId
+     * @param $tarifInternId
+     * @param $destGroup
+     * @param $minpaymentGroup
+     * @param $minpaymentLocalMob
+     * @param $minpaymentRussia
+     * @param $minpaymentIntern
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
+    private function logTarifUsage(
+        $service,$id,$dateActivation,
+        $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,
+        $destGroup, $minpaymentGroup,
+        $minpaymentLocalMob, $minpaymentRussia, $minpaymentIntern
+    ) {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $logTariff = new LogTarif;
+            $logTariff->service = $service;
+            $logTariff->id_service = $id;
+            $logTariff->id_user = Yii::$app->user->id ?: 0;
+            $logTariff->ts = (new DateTime('now'))->format(DateTime::ATOM);
+            $logTariff->date_activation = addslashes($dateActivation);
+            $logTariff->comment = '';
+            $logTariff->id_tarif = (int) $tarifId;
+            $logTariff->id_tarif_local_mob = (int) $tarifLocalMobId;
+            $logTariff->id_tarif_russia = (int) $tarifRussiaId;
+            $logTariff->id_tarif_russia_mob = (int) $tarifRussiaMobId;
+            $logTariff->id_tarif_intern = (int) $tarifInternId;
+            $logTariff->dest_group = (int) $destGroup;
+            $logTariff->minpayment_group = (int) $minpaymentGroup;
+            $logTariff->minpayment_local_mob = (int) $minpaymentLocalMob;
+            $logTariff->minpayment_russia = (int) $minpaymentRussia;
+            $logTariff->minpayment_intern = (int) $minpaymentIntern;
+            $logTariff->save();
+
+            $transaction->commit();
+        }
+        catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
+    /**
+     * Установка даты отключения
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     private function setDisconnectionDate()
     {
         $timezone = $this->usage->clientAccount->timezone;
@@ -648,7 +927,8 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -656,71 +936,16 @@ class UsageVoipEditForm extends UsageVoipForm
         return true;
     }
 
-    public function prepareAdd()
-    {
-        if ($this->did) {
-            $this->type_id = "number";
-
-            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
-                $this->type_id = "line";
-            } else if (substr($this->did, 0, 4) == "7800") {
-                $this->type_id = "7800";
-            }
-
-            if ($this->type_id != "number") {
-                $this->number_tariff_id = null;
-            } else {
-                $number = Number::findOne(["number" => $this->did]);
-
-                if ($number) {
-                    $tarifNumber = TariffNumber::findOne(["did_group_id" => $number->did_group_id]);
-
-                    if ($tarifNumber) {
-                        $this->connection_point_id = $number->region;
-                        $this->number_tariff_id = $tarifNumber->id;
-                        $this->city_id = $number->city_id;
-                    } else {
-                        $this->did = null;
-                    }
-                } else {
-                    $this->did = null;
-                }
-            }
-        } else {
-            if ($this->type_id == "line") {
-                $this->did = UsageVoip::dao()->getNextLineNumber();
-            }
-        }
-
-        if ($this->clientAccount && !$this->connection_point_id) {
-            $this->connection_point_id = $this->clientAccount->region;
-        }
-
-        if (!$this->connecting_date) {
-            $this->connecting_date = date("Y-m-d");
-        }
-
-        if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id) {
-            $whereTariffVoip = [
-                "status"              => "public", 
-                "connection_point_id" => $this->connection_point_id, 
-                "currency_id"         => $this->clientAccount->currency
-            ];
-
-            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
-            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
-            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
-            $this->tariff_russia_mob_id = $this->tariff_russia_id;
-        }
-    }
-
     /**
-    * Get minimal price by Id of Tariff
-    *
+    * Получение минимального платежа от тарифа
     */
     private function getMinByTariff($tariffId)
     {
-	return TariffVoip::find()->select('month_min_payment')->andWhere([ 'id' => $tariffId ])->scalar();
+        return
+            TariffVoip::find()
+                ->select('month_min_payment')
+                ->where(['id' => $tariffId])
+                ->scalar();
     }
 
 }
