@@ -18,9 +18,7 @@ echo Breadcrumbs::widget([
     ],
 ]);
 
-
-/** @var ImportantEventsNames $dataProvider */
-/** @var array $clientData */
+/** @var [] $dataProvider */
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
@@ -31,19 +29,18 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'attribute' => 'code',
+            'attribute' => 'event_name',
             'label' => 'Название',
-            'format' => 'raw',
-            'value' => function($data) {
-                return $data->value;
-            },
             'width' => '*',
         ],
         [
+            'attribute' => 'do_email',
             'label' => 'Email',
             'format' => 'raw',
-            'value' => function($data) use ($clientData) {
-                return Html::checkbox('FormData[events][' . $data->code . '][do_email]', isset($clientData[$data->code]) && $clientData[$data->code]['do_email']);
+            'value' => function($data) {
+                return
+                    Html::hiddenInput('FormData[events][' . $data['event_code'] . '][do_email]', 0) .
+                    Html::checkbox('FormData[events][' . $data['event_code'] . '][do_email]', isset($data['do_email']) && $data['do_email']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '8%',
@@ -51,8 +48,10 @@ echo GridView::widget([
         [
             'label' => 'Sms',
             'format' => 'raw',
-            'value' => function($data) use ($clientData) {
-                return Html::checkbox('FormData[events][' . $data->code . '][do_sms]', isset($clientData[$data->code]) && $clientData[$data->code]['do_sms']);
+            'value' => function($data) {
+                return
+                    Html::hiddenInput('FormData[events][' . $data['event_code'] . '][do_sms]', 0) .
+                    Html::checkbox('FormData[events][' . $data['event_code'] . '][do_sms]', isset($data['do_sms']) && $data['do_sms']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '8%',
@@ -60,8 +59,10 @@ echo GridView::widget([
         [
             'label' => 'ЛК',
             'format' => 'raw',
-            'value' => function($data) use ($clientData) {
-                return Html::checkbox('FormData[events][' . $data->code . '][do_lk]', isset($clientData[$data->code]) && $clientData[$data->code]['do_lk']);
+            'value' => function($data) {
+                return
+                    Html::hiddenInput('FormData[events][' . $data['event_code'] . '][do_lk]', 0) .
+                    Html::checkbox('FormData[events][' . $data['event_code'] . '][do_lk]', isset($data['do_lk']) && $data['do_lk']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '8%',

@@ -4,6 +4,7 @@ namespace app\controllers;
 use Yii;
 use yii\base\Exception;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Response;
@@ -279,13 +280,12 @@ class ClientController extends BaseController
         $form = new ImportantEventsNoticesForm;
         $form->clientAccountId = $clientAccount->id;
 
-        if ($form->load(Yii::$app->request->post(), 'FormData') && $form->validate() && $form->saveData()) {
-            Yii::$app->session->addFlash('success', 'Данные успешно обновлены');
-            Yii::$app->response->redirect('client/notices', ['clientAccountId' => $clientAccount->id]);
+        if ($form->load(Yii::$app->request->post(), 'FormData') && $form->validate()) {
+            $form->saveData();
         }
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => ImportantEventsNames::find(),
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $form->loadData(),
             'sort' => false,
             'pagination' => false,
         ]);
@@ -293,7 +293,6 @@ class ClientController extends BaseController
         return $this->render('notices', [
             'dataProvider' => $dataProvider,
             'form' => $form,
-            'clientData' => $form->loadData()->clientData,
         ]);
     }
 
