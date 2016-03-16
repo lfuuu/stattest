@@ -316,9 +316,9 @@ class UsageVoipEditForm extends UsageVoipForm
                 'currency_id'         => $this->clientAccount->currency
             ];
 
-            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 5])->scalar();
-            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 1])->scalar();
-            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => 2])->scalar();
+            $this->tariff_local_mob_id  = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => TariffVoip::DEST_LOCAL_MOBILE])->scalar();
+            $this->tariff_russia_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => TariffVoip::DEST_RUSSIA])->scalar();
+            $this->tariff_intern_id     = TariffVoip::find()->select('id')->andWhere($whereTariffVoip)->andWhere(['dest' => TariffVoip::DEST_INTERNATIONAL])->scalar();
             $this->tariff_russia_mob_id = $this->tariff_russia_id;
         }
     }
@@ -443,13 +443,13 @@ class UsageVoipEditForm extends UsageVoipForm
             while ($i < strlen($currentTariff->dest_group)) {
                 $g = $currentTariff->dest_group[$i];
                 switch ($g) {
-                    case 5:
+                    case TariffVoip::DEST_LOCAL_MOBILE:
                         $this->tariff_group_local_mob = 1;
                         break;
-                    case 2:
+                    case TariffVoip::DEST_INTERNATIONAL:
                         $this->tariff_group_intern = 1;
                         break;
-                    case 1:
+                    case TariffVoip::DEST_RUSSIA:
                         $this->tariff_group_russia = 1;
                         break;
                 }
@@ -606,13 +606,13 @@ class UsageVoipEditForm extends UsageVoipForm
         $destGroup = '';
 
         if ($this->tariff_group_local_mob) {
-            $destGroup .= '5';
+            $destGroup .= (string) TariffVoip::DEST_LOCAL_MOBILE;
         }
         if ($this->tariff_group_russia) {
-            $destGroup .= '1';
+            $destGroup .= (string) TariffVoip::DEST_RUSSIA;
         }
         if ($this->tariff_group_intern) {
-            $destGroup .= '2';
+            $destGroup .= (string) TariffVoip::DEST_INTERNATIONAL;
         }
 
         if ($this->mass_change_tariff) {
