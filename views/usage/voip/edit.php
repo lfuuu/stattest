@@ -263,7 +263,7 @@ echo Breadcrumbs::widget([
         ?>
         <?php
         /** @var LogTarif[] $tariffHistory */
-        /** var LogTarif $item */
+        /** @var LogTarif $item */
         foreach($tariffHistory as $item):
             if ($item->date_activation == $date_activation) {
                 continue;

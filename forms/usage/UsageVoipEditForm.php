@@ -212,28 +212,10 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function add()
     {
-        /*
-        $connectingDate= new DateTime($this->connecting_date, $this->timezone);
-        if ($connectingDate < $this->today) {
-            $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
-            return false;
-        }
-        */
-
         $tariffMain = TariffVoip::findOne($this->tariff_main_id);
         Assert::isObject($tariffMain);
 
         $actualFrom = $this->connecting_date;
-
-        /*
-        if ($tariffMain->is_testing) {
-            $actualTo = new DateTime($this->connecting_date, $this->timezone);
-            $actualTo->modify('+10 days');
-            $actualTo = $actualTo->format('Y-m-d');
-        } else {
-            $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
-        }
-        */
 
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
@@ -350,21 +332,6 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function edit()
     {
-        /*
-        $connectingDate= new DateTime($this->connecting_date, $this->timezone);
-        if ($connectingDate < $this->today) {
-            $this->addError('connecting_date', 'Дата подключения не может быть в прошлом');
-            return false;
-        }
-        */
-
-        /*
-        if ($this->usage->actual_from != UsageInterface::MAX_POSSIBLE_DATE && !$this->usage->isActive()) {
-            Yii::$app->session->setFlash('error', 'Услуга уже отключена');
-            return Yii::$app->response->redirect(['usage/voip/edit', 'id' => $this->usage->id]);
-        }
-        */
-
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom, $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 
@@ -403,14 +370,6 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function changeTariff()
     {
-        /*
-        $tariffChangeDate= new \DateTime($this->tariff_change_date, $this->timezone);
-        if ($tariffChangeDate < $this->tomorrow) {
-            $this->addError('tariff_change_date', 'Дата изменения тарифа не может быть в прошлом');
-            return false;
-        }
-        */
-
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $this->saveTariff($this->usage, $this->tariff_change_date);
@@ -570,35 +529,6 @@ class UsageVoipEditForm extends UsageVoipForm
                         }
                     }
                 }
-
-
-                /*
-                if ($this->number_tariff_id) {
-                    $numberTariff = TariffNumber::findOne($this->number_tariff_id);
-                    if ($numberTariff->city_id != $this->city_id) {
-                        $this->number_tariff_id = null;
-                        $this->did = null;
-                    } else {
-
-                        if ($this->did) {
-                            $number = Number::findOne($this->did);
-                            if (!$number || $number->did_group_id != $numberTariff->did_group_id || $number->city_id != $this->city_id) {
-                                $this->did = null;
-                            }
-                        }
-
-                        if (!$this->did) {
-                            $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
-                            if ($number) {
-                                $this->did = $number->number;
-                            }
-                        }
-
-                    }
-                } else {
-                    $this->did = null;
-                }
-                */
                 break;
             }
 
@@ -709,7 +639,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 continue;
             }
 
-            $tariffChanged = false;
             if (
                 $this->tariff_main_id != $currentTariff->id_tarif
                     ||
@@ -733,10 +662,6 @@ class UsageVoipEditForm extends UsageVoipForm
                     ||
                 $this->tariff_group_intern_price != $currentTariff->minpayment_intern
             ) {
-                $tariffChanged = true;
-            }
-
-            if ($tariffChanged) {
                 $this->logTarifUsage('usage_voip',
                     $tariffUsage->id, $tariffDate,
                     $this->tariff_main_id, $this->tariff_local_mob_id, $this->tariff_russia_id, $this->tariff_russia_mob_id, $this->tariff_intern_id,
@@ -789,7 +714,7 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     private function saveChangeHistory($cur = [], $new = [], $usage_name = '')
     {
-        if (!$cur || count($cur) == 0 || count($new) == 0 || !strlen($usage_name)) {
+        if (count($cur) == 0 || count($new) == 0 || !strlen($usage_name)) {
             return;
         }
 
@@ -937,8 +862,11 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     /**
-    * Получение минимального платежа от тарифа
-    */
+     * Получение минимального платежа от тарифа
+     *
+     * @param $tariffId
+     * @return bool|string
+     */
     private function getMinByTariff($tariffId)
     {
         return
