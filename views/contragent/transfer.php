@@ -98,8 +98,9 @@ $form = ActiveForm::begin([
                             'ajax' => [
                                 'url' => '/account/super-client-search',
                                 'dataType' => 'json',
-                                'data' => new JsExpression('function(params) { return {query:params}; }'),
-                                'results' => new JsExpression('function (data) { console.log(data); return {results: data}; }'),
+                                'delay' => 250,
+                                'data' => new JsExpression('function(params) { return {query: params.term}; }'),
+                                'processResults' => new JsExpression('function (data, params) { return {results: data}; }'),
                             ],
                         ],
                     ])->label('Переместить к');
