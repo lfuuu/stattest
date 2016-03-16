@@ -79,28 +79,25 @@ $request = Yii::$app->request->get();
             }
             setInput();
 
-            var substringMatcher = function () {
-                return function findMatches(q, cb) {
-                        $.getJSON('search/index', {
-                            search: $("#search").val(),
-                            searchType: $("#search-type").val()
-                        }, function (matches) {
-                            searchs = true;
-                            cb(matches);
-                            //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
-                        });
-                };
-            };
+            var substringMatcher = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/search/index?search=%QUERY&searchType=' + $("#search-type").val(),
+                    wildcard: '%QUERY'
+                }
+            });
 
             $('#search').typeahead({
                     hint: true,
                     highlight: true,
                     minLength: 3,
-                    async: true,
+                    async: true
                 },
                 {
                     name: 'search',
-                    source: substringMatcher(),
+                    display: 'value',
+                    source: substringMatcher,
                     templates: {
                         suggestion: function(obj){
                             if(obj['type'] == 'bill'){
