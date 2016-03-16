@@ -34,6 +34,9 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         'local' => 'Внутр.',
     ];
 
+    /**
+     * @return []
+     */
     public function behaviors()
     {
         return [
@@ -45,21 +48,35 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_voip';
     }
 
+    /**
+     * @return UsageVoipQuery
+     */
     public static function find()
     {
         return new UsageVoipQuery(get_called_class());
     }
 
+    /**
+     * @return \app\dao\services\VoipServiceDao;
+     */
     public static function dao()
     {
         return VoipServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return VoipBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new VoipBiller($this, $date, $clientAccount);
@@ -79,21 +96,33 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         return TariffVoip::findOne($logTariff->id_tarif);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_VOIP;
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getConnectionPoint()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @return bool
+     */
     public function isActive()
     {
         $timezone = $this->clientAccount->timezone;
@@ -107,21 +136,33 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         return $actualFrom <= $now and $actualTo >= $now;
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getVoipNumber()
     {
         return $this->hasOne(Number::className(), ['number' => 'E164']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDatacenter()
     {
         return $this->hasOne(Datacenter::className(), ["region" => "region"]);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getLine7800()
     {
         return $this->hasOne(self::className(), ['id' => 'line7800_id']);
@@ -152,19 +193,28 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         return new UsageVoipHelper($this);
     }
 
-    public function getAbonPerMonth()
-    {
-        return $this->tariff->month_number + ($this->tariff->month_line * ($this->no_of_lines - 1));
-    }
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUsagePackages()
     {
         return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoLogTariff(self::className());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAbonPerMonth()
+    {
+        return $this->tariff->month_number + ($this->tariff->month_line * ($this->no_of_lines - 1));
     }
 
 }

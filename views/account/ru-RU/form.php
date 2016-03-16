@@ -76,13 +76,16 @@ use app\models\Currency;
                                 'undefined' => 'Не определились / Не отправляем',
                                 'payment' => 'Платная рассылка почтой РФ',
                                 'by_self' => 'Самовывоз',
-                                'black_list' => 'Черный список',
                             ])
                             ->label('Тип рассылки документов');
                 },
             ],
-            'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;', 'colspan' => 2], 'options' => ['id' => 'with-consignee']],
-            ['type' => Form::INPUT_RAW,],
+            'options[black_list]' => [
+                'type' => Form::INPUT_CHECKBOX,
+                'label' => 'Черный список',
+                'columnOptions' => ['style' => 'margin-top: 20px;',]
+            ],
+            'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['style' => 'margin-top: 20px;',], 'options' => ['id' => 'with-consignee']],
             ['type' => Form::INPUT_RAW,],
 
             'address_post' => ['columnOptions' => ['colspan' => 2],],

@@ -59,17 +59,16 @@ jQuery(document).ready(function() {
     $(' #accounteditform-pay_acc').closest('form').on('submit', function(){
         var f = $('#accounteditform-corr_acc, #accounteditform-bank_name, #accounteditform-bank_city, #accounteditform-bank_properties');
         f.prop('disabled',  false);
-    })
+    });
 
-    var substringMatcher = function () {
-        return function findMatches(q, cb) {
-            $.getJSON('search/bank', {
-                search: $("#accounteditform-bik").val()
-            }, function (matches) {
-                cb(matches);
-            });
-        };
-    };
+    var substringMatcher = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            url: '/search/bank?search=%QUERY',
+            wildcard: '%QUERY'
+        }
+    });
 
     function genBankProp()
     {
@@ -85,14 +84,12 @@ jQuery(document).ready(function() {
             hint: true,
             highlight: true,
             minLength: 7,
-            async: true,
+            async: true
         },
         {
             name: 'accounteditform-bik',
-            source: substringMatcher(),
-            templates: {
-                suggestion: function(obj){ return obj['value']; }
-            }
+            display: 'value',
+            source: substringMatcher
         })
         .on('typeahead:opened', function($e, $data) {
             $('#accounteditform-bank_name').val('');

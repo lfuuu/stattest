@@ -261,8 +261,10 @@ echo Breadcrumbs::widget([
             $now = new DateTime('now', $clientAccount->timezone);
             $date_activation = '';
         ?>
-        <?php foreach($tariffHistory as $item): /** var $item LogTarif */ ?>
-            <?php
+        <?php
+        /** @var LogTarif[] $tariffHistory */
+        /** @var LogTarif $item */
+        foreach($tariffHistory as $item):
             if ($item->date_activation == $date_activation) {
                 continue;
             }
@@ -276,10 +278,10 @@ echo Breadcrumbs::widget([
                 <td width="100%">
                     <?= Html::encode($item->voipTariffMain->name) ?>
                     (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
-                    / Моб <?= Html::encode($item->voipTariffLocalMob->name_short) ?>
-                    / МГ <?= Html::encode($item->voipTariffRussia->name_short) ?>
-                    / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name_short) ?>
-                    / МН <?= Html::encode($item->voipTariffIntern->name_short) ?>
+                    / Моб <?= Html::encode($item->voipTariffLocalMob->name) ?>
+                    / МГ <?= Html::encode($item->voipTariffRussia->name) ?>
+                    / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name) ?>
+                    / МН <?= Html::encode($item->voipTariffIntern->name) ?>
 
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -293,14 +295,16 @@ echo Breadcrumbs::widget([
                         = <?= $item->minpayment_group ?> /
                     <?php endif; ?>
 
-                    <?php if (strpos($item->dest_group, '5') === false && $item->minpayment_local_mob):?>
-                    Моб = <?= $item->minpayment_local_mob ?> /
+                    <?php if (strpos($item->dest_group, '5') === false && $item->minpayment_local_mob): ?>
+                        Моб = <?= $item->minpayment_local_mob ?> /
                     <?php endif; ?>
-                    <?php if (strpos($item->dest_group, '1') === false && $item->minpayment_russia):?>
-                    МГ = <?= $item->minpayment_russia ?> /
+
+                    <?php if (strpos($item->dest_group, '1') === false && $item->minpayment_russia): ?>
+                        МГ = <?= $item->minpayment_russia ?> /
                     <?php endif; ?>
-                    <?php if (strpos($item->dest_group, '2') === false && $item->minpayment_intern):?>
-                    МН <?= $item->minpayment_intern ?> /
+
+                    <?php if (strpos($item->dest_group, '2') === false && $item->minpayment_intern): ?>
+                        МН <?= $item->minpayment_intern ?> /
                     <?php endif; ?>
                 </td>
                 <td nowrap>
@@ -311,12 +315,10 @@ echo Breadcrumbs::widget([
                     ?>
                 </td>
                 <td>
-
                     <?php
                     if ($actualFrom > $now) {
-                        $formModel = new \app\forms\usage\UsageVoipDeleteHistoryForm();
+                        $formModel = new \app\forms\usage\UsageVoipDeleteHistoryForm;
                         $formModel->id = $item->id;
-
 
                         $form2 = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'display: inline-block;']]);
                         echo Html::activeHiddenInput($formModel, 'id');
