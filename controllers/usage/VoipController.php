@@ -21,6 +21,10 @@ use yii\filters\AccessControl;
 
 class VoipController extends BaseController
 {
+
+    /**
+     * @return []
+     */
     public function behaviors()
     {
         return [
@@ -36,16 +40,21 @@ class VoipController extends BaseController
         ];
     }
 
+    /**
+     * @param $clientAccountId
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     */
     public function actionAdd($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        $model = new UsageVoipEditForm(['no_of_lines' => 1, "city_id" => Yii::$app->user->identity->city_id]);
+        $model = new UsageVoipEditForm(['no_of_lines' => 1, 'city_id' => Yii::$app->user->identity->city_id]);
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($clientAccount);
 
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->scenario == 'add' && $model->validate() && $model->add()) {
+            if ($model->scenario === 'add' && $model->validate() && $model->add()) {
                 Yii::$app->session->addFlash('success', 'Запись добавлена');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
@@ -60,6 +69,11 @@ class VoipController extends BaseController
         ]);
     }
 
+    /**
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     */
     public function actionEdit($id)
     {
         $usage = UsageVoip::findOne($id);
@@ -76,16 +90,16 @@ class VoipController extends BaseController
             return $this->redirect(['edit', 'id' => $id]);
         }
 
-        $model = new UsageVoipEditForm();
+        $model = new UsageVoipEditForm;
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($usage->clientAccount, $usage);
 
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->scenario == 'edit' && $model->validate() && $model->edit()) {
+            if ($model->scenario === 'edit' && $model->validate() && $model->edit()) {
                 Yii::$app->session->addFlash('success', 'Запись обновлена');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
-            if ($model->scenario == 'change-tariff' && $model->validate() && $model->changeTariff()) {
+            if ($model->scenario === 'change-tariff' && $model->validate() && $model->changeTariff()) {
                 Yii::$app->session->addFlash('success', 'Тариф тариф сохранен');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
@@ -110,7 +124,7 @@ class VoipController extends BaseController
         $packageStat = $packagesHistory = [];
 
         foreach($usagePackages as $package) {
-            $packageStat[$package->id] = StatPackage::findOne(["package_id" => $package->id]);
+            $packageStat[$package->id] = StatPackage::findOne(['package_id' => $package->id]);
 
             $packagesHistory[$package->id] =
                 LogTarif::find()
@@ -134,8 +148,16 @@ class VoipController extends BaseController
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
     public function actionDetachPackage($id)
     {
+        /** @var \app\models\UsageVoipPackage $package */
         $package = UsageVoipPackage::findOne($id);
         Assert::isObject($package);
 
@@ -151,7 +173,8 @@ class VoipController extends BaseController
 
             $transaction->commit();
             Yii::$app->session->addFlash('success', 'Пакет удален');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -159,14 +182,21 @@ class VoipController extends BaseController
         return $this->redirect(['edit', 'id' => $usage_id]);
     }
 
+    /**
+     * @param null $id
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     */
     public function actionEditPackage($id = null)
     {
         Assert::isNotNull($id);
 
+        /** @var \app\models\UsageVoipPackage $package */
         $package = UsageVoipPackage::findOne($id);
         Assert::isObject($package);
 
-        $model = new UsageVoipEditPackageForm();
+        $model = new UsageVoipEditPackageForm;
         $model->initModel($package);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
