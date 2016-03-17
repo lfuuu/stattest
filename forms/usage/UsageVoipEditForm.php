@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeZone;
 use app\classes\Assert;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 use app\models\City;
 use app\models\LogTarif;
 use app\models\Number;
@@ -173,21 +174,6 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     /**
-    * Установка гарантированных платежей от тарифа
-    */
-    public function fillDefault()
-    {
-        foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
-            $val = $this->getMinByTariff($this->$fieldTariffId);
-            if ($val > 0) {
-                if (empty($this->$fieldMinPrice) || empty($this->usage)) {
-                    $this->$fieldMinPrice = $val;
-                }
-            }
-        }
-    }
-
-    /**
      * Populates the model with input data.
      *
      * @param array $data the data array to load, typically `$_POST` or `$_GET`.
@@ -198,7 +184,19 @@ class UsageVoipEditForm extends UsageVoipForm
     public function load($data, $formName = null)
     {
         $return = parent::load($data, $formName);
-        $this->fillDefault();
+
+        // Установка гарантированных платежей от тарифа
+        foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
+            $minimalPayment = $this->getMinByTariff($this->$fieldTariffId);
+
+            if ($this->usage) {
+                $this->{Inflector::variablize($fieldMinPrice)} = $minimalPayment;
+            }
+            else {
+                $this->$fieldMinPrice = $minimalPayment;
+            }
+        }
+
         return $return;
     }
 
@@ -559,39 +557,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 }
                 break;
             }
-        }
-    }
-
-    /**
-     * Установка зависимостей (гарантированные платежи) доп. тарифов
-     */
-    public function processDependenciesTariff()
-    {
-        // Установлен "Тариф Местные мобильные", но не нет "Гарантированный платеж"
-        if ($this->tariff_local_mob_id && !$this->tariff_group_local_mob_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_local_mob_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_local_mob_price = $tariff->month_min_payment;
-        }
-
-        // Установлен "Тариф Россия стационарные", но не нет "Гарантированный платеж"
-        if ($this->tariff_russia_id && !$this->tariff_group_russia_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_russia_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_russia_price = $tariff->month_min_payment;
-        }
-
-        // Установлен "Тариф Международка", но не нет "Гарантированный платеж"
-        if ($this->tariff_intern_id && !$this->tariff_group_intern_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_intern_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_intern_price = $tariff->month_min_payment;
         }
     }
 

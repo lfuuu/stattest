@@ -37,6 +37,11 @@ class UsageVoipForm extends Form
     public $tariff_group_intern_price;
     public $tariff_group_price;
 
+    public
+        $tariffGroupLocalMobPrice,
+        $tariffGroupRussiaPrice,
+        $tariffGroupInternPrice;
+
     public function rules()
     {
         return [
