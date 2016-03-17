@@ -37,6 +37,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
+    public $tariffMainStatus;
+
     private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
         'tariff_group_russia_price' => 'tariff_russia_id',
@@ -192,7 +194,8 @@ class UsageVoipEditForm extends UsageVoipForm
             if ($this->usage) {
                 $this->{Inflector::variablize($fieldMinPrice)} = $minimalPayment;
             }
-            else {
+
+            if (!$this->usage || $this->tariff_main_status != $this->tariffMainStatus) {
                 $this->$fieldMinPrice = $minimalPayment;
             }
         }
@@ -456,7 +459,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $tariff = TariffVoip::findOne($this->tariff_main_id);
             // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
-            $this->tariff_main_status = $tariff->status;
+            $this->tariff_main_status = $this->tariffMainStatus = $tariff->status;
         }
         else {
             $this->connecting_date = $this->today->format('Y-m-d');
