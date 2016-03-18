@@ -26,7 +26,8 @@ use yii\helpers\ArrayHelper;
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
  *
- * @property ClientContact $contract
+ * @property ClientContract $contract
+ * @property ClientContragent $contragent
  * @method static ClientAccount findOne($condition)
  * @property
  *

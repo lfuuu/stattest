@@ -7,6 +7,23 @@ use yii\db\ActiveRecord;
 use app\queries\ClientDocumentQuery;
 use app\dao\ClientDocumentDao;
 
+
+/**
+ * Class ClientDocument
+ * @property int id
+ * @property int contract_id
+ * @property int account_id
+ * @property string contract_no
+ * @property string contract_date
+ * @property string contract_dop_date
+ * @property int contract_dop_no
+ * @property int user_id
+ * @property string ts
+ * @property string comment
+ * @property int is_active
+ * @property string type
+ * @package app\models
+ */
 class ClientDocument extends ActiveRecord
 {
     const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
@@ -53,6 +70,9 @@ class ClientDocument extends ActiveRecord
         ];
     }
 
+    /**
+     * @return ClientDocumentQuery
+     */
     public static function find()
     {
         return new ClientDocumentQuery(get_called_class());
