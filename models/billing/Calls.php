@@ -49,9 +49,7 @@ class Calls extends ActiveRecord
     public $calls_count = '';
     public $billed_time_sum = '';
     
-    public $rate_avg = '';
-    public $interconnect_rate_avg = '';
-    public $rate_with_interconnect_avg = '';
+    public $rate_with_interconnect = '';
     
     public $cost_sum = '';
     public $interconnect_cost_sum = '';
@@ -103,9 +101,7 @@ class Calls extends ActiveRecord
             'calls_count' => 'Кол-во звонков',
             'billed_time_sum' => 'Суммарная длительность, сек.',
 
-            'rate_avg' => 'Средняя цена минуты без интерконнекта, у.е.',
-            'interconnect_rate_avg' => 'Средняя цена минуты интерконнекта, у.е.',
-            'rate_with_interconnect_avg' => 'Средняя цена минуты с интерконнектом, у.е.',
+            'rate_with_interconnect' => 'Цена минуты с интерконнектом, у.е.',
 
             'cost_sum' => 'Суммарная стоимость без интерконнекта, у.е.',
             'interconnect_cost_sum' => 'Суммарная стоимость интерконнекта, у.е.',

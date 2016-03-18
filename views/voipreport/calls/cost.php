@@ -63,21 +63,21 @@ $columns = [
     ],
 
     [
-        'attribute' => 'rate_avg', // псевдо-поле
+        'attribute' => 'rate',
         'class' => FloatRangeColumn::className(),
         'format' => ['decimal', 2],
         'pageSummary' => true,
         'pageSummaryFunc' => GridView::F_AVG,
     ],
     [
-        'attribute' => 'interconnect_rate_avg', // псевдо-поле
+        'attribute' => 'interconnect_rate',
         'class' => FloatRangeColumn::className(),
         'format' => ['decimal', 2],
         'pageSummary' => true,
         'pageSummaryFunc' => GridView::F_AVG,
     ],
     [
-        'attribute' => 'rate_with_interconnect_avg', // псевдо-поле
+        'attribute' => 'rate_with_interconnect', // псевдо-поле
         'class' => FloatRangeColumn::className(),
         'format' => ['decimal', 2],
         'pageSummary' => true,
@@ -150,6 +150,10 @@ $filterColumns = [
     [
         'attribute' => 'destination_id',
         'class' => DestinationColumn::className(),
+        'filterByServerId' => $filterModel->server_id,
+        'filterOptions' => [
+            'title' => 'Фильтр зависит от Точки присоединения',
+        ],
     ],
     [
         'attribute' => 'orig',
@@ -162,20 +166,6 @@ $filterColumns = [
     [
         'attribute' => 'account_id',
         'class' => StringColumn::className(),
-    ],
-    [
-        'attribute' => 'rate',
-        'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
-        'pageSummary' => true,
-        'pageSummaryFunc' => GridView::F_AVG,
-    ],
-    [
-        'attribute' => 'interconnect_rate',
-        'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
-        'pageSummary' => true,
-        'pageSummaryFunc' => GridView::F_AVG,
     ],
     [
         'attribute' => 'cost',

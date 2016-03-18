@@ -142,6 +142,10 @@ $columns = [
     [
         'attribute' => 'destination_id',
         'class' => DestinationColumn::className(),
+        'filterByServerId' => $filterModel->server_id,
+        'filterOptions' => [
+            'title' => 'Фильтр зависит от Точки присоединения',
+        ],
     ],
     [
         'attribute' => 'geo_id',

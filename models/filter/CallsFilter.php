@@ -13,6 +13,7 @@ use yii\db\ActiveQuery;
 class CallsFilter extends Calls
 {
     const PAGE_SIZE = 50;
+    const PAGE_SIZE_COST = 1000;
 
     public $id = '';
 
@@ -61,14 +62,8 @@ class CallsFilter extends Calls
     public $calls_count_from = '';
     public $calls_count_to = '';
 
-    public $rate_with_interconnect_avg_from = '';
-    public $rate_with_interconnect_avg_to = '';
-
-    public $interconnect_rate_avg_from = '';
-    public $interconnect_rate_avg_to = '';
-
-    public $rate_avg_from = '';
-    public $rate_avg_to = '';
+    public $rate_with_interconnect_from = '';
+    public $rate_with_interconnect_to = '';
 
     public $cost_with_interconnect_sum_from = '';
     public $cost_with_interconnect_sum_to = '';
@@ -114,9 +109,7 @@ class CallsFilter extends Calls
 
             [['calls_count_from', 'calls_count_to'], 'integer'],
 
-            [['interconnect_rate_avg_from', 'interconnect_rate_avg_to'], 'double'],
-            [['rate_with_interconnect_avg_from', 'rate_with_interconnect_avg_to'], 'double'],
-            [['rate_avg_from', 'rate_avg_to'], 'double'],
+            [['rate_with_interconnect_from', 'rate_with_interconnect_to'], 'double'],
 
             [['interconnect_cost_sum_from', 'interconnect_cost_sum_to'], 'double'],
             [['cost_with_interconnect_sum_from', 'cost_with_interconnect_sum_to'], 'double'],
@@ -169,13 +162,13 @@ class CallsFilter extends Calls
      *
      * @return ActiveDataProvider
      */
-    public function search()
+    public function search($pageSize = self::PAGE_SIZE)
     {
         $query = Calls::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => self::PAGE_SIZE,
+                'pageSize' => $pageSize,
             ],
         ]);
 
@@ -224,14 +217,8 @@ class CallsFilter extends Calls
         $this->calls_count_from !== '' && $query->andHaving(['>=', 'COUNT(*)', (int)$this->calls_count_from]);
         $this->calls_count_to !== '' && $query->andHaving(['<=', 'COUNT(*)', (int)$this->calls_count_to]);
 
-        $this->interconnect_rate_avg_from !== '' && $query->andHaving(['>=', 'AVG(interconnect_rate)', (int)$this->interconnect_rate_avg_from]);
-        $this->interconnect_rate_avg_to !== '' && $query->andHaving(['<=', 'AVG(interconnect_rate)', (int)$this->interconnect_rate_avg_to]);
-
-        $this->rate_with_interconnect_avg_from !== '' && $query->andHaving(['>=', 'AVG(interconnect_rate)', (int)$this->rate_with_interconnect_avg_from]);
-        $this->rate_with_interconnect_avg_to !== '' && $query->andHaving(['<=', 'AVG(interconnect_rate)', (int)$this->rate_with_interconnect_avg_to]);
-
-        $this->rate_avg_from !== '' && $query->andHaving(['>=', 'AVG(rate)', (int)$this->rate_avg_from]);
-        $this->rate_avg_to !== '' && $query->andHaving(['<=', 'AVG(rate)', (int)$this->rate_avg_to]);
+        $this->rate_with_interconnect_from !== '' && $query->andHaving(['>=', 'AVG(rate + interconnect_rate)', (int)$this->rate_with_interconnect_from]);
+        $this->rate_with_interconnect_to !== '' && $query->andHaving(['<=', 'AVG(rate + interconnect_rate)', (int)$this->rate_with_interconnect_to]);
 
         $this->interconnect_cost_sum_from !== '' && $query->andHaving(['>=', 'SUM(interconnect_cost)', (int)$this->interconnect_cost_sum_from]);
         $this->interconnect_cost_sum_to !== '' && $query->andHaving(['<=', 'SUM(interconnect_cost)', (int)$this->interconnect_cost_sum_to]);
@@ -261,7 +248,7 @@ class CallsFilter extends Calls
      */
     public function searchCost()
     {
-        $dataProvider = $this->search();
+        $dataProvider = $this->search(self::PAGE_SIZE_COST);
         /** @var ActiveQuery $query */
         $query = $dataProvider->query;
         $query->select([
@@ -272,9 +259,9 @@ class CallsFilter extends Calls
             'billed_time_sum' => 'SUM(billed_time)',
             'acd' => 'SUM(billed_time) / COUNT(*)',
 
-            'rate_avg' => 'AVG(rate)',
-            'interconnect_rate_avg' => 'AVG(interconnect_rate)',
-            'rate_with_interconnect_avg' => 'AVG(rate + interconnect_rate)',
+            'rate' => 'rate',
+            'interconnect_rate' => 'interconnect_rate',
+            'rate_with_interconnect' => '1.0 * (rate + interconnect_rate)', // иначе интерпретируется, как строка, а не поля
 
             'cost_sum' => 'SUM(cost)',
             'interconnect_cost_sum' => 'SUM(interconnect_cost)',
@@ -282,7 +269,7 @@ class CallsFilter extends Calls
 
             'asr' => '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)',
         ]);
-        $query->groupBy('prefix');
+        $query->groupBy(['prefix', 'rate', 'interconnect_rate']);
         $query->orderBy(['prefix' => SORT_ASC]);
         return $dataProvider;
     }
