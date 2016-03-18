@@ -26,6 +26,12 @@ class GridView extends \kartik\grid\GridView
         'type' => '', //  шапка без фона
     ];
 
+    // заголовок всегда отображать при скроллинге
+    public $floatHeader = true;
+    public $floatHeaderOptions = [
+        'top' => 77, // высота шапки дизайна
+    ];
+
     /**
      * @var string the template for rendering the panel heading.
      */
@@ -112,14 +118,15 @@ HTML;
             ['class' => 'beforeHeaderFilters']
         );
 
-        $rows = Html::tag(
-            'tr',
-            Html::tag(
-                'td',
-                $rows,
-                ['colspan' => count($this->columns)]
-            )
-        );
+        // чтобы был валидный html, надо раскомемнтировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
+//        $rows = Html::tag(
+//            'tr',
+//            Html::tag(
+//                'td',
+//                $rows,
+//                ['colspan' => count($this->columns)]
+//            )
+//        );
 
         return $rows;
     }

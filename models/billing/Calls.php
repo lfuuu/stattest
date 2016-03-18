@@ -99,7 +99,7 @@ class Calls extends ActiveRecord
 
             // having
             'calls_count' => 'Кол-во звонков',
-            'billed_time_sum' => 'Суммарная длительность, сек.',
+            'billed_time_sum' => 'Суммарная длительность, мин.',
 
             'rate_with_interconnect' => 'Цена минуты с интерконнектом, у.е.',
 
@@ -108,7 +108,7 @@ class Calls extends ActiveRecord
             'cost_with_interconnect_sum' => 'Суммарная стоимость с интерконнектом, у.е.',
 
             'asr' => 'ASR (Отношение звонков с длительностью ко всем звонкам), %',
-            'acd' => 'ACD (Средняя длительность), сек.',
+            'acd' => 'ACD (Средняя длительность), мин.',
         ];
     }
 

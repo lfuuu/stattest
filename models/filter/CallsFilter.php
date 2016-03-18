@@ -58,6 +58,8 @@ class CallsFilter extends Calls
 
     public $mob = '';
 
+    public $prefix = '';
+
     // having
     public $calls_count_from = '';
     public $calls_count_to = '';
@@ -106,6 +108,7 @@ class CallsFilter extends Calls
             [['account_id'], 'integer'],
             [['orig'], 'integer'],
             [['mob'], 'integer'],
+            [['prefix'], 'integer'],
 
             [['calls_count_from', 'calls_count_to'], 'integer'],
 
@@ -116,9 +119,9 @@ class CallsFilter extends Calls
             [['cost_sum_from', 'cost_sum_to'], 'double'],
 
             [['asr_from', 'asr_to'], 'integer'],
-            [['acd_from', 'acd_to'], 'integer'],
+            [['acd_from', 'acd_to'], 'double'],
 
-            [['billed_time_sum_from', 'billed_time_sum_to'], 'integer'],
+            [['billed_time_sum_from', 'billed_time_sum_to'], 'double'],
         ];
     }
 
@@ -147,12 +150,15 @@ class CallsFilter extends Calls
 
         if ($this->geo_id !== '') {
             // установили фильтр по geo_id - надо сбросить фильтр по geo_ids
-            $this->geo_ids ='';
+            $this->geo_ids = '';
         }
 
         if ($this->geo_ids !== '') {
             $this->geoIds = explode(',', $this->geo_ids);
         }
+
+        $this->src_number && ($this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']));
+        $this->dst_number && ($this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']));
 
         return $loadResult;
     }
@@ -174,14 +180,14 @@ class CallsFilter extends Calls
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
 
-        $this->connect_time_from !== '' && $query->andWhere(['>=', 'connect_time', $this->connect_time_from]);
-        $this->connect_time_to !== '' && $query->andWhere(['<=', 'connect_time', $this->connect_time_to]);
+        $this->connect_time_from !== '' && $query->andWhere(['>=', 'connect_time', $this->connect_time_from . ' 00:00:00']);
+        $this->connect_time_to !== '' && $query->andWhere(['<=', 'connect_time', $this->connect_time_to . ' 23:59:59']);
 
         $this->billed_time_from !== '' && $query->andWhere(['>=', 'billed_time', $this->billed_time_from]);
         $this->billed_time_to !== '' && $query->andWhere(['<=', 'billed_time', $this->billed_time_to]);
 
-        $this->src_number !== '' && $query->andWhere(['src_number' => $this->src_number]);
-        $this->dst_number !== '' && $query->andWhere(['dst_number' => $this->dst_number]);
+        $this->src_number !== '' && $query->andWhere('src_number::VARCHAR LIKE :src_number', [':src_number' => $this->src_number]);
+        $this->dst_number !== '' && $query->andWhere('dst_number::VARCHAR LIKE :dst_number', [':dst_number' => $this->dst_number]);
 
         $this->rate_from !== '' && $query->andWhere(['>=', 'rate', $this->rate_from]);
         $this->rate_to !== '' && $query->andWhere(['<=', 'rate', $this->rate_to]);
@@ -210,6 +216,8 @@ class CallsFilter extends Calls
 
         $this->orig !== '' && $query->andWhere(($this->orig ? '' : 'NOT ') . 'orig');
         $this->mob !== '' && $query->andWhere(($this->mob ? '' : 'NOT ') . 'mob');
+
+        $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
 
         !$this->isFilteringPossible() && $query->andWhere('false');
 
@@ -242,26 +250,21 @@ class CallsFilter extends Calls
     }
 
     /**
-     * Фильтровать для отчета по направлениям
+     * Фильтровать для отчета по направлениям. Итого
      *
      * @return ActiveDataProvider
      */
-    public function searchCost()
+    public function searchCostSummary()
     {
         $dataProvider = $this->search(self::PAGE_SIZE_COST);
+
         /** @var ActiveQuery $query */
         $query = $dataProvider->query;
         $query->select([
-            'prefix',
-
             // эти псевдо-поля надо не забыть определить в Calls
             'calls_count' => 'COUNT(*)',
-            'billed_time_sum' => 'SUM(billed_time)',
-            'acd' => 'SUM(billed_time) / COUNT(*)',
-
-            'rate' => 'rate',
-            'interconnect_rate' => 'interconnect_rate',
-            'rate_with_interconnect' => '1.0 * (rate + interconnect_rate)', // иначе интерпретируется, как строка, а не поля
+            'billed_time_sum' => '1.0 * SUM(billed_time) / 60',
+            'acd' => '1.0 * SUM(billed_time) / COUNT(*) / 60',
 
             'cost_sum' => 'SUM(cost)',
             'interconnect_cost_sum' => 'SUM(interconnect_cost)',
@@ -269,8 +272,28 @@ class CallsFilter extends Calls
 
             'asr' => '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)',
         ]);
+        return $dataProvider;
+    }
+
+    /**
+     * Фильтровать для отчета по направлениям
+     *
+     * @return ActiveDataProvider
+     */
+    public function searchCost()
+    {
+        $dataProvider = $this->searchCostSummary();
+
+        /** @var ActiveQuery $query */
+        $query = $dataProvider->query;
+        $query->select([
+                'prefix',
+                'rate',
+                'interconnect_rate',
+                'rate_with_interconnect' => '1.0 * (rate + interconnect_rate)', // иначе интерпретируется, как строка, а не поля
+            ] + $query->select);
         $query->groupBy(['prefix', 'rate', 'interconnect_rate']);
-        $query->orderBy(['prefix' => SORT_ASC]);
+        $query->orderBy(['CAST(prefix AS VARCHAR)' => SORT_ASC]); // prefix::VARCHAR почему-то не работает
         return $dataProvider;
     }
 

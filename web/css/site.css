@@ -84,7 +84,6 @@ a.nohover:hover { color: #000; }
         overflow-y: auto;
         overflow-x: auto;
         font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-        position: fixed;
         top: 100px;
         bottom: 0;
     }
@@ -227,4 +226,11 @@ a.nohover:hover { color: #000; }
 .beforeHeaderFilters > div.row > div {
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.panel-toggle-button {
+    position: fixed;
+    margin-left: -15px;
+    top: 75px;
+    cursor: pointer;
 }
