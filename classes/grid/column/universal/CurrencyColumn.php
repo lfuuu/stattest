@@ -20,6 +20,7 @@ class CurrencyColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = Currency::getList(true);
-        $this->filterInputOptions['class'] .= ' destination-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' currency-column';
     }
 }

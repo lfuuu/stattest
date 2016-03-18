@@ -199,19 +199,29 @@ a.nohover:hover { color: #000; }
     text-align: center;
 }
 
+.integer-column,
+.integer-range-column,
+.string-column,
+.orig-column,
+.mob-column {
+    min-width: 100px;
+}
+
+.date-range-double-column {
+    min-width: 110px;
+}
+
 .server-column,
 .destination-column,
 .trunk-column,
 .geo-column,
 .trunk-superclient-column,
 .usage-trunk-column {
-    min-width: 150px !important;
-
+    min-width: 150px;
 }
-.orig-column,
-.mob-column {
-    min-width: 100px !important;
 
+.datetime-range-double-column {
+    min-width: 160px;
 }
 
 .beforeHeaderFilters > div.row > div {

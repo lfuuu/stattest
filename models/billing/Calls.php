@@ -47,7 +47,7 @@ class Calls extends ActiveRecord
     public $geo_ids = '';
 
     public $calls_count = '';
-    public $billed_time_count = '';
+    public $billed_time_sum = '';
     
     public $rate_avg = '';
     public $interconnect_rate_avg = '';
@@ -75,7 +75,7 @@ class Calls extends ActiveRecord
             'connect_time' => 'Время начала разговора (UTC)',
             'trunk_id' => 'Транк',
             'account_id' => 'Клиент', // Но вообще он же оператор
-            'trunk_service_id' => 'Услуга транк', // billing.service_trunk или usage_trunk
+            'trunk_service_id' => 'Номер договора', // Услуга транк, billing.service_trunk или usage_trunk
             'number_service_id' => 'Услуга номер',
             'src_number' => 'Исходящий №',
             'dst_number' => 'Входящий №',
@@ -92,7 +92,7 @@ class Calls extends ActiveRecord
             'destination_id' => 'Направление', // auth.destination
             'pricelist_id' => 'Прайслист',
             'prefix' => 'Префикс', // соответствие префиксу из прайса
-            'geo_id' => 'Локация B-номера',
+            'geo_id' => 'География',  // География, Локация B-номера
 //                'geo_operator_id' => 'xxx',
             'mob' => 'Мобильный', // Стационарный
 //            'operator_id' => 'Оператор', // deprecated. Надо trunk_id -> mysql.stat.usage_trunk -> postgresql.voip.operator
@@ -101,7 +101,7 @@ class Calls extends ActiveRecord
 
             // having
             'calls_count' => 'Кол-во звонков',
-            'billed_time_count' => 'Суммарная длительность, сек.',
+            'billed_time_sum' => 'Суммарная длительность, сек.',
 
             'rate_avg' => 'Средняя цена минуты без интерконнекта, у.е.',
             'interconnect_rate_avg' => 'Средняя цена минуты интерконнекта, у.е.',

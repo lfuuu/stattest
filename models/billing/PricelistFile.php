@@ -19,7 +19,6 @@ use yii\db\ActiveRecord;
  * @property bool   $parsed
  *
  * @property Pricelist $pricelist
- * @property
  */
 class PricelistFile extends ActiveRecord
 {

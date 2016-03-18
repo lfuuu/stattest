@@ -4,26 +4,23 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use kartik\date\DatePicker;
-use ReflectionClass;
 use Yii;
 
 
-class DateRangeColumn extends DataColumn
+class DateRangeDoubleColumn extends DataColumn
 {
-    public $filterType = ''; // GridView::FILTER_DATE_RANGE;
+    public $filterType = '';
     public $filter = '';
 
     public function __construct($config = [])
     {
         parent::__construct($config);
 
-        $filterModel = $this->grid->filterModel;
-        $filterModelName = (new ReflectionClass($filterModel))->getShortName();
         $this->filter =
             DatePicker::widget(
                 [
-                    'name' => sprintf('%s[%s_%s]', $filterModelName, $this->attribute, 'from'),
-                    'value' => $filterModel->{$this->attribute . '_from'},
+                    'model' => $this->grid->filterModel,
+                    'attribute' => $this->attribute . '_from',
                     'removeButton' => false,
                     'type' => DatePicker::TYPE_INPUT,
                     'options' => [
@@ -39,8 +36,8 @@ class DateRangeColumn extends DataColumn
             ' ' .
             DatePicker::widget(
                 [
-                    'name' => sprintf('%s[%s_%s]', $filterModelName, $this->attribute, 'to'),
-                    'value' => $filterModel->{$this->attribute . '_to'},
+                    'model' => $this->grid->filterModel,
+                    'attribute' => $this->attribute . '_to',
                     'removeButton' => false,
                     'type' => DatePicker::TYPE_INPUT,
                     'options' => [
@@ -53,5 +50,7 @@ class DateRangeColumn extends DataColumn
                     ],
                 ]
             );
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' date-range-double-column';
     }
 }

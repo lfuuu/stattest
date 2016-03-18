@@ -16,10 +16,11 @@ class IntegerColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $filterModel = $this->grid->filterModel;
         $this->filter =
-            Html::activeInput('number', $filterModel, $this->attribute, [
-                'class' => 'form-control input-sm input-tinyint',
+            Html::activeInput('number', $this->grid->filterModel, $this->attribute, [
+                'class' => 'form-control input-sm',
             ]);
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' integer-column';
     }
 }

@@ -13,7 +13,7 @@ use app\classes\grid\column\billing\OrigColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\billing\TrunkSuperСlientColumn;
-use app\classes\grid\column\universal\DateRangeColumn;
+use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -77,7 +77,7 @@ $columns = [
     ],
     [
         'attribute' => 'connect_time',
-        'class' => DateRangeColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::className(),
         'pageSummaryOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
         'filterOptions' => ['class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger'],
     ],

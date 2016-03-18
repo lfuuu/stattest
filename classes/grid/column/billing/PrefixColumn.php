@@ -1,15 +1,13 @@
 <?php
 
-namespace app\classes\grid\column\universal;
+namespace app\classes\grid\column\billing;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\DidGroup;
+use app\models\billing\Prefix;
 use kartik\grid\GridView;
-use Yii;
 
-
-class BeautyLevelColumn extends DataColumn
+class PrefixColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -18,9 +16,9 @@ class BeautyLevelColumn extends DataColumn
 
     public function __construct($config = [])
     {
+        $this->filter = Prefix::getList(true);
         parent::__construct($config);
-        $this->filter = DidGroup::getBeautyLevelList(true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' beauty-level-column';
+        $this->filterOptions['class'] .= ' prefix-column';
     }
 }

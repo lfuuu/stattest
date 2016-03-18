@@ -21,6 +21,7 @@ class OrigColumn extends DataColumn
             1 => 'Оригинация',
         ];
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' orig-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' orig-column';
     }
 }

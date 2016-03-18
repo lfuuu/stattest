@@ -11,7 +11,6 @@ use yii\db\ActiveRecord;
  * @property bool $orig
  *
  * @property string $parser_settings
- * @property
  */
 class Pricelist extends ActiveRecord
 {

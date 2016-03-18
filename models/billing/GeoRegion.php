@@ -7,7 +7,6 @@ use app\dao\billing\GeoRegionDao;
 
 /**
  * @property int $id
- * @property
  */
 class GeoRegion extends ActiveRecord
 {
