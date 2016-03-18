@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\dao\ClientContractDao;
 use app\helpers\SetFieldTypeHelper;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
@@ -101,6 +102,25 @@ class ClientContract extends HistoryActiveRecord
             'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
         ];
+    }
+
+    /**
+     * @return \app\dao\ClientContractDao
+     */
+    public function dao()
+    {
+        return ClientContractDao::me();
+    }
+
+    /**
+     * Документ, на основании которого действуем. Используется для выставления счетов и документов
+     *
+     * @param \DateTime|null $date
+     * @return null|\app\models\ClientDocument
+     */
+    public function getContractInfo(\DateTime $date = null)
+    {
+        return ClientContractDao::me()->getContractInfo($this, $date);
     }
 
     public function getManagerName()
