@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Url;
-use yii\helpers\Html;
+use app\classes\Html;
 use kartik\daterange\DateRangePicker;
 use kartik\widgets\Select2;
 

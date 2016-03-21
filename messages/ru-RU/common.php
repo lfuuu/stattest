@@ -1,6 +1,7 @@
 <?php
 return [
     'Page Summary' => 'Итого (на странице)',
+    'Summary' => 'Итого',
     'Create' => 'Создать',
     'Save' => 'Сохранить',
     'Yes' => 'Да',

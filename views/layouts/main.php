@@ -1,6 +1,6 @@
 <?php
-use yii\helpers\Html;
 use app\assets\AppAsset;
+use app\classes\Html;
 
 /* @var $this \yii\web\View */
 /* @var $user \app\models\User */
@@ -139,6 +139,31 @@ if (isset($fixclient_data['id'])) {
 </div>
 
 <div class="layout_main col-sm-10 col-md-push-2">
+
+    <?php // скрыть/показать левое меню ?>
+    <button type="button" class="btn btn-default btn-xs panel-toggle-button" data-hide="≪" data-show="≫">≪</button>
+    <script type="text/javascript">
+        $(function () {
+            $('.panel-toggle-button').on('click', function() {
+                var $this = $(this);
+                var $showText = $this.data('show');
+                var $hideText = $this.data('hide');
+                var $currentText = $this.text();
+
+                if ($currentText == $hideText) {
+                    $('.layout_left').hide();
+                    $('.layout_main').removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
+                    $this.text($showText);
+                } else {
+                    $('.layout_left').show();
+                    $('.layout_main').removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
+                    $this.text($hideText);
+                }
+                $(document).trigger('scroll'); // чтобы перерендерить некоторые элементы с fixed-позицией
+            });
+        });
+    </script>
+
     <?= $this->render('widgets/messages') ?>
 
     <div style="min-height: 70%">

@@ -1,7 +1,6 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\CallsDao;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -13,9 +12,6 @@ use yii\db\ActiveRecord;
  */
 class Destination extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
-
     /**
      * Вернуть имена полей
      * @return [] [полеВТаблице => Перевод]
@@ -51,6 +47,28 @@ class Destination extends ActiveRecord
             'name' => SORT_ASC,
         ];
     }
+
+    /**
+     * Вернуть список всех доступных моделей
+     * @param bool $isWithEmpty
+     * @param int $serverId
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false, $serverId = null)
+    {
+        $query = self::find();
+        $serverId && $query->where(['IN', 'server_id', [$serverId, 0]]);
+        $list = $query->orderBy(self::getListOrderBy())
+            ->indexBy('id')
+            ->all();
+
+        if ($isWithEmpty) {
+            $list = ['' => ' ---- '] + $list;
+        }
+
+        return $list;
+    }
+
     /**
      * Преобразовать объект в строку
      * @return string

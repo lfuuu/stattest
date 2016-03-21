@@ -1,7 +1,7 @@
 <?php
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use yii\helpers\Html;
+use app\classes\Html;
 
 ?>
 
@@ -35,7 +35,7 @@ use yii\helpers\Html;
                     <?= $form->field($model, 'folder_id')->dropDownList(\app\models\document\DocumentFolder::getList()) ?>
                 </div>
                 <div class="col-xs-3" style="padding-top: 20px;">
-                    <?= \yii\helpers\Html::button('<i class="glyphicon glyphicon-plus"></i> Добавить', [
+                    <?= \app\classes\Html::button('<i class="glyphicon glyphicon-plus"></i> Добавить', [
                         'class' => 'btn btn-success',
                         'onclick' => '$(this).closest(".row").hide().next().show(); return false;',
                     ]) ?>
@@ -51,7 +51,7 @@ use yii\helpers\Html;
                     </div>
                 </div>
                 <div class="col-xs-3" style="padding-top: 20px;">
-                    <?= \yii\helpers\Html::button('<i class="glyphicon glyphicon-remove"></i> Отмена', [
+                    <?= \app\classes\Html::button('<i class="glyphicon glyphicon-remove"></i> Отмена', [
                         'class' => 'btn btn-danger',
                         'onclick' => '$(this).closest(".row").hide().prev().show(); return false;',
                     ]) ?>

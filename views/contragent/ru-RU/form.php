@@ -1,5 +1,5 @@
 <?php
-use yii\helpers\Html;
+use app\classes\Html;
 use kartik\builder\Form;
 use app\models\ClientContragent;
 use app\models\ClientContract;

@@ -22,7 +22,7 @@ $excess = 0;
             <div class="col-sm-2"><label>Партнер</label></div>
             <div class="col-sm-3">
                 <?=
-                \yii\helpers\Html::dropDownList(
+                \app\classes\Html::dropDownList(
                     'partner_contract_id',
                     \Yii::$app->request->get('partner_contract_id', 0),
                     $partnerList,

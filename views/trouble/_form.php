@@ -2,7 +2,7 @@
 use app\models\Trouble;
 use app\widgets\DateControl;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
+use app\classes\Html;
 
 $timing = [];
 if ($curtype) {

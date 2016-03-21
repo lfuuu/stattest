@@ -21,7 +21,7 @@ use \kartik\builder\Form;
         <?= $f->field($model, 'id')->dropDownList(\app\models\document\DocumentTemplate::getList()) ?>
     </div>
     <div class="col-sm-3" style="padding-top: 20px;">
-        <?= \yii\helpers\Html::button('<i class="glyphicon glyphicon-plus"></i> Добавить', [
+        <?= \app\classes\Html::button('<i class="glyphicon glyphicon-plus"></i> Добавить', [
             'class' => 'btn btn-success',
             'onclick' => 'return showIframePopup(this);',
             'href' => \yii\helpers\Url::toRoute(['document/template/edit-form']),
@@ -37,11 +37,11 @@ use \kartik\builder\Form;
 
     <div class="row">
         <div class="col-sm-12">
-            <?= \yii\helpers\Html::button('Сохранить', [
+            <?= \app\classes\Html::button('Сохранить', [
                 'class' => 'btn btn-primary',
                 'type' => 'submit',
             ]) ?>
-            <?= \yii\helpers\Html::button('Изменить параметры документа', [
+            <?= \app\classes\Html::button('Изменить параметры документа', [
                 'class' => 'btn btn-info pull-right',
                 'onclick' => 'return showIframePopup(this);',
                 'href' => \yii\helpers\Url::toRoute(['document/template/edit-form', 'id' => $model->id]),
