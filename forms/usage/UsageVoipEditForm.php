@@ -37,7 +37,12 @@ class UsageVoipEditForm extends UsageVoipForm
     public $region;
     public $create_params = '{}';
 
-    public $tariffMainStatus;
+    public
+        $tariffMainStatus,
+        $tariffLocalMobile,
+        $tariffRussia,
+        $tariffRussiaMobile,
+        $tariffIntern;
 
     private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
@@ -193,6 +198,34 @@ class UsageVoipEditForm extends UsageVoipForm
 
             if ($this->usage) {
                 $this->{Inflector::variablize($fieldMinPrice)} = $minimalPayment;
+
+                if(
+                    (
+                        $this->tariff_local_mob_id != $this->tariffLocalMobile
+                        &&
+                        $fieldTariffId === 'tariff_local_mob_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_russia_id != $this->tariffRussia
+                        &&
+                        $fieldTariffId === 'tariff_russia_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_russia_mob_id != $this->tariffRussiaMobile
+                        &&
+                        $fieldTariffId === 'tariff_russia_mob_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_intern_id != $this->tariffIntern
+                        &&
+                        $fieldTariffId === 'tariff_intern_id'
+                    )
+                ) {
+                    $this->$fieldMinPrice = $minimalPayment;
+                }
             }
 
             if (!$this->usage || $this->tariff_main_status != $this->tariffMainStatus) {
@@ -423,13 +456,13 @@ class UsageVoipEditForm extends UsageVoipForm
             // "Тариф Основной" от включенного тарифа
             $this->tariff_main_id = $currentTariff->id_tarif;
             // "Тариф Местные мобильные" от включенного тарифа
-            $this->tariff_local_mob_id = $currentTariff->id_tarif_local_mob;
+            $this->tariff_local_mob_id =  $this->tariffLocalMobile = $currentTariff->id_tarif_local_mob;
             // "Тариф Россия стационарные" от включенного тарифа
-            $this->tariff_russia_id = $currentTariff->id_tarif_russia;
+            $this->tariff_russia_id = $this->tariffRussia = $currentTariff->id_tarif_russia;
             // "Тариф Россия мобильные" от включенного тарифа
-            $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
+            $this->tariff_russia_mob_id = $this->tariffRussiaMobile = $currentTariff->id_tarif_russia_mob;
             // "Тариф Международка" от включенного тарифа
-            $this->tariff_intern_id = $currentTariff->id_tarif_intern;
+            $this->tariff_intern_id = $this->tariffIntern = $currentTariff->id_tarif_intern;
 
             // Устанавливает гарантированный платеж для набора (tariff_group_local_mob | tariff_group_russia | tariff_group_intern)
             $this->tariff_group_price = $currentTariff->minpayment_group;
