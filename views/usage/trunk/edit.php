@@ -160,9 +160,10 @@ echo Breadcrumbs::widget([
         <h2>Оригинация:</h2>
         <table class="table table-condensed table-striped">
             <tr>
-                <th width="33%">A номер</th>
-                <th width="33%">B номер</th>
+                <th width="26%">A номер</th>
+                <th width="26%">B номер</th>
                 <th width="33%">Прайслист</th>
+                <th width="14%" colspan="2">Ограничение по минимальной марже</th>
                 <th></th>
             </tr>
             <?php foreach ($origination as $rule): ?>
@@ -177,6 +178,11 @@ echo Breadcrumbs::widget([
                     <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($origPricelists, ['class' => 'select2']) ?></td>
+                    <td><?= $form->field($formModel, 'minimum_margin', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 105px']) ?></td>
+                    <td><?= $form->field($formModel, 'minimum_margin_type', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList([
+                            UsageTrunkSettings::MIN_MARGIN_ABSENT => 'нет',
+                            UsageTrunkSettings::MIN_MARGIN_VALUE => 'денег',
+                            UsageTrunkSettings::MIN_MARGIN_PERCENT => '%'], ['style' => 'min-width: 90px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
                 </tr>
                 <?php
@@ -194,7 +200,7 @@ echo Breadcrumbs::widget([
                 echo Html::activeHiddenInput($formModel, 'type');
             ?>
             <tr>
-                <td colspan="3"></td>
+                <td colspan="5"></td>
                 <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
                 <td></td>
             </tr>
