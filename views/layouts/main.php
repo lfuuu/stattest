@@ -1,6 +1,6 @@
 <?php
 use app\assets\AppAsset;
-use yii\helpers\Html;
+use app\classes\Html;
 
 /* @var $this \yii\web\View */
 /* @var $user \app\models\User */

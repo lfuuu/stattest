@@ -1,6 +1,6 @@
 <?php
 
-use yii\helpers\Html;
+use app\classes\Html;
 use app\models\ClientContractReward;
 use kartik\widgets\Select2;
 use kartik\builder\Form;

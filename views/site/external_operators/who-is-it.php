@@ -1,5 +1,5 @@
 <?php
-use yii\helpers\Html;
+use app\classes\Html;
 ?>
 
 <div class="well">

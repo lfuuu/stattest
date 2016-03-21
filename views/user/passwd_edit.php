@@ -2,7 +2,7 @@
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-use yii\helpers\Html;
+use app\classes\Html;
 use yii\helpers\Json;
 
 $session = Yii::$app->session;

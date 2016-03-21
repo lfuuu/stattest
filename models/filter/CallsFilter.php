@@ -264,7 +264,7 @@ class CallsFilter extends Calls
             // эти псевдо-поля надо не забыть определить в Calls
             'calls_count' => 'COUNT(*)',
             'billed_time_sum' => '1.0 * SUM(billed_time) / 60',
-            'acd' => '1.0 * SUM(billed_time) / COUNT(*) / 60',
+            'acd' => '1.0 * SUM(billed_time) / COUNT(billed_time > 0) / 60',
 
             'cost_sum' => 'SUM(cost)',
             'interconnect_cost_sum' => 'SUM(interconnect_cost)',
