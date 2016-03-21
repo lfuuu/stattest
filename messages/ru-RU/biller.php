@@ -8,11 +8,11 @@ return [
     'date_once' => ', {0, date, dd}',
 
     'date_range_month' => ' с{0, date, dd} по {1, date, dd MMMM}',
-    'date_range_year' =>  ' с{0, date, dd MMMM} г. по {1, date, dd MMMM YYYY} г.',
-    'date_range_full' =>  ' с{0, date, dd MMMM YYYY} г. по {1, date, dd MMMM YYYY} г.',
+    'date_range_year' =>  ' с{0, date, dd MMMM} г. по {1, date, dd MMMM yyyy} г.',
+    'date_range_full' =>  ' с{0, date, dd MMMM yyyy} г. по {1, date, dd MMMM yyyy} г.',
 
 
-    'by_agreement' => ', согласно Договора {contract_no} от {contract_date, date,dd MMM YYYY} г.',
+    'by_agreement' => ', согласно Договора {contract_no} от {contract_date,date,dd MMM yyyy} г.',
 
     // SMS
     'sms_service' => 'СМС рассылка, {tariff}{date_range}',
@@ -23,7 +23,7 @@ return [
 
     // Extra
     'extra_service' => '{tariff}{date_range}{by_agreement}',
-    'extra_service_itpark' => 'по Договору {contract} от {contract_date, date, dd MMM YYYY} г.',
+    'extra_service_itpark' => 'по Договору {contract} от {contract_date, date, dd MMM yyyy} г.',
 
     // Welltime
     'welltime_service' => '{tariff}{date_range}',
