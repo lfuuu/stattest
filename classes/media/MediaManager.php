@@ -56,9 +56,9 @@ abstract class MediaManager
 
     /**
      * @param string $fileField
-     * @param array $names
+     * @param string $names
      */
-    public function addFiles($fileField = '', array $names = null) {
+    public function addFiles($fileField = '', $names = '') {
         if (isset($_FILES[$fileField])) {
             $files = (array) $_FILES[$fileField];
             $names = Yii::$app->request->post('names', []);
