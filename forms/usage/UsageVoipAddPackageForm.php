@@ -2,11 +2,9 @@
 namespace app\forms\usage;
 
 use app\helpers\DateTimeZoneHelper;
-use app\models\usages\UsageInterface;
 use Yii;
 use DateTime;
 use DateTimeZone;
-use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
 use app\models\LogTarif;
@@ -21,6 +19,7 @@ class UsageVoipAddPackageForm extends Form
         $actual_from,
         $status;
 
+    /** @var UsageVoip $usage */
     private
         $usage,
         $clientTimezone;
@@ -45,8 +44,8 @@ class UsageVoipAddPackageForm extends Form
 
     public function process()
     {
-        $this->usage = UsageVoip::findOne($this->usage_voip_id); /** @var UsageVoip $usage */
-        Assert::isObject($this->usage);
+        $this->usage = UsageVoip::find()->where(['id' => $this->usage_voip_id])->actual()->one();
+        Assert::isObject($this->usage, 'Услуга не активна');
 
         $this->clientTimezone = $this->usage->clientAccount->timezone;
 
@@ -59,28 +58,34 @@ class UsageVoipAddPackageForm extends Form
             Assert::isUnreachable('Дата подключения не может быть в прошлом');
         }
 
+        $usageActualFrom = new DateTime($this->usage->actual_from, $this->clientTimezone);
+        $usageActualTo = new DateTime($this->usage->actual_to, $this->clientTimezone);
+        if ($actualFrom < $usageActualFrom || $usageActualTo <= $actualFrom) {
+            Assert::isUnreachable('Дата подключения должна быть во время действия услуги телефонии');
+        }
+
         $usageVoipPackage = new UsageVoipPackage;
         $usageVoipPackage->setAttributes($this->getAttributes(), false);
 
         $usageVoipPackage->client = $this->usage->clientAccount->client;
-        $usageVoipPackage->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+        $usageVoipPackage->actual_to = $this->usage->actual_to;
 
 
         $today = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
 
-        $logTarif = new logTarif;
-        $logTarif->service = 'usage_voip_package';
-        $logTarif->id_tarif = $this->tariff_id;
-        $logTarif->id_user = Yii::$app->user->getId();
-        $logTarif->ts = $today->format(DateTime::ATOM);
-        $logTarif->date_activation = $this->actual_from;
+        $logTariff = new logTarif;
+        $logTariff->service = 'usage_voip_package';
+        $logTariff->id_tarif = $this->tariff_id;
+        $logTariff->id_user = Yii::$app->user->getId();
+        $logTariff->ts = $today->format(DateTime::ATOM);
+        $logTariff->date_activation = $this->actual_from;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $usageVoipPackage->save();
 
-            $logTarif->id_service = $usageVoipPackage->id;
-            $logTarif->save();
+            $logTariff->id_service = $usageVoipPackage->id;
+            $logTariff->save();
 
             $transaction->commit();
         } catch (\Exception $e) {

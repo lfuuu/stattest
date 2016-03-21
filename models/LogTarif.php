@@ -5,6 +5,13 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ * @property string service
+ * @property int id_service
+ * @property int id_tarif
+ * @property int id_user
+ * @property string ts
+ * @property string comment
+ * @property string date_activation
  * @property UsageVoip $usageVoip
  * @property TariffVoip $voipTariffMain
  * @property TariffVoip $voipTariffLocalMob

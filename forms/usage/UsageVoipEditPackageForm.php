@@ -6,8 +6,6 @@ use DateTime;
 use app\classes\Form;
 use app\models\UsageVoipPackage;
 use app\models\usages\UsageInterface;
-use app\helpers\DateTimeZoneHelper;
-use yii\validators\DateValidator;
 use app\classes\Assert;
 
 class UsageVoipEditPackageForm extends Form
@@ -21,6 +19,8 @@ class UsageVoipEditPackageForm extends Form
 
     public $is_package_active = false;
     public $is_package_in_future = false;
+
+    /** @var UsageVoipPackage  */
     public $package = null;
 
     public function rules()
@@ -44,7 +44,7 @@ class UsageVoipEditPackageForm extends Form
         $this->id = $package->id;
         $this->connecting_date = $package->actual_from;
         $this->disconnecting_date = $package->actual_to == UsageInterface::MAX_POSSIBLE_DATE ? '' : $package->actual_to;
-        $this->is_package_active =    $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
+        $this->is_package_active = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
         $this->is_package_in_future = $package->actual_from >  $now->format('Y-m-d') && $package->actual_to >  $now->format('Y-m-d');
         $this->tariff = $package->tariff->name;
         $this->status = $package->status;
@@ -62,22 +62,31 @@ class UsageVoipEditPackageForm extends Form
         ];
     }
 
-    public function validateConnectingDate($attr, $params)
+    public function validateConnectingDate()
     {
-        $now = new DateTime('now', $this->package->clientAccount->timezone);
+        $connectDate = new DateTime($this->connecting_date, $this->package->clientAccount->timezone);
+        Assert::isObject($connectDate);
 
-        $connect_date = new DateTime($this->connecting_date, $this->package->clientAccount->timezone);
-        Assert::isObject($connect_date);
+        $disconnectDate = new DateTime($this->disconnecting_date, $this->package->clientAccount->timezone);
+        Assert::isObject($disconnectDate);
 
-        $disconnect_date = new DateTime($this->disconnecting_date, $this->package->clientAccount->timezone);
-        Assert::isObject($disconnect_date);
-
-        if ($connect_date >= $disconnect_date) {
-            $this->addError('connecting_date', 'Прверьте даты');
+        if ($connectDate > $disconnectDate) {
+            $this->addError('connecting_date', 'Дата завершения пакета должна быть позже начала');
         }
+
+        $usageConnectDate = new DateTime($this->package->actual_from, $this->package->clientAccount->timezone);
+        Assert::isObject($usageConnectDate);
+
+        $usageDisconnectDate = new DateTime($this->package->actual_to, $this->package->clientAccount->timezone);
+        Assert::isObject($usageDisconnectDate);
+
+        if ($usageConnectDate > $connectDate || $disconnectDate > $usageDisconnectDate) {
+            $this->addError('connecting_date', 'Время действия пакета должно быть во время действия услуги');
+        }
+
     }
 
-    public function validateDisconnectingDate($attr, $params)
+    public function validateDisconnectingDate()
     {
         if (!$this->is_package_active && !$this->is_package_in_future) {
             $this->addError('disconnecting_date', 'Пакет отключен');

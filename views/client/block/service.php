@@ -293,7 +293,7 @@ if ($has) :
                                             echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
                                         }
 
-                                        $packages = $service->usagePackages;
+                                        $packages = $service->packages;
                                         ?>
                                         <div style="color: #DD0000;">
                                             <?php foreach ($packages as $package) :?>

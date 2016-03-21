@@ -3,7 +3,6 @@ namespace app\models;
 
 use DateTime;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use app\classes\bill\VoipBiller;
 use app\classes\transfer\VoipServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
@@ -13,12 +12,39 @@ use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
 use app\helpers\usages\LogTariffTrait;
 use app\helpers\usages\UsageVoipHelper;
+use app\classes\behaviors\UsageVoipAddress;
+use app\classes\behaviors\ActualizeNumberByStatus;
+use app\classes\behaviors\ActualizeVoipNumber;
+use app\classes\behaviors\UsageDateTime;
+use app\classes\behaviors\important_events\UsageAction;
+use app\classes\behaviors\UsageVoipActualToDependencyPackage;
 
 /**
- * @property int $id
+ * @property int id
+ * @property int region
+ * @property string actual_from
+ * @property string actual_to
+ * @property string client
+ * @property string type_id
+ * @property string activation_dt
+ * @property string expire_dt
+ * @property string E164
+ * @property int no_of_lines
+ * @property string status
+ * @property string address
+ * @property int address_from_datacenter_id
+ * @property int edit_user_id
+ * @property int is_trunk
+ * @property string created
+ * @property int one_sip
+ * @property int line7800_id
+ * @property string create_params
+ * @property int prev_usage_id
+ * @property int next_usage_id
  *
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
+ * @property UsageVoipPackage $packages
  * @property
  */
 class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
@@ -40,11 +66,12 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     public function behaviors()
     {
         return [
-            'UsageVoipAddress' => \app\classes\behaviors\UsageVoipAddress::className(),
-            'ActualizeNumberByStatus' => \app\classes\behaviors\ActualizeNumberByStatus::className(),
-            'ActualizeVoipNumber' => \app\classes\behaviors\ActualizeVoipNumber::className(),
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'UsageVoipAddress' => UsageVoipAddress::className(),
+            'ActualizeNumberByStatus' => ActualizeNumberByStatus::className(),
+            'ActualizeVoipNumber' => ActualizeVoipNumber::className(),
+            'ActiveDateTime' => UsageDateTime::className(),
+            'UsageVoipActualToDependPackage' => UsageVoipActualToDependencyPackage::className(),
+            'ImportantEvents' => UsageAction::className(),
         ];
     }
 
@@ -169,7 +196,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \app\queries\UsageQuery
      */
     public function getPackages()
     {
@@ -191,14 +218,6 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     public function getHelper()
     {
         return new UsageVoipHelper($this);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUsagePackages()
-    {
-        return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
     }
 
     /**
