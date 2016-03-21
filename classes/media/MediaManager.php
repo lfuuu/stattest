@@ -39,10 +39,10 @@ abstract class MediaManager
     protected abstract function createFileModel($name, $comment);
 
     /**
-     * @param ActiveRecord $file
+     * @param ActiveRecord $fileModel
      * @return mixed
      */
-    protected abstract function deleteFileModel(ActiveRecord $file);
+    protected abstract function deleteFileModel(ActiveRecord $fileModel);
 
     /**
      * @return ActiveRecord[]
@@ -80,7 +80,7 @@ abstract class MediaManager
     }
 
     /**
-     * @param array $file
+     * @param array $file - as $_FILES format
      * @param string $comment
      * @param string $name
      * @return bool
@@ -134,41 +134,41 @@ abstract class MediaManager
     }
 
     /**
-     * @param ActiveRecord $file
+     * @param ActiveRecord $fileModel
      * @param int $with_content
      * @return array
      */
-    public function getFile($file, $with_content = 0)
+    public function getFile(ActiveRecord $fileModel, $with_content = 0)
     {
         $fileData = [
-            'id' => $file->id,
-            'ext' => $this->getMime($file)[0],
-            'mimeType' => $this->getMime($file)[1],
-            'size' => $this->getSize($file),
-            'name' => $file->name,
-            'comment' => $file->comment,
-            'author' => $file->user_id,
-            'created' => $file->ts,
+            'id' => $fileModel->id,
+            'ext' => $this->getMime($fileModel)[0],
+            'mimeType' => $this->getMime($fileModel)[1],
+            'size' => $this->getSize($fileModel),
+            'name' => $fileModel->name,
+            'comment' => $fileModel->comment,
+            'author' => $fileModel->user_id,
+            'created' => $fileModel->ts,
         ];
 
         if ($with_content) {
-            $fileData['content'] = file_get_contents($this->getFilePath($file));
+            $fileData['content'] = file_get_contents($this->getFilePath($fileModel));
         }
 
         return $fileData;
     }
 
     /**
-     * @param ActiveRecord $file
+     * @param ActiveRecord $fileModel
      * @throws \yii\base\ExitException
      * @throws \yii\web\HttpException
      */
-    public function getContent($file)
+    public function getContent(ActiveRecord $fileModel)
     {
-        $filePath = $this->getFilePath($file);
+        $filePath = $this->getFilePath($fileModel);
 
         if (file_exists($filePath)) {
-            $fileData = $this->getFile($file);
+            $fileData = $this->getFile($fileModel);
 
             if (in_array($fileData['ext'], $this->downloadable, true)) {
                 Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
@@ -186,12 +186,12 @@ abstract class MediaManager
     }
 
     /**
-     * @param ActiveRecord $file
+     * @param ActiveRecord $fileModel
      * @return int|boolean
      */
-    protected function getSize($file)
+    protected function getSize(ActiveRecord $fileModel)
     {
-        $filePath = $this->getFilePath($file);
+        $filePath = $this->getFilePath($fileModel);
 
         if (file_exists($filePath)) {
             return filesize($filePath);
@@ -204,9 +204,9 @@ abstract class MediaManager
      * @param ActiveRecord|\stdClass $file
      * @return array
      */
-    protected function getMime($file)
+    protected function getMime($fileModel)
     {
-        $name = strtolower($file->name);
+        $name = strtolower($fileModel->name);
 
         $mime = 'text/plain';
         $info = pathinfo($name);

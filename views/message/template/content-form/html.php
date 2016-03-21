@@ -8,7 +8,7 @@ use app\classes\Html;
 /** @var \app\models\message\TemplateContent $model */
 ?>
 
-<div class="container" style="width: 100%; padding-top: 20px;">
+<div class="container col-xs-12" style="float: none;">
     <?php
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,

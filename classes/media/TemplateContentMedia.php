@@ -29,10 +29,15 @@ class TemplateContentMedia extends MediaManager
 
     /**
      * @param \yii\web\UploadedFile $file
+     * @return bool
      */
     public function addFile(\yii\web\UploadedFile $file)
     {
-        parent::addFile([
+        if ($file->error) {
+            return false;
+        }
+
+        return parent::addFile([
             'tmp_name' => $file->tempName,
             'name' => $file->name,
         ]);
@@ -44,12 +49,12 @@ class TemplateContentMedia extends MediaManager
      */
     public function getFile($with_content = 0)
     {
-        if (empty($this->message->file) || !is_file($this->getFilePath($this->message))) {
+        if (empty($this->message->filename) || !is_file($this->getFilePath($this->message))) {
             return false;
         }
 
         $file = new \stdClass;
-        $file->name = $this->message->file;
+        $file->name = $this->message->filename;
 
         $fileData = [
             'ext' => $this->getMime($file)[0],
@@ -66,11 +71,13 @@ class TemplateContentMedia extends MediaManager
     }
 
     /**
+     * @param string $name
+     * @param string $comment
      * @return TemplateContent
      */
     protected function createFileModel($name, $comment)
     {
-        $this->message->file = $name;
+        $this->message->filename = $name;
         return $this->message;
     }
 

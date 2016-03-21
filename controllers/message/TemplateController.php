@@ -74,8 +74,8 @@ class TemplateController extends BaseController
                 $content = $model;
             }
 
-            if ($content->file) {
-                $content->mediaManager->addFile(UploadedFile::getInstance($content, 'file'));
+            if (($file = UploadedFile::getInstance($content, 'filename')) !== null) {
+                $content->mediaManager->addFile($file);
             }
 
             if ($content->save()) {

@@ -20,7 +20,7 @@ class TemplateContent extends ActiveRecord
             ['lang_code', 'default', 'value' => Language::DEFAULT_LANGUAGE],
             ['lang_code', 'in', 'range' => array_keys(Template::$languages)],
             ['type', 'in', 'range' => array_keys(Template::$types)],
-            ['file', 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'htm, html', 'mimeTypes' => ['text/html', 'text/plain']],
+            ['filename', 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'htm, html', 'mimeTypes' => ['text/html', 'text/plain']],
         ];
     }
 
@@ -34,7 +34,7 @@ class TemplateContent extends ActiveRecord
             'lang_code' => 'Язык',
             'title' => 'Тема',
             'content' => 'Содержание',
-            'file' => 'Файл с содержанием'
+            'filename' => 'Файл с содержанием'
         ];
     }
 
@@ -62,11 +62,14 @@ class TemplateContent extends ActiveRecord
         return new TemplateContentMedia($this);
     }
 
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
         switch ($this->type) {
             case 'email': {
-                return !$this->getMediaManager()->getFile($this->file);
+                return !$this->getMediaManager()->getFile($this->filename);
             }
             case 'sms': {
                 return empty(trim($this->content));

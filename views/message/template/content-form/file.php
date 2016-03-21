@@ -8,7 +8,7 @@ use app\classes\Html;
 /** @var \app\models\message\TemplateContent $model */
 ?>
 
-<div class="container" style="width: 100%; padding-top: 20px;">
+<div class="container col-xs-12" style="float: none;">
     <?php
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,
@@ -52,7 +52,7 @@ use app\classes\Html;
                         Html::tag('label', 'Укажите файл с содержанием') .
                         Html::beginTag('div', ['class' => 'file_upload form-control input-sm']) .
                             'Выбрать файл' .
-                            Html::fileInput($model->formName() . '[file]', '', ['class' => 'media-manager']) .
+                            Html::fileInput($model->formName() . '[filename]', '', ['class' => 'media-manager']) .
                         Html::endTag('div') .
                         Html::tag('div', '', ['class' => 'media-manager-block']);
                 }
