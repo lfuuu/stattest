@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 
 abstract class MediaManager
 {
+
     public $mimesTypes = [
         'doc'  => 'application/msword',
         'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -37,13 +38,27 @@ abstract class MediaManager
      */
     protected abstract function createFileModel($name, $comment);
 
+    /**
+     * @param ActiveRecord $file
+     * @return mixed
+     */
     protected abstract function deleteFileModel(ActiveRecord $file);
 
+    /**
+     * @return ActiveRecord[]
+     */
     protected abstract function getFileModels();
 
+    /**
+     * @return string
+     */
     protected abstract function getFolder();
 
-    public function addFiles($fileField = '', $names = '') {
+    /**
+     * @param string $fileField
+     * @param array $names
+     */
+    public function addFiles($fileField = '', array $names = null) {
         if (isset($_FILES[$fileField])) {
             $files = (array) $_FILES[$fileField];
             $names = Yii::$app->request->post('names', []);
@@ -64,6 +79,12 @@ abstract class MediaManager
         }
     }
 
+    /**
+     * @param array $file
+     * @param string $comment
+     * @param string $name
+     * @return bool
+     */
     public function addFile(array $file, $comment = '', $name = '')
     {
         if (!file_exists($file['tmp_name']) || !is_file($file['tmp_name']))
@@ -79,8 +100,13 @@ abstract class MediaManager
 
         $model = $this->createFileModel($name, $comment);
         move_uploaded_file($file['tmp_name'], $this->getFilePath($model));
+
+        return true;
     }
 
+    /**
+     * @param ActiveRecord $fileModel
+     */
     public function removeFile(ActiveRecord $fileModel)
     {
         $this->deleteFileModel($fileModel);
@@ -92,6 +118,9 @@ abstract class MediaManager
         }
     }
 
+    /**
+     * @return array
+     */
     public function getFiles()
     {
         $files = $this->getFileModels();
@@ -104,6 +133,11 @@ abstract class MediaManager
         return $result;
     }
 
+    /**
+     * @param ActiveRecord $file
+     * @param int $with_content
+     * @return array
+     */
     public function getFile($file, $with_content = 0)
     {
         $fileData = [
@@ -124,6 +158,11 @@ abstract class MediaManager
         return $fileData;
     }
 
+    /**
+     * @param ActiveRecord $file
+     * @throws \yii\base\ExitException
+     * @throws \yii\web\HttpException
+     */
     public function getContent($file)
     {
         $filePath = $this->getFilePath($file);
@@ -131,7 +170,7 @@ abstract class MediaManager
         if (file_exists($filePath)) {
             $fileData = $this->getFile($file);
 
-            if (in_array($fileData['ext'], $this->downloadable)) {
+            if (in_array($fileData['ext'], $this->downloadable, true)) {
                 Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
                 Yii::$app->end();
             }
@@ -146,6 +185,10 @@ abstract class MediaManager
         throw new \yii\web\HttpException(404, 'Файл не найден');
     }
 
+    /**
+     * @param ActiveRecord $file
+     * @return int|boolean
+     */
     protected function getSize($file)
     {
         $filePath = $this->getFilePath($file);
@@ -153,8 +196,14 @@ abstract class MediaManager
         if (file_exists($filePath)) {
             return filesize($filePath);
         }
+
+        return false;
     }
 
+    /**
+     * @param ActiveRecord|\stdClass $file
+     * @return array
+     */
     protected function getMime($file)
     {
         $name = strtolower($file->name);
@@ -162,14 +211,19 @@ abstract class MediaManager
         $mime = 'text/plain';
         $info = pathinfo($name);
 
-        if (!isset($info['extension']) || !$info['extension'])
+        if (!isset($info['extension']) || !$info['extension']) {
             return ['txt', $mime];
+        }
 
         $ext = $info['extension'];
 
         return [$ext, isset($this->mimesTypes[$ext]) ? $this->mimesTypes[$ext] : $mime];
     }
 
+    /**
+     * @param ActiveRecord $fileModel
+     * @return string
+     */
     protected function getFilePath(ActiveRecord $fileModel)
     {
         return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), $fileModel->id]);

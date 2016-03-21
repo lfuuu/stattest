@@ -1,0 +1,62 @@
+<?php
+
+use yii\helpers\Url;
+use kartik\widgets\ActiveForm;
+use kartik\builder\Form;
+use app\classes\Html;
+
+/** @var \app\models\message\TemplateContent $model */
+?>
+
+<div class="container" style="width: 100%; padding-top: 20px;">
+    <?php
+    $form = ActiveForm::begin([
+        'type' => ActiveForm::TYPE_VERTICAL,
+        'action' => Url::toRoute(['/message/template/edit-template-content']),
+    ]);
+
+    echo Html::hiddenInput($model->formName() . '[template_id]', $templateId);
+    echo Html::hiddenInput($model->formName() . '[type]', $templateType);
+    echo Html::hiddenInput($model->formName() . '[lang_code]', $templateLanguageCode);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'attributes' => [
+            'title' => ['type' => Form::INPUT_TEXT],
+        ]
+    ]);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'attributes' => [
+            'content' => [
+                'type' => Form::INPUT_TEXTAREA,
+                'options' => [
+                    'rows' => 20,
+                    'class' => 'form-control editor',
+                ],
+            ],
+        ]
+    ]);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'attributes' => [
+            'actions' => [
+                'type' => Form::INPUT_RAW,
+                'value' =>
+                    Html::tag(
+                        'div',
+                        Html::submitButton('Сохранить', ['class' => 'btn btn-success']),
+                        ['style' => 'text-align: right; padding-right: 0px;']
+                    )
+            ],
+        ],
+    ]);
+
+    ActiveForm::end();
+    ?>
+</div>

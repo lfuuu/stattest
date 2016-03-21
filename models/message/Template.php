@@ -10,19 +10,36 @@ class Template extends ActiveRecord
 {
 
     const TYPE_EMAIL = 'email';
+    const TYPE_EMAIL_INNER = 'email_inner';
     const TYPE_SMS = 'sms';
 
     public static $types = [
         self::TYPE_EMAIL => [
-            'title' => 'E-mail',
-            'format' => 'html',
+            'title' => 'Клиенту',
+            'format' => 'file',
+            'icon' => 'envelope',
         ],
         self::TYPE_SMS => [
             'title' => 'SMS',
             'format' => 'plain',
+            'icon' => 'phone',
+        ],
+        self::TYPE_EMAIL_INNER => [
+            'title' => 'Внутренний',
+            'format' => 'html',
+            'icon' => 'envelope',
         ],
     ];
 
+    public static $languages = [
+        'ru-RU' => 'Русский',
+        'en-EN' => 'Английский',
+        'hu-HU' => 'Венгерский',
+    ];
+
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -31,6 +48,9 @@ class Template extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -56,10 +76,36 @@ class Template extends ActiveRecord
         return $this->hasOne(LanguageModel::className(), ['code' => 'lang_code']);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function delete()
     {
         TemplateContent::deleteAll(['template_id' => $this->id]);
         parent::delete();
+    }
+
+    /**
+     * @param $languageCode
+     * @param $type
+     * @return TemplateContent|null
+     */
+    public function getTemplateContent($languageCode, $type)
+    {
+        if ($templateContent =
+                TemplateContent::findOne([
+                    'template_id' => $this->id,
+                    'lang_code' => $languageCode,
+                    'type' => $type,
+                ])
+        ) {
+            return $templateContent;
+        }
+
+        $templateContent = new TemplateContent;
+        $templateContent->template_id = $this->id;
+
+        return $templateContent;
     }
 
 }

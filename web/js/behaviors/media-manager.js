@@ -1,3 +1,5 @@
+// @source http://www.fyneworks.com/jquery/multifile/
+
 jQuery(document).ready(function() {
 
     $('.media-manager').MultiFile({
@@ -61,7 +63,7 @@ if (window.jQuery)(function($) {
                 'width': 150,
                 'height': 150
             }
-        }, options)
+        }, options);
 
         return this.each(function() {
             var $container = $(this),
