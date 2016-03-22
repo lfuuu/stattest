@@ -8,11 +8,17 @@ use yii\helpers\Url;
 use app\assets\TinymceAsset;
 use app\classes\Html;
 use app\models\message\Template;
-use app\models\message\TemplateContent;
+use yii\web\View;
+use app\assets\AppAsset;
+
+/** @var View $this */
+/** @var Template $model */
 
 TinymceAsset::register(Yii::$app->view);
 
-/** @var Template $model */
+$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::className()]]);
 
 echo Html::formLabel($model->name ? 'Редактирование шаблона' : 'Новый шаблон');
 echo Breadcrumbs::widget([
@@ -113,8 +119,6 @@ echo Breadcrumbs::widget([
     ?>
 </div>
 
-<script type="text/javascript" src="/js/jquery.multifile.min.js"></script>
-
 <script type="text/javascript">
 $(document).ready(function () {
     var stopUnload = false;
@@ -170,13 +174,3 @@ $(document).ready(function () {
     });
 });
 </script>
-
-<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
-<style type="text/css">
-.tabs-krajee.tabs-left .nav-tabs, .tabs-krajee.tabs-right .nav-tabs {
-    width: 180px;
-}
-.tabs-krajee.tabs-left .tab-content {
-    margin-left: 179px;
-}
-</style>
