@@ -26,7 +26,7 @@ class PrefixlistForm extends Form
             [['name',], 'required'],
             [['type_id','country_id','region_id','city_id','exclude_operators',], 'integer'],
             ['operators', 'each', 'rule' => ['integer']],
-            ['prefixes', 'match', 'pattern' => '/^[\d\[\],]+$/'],
+            ['prefixes', 'each', 'rule' => ['integer']],
             [
                 'country_id', 'required',
                 'when' => function($model) { return $model->type_id == 3; },
@@ -57,6 +57,7 @@ class PrefixlistForm extends Form
         $prefixlist->setAttributes($this->getAttributes(), false);
 
         $prefixlist->operators = implode(',', $prefixlist->operators);
+        $prefixlist->prefixes = implode(',', $prefixlist->prefixes);
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {

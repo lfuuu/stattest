@@ -37,6 +37,8 @@ $cities = ['0' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_
 $model->operators = explode(',', $model->operators);
 $operators = GeoOperator::dao()->getList();
 
+$model->prefixes = explode(',', $model->prefixes);
+
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
 $model->type_id = $creatingMode ? 1 : $model->type_id;
 
@@ -104,7 +106,19 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 1,
             'attributes' => [
-                'prefixes' => ['type' => Form::INPUT_TEXT, 'options' => ['class' => 'select2-tag-support']],
+                'prefixes' => [
+                    'type' => Form::INPUT_WIDGET,
+                    'widgetClass' => '\kartik\widgets\Select2',
+                    'options' => [
+                        'pluginOptions' => [
+                            'tags' => true,
+                            'maximumInputLength' => 10,
+                        ],
+                        'options' => [
+                            'multiple' => true
+                        ]
+                    ],
+                ],
             ],
         ]);
         ?>
