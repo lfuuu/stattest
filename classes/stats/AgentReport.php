@@ -22,88 +22,100 @@ class AgentReport
 {
 
     /** @var DateTime $dateFrom, $dateTo */
-    private static
+    private
         $dateFrom,
         $dateTo;
 
-    public static function run($partnerId, $dateFrom, $dateTo)
+    /**
+     * @param int $partnerId
+     * @param string $dateFrom
+     * @param string $dateTo
+     * @return array
+     */
+    public function run($partnerId, $dateFrom, $dateTo)
     {
-        $resultVoip =
-        $resultVpbx = [];
+        $reportVoip =
+        $reportVirpbx = [];
 
-        self::$dateFrom = (new DateTime($dateFrom));
-        self::$dateTo = (new DateTime($dateTo));
+        $this->dateFrom = (new DateTime($dateFrom));
+        $this->dateTo = (new DateTime($dateTo));
 
-        foreach (static::voipPartnerInfo($partnerId) as $info) {
-            static::counter($info, $resultVoip, $dateFrom, $dateTo);
+        foreach ($this->voipPartnerInfo($partnerId) as $info) {
+            $this->counter($info, $reportVoip);
         }
 
-        foreach (static::vpbxPartnerInfo($partnerId) as $info) {
-            static::counter($info, $resultVpbx, $dateFrom, $dateTo);
+        foreach ($this->vpbxPartnerInfo($partnerId) as $info) {
+            $this->counter($info, $reportVirpbx);
         }
 
-        $result = array_merge(array_values($resultVpbx), array_values($resultVoip));
-        $result = array_filter($result, function($row) {
+        $report = array_merge(array_values($reportVoip), array_values($reportVirpbx));
+        $report = array_filter($report, function($row) {
             return $row['once'] || $row['fee'] || $row['excess'];
         });
 
-        return $result;
+        return $report;
     }
 
-    private static function counter($info, &$result, $dateFrom, $dateTo)
+    /**
+     * @param array $row
+     * @param array $result
+     */
+    private function counter($row, &$result)
     {
-        $dateFrom = strtotime($dateFrom);
-        $dateTo = strtotime($dateTo);
-
-        $billDate = strtotime($info['bill_date']);
+        $billDate = (new DateTime($row['bill_date']));
+        $dateOffset = (new DateTime($row['activation_dt']))->modify('+' . $row['period_month'] . ' month');
 
         if (
-            $dateFrom <= $billDate && $dateTo >= $billDate
+            $this->dateFrom <= $billDate && $this->dateTo >= $billDate
                 &&
             (
-                $info['period_type'] === 'always'
+                $row['period_type'] === 'always'
                     ||
-                $billDate < strtotime('+' . $info['period_month'] . ' month', strtotime($info['activation_dt']))
+                $billDate < $dateOffset
             )
         ) {
-            if (!isset($result[$info['id']])) {
-                $result[$info['id']] = [
-                    'id' => $info['id'],
-                    'name' => $info['name'],
-                    'created' => $info['created'],
-                    'activationDate' => $info['activation_dt'],
-                    'amountIsPayed' => $info['amount_is_payed'],
-                    'amount' => $info['amount'],
-                    'usage' => $info['usage'],
-                    'tariffName' => $info['tariff_name'],
+            if (!isset($result[$row['id']])) {
+                $result[$row['id']] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'created' => $row['created'],
+                    'activationDate' => $row['activation_dt'],
+                    'amountIsPayed' => $row['amount_is_payed'],
+                    'amount' => $row['amount'],
+                    'usage' => $row['usage'],
+                    'tariffName' => $row['tariff_name'],
                     'once' => 0,
                     'fee' => 0,
                     'excess' => 0,
                 ];
             }
 
-            $firstPaymentDate = strtotime($info['first_payment_date']);
-            if ($firstPaymentDate <= $dateTo && $firstPaymentDate >= $dateFrom) {
-                $result[$info['id']]['once'] = $info['once_only'];
+            $firstPaymentDate = (new DateTime($row['first_payment_date']));
+            if ($firstPaymentDate <= $this->dateTo && $firstPaymentDate >= $this->dateFrom) {
+                $result[$row['id']]['once'] = $row['once_only'];
             }
 
-            switch ($info['type']) {
+            switch ($row['type']) {
                 case 'excess': {
-                    $result[$info['id']]['excess'] += $info['percentage_of_over'] * $info['sum'] / 100;
+                    $result[$row['id']]['excess'] += $row['percentage_of_over'] * $row['sum'] / 100;
                     break;
                 }
                 case 'fee': {
-                    $result[$info['id']]['fee'] += $info['percentage_of_fee'] * $info['sum'] / 100;
+                    $result[$row['id']]['fee'] += $row['percentage_of_fee'] * $row['sum'] / 100;
                     break;
                 }
             }
         }
     }
 
-    private static function voipPartnerInfo($partnerId)
+    /**
+     * @param int $partnerId
+     * @return array
+     */
+    private function voipPartnerInfo($partnerId)
     {
-        $dateFrom = self::$dateFrom->format('Y-m-d');
-        $dateTo = self::$dateTo->format('Y-m-d');
+        $dateFrom = $this->dateFrom->format('Y-m-d');
+        $dateTo = $this->dateTo->format('Y-m-d');
 
         $query = new Query;
 
@@ -180,13 +192,17 @@ class AgentReport
             ':usageType' => 'voip',
         ]);
 
-        return $query->all();
+        return $query->each();
     }
 
-    private static function vpbxPartnerInfo($partnerId)
+    /**
+     * @param int $partnerId
+     * @return array
+     */
+    private function vpbxPartnerInfo($partnerId)
     {
-        $dateFrom = self::$dateFrom->format('Y-m-d');
-        $dateTo = self::$dateTo->format('Y-m-d');
+        $dateFrom = $this->dateFrom->format('Y-m-d');
+        $dateTo = $this->dateTo->format('Y-m-d');
 
         $query = new Query;
 
@@ -266,10 +282,13 @@ class AgentReport
             ':usageType' => 'virtpbx',
         ]);
 
-        return $query->all();
+        return $query->each();
     }
 
-    public static function getWithoutRewardContracts()
+    /**
+     * @return array
+     */
+    public function getWithoutRewardContracts()
     {
         return Yii::$app->db
             ->createCommand("
@@ -294,7 +313,10 @@ class AgentReport
             ")->queryAll(\PDO::FETCH_ASSOC);
     }
 
-    public static function getContractsWithIncorrectBP()
+    /**
+     * @return array
+     */
+    public function getContractsWithIncorrectBP()
     {
         return Yii::$app->db
             ->createCommand("
