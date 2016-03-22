@@ -2,18 +2,23 @@
 
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use kartik\tabs\TabsX;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use yii\bootstrap\Tabs;
 use app\assets\TinymceAsset;
 use app\classes\Html;
 use app\models\message\Template;
-use app\models\message\TemplateContent;
-use app\models\Language;
+use yii\web\View;
+use app\assets\AppAsset;
+
+/** @var View $this */
+/** @var Template $model */
 
 TinymceAsset::register(Yii::$app->view);
 
-/** @var Template $model */
+$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::className()]]);
 
 echo Html::formLabel($model->name ? 'Редактирование шаблона' : 'Новый шаблон');
 echo Breadcrumbs::widget([
@@ -65,48 +70,59 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
 
     if ($model->id) {
-        $form = ActiveForm::begin([
-            'type' => ActiveForm::TYPE_VERTICAL,
-            'action' => Url::toRoute(['/message/template/edit-template-content', 'template_id' => $model->id]),
-        ]);
-
         $tabs = [];
-        $languages = Language::find()->orderBy('code desc')->all();
-        $types = Template::$types;
-        foreach ($types as $type => $descr) {
-            foreach ($languages as $language) {
-                $content =
-                    TemplateContent::findOne([
-                        'template_id' => $model->id,
-                        'lang_code' => $language->code,
-                        'type' => $type,
-                    ]);
+        foreach (Template::$languages as $languageCode => $languageTitle) {
+            foreach (Template::$types as $type => $descr) {
+                $templateContentModel = $model->getTemplateContent($languageCode, $type);
 
                 $tabs[] = [
-                    'label'     => $descr['title'] . ' ' . $language->name,
-                    'content'   => $this->render('content-form', [
-                        'type' => $type,
-                        'type_descr' => $descr,
-                        'language' => $language,
-                        'model' => $content instanceof TemplateContent ? $content : new TemplateContent,
-                        'form' => $form,
+                    'label' =>
+                            Html::tag(
+                                'div', '',
+                                ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
+                            ) .
+                            Html::tag(
+                                'i', '',
+                                ['class' => 'glyphicon glyphicon-' . $descr['icon'], 'style' => 'margin: 2px;']
+                            ) .
+                            $descr['title'] .
+                            (
+                                $templateContentModel->isEmpty()
+                                ?
+                                    Html::tag('br') .
+                                    Html::tag('span', 'Не заполненно', ['class' => 'label label-danger'])
+                                : ''
+                            )
+                            ,
+                    'content' => $this->render('content-form/' . $descr['format'], [
+                        'templateId' => $model->id,
+                        'templateType' => $type,
+                        'templateLanguageCode' => $languageCode,
+                        'model' => $templateContentModel,
                     ]),
+                    'headerOptions' => [],
+                    'options' => ['style' => 'white-space: nowrap;'],
                 ];
             }
         }
 
-        echo Tabs::widget([
+        echo Html::tag('br');
+
+        echo TabsX::widget([
             'id' => 'tabs-message-template',
             'items' => $tabs,
+            'position' => TabsX::POS_LEFT,
+            'bordered' => true,
+            'encodeLabels' => false,
         ]);
-
-        ActiveForm::end();
     }
     ?>
 </div>
 
 <script type="text/javascript">
 $(document).ready(function () {
+    var stopUnload = false;
+
     tinymce.init({
         selector: '.editor',
         relative_urls: false,
@@ -117,6 +133,44 @@ $(document).ready(function () {
             "insertdatetime media table contextmenu paste"
         ],
         toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+    });
+
+    $('.media-manager').MultiFile({
+        list: 'div.media-manager-block',
+        max: 1,
+        STRING: {
+            remove: '',
+            selected: 'Выбран файл: $file',
+            toomany: 'Достигнуто максимальнное кол-во файлов',
+            duplicate: 'Файл "$file" уже добавлен'
+        },
+        afterFileSelect: function(element, value, master_element) {
+            var $block = master_element.list.find('div.MultiFile-label:last');
+
+            stopUnload = true;
+
+            $block
+                .find('.MultiFile-label')
+                .each(function() {
+                    var
+                        originalRemove = $(this).parents('div').find('a.MultiFile-remove');
+                    remove =
+                        $('<a />')
+                            .attr('href', 'javascript:void(0)')
+                            .text('Открепить')
+                            .on('click', function(e) {
+                                e.preventDefault();
+                                originalRemove.trigger('click');
+                            });
+
+                    $(this)
+                        .append(
+                        $('<div />')
+                            .css({'margin-left':'25px'})
+                            .append(remove)
+                    )
+                });
+        }
     });
 });
 </script>

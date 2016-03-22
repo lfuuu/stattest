@@ -3,36 +3,30 @@ namespace app\models\message;
 
 use yii\db\ActiveRecord;
 use app\classes\Language;
-use app\models\Language as LanguageModel;
+use app\classes\media\TemplateContentMedia;
 
 class TemplateContent extends ActiveRecord
 {
 
-    const TYPE_EMAIL = 'email';
-    const TYPE_SMS = 'sms';
-
-    public static $types = [
-        self::TYPE_EMAIL => [
-            'title' => 'E-mail',
-            'format' => 'html',
-        ],
-        self::TYPE_SMS => [
-            'title' => 'SMS',
-            'format' => 'plain',
-        ],
-    ];
-
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['template_id'], 'required'],
             [['lang_code', 'title', 'content'], 'string'],
+            [['title', 'content'], 'trim'],
             ['lang_code', 'default', 'value' => Language::DEFAULT_LANGUAGE],
-            ['lang_code', 'in', 'range' => array_keys(LanguageModel::getList())],
-            ['type', 'in', 'range' => array_keys(self::$types)],
+            ['lang_code', 'in', 'range' => array_keys(Template::$languages)],
+            ['type', 'in', 'range' => array_keys(Template::$types)],
+            ['filename', 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'htm, html', 'mimeTypes' => ['text/html', 'text/plain']],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -40,17 +34,51 @@ class TemplateContent extends ActiveRecord
             'lang_code' => 'Язык',
             'title' => 'Тема',
             'content' => 'Содержание',
+            'filename' => 'Файл с содержанием'
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'message_template_content';
     }
 
+    /**
+     * @return array
+     */
     public static function primaryKey()
     {
         return ['template_id', 'type', 'lang_code'];
+    }
+
+    /**
+     * @return TemplateContentMedia
+     */
+    public function getMediaManager()
+    {
+        return new TemplateContentMedia($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        switch ($this->type) {
+            case 'email': {
+                return !$this->getMediaManager()->getFile($this->filename);
+            }
+            case 'sms': {
+                return empty(trim($this->content));
+            }
+            case 'email_inner': {
+                return empty(trim(strip_tags($this->content)));
+            }
+        }
+        return true;
     }
 
 }

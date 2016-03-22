@@ -1,0 +1,6 @@
+.tabs-krajee.tabs-left .nav-tabs, .tabs-krajee.tabs-right .nav-tabs {
+    width: 180px;
+}
+.tabs-krajee.tabs-left .tab-content {
+    margin-left: 179px;
+}

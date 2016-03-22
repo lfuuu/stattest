@@ -2,6 +2,7 @@
 
 namespace app\controllers\api;
 
+use app\models\message\TemplateContent;
 use Yii;
 use app\classes\ApiController;
 use app\models\Message;
@@ -51,7 +52,7 @@ class MessageController extends ApiController
     public function actionList()
     {
         $form = DynamicModel::validateData(
-                        Yii::$app->request->bodyParams, 
+                        Yii::$app->request->bodyParams,
                         [
                             ['client_account_id', AccountIdValidator::className()],
                             ['order', 'in', 'range' => ['desc', 'asc']],
@@ -77,7 +78,7 @@ class MessageController extends ApiController
             throw new FormValidationException($form);
         }
     }
-    
+
     /**
      * @SWG\Definition(
      *   definition="message_ex",
@@ -189,7 +190,25 @@ class MessageController extends ApiController
                 throw new \Exception('Message not found');
             }
         } else {
-            throw new FormValidationException($model);
+            throw new FormValidationException($form);
+        }
+    }
+
+    /**
+     * @param int $templateId
+     * @param string $langCode
+     */
+    public function actionEmailTemplateContent($templateId, $langCode)
+    {
+        /** @var TemplateContent $templateContent */
+        $templateContent = TemplateContent::findOne([
+            'template_id' => $templateId,
+            'lang_code' => $langCode,
+            'type' => 'email'
+        ]);
+
+        if (!is_null($templateContent)) {
+            $templateContent->mediaManager->getContent($templateContent);
         }
     }
 

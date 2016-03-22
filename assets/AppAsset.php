@@ -18,6 +18,7 @@ class AppAsset extends AssetBundle
         'main.css',
         'css/site.css',
         'css/grid/grid.css',
+        'css/flags/flags.css',
     ];
 
     public $js = [

@@ -2,12 +2,13 @@
 
 namespace app\controllers\message;
 
-use app\models\message\TemplateContent;
 use Yii;
+use yii\web\UploadedFile;
 use yii\data\ActiveDataProvider;
 use app\classes\BaseController;
 use app\classes\Assert;
 use app\models\message\Template;
+use app\models\message\TemplateContent;
 
 class TemplateController extends BaseController
 {
@@ -36,7 +37,7 @@ class TemplateController extends BaseController
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-            return $this->redirect(['message/template']);
+            return $this->redirect(['message/template/edit', 'id' => $model->id]);
         }
 
         return $this->render('form', [
@@ -54,38 +55,35 @@ class TemplateController extends BaseController
         return $this->redirect(['message/template']);
     }
 
-    public function actionEditTemplateContent($template_id)
+    /**
+     * @return \yii\web\Response
+     */
+    public function actionEditTemplateContent()
     {
-        $dataKey = (new TemplateContent)->formName();
-        $data = Yii::$app->request->post($dataKey);
+        $model = new TemplateContent;
+        $content = null;
 
-        for ($i=0, $s=count($data['type']); $i<$s; $i++) {
-            $content =
-                TemplateContent::find()
-                    ->where([
-                        'template_id' => $template_id,
-                        'type' => $data['type'][$i],
-                        'lang_code' => $data['lang_code'][$i],
-                    ])
-                    ->one();
-            if (!($content instanceof TemplateContent)) {
-                $content = new TemplateContent;
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $content = TemplateContent::findOne([
+                'template_id' => $model->template_id,
+                'type' => $model->type,
+                'lang_code' => $model->lang_code,
+            ]);
+
+            if (is_null($content)) {
+                $content = $model;
             }
-            $content->template_id = $template_id;
-            $content->type = $data['type'][$i];
-            $content->lang_code = $data['lang_code'][$i];
-            if (isset($data['title'][$i])) {
-                $content->title = $data['title'][$i];
+
+            if (($file = UploadedFile::getInstance($content, 'filename')) !== null) {
+                $content->mediaManager->addFile($file);
             }
-            $content->content = $data['content'][$i];
-            if ($content->validate()) {
-                $content->save();
+
+            if ($content->save()) {
+                Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             }
         }
 
-        Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-
-        return $this->redirect(['message/template/edit', 'id' => $template_id]);
+        return $this->redirect(['message/template/edit', 'id' => $content->template_id]);
     }
 
 }

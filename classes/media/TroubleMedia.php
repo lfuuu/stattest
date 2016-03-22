@@ -13,22 +13,30 @@ class TroubleMedia extends MediaManager
     /** @var Trouble */
     private $trouble;
 
+    /**
+     * @param Trouble $trouble
+     */
     public function __construct(Trouble $trouble)
     {
         $this->trouble = $trouble;
     }
 
+    /**
+     * @return string
+     */
     public function getFolder()
     {
         return 'files/troubles';
     }
 
     /**
+     * @param string $name
+     * @param string $comment
      * @return TroubleFiles
      */
     protected function createFileModel($name, $comment)
     {
-        $model = new TroubleFiles();
+        $model = new TroubleFiles;
         $model->trouble_id = $this->trouble->id;
         $model->ts = (new DateTime())->format(DateTime::ATOM);
 
@@ -40,15 +48,22 @@ class TroubleMedia extends MediaManager
         return $model;
     }
 
-    protected function deleteFileModel(ActiveRecord $file)
+    /**
+     * @param ActiveRecord $fileModel
+     * @throws \Exception
+     */
+    protected function deleteFileModel(ActiveRecord $fileModel)
     {
         /** @var TroubleFiles $model */
-        $model = TroubleFiles::findOne(['trouble_id' => $this->trouble->id, 'id' => $file->id]);
+        $model = TroubleFiles::findOne(['trouble_id' => $this->trouble->id, 'id' => $fileModel->id]);
         if ($model) {
             $model->delete();
         }
     }
 
+    /**
+     * @return TroubleFiles[]
+     */
     protected function getFileModels()
     {
         return TroubleFiles::findAll(['trouble_id' => $this->trouble->id]);
