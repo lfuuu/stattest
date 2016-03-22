@@ -44,10 +44,10 @@ class TemplateContentMedia extends MediaManager
     }
 
     /**
-     * @param int $with_content
+     * @param int $withContent
      * @return array
      */
-    public function getFile($with_content = 0)
+    public function getFile($withContent = 0)
     {
         if (empty($this->message->filename) || !is_file($this->getFilePath($this->message))) {
             return false;
@@ -63,7 +63,7 @@ class TemplateContentMedia extends MediaManager
             'name' => $file->name,
         ];
 
-        if ($with_content) {
+        if ($withContent) {
             $fileData['content'] = file_get_contents($this->getFilePath($this->message));
         }
 

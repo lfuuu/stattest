@@ -135,10 +135,10 @@ abstract class MediaManager
 
     /**
      * @param ActiveRecord $fileModel
-     * @param int $with_content
+     * @param int $withContent
      * @return array
      */
-    public function getFile(ActiveRecord $fileModel, $with_content = 0)
+    public function getFile(ActiveRecord $fileModel, $withContent = 0)
     {
         $fileData = [
             'id' => $fileModel->id,
@@ -151,7 +151,7 @@ abstract class MediaManager
             'created' => $fileModel->ts,
         ];
 
-        if ($with_content) {
+        if ($withContent) {
             $fileData['content'] = file_get_contents($this->getFilePath($fileModel));
         }
 
