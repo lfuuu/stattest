@@ -93,7 +93,7 @@ class TemplateContentMedia extends MediaManager
      */
     protected function getFileModels()
     {
-        return $this->message;
+        return (array) $this->message;
     }
 
     /**
