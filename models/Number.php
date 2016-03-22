@@ -5,13 +5,24 @@ use app\dao\NumberDao;
 use yii\db\ActiveRecord;
 
 /**
- * @property string $number
- * @property int $client_id
- * @property int $usage_id
- * @property int $city_id
- * @property int $did_group_id
- * @property string $status
-
+ * @property string number
+ * @property string status
+ * @property string reserve_from
+ * @property string reserve_till
+ * @property string hold_from
+ * @property string hold_to
+ * @property int beauty_level
+ * @property int price
+ * @property int region
+ * @property int client_id
+ * @property int usage_id
+ * @property string reserved_free_date
+ * @property string used_until_date
+ * @property int edit_user_id
+ * @property string site_publish
+ * @property int city_id
+ * @property int did_group_id
+ *
  * @property City $city
  * @property DidGroup $didGroup
  * @property UsageVoip $usage

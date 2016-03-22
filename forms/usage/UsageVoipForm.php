@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use app\classes\Form;
+use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 
 class UsageVoipForm extends Form
@@ -21,6 +22,9 @@ class UsageVoipForm extends Form
     public $address;
     public $line7800_id;
     public $address_from_datacenter_id;
+
+    /** @var UsageVoip */
+    public $usage;
 
     public $mass_change_tariff;
     public $tariff_main_status;
@@ -54,7 +58,8 @@ class UsageVoipForm extends Form
             [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
             ['status', 'default', 'value' => 'connecting'],
             [['connecting_date'], 'validateDate', 'on' => 'edit'],
-            [['connecting_date'], 'validateUsageDate']
+            [['connecting_date'], 'validateUsageDate'],
+            [['disconnecting_date'], 'validateDependPackagesDate', 'on' => 'edit'],
         ];
     }
 
@@ -90,20 +95,21 @@ class UsageVoipForm extends Form
         ];
     }
 
-    public function validateDate($attr, $params)
+    public function validateDate()
     {
         $expireDt = new \DateTime($this->usage->actual_to.' 23:59:59');
         $nowDt = new \DateTime('now');
 
+        // не включеную услугу в будущем можно менять.
         if (!$this->usage->isActive() && $expireDt < $nowDt) {
             $this->addError('disconnecting_date', 'Услуга отключена '.($expireDt->format('d.m.Y')));
         }
     }
 
-    public function validateUsageDate($attr, $params)
+    public function validateUsageDate()
     {
         $from = $this->connecting_date;
-        $to = $this->disconnecting_date ?: '4000-01-01';
+        $to = $this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE;
 
         $queryVoip =
             UsageVoip::find()
@@ -118,6 +124,18 @@ class UsageVoipForm extends Form
         }
     }
 
-
+    public function validateDependPackagesDate($attr)
+    {
+        if ($this->disconnecting_date != UsageInterface::MAX_POSSIBLE_DATE) {
+            if ($this->usage
+                ->getPackages()
+                ->andWhere('actual_from >= :from',
+                    [':from' => $this->disconnecting_date])
+                ->count()
+            ) {
+                $this->addError($attr, 'После даты отключения есть не включеные пакеты');
+            }
+        }
+    }
 
 }

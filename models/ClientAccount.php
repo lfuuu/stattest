@@ -19,6 +19,7 @@ use yii\helpers\ArrayHelper;
  * @property string $nal
  * @property int $business_id
  * @property int $price_include_vat
+ * @property int $region
 
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment

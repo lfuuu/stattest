@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\queries\ClientAccountQuery;
 use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\Biller;
@@ -14,8 +15,19 @@ use app\queries\UsageQuery;
 
 /**
  * @property int $id
+ * @property string client
+ * @property string activation_dt
+ * @property string expire_dt
+ * @property string actual_from
+ * @property string actual_to
+ * @property int tariff_id
+ * @property int usage_voip_id
+ * @property int usage_trunk_id
+ * @property string status
  *
  * @property Region $connectionPoint
+ * @property ClientAccount $clientAccount
+ * @property TariffVoipPackage $tariff
  * @property
  */
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
@@ -39,6 +51,9 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getTariff()
     {
         return $this->hasOne(TariffVoipPackage::className(), ['id' => 'tariff_id']);
@@ -99,7 +114,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return ClientAccount
+     * @return ClientAccountQuery
      */
     public function getClientAccount()
     {

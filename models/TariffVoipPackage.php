@@ -7,7 +7,17 @@ use app\models\billing\Pricelist;
 use app\dao\TariffVoipPackageDao;
 
 /**
- * @property int $id
+ * @property int id
+ * @property int country_id
+ * @property int connection_point_id
+ * @property string currency_id
+ * @property int destination_id
+ * @property int pricelist_id
+ * @property string name
+ * @property int price_include_vat
+ * @property double periodical_fee
+ * @property int min_payment
+ * @property int minutes_count
  * @property
  */
 class TariffVoipPackage extends ActiveRecord
