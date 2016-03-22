@@ -24,7 +24,8 @@ class CountryColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = Country::getList(true);
-        $this->filterInputOptions['class'] .= ' country-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' country-column';
     }
 
     /**

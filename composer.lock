@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "92802248c689faa17d5a390f1ad14f43",
-    "content-hash": "52cff2a966a99c5ed872e29643ad22c4",
+    "hash": "d655687749d70f810403254680395bb4",
+    "content-hash": "b11b4a930919482a8b1a9a256ae85bd0",
     "packages": [
         {
             "name": "KidSysco/jquery-ui-month-picker",
@@ -337,12 +337,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cebe/markdown.git",
-                "reference": "e4499350d8a94c4c693a7e784295eff7a717ae67"
+                "reference": "e2a490ceec590bf5bfd1b43bd424fb9dceceb7c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cebe/markdown/zipball/e4499350d8a94c4c693a7e784295eff7a717ae67",
-                "reference": "e4499350d8a94c4c693a7e784295eff7a717ae67",
+                "url": "https://api.github.com/repos/cebe/markdown/zipball/e2a490ceec590bf5bfd1b43bd424fb9dceceb7c5",
+                "reference": "e2a490ceec590bf5bfd1b43bd424fb9dceceb7c5",
                 "shasum": ""
             },
             "require": {
@@ -389,7 +389,7 @@
                 "markdown",
                 "markdown-extra"
             ],
-            "time": "2016-02-09 22:09:46"
+            "time": "2016-03-18 13:28:11"
         },
         {
             "name": "doctrine/annotations",
@@ -564,12 +564,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bzikarsky/gelf-php.git",
-                "reference": "aba8e24c08a8d080e5daf08b2817b16cdf8d9242"
+                "reference": "e211dda75906e72d4b943bcaa700688116bd9a46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/aba8e24c08a8d080e5daf08b2817b16cdf8d9242",
-                "reference": "aba8e24c08a8d080e5daf08b2817b16cdf8d9242",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/e211dda75906e72d4b943bcaa700688116bd9a46",
+                "reference": "e211dda75906e72d4b943bcaa700688116bd9a46",
                 "shasum": ""
             },
             "require": {
@@ -609,7 +609,7 @@
                 }
             ],
             "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
-            "time": "2016-01-25 13:31:28"
+            "time": "2016-03-21 14:00:04"
         },
         {
             "name": "kartik-v/bootstrap-fileinput",
@@ -887,12 +887,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/php-date-formatter.git",
-                "reference": "8765bc84943e08aaae2d4865c026f57089206986"
+                "reference": "7e5fa6842446b7ba2611c205fcec9679dfe726e3"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/kartik-v/php-date-formatter/zipball/7e5fa6842446b7ba2611c205fcec9679dfe726e3",
-                "reference": "8765bc84943e08aaae2d4865c026f57089206986",
+                "reference": "7e5fa6842446b7ba2611c205fcec9679dfe726e3",
                 "shasum": ""
             },
             "type": "library",
@@ -928,7 +928,7 @@
                 "php-date-formatter.js",
                 "time"
             ],
-            "time": "2016-02-11 12:51:14"
+            "time": "2016-03-17 13:03:46"
         },
         {
             "name": "kartik-v/yii2-builder",
@@ -1422,12 +1422,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/yii2-widget-affix.git",
-                "reference": "e11b2eb80893a3b1a0dd7ce50ea3256ebb55da84"
+                "reference": "15f8a87d35483c291c8a2238b9a25f7da5c951d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-widget-affix/zipball/e11b2eb80893a3b1a0dd7ce50ea3256ebb55da84",
-                "reference": "e11b2eb80893a3b1a0dd7ce50ea3256ebb55da84",
+                "url": "https://api.github.com/repos/kartik-v/yii2-widget-affix/zipball/15f8a87d35483c291c8a2238b9a25f7da5c951d7",
+                "reference": "15f8a87d35483c291c8a2238b9a25f7da5c951d7",
                 "shasum": ""
             },
             "require": {
@@ -1463,7 +1463,7 @@
                 "widget",
                 "yii2"
             ],
-            "time": "2016-02-15 14:35:24"
+            "time": "2016-03-21 16:55:54"
         },
         {
             "name": "kartik-v/yii2-widget-alert",
@@ -2605,12 +2605,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "99c455418de3013fe03a0d50c28dd9f42118febc"
+                "reference": "75ac4f99a180d6716a53d94201e8c6d03a1f0ec4"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/75ac4f99a180d6716a53d94201e8c6d03a1f0ec4",
-                "reference": "99c455418de3013fe03a0d50c28dd9f42118febc",
+                "reference": "75ac4f99a180d6716a53d94201e8c6d03a1f0ec4",
                 "shasum": ""
             },
             "require": {
@@ -2653,7 +2653,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-04 07:56:56"
+            "time": "2016-03-15 13:46:52"
         },
         {
             "name": "symfony/finder",
@@ -2765,16 +2765,16 @@
         },
         {
             "name": "tinymce/tinymce",
-            "version": "4.3.7",
+            "version": "4.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tinymce/tinymce-dist.git",
-                "reference": "19611cd875c27eed9a96c7734952bc34a41ba397"
+                "reference": "96450a43232ba523ae57d4dc6ea34b8f34e9dd14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/19611cd875c27eed9a96c7734952bc34a41ba397",
-                "reference": "19611cd875c27eed9a96c7734952bc34a41ba397",
+                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/96450a43232ba523ae57d4dc6ea34b8f34e9dd14",
+                "reference": "96450a43232ba523ae57d4dc6ea34b8f34e9dd14",
                 "shasum": ""
             },
             "type": "component",
@@ -2807,7 +2807,7 @@
                 "tinymce",
                 "wysiwyg"
             ],
-            "time": "2016-03-02 13:02:17"
+            "time": "2016-03-15 13:05:10"
         },
         {
             "name": "unclead/yii2-multiple-input",
@@ -3037,12 +3037,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-bootstrap.git",
-                "reference": "4133d6b26f48615de38ea1ec04eb00c4b7057bc9"
+                "reference": "361bd63975beefdb1f87a36f96957de67023f865"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/yiisoft/yii2-bootstrap/zipball/361bd63975beefdb1f87a36f96957de67023f865",
-                "reference": "4133d6b26f48615de38ea1ec04eb00c4b7057bc9",
+                "reference": "361bd63975beefdb1f87a36f96957de67023f865",
                 "shasum": ""
             },
             "require": {
@@ -3079,7 +3079,7 @@
                 "bootstrap",
                 "yii2"
             ],
-            "time": "2016-03-04 00:48:53"
+            "time": "2016-03-17 03:32:21"
         },
         {
             "name": "yiisoft/yii2-composer",
@@ -3129,17 +3129,64 @@
             "time": "2016-02-06 01:03:32"
         },
         {
-            "name": "yiisoft/yii2-swiftmailer",
-            "version": "2.0.4",
+            "name": "yiisoft/yii2-httpclient",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/yiisoft/yii2-swiftmailer.git",
-                "reference": "4ec435a89e30b203cea99770910fb5499cb3627a"
+                "url": "https://github.com/yiisoft/yii2-httpclient.git",
+                "reference": "32ed4fe4513855690d7e54e2441fe52507510451"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-swiftmailer/zipball/4ec435a89e30b203cea99770910fb5499cb3627a",
-                "reference": "4ec435a89e30b203cea99770910fb5499cb3627a",
+                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/32ed4fe4513855690d7e54e2441fe52507510451",
+                "reference": "32ed4fe4513855690d7e54e2441fe52507510451",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii\\httpclient\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "HTTP client extension for the Yii framework",
+            "keywords": [
+                "curl",
+                "http",
+                "httpclient",
+                "yii2"
+            ],
+            "time": "2016-02-15 09:27:06"
+        },
+        {
+            "name": "yiisoft/yii2-swiftmailer",
+            "version": "2.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiisoft/yii2-swiftmailer.git",
+                "reference": "e2c6315caff30a9271a7afad4d684627721dc69a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiisoft/yii2-swiftmailer/zipball/e2c6315caff30a9271a7afad4d684627721dc69a",
+                "reference": "e2c6315caff30a9271a7afad4d684627721dc69a",
                 "shasum": ""
             },
             "require": {
@@ -3176,7 +3223,7 @@
                 "swiftmailer",
                 "yii2"
             ],
-            "time": "2015-05-10 22:12:32"
+            "time": "2016-03-17 03:58:49"
         },
         {
             "name": "zircote/swagger-php",
@@ -3292,16 +3339,16 @@
         },
         {
             "name": "yiisoft/yii2-codeception",
-            "version": "2.0.4",
+            "version": "2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-codeception.git",
-                "reference": "de5007e7a99359597abbfe1c88dca3ce620061c5"
+                "reference": "c916a36d09fc128b05a374e7922bc56854334d56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-codeception/zipball/de5007e7a99359597abbfe1c88dca3ce620061c5",
-                "reference": "de5007e7a99359597abbfe1c88dca3ce620061c5",
+                "url": "https://api.github.com/repos/yiisoft/yii2-codeception/zipball/c916a36d09fc128b05a374e7922bc56854334d56",
+                "reference": "c916a36d09fc128b05a374e7922bc56854334d56",
                 "shasum": ""
             },
             "require": {
@@ -3333,7 +3380,7 @@
                 "codeception",
                 "yii2"
             ],
-            "time": "2015-05-10 22:08:30"
+            "time": "2016-03-17 03:41:26"
         },
         {
             "name": "yiisoft/yii2-faker",
@@ -3404,6 +3451,7 @@
         "bower-asset/bootstrap-multiselect": 0,
         "wbraganca/yii2-dynamicform": 0,
         "kidsysco/jquery-ui-month-picker": 20,
+        "yiisoft/yii2-httpclient": 20,
         "yiisoft/yii2-codeception": 0,
         "yiisoft/yii2-faker": 0
     },

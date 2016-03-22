@@ -20,6 +20,7 @@ class ConnectionPointColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = Region::dao()->getList(true);
-        $this->filterInputOptions['class'] .= ' connection-point-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' connection-point-column';
     }
 }

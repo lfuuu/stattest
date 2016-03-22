@@ -7,7 +7,6 @@ use app\dao\billing\GeoCountryDao;
 
 /**
  * @property int $id
- * @property
  */
 class GeoCountry extends ActiveRecord
 {

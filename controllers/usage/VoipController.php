@@ -61,7 +61,6 @@ class VoipController extends BaseController
         }
 
         $model->processDependenciesNumber();
-        $model->processDependenciesTariff();
 
         return $this->render('add', [
             'model' => $model,
@@ -104,8 +103,6 @@ class VoipController extends BaseController
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
-
-        $model->processDependenciesTariff();
 
         $tariffHistory =
             LogTarif::find()

@@ -12,7 +12,7 @@ use Yii;
 class CallsController extends BaseController
 {
     /**
-     * Отчет по звонкам в транке. Список звонков
+     * Звонки в транке. Список звонков
      *
      * @return string
      */

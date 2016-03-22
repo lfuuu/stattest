@@ -11,7 +11,7 @@ echo GridView::widget([
             'label'=> (new $dataProvider->query->modelClass)->getAttributeLabel('name'),
             'format' => 'raw',
             'value'=>function ($data) {
-                return \yii\helpers\Html::a($data->name,'/sale-channel/edit?id='.$data->id);
+                return \app\classes\Html::a($data->name,'/sale-channel/edit?id='.$data->id);
             },
         ],
         'dealer_id',

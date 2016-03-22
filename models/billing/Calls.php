@@ -47,11 +47,9 @@ class Calls extends ActiveRecord
     public $geo_ids = '';
 
     public $calls_count = '';
-    public $billed_time_count = '';
+    public $billed_time_sum = '';
     
-    public $rate_avg = '';
-    public $interconnect_rate_avg = '';
-    public $rate_with_interconnect_avg = '';
+    public $rate_with_interconnect = '';
     
     public $cost_sum = '';
     public $interconnect_cost_sum = '';
@@ -75,7 +73,7 @@ class Calls extends ActiveRecord
             'connect_time' => 'Время начала разговора (UTC)',
             'trunk_id' => 'Транк',
             'account_id' => 'Клиент', // Но вообще он же оператор
-            'trunk_service_id' => 'Услуга транк', // billing.service_trunk или usage_trunk
+            'trunk_service_id' => 'Номер договора', // Услуга транк, billing.service_trunk или usage_trunk
             'number_service_id' => 'Услуга номер',
             'src_number' => 'Исходящий №',
             'dst_number' => 'Входящий №',
@@ -92,7 +90,7 @@ class Calls extends ActiveRecord
             'destination_id' => 'Направление', // auth.destination
             'pricelist_id' => 'Прайслист',
             'prefix' => 'Префикс', // соответствие префиксу из прайса
-            'geo_id' => 'Локация B-номера',
+            'geo_id' => 'География',  // География, Локация B-номера
 //                'geo_operator_id' => 'xxx',
             'mob' => 'Мобильный', // Стационарный
 //            'operator_id' => 'Оператор', // deprecated. Надо trunk_id -> mysql.stat.usage_trunk -> postgresql.voip.operator
@@ -101,18 +99,16 @@ class Calls extends ActiveRecord
 
             // having
             'calls_count' => 'Кол-во звонков',
-            'billed_time_count' => 'Суммарная длительность, сек.',
+            'billed_time_sum' => 'Суммарная длительность, мин.',
 
-            'rate_avg' => 'Средняя цена минуты без интерконнекта, у.е.',
-            'interconnect_rate_avg' => 'Средняя цена минуты интерконнекта, у.е.',
-            'rate_with_interconnect_avg' => 'Средняя цена минуты с интерконнектом, у.е.',
+            'rate_with_interconnect' => 'Цена минуты с интерконнектом, у.е.',
 
             'cost_sum' => 'Суммарная стоимость без интерконнекта, у.е.',
             'interconnect_cost_sum' => 'Суммарная стоимость интерконнекта, у.е.',
             'cost_with_interconnect_sum' => 'Суммарная стоимость с интерконнектом, у.е.',
 
             'asr' => 'ASR (Отношение звонков с длительностью ко всем звонкам), %',
-            'acd' => 'ACD (Средняя длительность), сек.',
+            'acd' => 'ACD (Средняя длительность), мин.',
         ];
     }
 

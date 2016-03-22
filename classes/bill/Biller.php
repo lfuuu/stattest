@@ -2,6 +2,7 @@
 namespace app\classes\bill;
 
 use app\classes\Assert;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Transaction;
 use app\models\usages\UsageInterface;
@@ -209,28 +210,12 @@ abstract class Biller
 
     protected function getContractInfo()
     {
-        $dateTs = $this->billerDate->getTimestamp();
-
-        $contract =
-            Yii::$app->db->createCommand('
-                select
-                    contract_no as no,
-                    unix_timestamp(contract_date) as date
-                from
-                    client_document
-                where
-                        contract_id = :contractId
-                        and contract_date <= FROM_UNIXTIME(:dateTs)
-                order by is_active desc, contract_date desc, id desc
-                limit 1 ',
-                [':contractId' => $this->clientAccount->contract->id, ':dateTs' => $dateTs]
-            )
-                ->queryOne();
+        $contract = $this->clientAccount->contract->getContractInfo($this->billerDate);
 
         if ($contract) {
             return Yii::t('biller', 'by_agreement', [
-                'contract_no' => $contract['no'],
-                'contract_date' => $contract['date']
+                'contract_no' => $contract->contract_no,
+                'contract_date' => (new \DateTime($contract->contract_date, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
             ], $this->clientAccount->contragent->country->lang);
         } else {
             return '';

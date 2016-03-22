@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeZone;
 use app\classes\Assert;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 use app\models\City;
 use app\models\LogTarif;
 use app\models\Number;
@@ -35,6 +36,13 @@ class UsageVoipEditForm extends UsageVoipForm
     public $disconnecting_date;
     public $region;
     public $create_params = '{}';
+
+    public
+        $tariffMainStatus,
+        $tariffLocalMobile,
+        $tariffRussia,
+        $tariffRussiaMobile,
+        $tariffIntern;
 
     private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
@@ -173,21 +181,6 @@ class UsageVoipEditForm extends UsageVoipForm
     }
 
     /**
-    * Установка гарантированных платежей от тарифа
-    */
-    public function fillDefault()
-    {
-        foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
-            $val = $this->getMinByTariff($this->$fieldTariffId);
-            if ($val > 0) {
-                if (empty($this->$fieldMinPrice) || empty($this->usage)) {
-                    $this->$fieldMinPrice = $val;
-                }
-            }
-        }
-    }
-
-    /**
      * Populates the model with input data.
      *
      * @param array $data the data array to load, typically `$_POST` or `$_GET`.
@@ -198,7 +191,48 @@ class UsageVoipEditForm extends UsageVoipForm
     public function load($data, $formName = null)
     {
         $return = parent::load($data, $formName);
-        $this->fillDefault();
+
+        // Установка гарантированных платежей от тарифа
+        foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
+            $minimalPayment = $this->getMinByTariff($this->$fieldTariffId);
+
+            if ($this->usage) {
+                $this->{Inflector::variablize($fieldMinPrice)} = $minimalPayment;
+
+                if(
+                    (
+                        $this->tariff_local_mob_id != $this->tariffLocalMobile
+                        &&
+                        $fieldTariffId === 'tariff_local_mob_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_russia_id != $this->tariffRussia
+                        &&
+                        $fieldTariffId === 'tariff_russia_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_russia_mob_id != $this->tariffRussiaMobile
+                        &&
+                        $fieldTariffId === 'tariff_russia_mob_id'
+                    )
+                        ||
+                    (
+                        $this->tariff_intern_id != $this->tariffIntern
+                        &&
+                        $fieldTariffId === 'tariff_intern_id'
+                    )
+                ) {
+                    $this->$fieldMinPrice = $minimalPayment;
+                }
+            }
+
+            if (!$this->usage || $this->tariff_main_status != $this->tariffMainStatus) {
+                $this->$fieldMinPrice = $minimalPayment;
+            }
+        }
+
         return $return;
     }
 
@@ -422,13 +456,13 @@ class UsageVoipEditForm extends UsageVoipForm
             // "Тариф Основной" от включенного тарифа
             $this->tariff_main_id = $currentTariff->id_tarif;
             // "Тариф Местные мобильные" от включенного тарифа
-            $this->tariff_local_mob_id = $currentTariff->id_tarif_local_mob;
+            $this->tariff_local_mob_id =  $this->tariffLocalMobile = $currentTariff->id_tarif_local_mob;
             // "Тариф Россия стационарные" от включенного тарифа
-            $this->tariff_russia_id = $currentTariff->id_tarif_russia;
+            $this->tariff_russia_id = $this->tariffRussia = $currentTariff->id_tarif_russia;
             // "Тариф Россия мобильные" от включенного тарифа
-            $this->tariff_russia_mob_id = $currentTariff->id_tarif_russia_mob;
+            $this->tariff_russia_mob_id = $this->tariffRussiaMobile = $currentTariff->id_tarif_russia_mob;
             // "Тариф Международка" от включенного тарифа
-            $this->tariff_intern_id = $currentTariff->id_tarif_intern;
+            $this->tariff_intern_id = $this->tariffIntern = $currentTariff->id_tarif_intern;
 
             // Устанавливает гарантированный платеж для набора (tariff_group_local_mob | tariff_group_russia | tariff_group_intern)
             $this->tariff_group_price = $currentTariff->minpayment_group;
@@ -458,7 +492,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $tariff = TariffVoip::findOne($this->tariff_main_id);
             // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
-            $this->tariff_main_status = $tariff->status;
+            $this->tariff_main_status = $this->tariffMainStatus = $tariff->status;
         }
         else {
             $this->connecting_date = $this->today->format('Y-m-d');
@@ -559,39 +593,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 }
                 break;
             }
-        }
-    }
-
-    /**
-     * Установка зависимостей (гарантированные платежи) доп. тарифов
-     */
-    public function processDependenciesTariff()
-    {
-        // Установлен "Тариф Местные мобильные", но не нет "Гарантированный платеж"
-        if ($this->tariff_local_mob_id && !$this->tariff_group_local_mob_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_local_mob_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_local_mob_price = $tariff->month_min_payment;
-        }
-
-        // Установлен "Тариф Россия стационарные", но не нет "Гарантированный платеж"
-        if ($this->tariff_russia_id && !$this->tariff_group_russia_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_russia_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_russia_price = $tariff->month_min_payment;
-        }
-
-        // Установлен "Тариф Международка", но не нет "Гарантированный платеж"
-        if ($this->tariff_intern_id && !$this->tariff_group_intern_price) {
-            /** @var \app\models\TariffVoip $tariff */
-            $tariff = TariffVoip::findOne($this->tariff_intern_id);
-
-            // Установить "Гарантированный платеж"
-            $this->tariff_group_intern_price = $tariff->month_min_payment;
         }
     }
 

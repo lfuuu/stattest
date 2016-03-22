@@ -1,6 +1,6 @@
 <?php
 
-use yii\helpers\Html;
+use app\classes\Html;
 use app\models\Region;
 use app\models\Metro;
 use app\models\Bank;

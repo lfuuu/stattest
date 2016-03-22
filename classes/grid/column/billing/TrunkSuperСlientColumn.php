@@ -33,7 +33,8 @@ class TrunkSuperСlientColumn extends DataColumn
         $this->filter += array_flip($filter);
 
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' trunk-superclient-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' trunk-superclient-column';
     }
 
     /**

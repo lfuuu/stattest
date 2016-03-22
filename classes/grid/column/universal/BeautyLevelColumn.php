@@ -20,6 +20,7 @@ class BeautyLevelColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = DidGroup::getBeautyLevelList(true);
-        $this->filterInputOptions['class'] .= ' beauty-level-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' beauty-level-column';
     }
 }

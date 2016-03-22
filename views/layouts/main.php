@@ -1,6 +1,6 @@
 <?php
-use yii\helpers\Html;
 use app\assets\AppAsset;
+use app\classes\Html;
 
 /* @var $this \yii\web\View */
 /* @var $user \app\models\User */
@@ -139,6 +139,31 @@ if (isset($fixclient_data['id'])) {
 </div>
 
 <div class="layout_main col-sm-10 col-md-push-2">
+
+    <?php // скрыть/показать левое меню ?>
+    <button type="button" class="btn btn-default btn-xs panel-toggle-button" data-hide="≪" data-show="≫">≪</button>
+    <script type="text/javascript">
+        $(function () {
+            $('.panel-toggle-button').on('click', function() {
+                var $this = $(this);
+                var $showText = $this.data('show');
+                var $hideText = $this.data('hide');
+                var $currentText = $this.text();
+
+                if ($currentText == $hideText) {
+                    $('.layout_left').hide();
+                    $('.layout_main').removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
+                    $this.text($showText);
+                } else {
+                    $('.layout_left').show();
+                    $('.layout_main').removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
+                    $this.text($hideText);
+                }
+                $(document).trigger('scroll'); // чтобы перерендерить некоторые элементы с fixed-позицией
+            });
+        });
+    </script>
+
     <?= $this->render('widgets/messages') ?>
 
     <div style="min-height: 70%">
@@ -157,14 +182,18 @@ if (isset($fixclient_data['id'])) {
 <?php
 // Это фикс бага с select2 v4. Он вызывается раньше инициализации, надо его вызывать позже.
 // Правильнее это сделать в vendor/kartik-v/yii2-krajee-base/WidgetTrait.php::getPluginScript, но vendor менять не могу
+// Вторая проблема - datepicker делает trigger('change'), а grid Подписан на onchange
 // Мне стыдно за такой говнокод, но по-другому исправить не получается.
-foreach ($this->js as &$scripts) {
-    foreach ($scripts as &$script) {
-        $script = preg_replace('/jQuery\.when\((.*?)\)\.done/', 'jQuery.when(  setTimeout(function(){$1},10)  ).done', $script);
+if ($this->js) {
+    foreach ($this->js as &$scripts) {
+        foreach ($scripts as &$script) {
+            $script = preg_replace('/jQuery\.when\((.*?)\)\.done/', 'jQuery.when(  setTimeout(function(){$1},10)  ).done', $script);
+            $script = preg_replace('/jQuery\([^\)]+?\)\.yiiGridView\([^\)]+?\);/', 'setTimeout(function(){$0},100);', $script);
+        }
+        unset($script);
     }
-    unset($script);
+    unset($scripts);
 }
-unset($scripts);
 ?>
 
 <?php $this->endBody() ?>

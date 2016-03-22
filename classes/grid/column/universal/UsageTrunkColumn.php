@@ -19,6 +19,7 @@ class UsageTrunkColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = UsageTrunk::getList($this->trunkId, true);
-        $this->filterInputOptions['class'] .= ' usage-trunk-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' usage-trunk-column';
     }
 }

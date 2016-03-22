@@ -22,7 +22,7 @@ class SourceColumn extends DataColumn
      */
     public function __construct($config = [])
     {
-        $sourcesList = ImportantEventsSources::find()->indexBy('code')->all();
+        $sourcesList = ImportantEventsSources::find()->indexBy('id')->all();
 
         $this->filterWidgetOptions['data'] = $sourcesList;
         $this->filterWidgetOptions['nonSelectedText'] = '- Выберите источник(и) -';

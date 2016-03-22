@@ -19,7 +19,8 @@ class TrunkColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' trunk-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' trunk-column';
 
         $this->filter = Trunk::getList($this->filterByServerId, true);
 

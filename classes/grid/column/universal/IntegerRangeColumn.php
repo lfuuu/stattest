@@ -18,18 +18,19 @@ class IntegerRangeColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $filterModel = $this->grid->filterModel;
         $this->filter =
-            Html::activeInput('number', $filterModel, $this->attribute . '_from', [
-                'class' => 'form-control input-sm input-tinyint',
+            Html::activeInput('number', $this->grid->filterModel, $this->attribute . '_from', [
+                'class' => 'form-control input-sm',
                 'step' => $this->step,
             ]) .
 
             ' ' .
 
-            Html::activeInput('number', $filterModel, $this->attribute . '_to', [
-                'class' => 'form-control input-sm input-tinyint',
+            Html::activeInput('number', $this->grid->filterModel, $this->attribute . '_to', [
+                'class' => 'form-control input-sm',
                 'step' => $this->step,
             ]);
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' integer-range-column';
     }
 }

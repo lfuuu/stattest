@@ -13,11 +13,13 @@ class DestinationColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $filterByServerId = '';
 
     public function __construct($config = [])
     {
-        $this->filter = Destination::getList(true);
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' destination-column';
+        $this->filter = Destination::getList(true, $this->filterByServerId);
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' destination-column';
     }
 }

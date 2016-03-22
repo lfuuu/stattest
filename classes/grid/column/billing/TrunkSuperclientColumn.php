@@ -4,7 +4,6 @@ namespace app\classes\grid\column\billing;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\models\billing\Trunk;
 use app\models\UsageTrunk;
 use kartik\grid\GridView;
 
@@ -19,6 +18,7 @@ class TrunkSuperclientColumn extends DataColumn
     {
         $this->filter = UsageTrunk::getSuperClientList(true);
         parent::__construct($config);
-        $this->filterInputOptions['class'] .= ' trunk-superclient-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' trunk-superclient-column';
     }
 }

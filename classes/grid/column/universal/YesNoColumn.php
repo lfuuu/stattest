@@ -20,6 +20,7 @@ class YesNoColumn extends DataColumn
     {
         parent::__construct($config);
         $this->filter = YesNoTraits::getYesNoList(true);
-        $this->filterInputOptions['class'] .= ' yes-no-column';
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' yes-no-column';
     }
 }
