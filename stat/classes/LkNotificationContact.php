@@ -1,6 +1,8 @@
-<?php 
+<?php
 
+use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 
 class LkNotificationContact
 {
@@ -182,7 +184,6 @@ class LkNotificationContact
         $Contacts = self::getListForPayment($clientId);
         if ($Contacts) {
             foreach ($Contacts as $C) {
-
                 $client = \app\models\ClientAccount::findOne([is_numeric($C->client_id) ? 'id' : 'client' => $C->client_id]);
 
                 if ($client->credit > -1) {
@@ -192,11 +193,19 @@ class LkNotificationContact
                     $client->balance += self::$billingCounters[$C->client_id]['amount_sum'];
                 }
 
-                LkNotificationLog::addLogRaw($C->client_id, $C->id, ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF, true, $client->balance, 0, $pay->sum);
+                LkNotificationLog::addLogRaw($C->client_id, $C->id, ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF, true, $client->balance, 0, $pay->sum, $createImportantEvent = false);
 
                 $Notification = new LkNotification($C->client_id, $C->id, ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF, $pay->sum, $client->balance);
                 $Notification->send();
             }
+
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_BILLING, [
+                    'client_id' => $clientId,
+                    'limit' => 0,
+                    'value' => $pay->sum,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
     }
 
