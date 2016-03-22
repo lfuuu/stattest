@@ -56,9 +56,6 @@ class PrefixlistForm extends Form
             $prefixlist = new Prefixlist;
         $prefixlist->setAttributes($this->getAttributes(), false);
 
-        $prefixlist->operators = implode(',', $prefixlist->operators);
-        $prefixlist->prefixes = implode(',', $prefixlist->prefixes);
-
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $prefixlist->save();

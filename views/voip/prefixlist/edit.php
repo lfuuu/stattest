@@ -34,10 +34,7 @@ foreach ($cities as $city) {
 }
 $cities = ['0' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_name');
 
-$model->operators = explode(',', $model->operators);
 $operators = GeoOperator::dao()->getList();
-
-$model->prefixes = explode(',', $model->prefixes);
 
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
 $model->type_id = $creatingMode ? 1 : $model->type_id;
@@ -153,7 +150,7 @@ echo Breadcrumbs::widget([
                     'options' =>
                     [
                         'class' => 'select2',
-                        'options' => $citiesOptions
+                        'options' => $citiesOptions,
                     ]
                 ],
             ],
@@ -164,7 +161,14 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 2,
             'attributes' => [
-                'operators' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $operators, 'options' => ['class' => 'select2', 'multiple' => 'multiple']],
+                'operators' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $operators,
+                    'options' => [
+                        'class' => 'select2',
+                        'multiple' => 'multiple',
+                    ]
+                ],
                 'exclude_operators' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
