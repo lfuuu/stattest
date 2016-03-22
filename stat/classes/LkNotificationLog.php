@@ -16,7 +16,7 @@ class LkNotificationLog
         self::addLogRaw($clientId, 0, $fld, false, $data["balance"], $data["limit"], $data["value"]);
     }
 
-    public static function addLogRaw($clientId, $contactId, $event, $isSet, $balance, $limit, $value)
+    public static function addLogRaw($clientId, $contactId, $event, $isSet, $balance, $limit, $value, $createImportantEvent = true)
     {
         global $db;
 
@@ -31,13 +31,16 @@ class LkNotificationLog
                     )
                 );
 
-        ImportantEvents::create(($isSet ? $event : 'unset_' . $event), ImportantEventsSources::IMPORTANT_EVENT_SOURCE_BILLING, [
-            'client_id' => $clientId,
-            'contact_id' => $contactId,
-            'limit' => $limit,
-            'value' => $value,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        if ($createImportantEvent) {
+            ImportantEvents::create(($isSet ? $event : 'unset_' . $event),
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_BILLING, [
+                    'client_id' => $clientId,
+                    'contact_id' => $contactId,
+                    'limit' => $limit,
+                    'value' => $value,
+                    'user_id' => Yii::$app->user->id,
+                ]);
+        }
     }
 
 }
