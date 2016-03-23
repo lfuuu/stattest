@@ -14,12 +14,12 @@ class TemplateContent extends ActiveRecord
     public function rules()
     {
         return [
-            [['template_id'], 'required'],
-            [['lang_code', 'title', 'content'], 'string'],
-            [['title', 'content'], 'trim'],
             ['lang_code', 'default', 'value' => Language::DEFAULT_LANGUAGE],
             ['lang_code', 'in', 'range' => array_keys(Template::$languages)],
             ['type', 'in', 'range' => array_keys(Template::$types)],
+            [['template_id', 'lang_code', 'type'], 'required'],
+            [['title', 'content'], 'string'],
+            [['title', 'content'], 'trim'],
             ['filename', 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'htm, html', 'mimeTypes' => ['text/html', 'text/plain']],
         ];
     }

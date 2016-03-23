@@ -12,12 +12,13 @@ use app\classes\Html;
     <?php
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,
-        'action' => Url::toRoute(['/message/template/edit-template-content']),
+        'action' => Url::toRoute([
+            '/message/template/edit-template-content',
+            'templateId' => $templateId,
+            'type' => $templateType,
+            'langCode' => $templateLanguageCode,
+        ]),
     ]);
-
-    echo Html::hiddenInput($model->formName() . '[template_id]', $templateId);
-    echo Html::hiddenInput($model->formName() . '[type]', $templateType);
-    echo Html::hiddenInput($model->formName() . '[lang_code]', $templateLanguageCode);
 
     echo Form::widget([
         'model' => $model,

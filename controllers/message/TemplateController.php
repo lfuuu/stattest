@@ -56,34 +56,37 @@ class TemplateController extends BaseController
     }
 
     /**
+     * @param int $templateId
+     * @param string $type
+     * @param string $langCode
      * @return \yii\web\Response
      */
-    public function actionEditTemplateContent()
+    public function actionEditTemplateContent($templateId, $type, $langCode)
     {
-        $model = new TemplateContent;
-        $content = null;
+        /** @var TemplateContent $content */
+        $content = TemplateContent::findOne([
+            'template_id' => $templateId,
+            'type' => $type,
+            'lang_code' => $langCode,
+        ]);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $content = TemplateContent::findOne([
-                'template_id' => $model->template_id,
-                'type' => $model->type,
-                'lang_code' => $model->lang_code,
-            ]);
-
-            if (is_null($content)) {
-                $content = $model;
-            }
-
-            if (($file = UploadedFile::getInstance($content, 'filename')) !== null) {
-                $content->mediaManager->addFile($file);
-            }
-
-            if ($content->save()) {
-                Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-            }
+        if (is_null($content)) {
+            $content = new TemplateContent;
+            $content->setAttribute('template_id', $templateId);
+            $content->setAttribute('type', $type);
+            $content->setAttribute('lang_code', $langCode);
         }
 
-        return $this->redirect(['message/template/edit', 'id' => $content->template_id]);
+        if (($file = UploadedFile::getInstance($content, 'filename')) !== null) {
+            $content->mediaManager->addFile($file);
+        }
+
+        if ($content->load(Yii::$app->request->post()) && $content->validate() && $content->save()) {
+            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            return $this->redirect(['message/template/edit', 'id' => $content->template_id]);
+        }
+
+        return $this->redirect(['message/template']);
     }
 
 }
