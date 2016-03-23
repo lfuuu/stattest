@@ -38,8 +38,10 @@ foreach ($operator->requestModes as $mode => $params) {
                             'hideInput' => true,
                             'value' => $filter['dateFrom'] . ' : ' . $filter['dateTo'],
                             'pluginOptions' => [
-                                'format' => 'YYYY-MM-DD',
-                                'separator'=>' : ',
+                                'locale' => [
+                                    'format' => 'YYYY-MM-DD',
+                                    'separator'=>' : ',
+                                ],
                             ],
                         ]);
                         ?>
