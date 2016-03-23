@@ -34,7 +34,6 @@ foreach ($cities as $city) {
 }
 $cities = ['0' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_name');
 
-$model->operators = explode(',', $model->operators);
 $operators = GeoOperator::dao()->getList();
 
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
@@ -104,7 +103,19 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 1,
             'attributes' => [
-                'prefixes' => ['type' => Form::INPUT_TEXT, 'options' => ['class' => 'select2-tag-support']],
+                'prefixes' => [
+                    'type' => Form::INPUT_WIDGET,
+                    'widgetClass' => '\kartik\widgets\Select2',
+                    'options' => [
+                        'pluginOptions' => [
+                            'tags' => true,
+                            'maximumInputLength' => 10,
+                        ],
+                        'options' => [
+                            'multiple' => true
+                        ]
+                    ],
+                ],
             ],
         ]);
         ?>
@@ -139,7 +150,7 @@ echo Breadcrumbs::widget([
                     'options' =>
                     [
                         'class' => 'select2',
-                        'options' => $citiesOptions
+                        'options' => $citiesOptions,
                     ]
                 ],
             ],
@@ -150,7 +161,14 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 2,
             'attributes' => [
-                'operators' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $operators, 'options' => ['class' => 'select2', 'multiple' => 'multiple']],
+                'operators' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $operators,
+                    'options' => [
+                        'class' => 'select2',
+                        'multiple' => 'multiple',
+                    ]
+                ],
                 'exclude_operators' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>

@@ -3,6 +3,22 @@ namespace app\models\voip;
 
 use yii\db\ActiveRecord;
 
+/**
+ * Class Prefixlist
+ *
+ * @property int id
+ * @property string name
+ * @property int type_id
+ * @property string sub_type
+ * @property string prefixes
+ * @property int country_id
+ * @property int region_id
+ * @property int city_id
+ * @property int exclude_operators
+ * @property string operators
+ *
+ * @package app\models\voip
+ */
 class Prefixlist extends ActiveRecord
 {
 
@@ -27,6 +43,22 @@ class Prefixlist extends ActiveRecord
     public static function tableName()
     {
         return 'voip_prefixlist';
+    }
+
+    public function afterFind()
+    {
+        $this->prefixes = explode(',', $this->prefixes);
+        $this->operators = explode(',', $this->operators);
+
+        parent::afterFind();
+    }
+
+    public function beforeSave($insert)
+    {
+        $this->prefixes = implode(',', $this->prefixes);
+        $this->operators = implode(',', $this->operators);
+
+        return parent::beforeSave($insert);
     }
 
 }
