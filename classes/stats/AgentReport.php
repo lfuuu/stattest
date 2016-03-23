@@ -97,11 +97,11 @@ class AgentReport
 
             switch ($row['type']) {
                 case 'excess': {
-                    $result[$row['id']]['excess'] += $row['percentage_of_over'] * $row['sum'] / 100;
+                    $result[$row['id']]['excess'] += $row['percentage_of_over'] * $row['amount'] / 100;
                     break;
                 }
                 case 'fee': {
-                    $result[$row['id']]['fee'] += $row['percentage_of_fee'] * $row['sum'] / 100;
+                    $result[$row['id']]['fee'] += $row['percentage_of_fee'] * $row['amount'] / 100;
                     break;
                 }
             }
@@ -130,7 +130,6 @@ class AgentReport
             'client_contract_reward.period_type',
             'client_contract_reward.period_month',
             'bill_date' => 'DATE(newbills.bill_date)',
-            'newbill_lines.sum',
             'tariff_name' => 'tarifs_voip.name',
             'usage' => new Expression('"voip"'),
             'type' => 'IF(newbills.bill_date > newbill_lines.date_to, "excess", "fee")',
@@ -217,7 +216,6 @@ class AgentReport
             'rw.period_type',
             'rw.period_month',
             'bill_date' => 'DATE(nb.bill_date)',
-            'nbl.sum',
             'tariff_name' => 't.description',
             'usage' => new Expression('"vpbx"'),
             'type' => 'IF( nb.bill_date > nbl.date_to, "excess", "fee")',
