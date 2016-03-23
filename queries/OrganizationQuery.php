@@ -8,11 +8,16 @@ use yii\db\ActiveQuery;
 class OrganizationQuery extends ActiveQuery
 {
 
+    /**
+     * @param string $date
+     * @return $this
+     */
     public function actual($date = '')
     {
         $date = $this->resolveDate($date);
-        if (!is_null($date))
+        if (!is_null($date)) {
             $date = date('Y-m-d', $date);
+        }
 
         $filter_date =
             (new DateTime($date))
@@ -53,12 +58,16 @@ class OrganizationQuery extends ActiveQuery
                 ]);
     }
 
-    private static function resolveDate($bill_or_time)
+    /**
+     * @param string|array|int $bill_or_time
+     * @return array|int|null
+     */
+    private function resolveDate($bill_or_time)
     {
         $billDate = null;
 
-        if (is_array($bill_or_time) && isset($bill_or_time["bill_date"])) {
-            $billDate = strtotime($bill_or_time["bill_date"]);
+        if (is_array($bill_or_time) && isset($bill_or_time['bill_date'])) {
+            $billDate = strtotime($bill_or_time['bill_date']);
         }
         elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
             $billDate = $bill_or_time;

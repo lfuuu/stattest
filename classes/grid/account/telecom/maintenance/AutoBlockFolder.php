@@ -26,6 +26,7 @@ class AutoBlockFolder extends AccountGridFolder
             'block_date',
             'manager',
             'region',
+            'legal_entity',
         ];
     }
 

@@ -22,6 +22,7 @@ class IncomeDifferentFolder extends AccountGridFolder
             'account_manager',
             'manager',
             'region',
+            'legal_entity',
             'service',
             'bill_date',
             'abon',

@@ -1,19 +1,18 @@
 <?php
 namespace app\classes\grid\account;
 
-use app\classes\grid\account\telecom\maintenance\AutoBlockFolder;
-use app\helpers\SetFieldTypeHelper;
-use app\models\ClientAccount;
-use app\models\BusinessProcessStatus;
-use app\models\ClientContact;
-use app\models\ClientContract;
-use app\models\ContractType;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use app\classes\Form;
-
+use app\classes\Html;
+use app\helpers\SetFieldTypeHelper;
+use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\ContractType;
+use app\models\Organization;
+use yii\helpers\ArrayHelper;
 
 abstract class AccountGridFolder extends Model
 {
@@ -36,6 +35,9 @@ abstract class AccountGridFolder extends Model
     public $federal_district;
     public $contractNo;
     public $contract_created;
+    public $legal_entity;
+
+    private $organizationList = [];
 
     public function getName()
     {
@@ -50,7 +52,7 @@ abstract class AccountGridFolder extends Model
     public function rules()
     {
         return [
-            [['id', 'regionId', 'sale_channel', 'contract_type'], 'integer'],
+            [['id', 'regionId', 'sale_channel', 'contract_type', 'legal_entity'], 'integer'],
             [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
                 'service', 'partner_clients_service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
         ];
@@ -88,6 +90,7 @@ abstract class AccountGridFolder extends Model
                 'federal_district' => 'ФО',
                 'contract_type' => 'Тип договора',
                 'financial_type' => 'Финансовый тип договора',
+                'legal_entity' => 'Юр. лицо',
             ]);
     }
 
@@ -101,6 +104,9 @@ abstract class AccountGridFolder extends Model
         if ($grid && $grid instanceof AccountGrid) {
             $this->grid = $grid;
         }
+
+        $this->organizationList = ArrayHelper::map(Organization::getList(), 'organization_id', 'name');
+
         parent::__construct();
     }
 
@@ -120,6 +126,7 @@ abstract class AccountGridFolder extends Model
             'cr.manager',
             'cr.account_manager',
             'cr.number AS contractNo',
+            'cr.organization_id',
             'mu.name as manager_name',
             'amu.name as account_manager_name',
             'c.support',
@@ -207,6 +214,10 @@ abstract class AccountGridFolder extends Model
             $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
         }
 
+        if (isset($this->legal_entity) && !empty($this->legal_entity)) {
+            $query->andFilterWhere(['cr.organization_id' => $this->legal_entity]);
+        }
+
         return $dataProvider;
     }
 
@@ -252,7 +263,7 @@ abstract class AccountGridFolder extends Model
             'id' => [
                 'attribute' => 'id',
                 'filter' => function () {
-                    return '<input name="id" class="form-control" value="' . \Yii::$app->request->get('id') . '" />';
+                    return '<input name="id" class="form-control" value="' . Yii::$app->request->get('id') . '" />';
                 },
                 'format' => 'raw',
                 'value' => function ($data) {
@@ -268,7 +279,7 @@ abstract class AccountGridFolder extends Model
                 },
                 'filter' => function () {
                     return '<input name="companyName"
-                        id="searchByCompany" value="' . \Yii::$app->request->get('companyName') . '"
+                        id="searchByCompany" value="' . Yii::$app->request->get('companyName') . '"
                         class="form-control" style="min-width:150px" />';
                 },
             ],
@@ -280,7 +291,7 @@ abstract class AccountGridFolder extends Model
                 },
                 'filter' => function() {
                     return '<input name="contractNo"
-                        id="searchByContractNo" value="' . \Yii::$app->request->get('contractNo') . '"
+                        id="searchByContractNo" value="' . Yii::$app->request->get('contractNo') . '"
                         class="form-control" style="min-width:150px" />';
                 },
             ],
@@ -295,7 +306,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'createdDate',
                         'presetDropdown' => true,
                         'hideInput' => true,
-                        'value' => \Yii::$app->request->get('created'),
+                        'value' => Yii::$app->request->get('created'),
                         'pluginOptions' => [
                             'locale' => [
                                 'format' => 'YYYY-MM-DD',
@@ -317,7 +328,7 @@ abstract class AccountGridFolder extends Model
                 'filter' => function () {
                     return \kartik\daterange\DateRangePicker::widget([
                         'name' => 'contract_created',
-                        'value' => \Yii::$app->request->get('contract_created'),
+                        'value' => Yii::$app->request->get('contract_created'),
                         'presetDropdown' => true,
                         'pluginOptions' => [
                             'locale' => [
@@ -348,7 +359,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'block_date',
                         'presetDropdown' => true,
                         'hideInput' => true,
-                        'value' => \Yii::$app->request->get('block_date'),
+                        'value' => Yii::$app->request->get('block_date'),
                         'pluginOptions' => [
                             'locale' => [
                                 'format' => 'YYYY-MM-DD',
@@ -368,9 +379,9 @@ abstract class AccountGridFolder extends Model
                     return $data['service'];
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'service',
-                        \Yii::$app->request->get('service'),
+                        Yii::$app->request->get('service'),
                         [
                             'emails' => 'Email',
                             'usage_tech_cpe' => 'Tech CPE',
@@ -399,9 +410,9 @@ abstract class AccountGridFolder extends Model
                     return implode(', ', $usages);
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'service',
-                        \Yii::$app->request->get('service'),
+                        Yii::$app->request->get('service'),
                         [
                             'emails' => 'Email',
                             'tech_cpe' => 'Tech CPE',
@@ -476,7 +487,7 @@ abstract class AccountGridFolder extends Model
                         'name' => 'bill_date',
                         'presetDropdown' => true,
                         'hideInput' => true,
-                        'value' => \Yii::$app->request->get('bill_date'),
+                        'value' => Yii::$app->request->get('bill_date'),
                         'pluginOptions' => [
                             'locale' => [
                                 'format' => 'YYYY-MM-DD',
@@ -499,7 +510,7 @@ abstract class AccountGridFolder extends Model
                     return \kartik\widgets\Select2::widget([
                         'name' => 'manager',
                         'data' => \app\models\User::getManagerList(),
-                        'value' => \Yii::$app->request->get('manager'),
+                        'value' => Yii::$app->request->get('manager'),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
                             'style' => 'width: 150px;',
@@ -520,7 +531,7 @@ abstract class AccountGridFolder extends Model
                 'filter' => function () {
                     return \kartik\widgets\Select2::widget([
                         'name' => 'account_manager',
-                        'value' => \Yii::$app->request->get('account_manager'),
+                        'value' => Yii::$app->request->get('account_manager'),
                         'data' => \app\models\User::getAccountManagerList(),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
@@ -539,9 +550,9 @@ abstract class AccountGridFolder extends Model
                     return $data['currency'];
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'currency',
-                        \Yii::$app->request->get('currency'),
+                        Yii::$app->request->get('currency'),
                         \app\models\Currency::map(),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
                     );
@@ -557,7 +568,7 @@ abstract class AccountGridFolder extends Model
                     return \kartik\widgets\Select2::widget([
                         'name' => 'account_manager',
                         'data' => \app\models\SaleChannelOld::getList(),
-                        'value' => \Yii::$app->request->get('sale_channel'),
+                        'value' => Yii::$app->request->get('sale_channel'),
                         'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100%;',],
                         'pluginOptions' => [
                             'allowClear' => true
@@ -572,9 +583,9 @@ abstract class AccountGridFolder extends Model
                     return $data['region_name'];
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'regionId',
-                        \Yii::$app->request->get('regionId'),
+                        Yii::$app->request->get('regionId'),
                         \app\models\Region::getList(),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width: 180px;']
                     );
@@ -591,9 +602,9 @@ abstract class AccountGridFolder extends Model
                     return implode('<br>', $arr);
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'federal_district',
-                        \Yii::$app->request->get('federal_district'),
+                        Yii::$app->request->get('federal_district'),
                         ClientContract::$districts,
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width:50px;']
                     );
@@ -606,9 +617,9 @@ abstract class AccountGridFolder extends Model
                     return $data['contract_type'];
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'contract_type',
-                        \Yii::$app->request->get('contract_type'),
+                        Yii::$app->request->get('contract_type'),
                         ContractType::getList($this->grid->getBusinessProcessId()),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:100px;']
                     );
@@ -621,14 +632,32 @@ abstract class AccountGridFolder extends Model
                     return ClientContract::$financialTypes[$data['financial_type']];
                 },
                 'filter' => function () {
-                    return \yii\helpers\Html::dropDownList(
+                    return Html::dropDownList(
                         'financial_type',
-                        \Yii::$app->request->get('financial_type'),
+                        Yii::$app->request->get('financial_type'),
                         ClientContract::$financialTypes,
                         ['class' => 'form-control', 'style' => 'max-width:100px;']
                     );
                 },
             ],
+            'legal_entity' => [
+                'attribute' => 'legal_entity',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return
+                        isset($this->organizationList[$data['organization_id']])
+                            ? $this->organizationList[$data['organization_id']]
+                            : '';
+                },
+                'filter' => function() {
+                    return Html::dropDownList(
+                        'legal_entity',
+                        Yii::$app->request->get('legal_entity'),
+                        ['' => '- Все -'] + Organization::$ourLegalEntities,
+                        ['class' => 'form-control', 'style' => 'width:150px;']
+                    );
+                },
+            ]
         ];
     }
 

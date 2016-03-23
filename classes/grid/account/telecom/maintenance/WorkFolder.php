@@ -31,6 +31,7 @@ class WorkFolder extends AccountGridFolder
             'manager',
             'account_manager',
             'region',
+            'legal_entity',
         ];
     }
 

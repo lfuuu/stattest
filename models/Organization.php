@@ -44,6 +44,15 @@ class Organization extends ActiveRecord
 {
     const MCN_TELEKOM = 1;
     const MCM_TELEKOM = 11;
+    const TEL2TEL_KFT = 10;
+    const TEL2TEL_LTD = 16;
+
+    public static $ourLegalEntities = [
+        self::MCN_TELEKOM => 'ООО "МСН Телеком"',
+        self::MCM_TELEKOM => 'ООО "МСМ Телеком"',
+        self::TEL2TEL_KFT => 'Tel2tel Kft.',
+        self::TEL2TEL_LTD => 'Tel2Tel Ltd.',
+    ];
 
     public static function tableName()
     {
@@ -175,6 +184,17 @@ class Organization extends ActiveRecord
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return $this
+     */
+    public static function getList()
+    {
+        return
+            self::find()
+                ->groupBy('organization_id')
+                ->each();
     }
 
 }

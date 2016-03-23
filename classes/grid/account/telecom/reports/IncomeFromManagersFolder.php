@@ -19,6 +19,7 @@ class IncomeFromManagersFolder extends AccountGridFolder
         return [
             'account_manager',
             'region',
+            'legal_entity',
             'abon',
             'over',
             'total',
