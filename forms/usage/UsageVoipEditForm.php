@@ -837,8 +837,10 @@ class UsageVoipEditForm extends UsageVoipForm
     private function setDisconnectionDate()
     {
         $timezone = $this->usage->clientAccount->timezone;
-        $closeDate = new DateTime($this->disconnecting_date, $timezone);
-        $this->usage->actual_to = $closeDate->format('Y-m-d');
+	if (!empty($this->disconnecting_date)) {
+            $closeDate = new DateTime($this->disconnecting_date, $timezone);
+            $this->usage->actual_to = $closeDate->format('Y-m-d');
+	}
 
         $nextHistoryItems =
             LogTarif::find()
