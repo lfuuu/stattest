@@ -3,8 +3,8 @@ namespace app\models\message;
 
 use yii\db\ActiveRecord;
 use yii\db\Query;
-use app\classes\Language;
-use app\models\Language as LanguageModel;
+use app\models\important_events\ImportantEventsNames;
+use yii\helpers\ArrayHelper;
 
 class Template extends ActiveRecord
 {
@@ -44,7 +44,8 @@ class Template extends ActiveRecord
     {
         return [
             ['id', 'integer'],
-            ['name', 'required'],
+            [['name', 'event_code',], 'required'],
+            ['event_code', 'in', 'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')]
         ];
     }
 
@@ -55,6 +56,7 @@ class Template extends ActiveRecord
     {
         return [
             'name' => 'Название',
+            'event_code' => 'Событие',
         ];
     }
 
@@ -71,9 +73,9 @@ class Template extends ActiveRecord
         return Template::find();
     }
 
-    public function getLanguage()
+    public function getEvent()
     {
-        return $this->hasOne(LanguageModel::className(), ['code' => 'lang_code']);
+        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event_code']);
     }
 
     /**

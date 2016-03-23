@@ -4,6 +4,10 @@ namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
 
+/**
+ * @property string $value
+ * @package app\models\important_events
+ */
 class ImportantEventsNames extends ActiveRecord
 {
 
@@ -39,11 +43,17 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_DELETED_USAGE = 'deleted_usage';
     const IMPORTANT_EVENT_TRANSFER_USAGE = 'transfer_usage';
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'important_events_names';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -54,6 +64,9 @@ class ImportantEventsNames extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -63,9 +76,32 @@ class ImportantEventsNames extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getGroup()
     {
         return $this->hasOne(ImportantEventsGroups::className(), ['id' => 'group_id']);
     }
+
+    /**
+     * @param bool $isWithEmpty
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false)
+    {
+        $list = [];
+
+        foreach (self::find()->orderBy(['id' => SORT_ASC])->each() as $event) {
+            $list[$event->group->title][$event->code] = $event->value;
+        }
+
+        if ($isWithEmpty) {
+            $list = ['' => '-- Выбор события --'] + $list;
+        }
+
+        return $list;
+    }
+
 
 }

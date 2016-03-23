@@ -40,15 +40,21 @@ echo GridView::widget([
             'value' => function($data) {
                 return Html::a($data->name, ['/message/template/edit', 'id' => $data->id]);
             },
-        ],
-        /*[
-            'attribute' => 'type',
-            'label' => 'Тип',
+            'width' => '*',
         ],
         [
-            'attribute' => 'lang_code',
-            'label' => 'Язык',
-        ],*/
+            'attribute' => 'event_code',
+            'label' => 'Событие',
+            'format' => 'raw',
+            'value' => function($data) {
+                return Html::a(
+                    $data->event->value,
+                    ['/important_events/names/edit', 'id' => $data->event->id],
+                    ['target' => '_blank']
+                );
+            },
+            'width' => '40%',
+        ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',
             'template' => '<div style="text-align: center;">{delete}</div>',
