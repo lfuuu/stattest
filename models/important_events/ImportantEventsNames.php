@@ -3,6 +3,7 @@
 namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
+use yii\data\ActiveDataProvider;
 
 class ImportantEventsNames extends ActiveRecord
 {
@@ -39,21 +40,30 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_DELETED_USAGE = 'deleted_usage';
     const IMPORTANT_EVENT_TRANSFER_USAGE = 'transfer_usage';
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'important_events_names';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['code', 'value', 'group_id'], 'required'],
             [['code', 'value',], 'trim'],
             ['group_id', 'integer'],
-            [['code', 'group_id'], 'unique'],
+            [['code', 'group_id'], 'unique', 'targetAttribute' => ['code', 'group_id']],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -63,9 +73,37 @@ class ImportantEventsNames extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getGroup()
     {
         return $this->hasOne(ImportantEventsGroups::className(), ['id' => 'group_id']);
+    }
+
+    /**
+     * @param array $params
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        $query = self::find();
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false,
+            'sort' => false,
+        ]);
+
+        if (!$this->load($params)) {
+            return $dataProvider;
+        }
+
+        if ($this->group_id = (int) $this->group_id) {
+            $query->andFilterWhere(['group_id' => $this->group_id]);
+        }
+
+        return $dataProvider;
     }
 
 }

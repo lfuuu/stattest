@@ -3,11 +3,14 @@
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 use kartik\grid\GridView;
+use kartik\grid\ActionColumn;
 use app\classes\Html;
-use app\forms\user\GroupForm;
-use app\models\important_events\ImportantEventsRulesConditions;
+use app\models\important_events\ImportantEventsNames;
+use app\classes\grid\column\universal\WithEmptyFilterColumn;
+use app\classes\grid\column\important_events\GroupColumn;
 
-/** @var GroupForm $dataProvider */
+/** @var ImportantEventsNames $dataProvider */
+/** @var ImportantEventsNames $filterModel */
 
 $recordBtns = [
     'delete' => function($url, $model, $key) {
@@ -33,9 +36,11 @@ echo Breadcrumbs::widget([
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
+    'filterModel' => $filterModel,
     'columns' => [
         [
             'attribute' => 'code',
+            'class' => WithEmptyFilterColumn::className(),
             'label' => 'Код',
             'format' => 'raw',
             'value' => function($data) {
@@ -54,15 +59,12 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'group_id',
+            'class' => GroupColumn::className(),
             'label' => 'Группа',
-            'format' => 'raw',
-            'value' => function($data) {
-                return Html::a($data->group->title, ['/important_events/groups/edit', 'id' => $data->group->id]);
-            },
             'width' => '20%',
         ],
         'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
+            'class' => ActionColumn::className(),
             'template' => '<div style="text-align: center;">{delete}</div>',
             'buttons' => $recordBtns,
             'hAlign' => 'center',
