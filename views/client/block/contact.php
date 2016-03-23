@@ -3,6 +3,7 @@ use yii\helpers\Url;
 use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContact;
 
 $contacts = $account->allContacts;
 $contactsArr = [];
@@ -10,14 +11,6 @@ foreach ($contacts as $contact) {
     if ($contact->data && $contact->is_active)
         $contactsArr[$contact->type][] = $contact;
 }
-
-$translate = [
-    'email' => 'Email',
-    'phone' => 'Тел.',
-    'fax' => 'Факсы',
-    'sms' => 'СМС',
-];
-
 ?>
 
 <div class="data-block row data-contacts">
@@ -29,8 +22,8 @@ $translate = [
         <div class="col-sm-10">
             <?php foreach ($contactsArr as $contactType => $contactsInType): ?>
                 <div class="row">
-                    <div class="col-sm-1"><?= $translate[$contactType] ?></div>
-                    <div class="col-sm-11">
+                    <div class="col-sm-2"><?= ClientContact::$types[$contactType] ?></div>
+                    <div class="col-sm-10">
                         <?php foreach ($contactsInType as $contact) {
                             if ($contactType == 'email') {
                                 echo "<a style=\"" . ($contact->is_official ? 'font-weight:bold' : '') . "\" target=\"_blank\"
@@ -62,7 +55,7 @@ $translate = [
                     <div class="col-sm-2">
                         &nbsp;
                     </div>
-                    <div class="col-sm-1"><?= $contact->type ?></div>
+                    <div class="col-sm-1 text-nowrap"><?= ClientContact::$types[$contact->type] ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
                     <div class="col-sm-2"><?= $contact->user->name ?></div>
@@ -90,16 +83,15 @@ $translate = [
                 </div>
                 <div class="col-sm-2">
                     <select name="type" id="contact-type" class="form-control" style="font-size:10px">
-                        <option value="phone">телефон</option>
-                        <option value="fax">факс</option>
-                        <option value="email">e-mail</option>
-                        <option value="sms">СМС</option>
+                        <?php foreach (ClientContact::$types as $typeKey => $typeName) :?>
+                            <option value="<?= $typeKey; ?>"><?= $typeName; ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-sm-2 field-clientcontact-data">
                     <?php
-                    $f->beginField((new \app\models\ClientContact()),'data');
-                        echo Html::activeInput('text', (new \app\models\ClientContact()),'data', [
+                    $f->beginField((new ClientContact),'data');
+                        echo Html::activeInput('text', (new ClientContact),'data', [
                             'placeholder' => 'Контактные данные',
                             'name' => 'data',
                             'id' => 'clientcontact-data',
