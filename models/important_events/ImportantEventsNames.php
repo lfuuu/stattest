@@ -99,7 +99,7 @@ class ImportantEventsNames extends ActiveRecord
             return $dataProvider;
         }
 
-        if ((int) $this->group_id) {
+        if ($this->group_id = (int) $this->group_id) {
             $query->andFilterWhere(['group_id' => $this->group_id]);
         }
 

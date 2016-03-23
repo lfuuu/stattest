@@ -3,10 +3,16 @@
 namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
+use \app\classes\traits\GetListTrait;
 
+/**
+ * @property string $title
+ * @package app\models\important_events
+ */
 class ImportantEventsGroups extends ActiveRecord
 {
+
+    use GetListTrait;
 
     /**
      * @return string
@@ -38,19 +44,21 @@ class ImportantEventsGroups extends ActiveRecord
     }
 
     /**
-     * @param bool|false $withEmpty
-     * @return array
+     * По какому полю сортировать для getList()
+     * @return []
      */
-    public static function getList($withEmpty = false)
+    public static function getListOrderBy()
     {
-        $query = self::find();
+        return ['id' => SORT_ASC];
+    }
 
-        $list = ArrayHelper::map($query->asArray()->all(), 'id', 'title');
-        if ($withEmpty) {
-            $list = ['' => '-- Группа --'] + $list;
-        }
-
-        return $list;
+    /**
+     * Преобразовать объект в строку
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->title;
     }
 
 }
