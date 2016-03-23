@@ -20,6 +20,7 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
             'account_manager',
             'service',
             'region',
+            'legal_entity',
             'abon',
             'over',
             'total',
