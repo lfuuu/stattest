@@ -297,7 +297,9 @@ abstract class AccountGridFolder extends Model
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('created'),
                         'pluginOptions' => [
-                            'format' => 'YYYY-MM-DD',
+                            'locale' => [
+                                'format' => 'YYYY-MM-DD',
+                            ],
                         ],
                         'containerOptions' => [
                             'style' => 'width:50px; overflow: hidden;',
@@ -318,7 +320,9 @@ abstract class AccountGridFolder extends Model
                         'value' => \Yii::$app->request->get('contract_created'),
                         'presetDropdown' => true,
                         'pluginOptions' => [
-                            'format' => 'YYYY-MM-DD',
+                            'locale' => [
+                                'format' => 'YYYY-MM-DD',
+                            ],
                         ],
                         'containerOptions' => [
                             'style' => 'overflow: hidden;',
@@ -346,7 +350,9 @@ abstract class AccountGridFolder extends Model
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('block_date'),
                         'pluginOptions' => [
-                            'format' => 'YYYY-MM-DD',
+                            'locale' => [
+                                'format' => 'YYYY-MM-DD',
+                            ],
                         ],
                         'containerOptions' => [
                             'style' => 'width:50px; overflow: hidden;',
@@ -472,7 +478,9 @@ abstract class AccountGridFolder extends Model
                         'hideInput' => true,
                         'value' => \Yii::$app->request->get('bill_date'),
                         'pluginOptions' => [
-                            'format' => 'YYYY-MM-DD',
+                            'locale' => [
+                                'format' => 'YYYY-MM-DD',
+                            ],
                         ],
                         'containerOptions' => [
                             'style' => 'width:50px; overflow: hidden;',
