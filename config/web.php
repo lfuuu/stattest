@@ -100,10 +100,10 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-//            'enableStrictParsing' => true,
+            //'enableStrictParsing' => true,
             'rules' => array(
-//                '<controller:\w+>' => '<controller>/index',
-//                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                //'<controller:\w+>' => '<controller>/index',
+                //'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             )
         ],
         'i18n' => [
