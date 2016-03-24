@@ -61,7 +61,7 @@
 		</tr>
 		<tr>
 			<td>Группировка</td>
-			<td colspan="8">
+			<td colspan="4">
 				<select name="groupp">
 					<option value="0">По оператору</option>
 					<option value="1"{if $groupp==1} selected='selected'{/if}>По дням</option>
@@ -69,8 +69,8 @@
 				</select>
 			</td>
 			<td>Регион</td>
-			<td colspan="8">
-                <select class="select2" style="width: 200px" name="region">
+			<td colspan="4">
+                <select class="select2" style="width: 100%" name="region">
                     <option value="0">Все</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
