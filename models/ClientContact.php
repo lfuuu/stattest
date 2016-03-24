@@ -10,11 +10,17 @@ class ClientContact extends ActiveRecord
     const TYPE_FAX = 'fax';
     const TYPE_EMAIL = 'email';
     const TYPE_SMS = 'sms';
+    const TYPE_EMAIL_INVOICE = 'email_invoice';
+    const TYPE_EMAIL_RATE = 'email_rate';
+    const TYPE_EMAIL_SUPPORT = 'email_support';
 
     public static $types =[
         self::TYPE_PHONE => 'Телефон',
         self::TYPE_FAX => 'Факс',
         self::TYPE_EMAIL => 'Email',
+        self::TYPE_EMAIL_INVOICE => 'Email - Invoice',
+        self::TYPE_EMAIL_RATE => 'Email - Rate',
+        self::TYPE_EMAIL_SUPPORT => 'Email - Support',
         self::TYPE_SMS => 'СМС',
     ];
 

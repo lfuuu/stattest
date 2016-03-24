@@ -15,12 +15,15 @@ use app\classes\Html;
         'options' => [
             'enctype' => 'multipart/form-data',
         ],
-        'action' => Url::toRoute(['/message/template/edit-template-content']),
+        'action' => Url::toRoute([
+            '/message/template/edit-template-content',
+            'templateId' => $templateId,
+            'type' => $templateType,
+            'langCode' => $templateLanguageCode,
+        ]),
     ]);
 
-    echo Html::hiddenInput($model->formName() . '[template_id]', $templateId);
-    echo Html::hiddenInput($model->formName() . '[type]', $templateType);
-    echo Html::hiddenInput($model->formName() . '[lang_code]', $templateLanguageCode);
+    echo Html::hiddenInput($model->formName() . '[scenario]', 'file');
 
     if ($file = $model->mediaManager->getFile()) {
         echo Form::widget([

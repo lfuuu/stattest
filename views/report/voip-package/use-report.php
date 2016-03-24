@@ -47,8 +47,10 @@ foreach ($packages as $package) {
                                         'presetDropdown' => true,
                                         'value' => $filter->range ?: (new DateTime('first day of this month'))->format('Y-m-d') . ' : ' . (new DateTime('last day of this month'))->format('Y-m-d'),
                                         'pluginOptions' => [
-                                            'format' => 'YYYY-MM-DD',
-                                            'separator'=>' : ',
+                                            'locale' => [
+                                                'format' => 'YYYY-MM-DD',
+                                                'separator'=>' : ',
+                                            ],
                                         ],
                                         'containerOptions' => [
                                             'style' => 'overflow: hidden;',

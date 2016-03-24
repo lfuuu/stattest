@@ -113,7 +113,9 @@ abstract class MonitorGridColumns
                     'hideInput' => true,
                     'value' => Yii::$app->request->get('created'),
                     'pluginOptions' => [
-                        'format' => 'YYYY-MM-DD',
+                        'locale' => [
+                            'format' => 'YYYY-MM-DD',
+                        ],
                     ],
                     'containerOptions' => [
                         'style' => 'width: 265px; overflow: hidden;',

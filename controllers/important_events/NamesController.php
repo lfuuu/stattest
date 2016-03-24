@@ -4,7 +4,6 @@ namespace app\controllers\important_events;
 
 use Yii;
 use app\classes\BaseController;
-use yii\data\ActiveDataProvider;
 use app\models\important_events\ImportantEventsNames;
 
 class NamesController extends BaseController
@@ -12,13 +11,12 @@ class NamesController extends BaseController
 
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => ImportantEventsNames::find(),
-        ]);
-        $dataProvider->sort = false;
+        $searchModel = new ImportantEventsNames;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('grid', [
             'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
         ]);
     }
 

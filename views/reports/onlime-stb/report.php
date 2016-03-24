@@ -42,8 +42,10 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
                                 'hideInput' => true,
                                 'value' => $filter['dateFrom'] . ' : ' . $filter['dateTo'],
                                 'pluginOptions' => [
-                                    'format' => 'YYYY-MM-DD',
-                                    'separator'=>' : ',
+                                    'locale' => [
+                                        'format' => 'YYYY-MM-DD',
+                                        'separator'=>' : ',
+                                    ],
                                 ],
                             ]);
                             ?>

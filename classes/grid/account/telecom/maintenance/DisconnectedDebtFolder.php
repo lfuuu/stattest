@@ -24,6 +24,7 @@ class DisconnectedDebtFolder extends AccountGridFolder
             'currency',
             'manager',
             'region',
+            'legal_entity',
         ];
     }
 

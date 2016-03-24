@@ -167,7 +167,7 @@ echo Breadcrumbs::widget([
                         DateControl::FORMAT_DATE => [
                             'options' => [
                                 'options' => [
-                                    'placeholder' => $model->disconnecting_date ?: 'Не задано',
+                                    'placeholder' => 'Спустя многие годы...',
                                 ],
                                 'pluginOptions' => [
                                     'todayHighlight' => true,

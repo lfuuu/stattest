@@ -19,6 +19,7 @@ class IncomeFromUsagesFolder extends AccountGridFolder
         return [
             'service',
             'region',
+            'legal_entity',
             'abon',
             'over',
             'total',

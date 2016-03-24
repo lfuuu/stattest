@@ -1,10 +1,5 @@
 jQuery(document).ready(function() {
 
-    $('.select2-tag-support').select2({
-        tags: [],
-        tokenSeparators: [',']
-    });
-
     var $type_id = $('input[name*="type_id"]'),
         $type_action = function() {
             var $value = $type_id.filter(':checked').val();

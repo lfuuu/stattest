@@ -30,6 +30,7 @@ class FailureFolder extends AccountGridFolder
             'sale_channel',
             'manager',
             'region',
+            'legal_entity',
         ];
     }
 

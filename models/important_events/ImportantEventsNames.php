@@ -3,6 +3,7 @@
 namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
+use yii\data\ActiveDataProvider;
 
 /**
  * @property string $value
@@ -60,7 +61,7 @@ class ImportantEventsNames extends ActiveRecord
             [['code', 'value', 'group_id'], 'required'],
             [['code', 'value',], 'trim'],
             ['group_id', 'integer'],
-            [['code', 'group_id'], 'unique'],
+            [['code', 'group_id'], 'unique', 'targetAttribute' => ['code', 'group_id']],
         ];
     }
 
@@ -85,6 +86,32 @@ class ImportantEventsNames extends ActiveRecord
     }
 
     /**
+     * @param array $params
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        $query = self::find();
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false,
+            'sort' => false,
+        ]);
+
+        if (!$this->load($params)) {
+            return $dataProvider;
+        }
+
+        if ($this->group_id = (int) $this->group_id) {
+            $query->andFilterWhere(['group_id' => $this->group_id]);
+        }
+
+        return $dataProvider;
+    }
+
+
+    /**
      * @param bool $isWithEmpty
      * @return self[]
      */
@@ -102,6 +129,5 @@ class ImportantEventsNames extends ActiveRecord
 
         return $list;
     }
-
 
 }

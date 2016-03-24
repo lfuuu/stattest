@@ -46,7 +46,10 @@ echo GridViewCustomFilters::widget([
                 'presetDropdown' => true,
                 'value' => $filterModel->date ?: (new DateTime)->format('Y-m-d') . ' - ' . (new DateTime)->format('Y-m-d'),
                 'pluginOptions' => [
-                    'format' => 'YYYY-MM-DD',
+                    'locale' => [
+                        'format' => 'YYYY-MM-DD',
+                        'separator' => ' - ',
+                    ],
                 ],
                 'containerOptions' => [
                     'style' => 'overflow: hidden;',

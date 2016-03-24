@@ -375,7 +375,10 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->address = $this->address;
         $this->usage->no_of_lines = (int) $this->no_of_lines;
 
-        if ($this->disconnecting_date) {
+        if (empty($this->disconnecting_date) && $this->usage->actual_to != UsageInterface::MAX_POSSIBLE_DATE) {
+            $this->disconnecting_date = UsageInterface::MAX_POSSIBLE_DATE;
+        }
+        if ($this->usage->actual_to != $this->disconnecting_date) {
             $this->setDisconnectionDate();
         }
 
@@ -834,8 +837,10 @@ class UsageVoipEditForm extends UsageVoipForm
     private function setDisconnectionDate()
     {
         $timezone = $this->usage->clientAccount->timezone;
-        $closeDate = new DateTime($this->disconnecting_date, $timezone);
-        $this->usage->actual_to = $closeDate->format('Y-m-d');
+	if (!empty($this->disconnecting_date)) {
+            $closeDate = new DateTime($this->disconnecting_date, $timezone);
+            $this->usage->actual_to = $closeDate->format('Y-m-d');
+	}
 
         $nextHistoryItems =
             LogTarif::find()
