@@ -5,7 +5,7 @@ class AccounttariffEdit
   regions = null
   didGroup = null
   numbersList = null
-  numbersListSelectAll = null
+  numbersListSelectAllCheckbox = null
   numbersListClass = null
   numbersListOrderByField = null
   numbersListOrderByType = null
@@ -15,15 +15,18 @@ class AccounttariffEdit
   constructor: () ->
     setTimeout () =>
       @country = $('#voipCountryId').on('change', @onCountryChange)
-      @numberType = $('#voipNumberType') #.on('change', @onNumberTypeOrRegionsChange)
+      @numberType = $('#voipNumberType').on('change', @onNumberTypeOrRegionsChange)
       @regions = $('#voipRegions').on('change', @onNumberTypeOrRegionsChange)
       @didGroup = $('#voipDidGroup').on('change', @showNumbersList)
-      @numbersList = $('#voipNumbersList')
-      @numbersListSelectAll = $('#voipNumbersListSelectAll input').on('change', @selectAllNumbers)
+
       @numbersListClass = $('#voipNumbersListClass').on('change', @showNumbersList)
       @numbersListOrderByField = $('#voipNumbersListOrderByField').on('change', @showNumbersList)
       @numbersListOrderByType = $('#voipNumbersListOrderByType').on('change', @showNumbersList)
       @numbersListMask = $('#voipNumbersListMask').on('change', @showNumbersList)
+
+      @numbersList = $('#voipNumbersList')
+      @numbersListSelectAll = $('#voipNumbersListSelectAll')
+      @numbersListSelectAllCheckbox = @numbersListSelectAll.find('input').on('change', @selectAllNumbers)
     , 200 # Потому что select2 рендерит чуть позже. @todo
 
 # при изменении страны
@@ -50,9 +53,9 @@ class AccounttariffEdit
 
 # при изменении типа или региона
   onNumberTypeOrRegionsChange: =>
-#    numberTypeVal = @numberType.val()
+    numberTypeVal = @numberType.val()
     regionsVal = @regions.val()
-    if regionsVal
+    if regionsVal && numberTypeVal && numberTypeVal == 'number'
       $.get '/uu/voip/get-did-groups', {cityId: regionsVal, isWithEmpty: true, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop("disabled", false)
@@ -65,9 +68,16 @@ class AccounttariffEdit
 # показать номера
 # при изменении красивости или кол-ва колонок или сортировки
   showNumbersList: =>
+    numberTypeVal = @numberType.val()
     regionsVal = @regions.val()
     didGroupVal = @didGroup.val()
-    if regionsVal
+    if regionsVal && numberTypeVal && numberTypeVal == 'number'
+
+      @numbersListClass.prop("disabled", false)
+      @numbersListOrderByField.prop("disabled", false)
+      @numbersListOrderByType.prop("disabled", false)
+      @numbersListMask.prop("disabled", false)
+
       $.get '/uu/voip/get-free-numbers', {
         cityId: regionsVal,
         didGroupId: didGroupVal,
@@ -77,12 +87,22 @@ class AccounttariffEdit
         mask: @numbersListMask.val()
       }, (html) =>
         @numbersList.html(html) # обновить значения
+        if html
+          @numbersListSelectAll.show()
+        else
+          @numbersListSelectAll.hide()
+
     else
       @numbersList.html('')
+      @numbersListClass.prop("disabled", true)
+      @numbersListOrderByField.prop("disabled", true)
+      @numbersListOrderByType.prop("disabled", true)
+      @numbersListMask.prop("disabled", true)
+      @numbersListSelectAll.hide()
 
 # выбрать все / снять выделение
   selectAllNumbers: =>
-    isChecked = @numbersListSelectAll.is(':checked')
+    isChecked = @numbersListSelectAllCheckbox.is(':checked')
     @numbersList.find('input').prop('checked', isChecked)
 
 new AccounttariffEdit()

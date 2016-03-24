@@ -11,8 +11,8 @@ use yii\widgets\ActiveForm;
 
 ?>
 
+<?php $form = ActiveForm::begin(); ?>
 <div class="resource-tariff-form well">
-    <?php $form = ActiveForm::begin(['id' => 'dynamic-form']); ?>
 
     <?= $this->render('_editLogInput', [
         'formModel' => $formModel,
@@ -25,8 +25,8 @@ use yii\widgets\ActiveForm;
         <?= Html::submitButton(Yii::t('tariff', 'Close tariff'), ['class' => 'btn btn-danger', 'name' => 'closeTariff', 'id' => 'closeTariff']) ?>
     </div>
 
-    <?php ActiveForm::end(); ?>
 </div>
+<?php ActiveForm::end(); ?>
 
 <script type='text/javascript'>
     $(function () {

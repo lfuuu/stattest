@@ -224,7 +224,7 @@ if ($this->js) {
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
 
-        $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
+        $('.layout_main , .layout_left, .panel-toggle-button').css('top', $('#top_search').closest('.row').height()+25);
     });
 </script>
 

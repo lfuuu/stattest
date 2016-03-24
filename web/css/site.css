@@ -231,7 +231,8 @@ a.nohover:hover { color: #000; }
 
 .panel-toggle-button {
     position: fixed;
-    margin-left: -15px;
-    top: 75px;
+    margin-top: -17px;
+    margin-left: -17px;
+    top: 100px;
     cursor: pointer;
 }

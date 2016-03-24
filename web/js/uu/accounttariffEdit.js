@@ -4,7 +4,7 @@
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   AccounttariffEdit = (function() {
-    var country, didGroup, numberType, numbersList, numbersListClass, numbersListMask, numbersListOrderByField, numbersListOrderByType, numbersListSelectAll, regions;
+    var country, didGroup, numberType, numbersList, numbersListClass, numbersListMask, numbersListOrderByField, numbersListOrderByType, numbersListSelectAllCheckbox, regions;
 
     country = null;
 
@@ -16,7 +16,7 @@
 
     numbersList = null;
 
-    numbersListSelectAll = null;
+    numbersListSelectAllCheckbox = null;
 
     numbersListClass = null;
 
@@ -34,15 +34,16 @@
       setTimeout((function(_this) {
         return function() {
           _this.country = $('#voipCountryId').on('change', _this.onCountryChange);
-          _this.numberType = $('#voipNumberType');
+          _this.numberType = $('#voipNumberType').on('change', _this.onNumberTypeOrRegionsChange);
           _this.regions = $('#voipRegions').on('change', _this.onNumberTypeOrRegionsChange);
           _this.didGroup = $('#voipDidGroup').on('change', _this.showNumbersList);
-          _this.numbersList = $('#voipNumbersList');
-          _this.numbersListSelectAll = $('#voipNumbersListSelectAll input').on('change', _this.selectAllNumbers);
           _this.numbersListClass = $('#voipNumbersListClass').on('change', _this.showNumbersList);
           _this.numbersListOrderByField = $('#voipNumbersListOrderByField').on('change', _this.showNumbersList);
           _this.numbersListOrderByType = $('#voipNumbersListOrderByType').on('change', _this.showNumbersList);
-          return _this.numbersListMask = $('#voipNumbersListMask').on('change', _this.showNumbersList);
+          _this.numbersListMask = $('#voipNumbersListMask').on('change', _this.showNumbersList);
+          _this.numbersList = $('#voipNumbersList');
+          _this.numbersListSelectAll = $('#voipNumbersListSelectAll');
+          return _this.numbersListSelectAllCheckbox = _this.numbersListSelectAll.find('input').on('change', _this.selectAllNumbers);
         };
       })(this), 200);
     }
@@ -82,9 +83,10 @@
     };
 
     AccounttariffEdit.prototype.onNumberTypeOrRegionsChange = function() {
-      var regionsVal;
+      var numberTypeVal, regionsVal;
+      numberTypeVal = this.numberType.val();
       regionsVal = this.regions.val();
-      if (regionsVal) {
+      if (regionsVal && numberTypeVal && numberTypeVal === 'number') {
         $.get('/uu/voip/get-did-groups', {
           cityId: regionsVal,
           isWithEmpty: true,
@@ -104,10 +106,15 @@
     };
 
     AccounttariffEdit.prototype.showNumbersList = function() {
-      var didGroupVal, regionsVal;
+      var didGroupVal, numberTypeVal, regionsVal;
+      numberTypeVal = this.numberType.val();
       regionsVal = this.regions.val();
       didGroupVal = this.didGroup.val();
-      if (regionsVal) {
+      if (regionsVal && numberTypeVal && numberTypeVal === 'number') {
+        this.numbersListClass.prop("disabled", false);
+        this.numbersListOrderByField.prop("disabled", false);
+        this.numbersListOrderByType.prop("disabled", false);
+        this.numbersListMask.prop("disabled", false);
         return $.get('/uu/voip/get-free-numbers', {
           cityId: regionsVal,
           didGroupId: didGroupVal,
@@ -117,17 +124,27 @@
           mask: this.numbersListMask.val()
         }, (function(_this) {
           return function(html) {
-            return _this.numbersList.html(html);
+            _this.numbersList.html(html);
+            if (html) {
+              return _this.numbersListSelectAll.show();
+            } else {
+              return _this.numbersListSelectAll.hide();
+            }
           };
         })(this));
       } else {
-        return this.numbersList.html('');
+        this.numbersList.html('');
+        this.numbersListClass.prop("disabled", true);
+        this.numbersListOrderByField.prop("disabled", true);
+        this.numbersListOrderByType.prop("disabled", true);
+        this.numbersListMask.prop("disabled", true);
+        return this.numbersListSelectAll.hide();
       }
     };
 
     AccounttariffEdit.prototype.selectAllNumbers = function() {
       var isChecked;
-      isChecked = this.numbersListSelectAll.is(':checked');
+      isChecked = this.numbersListSelectAllCheckbox.is(':checked');
       return this.numbersList.find('input').prop('checked', isChecked);
     };
 

@@ -61,21 +61,10 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_VOIP_PACKAGE => '',
     ];
 
-    // @todo
-    public $voip_country_id = null;
-    public $voip_number_type = null;
-    public $voip_regions = [];
-    public $voip_did_group = null;
-    public $voip_numbers_list_class = 2;
-    public $voip_numbers_list_order_by_field = 'number';
-    public $voip_numbers_list_order_by_type = SORT_ASC;
-    public $voip_numbers_list_mask = '';
-
     public static function tableName()
     {
         return 'uu_account_tariff';
     }
-
 
     public function rules()
     {

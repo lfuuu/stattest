@@ -4,6 +4,7 @@
  *
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
+ * @var bool $isReadOnly
  */
 
 use app\classes\Html;

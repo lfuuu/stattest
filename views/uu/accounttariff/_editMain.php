@@ -4,6 +4,7 @@
  *
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
+ * @var bool $isReadOnly
  */
 
 
@@ -18,7 +19,7 @@ $serviceType = $formModel->getServiceType();
 ?>
 
 <div class="resource-tariff-form well">
-    <?php $form = ActiveForm::begin(['id' => 'dynamic-form']); ?>
+    <?php $form = ActiveForm::begin(); ?>
 
     <?php // добавить тариф (только для новых записей) ?>
     <?= $accountTariff->isNewRecord ?
@@ -123,7 +124,7 @@ $serviceType = $formModel->getServiceType();
     }
     ?>
 
-    <?php // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.) ?>
+    <?php // свойства услуги конкретного типа услуги (ВАТС, телефония и пр.) ?>
     <?php
     $fileName = '_editServiceType' . $accountTariff->service_type_id;
     $fileNameFull = __DIR__ . '/' . $fileName . '.php';

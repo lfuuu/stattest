@@ -86,7 +86,7 @@ class VoipController extends BaseController
         $didGroupId && $numberActiveQuery->andWhere(['did_group_id' => $didGroupId]);
 
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        $mask && preg_match('/^[\d_%]+$/', $mask) && $numberActiveQuery->andWhere('number LIKE :mask', [':mask' => $mask]);
+        $mask && ($mask = strtr($mask, ['.' => '_', '*' => '%'])) && preg_match('/^[\d_%]+$/', $mask) && $numberActiveQuery->andWhere('number LIKE :mask', [':mask' => $mask]);
 
         $orderByField && $orderByType && $numberActiveQuery->orderBy([$orderByField => (int)$orderByType]);
 

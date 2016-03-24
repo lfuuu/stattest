@@ -31,7 +31,7 @@ $serviceType = $tariff->serviceType;
 
 <div class="resource-tariff-form">
     <?php
-    $form = ActiveForm::begin(['id' => 'dynamic-form']);
+    $form = ActiveForm::begin();
     $viewParams = [
         'formModel' => $formModel,
         'form' => $form,

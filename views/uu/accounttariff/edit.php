@@ -49,8 +49,21 @@ $viewParams = [
 ];
 ?>
 
-<?php // основная форма ?>
-<?= $this->render($isReadOnly ? '_viewMain' : '_editMain', $viewParams) ?>
+<?php
+// свойства услуги конкретного типа услуги (ВАТС, телефония и пр.)
+$fileName = '_editMainServiceType' . $accountTariff->service_type_id;
+$fileNameFull = __DIR__ . '/' . $fileName . '.php';
+if (file_exists($fileNameFull)) {
 
-<?php // лог тарифов ?>
-<?= $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams) ?>
+    // персональный шаблон
+    echo $this->render($fileName, $viewParams);
+
+} else {
+
+    // основная форма
+    echo $this->render($isReadOnly ? '_viewMain' : '_editMain', $viewParams);
+
+    // лог тарифов
+    echo $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams);
+}
+?>
