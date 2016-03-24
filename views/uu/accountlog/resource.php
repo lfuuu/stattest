@@ -6,7 +6,7 @@
  * @var AccountLogResourceFilter $filterModel
  */
 
-use app\classes\grid\column\universal\DateRangeColumn;
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\ResourceColumn;
@@ -34,7 +34,7 @@ $accountTariffTableName = AccountTariff::tableName();
 $columns = [
     [
         'attribute' => 'date',
-        'class' => DateRangeColumn::className(),
+        'class' => DateRangeDoubleColumn::className(),
     ],
     [
         'attribute' => 'tariff_period_id',
