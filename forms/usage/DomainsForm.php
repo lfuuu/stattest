@@ -19,21 +19,16 @@ class DomainsForm extends Form
         $registrator,
         $rucenter_form_no,
         $dns,
-        $paid_till,
-        $comment;
+        $paid_till;
 
     public function rules()
     {
         return [
-            [['client', 'domain', 'primary_mx'], 'required'],
-            [
-                [
-                    'actual_from', 'actual_to', 'client', 'primary_mx', 'domain',
-                    'dns', 'rucenter_form_no', 'comment', 'paid_till',
-                ], 'string'
-            ],
+            [['client', 'domain', 'primary_mx', 'paid_till'], 'required'],
+            [['actual_from', 'actual_to', 'client', 'primary_mx', 'domain', 'dns', 'paid_till',], 'string'],
             ['registrator', 'in', 'range' => ['', 'RUCENTER-REG-RIPN']],
             [['rucenter_form_no',], 'number'],
+            [['rucenter_form_no',], 'default', 'value' => 0],
         ];
     }
 
@@ -49,7 +44,6 @@ class DomainsForm extends Form
             'dns' => 'DNS',
             'paid_till' => 'Оплачен до',
             'rucenter_form_no' => 'Номер клиента в RuCenter',
-            'comment' => 'Комментарий',
         ];
     }
 
