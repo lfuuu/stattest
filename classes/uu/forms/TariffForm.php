@@ -93,6 +93,9 @@ abstract class TariffForm extends Form
             $post = Yii::$app->request->post();
             if ($this->tariff->load($post)) {
 
+                if ($this->tariff->is_autoprolongation) {
+                    $this->tariff->count_of_validity_period = 0;
+                }
                 if ($this->tariff->validate()) {
                     $this->tariff->save();
                     $this->id = $this->tariff->id;
