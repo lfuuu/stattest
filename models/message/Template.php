@@ -1,10 +1,12 @@
 <?php
 namespace app\models\message;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Query;
-use app\models\important_events\ImportantEventsNames;
 use yii\helpers\ArrayHelper;
+use app\models\important_events\ImportantEventsNames;
+use app\classes\behaviors\message\MessageTemplateEvent;
 
 class Template extends ActiveRecord
 {
@@ -37,6 +39,8 @@ class Template extends ActiveRecord
         'hu-HU' => 'Венгерский',
     ];
 
+    public $event;
+
     /**
      * @return array
      */
@@ -44,8 +48,8 @@ class Template extends ActiveRecord
     {
         return [
             ['id', 'integer'],
-            [['name', 'event_code',], 'required'],
-            ['event_code', 'in', 'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')]
+            [['name',], 'required'],
+            ['event', 'in', 'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')]
         ];
     }
 
@@ -56,7 +60,17 @@ class Template extends ActiveRecord
     {
         return [
             'name' => 'Название',
-            'event_code' => 'Событие',
+            'event' => 'Событие',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'Template' => MessageTemplateEvent::className(),
         ];
     }
 
@@ -73,18 +87,12 @@ class Template extends ActiveRecord
         return Template::find();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getEvent()
     {
-        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event_code']);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function delete()
-    {
-        TemplateContent::deleteAll(['template_id' => $this->id]);
-        parent::delete();
+        return TemplateEvents::findOne(['template_id' => $this->id]);
     }
 
     /**

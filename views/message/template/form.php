@@ -36,16 +36,20 @@ echo Breadcrumbs::widget([
         'type' => ActiveForm::TYPE_VERTICAL,
     ]);
 
+    $model->event = $model->getEvent()->event->code;
+
     echo Form::widget([
         'model' => $model,
         'form' => $form,
         'columns' => 2,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT,],
-            'event_code' => [
+            'event' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => ImportantEventsNames::getList(true),
-                'options' => ['class' => 'select2',],
+                'options' => [
+                    'class' => 'select2',
+                ],
             ],
         ]
     ]);

@@ -43,13 +43,13 @@ echo GridView::widget([
             'width' => '*',
         ],
         [
-            'attribute' => 'event_code',
+            'attribute' => 'event',
             'label' => 'Событие',
             'format' => 'raw',
             'value' => function($data) {
                 return Html::a(
-                    $data->event->value,
-                    ['/important_events/names/edit', 'id' => $data->event->id],
+                    $data->getEvent()->event->value,
+                    ['/important_events/names/edit', 'id' => $data->getEvent()->event->id],
                     ['target' => '_blank']
                 );
             },
