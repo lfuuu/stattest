@@ -66,6 +66,9 @@ $config = [
                 ],
             ],
         ],
+        'assetManager' => [
+            'appendTimestamp' => true,
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
             'dirMode' => 0777
