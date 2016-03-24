@@ -1,10 +1,12 @@
 <?php
 namespace app\models\message;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Query;
-use app\classes\Language;
-use app\models\Language as LanguageModel;
+use yii\helpers\ArrayHelper;
+use app\models\important_events\ImportantEventsNames;
+use app\classes\behaviors\message\MessageTemplateEvent;
 
 class Template extends ActiveRecord
 {
@@ -37,6 +39,8 @@ class Template extends ActiveRecord
         'hu-HU' => 'Венгерский',
     ];
 
+    public $event;
+
     /**
      * @return array
      */
@@ -44,7 +48,8 @@ class Template extends ActiveRecord
     {
         return [
             ['id', 'integer'],
-            ['name', 'required'],
+            [['name',], 'required'],
+            ['event', 'in', 'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')]
         ];
     }
 
@@ -55,6 +60,17 @@ class Template extends ActiveRecord
     {
         return [
             'name' => 'Название',
+            'event' => 'Событие',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'Template' => MessageTemplateEvent::className(),
         ];
     }
 
@@ -71,18 +87,12 @@ class Template extends ActiveRecord
         return Template::find();
     }
 
-    public function getLanguage()
-    {
-        return $this->hasOne(LanguageModel::className(), ['code' => 'lang_code']);
-    }
-
     /**
-     * @throws \Exception
+     * @return \yii\db\ActiveQuery
      */
-    public function delete()
+    public function getEvent()
     {
-        TemplateContent::deleteAll(['template_id' => $this->id]);
-        parent::delete();
+        return TemplateEvents::findOne(['template_id' => $this->id]);
     }
 
     /**
