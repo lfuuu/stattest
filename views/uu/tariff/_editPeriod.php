@@ -20,7 +20,7 @@ $tariffPeriodTableName = TariffPeriod::tableName();
     $periodList = Period::getList();
     echo TabularInput::widget([
             'models' => array_values($tariffPeriods), // ключ должен быть автоинкрементный
-            'allowEmptyList' => true,
+            'allowEmptyList' => false,
             'columns' => [
                 [
                     'name' => 'period_id',

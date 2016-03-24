@@ -55,14 +55,7 @@ class TariffFormNew extends TariffForm
      */
     public function getTariffPeriods()
     {
-        $period = Period::find()->where('monthscount = :monthscount', [':monthscount' => 1])->one();
-
-        $tariffPeriod = new TariffPeriod();
-        if ($period) {
-            $tariffPeriod->period_id = $period->id;
-        }
-        return [$tariffPeriod];
-
+        return $this->getNewTariffPeriods();
     }
 
     /**

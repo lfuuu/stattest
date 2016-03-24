@@ -47,7 +47,8 @@ class TariffFormEdit extends TariffForm
      */
     public function getTariffPeriods()
     {
-        return $this->tariff->tariffPeriods;
+        $tariffPeriods = $this->tariff->tariffPeriods;
+        return $tariffPeriods ?: $this->getNewTariffPeriods();
     }
 
     /**

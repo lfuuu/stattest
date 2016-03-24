@@ -3,6 +3,7 @@
 namespace app\classes\uu\forms;
 
 use app\classes\Form;
+use app\classes\uu\model\Period;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
@@ -67,6 +68,20 @@ abstract class TariffForm extends Form
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
+    }
+
+    /**
+     * @return TariffPeriod[]
+     */
+    public function getNewTariffPeriods()
+    {
+        $period = Period::find()->where('monthscount = :monthscount', [':monthscount' => 1])->one();
+
+        $tariffPeriod = new TariffPeriod();
+        if ($period) {
+            $tariffPeriod->period_id = $period->id;
+        }
+        return [$tariffPeriod];
     }
 
     /**
