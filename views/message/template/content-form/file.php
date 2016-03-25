@@ -6,79 +6,53 @@ use kartik\builder\Form;
 use app\classes\Html;
 
 /** @var \app\models\message\TemplateContent $model */
+
+$form = ActiveForm::begin([
+    'type' => ActiveForm::TYPE_VERTICAL,
+    'options' => [
+        'enctype' => 'multipart/form-data',
+    ],
+    'action' => Url::toRoute([
+        '/message/template/edit-template-content',
+        'templateId' => $templateId,
+        'type' => $templateType,
+        'langCode' => $templateLanguageCode,
+    ]),
+]);
 ?>
 
 <div class="container col-xs-12" style="float: none;">
-    <?php
-    $form = ActiveForm::begin([
-        'type' => ActiveForm::TYPE_VERTICAL,
-        'options' => [
-            'enctype' => 'multipart/form-data',
-        ],
-        'action' => Url::toRoute([
-            '/message/template/edit-template-content',
-            'templateId' => $templateId,
-            'type' => $templateType,
-            'langCode' => $templateLanguageCode,
-        ]),
-    ]);
 
-    echo Html::hiddenInput($model->formName() . '[scenario]', 'file');
+    <input type="hidden" name="<?= $model->formName(); ?>[scenario]" value="file" />
 
-    if ($file = $model->mediaManager->getFile()) {
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'attributes' => [
-                [
-                    'type' => Form::INPUT_RAW,
-                    'value' => function() use ($file) {
-                        return
-                            Html::tag('label', 'Устновлен файл') .
-                            Html::beginTag('div', ['class' => 'input-sm']) .
-                                $file['name'] . ' (' . $file['size'] . ' b)' .
-                            Html::endTag('div');
-                    }
-                ],
-            ]
-        ]);
-    }
+    <?php if ($file = $model->mediaManager->getFile()): ?>
+        <div class="form-group">
+            <label>Используемый файл</label><br />
+            <iframe
+                src="<?= Url::toRoute(['/message/template/email-template-content', 'templateId' => $templateId, 'langCode' => $templateLanguageCode]) ?>"
+                scrolling="auto"
+                style="border: 1px solid #D0D0D0;"
+                width="100%"
+                height="500"
+            ></iframe>
+        </div>
+    <?php endif; ?>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'attributes' => [
-            [
-                'type' => Form::INPUT_RAW,
-                'value' => function() use ($model) {
-                    return
-                        Html::tag('label', 'Укажите файл с содержанием') .
-                        Html::beginTag('div', ['class' => 'file_upload form-control input-sm']) .
-                            'Выбрать файл' .
-                            Html::fileInput($model->formName() . '[filename]', '', ['class' => 'media-manager']) .
-                        Html::endTag('div') .
-                        Html::tag('div', '', ['class' => 'media-manager-block']);
-                }
-            ],
-        ]
-    ]);
+    <div class="form-group">
+        <label>Укажите файл с содержанием</label>
+        <div class="file_upload form-control input-sm">
+            Выбрать файл <input type="file" name="<?= $model->formName(); ?>[filename]" class="media-manager" />
+        </div>
+        <div class="media-manager-block"></div>
+    </div>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'attributes' => [
-            'actions' => [
-                'type' => Form::INPUT_RAW,
-                'value' =>
-                    Html::tag(
-                        'div',
-                        Html::submitButton('Сохранить', ['class' => 'btn btn-success']),
-                        ['style' => 'text-align: right; padding-right: 0px;']
-                    )
-            ],
-        ],
-    ]);
+    <div class="form-group">
+        <div style="text-align: right; padding-right: 0;">
+            <input type="submit" value="Сохранить" class="btn btn-success" />
+        </div>
+    </div>
 
-    ActiveForm::end();
-    ?>
 </div>
+
+<?php
+ActiveForm::end();

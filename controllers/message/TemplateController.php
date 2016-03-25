@@ -13,6 +13,9 @@ use app\models\message\TemplateContent;
 class TemplateController extends BaseController
 {
 
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         $model = new Template;
@@ -28,6 +31,10 @@ class TemplateController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string|\yii\web\Response
+     */
     public function actionEdit($id = 0)
     {
         $model = new Template;
@@ -45,6 +52,11 @@ class TemplateController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return \yii\web\Response
+     * @throws \yii\base\Exception
+     */
     public function actionDelete($id)
     {
         $template = Template::findOne($id);
@@ -87,6 +99,24 @@ class TemplateController extends BaseController
         }
 
         return $this->redirect(['message/template']);
+    }
+
+    /**
+     * @param int $templateId
+     * @param string $langCode
+     */
+    public function actionEmailTemplateContent($templateId, $langCode)
+    {
+        /** @var TemplateContent $templateContent */
+        $templateContent = TemplateContent::findOne([
+            'template_id' => $templateId,
+            'lang_code' => $langCode,
+            'type' => 'email'
+        ]);
+
+        if (!is_null($templateContent)) {
+            $templateContent->mediaManager->getContent($templateContent);
+        }
     }
 
 }

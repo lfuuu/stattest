@@ -6,58 +6,29 @@ use kartik\builder\Form;
 use app\classes\Html;
 
 /** @var \app\models\message\TemplateContent $model */
+$form = ActiveForm::begin([
+    'type' => ActiveForm::TYPE_VERTICAL,
+    'action' => Url::toRoute([
+        '/message/template/edit-template-content',
+        'templateId' => $templateId,
+        'type' => $templateType,
+        'langCode' => $templateLanguageCode,
+    ]),
+]);
 ?>
 
 <div class="container col-xs-12" style="float: none;">
-    <?php
-    $form = ActiveForm::begin([
-        'type' => ActiveForm::TYPE_VERTICAL,
-        'action' => Url::toRoute([
-            '/message/template/edit-template-content',
-            'templateId' => $templateId,
-            'type' => $templateType,
-            'langCode' => $templateLanguageCode,
-        ]),
-    ]);
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'attributes' => [
-            'title' => ['type' => Form::INPUT_TEXT],
-        ]
-    ]);
+    <?= $form->field($model, 'title')->textInput(); ?>
+    <?= $form->field($model, 'content')->textarea(['rows' => 20, 'class' => 'form-control editor']); ?>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'attributes' => [
-            'content' => [
-                'type' => Form::INPUT_TEXTAREA,
-                'options' => [
-                    'rows' => 20,
-                    'class' => 'form-control editor',
-                ],
-            ],
-        ]
-    ]);
+    <div class="form-group">
+        <div style="text-align: right; padding-right: 0;">
+            <input type="submit" value="Сохранить" class="btn btn-success" />
+        </div>
+    </div>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'attributes' => [
-            'actions' => [
-                'type' => Form::INPUT_RAW,
-                'value' =>
-                    Html::tag(
-                        'div',
-                        Html::submitButton('Сохранить', ['class' => 'btn btn-success']),
-                        ['style' => 'text-align: right; padding-right: 0px;']
-                    )
-            ],
-        ],
-    ]);
-
-    ActiveForm::end();
-    ?>
 </div>
+
+<?php
+ActiveForm::end();
