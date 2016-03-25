@@ -7,7 +7,10 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
+use app\classes\uu\model\TariffStatus;
 use app\classes\uu\model\TariffVoipCity;
+use app\models\Country;
+use app\models\Currency;
 
 class TariffFormNew extends TariffForm
 {
@@ -32,6 +35,11 @@ class TariffFormNew extends TariffForm
     {
         $tariff = new Tariff();
         $tariff->service_type_id = $this->serviceTypeId;
+        $tariff->country_id = Country::RUSSIA;
+        $tariff->currency_id = Currency::RUB;
+        $tariff->tariff_status_id = TariffStatus::ID_PUBLIC;
+        $tariff->n_prolongation_periods = 0;
+        $tariff->is_autoprolongation = 1;
         return $tariff;
     }
 
@@ -40,14 +48,16 @@ class TariffFormNew extends TariffForm
      */
     public function getTariffResources()
     {
-        $models = [];
+        $tariffResources = [];
         $resources = Resource::findAll(['service_type_id' => $this->serviceTypeId]);
         foreach ($resources as $resource) {
-            $model = new TariffResource();
-            $model->resource_id = $resource->id;
-            $models[] = $model;
+            $tariffResource = new TariffResource();
+            $tariffResource->resource_id = $resource->id;
+            $tariffResource->amount = 0;
+            $tariffResource->price_min = 0;
+            $tariffResources[] = $tariffResource;
         }
-        return $models;
+        return $tariffResources;
     }
 
     /**

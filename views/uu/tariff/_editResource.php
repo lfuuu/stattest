@@ -91,8 +91,8 @@ $tariffResources = $formModel->tariffResources;
                     var $priceInput = $priceDiv.find('input');
                     var $minPriceInput = $priceDiv.next().find('input');
                     if ($checkbox.is(':checked')) {
-                        $priceInput.attr('readonly', 'readonly');
-                        $minPriceInput.attr('readonly', 'readonly');
+                        $priceInput.attr('readonly', 'readonly').val(0);
+                        $minPriceInput.attr('readonly', 'readonly').val(0);
                     } else {
                         $priceInput.removeAttr('readonly');
                         $minPriceInput.removeAttr('readonly');

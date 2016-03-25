@@ -81,6 +81,8 @@ abstract class TariffForm extends Form
         if ($period) {
             $tariffPeriod->period_id = $period->id;
         }
+        $tariffPeriod->price_setup = 0;
+        $tariffPeriod->price_min = 0;
         return [$tariffPeriod];
     }
 
