@@ -1,3 +1,10 @@
+<?php
+
+use app\assets\AppAsset;
+
+$this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [AppAsset::className()]]);
+?>
+
 <div class="row">
     <div class="col-sm-12">
         <?= $this->render('block/main', ['client' => $client, 'account' => $account, 'services' => $services]); ?>
@@ -29,6 +36,4 @@
         });
     </script>
 </div>
-
-<script type="text/javascript" src="/js/behaviors/immediately-print.js"></script>
 

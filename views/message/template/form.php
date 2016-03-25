@@ -8,10 +8,9 @@ use yii\helpers\Url;
 use app\assets\TinymceAsset;
 use app\classes\Html;
 use app\models\message\Template;
-use yii\web\View;
 use app\assets\AppAsset;
 
-/** @var View $this */
+/** @var app\classes\BaseView $this */
 /** @var Template $model */
 
 TinymceAsset::register(Yii::$app->view);

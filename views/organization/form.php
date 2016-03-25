@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
@@ -14,6 +15,13 @@ use app\models\Person;
 
 /** @var $model OrganizationForm */
 
+$this->registerCssFile('@web/css/behaviors/autocomplete-loading.css', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
+
+$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/organization.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::className()]]);
+
 if (!empty($title)) {
     echo Html::formLabel($title);
     echo Breadcrumbs::widget([
@@ -24,13 +32,6 @@ if (!empty($title)) {
     ]);
 }
 ?>
-
-<link href="/css/behaviors/autocomplete-loading.css" type="text/css" rel="stylesheet" />
-<link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
-
-<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
-<script type="text/javascript" src="/js/behaviors/organization.js"></script>
-<script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
 
 <div class="container<?= (!empty($title) ? ' well' : '')?>" style="width: 100%; padding-top: 20px;">
     <?php

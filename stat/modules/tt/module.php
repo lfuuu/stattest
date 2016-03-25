@@ -15,7 +15,7 @@ use app\dao\TroubleDao;
 use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
-use yii\web\View;
+use app\classes\BaseView;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Trouble as YiiTrouble;
 use app\models\TroubleStage as YiiTroubleStage;
@@ -1481,7 +1481,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             $design->assign('curtype',$this->curtype);
             if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
-                $design->assign('form',(new View())->render('@app/views/trouble/_form',[
+                $design->assign('form',(new BaseView)->render('@app/views/trouble/_form',[
                     'account' => $account,
                     'curtype' => $this->curtype,
                     'ttServer' => $design->get_template_vars('tt_server'),

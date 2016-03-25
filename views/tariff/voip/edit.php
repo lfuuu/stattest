@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use app\classes\Html;
@@ -11,6 +12,9 @@ use app\models\Region;
 use app\models\Country;
 use app\models\TariffVoip;
 use app\models\billing\Pricelist;
+
+$this->registerJsFile('@web/js/behaviors/pricelist-voip-filter.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/connection-point-voip-filter.js', ['depends' => [AppAsset::className()]]);
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
@@ -169,6 +173,3 @@ echo Breadcrumbs::widget([
         Время последнего изменения тарифа: <?= (new DateTime($model->edit_time))->format('H:i d.m.Y'); ?>
     </div>
 <?php endif; ?>
-
-<script type="text/javascript" src="/js/behaviors/pricelist-voip-filter.js"></script>
-<script type="text/javascript" src="/js/behaviors/connection-point-voip-filter.js"></script>

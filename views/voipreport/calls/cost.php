@@ -2,7 +2,7 @@
 /**
  * Себестоимость. Отчет по направлениям
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var CallsFilter $filterModel
  */
 

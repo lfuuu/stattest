@@ -1,9 +1,9 @@
 <?php
-use app\classes\StatModule;
-use \app\models\ClientAccount;
-use app\classes\Assert;
+
+use app\models\ClientAccount;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
+use app\classes\BaseView;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -4530,7 +4530,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 
         $design->assign("RManager",
-            (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
+            (new BaseView)->renderFile('@app/views/stats/report/_phone-sales-by-manager.php', [
                 'managers' => \app\classes\stats\PhoneSales::reportByManager(
                     $from_y . '-' . $from_m . '-00',
                     $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца
@@ -4538,7 +4538,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             ]));
 
         $design->assign("RPartner",
-            (new \yii\web\View())->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
+            (new BaseView)->renderFile('@app/views/stats/report/_phone-sales-by-partner.php', [
                 'partners' => \app\classes\stats\PhoneSales::reportByPartner(
                     $from_y . '-' . $from_m . '-00',
                     $to_y . '-' . $to_m . '-' . date('t', mktime(0,0,0, $to_y, 1, $to_m)) // Делаем дату финальным днем конечного месяца

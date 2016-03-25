@@ -49,6 +49,7 @@ $config = [
     'components' => [
         'view' => [
             'title' => 'stat - MCN Телеком',
+            'class' => 'app\classes\BaseView',
         ],
         'request' => [
             'class' => 'app\classes\Request',

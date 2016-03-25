@@ -3,7 +3,7 @@ use app\classes\Html;
 use app\assets\AppAsset;
 use \yii\widgets\ActiveForm;
 
-/* @var $this \yii\web\View */
+/* @var $this app\classes\BaseView */
 /* @var $content string */
 AppAsset::register($this);
 ?>
