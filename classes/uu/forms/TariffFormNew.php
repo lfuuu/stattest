@@ -38,7 +38,7 @@ class TariffFormNew extends TariffForm
         $tariff->country_id = Country::RUSSIA;
         $tariff->currency_id = Currency::RUB;
         $tariff->tariff_status_id = TariffStatus::ID_PUBLIC;
-        $tariff->n_prolongation_periods = 0;
+        $tariff->count_of_validity_period = 0;
         $tariff->is_autoprolongation = 1;
         return $tariff;
     }

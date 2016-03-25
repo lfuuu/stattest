@@ -101,6 +101,5 @@ $tariffResources = $formModel->tariffResources;
                 .trigger('change');
         });
     </script>
-
-
+    
 <?php } ?>

@@ -74,6 +74,16 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                     periods = $(".chargePeriod .list-cell__period_id .select2-container");
                     periods.addClass('hidden'); // все периоды выключить...
                     periods.first().removeClass('hidden'); // ... кроме первого
+
+                    // пустым строчкам установить 0
+                    $(".chargePeriod .list-cell__price_setup input").each(function() {
+                        var $this = $(this);
+                        ($this.val() == '') && $this.val(0);
+                    });
+                    $(".chargePeriod .list-cell__price_min input").each(function() {
+                        var $this = $(this);
+                        ($this.val() == '') && $this.val(0);
+                    });
                 }, 300); // потому что select2 рендерится чуть позже
             })
             .on("change", "#tariffperiod-0-period_id", function (e, item) {
