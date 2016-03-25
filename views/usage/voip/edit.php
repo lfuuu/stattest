@@ -1,5 +1,6 @@
 <?php
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
@@ -12,7 +13,7 @@ use app\models\TariffVoipPackage;
 use app\models\Region;
 use app\models\Number;
 use app\widgets\DateControl as CustomDateControl;
-use app\helpers\DateTimeZoneHelper;
+use app\classes\DateTimeWithUserTimezone;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
@@ -485,7 +486,7 @@ echo Breadcrumbs::widget([
     <tbody>
         <?php foreach ($usagePackages as $package): ?>
             <?php
-            $actualTo = DateTimeZoneHelper::getDateTimeLimit($checkDate = $package->expire_dt, $showDate = $package->actual_to);
+            $actualTo = (new DateTimeWithUserTimezone($package->expire_dt))->formatWithInfinity('Y-m-d');
             $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
             ?>
             <tr style="<?= ($isActive ? 'font-weight: bold;' : '') . ($package->status == 'connecting' ? 'background-color: #ffe0e0;' : ''); ?>">

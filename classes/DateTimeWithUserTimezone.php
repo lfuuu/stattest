@@ -1,14 +1,17 @@
 <?php
 namespace app\classes;
 
+use Yii;
 use DateTime;
 use DateTimeZone;
-use Yii;
+use app\models\usages\UsageInterface;
 
 class DateTimeWithUserTimezone extends DateTime
 {
     const TIMEZONE_DEFAULT = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
+
+    const INFINITY = '∞';
 
     /**
      * @param string $time
@@ -54,4 +57,24 @@ class DateTimeWithUserTimezone extends DateTime
         $this->setTimezone($userTimeZone); // установить (вернуть) юзерскую таймзону
         return $dbDate;
     }
+
+    /**
+     * Определяем дата находится ли в "бесконесности"
+     * @return bool
+     */
+    public function isInfinity()
+    {
+        return $this > (new DateTime)->modify('+20 years');
+    }
+
+    /**
+     * Отображение даты в заданном формате или "бесконечности"
+     * @param string $format
+     * @return string
+     */
+    public function formatWithInfinity($format)
+    {
+        return $this->isInfinity() ? self::INFINITY : $this->format($format);
+    }
+
 }
