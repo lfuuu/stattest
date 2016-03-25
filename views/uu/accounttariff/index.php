@@ -12,7 +12,7 @@ use app\classes\grid\column\universal\TariffPeriodColumn;
 use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
 use app\classes\uu\model\AccountTariff;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 

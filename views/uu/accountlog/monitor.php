@@ -17,7 +17,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\monitor\AccountLogPeriodMonitor;
 use app\classes\uu\monitor\AccountLogResourceMonitor;
 use app\classes\uu\monitor\AccountLogSetupMonitor;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 ?>

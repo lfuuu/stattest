@@ -15,7 +15,7 @@ use app\classes\uu\filter\AccountLogSetupFilter;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 $accountLogPeriodTableName = AccountLogPeriod::tableName();

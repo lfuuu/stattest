@@ -16,7 +16,7 @@ use app\classes\Html;
 use app\classes\uu\filter\AccountLogResourceFilter;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 $accountTariffTableName = AccountTariff::tableName();
@@ -104,10 +104,8 @@ $filterColumns = [
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'beforeHeader' => $this->render('//layouts/_gridBeforeHeaderFilters', [
-        'filterModel' => $filterModel,
-        'filterColumns' => $filterColumns,
-    ]),
-    'filterSelector' => '.beforeHeaderFilters input, .beforeHeaderFilters select',
+    'beforeHeader' => [ // фильтры вне грида
+        'columns' => $filterColumns,
+    ],
     'resizableColumns' => false, // все равно не влезает на экран
 ]) ?>

@@ -19,7 +19,7 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
