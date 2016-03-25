@@ -12,7 +12,7 @@ use app\helpers\DateTimeZoneHelper;
         </div>
         <div class="col-sm-2" class="c-blue-color">
             <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER']):?>
-            <a href="https://<?= Yii::t('settings', 'lk_domain', [], $account->country->lang); ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
+            <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
                 Переход в ЛК
             </a>
             <?php endif; ?>
