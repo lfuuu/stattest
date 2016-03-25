@@ -13,6 +13,8 @@ use yii\db\ActiveRecord;
  * @property int $pricelist_id
  * @property int $minimum_minutes
  * @property int $minimum_cost
+ * @property float $minimum_margin
+ * @property int $minimum_margin_type
  *
  * @property UsageTrunk $usage
  * @property
@@ -22,6 +24,10 @@ class UsageTrunkSettings extends ActiveRecord
     const TYPE_ORIGINATION = 1;
     const TYPE_TERMINATION = 2;
     const TYPE_DESTINATION = 3;
+
+    const MIN_MARGIN_ABSENT  = 0;
+    const MIN_MARGIN_PERCENT = 1;
+    const MIN_MARGIN_VALUE   = 2;
 
     public static function tableName()
     {

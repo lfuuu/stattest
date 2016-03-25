@@ -5,6 +5,10 @@ namespace app\models\important_events;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 
+/**
+ * @property string $value
+ * @package app\models\important_events
+ */
 class ImportantEventsNames extends ActiveRecord
 {
 
@@ -104,6 +108,26 @@ class ImportantEventsNames extends ActiveRecord
         }
 
         return $dataProvider;
+    }
+
+
+    /**
+     * @param bool $isWithEmpty
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false)
+    {
+        $list = [];
+
+        foreach (self::find()->orderBy(['id' => SORT_ASC])->each() as $event) {
+            $list[$event->group->title][$event->code] = $event->value;
+        }
+
+        if ($isWithEmpty) {
+            $list = ['' => '-- Выбор события --'] + $list;
+        }
+
+        return $list;
     }
 
 }

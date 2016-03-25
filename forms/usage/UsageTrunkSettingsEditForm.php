@@ -45,10 +45,22 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
         if ($item->type == UsageTrunkSettings::TYPE_DESTINATION) {
             $item->minimum_minutes = $this->minimum_minutes;
             $item->minimum_cost = $this->minimum_cost;
+
+            $item->minimum_margin_type = UsageTrunkSettings::MIN_MARGIN_ABSENT;
+            $item->minimum_margin = 0;
         } else {
             $item->minimum_minutes = 0;
             $item->minimum_cost = 0;
+
+            $item->minimum_margin_type = $this->minimum_margin_type;
+
+            if ($item->minimum_margin_type == UsageTrunkSettings::MIN_MARGIN_ABSENT) {
+                $item->minimum_margin = 0;
+            } else {
+                $item->minimum_margin = $this->minimum_margin;
+            }
         }
+
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

@@ -7,8 +7,9 @@ use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 use app\assets\TinymceAsset;
 use app\classes\Html;
-use app\models\message\Template;
 use app\assets\AppAsset;
+use app\models\message\Template;
+use app\models\important_events\ImportantEventsNames;
 
 /** @var app\classes\BaseView $this */
 /** @var Template $model */
@@ -34,13 +35,20 @@ echo Breadcrumbs::widget([
         'type' => ActiveForm::TYPE_VERTICAL,
     ]);
 
+    $model->event = $model->getEvent()->event->code;
+
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 1,
+        'columns' => 2,
         'attributes' => [
-            'name' => [
-                'type' => Form::INPUT_TEXT,
+            'name' => ['type' => Form::INPUT_TEXT,],
+            'event' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ImportantEventsNames::getList(true),
+                'options' => [
+                    'class' => 'select2',
+                ],
             ],
         ]
     ]);
