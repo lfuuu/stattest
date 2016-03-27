@@ -89,6 +89,10 @@ class AgentReport
                     'excess' => 0,
                 ];
             }
+            else {
+                $result[$row['id']]['amount'] += $row['amount'];
+                $result[$row['id']]['amountIsPayed'] += $row['amount_is_payed'];
+            }
 
             $firstPaymentDate = (new DateTime($row['first_payment_date']));
             if ($firstPaymentDate <= $this->dateTo && $firstPaymentDate >= $this->dateFrom) {
@@ -134,14 +138,14 @@ class AgentReport
             'usage' => new Expression('"voip"'),
             'type' => 'IF(newbills.bill_date > newbill_lines.date_to, "excess", "fee")',
             'amount' => '(
-                SELECT SUM(sum)
+                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
                 FROM newbills
                 WHERE
                     newbills.client_id = clients.id
                     AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
             )',
             'amount_is_payed' => '(
-                SELECT SUM(sum)
+                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
                 FROM newbills
                 WHERE
                     newbills.client_id = clients.id
@@ -220,14 +224,14 @@ class AgentReport
             'usage' => new Expression('"vpbx"'),
             'type' => 'IF( nb.bill_date > nbl.date_to, "excess", "fee")',
             'amount' => '(
-                SELECT SUM(sum)
+                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
                 FROM newbills
                 WHERE
                     client_id = c.id
                     AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
             )',
             'amount_is_payed' => '(
-                SELECT SUM(sum)
+                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
                 FROM newbills
                 WHERE
                     client_id = c.id
