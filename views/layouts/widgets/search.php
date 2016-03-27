@@ -101,14 +101,14 @@ $request = Yii::$app->request->get();
                     templates: {
                         suggestion: function(obj){
                             if(obj['type'] == 'bill'){
-                                return '<div>'
-                                    + '<a href="' + obj['url'] + '">'
+                                return '<div style="overflow: hidden; width: 98%;">'
+                                    + '<a href="' + obj['url'] + '" title="Счет № ' + obj['value'] + '">'
                                     + ' Счет № ' + obj['value']
                                     + '</a></div>';
                             }
                             else {
-                                return '<div>'
-                                    + '<a href="' + obj['url'] + '">'
+                                return '<div style="overflow: hidden; width: 98%;">'
+                                    + '<a href="' + obj['url'] + '" title=" ЛС № ' + obj['value'] + '">'
                                     + '<div style="background:' + obj['color'] + '; width: 16px;height: 16px;display: inline-block;"></div>'
                                     + ' ЛС № ' + obj['id']
                                     + ' ' + obj['value']
