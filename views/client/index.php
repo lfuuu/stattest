@@ -1,10 +1,21 @@
 <?php
-use kartik\grid\GridView;
+
+use yii\widgets\Breadcrumbs;
+use app\classes\Html;
+use app\classes\grid\GridView;
 use app\classes\grid\account\AccountGridFolder;
 
 /** @var AccountGridFolder $activeFolder */
 
 $urlParams = Yii::$app->request->get();
+
+echo Html::formLabel($activeFolder->grid->getBusinessTitle());
+echo Breadcrumbs::widget([
+    'links' => [
+        $activeFolder->grid->getBusinessTitle(),
+        $activeFolder->grid->getBusinessProcessTitle(),
+    ],
+]);
 ?>
 
 <div class="row">

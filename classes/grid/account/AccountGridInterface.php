@@ -6,12 +6,19 @@ use Yii;
 
 interface AccountGridInterface
 {
-    function getBusiness();
 
-    function getBusinessProcessId();
+    /**
+     * @return int
+     */
+    public function getBusiness();
+
+    /**
+     * @return int
+     */
+    public function getBusinessProcessId();
 
     /**
      * @return AccountGridFolder[]
      */
-    function getFolders();
+    public function getFolders();
 }
