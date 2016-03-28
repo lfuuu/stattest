@@ -28,7 +28,7 @@ class MessageTemplateEvent extends Behavior
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function setMessageTemplateEvent($event)
+    public function setMessageTemplateEvent(ModelEvent $event)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -52,10 +52,18 @@ class MessageTemplateEvent extends Behavior
     /**
      * @param ModelEvent $event
      */
-    public function unsetMessageTemplateEvent($event)
+    public function unsetMessageTemplateEvent(ModelEvent $event)
     {
-        TemplateContent::deleteAll(['template_id' => $event->sender->id]);
-        TemplateEvents::deleteAll(['template_id' => $event->sender->id]);
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            TemplateContent::deleteAll(['template_id' => $event->sender->id]);
+            TemplateEvents::deleteAll(['template_id' => $event->sender->id]);
+            $transaction->commit();
+        }
+        catch (\Exception $e) {
+            $transaction->rollBack();
+            return false;
+        }
     }
 
 }
