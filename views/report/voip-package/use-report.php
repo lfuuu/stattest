@@ -193,8 +193,18 @@ jQuery(document).ready(function() {
 
     $('select[name="filter[mode]"]')
         .on('change', function() {
-            var current = $(this).find('option:selected').val();
-            $('select[name="filter[packages]"] option:eq(0)').prop('disabled', (current == 'by_package_calls' ? true : false));
+            var current = $(this).find('option:selected').val()
+                packages = $('select[name="filter[packages]"]');
+            if (current == 'by_package_calls') {
+                packages.find('option:eq(0)').prop('disabled', true);
+                packages.find('option:eq(1)').prop('selected', true);
+            }
+            else {
+                packages
+                    .find('option:eq(0)')
+                    .prop('disabled', false)
+                    .prop('selected', true);
+            }
         })
         .trigger('change');
 });
