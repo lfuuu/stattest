@@ -10,6 +10,8 @@ class GridView extends \kartik\grid\GridView
 
     const DEFAULT_HEADER_CLASS = \kartik\grid\GridView::TYPE_INFO; // голубой фон th
 
+    const FLOAT_HEADER_TOP = 85; // px. @todo менять динамически в заивимости от выбрать клиент или нет. По аналогии с позиционированием "floatTableClass":"kv-table-float","floatContainerClass":"kv-thead-float"
+
     /**
      * @var boolean whether the grid table will highlight row on `hover`.
      */
@@ -31,7 +33,7 @@ class GridView extends \kartik\grid\GridView
     // заголовок всегда отображать при скроллинге
     public $floatHeader = true;
     public $floatHeaderOptions = [
-        'top' => 77, // высота шапки дизайна
+        'top' => self::FLOAT_HEADER_TOP, // высота шапки дизайна
     ];
 
     /**
@@ -39,6 +41,7 @@ class GridView extends \kartik\grid\GridView
      */
     public $panelHeadingTemplate = <<< HTML
     <div class="pull-right">
+        {floatThead}
         {export}
     </div>
     <div class="pull-left">
@@ -133,4 +136,42 @@ HTML;
         return $rows;
     }
 
+    /**
+     * Initalize grid layout
+     */
+    protected function initLayout()
+    {
+        parent::initLayout();
+        $this->layout = strtr($this->layout, [
+            '{floatThead}' => $this->renderFloatTheadButton(),
+        ]);
+    }
+
+    /**
+     * Сгенерировать кнопку для {floatThead}
+     * @return string
+     */
+    protected function renderFloatTheadButton()
+    {
+        $top = self::FLOAT_HEADER_TOP;
+        $view = $this->getView();
+        $view->registerJs('$(function () {
+            $("#pushpinTableHeader").on("click", function() {
+                var $this = $(this);
+                if ($this.hasClass("active")) {
+                    $this.removeClass("active");
+                    $(".kv-grid-table").floatThead("destroy");
+                } else {
+                    $this.addClass("active");
+                    $(".kv-grid-table").floatThead({ top:' . $top . ', floatTableClass:"kv-table-float", floatContainerClass:"kv-thead-float" });
+                }
+            });
+        });');
+
+        return Html::button('', [
+            'class' => 'btn btn-default glyphicon glyphicon-pushpin active pointer',
+            'title' => Yii::t('common', 'Pushpin table header'),
+            'id' => 'pushpinTableHeader',
+        ]);
+    }
 }
