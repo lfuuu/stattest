@@ -654,7 +654,7 @@ abstract class AccountGridFolder extends Model
                         'legal_entity',
                         Yii::$app->request->get('legal_entity'),
                         ['' => '- Все -'] + Organization::$ourLegalEntities,
-                        ['class' => 'form-control', 'style' => 'width:150px;']
+                        ['class' => 'form-control', 'style' => 'min-width:80px;']
                     );
                 },
             ]
