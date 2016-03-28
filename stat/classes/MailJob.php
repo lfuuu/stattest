@@ -98,26 +98,49 @@ class MailJob {
     {
         global $db;
 
-        $T = "";
-
-        if($match[1] == "ORDER") 
-        {
-            $T = "Приказ о назначении: ".
-                $this->get_object_link('order', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
-        }elseif($match[1] == "NOTICE") {
-            $T = "Уведомление о назначении: ".
-                $this->get_object_link('notice', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
-        }elseif($match[1] == "DIRECTOR") {
-            $T = "Информационное письмо о смене генерального директора: ".
-                $this->get_object_link('new_director_info', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
-        }elseif($match[1] == "DOGOVOR") {
-            $T = BillContract::getString($this->client["id"], time());
-        }elseif($match[1] == "NOTICE_MCM") {
-            $T = "Уведомление о передаче прав и обязанностей по договору №".BillContract::getString($this->client["id"], time()).": " . 
-                $this->get_object_link('notice_mcm_telekom', $this->client["id"]);
+        switch ($match[1]) {
+            case 'ORDER': {
+                return
+                    'Приказ о назначении: ' .
+                    $this->get_object_link(
+                        'order',
+                        $db->GetValue("SELECT bill_no FROM newbills WHERE client_id = '" . $this->client['id'] . "' ORDER BY bill_date DESC LIMIT 1")
+                    );
+            }
+            case 'NOTICE': {
+                return
+                    'Уведомление о назначении: ' .
+                    $this->get_object_link(
+                        'notice',
+                        $db->GetValue("SELECT bill_no FROM newbills WHERE client_id = '" . $this->client['id'] . "' ORDER BY bill_date DESC LIMIT 1")
+                    );
+            }
+            case 'DIRECTOR': {
+                return
+                    'Информационное письмо о смене генерального директора: ' .
+                    $this->get_object_link(
+                        'new_director_info',
+                        $db->GetValue("SELECT bill_no FROM newbills WHERE client_id = '" . $this->client['id'] . "' ORDER BY bill_date DESC LIMIT 1")
+                    );
+            }
+            case 'DOGOVOR': {
+                return
+                    BillContract::getString($this->client['id'], time());
+            }
+            case 'NOTICE_MCM': {
+                return
+                    'Уведомление о передаче прав и обязанностей по договору №' .
+                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    $this->get_object_link('notice_mcm_telekom', $this->client['id']);
+            }
+            case 'SOGL_MCM': {
+                return
+                    'Соглашение о передаче прав и обязанностей по договору №' .
+                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    $this->get_object_link('sogl_mcm_telekom', $this->client['id']);
+            }
         }
-
-        return $T;
+        return '';
     }
 
 	public function _get_bills($match){
@@ -223,6 +246,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(DOGOVOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(NOTICE_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}

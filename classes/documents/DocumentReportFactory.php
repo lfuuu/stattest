@@ -14,16 +14,22 @@ use app\models\Bill;
 class DocumentReportFactory extends Singleton
 {
 
+    /**
+     * @return array
+     */
     private static function getDocTypes()
     {
         return [
             BillDocRepRuRUB::className(),
             BillDocRepHuHUF::className(),
             DocNoticeMCMTelekom::className(),
+            DocSoglMCMTelekom::className(),
         ];
     }
 
     /**
+     * @param Bill $bill
+     * @param bool|false $docType
      * @return DocumentReport[]
      */
     public function availableDocuments(Bill $bill, $docType = false)
@@ -35,6 +41,9 @@ class DocumentReportFactory extends Singleton
     }
 
     /**
+     * @param bool|false $language
+     * @param bool|false $currency
+     * @param bool|false $docType
      * @return DocumentReport[]
      */
     public function availableDocumentsEx($language = false, $currency = false, $docType = false)
@@ -42,11 +51,18 @@ class DocumentReportFactory extends Singleton
         $result = [];
 
         foreach (self::getDocTypes() as $documentClass) {
+            /** @var DocumentReport $documentReport */
             $documentReport = new $documentClass;
 
-            if ($docType !== false && $documentReport->getDocType() != $docType) continue;
-            if ($language !== false && $documentReport->getLanguage() != $language) continue;
-            if ($currency !== false && $documentReport->getCurrency() != $currency) continue;
+            if ($docType !== false && $documentReport->getDocType() != $docType) {
+                continue;
+            }
+            if ($language !== false && $documentReport->getLanguage() != $language) {
+                continue;
+            }
+            if ($currency !== false && $documentReport->getCurrency() != $currency) {
+                continue;
+            }
 
             $result[] = $documentReport;
         }
@@ -55,7 +71,11 @@ class DocumentReportFactory extends Singleton
     }
 
     /**
+     * @param Bill $bill
+     * @param $docType
+     * @param bool|false $sendEmail
      * @return DocumentReport
+     * @throws \yii\base\Exception
      */
     public function getReport(Bill $bill, $docType, $sendEmail = false)
     {

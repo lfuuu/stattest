@@ -1318,15 +1318,15 @@ class m_newaccounts extends IModule
                     'Приказ о назначении: ' => array("order"),
                     'Уведомление о назначении: ' => array("notice"),
                     'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
-                    'Уведомление о передачи прав: ' => array('notice_mcm_telekom')
+                    'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
+                    'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
         );
 
         foreach ($D as $k=>$rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r == "notice_mcm_telekom")
-                    {
+                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom') {
                         $is_pdf = 1;
                     }
 
@@ -1491,7 +1491,7 @@ class m_newaccounts extends IModule
         $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'notice_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1760,6 +1760,11 @@ class m_newaccounts extends IModule
 
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
+        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected('bill');
+        if (!$bill_no) {
+            return false;
+        }
+
 
         self::$object = $object;
         if ($object) {
@@ -1770,18 +1775,6 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUB');
         }
 
-        if($obj == "receipt")
-        {
-            $this->_print_receipt();
-            exit();
-        }
-
-        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected("bill");
-        if(!$bill_no)
-            return;
-
-
-
         $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
         if ($billModel)
         {
@@ -1789,22 +1782,29 @@ class m_newaccounts extends IModule
             $design->assign("organization", $organization);
         }
 
-
-        if ($obj == 'notice_mcm_telekom')
-        {
-            if ($billModel)
-            {
-                $report = DocumentReportFactory::me()->getReport($billModel, $obj);
-                if ($is_pdf)
-                {
-                    echo $report->renderAsPDF();
-                } else {
-                    echo $report->render();
+        switch ($obj) {
+            case 'receipt': {
+                $this->_print_receipt();
+                exit;
+                break;
+            }
+            case 'notice_mcm_telekom': {
+                if ($billModel) {
+                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
+                    echo $is_pdf ? $report->renderAsPDF() : $report->render();
+                    exit;
                 }
-                exit();
+                break;
+            }
+            case 'sogl_mcm_telekom': {
+                if ($billModel) {
+                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
+                    echo $is_pdf ? $report->renderAsPDF() : $report->render();
+                    exit;
+                }
+                break;
             }
         }
-
 
         $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
         $design->assign("to_client", $to_client);
