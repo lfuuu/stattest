@@ -86,7 +86,12 @@
       var numberTypeVal, regionsVal;
       numberTypeVal = this.numberType.val();
       regionsVal = this.regions.val();
-      if (regionsVal && numberTypeVal && numberTypeVal === 'number') {
+      if (numberTypeVal === 'number') {
+        this.regions.prop("disabled", false);
+      } else {
+        this.regions.prop("disabled", true);
+      }
+      if (regionsVal && numberTypeVal === 'number') {
         $.get('/uu/voip/get-did-groups', {
           cityId: regionsVal,
           isWithEmpty: true,
@@ -110,22 +115,30 @@
       numberTypeVal = this.numberType.val();
       regionsVal = this.regions.val();
       didGroupVal = this.didGroup.val();
-      if (regionsVal && numberTypeVal && numberTypeVal === 'number') {
+      if (regionsVal && numberTypeVal === 'number') {
         this.numbersListClass.prop("disabled", false);
         this.numbersListOrderByField.prop("disabled", false);
         this.numbersListOrderByType.prop("disabled", false);
         this.numbersListMask.prop("disabled", false);
+      } else {
+        this.numbersListClass.prop("disabled", true);
+        this.numbersListOrderByField.prop("disabled", true);
+        this.numbersListOrderByType.prop("disabled", true);
+        this.numbersListMask.prop("disabled", true);
+      }
+      if (numberTypeVal === '7800' || numberTypeVal === 'line' || (numberTypeVal && regionsVal)) {
         return $.get('/uu/voip/get-free-numbers', {
           cityId: regionsVal,
           didGroupId: didGroupVal,
           rowClass: this.numbersListClass.val(),
           orderByField: this.numbersListOrderByField.val(),
           orderByType: this.numbersListOrderByType.val(),
-          mask: this.numbersListMask.val()
+          mask: this.numbersListMask.val(),
+          numberType: numberTypeVal
         }, (function(_this) {
           return function(html) {
             _this.numbersList.html(html);
-            if (html) {
+            if (_this.numbersList.find('input').length) {
               return _this.numbersListSelectAll.show();
             } else {
               return _this.numbersListSelectAll.hide();
@@ -134,10 +147,6 @@
         })(this));
       } else {
         this.numbersList.html('');
-        this.numbersListClass.prop("disabled", true);
-        this.numbersListOrderByField.prop("disabled", true);
-        this.numbersListOrderByType.prop("disabled", true);
-        this.numbersListMask.prop("disabled", true);
         return this.numbersListSelectAll.hide();
       }
     };

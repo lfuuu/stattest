@@ -40,9 +40,8 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
         <?php // тип номера ?>
         <?= $form->field($accountTariffVoip, 'voip_number_type')
             ->widget(Select2::className(), [
-                'data' => Tariff::getVoipTypesByCountryId($accountTariffVoip->voip_country_id, true),
+                'data' => Tariff::getVoipTypesByCountryId($accountTariffVoip->voip_country_id, true), // страна выбрана от клиента
                 'options' => [
-//                    'disabled' => true, // страна выбрана от клиента
                     'id' => 'voipNumberType',
                 ],
             ]) ?>
@@ -52,9 +51,9 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
         <?php // регион (город) ?>
         <?= $form->field($accountTariffVoip, 'voip_regions')
             ->widget(Select2::className(), [
-                'data' => City::dao()->getList(true, $accountTariffVoip->voip_country_id),
+                'data' => City::dao()->getList(true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
                 'options' => [
-//                    'disabled' => true, // страна выбрана от клиента
+                    'disabled' => true,
                     'id' => 'voipRegions',
                 ],
             ]) ?>
@@ -128,12 +127,12 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
     <div class="col-sm-3">
         <?php // маска ?>
+        <?= $this->render('//layouts/_helpMysqlLike'); ?>
         <?= $form->field($accountTariffVoip, 'voip_numbers_list_mask')
             ->input('string', [
                 'disabled' => true,
                 'id' => 'voipNumbersListMask',
             ]) ?>
-        Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)
     </div>
 
 </div>

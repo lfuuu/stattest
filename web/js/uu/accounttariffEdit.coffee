@@ -55,7 +55,13 @@ class AccounttariffEdit
   onNumberTypeOrRegionsChange: =>
     numberTypeVal = @numberType.val()
     regionsVal = @regions.val()
-    if regionsVal && numberTypeVal && numberTypeVal == 'number'
+
+    if numberTypeVal == 'number' # для номера нужно выбрать город
+      @regions.prop("disabled", false)
+    else # для 7800, линии или неуказанного нельзя выбрать город
+      @regions.prop("disabled", true)
+
+    if regionsVal && numberTypeVal == 'number'
       $.get '/uu/voip/get-did-groups', {cityId: regionsVal, isWithEmpty: true, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop("disabled", false)
@@ -71,13 +77,19 @@ class AccounttariffEdit
     numberTypeVal = @numberType.val()
     regionsVal = @regions.val()
     didGroupVal = @didGroup.val()
-    if regionsVal && numberTypeVal && numberTypeVal == 'number'
 
+    if regionsVal and numberTypeVal == 'number' # выбирать пока только для номера. Потом еще для 7800
       @numbersListClass.prop("disabled", false)
       @numbersListOrderByField.prop("disabled", false)
       @numbersListOrderByType.prop("disabled", false)
       @numbersListMask.prop("disabled", false)
+    else
+      @numbersListClass.prop("disabled", true)
+      @numbersListOrderByField.prop("disabled", true)
+      @numbersListOrderByType.prop("disabled", true)
+      @numbersListMask.prop("disabled", true)
 
+    if numberTypeVal == '7800' or numberTypeVal == 'line' or (numberTypeVal and regionsVal)
       $.get '/uu/voip/get-free-numbers', {
         cityId: regionsVal,
         didGroupId: didGroupVal,
@@ -85,19 +97,16 @@ class AccounttariffEdit
         orderByField: @numbersListOrderByField.val(),
         orderByType: @numbersListOrderByType.val()
         mask: @numbersListMask.val()
+        numberType: numberTypeVal
       }, (html) =>
         @numbersList.html(html) # обновить значения
-        if html
+        if @numbersList.find('input').length # есть чекбоксы - показать "выбрать все"
           @numbersListSelectAll.show()
         else
           @numbersListSelectAll.hide()
 
     else
       @numbersList.html('')
-      @numbersListClass.prop("disabled", true)
-      @numbersListOrderByField.prop("disabled", true)
-      @numbersListOrderByType.prop("disabled", true)
-      @numbersListMask.prop("disabled", true)
       @numbersListSelectAll.hide()
 
 # выбрать все / снять выделение

@@ -84,7 +84,7 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                         var $this = $(this);
                         ($this.val() == '') && $this.val(0);
                     });
-                }, 300); // потому что select2 рендерится чуть позже
+                }, 400); // потому что select2 рендерится чуть позже
             })
             .on("change", "#tariffperiod-0-period_id", function (e, item) {
                 $(".chargePeriod .multiple-input").trigger("onChangePeriod"); // при изменении первого периода - менять все

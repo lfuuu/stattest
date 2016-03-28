@@ -76,6 +76,11 @@ class Tariff extends \yii\db\ActiveRecord
 
     const DELTA_SMS = 5000;
 
+    const NUMBER_TYPE_NUMBER = 'number';
+    const NUMBER_TYPE_7800 = '7800';
+    const NUMBER_TYPE_LINE = 'line';
+
+
     public $serviceIdToDelta = [
         ServiceType::ID_VPBX => self::DELTA_VPBX,
         ServiceType::ID_VOIP => self::DELTA_VOIP,
@@ -301,9 +306,9 @@ class Tariff extends \yii\db\ActiveRecord
     public static function getVoipTypesByCountryId($countryId = null, $isWithEmpty = false)
     {
         $types = [
-            'number' => 'Номер',
-            '7800' => '7800',
-            'line' => 'Линия без номера',
+            self::NUMBER_TYPE_NUMBER => 'Номер',
+            self::NUMBER_TYPE_7800 => '7800',
+            self::NUMBER_TYPE_LINE => 'Линия без номера',
             //'operator' => 'Оператор',
         ];
 

@@ -6,10 +6,12 @@
 namespace app\controllers\uu;
 
 use app\classes\BaseController;
+use app\classes\Html;
 use app\classes\uu\model\Tariff;
 use app\models\City;
 use app\models\DidGroup;
 use app\models\Number;
+use app\models\UsageVoip;
 use Yii;
 use yii\web\Response;
 
@@ -76,11 +78,29 @@ class VoipController extends BaseController
      *
      * @param int $didGroupId
      */
-    public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '')
+    public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '', $numberType = '')
     {
-        if (!$cityId) {
-            throw new \InvalidArgumentException('Wrong didGroupId');
+        switch ($numberType) {
+            case Tariff::NUMBER_TYPE_NUMBER:
+                break;
+            case Tariff::NUMBER_TYPE_7800:
+                return '<div class="alert alert-danger">Номера 7800 пока не заведены в базу данных</div>';
+                break;
+            case Tariff::NUMBER_TYPE_LINE:
+                $number = UsageVoip::dao()->getNextLineNumber();
+                return Html::checkbox('numberIds[]', true, [
+                    'value' => $number,
+                    'label' => $number,
+                ]);
+                break;
+            default:
+                throw new \InvalidArgumentException('Wrong numberType');
         }
+
+        if (!$cityId) {
+            throw new \InvalidArgumentException('Wrong cityId');
+        }
+
         $numberActiveQuery = Number::dao()->getFreeNumbers();
         $numberActiveQuery->andWhere(['city_id' => $cityId]);
         $didGroupId && $numberActiveQuery->andWhere(['did_group_id' => $didGroupId]);
