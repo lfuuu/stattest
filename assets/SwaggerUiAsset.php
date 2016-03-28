@@ -3,7 +3,7 @@
 namespace app\assets;
 
 use yii\web\AssetBundle;
-use yii\web\View;
+use app\classes\BaseView;
 
 class SwaggerUiAsset extends AssetBundle
 {
@@ -38,7 +38,7 @@ class SwaggerUiAsset extends AssetBundle
     ];
 
     public $jsOptions = [
-        'position' => View::POS_HEAD,
+        'position' => BaseView::POS_HEAD,
     ];
 
 }

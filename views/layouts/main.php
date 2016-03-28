@@ -2,7 +2,7 @@
 use app\assets\AppAsset;
 use app\classes\Html;
 
-/* @var $this \yii\web\View */
+/* @var $this app\classes\BaseView */
 /* @var $user \app\models\User */
 
 global $fixclient_data;

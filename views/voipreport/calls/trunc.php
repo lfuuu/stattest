@@ -2,7 +2,7 @@
 /**
  * Звонки в транке. Список звонков
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var CallsFilter $filterModel
  */
 

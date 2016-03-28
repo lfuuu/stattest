@@ -2,7 +2,7 @@
 /**
  * Список DID групп
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var DidGroupFilter $filterModel
  */
 

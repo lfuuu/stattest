@@ -2,7 +2,7 @@
 namespace app\assets;
 
 use yii\web\AssetBundle;
-use yii\web\View;
+use app\classes\BaseView;
 
 /**
  * @author Qiang Xue <qiang.xue@gmail.com>
@@ -30,7 +30,7 @@ class AppAsset extends AssetBundle
     ];
 
     public $jsOptions = [
-        'position' => View::POS_HEAD,
+        'position' => BaseView::POS_HEAD,
     ];
 
     public $depends = [

@@ -2,7 +2,7 @@
 /**
  * Список курсов валют
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var CurrencyRateFilter $filterModel
  */
 

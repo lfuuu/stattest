@@ -1,11 +1,12 @@
 <?php
+
+use app\assets\AppAsset;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
-use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use app\models\User;
 use app\models\TariffVoip;
@@ -18,6 +19,9 @@ use app\classes\DateTimeWithUserTimezone;
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
+
+$this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
 
 $types = [
     'number' => 'Номер',
@@ -598,5 +602,3 @@ ActiveForm::end();
 <br />
 <br />
 <br />
-<link href="/css/behaviors/text-field-help-icon.css" rel="stylesheet" />
-<script type="text/javascript" src="/js/behaviors/usage-voip-address-from-datacenter.js"></script>

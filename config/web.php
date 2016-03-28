@@ -49,6 +49,7 @@ $config = [
     'components' => [
         'view' => [
             'title' => 'stat - MCN Телеком',
+            'class' => 'app\classes\BaseView',
         ],
         'request' => [
             'class' => 'app\classes\Request',
@@ -65,6 +66,9 @@ $config = [
                     'useJsonp' => true,
                 ],
             ],
+        ],
+        'assetManager' => [
+            'appendTimestamp' => true,
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -97,10 +101,10 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-//            'enableStrictParsing' => true,
+            //'enableStrictParsing' => true,
             'rules' => array(
-//                '<controller:\w+>' => '<controller>/index',
-//                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                //'<controller:\w+>' => '<controller>/index',
+                //'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             )
         ],
         'i18n' => [

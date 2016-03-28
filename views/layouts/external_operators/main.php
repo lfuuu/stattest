@@ -1,7 +1,7 @@
 <?php
 use app\classes\Html;
 use app\assets\AppAsset;
-/* @var $this \yii\web\View */
+/* @var $this app\classes\BaseView */
 
 AppAsset::register($this);
 ?>

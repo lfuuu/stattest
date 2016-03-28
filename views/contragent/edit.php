@@ -1,4 +1,5 @@
 <?php
+
 use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
@@ -93,4 +94,3 @@ $model->formLang = $language;
         }
     });
 </script>
-<script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>

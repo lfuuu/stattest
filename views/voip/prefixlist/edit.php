@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Html;
@@ -10,6 +11,9 @@ use app\models\voip\Prefixlist;
 use app\models\billing\Geo;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoOperator;
+
+$this->registerJsFile('@web/js/jquery.chained.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/prefixlist.js', ['depends' => [AppAsset::className()]]);
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
@@ -216,6 +220,3 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-
-<script type="text/javascript" src="/js/jquery.chained.js"></script>
-<script type="text/javascript" src="/js/behaviors/prefixlist.js"></script>

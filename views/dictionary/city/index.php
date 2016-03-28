@@ -2,7 +2,7 @@
 /**
  * Список городов
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var CityFilter $filterModel
  */
 

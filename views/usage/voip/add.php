@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
@@ -13,6 +14,9 @@ use app\widgets\DateControl as CustomDateControl;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
+
+$this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
 
 $types = [
     'number' => 'Номер',
@@ -227,6 +231,3 @@ jQuery(document).ready(function() {
     });
 });
 </script>
-
-<link href="/css/behaviors/text-field-help-icon.css" rel="stylesheet" />
-<script type="text/javascript" src="/js/behaviors/usage-voip-address-from-datacenter.js"></script>

@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use app\classes\Html;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -9,6 +10,9 @@ use kartik\builder\Form;
 use app\forms\person\PersonForm;
 
 /** @var $model PersonForm */
+
+$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::className()]]);
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
@@ -25,9 +29,6 @@ echo Breadcrumbs::widget([
     ],
 ]);
 ?>
-
-<link href="/css/behaviors/image-preview-select.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/js/behaviors/image-preview-select.js"></script>
 
 <div class="container well" style="width: 100%; padding-top: 20px;">
     <fieldset style="width: 100%;">

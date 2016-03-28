@@ -2,7 +2,7 @@
 /**
  * Список стран
  *
- * @var \yii\web\View $this
+ * @var app\classes\BaseView $this
  * @var CountryFilter $filterModel
  */
 

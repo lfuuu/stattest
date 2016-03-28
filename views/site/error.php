@@ -2,7 +2,7 @@
 
 use app\classes\Html;
 
-/* @var $this yii\web\View */
+/* @var $this app\classes\BaseView */
 /* @var $name string */
 /* @var $message string */
 /* @var $exception Exception */

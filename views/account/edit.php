@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
@@ -7,6 +8,11 @@ use yii\helpers\Url;
 use app\classes\Language;
 use app\models\ClientDocument;
 use app\models\UserGroups;
+
+$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/client-account-options.js', ['depends' => [AppAsset::className()]]);
 
 $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
@@ -250,7 +256,3 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 </div>
 
 <script> var templates = <?= json_encode(\app\dao\ClientDocumentDao::templateList()) ?>; </script>
-<script type="text/javascript" src="/js/behaviors/find-bik.js"></script>
-<script type="text/javascript" src="/js/behaviors/show-last-changes.js"></script>
-<script type="text/javascript" src="/js/behaviors/change-doc-template.js"></script>
-<script type="text/javascript" src="/js/behaviors/client-account-options.js"></script>
