@@ -51,8 +51,10 @@ class AgentController extends BaseController
         $account = ClientAccount::findOne($partnerContractId);
 
         $data = [];
+        $report = new AgentReport;
+
         if ($account) {
-            $data = AgentReport::run($partnerContractId, $dateFrom, $dateTo);
+            $data = $report->run($partnerContractId, $dateFrom, $dateTo);
         }
 
         if (Yii::$app->request->get('exportToCSV')) {
@@ -61,8 +63,8 @@ class AgentController extends BaseController
         } else {
             return $this->render('report', [
                 'data' => $data,
-                'contractsWithoutReward' => AgentReport::getWithoutRewardContracts(),
-                'contractsWithIncorrectBP' => AgentReport::getContractsWithIncorrectBP(),
+                'contractsWithoutReward' => $report->getWithoutRewardContracts(),
+                'contractsWithIncorrectBP' => $report->getContractsWithIncorrectBP(),
                 'partnerList' => $partnerList,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,

@@ -2,141 +2,295 @@
 namespace app\classes\stats;
 
 use Yii;
+use DateTime;
+use yii\db\Expression;
 use yii\db\Query;
 use app\models\Business;
+use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\ClientContractReward;
+use app\models\ClientContragent;
+use app\models\Bill;
+use app\models\BillLine;
+use app\models\LogTarif;
+use app\models\TariffVirtpbx;
+use app\models\TariffVoip;
+use app\models\UsageVoip;
+use app\models\UsageVirtpbx;
 
 class AgentReport
 {
 
-    public static function run($partnerId, $dateFrom, $dateTo)
+    /** @var DateTime $dateFrom, $dateTo */
+    private
+        $dateFrom,
+        $dateTo;
+
+    /**
+     * @param int $partnerId
+     * @param string $dateFrom
+     * @param string $dateTo
+     * @return array
+     */
+    public function run($partnerId, $dateFrom, $dateTo)
     {
-        $resultVoip = [];
-        $resultVpbx = [];
+        $reportVoip =
+        $reportVirpbx = [];
 
-        foreach (static::voipPartnerInfo($partnerId) as $info) {
-            static::counter($info, $resultVoip, $dateFrom, $dateTo);
+        $this->dateFrom = (new DateTime($dateFrom));
+        $this->dateTo = (new DateTime($dateTo));
+
+        foreach ($this->voipPartnerInfo($partnerId) as $info) {
+            $this->counter($info, $reportVoip);
         }
 
-        foreach (static::vpbxPartnerInfo($partnerId) as $info) {
-            static::counter($info, $resultVpbx, $dateFrom, $dateTo);
+        foreach ($this->vpbxPartnerInfo($partnerId) as $info) {
+            $this->counter($info, $reportVirpbx);
         }
 
-        return array_merge(array_values($resultVpbx), array_values($resultVoip));
+        $report = array_merge(array_values($reportVoip), array_values($reportVirpbx));
+        $report = array_filter($report, function($row) {
+            return $row['once'] || $row['fee'] || $row['excess'];
+        });
+
+        return $report;
     }
 
-    private static function counter($info, &$result, $dateFrom, $dateTo)
+    /**
+     * @param array $row
+     * @param array $result
+     */
+    private function counter($row, &$result)
     {
-        $dateFrom = strtotime($dateFrom);
-        $dateTo = strtotime($dateTo);
+        $billDate = (new DateTime($row['bill_date']));
+        $dateOffset = (new DateTime($row['activation_dt']))->modify('+' . $row['period_month'] . ' month');
 
-        if($dateFrom <= strtotime($info['bill_date']) && $dateTo >= strtotime($info['bill_date'])
-            && ($info['period_type'] == 'always'
-                || strtotime($info['bill_date']) < strtotime("+{$info['period_month']} month", strtotime($info['activation_dt'])))
-        ){
-            if(!isset($result[$info['id']])){
-                $result[$info['id']] = [
-                    'id' => $info['id'],
-                    'name' => $info['name'],
-                    'created' => $info['created'],
-                    'activationDate' => $info['activation_dt'],
-                    'amountIsPayed' => $info['amount_is_payed'],
-                    'amount' => $info['amount'],
-                    'usage' => $info['usage'],
-                    'tariffName' => $info['tariff_name'],
+        if (
+            $this->dateFrom <= $billDate && $this->dateTo >= $billDate
+                &&
+            (
+                $row['period_type'] === 'always'
+                    ||
+                $billDate < $dateOffset
+            )
+        ) {
+            if (!isset($result[$row['id']])) {
+                $result[$row['id']] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'created' => $row['created'],
+                    'activationDate' => $row['activation_dt'],
+                    'amountIsPayed' => $row['amount_is_payed'],
+                    'amount' => $row['amount'],
+                    'usage' => $row['usage'],
+                    'tariffName' => $row['tariff_name'],
                     'once' => 0,
                     'fee' => 0,
                     'excess' => 0,
                 ];
             }
-
-            if(strtotime($info['first_payment_date']) <= $dateTo && strtotime($info['first_payment_date']) >= $dateFrom){
-                $result[$info['id']]['once'] = $info['once_only'];
+            else {
+                $result[$row['id']]['amount'] += $row['amount'];
+                $result[$row['id']]['amountIsPayed'] += $row['amount_is_payed'];
             }
 
-            if($info['type'] == 'excess'){
-                $result[$info['id']]['excess'] += $info['percentage_of_over'] * $info['sum'] / 100;
-            } elseif($info['type'] == 'fee'){
-                $result[$info['id']]['fee'] += $info['percentage_of_fee'] * $info['sum'] / 100;
+            $firstPaymentDate = (new DateTime($row['first_payment_date']));
+            if ($firstPaymentDate <= $this->dateTo && $firstPaymentDate >= $this->dateFrom) {
+                $result[$row['id']]['once'] = $row['once_only'];
+            }
+
+            switch ($row['type']) {
+                case 'excess': {
+                    $result[$row['id']]['excess'] += $row['percentage_of_over'] * $row['amount'] / 100;
+                    break;
+                }
+                case 'fee': {
+                    $result[$row['id']]['fee'] += $row['percentage_of_fee'] * $row['amount'] / 100;
+                    break;
+                }
             }
         }
     }
 
-    private static function voipPartnerInfo($partnerId)
+    /**
+     * @param int $partnerId
+     * @return array
+     */
+    private function voipPartnerInfo($partnerId)
     {
-        $query = (new Query())
-            ->select([
-                'clients.id',
-                'client_contragent.name',
-                'DATE(clients.created) AS created',
-                'DATE(usage_voip.activation_dt) AS activation_dt',
-                'client_contract_reward.once_only',
-                'client_contract_reward.percentage_of_fee',
-                'client_contract_reward.percentage_of_over',
-                'client_contract_reward.period_type',
-                'client_contract_reward.period_month',
-                'DATE(newbills.bill_date) AS bill_date',
-                'newbill_lines.sum',
-                'tarifs_voip.name AS tariff_name',
-                '\'voip\' AS `usage`',
+        $dateFrom = $this->dateFrom->format('Y-m-d');
+        $dateTo = $this->dateTo->format('Y-m-d');
 
-                'IF( newbills.bill_date > newbill_lines.date_to, \'excess\', \'fee\' ) AS `type`',
+        $query = new Query;
 
-                '(SELECT SUM(sum) FROM newbills WHERE newbills.client_id = clients.id) AS `amount`',
-                '(SELECT SUM(sum) FROM newbills WHERE newbills.client_id = clients.id AND is_payed = 1) AS `amount_is_payed`',
-                '(SELECT MIN(bill_date) FROM newbills WHERE newbills.client_id = clients.id AND is_payed = 1 ) AS `first_payment_date`',
-            ])
-            ->from('clients')
-            ->innerJoin('client_contract', 'clients.contract_id = client_contract.id')
-            ->innerJoin('client_contragent', 'client_contragent.id = client_contract.contragent_id')
-            ->innerJoin('usage_voip', 'usage_voip.client = clients.client')
-            ->innerJoin('log_tarif', 'log_tarif.service = \'usage_voip\' AND id_service = usage_voip.id')
-            ->innerJoin('tarifs_voip', 'tarifs_voip.id = log_tarif.id_tarif')
-            ->innerJoin('client_contract_reward',
-                'client_contract_reward.contract_id = client_contragent.partner_contract_id AND client_contract_reward.usage_type = \'voip\''
+        $query->select([
+            'clients.id',
+            'client_contragent.name',
+            'created' => 'DATE(clients.created)',
+            'activation_dt' => 'DATE(usage_voip.activation_dt)',
+            'client_contract_reward.once_only',
+            'client_contract_reward.percentage_of_fee',
+            'client_contract_reward.percentage_of_over',
+            'client_contract_reward.period_type',
+            'client_contract_reward.period_month',
+            'bill_date' => 'DATE(newbills.bill_date)',
+            'tariff_name' => 'tarifs_voip.name',
+            'usage' => new Expression('"voip"'),
+            'type' => 'IF(newbills.bill_date > newbill_lines.date_to, "excess", "fee")',
+            'amount' => '(
+                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
+                FROM newbills
+                WHERE
+                    newbills.client_id = clients.id
+                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
+            )',
+            'amount_is_payed' => '(
+                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
+                FROM newbills
+                WHERE
+                    newbills.client_id = clients.id
+                    AND is_payed = 1
+                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
+            )',
+            'first_payment_date' => '(
+                SELECT MIN(bill_date)
+                FROM newbills
+                WHERE
+                    newbills.client_id = clients.id
+                    AND is_payed = 1
+            )',
+        ]);
+
+        $query
+            ->from(ClientAccount::tableName() . ' clients')
+            ->innerJoin(ClientContract::tableName() . ' client_contract', 'clients.contract_id = client_contract.id')
+            ->innerJoin(ClientContragent::tableName() . ' client_contragent', 'client_contragent.id = client_contract.contragent_id')
+            ->innerJoin(UsageVoip::tableName() . ' usage_voip', 'usage_voip.client = clients.client')
+            ->innerJoin(LogTarif::tableName() . ' log_tarif', 'log_tarif.service = :service AND id_service = usage_voip.id')
+            ->innerJoin(TariffVoip::tableName() . ' tarifs_voip', 'tarifs_voip.id = log_tarif.id_tarif')
+            ->innerJoin(
+                ClientContractReward::tableName() . ' client_contract_reward',
+                'client_contract_reward.contract_id = client_contragent.partner_contract_id AND client_contract_reward.usage_type = :usageType'
             )
-            ->innerJoin('newbill_lines', 'newbill_lines.service = \'usage_voip\' AND newbill_lines.id_service = usage_voip.id')
-            ->innerJoin('newbills', 'newbills.bill_no = newbill_lines.bill_no')
+            ->innerJoin(
+                BillLine::tableName() . ' newbill_lines',
+                'newbill_lines.service = :service AND newbill_lines.id_service = usage_voip.id'
+            )
+            ->innerJoin(Bill::tableName() . ' newbills', 'newbills.bill_no = newbill_lines.bill_no');
 
-            ->where('newbills.is_payed = 1')
-            ->andWhere('client_contragent.partner_contract_id = :partnerId', [
-                ':partnerId' => $partnerId,
-            ])->groupBy('newbill_lines.pk');
+        $query
+            ->where([
+                'client_contragent.partner_contract_id' => $partnerId,
+                'newbills.is_payed' => 1,
+            ])
+            ->andWhere(['between', 'newbills.bill_date', $dateFrom, $dateTo]);
 
-        return $query->createCommand()->queryAll(\PDO::FETCH_ASSOC);
+        $query->groupBy('newbill_lines.pk');
+
+        $query->params([
+            ':dateFrom' => $dateFrom,
+            ':dateTo' => $dateTo,
+            ':service' => UsageVoip::tableName(),
+            '::billTbl' => Bill::tableName(),
+            ':usageType' => 'voip',
+        ]);
+
+        return $query->each();
     }
 
-    private static function vpbxPartnerInfo($partnerId)
+    /**
+     * @param int $partnerId
+     * @return array
+     */
+    private function vpbxPartnerInfo($partnerId)
     {
-        return Yii::$app->db
-            ->createCommand("
-                    SELECT 
-                       c.id, 
-                       cg.name, 
-                       DATE(c.created) AS created, 
-                       DATE(u.activation_dt) AS activation_dt,
-                       rw.once_only, rw.percentage_of_fee, rw.percentage_of_over, rw.period_type, rw.period_month,
-                       DATE(nb.bill_date) AS bill_date, nbl.sum, t.description AS tariff_name, 'vpbx' AS `usage`,
-                       IF( nb.bill_date > nbl.date_to, 'excess', 'fee' ) AS `type`,
-                       (SELECT SUM(sum) FROM newbills WHERE client_id = c.id) AS `amount`,
-                       (SELECT SUM(sum) FROM newbills WHERE client_id = c.id AND is_payed = 1) AS `amount_is_payed`,
-                       (SELECT MIN(bill_date) FROM newbills WHERE client_id = c.id AND is_payed = 1) AS `first_payment_date`
-                   FROM clients c
-                   INNER JOIN client_contract cr ON cr.id = c.contract_id
-                   INNER JOIN client_contragent cg ON cg.id = cr.contragent_id
-                   INNER JOIN usage_virtpbx u ON u.client = c.client
-                   INNER JOIN `log_tarif` lt ON lt.service = 'usage_virtpbx' AND id_service = u.id
-                   INNER JOIN tarifs_virtpbx t ON t.id = lt.id_tarif
-                   INNER JOIN client_contract_reward rw ON rw.contract_id = cg.partner_contract_id AND rw.usage_type = 'virtpbx'
-                   INNER JOIN newbill_lines nbl ON nbl.service = 'usage_virtpbx' AND nbl.id_service = u.id
-                   INNER JOIN newbills nb ON nb.bill_no = nbl.bill_no
+        $dateFrom = $this->dateFrom->format('Y-m-d');
+        $dateTo = $this->dateTo->format('Y-m-d');
 
-                   WHERE cg.partner_contract_id = :partnerId AND nb.is_payed = 1
-                   GROUP BY nbl.pk
-        ", [':partnerId' => $partnerId])
-            ->queryAll(\PDO::FETCH_ASSOC);
+        $query = new Query;
+
+        $query->select([
+            'c.id',
+            'cg.name',
+            'created' => 'DATE(c.created)',
+            'activation_dt' => 'DATE(u.activation_dt)',
+            'rw.once_only',
+            'rw.percentage_of_fee',
+            'rw.percentage_of_over',
+            'rw.period_type',
+            'rw.period_month',
+            'bill_date' => 'DATE(nb.bill_date)',
+            'tariff_name' => 't.description',
+            'usage' => new Expression('"vpbx"'),
+            'type' => 'IF( nb.bill_date > nbl.date_to, "excess", "fee")',
+            'amount' => '(
+                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
+                FROM newbills
+                WHERE
+                    client_id = c.id
+                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
+            )',
+            'amount_is_payed' => '(
+                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
+                FROM newbills
+                WHERE
+                    client_id = c.id
+                    AND is_payed = 1
+                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
+            )',
+            'first_payment_date' => '(
+                SELECT MIN(bill_date)
+                FROM newbills
+                WHERE
+                    client_id = c.id
+                    AND is_payed = 1
+            )',
+        ]);
+
+        $query
+            ->from(ClientAccount::tableName() . ' c')
+            ->innerJoin(ClientContract::tableName() . ' cr', 'cr.id = c.contract_id')
+            ->innerJoin(ClientContragent::tableName() . ' cg', 'cg.id = cr.contragent_id')
+            ->innerJoin(UsageVirtpbx::tableName() . ' u', 'u.client = c.client')
+            ->innerJoin(
+                LogTarif::tableName() . ' lt',
+                'lt.service = :service AND lt.id_service = u.id'
+            )
+            ->innerJoin(TariffVirtpbx::tableName() . ' t', 't.id = lt.id_tarif')
+            ->innerJoin(
+                ClientContractReward::tableName() . ' rw',
+                'rw.contract_id = cg.partner_contract_id AND rw.usage_type = :usageType'
+            )
+            ->innerJoin(
+                BillLine::tableName() . ' nbl',
+                'nbl.service = :service AND nbl.id_service = u.id'
+            )
+            ->innerJoin(Bill::tableName() . ' nb', 'nb.bill_no = nbl.bill_no');
+
+        $query
+            ->where([
+                'cg.partner_contract_id' => $partnerId,
+                'nb.is_payed' => 1,
+            ])
+            ->andWhere(['between', 'nb.bill_date', $dateFrom, $dateTo]);
+
+        $query->groupBy('nbl.pk');
+
+        $query->params([
+            ':dateFrom' => $dateFrom,
+            ':dateTo' => $dateTo,
+            ':service' => UsageVirtpbx::tableName(),
+            '::billTbl' => Bill::tableName(),
+            ':usageType' => 'virtpbx',
+        ]);
+
+        return $query->each();
     }
 
-    public static function getWithoutRewardContracts()
+    /**
+     * @return array
+     */
+    public function getWithoutRewardContracts()
     {
         return Yii::$app->db
             ->createCommand("
@@ -161,7 +315,10 @@ class AgentReport
             ")->queryAll(\PDO::FETCH_ASSOC);
     }
 
-    public static function getContractsWithIncorrectBP()
+    /**
+     * @return array
+     */
+    public function getContractsWithIncorrectBP()
     {
         return Yii::$app->db
             ->createCommand("

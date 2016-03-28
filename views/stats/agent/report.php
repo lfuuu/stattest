@@ -44,7 +44,10 @@ $excess = 0;
                     'name' => 'date',
                     'value' => $dateFrom && $dateTo ? "$dateFrom - $dateTo" : '',
                     'pluginOptions' => [
-                        'format' => 'YYYY-MM-DD'
+                        'locale' => [
+                            'format' => 'YYYY-MM-DD',
+                            'separator' => ' - ',
+                        ],
                     ]
                 ]) ?>
             </div>
