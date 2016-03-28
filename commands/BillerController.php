@@ -17,7 +17,7 @@ class BillerController extends Controller
     {
         define('MONTHLY_BILLING', 1);
 
-        Yii::info('Запущен тариффикатор');
+        Yii::info("Запущен тарификатор");
 
         $partSize = 500;
         $date = new DateTime();
@@ -43,15 +43,13 @@ class BillerController extends Controller
             }
 
 
-        }
-        catch (\Exception $e) {
-            Yii::error('ОШИБКА ТАРИФФИКАТОРА');
+        } catch (\Exception $e) {
+            Yii::error('ОШИБКА ТАРИФИКАТОРА');
             Yii::error($e);
             return Controller::EXIT_CODE_ERROR;
         }
 
-        Yii::info('Тариффикатор закончил работу');
-        return Controller::EXIT_CODE_NORMAL;
+        Yii::info("Тарификатор закончил работу");
     }
 
     /**
@@ -62,7 +60,7 @@ class BillerController extends Controller
      */
     private function tarifficateClientAccount(ClientAccount $clientAccount, DateTime $date, $position)
     {
-        Yii::info('Тариффикатор.' .  $position . '. Лицевой счет: ' . $clientAccount->id);
+        Yii::info("Тарификатор. $position. Лицевой счет: " . $clientAccount->id);
 
         try {
 
@@ -75,9 +73,8 @@ class BillerController extends Controller
             ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
                 ->process();
 
-        }
-        catch (\Exception $e) {
-            Yii::error('ОШИБКА ТАРИФФИКАТОРА. Лицевой счет: ' . $clientAccount->id);
+        } catch (\Exception $e) {
+            Yii::error('ОШИБКА ТАРИФИКАТОРА. Лицевой счет: ' . $clientAccount->id);
             Yii::error($e);
             return Controller::EXIT_CODE_ERROR;
         }

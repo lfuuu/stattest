@@ -26,30 +26,43 @@ use yii\db\ActiveRecord;
  * @property City $city
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
-
- * @method static Number findOne($condition)
- * @property
  */
 class Number extends ActiveRecord
 {
 
-    const STATUS_INSTOCK  = 'instock';
-    const STATUS_HOLD     = 'hold';
-    const STATUS_ACTIVE   = 'active';
+    const STATUS_INSTOCK = 'instock';
+    const STATUS_HOLD = 'hold';
+    const STATUS_ACTIVE = 'active';
     const STATUS_RESERVED = 'reserved';
-    const STATUS_NOTSELL  = 'notsell';
+    const STATUS_NOTSELL = 'notsell';
 
     public static $statusList = [
         self::STATUS_NOTSELL => 'Не продается',
-        self::STATUS_INSTOCK  => 'Свободен',
+        self::STATUS_INSTOCK => 'Свободен',
         self::STATUS_RESERVED => 'В резерве',
-        self::STATUS_ACTIVE   => 'Используется',
-        self::STATUS_HOLD     => 'В отстойнике',
+        self::STATUS_ACTIVE => 'Используется',
+        self::STATUS_HOLD => 'В отстойнике',
     ];
 
     public static function tableName()
     {
         return 'voip_numbers';
+    }
+
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'number' => 'Номер',
+            'client_id' => 'Клиент',
+            'usage_id' => 'Услуга',
+            'city_id' => 'Город',
+            'did_group_id' => 'DID группа',
+            'beauty_level' => 'Степень красивости',
+        ];
     }
 
     public static function dao()

@@ -4,14 +4,14 @@ use app\assets\AppAsset;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
+use app\models\billing\Pricelist;
+use app\models\Country;
 use app\models\Currency;
 use app\models\Region;
-use app\models\Country;
 use app\models\TariffVoip;
-use app\models\billing\Pricelist;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\widgets\Breadcrumbs;
 
 $this->registerJsFile('@web/js/behaviors/pricelist-voip-filter.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/connection-point-voip-filter.js', ['depends' => [AppAsset::className()]]);
@@ -67,19 +67,26 @@ echo Breadcrumbs::widget([
         'columns' => 3,
         'attributes' => [
             'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $countries, 'options' => ['class' => 'select2'] + $optionDisabled],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $connectionPoints, 'options' =>
-                [
-                    'class' => 'select2',
-                    'options' => $connectionPointsOptions,
-                ] + $optionDisabled
+            'connection_point_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $connectionPoints,
+                'options' =>
+                    [
+                        'class' => 'select2',
+                        'options' => $connectionPointsOptions,
+                    ] + $optionDisabled
             ],
             'dest' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $destinations, 'options' => ['class' => 'select2'] + $optionDisabled],
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $currencies, 'options' => ['class' => 'select2'] + $optionDisabled],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
-            'pricelist_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $priceLists, 'options' => [
-                'class' => 'select2',
-                'options' => $priceListsOptions,
-            ]],
+            'pricelist_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $priceLists,
+                'options' => [
+                    'class' => 'select2',
+                    'options' => $priceListsOptions,
+                ]
+            ],
         ],
     ]);
 
@@ -168,8 +175,8 @@ echo Breadcrumbs::widget([
 
 <?php if ($model->id): ?>
     <div class="well">
-        <b>Последние изменения</b><br />
-        Пользователь, изменивший тариф последний раз: <?= $user->name; ?><br />
+        <b>Последние изменения</b><br/>
+        Пользователь, изменивший тариф последний раз: <?= $user->name; ?><br/>
         Время последнего изменения тарифа: <?= (new DateTime($model->edit_time))->format('H:i d.m.Y'); ?>
     </div>
 <?php endif; ?>

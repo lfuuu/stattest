@@ -159,7 +159,14 @@ if (isset($fixclient_data['id'])) {
                     $('.layout_main').removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
                     $this.text($hideText);
                 }
-                $(document).trigger('scroll'); // чтобы перерендерить некоторые элементы с fixed-позицией
+
+                // перерендерить пришпиленную шапка таблицы
+                var $table = $('.kv-grid-table');
+                try {
+                    $table.floatThead && $table.floatThead('reflow');
+                } catch(err) {
+
+                }
             });
         });
     </script>
@@ -224,7 +231,7 @@ if ($this->js) {
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
 
-        $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
+        $('.layout_main , .layout_left, .panel-toggle-button').css('top', $('#top_search').closest('.row').height()+25);
     });
 </script>
 

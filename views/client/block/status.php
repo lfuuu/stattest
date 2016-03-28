@@ -152,7 +152,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
 
     $(function () {
         document.cookie = "openedBlock=;";
-        <?php if($_COOKIE['openedBlock']!='statuses'):?>
+        <?php if(!isset($_COOKIE['openedBlock']) || $_COOKIE['openedBlock']!='statuses'):?>
         $('.status-block-toggle').click();
         <?php endif; ?>
 

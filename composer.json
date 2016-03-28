@@ -21,7 +21,6 @@
         "bower-asset/bootstrap-multiselect": "@stable",
         "zircote/swagger-php": "^2.0",
         "bower-asset/swagger-ui": "*",
-        "wbraganca/yii2-dynamicform": "@stable",
         "KidSysco/jquery-ui-month-picker": "dev-master",
         "yiisoft/yii2-httpclient": "^2.0@dev",
         "kartik-v/yii2-tabs-x": "^1.2"

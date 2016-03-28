@@ -58,10 +58,10 @@ foreach ($contacts as $contact) {
                     <div class="col-sm-1 text-nowrap"><?= ClientContact::$types[$contact->type] ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
-                    <div class="col-sm-2"><?= $contact->user->name ?></div>
+                    <div class="col-sm-2"><?= $contact->user? $contact->user->name: '' ?></div>
                     <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
                     <div class="col-sm-1">
-                        <?php if ($contact->user->user == 'AutoLK'): ?>
+                        <?php if ($contact->user && $contact->user->user == 'AutoLK'): ?>
                             <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id]) ?>">
                                 <img style="margin-left:-2px;margin-top:-3px" class="icon"
                                      src="/images/icons/<?= $contact->is_active ? 'action_check_off.gif' : 'action_check.gif' ?>"

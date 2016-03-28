@@ -210,6 +210,11 @@ a.nohover:hover { color: #000; }
     min-width: 110px;
 }
 
+.tariff-person-column,
+.tariff-status-column,
+.country-column,
+.currency-column,
+.tariff-voip-group-column,
 .server-column,
 .destination-column,
 .trunk-column,
@@ -223,6 +228,14 @@ a.nohover:hover { color: #000; }
     min-width: 160px;
 }
 
+.resource-column {
+    min-width: 200px;
+}
+
+.tariff-period-column {
+    min-width: 250px;
+}
+
 .beforeHeaderFilters > div.row > div {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -230,7 +243,8 @@ a.nohover:hover { color: #000; }
 
 .panel-toggle-button {
     position: fixed;
-    margin-left: -15px;
-    top: 75px;
+    margin-top: -17px;
+    margin-left: -17px;
+    top: 100px;
     cursor: pointer;
 }

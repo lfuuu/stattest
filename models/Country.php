@@ -85,5 +85,4 @@ class Country extends ActiveRecord
     {
         return $this->name;
     }
-
 }

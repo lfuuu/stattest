@@ -23,12 +23,7 @@ use app\classes\DateTimeWithUserTimezone;
 $this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
 
-$types = [
-    'number' => 'Номер',
-    '7800' => '7800',
-    'line' => 'Линия без номера',
-    //'operator' => 'Оператор',
-];
+$types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
 $noYes = [
     '0' => 'Нет',
@@ -101,6 +96,7 @@ echo Breadcrumbs::widget([
     ]);
 
     if ($model->type_id == 'number') {
+        $number = Number::findOne($model->did);
         echo Form::widget([
             'model' => $model,
             'form' => $form,
@@ -111,7 +107,7 @@ echo Breadcrumbs::widget([
                     'value' => '
                         <div class="form-group">
                             <label class="control-label">DID группа</label>
-                            <input type="text" class="form-control" value="' . Number::findOne($model->did)->didGroup->name . '" readonly="readonly" />
+                            <input type="text" class="form-control" value="' . ($number? $number->didGroup->name: '') . '" readonly="readonly" />
                         </div>
                     ',
                 ],
@@ -283,10 +279,10 @@ echo Breadcrumbs::widget([
                 <td width="100%">
                     <?= Html::encode($item->voipTariffMain->name) ?>
                     (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
-                    / Моб <?= Html::encode($item->voipTariffLocalMob->name) ?>
-                    / МГ <?= Html::encode($item->voipTariffRussia->name) ?>
-                    / МГ Моб <?= Html::encode($item->voipTariffRussiaMob->name) ?>
-                    / МН <?= Html::encode($item->voipTariffIntern->name) ?>
+                    / Моб <?= Html::encode($item->voipTariffLocalMob? $item->voipTariffLocalMob->name_short: '') ?>
+                    / МГ <?= Html::encode($item->voipTariffRussia? $item->voipTariffRussia->name_short: '') ?>
+                    / МГ Моб <?= Html::encode($item->voipTariffRussiaMob? $item->voipTariffRussiaMob->name_short:'') ?>
+                    / МН <?= Html::encode($item->voipTariffIntern? $item->voipTariffIntern->name_short: '') ?>
 
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 

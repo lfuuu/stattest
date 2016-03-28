@@ -2,15 +2,15 @@
 
 use app\assets\AppAsset;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use kartik\datecontrol\DateControl;
 use app\models\City;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\widgets\DateControl as CustomDateControl;
+use kartik\builder\Form;
+use kartik\datecontrol\DateControl;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
@@ -18,12 +18,7 @@ use app\widgets\DateControl as CustomDateControl;
 $this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
 
-$types = [
-    'number' => 'Номер',
-    '7800' => '7800',
-    'line' => 'Линия без номера',
-    //'operator' => 'Оператор',
-];
+$types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
 $noYes = [
     '0' => 'Нет',
@@ -58,19 +53,25 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> City::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload',]],
-            ['type' => Form::INPUT_RAW, 'value' => '
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload',]],
+            [
+                'type' => Form::INPUT_RAW,
+                'value' => '
                 <div class="form-group">
                     <label class="control-label">Страна</label>
-                    <input type="text" class="form-control" value="'. $clientAccount->country->name .'" readonly>
+                    <input type="text" class="form-control" value="' . $clientAccount->country->name . '" readonly>
                 </div>
-            '],
-            ['type' => Form::INPUT_RAW, 'value' => '
+            '
+            ],
+            [
+                'type' => Form::INPUT_RAW,
+                'value' => '
                 <div class="form-group">
                     <label class="control-label">Валюта</label>
-                    <input type="text" class="form-control" value="'. $clientAccount->currency .'" readonly>
+                    <input type="text" class="form-control" value="' . $clientAccount->currency . '" readonly>
                 </div>
-            '],
+            '
+            ],
         ],
     ]);
 
@@ -161,11 +162,11 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_local_mob_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariff_group_local_mob_price],
+            'tariff_group_local_mob_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_local_mob_price],
             'tariff_group_local_mob' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_russia_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariff_group_russia_price],
+            'tariff_group_russia_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_russia_price],
             'tariff_group_russia' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2']],
@@ -173,7 +174,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariff_group_intern_price],
+            'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_intern_price],
             'tariff_group_intern' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
         ],
     ]);
@@ -221,13 +222,13 @@ echo Breadcrumbs::widget([
 </div>
 
 <script type="text/javascript">
-function submitForm(scenario) {
-    $('#scenario').val(scenario);
-    $('#<?=$form->getId()?>')[0].submit();
-}
-jQuery(document).ready(function() {
-    $('.form-reload').change(function() {
-        submitForm('default');
+    function submitForm(scenario) {
+        $('#scenario').val(scenario);
+        $('#<?=$form->getId()?>')[0].submit();
+    }
+    jQuery(document).ready(function () {
+        $('.form-reload').change(function () {
+            submitForm('default');
+        });
     });
-});
 </script>

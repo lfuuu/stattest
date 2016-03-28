@@ -4,15 +4,14 @@ use app\assets\AppAsset;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
+use app\models\billing\Pricelist;
+use app\models\Country;
 use app\models\Currency;
 use app\models\Region;
-use app\models\Country;
-use app\models\TariffVoip;
-use app\models\billing\Pricelist;
 use app\models\voip\Destination;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\widgets\Breadcrumbs;
 
 $this->registerJsFile('@web/js/behaviors/tariff-voip-package.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/pricelist-voip-filter.js', ['depends' => [AppAsset::className()]]);
@@ -68,11 +67,14 @@ echo Breadcrumbs::widget([
         'columns' => 3,
         'attributes' => [
             'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $countries, 'options' => ['class' => 'select2'] + $optionDisabled],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $connectionPoints, 'options' =>
-                [
-                    'class' => 'select2',
-                    'options' => $connectionPointsOptions,
-                ] + $optionDisabled
+            'connection_point_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $connectionPoints,
+                'options' =>
+                    [
+                        'class' => 'select2',
+                        'options' => $connectionPointsOptions,
+                    ] + $optionDisabled
             ],
             'destination_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $destinations, 'options' => ['class' => 'select2']],
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $currencies, 'options' => ['class' => 'select2'] + $optionDisabled],
@@ -80,16 +82,16 @@ echo Breadcrumbs::widget([
                 'type' => Form::INPUT_RAW,
                 'value' =>
                     '<div style="margin-top: 23px;">' .
-                        '<div class="form-group">' .
-                            '<div id="tariff-voip-package" class="btn-group-sm btn-group" data-toggle="buttons">' .
-                                '<label class="btn btn-default' . (!$model->pricelist_id ? ' active' : '') . '">' .
-                                    '<input type="radio" name="virtual_type" value="minutes"' . (!$model->pricelist_id ? ' checked="checked"' : '') . ' /> Предоплаченные минуты' .
-                                '</label>' .
-                                '<label class="btn btn-default' . ($model->pricelist_id ? ' active' : '') . '">' .
-                                    '<input type="radio" name="virtual_type" value="pricelist"' . ($model->pricelist_id ? ' checked="checked"' : '') . ' /> Прайс-лист' .
-                                '</label>' .
-                            '</div>'.
-                        '</div>' .
+                    '<div class="form-group">' .
+                    '<div id="tariff-voip-package" class="btn-group-sm btn-group" data-toggle="buttons">' .
+                    '<label class="btn btn-default' . (!$model->pricelist_id ? ' active' : '') . '">' .
+                    '<input type="radio" name="virtual_type" value="minutes"' . (!$model->pricelist_id ? ' checked="checked"' : '') . ' /> Предоплаченные минуты' .
+                    '</label>' .
+                    '<label class="btn btn-default' . ($model->pricelist_id ? ' active' : '') . '">' .
+                    '<input type="radio" name="virtual_type" value="pricelist"' . ($model->pricelist_id ? ' checked="checked"' : '') . ' /> Прайс-лист' .
+                    '</label>' .
+                    '</div>' .
+                    '</div>' .
                     '</div>'
             ],
             'price_include_vat' => ['type' => Form::INPUT_CHECKBOX], // , 'options' => $optionDisabled
@@ -113,11 +115,15 @@ echo Breadcrumbs::widget([
             'periodical_fee' => ['type' => Form::INPUT_TEXT],
             'minutes_count' => ['type' => Form::INPUT_TEXT, 'options' => ['data-type' => 'minutes']],
             'min_payment' => ['type' => Form::INPUT_TEXT, 'options' => ['data-type' => 'pricelist']],
-            'pricelist_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $priceLists, 'options' => [
-                'data-type' => 'pricelist',
-                'class' => 'select2',
-                'options' => $priceListsOptions,
-            ]],
+            'pricelist_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $priceLists,
+                'options' => [
+                    'data-type' => 'pricelist',
+                    'class' => 'select2',
+                    'options' => $priceListsOptions,
+                ]
+            ],
         ],
     ]);
 

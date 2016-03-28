@@ -49,7 +49,7 @@ trait InsertUserTrait
     public function beforeSave($insert)
     {
         if ($insert) {
-            $this->insert_time = date('c'); // new Expression('NOW()')
+            $this->insert_time = date('c'); 
             $this->insert_user_id = Yii::$app->user->getId();
         }
 

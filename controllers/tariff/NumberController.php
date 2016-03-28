@@ -1,13 +1,13 @@
 <?php
 namespace app\controllers\tariff;
 
+use app\classes\BaseController;
 use app\forms\tariff\TariffNumberAddForm;
 use app\forms\tariff\TariffNumberEditForm;
 use app\forms\tariff\TariffNumberListForm;
 use app\models\TariffNumber;
 use Yii;
 use yii\filters\AccessControl;
-use app\classes\BaseController;
 use yii\web\BadRequestHttpException;
 
 class NumberController extends BaseController
@@ -61,7 +61,9 @@ class NumberController extends BaseController
         $model = new TariffNumberEditForm();
 
         $tariff = TariffNumber::findOne($id);
-        if ($tariff === null) throw new BadRequestHttpException();
+        if ($tariff === null) {
+            throw new BadRequestHttpException();
+        }
         $model->setAttributes($tariff->getAttributes(), false);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
