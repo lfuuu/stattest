@@ -12,7 +12,7 @@ use app\classes\documents\DocumentReport;
 	$o = MailJob::GetObjectP();
 	$db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id='.$o['object_id']);
 
-	if (in_array($o["object_type"], array("bill", "assignment", "order", "notice", "invoice","akt", "lading", "new_director_info", "upd", "notice_mcm_telekom"))) {
+	if (in_array($o["object_type"], array("bill", "assignment", "order", "notice", "invoice","akt", "lading", "new_director_info", "upd", "notice_mcm_telekom", "sogl_mcm_telekom"))) {
         if($o["object_type"] == "assignment" && $o["source"] == 2)
             $o["source"] = 4;
 		$R = array();
@@ -21,18 +21,24 @@ use app\classes\documents\DocumentReport;
 		$R['obj'] = $o["object_type"];
 		$R['source'] = $o["source"];
 
-        if ($R['obj'] == 'bill') {
+        if ($R['obj'] === 'bill') {
             $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
             $report = DocumentReportFactory::me()->getReport($bill, DocumentReport::BILL_DOC_TYPE, $sendEmail = 1);
             echo $report->render();
-        } else if ($R["obj"] == "notice_mcm_telekom") {
-
-            $bill = Bill::find()->andWhere(['client_id' => $R['bill']])->orderBy("bill_date desc")->limit(1)->one();
+        }
+        else if ($R['obj'] === 'notice_mcm_telekom') {
+            $bill = Bill::find()->andWhere(['client_id' => $R['bill']])->orderBy('bill_date desc')->limit(1)->one();
 
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
-            echo $report->renderAsPDF();
-        } else {
+            $report->renderAsPDF();
+        }
+        else if ($R['obj'] === 'sogl_mcm_telekom') {
+            $bill = Bill::findOne(['client_id' => $R['bill']]);
+            $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
+            $report->renderAsPDF();
+        }
+        else {
             $design->assign('emailed',1);
             $_GET = $R;
             \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');

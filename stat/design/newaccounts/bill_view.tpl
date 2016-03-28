@@ -373,7 +373,10 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 {if $bill_client.firma == 'mcm_telekom'}
 <input type=checkbox value=1 name="notice_mcm_telekom" id=wm10><label for='wm10'>Уведомление (МСМ Телеком)</label><br>
 {/if}
-
+{if $bill_client.firma == 'mcn_telekom' && $bill_client.nal == 'nal'}
+    <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112" />
+    <label for="wm112">Договор переуступки С МСН Телеком на МСМ Телеком</label><br />
+{/if}
 
 
 </td><td valign=top>
