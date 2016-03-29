@@ -230,14 +230,16 @@ if ($has) :
                     <?php if (!empty($services['voip'])): ?>
                         <table class="table table-condensed">
                             <tbody>
-                            <?php foreach ($services['voip'] as $service): ?>
+                            <?php
+                            /** @var UsageVoip $service */
+                            foreach ($services['voip'] as $service): ?>
                                 <?php
                                 /** @var TariffVoip $currentTariff */
                                 /** @var \app\models\LogTarif $log */
-                                $log = $service->logTariff;
+                                $log = $service->getLogTariff('now', true);
                                 $currentTariff = TariffVoip::findOne($log->id_tarif);
                                 ?>
-                                <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
+                                <tr bgcolor="<?= ($service->status === 'working' ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0') ?>">
                                     <td width="10%">
                                         <a href="/usage/voip/edit?id=<?= $service->id ?>"
                                            target="_blank"><?= $service->id ?></a>
