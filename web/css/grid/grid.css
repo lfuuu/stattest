@@ -70,3 +70,12 @@ and open the template in the editor.
 .grid-view .summary {
     margin: 0px 0 12px 0;
 }
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    width: 93%;
+}
+
+.select2-container .select2-selection--single .select2-selection__clear {
+    position: absolute;
+    margin-right: 25px;
+}
