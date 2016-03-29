@@ -15,4 +15,6 @@ return [
     'USER_PHOTO_DIR' => '/images/users/',
     'PROTOCOL_STRING' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://',
     'currencyDownloadUrl' => 'http://www.cbr.ru/scripts/XML_daily.asp?date_req=%s',
+
+    'mail_map_names' => require(__DIR__ . '/mail_params_names.php'),
 ];

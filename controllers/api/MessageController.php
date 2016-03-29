@@ -9,6 +9,7 @@ use app\models\Message;
 use app\classes\validators\AccountIdValidator;
 use app\classes\DynamicModel;
 use app\exceptions\FormValidationException;
+use app\helpers\RenderParams;
 
 class MessageController extends ApiController
 {
@@ -197,19 +198,30 @@ class MessageController extends ApiController
     /**
      * @param int $templateId
      * @param string $langCode
+     * @param int $clientAccountId
+     * @param int $contactId
+     * @param string $type
      */
-    public function actionEmailTemplateContent($templateId, $langCode)
+    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type='email')
     {
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
             'template_id' => $templateId,
             'lang_code' => $langCode,
-            'type' => 'email'
+            'type' => $type
         ]);
 
-        if (!is_null($templateContent)) {
-            $templateContent->mediaManager->getContent($templateContent);
-        }
+	if (!is_null($templateContent)) {
+	    if ($type == 'email') {
+	        $content = $templateContent->getMediaManager()->getFile($templateContent, true);
+	        $content = $content['content'];
+	        echo RenderParams::tplFilter($content, $clientAccountId, $contactId);
+	        exit(0);
+	    } else if ($type == 'sms') {
+		echo RenderParams::tplFilter($templateContent->content, $clientAccountId, $contactId);
+		exit(0);
+	    }
+	}
     }
 
 }
