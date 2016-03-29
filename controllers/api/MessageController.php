@@ -198,6 +198,9 @@ class MessageController extends ApiController
     /**
      * @param int $templateId
      * @param string $langCode
+     * @param int $clientAccountId
+     * @param int $contactId
+     * @param string $type
      */
     public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type='email')
     {

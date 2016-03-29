@@ -9,6 +9,12 @@ use app\models\Country;
 class RenderParams
 {
 
+    /**
+    *
+    * @param string $tpl
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     public static function tplFilter($tpl, $clientAccountId, $contactId)
     {
         assert(!empty($tpl));
@@ -19,43 +25,67 @@ class RenderParams
         return $tpl;
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getClientAccountId($clientAccountId, $contactId)
     {
         return $clientAccountId;
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getContactId($clientAccountId, $contactId)
     {
         return $contactId;
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getKey($clientAccountId, $contactId)
     {
         return 'key';
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getContractNum($clientAccountId, $contactId)
     {
-	return ClientAccount::findOne(['id' => $clientAccountId])->contract_id;
+	return ClientAccount::findOne($clientAccountId)->contract_id;
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getBalance($clientAccountId, $contactId)
     {
-	return ClientAccount::findOne(['id' => $clientAccountId])->getRealtimeBalance();
+	return ClientAccount::findOne($clientAccountId)->getRealtimeBalance();
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getLnk($clientAccountId, $contactId)
     {
-	$region_id = ClientAccount::findOne(['id' => $clientAccountId])->region;
-	$country_id = Region::findOne(['id' => $region_id])->country_id;
-	if (Country::findOne(['code' => $country_id])->lang == 'ru-RU' ){
-	    $lkPrefix = 'https://lk.mcn.ru/';
-	} else {
-	    $lkPrefix = 'https://lk.mcntele.com/';
-	}
+	$region_id = ClientAccount::findOne($clientAccountId)->region;
+	$country_id = Region::findOne($region_id)->country_id;
+	$lkPrefix = Yii::t('settings', 'lk_domain', [], Country::findOne(['code' => $country_id])->lang);
 	return $lkPrefix . 'core/auth/activate?token=<token>';
     }
 
+    /**
+    * @param int $clientAccountId
+    * @param int $contactId
+    **/
     private static function getPassword($clientAccountId, $contactId)
     {
 	return 'anyPass';
