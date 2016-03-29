@@ -16,4 +16,5 @@ return [
     'Descending' => 'По убыванию',
     'Select all' => 'Выбрать всё',
     'You can not delete the object which used in another place' => 'Вы не можете удалить объект, который уже используется в другом месте',
+    'Pushpin table header' => 'Плавающий заголовок таблицы',
 ];
