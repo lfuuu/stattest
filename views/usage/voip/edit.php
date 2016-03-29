@@ -183,12 +183,10 @@ echo Breadcrumbs::widget([
     ]);
 
     $region = Region::findOne($model->region);
-    $address_options = [
-        'data-datacenter-address' => $region->datacenter->address,
-    ];
+    $address_options = [];
+
     if ($model->address_from_datacenter_id) {
         $address_options = [
-            'class' => 'input_help_icon',
             'placeholder' => $model->address,
         ];
         $model->address = '';

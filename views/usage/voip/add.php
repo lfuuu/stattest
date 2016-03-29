@@ -146,7 +146,6 @@ echo Breadcrumbs::widget([
                 'type' => Form::INPUT_TEXT,
                 'options' => [
                     'placeholder' => $model->addressPlaceholder,
-                    'data-datacenter-address' => ($model->city ? $model->city->region->datacenter->address : ''),
                 ],
             ],
         ],

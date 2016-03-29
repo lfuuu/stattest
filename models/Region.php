@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
  * @property int $code
  * @property string $timezone_name
  * @property int $country_id
- * @property
+ * @property Datacenter $datacenter
  */
 class Region extends ActiveRecord
 {

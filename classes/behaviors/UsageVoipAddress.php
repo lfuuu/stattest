@@ -24,8 +24,7 @@ class UsageVoipAddress extends Behavior
         /** @var Region $region */
         $region = Region::findOne($usage->region);
 
-        if (!$usage->address) {
-            $usage->address = $region->datacenter->address;
+        if (!$usage->address && !$usage->address_from_datacenter_id) {
             $usage->address_from_datacenter_id = $region->datacenter->id;
         }
 
