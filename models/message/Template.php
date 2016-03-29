@@ -88,7 +88,7 @@ class Template extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|null
      */
     public function getEvent()
     {
