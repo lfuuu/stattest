@@ -2,8 +2,9 @@
 namespace app\classes\behaviors\message;
 
 use Yii;
+use yii\base\Event;
+use yii\db\AfterSaveEvent;
 use yii\base\Behavior;
-use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use app\models\message\TemplateEvents;
 use app\models\message\TemplateContent;
@@ -24,11 +25,11 @@ class MessageTemplateEvent extends Behavior
     }
 
     /**
-     * @param ModelEvent $event
+     * @param AfterSaveEvent $event
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function setMessageTemplateEvent(ModelEvent $event)
+    public function setMessageTemplateEvent(AfterSaveEvent $event)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -50,9 +51,9 @@ class MessageTemplateEvent extends Behavior
     }
 
     /**
-     * @param ModelEvent $event
+     * @param Event $event
      */
-    public function unsetMessageTemplateEvent(ModelEvent $event)
+    public function unsetMessageTemplateEvent(Event $event)
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
