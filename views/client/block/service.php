@@ -236,7 +236,7 @@ if ($has) :
                                 <?php
                                 /** @var TariffVoip $currentTariff */
                                 /** @var \app\models\LogTarif $log */
-                                $log = $service->getLogTariff('now', true);
+                                $log = $service->getLogTariff(null);
                                 $currentTariff = TariffVoip::findOne($log->id_tarif);
                                 ?>
                                 <tr bgcolor="<?= ($service->status === 'working' ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0') ?>">

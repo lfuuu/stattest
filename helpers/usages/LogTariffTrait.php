@@ -9,14 +9,11 @@ trait LogTariffTrait
 {
 
     /**
-     * @param string $date
-     * @param boolean $ignoreDate
+     * @param string|null $date
      * @return null|LogTarif
      */
-    public function getLogTariff($date = 'now', $ignoreDate = false)
+    public function getLogTariff($date = 'now')
     {
-        $date = (new DateTime($date))->format('Y-m-d H:i:s');
-
         $result =
             LogTarif::find()
                 ->andWhere(['service' => self::tableName()])
@@ -24,8 +21,8 @@ trait LogTariffTrait
                 ->andWhere('id_tarif!=0')
                 ->orderBy('date_activation desc, id desc');
 
-        if (!$ignoreDate) {
-            $result->andWhere('date_activation <= :date', [':date' => $date]);
+        if ($date !== null) {
+            $result->andWhere('date_activation <= :date', [':date' => (new DateTime($date))->format('Y-m-d')]);
         }
 
         return $result->one();
