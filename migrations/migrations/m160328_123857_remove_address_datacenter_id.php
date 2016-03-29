@@ -6,6 +6,7 @@ class m160328_123857_remove_address_datacenter_id extends Migration
 {
     public function up()
     {
+        $transaction = $this->getDb()->beginTransaction();
         $this->update("usage_voip", ['address' => ''], 'address_from_datacenter_id > 0');
 
         $this->executeRaw("
@@ -28,6 +29,8 @@ class m160328_123857_remove_address_datacenter_id extends Migration
                 SET uv1.address = a.newaddres
                 WHERE uv1.id = a.id
         ");
+
+        $transaction->commit();
     }
 
     public function down()
