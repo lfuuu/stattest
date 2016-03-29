@@ -80,13 +80,17 @@ class m160327_101649_vats_to_welltime extends \app\classes\Migration
             }
         }
 
-        $lastDayOfThisMonth = new DateTime('last day of this month');
+        $lastDayOfThisMonthDateTime = new DateTime('last day of this month');
+        $lastDayOfThisMonth = $lastDayOfThisMonthDateTime->format('Y-m-d');
+        $firstDayOfNextMonth = $lastDayOfThisMonthDateTime->modify('+1 day')->format('Y-m-d');
+
+        unset($lastDayOfThisMonthDateTime);
 
         foreach ($usages as $usage) {
             $existingUsage =
                 UsageWelltime::find()
                     ->where(['tarif_id' => $tariffsIds[$usage->tarif_id]->id])
-                    ->andWhere('actual_from > CAST(:date AS DATE)', [':date' => $lastDayOfThisMonth->format('Y-m-d')])
+                    ->andWhere('actual_from > CAST(:date AS DATE)', [':date' => $lastDayOfThisMonth])
                     ->client($usage->client)
                     ->one();
 
@@ -109,12 +113,12 @@ class m160327_101649_vats_to_welltime extends \app\classes\Migration
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $usage->actual_to = $lastDayOfThisMonth->format('Y-m-d');
+                $usage->actual_to = $lastDayOfThisMonth;
                 $usage->save();
 
                 $usageWelltime = new UsageWelltime;
                 $usageWelltime->client = $usage->client;
-                $usageWelltime->actual_from = $lastDayOfThisMonth->modify('+1 day')->format('Y-m-d');
+                $usageWelltime->actual_from = $firstDayOfNextMonth;
                 $usageWelltime->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
                 $usageWelltime->comment = $usage->comment;
                 $usageWelltime->tarif_id = $tariffsIds[$usage->tarif_id]->id;
