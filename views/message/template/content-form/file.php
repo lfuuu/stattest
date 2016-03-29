@@ -25,6 +25,8 @@ $form = ActiveForm::begin([
 
     <input type="hidden" name="<?= $model->formName(); ?>[scenario]" value="file" />
 
+    <?= $form->field($model, 'title')->textInput(); ?>
+
     <?php if ($file = $model->mediaManager->getFile()): ?>
         <div class="form-group">
             <label>Используемый файл</label><br />
