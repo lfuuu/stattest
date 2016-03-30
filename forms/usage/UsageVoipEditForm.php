@@ -32,7 +32,6 @@ class UsageVoipEditForm extends UsageVoipForm
     /** @var DateTime */
     public $tomorrow;
 
-    public $addressPlaceholder = '';
     public $disconnecting_date;
     public $region;
     public $create_params = '{}';
@@ -510,10 +509,6 @@ class UsageVoipEditForm extends UsageVoipForm
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
             $this->connection_point_id = $this->city->connection_point_id;
-
-            if (empty($this->address)) {
-                $this->addressPlaceholder = $this->city->region->datacenter->address;
-            }
         }
 
         if (!$this->tariff_main_status) {

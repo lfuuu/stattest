@@ -11,7 +11,6 @@ use yii\helpers\Url;
 use app\models\User;
 use app\models\TariffVoip;
 use app\models\TariffVoipPackage;
-use app\models\Region;
 use app\models\Number;
 use app\widgets\DateControl as CustomDateControl;
 use app\classes\DateTimeWithUserTimezone;
@@ -182,16 +181,6 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    $region = Region::findOne($model->region);
-    $address_options = [];
-
-    if ($model->address_from_datacenter_id) {
-        $address_options = [
-            'placeholder' => $model->address,
-        ];
-        $model->address = '';
-    }
-
     echo Form::widget([
         'model' => $model,
         'form' => $form,
@@ -199,7 +188,6 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'address' => [
                 'type' => Form::INPUT_TEXT,
-                'options' => $address_options,
             ],
         ],
     ]);

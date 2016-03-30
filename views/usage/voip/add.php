@@ -15,8 +15,6 @@ use yii\widgets\Breadcrumbs;
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 
-$this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
 
 $types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
@@ -144,9 +142,6 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'address' => [
                 'type' => Form::INPUT_TEXT,
-                'options' => [
-                    'placeholder' => $model->addressPlaceholder,
-                ],
             ],
         ],
     ]);
