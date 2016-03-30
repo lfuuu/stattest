@@ -377,9 +377,8 @@ class ApiLk
 
         $tariffs =
             TariffVoip::find()
-                ->andWhere(['status' => 'public'])
+                ->andWhere(['status' => TariffNumber::STATUS_PUBLIC])
                 ->andWhere(['dest' => 4])
-                ->andWhere(['is_testing' => 0])
                 ->all();
 
         $resultTariffsByConnectionPointId = [];
