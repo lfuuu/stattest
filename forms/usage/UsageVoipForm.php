@@ -19,7 +19,7 @@ class UsageVoipForm extends Form
     public $disconnecting_date;
     public $tariff_change_date;
     public $no_of_lines;
-    public $address;
+    public $address = '';
     public $line7800_id;
     public $address_from_datacenter_id;
 
