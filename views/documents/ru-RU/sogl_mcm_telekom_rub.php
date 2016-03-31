@@ -98,7 +98,7 @@ $director_mcm = $organizationMCMTelekom->director;
                         $image_options = [
                             'width' => 200,
                             'border' => 0,
-                            'style' => 'position:relative; left:450px; top:-140; z-index:-10; margin-bottom:-170px;',
+                            'style' => 'position:relative; top:-140; z-index:-10; margin-bottom:-170px;',
                         ];
 
                         if ($inline_img):
