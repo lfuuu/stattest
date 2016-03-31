@@ -37,12 +37,26 @@ class NumberDao extends Singleton
     }
 
     /**
+     * @return Number
+     */
+    public function getRandomFree7800()
+    {
+        return
+            Number::find()
+                ->andWhere(['status' => 'instock'])
+                ->andWhere(['number_type' => 5]) //TODO: [number_type] как будет таблица с типами номеров, вставить константу (5 == 7800)
+                ->orderBy('RAND()')
+                ->limit(1)
+                ->one();
+    }
+
+    /**
      * @param string $region
      * @return ActiveRecord[]
      */
     public function getFreeNumbersByRegion($region = '')
     {
-        return $this->getFreeNumbers()->andWhere(['region' => $region])->all();
+        return $this->getFreeNumbers()->andWhere(['region' => $region, 'number_type' => null])->all(); //TODO: [number_type] как будет таблица с типами номеров, поменять условие
     }
 
     /**
