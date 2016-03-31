@@ -1,22 +1,25 @@
 <?php
 
+use \app\models\Region;
+use \app\models\City;
+
 class m160331_094939_MCN_Numbers extends \app\classes\Migration
 {
     public function up()
     {
+
         $this->addColumn('voip_numbers', 'number_tech', $this->string(15));
         $this->addColumn('voip_numbers', 'operator_account_id', $this->integer(11));
         $this->addColumn('voip_numbers', 'country_code', $this->integer(4));
         $this->addColumn('voip_numbers', 'ndc', $this->integer(10), ['comment' => 'National Destination Code']);
         $this->addColumn('voip_numbers', 'number_subscriber', $this->string(15));
-        $this->addColumn('voip_numbers', 'number_type', $this->string(15));
+        $this->addColumn('voip_numbers', 'number_type', $this->integer());
         $this->addColumn('voip_numbers', 'date_start', $this->dateTime());
         $this->addColumn('voip_numbers', 'date_end', $this->dateTime());
-
         $this->createIndex('voip_numbers__number_tech', 'voip_numbers', 'number_tech', true);
 
         $data = $this->getData();
-        $dateStart = (new \DateTime('now', new \DateTimeZone('UTC')))->format(DateTime::ATOM);
+        $dateStart = (new \DateTime('now', new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
 
         $this->getDb()->transaction(function () use ($data, $dateStart) {
             $this->batchInsert(
@@ -30,21 +33,23 @@ class m160331_094939_MCN_Numbers extends \app\classes\Migration
                     'operator_account_id',
                     'country_code',
                     'ndc',
+                    'number_subscriber',
                     'number_type',
                     'date_start'
                 ],
                 array_map(function ($k, $v) use ($dateStart) {
                     return [
-                        $k, //number
-                        99, //region
+                        $k,        //number
+                        Region::MOSCOW,             //region
                         'notsell', //status
-                        7495, //city_id
-                        $v, //tech_number
-                        38319, //operator_account_id
-                        643, //country_code
-                        '7800', //'ndc'
-                        '7800', //'type_number'
-                        $dateStart //'start_date'
+                        City::DEFAULT_USER_CITY_ID, //city_id
+                        $v,        //number_tech
+                        38319,     //operator_account_id
+                        '7',       //country_code
+                        '800',     //ndc
+                        substr($k, 4), //number_subscriber
+                        5,         //number_type
+                        $dateStart //date_start
                     ];
 
                 }, array_keys($data), array_values($data)));
@@ -62,11 +67,7 @@ class m160331_094939_MCN_Numbers extends \app\classes\Migration
         $this->dropColumn('voip_numbers', 'number_type');
         $this->dropColumn('voip_numbers', 'date_start');
         $this->dropColumn('voip_numbers', 'date_end');
-
-        $this->getDb()->transaction(function () {
-            $this->delete('voip_numbers', 'number like \'7800350%\'');
-            $this->delete('voip_numbers', ['number' => '78002003012']);
-        });
+        $this->delete('voip_numbers', ['number' => array_keys($this->getData())]);
     }
 
     public function getData()
