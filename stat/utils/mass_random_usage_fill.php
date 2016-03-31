@@ -9,7 +9,7 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-$clientId = 36166;
+$clientId = 38230;
 
 //
 //Краснодар 100 номеров - 97 - 36166++
@@ -25,9 +25,9 @@ $confs = [
     [
         "didGroupId" => 17,
         "region" => 96,
-        "count_numbers" => 50,
+        "count_numbers" => 25,
 
-        "id_tarif" => 667,
+        "id_tarif" => 665,
         "id_tarif_local_mob" => 117,
         "id_tarif_russia" => 173,
         "id_tarif_russia_mob" => 173,
@@ -47,6 +47,7 @@ $confs = [
         "id_tarif_intern" => 255,
     ],
 */
+    /*
     [
         "didGroupId" => 12,
         "region" => 97,
@@ -58,6 +59,7 @@ $confs = [
         "id_tarif_russia_mob" => 63,
         "id_tarif_intern" => 69
     ],
+    */
     /*
     [
         "didGroupId" => 22,
@@ -72,6 +74,7 @@ $confs = [
 
     ],
 */
+    /*
     [
         "didGroupId" => 42,
         "region" => 88,
@@ -93,8 +96,22 @@ $confs = [
         "id_tarif_russia" => 186,
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
-    ]
+    ],
+    */
+    [
+        "didGroupId" => 37,
+        "region" => 86,
+        "count_numbers" => 25,
+
+        "id_tarif" => 672,
+        "id_tarif_local_mob" => 315,
+        "id_tarif_russia" => 316,
+        "id_tarif_russia_mob" => 316,
+        "id_tarif_intern" => 318
+    ],
 ];
+
+$actualFrom = '2016-04-01';
 
 foreach($confs as $conf)
 {
@@ -103,7 +120,6 @@ foreach($confs as $conf)
     ]);
     app\classes\Assert::isObject($client);
 
-    $actualFrom = date("Y-m-d");
     $actualTo = \app\models\usages\UsageInterface::MAX_POSSIBLE_DATE;
 
     for($i = 1; $i<=$conf["count_numbers"]; $i++)
