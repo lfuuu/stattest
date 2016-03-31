@@ -574,6 +574,14 @@ class UsageVoipEditForm extends UsageVoipForm
 
             case '7800': {
                 $this->number_tariff_id = null;
+
+                if (!$this->did) {
+                    $number = Number::dao()->getRandomFree7800();
+                    if ($number) {
+                        $this->did = $number->number;
+                    }
+                }
+
                 if (substr($this->did, 0, 4) != '7800') {
                     $this->did = null;
                 }
