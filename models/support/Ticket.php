@@ -23,6 +23,12 @@ class Ticket extends ActiveRecord
     const TROUBLE_STATE_CLOSED = 2;
     const TROUBLE_STATE_REOPENED = 51;
 
+    private $stateIdToStatus = [
+        self::TROUBLE_STATE_CLOSED => TicketStatusEnum::CLOSED,
+        self::TROUBLE_STATE_DONE => TicketStatusEnum::DONE,
+        self::TROUBLE_STATE_REOPENED => TicketStatusEnum::REOPENED,
+    ];
+
     public static function tableName()
     {
     return 'support_ticket';
@@ -37,37 +43,22 @@ class Ticket extends ActiveRecord
 
     public function setStatusByTroubleState($state_id)
     {
-        switch ($state_id) {
-            case self::TROUBLE_STATE_CLOSED: {
-                $this->status = TicketStatusEnum::CLOSED;
-                break;
-            }
-            case self::TROUBLE_STATE_DONE: {
-                $this->status = TicketStatusEnum::DONE;
-                break;
-            }
-            case self::TROUBLE_STATE_REOPENED: {
-                $this->status = TicketStatusEnum::REOPENED;
-                break;
-            }
-            default: {
-                $this->status = TicketStatusEnum::OPEN;
-            }
+        $this->status = TicketStatusEnum::OPEN;
+
+        if (isset($this->stateIdToStatus[$state_id])) {
+            $this->status = $this->stateIdToStatus[$state_id];
         }
     }
 
     public function spawnTroubleStatus()
     {
-        switch ($this->status) {
-            case TicketStatusEnum::CLOSED:
-                return self::TROUBLE_STATE_CLOSED;
-            case TicketStatusEnum::DONE:
-                return self::TROUBLE_STATE_DONE;
-            case TicketStatusEnum::REOPENED:
-                return self::TROUBLE_STATE_REOPENED;
-            default:
-                return self::TROUBLE_STATE_OPEN;
+        $statuses = array_flip($this->stateIdToStatus);
+
+        if (isset($statuses[$this->status])) {
+            return $statuses[$this->status];
         }
+
+        return self::TROUBLE_STATE_OPEN;
     }
 
 }

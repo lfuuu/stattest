@@ -7,18 +7,18 @@ class m160330_111743_append_tt_state extends \app\classes\Migration
         $this->update(
             'tt_types',
             [
-                'folders' => 70368744701697,
-                'states' => 70368744310783,
+                'folders' => 70368744701697, // 10000000000000000000000000001111111111100000001
+                'states' => 70368744310783, // 10000000000000000000000000000100000011111111111
             ],
             ['code' => 'trouble']
         );
         $this->insert('tt_folders', [
-            'pk' => 70368744177664,
+            'pk' => 70368744177664, // 2 ^ 46
             'name' => 'Открыт повторно',
             'order' => 11,
         ]);
         $this->insert('tt_states', [
-            'pk' => 70368744177664,
+            'pk' => 70368744177664, // 2 ^ 46
             'name' => 'Открыт повторно',
             'order' => 10,
             'time_delta' => 1,
@@ -39,8 +39,8 @@ class m160330_111743_append_tt_state extends \app\classes\Migration
         $this->update(
             'tt_types',
             [
-                'folders' => 524033,
-                'states' => 133119,
+                'folders' => 524033, // 1111111111100000001
+                'states' => 133119, // 100000011111111111
             ],
             ['code' => 'trouble']
         );
