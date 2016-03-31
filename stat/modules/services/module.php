@@ -1093,33 +1093,6 @@ class m_services extends IModule{
         return $regs;
     }
 
-
-    function services_vo_delete($fixclient)
-    {
-        global $db, $user;
-
-        $clientNick = ClientAccount::findOne($fixclient)->client;
-
-        $id = get_param_protected("id", 0);
-
-        $sendError = false;
-
-        if($id)
-        {
-            $u=$db->GetValue($q = "select id from usage_voip where id = '".$id."' and client='$clientNick'");
-            if($u)
-            {
-                $db->Query("delete from usage_voip where id = '".$id."' and client='$clientNick'");
-            }else{
-                trigger_error2("unknown error");
-            }
-        }
-
-        header("Location: /client/view?id=".$fixclient);
-        exit();
-    }
-
-
     function services_vo_settings_send($fixclient)
     {
         global $design, $db, $db_ats, $user;
@@ -2102,24 +2075,6 @@ class m_services extends IModule{
         }
         
         $design->ProcessEx('services/virtpbx_act.tpl'); 
-    }
-    function services_virtpbx_delete($fixclient)
-    {
-        global $db, $user;
-
-        $clientNick = ClientAccount::findOne(['id' => $fixclient])->client;
-        $id = get_param_protected("id", 0);
-
-        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$id." and client = '".$clientNick."'");
-
-        if ($vpbx)
-        {
-            if ($vpbx["actual_from"] > "3000-01-01")
-            {
-                $db->QueryDelete("log_tarif", array("service" => "usage_virtpbx", "id_service" => $vpbx["id"]));
-                $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
-            }
-        }
     }
 
 // =========================================================================================================================================
