@@ -93,7 +93,6 @@
                     <a href='{$LINK_START}module=stats&action=voip&phone={$item.region}_{$item.E164}'><img class=icon src='{$IMAGES_PATH}icons/stats.gif'></a>
                     {if ($item.actual && (access("services_voip", "close") || access("services_voip", "full")))}<a href="{$LINK_START}module=services&action=vo_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif'></a>{/if}
                     <a href='index.php?module=tt&clients_client={$item.client}&service=usage_voip&service_id={$item.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
-                    {if $item.actual_from > '3000-01-01' && access('services_voip', 'del4000')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
                 </td>
                 <td width=5% nowrap>{$regions[$item.region].name}</td>
                 <td style="font-size: 8pt; width: 15%;">
