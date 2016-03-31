@@ -18,42 +18,56 @@ use yii\db\ActiveRecord;
  */
 class Ticket extends ActiveRecord
 {
-  const TROUBLE_STATE_OPEN = 1;
-  const TROUBLE_STATE_DONE = 7;
-  const TROUBLE_STATE_CLOSED = 2;
+    const TROUBLE_STATE_OPEN = 1;
+    const TROUBLE_STATE_DONE = 7;
+    const TROUBLE_STATE_CLOSED = 2;
+    const TROUBLE_STATE_REOPENED = 51;
 
-  public static function tableName()
-  {
+    public static function tableName()
+    {
     return 'support_ticket';
-  }
-
-  public function behaviors()
-  {
-    return [
-      'createdAt' => CreatedAt::className(),
-    ];
-  }
-
-  public function setStatusByTroubleState($state_id)
-  {
-    if ($state_id == self::TROUBLE_STATE_CLOSED) {
-      $this->status = TicketStatusEnum::CLOSED;
-    } elseif ($state_id == self::TROUBLE_STATE_DONE) {
-      $this->status = TicketStatusEnum::DONE;
-    } else {
-      $this->status = TicketStatusEnum::OPEN;
     }
-  }
 
-  public function spawnTroubleStatus()
-  {
-    if ($this->status == TicketStatusEnum::CLOSED) {
-      return self::TROUBLE_STATE_CLOSED;
-    } elseif ($this->status == TicketStatusEnum::DONE) {
-      return self::TROUBLE_STATE_DONE;
-    } else {
-      return self::TROUBLE_STATE_OPEN;
+    public function behaviors()
+    {
+        return [
+          'createdAt' => CreatedAt::className(),
+        ];
     }
-  }
+
+    public function setStatusByTroubleState($state_id)
+    {
+        switch ($state_id) {
+            case self::TROUBLE_STATE_CLOSED: {
+                $this->status = TicketStatusEnum::CLOSED;
+                break;
+            }
+            case self::TROUBLE_STATE_DONE: {
+                $this->status = TicketStatusEnum::DONE;
+                break;
+            }
+            case self::TROUBLE_STATE_REOPENED: {
+                $this->status = TicketStatusEnum::REOPENED;
+                break;
+            }
+            default: {
+                $this->status = TicketStatusEnum::OPEN;
+            }
+        }
+    }
+
+    public function spawnTroubleStatus()
+    {
+        switch ($this->status) {
+            case TicketStatusEnum::CLOSED:
+                return self::TROUBLE_STATE_CLOSED;
+            case TicketStatusEnum::DONE:
+                return self::TROUBLE_STATE_DONE;
+            case TicketStatusEnum::REOPENED:
+                return self::TROUBLE_STATE_REOPENED;
+            default:
+                return self::TROUBLE_STATE_OPEN;
+        }
+    }
 
 }
