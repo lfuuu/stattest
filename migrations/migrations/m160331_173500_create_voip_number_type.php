@@ -14,7 +14,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
     {
         $this->createNumberType();
         $this->createNumberTypeCountry();
-        $this->addNumberFk();
+//        $this->addNumberFk();
     }
 
     /**
@@ -100,7 +100,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
      */
     public function safeDown()
     {
-        $this->dropNumberFk();
+//        $this->dropNumberFk();
         $this->dropTable(NumberTypeCountry::tableName());
         $this->dropTable(NumberType::tableName());
     }
