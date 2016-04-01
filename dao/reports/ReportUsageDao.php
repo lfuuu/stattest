@@ -74,8 +74,8 @@ class ReportUsageDao extends Singleton
 
         $query->andWhere(['between', 'cr.connect_time', $from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s.999999')]);
 
-        if ($direction != 'both') {
-            $query->andWhere(['cr.orig' => ($direction == 'in' ? 'false' : 'true')]);
+        if ($direction !== 'both') {
+            $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
         }
 
         if (isset($usages) && count($usages) > 0) {
@@ -86,7 +86,7 @@ class ReportUsageDao extends Singleton
             $query->andWhere('ABS(cr.cost) > 0.0001');
         }
 
-        if ($destination != 'all') {
+        if ($destination !== 'all') {
             list ($dest, $mobile, $zone) = explode('-', $destination);
 
             if ((int) $dest == 0) {

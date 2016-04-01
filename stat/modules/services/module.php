@@ -760,7 +760,7 @@ class m_services extends IModule{
                         'description' => $description,
                         'tariff' => $package->tariff,
                         'status' => $package->status,
-                        'stat' => $package->stat,
+                        'stat' => $package->billingStat,
                     ];
                 }
             }
