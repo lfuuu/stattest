@@ -116,7 +116,9 @@ class ClientDocumentDao extends Singleton
         $taxRate = $clientAccount->getTaxRate();
 
         foreach (\app\models\UsageVoip::find()->client($client)->andWhere('actual_to > NOW()')->all() as $usage) {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $taxRate);
+
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->getAbonPerMonth(), $usageTaxRate);
 
             $currentTariff = $usage->getLogTariff();
 
@@ -205,7 +207,9 @@ class ClientDocumentDao extends Singleton
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->pay_month, $taxRate);
+
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->pay_month, $usageTaxRate);
 
             switch ($usage->tariff->type) {
                 case 'C':
@@ -229,7 +233,9 @@ class ClientDocumentDao extends Singleton
         }
 
         foreach (\app\models\UsageVirtpbx::find()->client($client)->andWhere('actual_to > NOW()')->all() as $usage) {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price, $taxRate);
+
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price, $usageTaxRate);
 
             $data['vats'][] = [
                 'from' => strtotime($usage->actual_from),
@@ -243,7 +249,8 @@ class ClientDocumentDao extends Singleton
         /*
         foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $usage)
         {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->per_month_price, $taxRate);
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->per_month_price, $usageTaxRate);
 
             $data['sms'][] = [
                 'from' => $usage->actual_from,
@@ -256,7 +263,9 @@ class ClientDocumentDao extends Singleton
         */
 
         foreach (\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage) {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $taxRate);
+
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $usageTaxRate);
 
             $data['extra'][] = [
                 'from' => strtotime($usage->actual_from),
@@ -269,7 +278,9 @@ class ClientDocumentDao extends Singleton
         }
 
         foreach (\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage) {
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $taxRate);
+
+            $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $usageTaxRate);
 
             $data['welltime'][] = [
                 'from' => $usage->actual_from,
