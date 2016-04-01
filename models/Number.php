@@ -22,10 +22,16 @@ use yii\db\ActiveRecord;
  * @property string site_publish
  * @property int city_id
  * @property int did_group_id
+ * @property int ndc
+ * @property string number_subscriber
+ * @property int number_type
+ * @property string date_start
+ * @property string date_end
  *
  * @property City $city
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
+ * @property NumberType $numberType
  */
 class Number extends ActiveRecord
 {
@@ -44,6 +50,9 @@ class Number extends ActiveRecord
         self::STATUS_HOLD => 'В отстойнике',
     ];
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip_numbers';
@@ -65,19 +74,36 @@ class Number extends ActiveRecord
         ];
     }
 
+    /**
+     * @return NumberDao
+     */
     public static function dao()
     {
         return NumberDao::me();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDidGroup()
     {
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNumberType()
+    {
+        return $this->hasOne(NumberType::className(), ['id' => 'number_type']);
     }
 
 }

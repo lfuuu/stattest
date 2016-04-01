@@ -18,6 +18,7 @@ use yii\widgets\Breadcrumbs;
 <?= app\classes\Html::formLabel($this->title = 'Курс валюты') ?>
 <?= Breadcrumbs::widget([
     'links' => [
+        ['label' => 'Бухгалтерия'],
         ['label' => $this->title, 'url' => '/bill/currency/index/'],
     ],
 ]) ?>
