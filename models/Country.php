@@ -3,7 +3,7 @@ namespace app\models;
 
 use app\dao\CountryDao;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * @property int $code
@@ -12,6 +12,7 @@ use yii\helpers\ArrayHelper;
  * @property int $in_use
  * @property string $lang
  * @property string $currency_id
+ * @property integer $prefix
  */
 class Country extends ActiveRecord
 {
@@ -32,6 +33,19 @@ class Country extends ActiveRecord
             'in_use' => 'Включен',
             'lang' => 'Язык',
             'currency_id' => 'Валюта',
+            'prefix' => 'Префикс',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['alpha_3', 'name', 'currency_id', 'lang'], 'string'],
+            [['code', 'in_use', 'prefix'], 'integer'],
+            [['code', 'name', 'in_use', 'lang'], 'required'],
         ];
     }
 
@@ -84,5 +98,13 @@ class Country extends ActiveRecord
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to(['/dictionary/country/edit', 'id' => $this->code]);
     }
 }

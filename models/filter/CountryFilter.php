@@ -16,6 +16,7 @@ class CountryFilter extends Country
     public $in_use = '';
     public $lang = '';
     public $currency_id = '';
+    public $prefix = '';
 
     public function rules()
     {
@@ -26,6 +27,7 @@ class CountryFilter extends Country
             [['in_use'], 'integer'],
             [['lang'], 'string'],
             [['currency_id'], 'string'],
+            [['prefix'], 'integer'],
         ];
     }
 
@@ -47,6 +49,7 @@ class CountryFilter extends Country
         $this->in_use !== '' && $query->andWhere(['in_use' => $this->in_use]);
         $this->lang !== '' && $query->andWhere(['LIKE', 'lang', $this->lang]);
         $this->currency_id !== '' && $query->andWhere(['currency_id' => $this->currency_id]);
+        $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
 
         return $dataProvider;
     }

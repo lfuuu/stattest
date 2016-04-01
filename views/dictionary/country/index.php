@@ -11,6 +11,8 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
+use app\models\Country;
 use app\models\filter\CountryFilter;
 use yii\widgets\Breadcrumbs;
 
@@ -23,6 +25,14 @@ use yii\widgets\Breadcrumbs;
         ['label' => $this->title, 'url' => '/dictionary/country/'],
     ],
 ]) ?>
+
+    <p>
+        <?= Html::a(
+            Yii::t('common', 'Create'),
+            '/dictionary/country/new/',
+            ['class' => 'btn btn-success']
+        ) ?>
+    </p>
 
 <?php
 $columns = [
@@ -37,6 +47,10 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
+        'format' => 'html',
+        'value' => function (Country $country) {
+            return Html::a($country->name ?: '-', $country->getUrl());
+        }
     ],
     [
         'attribute' => 'in_use',
@@ -49,6 +63,10 @@ $columns = [
     [
         'attribute' => 'currency_id',
         'class' => CurrencyColumn::className(),
+    ],
+    [
+        'attribute' => 'prefix',
+        'class' => IntegerColumn::className(),
     ],
 ];
 
