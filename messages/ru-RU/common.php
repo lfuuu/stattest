@@ -4,6 +4,8 @@ return [
     'Summary' => 'Итого',
     'Create' => 'Создать',
     'Save' => 'Сохранить',
+    'Drop' => 'Удалить',
+    "Are you sure? It's irreversibly." => 'Вы уверены? Удаление необратимо.',
     'Yes' => 'Да',
     'No' => 'Нет',
     'Price' => 'Цена',

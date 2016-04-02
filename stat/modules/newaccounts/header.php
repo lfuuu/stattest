@@ -92,7 +92,7 @@ class m_newaccounts_head extends IModuleHead{
             array('Баланс по клиентам',	'balance_client'),
             array('Баланс по счетам',	'balance_bill'),
             array('Первые платежи',		'first_pay'),
-            array('Курс доллара (устарело)',		'usd'),
+//            array('Курс доллара (устарело)',		'usd'),
             array('Курс валюты', function() { return '/bill/currency/index/'; }),
             array('',					'pi_list'),
             array('Импорт платежей',	'pi_list'),

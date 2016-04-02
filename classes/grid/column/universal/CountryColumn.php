@@ -18,6 +18,8 @@ class CountryColumn extends DataColumn
         ListTrait::renderDataCellContent as defaultRenderDataCellContent;
     }
 
+    public $isAddLink = true;
+
     public $filterType = GridView::FILTER_SELECT2;
 
     public function __construct($config = [])
@@ -40,6 +42,10 @@ class CountryColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        return Html::a($strValue, '/dictionary/country/?CountryFilter[code]=' . $value);
+        if ($this->isAddLink) {
+            return Html::a($strValue, '/dictionary/country/?CountryFilter[code]=' . $value);
+        } else {
+            return $strValue;
+        }
     }
 }
