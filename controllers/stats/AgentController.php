@@ -43,17 +43,15 @@ class AgentController extends BaseController
 
         $partnerList = [];
         foreach($partners as $partner) {
-            $account = $partner->accounts[0];
-            $partnerList[$account->id] = $partner->contragent->name . ' (#' . $account->id . ')';
+            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $partner->id . ')';
         }
 
-
-        $account = ClientAccount::findOne($partnerContractId);
+        $contract = ClientContract::findOne($partnerContractId);
 
         $data = [];
         $report = new AgentReport;
 
-        if ($account) {
+        if ($contract) {
             $data = $report->run($partnerContractId, $dateFrom, $dateTo);
         }
 
@@ -68,7 +66,7 @@ class AgentController extends BaseController
                 'partnerList' => $partnerList,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
-                'partner' => $account
+                'partner' => $contract,
             ]);
         }
     }
