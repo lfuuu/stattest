@@ -9,7 +9,7 @@ $troublesIsset = false;
 $serversTroubles = [];
 
 foreach ($troubles as $k => $trouble) {
-    if (!in_array($trouble->stage->state_id, [2, 20, 21, 39, 40, 46, 47, 48])) {
+    if (!in_array($trouble->stage->state_id, Trouble::dao()->getClosedStatesId())) {
         $troublesIsset = true;
     }
     else {

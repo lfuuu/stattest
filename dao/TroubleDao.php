@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use \yii\db\Expression;
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
 use app\classes\Singleton;
@@ -20,32 +21,33 @@ class TroubleDao extends Singleton
     public function getMyTroublesCount()
     {
         return
-            Trouble::getDb()->createCommand("
-                select count(*)
-                from tt_troubles as t
-                inner join tt_stages as s  on s.stage_id = t.cur_stage_id and s.trouble_id = t.id
-                where s.state_id not in (2,20,21,39,40,46,47,48) and s.date_start<=now() and s.user_main=:userLogin
-            ", [':userLogin' => \Yii::$app->user->getIdentity()->user])
-                ->queryScalar();
+            Trouble::find()
+                ->from(['t' => 'tt_troubles'])
+                ->innerJoin(['s' => 'tt_stages'], 's.stage_id = t.cur_stage_id and s.trouble_id = t.id')
+                ->where(['s.user_main' => \Yii::$app->user->getIdentity()->user])
+                ->andWhere(['<=', 's.date_start', new Expression('now()')])
+                ->andWhere(['not in', 's.state_id', $this->getClosedStatesId()])
+                ->count();
     }
 
     public function getServerTroublesIDsForClient(ClientAccount $client)
     {
         return
-            Trouble::getDb()->createCommand("
-                SELECT tt.`id`
-                FROM
-                    `tt_troubles` tt
-                        INNER JOIN `tt_stages` ts ON ts.`stage_id` = tt.`cur_stage_id` AND ts.`trouble_id` = tt.`id`
-                            LEFT JOIN `server_pbx` pbx ON pbx.`id` = tt.`server_id`
-                                LEFT JOIN `datacenter` dc ON dc.`id` = pbx.`datacenter_id`
-                                    LEFT JOIN `clients` c ON dc.`region` = c.`region`
-                WHERE
-                  tt.`server_id`
-                  AND ts.`state_id` NOT IN (2,20,21,39,40,46,47,48)
-                  AND c.`client` = :client
-            ", [':client' => $client->client])
-                ->queryAll();
+            Trouble::find()
+                ->select('tt.id')
+                ->from(['tt' => 'tt_troubles'])
+                ->innerJoin(['ts' => 'tt_stages'], 'ts.stage_id = tt.cur_stage_id AND ts.trouble_id = tt.id')
+                ->innerJoin(['pbx' => 'server_pbx'], 'pbx.id = tt.server_id')
+                ->innerJoin(['dc' => 'datacenter'], 'dc.id = pbx.datacenter_id')
+                ->innerJoin(['c' => 'clients'], 'dc.region = c.region')
+                ->where(
+                    [
+                        'and',
+                        ['>', 'tt.`server_id`', 0],
+                        ['not in', 'ts.`state_id`', $this->getClosedStatesId()],
+                        ['=', 'c.`client`', $client->client]
+                    ]
+                )->createCommand()->queryAll();
     }
 
     public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId, $author = false)
@@ -189,5 +191,20 @@ class TroubleDao extends Singleton
         $trouble->cur_stage_id = $stage->stage_id;
         $trouble->save();
         return $stage;
+    }
+
+    public function getClosedStatesId()
+    {
+        return [
+            2,  //Закрыт
+            20, //Закрыт
+            21, //Отказ
+            39, //Закрыт
+            40, //Отказ
+            45, //Техотказ
+            46, //Отказ
+            47, //Мусор
+            48, //Включено
+        ];
     }
 }

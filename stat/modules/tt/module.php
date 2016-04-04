@@ -581,8 +581,8 @@ INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where c.client="'.$trouble['client_orig'].'"')
         );
         $design->assign('tt_write',$this->checkTroubleAccess($trouble));
-        $design->assign('tt_edit',$this->checkTroubleAccess($trouble) && !in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
-        $design->assign("tt_isClosed", in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
+        $design->assign('tt_edit',$this->checkTroubleAccess($trouble) && !in_array($trouble["state_id"], YiiTrouble::dao()->getClosedStatesId()));
+        $design->assign("tt_isClosed", in_array($trouble["state_id"], YiiTrouble::dao()->getClosedStatesId()));
         $design->assign('tt_doComment',access('tt','comment'));
         $stage = $trouble['stages'][count($trouble['stages'])-1];
 
@@ -1108,7 +1108,7 @@ where c.client="'.$trouble['client_orig'].'"')
 
         if($mode>=1)
         {
-            $W[]='S.state_id not in (2,20,21,39,40,46,47,48)';
+            $W[]='S.state_id not in (' . implode(',', TroubleDao::me()->getClosedStatesId()) . ')';
             $use_stages = true;
         }
         if($mode==2 || $mode==3)
@@ -1756,7 +1756,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if (access('tt','admin')) return true;
         if (!access('tt','use')) return false;
         $u = $user->Get('user');
-        if (in_array($trouble['state_id'], array(2, 20, 39, 46,47,48))) return false;
+        if (in_array($trouble['state_id'], YiiTrouble::dao()->getClosedStatesId())) return false;
         if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
