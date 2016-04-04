@@ -20,7 +20,7 @@
         "unclead/yii2-multiple-input": "@stable",
         "bower-asset/bootstrap-multiselect": "@stable",
         "zircote/swagger-php": "^2.0",
-        "bower-asset/swagger-ui": "*",
+        "bower-asset/swagger-ui": "1.0.0",
         "KidSysco/jquery-ui-month-picker": "dev-master",
         "yiisoft/yii2-httpclient": "^2.0@dev",
         "kartik-v/yii2-tabs-x": "^1.2"
