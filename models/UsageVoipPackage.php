@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\queries\ClientAccountQuery;
+
 use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\Biller;
@@ -9,8 +9,10 @@ use app\classes\bill\VoipPackageBiller;
 use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
+use app\queries\ClientAccountQuery;
 use app\models\usages\UsageInterface;
-use app\models\billing\StatPackage;
+use app\models\billing\StatPackage as BillingStatPackage;
+use app\models\billing\Calls as CallsStatPackage;
 use app\queries\UsageQuery;
 
 /**
@@ -77,15 +79,37 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      * @param string $dateRangeTo
      * @return array|\yii\db\ActiveRecord[]
      */
-    public function getStat($dateRangeFrom = '', $dateRangeTo = '')
+    public function getBillingStat($dateRangeFrom = '', $dateRangeTo = '')
     {
-        $link = $this->hasMany(StatPackage::className(), ['package_id' => 'id']);
+        $link = $this->hasMany(BillingStatPackage::className(), ['package_id' => 'id']);
 
         if ($dateRangeFrom) {
-            $link->filterWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
+            $link->andWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
         }
         if ($dateRangeTo) {
-            $link->filterWhere(['<=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
+            $link->andWhere(['<=', 'activation_dt', (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
+        }
+
+        return $link->all();
+    }
+
+    /**
+     * @param string $dataRangeFrom
+     * @param string $dateRangeTo
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getCallsStat($dateRangeFrom = '', $dateRangeTo = '')
+    {
+        $link = $this->hasMany(CallsStatPackage::className(), [
+            'service_package_id' => 'id',
+            'number_service_id' => 'usage_voip_id',
+        ]);
+
+        if ($dateRangeFrom) {
+            $link->andWhere(['>=', 'connect_time', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
+        }
+        if ($dateRangeTo) {
+            $link->andWhere(['<=', 'connect_time', (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
         }
 
         return $link->all();

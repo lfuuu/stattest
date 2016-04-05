@@ -18,6 +18,7 @@ echo GridView::widget([
                 ['content' => 'Минут', 'options' => ['colspan' => 2],],
                 ['content' => 'Стоимость минуты в пакете', 'options' => ['rowspan' => 2],],
                 ['content' => 'Минимальный платеж', 'options' => ['rowspan' => 2],],
+                ['content' => 'Осталось неизрасходованно рублей в пакете', 'options' => ['rowspan' => 2, 'width' => '10%'],],
             ],
             'options' => [
                 'class' => GridView::DEFAULT_HEADER_CLASS,
@@ -70,7 +71,7 @@ echo GridView::widget([
             'value' => function ($package) use ($filter) {
                 /** @var app\models\UsageVoipPackage $package */
                 /** @var app\classes\DynamicModel $filter */
-                $stat = $package->getStat($filter->date_range_from, $filter->date_range_to);
+                $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
                 return ($package->tariff->minutes_count - floor(array_sum(ArrayHelper::getColumn($stat, 'used_seconds')) / 60));
             },
             'contentOptions' => ['class' => 'text-center',],
@@ -91,13 +92,24 @@ echo GridView::widget([
             },
             'contentOptions' => ['class' => 'text-center',],
         ],
+        [
+            'headerOptions' => ['class' => 'hidden'],
+            'format' => 'raw',
+            'value' => function ($package) use ($filter) {
+                /** @var app\models\UsageVoipPackage $package */
+                /** @var app\classes\DynamicModel $filter */
+                if ($package->tariff->pricelist_id && $package->tariff->min_payment) {
+                    $stat = $package->getCallsStat($filter->date_range_from, $filter->date_range_to);
+                    $result = $package->tariff->min_payment - abs(array_sum(ArrayHelper::getColumn($stat, 'cost')));
+
+                    return $result > 0 ? $result : 0;
+                }
+                return '--';
+            },
+            'contentOptions' => ['class' => 'text-center',],
+        ],
     ],
-    'pjax' => false,
     'toolbar' => [],
-    'bordered' => true,
-    'striped' => true,
-    'condensed' => true,
-    'hover' => true,
     'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],

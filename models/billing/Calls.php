@@ -68,7 +68,7 @@ class Calls extends ActiveRecord
             'server_id' => 'Точка присоединения', // public.server или billing.instance_settings
             'id' => 'ID',
             'orig' => 'Оригинация', // оригинация - вход, терминация - выход
-//                'peer_id' => 'xxx',
+            //'peer_id' => 'xxx',
             'cdr_id' => 'CDR', // call data record
             'connect_time' => 'Время начала разговора (UTC)',
             'trunk_id' => 'Транк',
@@ -91,9 +91,9 @@ class Calls extends ActiveRecord
             'pricelist_id' => 'Прайслист',
             'prefix' => 'Префикс', // соответствие префиксу из прайса
             'geo_id' => 'География',  // География, Локация B-номера
-//                'geo_operator_id' => 'xxx',
+            //'geo_operator_id' => 'xxx',
             'mob' => 'Мобильный', // Стационарный
-//            'operator_id' => 'Оператор', // deprecated. Надо trunk_id -> mysql.stat.usage_trunk -> postgresql.voip.operator
+            //'operator_id' => 'Оператор', // deprecated. Надо trunk_id -> mysql.stat.usage_trunk -> postgresql.voip.operator
             'geo_mob' => 'Россвязь мобильные',
             'our' => 'Наш клиент',
 
