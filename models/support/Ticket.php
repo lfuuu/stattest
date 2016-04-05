@@ -18,42 +18,47 @@ use yii\db\ActiveRecord;
  */
 class Ticket extends ActiveRecord
 {
-  const TROUBLE_STATE_OPEN = 1;
-  const TROUBLE_STATE_DONE = 7;
-  const TROUBLE_STATE_CLOSED = 2;
+    const TROUBLE_STATE_OPEN = 1;
+    const TROUBLE_STATE_DONE = 7;
+    const TROUBLE_STATE_CLOSED = 2;
+    const TROUBLE_STATE_REOPENED = 51;
 
-  public static function tableName()
-  {
-    return 'support_ticket';
-  }
-
-  public function behaviors()
-  {
-    return [
-      'createdAt' => CreatedAt::className(),
+    private $stateIdToStatus = [
+        self::TROUBLE_STATE_CLOSED => TicketStatusEnum::CLOSED,
+        self::TROUBLE_STATE_DONE => TicketStatusEnum::DONE,
+        self::TROUBLE_STATE_REOPENED => TicketStatusEnum::REOPENED,
     ];
-  }
 
-  public function setStatusByTroubleState($state_id)
-  {
-    if ($state_id == self::TROUBLE_STATE_CLOSED) {
-      $this->status = TicketStatusEnum::CLOSED;
-    } elseif ($state_id == self::TROUBLE_STATE_DONE) {
-      $this->status = TicketStatusEnum::DONE;
-    } else {
-      $this->status = TicketStatusEnum::OPEN;
+    public static function tableName()
+    {
+    return 'support_ticket';
     }
-  }
 
-  public function spawnTroubleStatus()
-  {
-    if ($this->status == TicketStatusEnum::CLOSED) {
-      return self::TROUBLE_STATE_CLOSED;
-    } elseif ($this->status == TicketStatusEnum::DONE) {
-      return self::TROUBLE_STATE_DONE;
-    } else {
-      return self::TROUBLE_STATE_OPEN;
+    public function behaviors()
+    {
+        return [
+          'createdAt' => CreatedAt::className(),
+        ];
     }
-  }
+
+    public function setStatusByTroubleState($state_id)
+    {
+        $this->status = TicketStatusEnum::OPEN;
+
+        if (isset($this->stateIdToStatus[$state_id])) {
+            $this->status = $this->stateIdToStatus[$state_id];
+        }
+    }
+
+    public function spawnTroubleStatus()
+    {
+        $statuses = array_flip($this->stateIdToStatus);
+
+        if (isset($statuses[$this->status])) {
+            return $statuses[$this->status];
+        }
+
+        return self::TROUBLE_STATE_OPEN;
+    }
 
 }

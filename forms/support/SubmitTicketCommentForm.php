@@ -27,8 +27,8 @@ class SubmitTicketCommentForm extends TicketCommentForm
                 $this->ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
                 $this->ticket->is_with_new_comment = 1;
 
-                if ($this->ticket->status != TicketStatusEnum::OPEN) {
-                    $this->ticket->status = TicketStatusEnum::OPEN;
+                if ($this->ticket->status != TicketStatusEnum::OPEN && $this->ticket->status != TicketStatusEnum::REOPENED) {
+                    $this->ticket->status = $this->ticket->status === TicketStatusEnum::CLOSED ? TicketStatusEnum::REOPENED : TicketStatusEnum::OPEN;
                     $this->ticket->save();
                     Trouble::dao()->updateTroubleBySupportTicket($this->ticket, $this->text);
                 } else {
