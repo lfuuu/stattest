@@ -1,8 +1,13 @@
 <?php
 use app\classes\Html;
 use app\models\Number;
+use app\models\NumberType;
+use app\assets\AppAsset;
 
 echo Html::formLabel('Детальный отчет по номерам');
+
+/** @var $this \app\classes\BaseView */
+$this->registerJsFile('@web/js/behaviors/usage-number-detail-report.js', ['depends' => [AppAsset::className()]]);
 ?>
 
 <form id="formVoipFreeStat" method=post>
@@ -22,10 +27,28 @@ echo Html::formLabel('Детальный отчет по номерам');
             <td colspan="2"></td>
         </tr>
         <tr>
-            <td align="right">Группы DID:</td>
+            <td align="right">Тип номера:</td>
             <td>
-                <?php foreach($didGroupList as $id => $name): ?>
-                    <label><input type="checkbox" name="didGroups[]" value="<?= $id ?>" <?= in_array($id, $didGroups) ? 'checked' : '' ?> > <?= $name ?></label><br/>
+                <?php foreach ($numberTypeList as $numberTypeId => $numberTypeName): ?>
+                    <label><input type="radio" class="numberTypeList" name="numberType" value="<?= $numberTypeId ?>"
+                            <?= ($numberType == $numberTypeId) ? 'checked' : '' ?> > <?= $numberTypeName ?></label><br/>
+                    <?php
+                    $subList = [];
+                    if ($numberTypeId == NumberType::ID_INTERNAL) {
+                        $subList = $didGroupList;
+                        $subSelect = $didGroups;
+                        $name = 'didGroups';
+                    } elseif ($numberTypeId == NumberType::ID_EXTERNAL) {
+                        $subList = $externalGroupList;
+                        $subSelect = $externalGroups;
+                        $name = 'externalGroups';
+                    }
+                    foreach ($subList as $subId => $subName): ?>
+                        <label style="padding-left: 15px;"><input type="checkbox" class="subList" name="<?= $name ?>[]"
+                                                                  data-number-type-id="<?= $numberTypeId ?>"
+                                                                  value="<?= $subId ?>" <?= in_array($subId,
+                                $subSelect) ? 'checked' : '' ?> > <?= $subName ?></label><br/>
+                    <?php endforeach; ?>
                 <?php endforeach; ?>
             <td align="right">Статусы:</td>
             <td>
@@ -34,6 +57,7 @@ echo Html::formLabel('Детальный отчет по номерам');
                 <?php endforeach; ?>
             </td>
         </tr>
+
         <tr>
             <td colspan="4" align="center">
                 <input type=submit class="btn btn-primary" value="Сформировать" name="make">
@@ -86,8 +110,8 @@ echo Html::formLabel('Детальный отчет по номерам');
                     <?php endif; ?>
                 </td>
                 <td><a href="/client/view?id=<?= $n['client_id'] ?>"><?= $n['client'] . ' ' . $n['company'] ?></a></td>
-                <?php foreach($headMonths as $monthId => $month): 
-                    $mCalls = $n["month"][$monthId];
+                <?php foreach($headMonths as $monthId => $month):
+                    $mCalls = (isset($n["month"]) && isset($n["month"][$monthId])) ? $n["month"][$monthId] : 0;
                 ?>
                     <td <?php if ($mCalls > $minCalls): ?> style="font-weight: bold; color: red;"<?php endif; ?> >
                         <?= ($mCalls > 0 ? $mCalls : "") ?>

@@ -1,6 +1,7 @@
 <?php
 use app\models\ClientAccount;
 use app\models\Number;
+use app\models\NumberLog;
 use kartik\widgets\ActiveForm;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
@@ -43,9 +44,7 @@ use app\helpers\DateTimeZoneHelper;
                     <td>В остойнике до:</td>
                     <th>
                     <?php
-                        $dt = new \DateTime($number->hold_from, new \DateTimeZone("UTC"));
-                        $dt->modify("+6 month");
-                        echo DateTimeZoneHelper::getDateTime($dt->format("Y-m-d H:i:s"));
+                        echo DateTimeZoneHelper::getDateTime($number->hold_to);
                     ?>
                     </th>
                 </tr>
@@ -96,31 +95,45 @@ use app\helpers\DateTimeZoneHelper;
                         <tr>
                             <td style='text-align:center;font-weight:bolder;color:#555'><?= DateTimeZoneHelper::getDateTime($log['human_time']) ?></td>
                             <td>
-                                <?php if ($log['action'] == 'fix'): ?>
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
-                                    <b>зафиксирован</b> за клиентом
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=clients&id=<?= $log['client_id'] ?>'><?= $log['client'] ?></a>
-                                <?php elseif ($log['action'] == 'unfix'): ?>
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
-                                    <b>снят</b> с клиента
-                                    <a href='?module=clients&id=<?= $log['client_id'] ?>' style='text-decoration:none;font-weight:bold'><?= $log['client'] ?></a>
-                                <?php elseif ($log['action'] == 'hold'): ?>
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
-                                    <b>помещен в отстойник</b>
-                                <?php elseif ($log['action'] == 'unhold'): ?>
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
-                                    <b>убран из отстойника</b>
-                                <?php elseif ($log['action'] == 'invertReserved'): ?>
-                                    <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
-                                    <?php if ($log['addition'] == 'Y'): ?>
-                                        <b>Зарезервирован.</b>
-                                    <?php else: ?>
-                                        <b>Снят резерв.</b>
-                                    <?php endif; ?>
-                                    <?php if ($log['client_id']): ?>
-                                        ЛС: <a href='/client/view?id=<?= $log['client_id'] ?>' style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
-                                    <?php endif; ?>
-                                <?php endif; ?>
+                                <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
+
+                                <?php
+
+                                switch ($log['action']) {
+                                    case NumberLog::ACTION_FIX:
+                                        ?>
+                                        <b>зафиксирован</b> за клиентом
+                                        <a style='text-decoration:none;font-weight:bold'
+                                           href='?module=clients&id=<?= $log['client_id'] ?>'><?= $log['client'] ?></a>
+                                        <?php break;
+                                    case NumberLog::ACTION_UNFIX:
+                                        ?>
+                                        <b>снят</b> с клиента
+                                        <a href='?module=clients&id=<?= $log['client_id'] ?>'
+                                           style='text-decoration:none;font-weight:bold'><?= $log['client'] ?></a>
+                                        <?php break;
+                                    case NumberLog::ACTION_HOLD:
+                                        ?><b>помещен в отстойник</b><?php break;
+                                    case NumberLog::ACTION_UNHOLD:
+                                        ?><b>убран из отстойника</b><?php break;
+                                    case NumberLog::ACTION_NOTSALE:
+                                        ?><b>Номер не продется</b><?php break;
+                                    case NumberLog::ACTION_SALE:
+                                        ?><b>Номер продется</b><?php break;
+                                    case NumberLog::ACTION_INVERTRESERVED:
+                                        if ($log['addition'] == 'Y') {
+                                            ?><b>Зарезервирован.</b><?php
+                                        } else {
+                                            ?><b>Снят резерв.</b><?php
+                                        }
+                                        if ($log['client_id']) {
+                                            ?>ЛС: <a href='/client/view?id=<?= $log['client_id'] ?>'
+                                                     style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
+                                            <?php
+                                        };
+                                        break;
+                                        ?>
+                                    <?php } ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

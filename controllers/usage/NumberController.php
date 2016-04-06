@@ -1,8 +1,10 @@
 <?php
 namespace app\controllers\usage;
 
+use app\models\NumberType;
 use Yii;
 use DateTime;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use app\classes\Assert;
 use app\classes\DateFunction;
@@ -85,6 +87,8 @@ class NumberController extends BaseController
     {
         $cityId = Yii::$app->request->post('cityId', Yii::$app->user->identity->city_id);
         $didGroups = Yii::$app->request->post('didGroups');
+        $numberType = Yii::$app->request->post('numberType');
+        $externalGroups = Yii::$app->request->post('externalGroups');
         $statuses = Yii::$app->request->post('statuses');
         $prefix = Yii::$app->request->post('prefix');
         $viewTypeFile = Yii::$app->request->post('view-minimal');
@@ -92,10 +96,21 @@ class NumberController extends BaseController
 
         $cityList = City::dao()->getList(true);
         $didGroupList = DidGroup::dao()->getList(false, $cityId);
+        $numberTypeList = NumberType::getList();
+        $externalGroupList = ['7800' => 'Номера 7800']; //TODO: перевести на справочник внешних груп
 
-        if (!$didGroups) {
+        if (!$numberType) {
+            $numberType = NumberType::ID_INTERNAL;
+        }
+
+        if ($numberType == NumberType::ID_INTERNAL && !$didGroups) {
             $didGroups = array_keys($didGroupList);
         }
+
+        if ($numberType == NumberType::ID_EXTERNAL && !$externalGroups) {
+            $externalGroups = array_keys($externalGroupList);
+        }
+
         if (!$statuses) {
             $statusList= Number::$statusList;
             unset($statusList[Number::STATUS_HOLD]);
@@ -116,21 +131,29 @@ class NumberController extends BaseController
                 $emptyMonths[(int)$dt->format('m')] = 0;
             }
 
-            $numbers =
-                Yii::$app->db->createCommand("
-                        select n.*, ccc.name as company, c.client from voip_numbers n
-                        left join clients c on n.client_id=c.id
-                        left join client_contract cc on cc.id=c.contract_id
-                        left join client_contragent ccc on ccc.id=cc.contragent_id
-                        where
-                            n.city_id = :cityId
-                            and n.did_group_id in ('" . implode("','", $didGroups) . "')
-                            and n.status in ('" . implode("','", $statuses) . "')
-                            and n.number like :prefix
-                    ", [
-                    ':cityId' => $cityId,
-                    ':prefix' => $prefix . '%',
-                ])->queryAll();
+            $numbersQuery = (new Query())
+                ->select(['n.*', 'c.client'])
+                ->addSelect(['company' => 'ccc.name'])
+                ->from(['n' => 'voip_numbers'])
+                ->leftJoin(['c' => 'clients'], 'n.client_id=c.id')
+                ->leftJoin(['cc' => 'client_contract'], 'cc.id=c.contract_id')
+                ->leftJoin(['ccc' => 'client_contragent'], 'ccc.id=cc.contragent_id')
+                ->where([
+                    'number_type' => $numberType,
+                    'n.city_id' => $cityId,
+                    'n.status' => $statuses
+                ]);
+
+            if ($numberType == NumberType::ID_INTERNAL) {
+                $numbersQuery->andWhere(['did_group_id' => $didGroups]);
+            }
+
+            if ($prefix) {
+                $numbersQuery->andWhere(['like', 'n.number', $prefix . '%', false]);
+            }
+
+            $numbers = $numbersQuery->createCommand()->queryAll();
+
 
             $city = City::findOne($cityId);
             if (
@@ -172,11 +195,15 @@ class NumberController extends BaseController
 
         return $this->render('detail-report', [
             'cityId' => $cityId,
+            'numberType' => $numberType,
             'didGroups' => $didGroups,
+            'externalGroups' => $externalGroups,
             'statuses' => $statuses,
             'prefix' => $prefix,
             'cityList' => $cityList,
+            'numberTypeList' => $numberTypeList,
             'didGroupList' => $didGroupList,
+            'externalGroupList' => $externalGroupList,
             'statusList' => Number::$statusList,
             'numbers' => $numbers,
             'minCalls' => 10, //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"

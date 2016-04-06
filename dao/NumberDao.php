@@ -14,6 +14,9 @@ use app\models\UsageVoip;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
 use app\models\TariffNumber;
+use app\models\NumberLog;
+use app\models\NumberType;
+use app\models\billing\Calls;
 
 /**
  * @method static NumberDao me($args = null)
@@ -29,8 +32,11 @@ class NumberDao extends Singleton
     {
         return
             Number::find()
-                ->andWhere(['status' => 'instock'])
-                ->andWhere(['did_group_id' => $didGroupId])
+                ->andWhere([
+                    'status' => Number::STATUS_INSTOCK,
+                    'number_type' => NumberType::ID_INTERNAL,
+                    'did_group_id' => $didGroupId
+                ])
                 ->orderBy('RAND()')
                 ->limit(1)
                 ->one();
@@ -43,8 +49,11 @@ class NumberDao extends Singleton
     {
         return
             Number::find()
-                ->andWhere(['status' => 'instock'])
-                ->andWhere(['number_type' => 5]) //TODO: [number_type] как будет таблица с типами номеров, вставить константу (5 == 7800)
+                ->andWhere([
+                    'status' => Number::STATUS_INSTOCK,
+                    'number_type' => NumberType::ID_EXTERNAL,
+                    'ndc' => '800'
+                ])
                 ->orderBy('RAND()')
                 ->limit(1)
                 ->one();
@@ -56,7 +65,10 @@ class NumberDao extends Singleton
      */
     public function getFreeNumbersByRegion($region = '')
     {
-        return $this->getFreeNumbers()->andWhere(['region' => $region, 'number_type' => null])->all(); //TODO: [number_type] как будет таблица с типами номеров, поменять условие
+        return $this->getFreeNumbers()->andWhere([
+            'region' => $region,
+            'number_type' => NumberType::ID_INTERNAL
+        ])->all();
     }
 
     /**
@@ -80,7 +92,7 @@ class NumberDao extends Singleton
         $number->status = Number::STATUS_RESERVED;
         $number->save();
 
-        Number::dao()->log($number, 'invertReserved', 'Y');
+        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
     }
 
     public function stopReserve(Number $number)
@@ -105,7 +117,7 @@ class NumberDao extends Singleton
         $number->status = Number::STATUS_ACTIVE;
         $number->save();
 
-        Number::dao()->log($number, 'invertReserved', 'Y');
+        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
     }
 
     public function stopActive(Number $number)
@@ -145,7 +157,7 @@ class NumberDao extends Singleton
         $number->status = Number::STATUS_INSTOCK;
         $number->save();
 
-        Number::dao()->log($number, 'invertReserved', 'N');
+        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'N');
     }
 
     public function startHold(Number $number, DateTime $holdTo = null)
@@ -157,18 +169,18 @@ class NumberDao extends Singleton
         $number->status = Number::STATUS_HOLD;
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
-        $number->hold_from = $now->format("Y-m-d H:i:s");
+        $number->hold_from = $now->format(DateTime::ATOM);
 
         if ($holdTo) {
-            $number->hold_to = $holdTo->format("Y-m-d H:i:s");
+            $number->hold_to = $holdTo->format(DateTime::ATOM);
         } else {
-            $now->modify("+6 month");
-           $number->hold_to = $now->format("Y-m-d H:i:s");
+            $now->add($number->numberType->hold);
+            $number->hold_to = $now->format(DateTime::ATOM);
         }
 
         $number->save();
 
-        Number::dao()->log($number, 'hold');
+        Number::dao()->log($number, NumberLog::ACTION_HOLD);
     }
 
     public function stopHold(Number $number)
@@ -179,7 +191,7 @@ class NumberDao extends Singleton
         $number->hold_to = null;
         $number->save();
 
-        Number::dao()->log($number, 'unhold');
+        Number::dao()->log($number, NumberLog::ACTION_UNHOLD);
     }
 
     public function startNotSell(Number $number)
@@ -189,6 +201,8 @@ class NumberDao extends Singleton
         $number->client_id = 764;
         $number->status = Number::STATUS_NOTSELL;
         $number->save();
+
+        Number::dao()->log($number, NumberLog::ACTION_NOTSALE);
     }
 
     public function stopNotSell(Number $number)
@@ -198,24 +212,24 @@ class NumberDao extends Singleton
         $number->client_id = null;
         $number->status = Number::STATUS_INSTOCK;
         $number->save();
+
+        Number::dao()->log($number, NumberLog::ACTION_SALE);
     }
 
     public function log(Number $number, $action, $addition = null)
     {
-        Yii::$app->db->createCommand("
-            insert into `e164_stat` set `e164`=:number, action=:action, client=:clientId, user=:userId, addition=:addition;
-        ", [
-            ':number' => $number->number,
-            ':action' => $action,
-            ':clientId' => $number->client_id,
-            ':userId' => Yii::$app->user->getId(),
-            ':addition' => $addition,
-        ])->execute();
+        $row = new NumberLog();
+        $row->e164 = $number->number;
+        $row->action = $action;
+        $row->client = $number->client_id;
+        $row->user = Yii::$app->user->getId();
+        $row->addition = $addition;
+        $row->save();
     }
 
-    public function actualizeStatusByE164($numbereE164)
+    public function actualizeStatusByE164($numberE164)
     {
-        $number = Number::findOne(['number' => $numbereE164]);
+        $number = Number::findOne(['number' => $numberE164]);
         if ($number) {
             $this->actualizeStatus($number);
         }
@@ -245,17 +259,34 @@ class NumberDao extends Singleton
         $dt = new \DateTime("now", new \DateTimeZone("UTC"));
         $dt->modify("first day of -3 month, 00:00:00");
 
-        return 
-                Yii::$app->dbPg->createCommand("
-                    select dst_number as u, count(*) as c, to_char(connect_time, 'MM') as m
-                    from calls_raw.calls_raw
-                    where connect_time > '".$dt->format("Y-m-d H:i:s")."'
-                    and server_id = ".$region."
-                    and number_service_id is null
-                    ".($region == 99 ? "and dst_number BETWEEN 74950000000 and 74999000000" : "")."
-                    and orig = false
-                    group by u, m
-                ")->cache(86400)->queryAll();
+        $query = Calls::find()
+            ->select([
+                'u' => 'dst_number',
+                'c' => (new Expression('count(*)')),
+                'm' => (new Expression("to_char(connect_time, 'MM')"))
+            ])
+            ->where(
+                ['>', 'connect_time', $dt->format(DateTime::ATOM)]
+            )
+            ->andWhere([
+                'server_id' => $region,
+                'number_service_id' => null,
+                'orig' => false
+            ])
+            ->groupBy([
+                'u', 'm'
+            ]);
+
+        if ($region == 99) {
+            $query->andWhere(
+                ['between', 'dst_number', 74950000000, 74999000000]
+            );
+        }
+
+        return $query
+            ->createCommand()
+            ->cache(86400)
+            ->queryAll();
     }
 
     /**
@@ -265,7 +296,7 @@ class NumberDao extends Singleton
     {
         return
             Number::find()
-                ->where(['status' => 'instock'])
+                ->where(['status' => Number::STATUS_INSTOCK])
                 ->having(new Expression('
                     IF(
                         `number` LIKE "7495%",
