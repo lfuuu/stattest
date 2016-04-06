@@ -15,24 +15,30 @@ use yii\helpers\ArrayHelper;
 /**
  * @property int $id
  * @property string $client
+ * @property int $super_id
+ * @property int $contract_id
+ * @property int $country_id
  * @property string $currency
  * @property string $nal
+ * @property int $balance
+ * @property int $credit
+ * @property int $voip_credit_limit_day
  * @property int $business_id
  * @property int $price_include_vat
+ * @property int $is_active
  * @property int $region
- * @property int $country_id
-
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
  * @property Country $country
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
- *
+ * @property LkClientSettings $lkClientSettings
+ * @property LkNoticeSetting $lkNoticeSetting
+ * @property ClientContact $contact
  * @property ClientContract $contract
  * @property ClientContragent $contragent
+ * @property Organization organization
  * @method static ClientAccount findOne($condition)
- * @property
- *
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -482,6 +488,23 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLkClientSettings()
+    {
+        return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+    }
+
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLkNoticeSetting()
+    {
+        return $this->hasMany(LkNoticeSetting::className(), ['client_id' => 'id']);
+    }
+
+    /**
      * @param $name
      * @return array
      */
@@ -550,7 +573,32 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getRealtimeBalance()
     {
-        return VoipStatus::create($this)->getRealtimeBalance();
+        $balance = VoipStatus::create($this)->getRealtimeBalance();
+
+        if ($balance == VoipStatus::STATUS_ERROR) {
+            $savedBalance = $this->makeBalance();
+            return $savedBalance['balance'];
+        }
+
+        return $balance;
+    }
+
+    public function getDaySum()
+    {
+        //TODO: переделать на \app\models\ClientAccount::find()->one()->counters->daySum
+        //TODO: разобраться с разнообразием получения данных баланса и счетчиков
+
+        $daySum = VoipStatus::create($this)->getDaySum();
+
+        if ($daySum == VoipStatus::STATUS_ERROR) {
+            $counters = ClientCounter::dao()->getOrCreateCounter($this->id);
+            if ($counters) {
+                return $counters->amount_day_sum;
+            }
+            return 0;
+        }
+
+        return $daySum;
     }
 
     public function getVoipWarnings()

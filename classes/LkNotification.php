@@ -1,12 +1,17 @@
 <?php 
+namespace app\classes;
 
+use Yii;
+use app\models\LkNotice;
+use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\important_events\ImportantEventsNames;
 
 class LkNotification {
 
     /**
      * 
-     * @var int $clientId Идентификатор клиента
+     * @var ClientAccount $clientId Идентификатор клиента
      */
     private $Client = null;
 
@@ -38,16 +43,22 @@ class LkNotification {
     private $balance = null;
 
     /**
+     *
+     * @var Smarty Шаблонизатор сообщений
+     */
+    private $design = null;
+
+    /**
      * 
      * @var string $tpl_dir Папка с шаблонами сообщений
      */
-    private $tpl_dir = 'letters/notification/';
+    private $tpl_dir = '@app/stat/design/letters/notification/';
 
     public function __construct($clientId, $contactId, $type, $value, $balance)
     {
-        $this->Client = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
-        $this->Contact = \app\models\ClientContact::findOne($contactId);
-        $this->design = new \MySmarty;
+        $this->Client = ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => $clientId]);
+        $this->Contact = ClientContact::findOne($contactId);
+        $this->design = Smarty::init();
 
         $this->type = $type;
         $this->value = $value;
@@ -76,7 +87,9 @@ class LkNotification {
         }
 
         $lang = $this->Client->country->lang;
-        $path = $this->tpl_dir . $lang . DIR_SEP . $contactType . DIR_SEP;
+        $path = Yii::getAlias($this->tpl_dir . $lang . DIRECTORY_SEPARATOR . $contactType . DIRECTORY_SEPARATOR);
+
+
 
         $assigns = [
             'value' => $this->value,
@@ -118,8 +131,6 @@ class LkNotification {
 
     private function sendMail()
     {
-        global $db;
-
         $subject = $this->getSubject();
         $msg = $this->getMessage();
 
@@ -128,32 +139,33 @@ class LkNotification {
                 'data' => MONITORING_EMAIL,
                 'subject' => $this->Contact->data . ' - ' . $subject,
                 'message' => $msg,
-                'type' => 'email',
+                'type' => LkNotice::TYPE_EMAIL,
                 'contact_id' => $this->Contact->id,
                 'lang' => $this->Client->country->lang,
             ];
 
-            $res = $db->QueryInsert('lk_notice', $params);
+            $row = new LkNotice;
+            $row->setAttributes($params, false);
+            $row->save();
         }
 
         $params = [
             'data' => $this->Contact->data,
             'subject' => $subject,
             'message' => $msg,
-            'type' => 'email',
+            'type' => LkNotice::TYPE_EMAIL,
             'contact_id' => $this->Contact->id,
             'lang' => $this->Client->country->lang,
         ];
 
-        $res = $db->QueryInsert('lk_notice', $params);
+        $row = new LkNotice;
+        $row->setAttributes($params, false);
 
-        return (bool) $res;
+        return (bool) $row->save();
     }
 
     private function sendSMS()
     {
-        global $db;
-
         $phoneNumber = preg_replace('/[^\d]+/', '', $this->Contact->data);
 
         if (defined('MONITORING_EMAIL')) {
@@ -161,25 +173,28 @@ class LkNotification {
                 'data' => MONITORING_EMAIL,
                 'message' => 'SMS: '. $this->getMessage(),
                 'subject' => 'SMS - '.$phoneNumber,
-                'type' => 'email',
+                'type' => LkNotice::TYPE_EMAIL,
                 'contact_id' => $this->Contact->id,
                 'lang' => $this->Client->country->lang,
             ];
 
-            $res = $db->QueryInsert('lk_notice', $params);
+            $row = new LkNotice;
+            $row->setAttributes($params);
+            $row->save();
         }
 
         $params = [
             'data' => $phoneNumber,
             'message' => $this->getMessage(),
-            'type' => 'phone',
+            'type' => LkNotice::TYPE_PHONE,
             'contact_id' => $this->Contact->id,
             'lang' => $this->Client->country->lang,
         ];
 
-        $res = $db->QueryInsert('lk_notice', $params);
+        $row = new LkNotice;
+        $row->setAttributes($params);
 
-        return (bool) $res;
+        return (bool) $row->save();
     }
 }
 

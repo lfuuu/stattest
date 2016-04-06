@@ -8,6 +8,22 @@ use app\classes\model\HistoryActiveRecord;
 use app\models\media\ClientFiles;
 
 /**
+ * @property int id
+ * @property int super_id
+ * @property int contragent_id
+ * @property string number
+ * @property int organization_id
+ * @property string manager
+ * @property string account_manager
+ * @property int business_id
+ * @property int business_process_id
+ * @property int business_process_status_id
+ * @property int contract_type_id
+ * @property string state
+ * @property string financial_type
+ * @property string federal_district
+ * @property string is_external
+ * @property string lk_access
  * @property Organization $organization
  * @property
  */

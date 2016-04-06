@@ -588,13 +588,6 @@ class ClientAccountDao extends Singleton
         $hasUsage =
             Yii::$app->db->createCommand("
                 select id
-                from emails u
-                where u.client = :client and u.actual_to >= :date
-                limit 1
-
-                union all
-
-                select id
                 from usage_extra u
                 where u.client = :client and u.actual_to >= :date
                 limit 1

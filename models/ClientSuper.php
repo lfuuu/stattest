@@ -4,6 +4,8 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ * @property string $name
+ * @property int $financial_manager_id
 
  * @property ClientContragent[] $contragents
  * @property

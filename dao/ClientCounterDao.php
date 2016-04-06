@@ -35,25 +35,35 @@ class ClientCounterDao extends Singleton
             return static::$amounts[$clientId];
         }
 
-        $pgCounter = Counter::findOne(['client_id' => $clientId]);
 
-        if ($pgCounter) {
-            $counter = ClientCounter::findOne($clientId);
-            if (!$counter) {
-                $counter = new ClientCounter();
-                $counter->client_id = $clientId;
-            }
-            $counter->setAttributes($pgCounter->getAttributes());
-            $counter->save();
-        }
-        else {
-            $counter = ClientCounter::findOne($clientId);
-            if ($counter) {
-                $counter->delete();
-            }
+        $isErrorLoad = false;
+
+        try {
+            $pgCounter = Counter::findOne(['client_id' => $clientId]);
+        } catch (\Exception $e) {
+            $isErrorLoad = true;
         }
 
-        $result = ($pgCounter) ? $pgCounter->toArray() : ['amount_sum' => 0, 'amount_day_sum' => 0, 'amount_month_sum' => 0];
+        $result = ['amount_sum' => 0, 'amount_day_sum' => 0, 'amount_month_sum' => 0];
+
+        if (!$isErrorLoad) {
+            if ($pgCounter) {
+                $counter = ClientCounter::dao()->getOrCreateCounter($clientId);
+                $counter->setAttributes($pgCounter->getAttributes());
+                $counter->save();
+                $result = $pgCounter->toArray();
+            } else {
+                $counter = ClientCounter::findOne($clientId);
+                if ($counter) {
+                    $counter->delete();
+                }
+            }
+        } else {
+            $counters = ClientCounter::findOne(['client_id' => $clientId]);
+            if ($counters) {
+                $result = $counters->toArray();
+            }
+        }
 
         static::$amounts[$clientId] = $result;
 

@@ -3,6 +3,7 @@
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\Event;
+use app\classes\notification\processors\AddPaymentNotificationProcessor;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -71,7 +72,8 @@ function do_events()
 
                 case 'add_payment': {
                     EventHandler::updateBalance($param[1]);
-                    LkNotificationContact::createBalanceNotifacation($param[1], $param[0]);
+                    (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
+
                     break;
                 }
 

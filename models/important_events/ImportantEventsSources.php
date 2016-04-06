@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 
 class ImportantEventsSources extends ActiveRecord
 {
+    const SOURCE_STAT = 'stat';
 
     const IMPORTANT_EVENT_SOURCE_STAT = 'stat';
     const IMPORTANT_EVENT_SOURCE_BILLING = 'billing';

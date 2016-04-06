@@ -18,6 +18,8 @@ class VoipStatus {
 
     private $balance = null;
 
+    const STATUS_ERROR = 'NaN';
+
     public static function create(ClientAccount $account)
     {
         return new static($account);
@@ -29,15 +31,32 @@ class VoipStatus {
     }
 
 
+    /**
+     * @return float|string Возвращает реальный баланс клиента
+     */
     public function getRealtimeBalance()
     {
         $this->loadCounters();
 
         if ($this->error) {
-            return 'NaN';
+            return self::STATUS_ERROR;
         }
 
         return $this->balance;
+    }
+
+    /**
+     * @return float|string Возвращает сумму за разговоры за текущий день
+     */
+    public function getDaySum()
+    {
+        $this->loadCounters();
+
+        if ($this->error) {
+            return self::STATUS_ERROR;
+        }
+
+        return $this->amount_day_sum;
     }
 
     public function getWarnings()

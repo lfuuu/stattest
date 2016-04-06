@@ -259,4 +259,5 @@ class AccountController extends BaseController
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);
     }
+
 }

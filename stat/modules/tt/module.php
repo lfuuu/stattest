@@ -1678,6 +1678,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function createTrouble($R = array(), $user_main = null) {
         global $db,$user;
+
+        if (!$db) {
+            $db = \app\classes\StatDbDriver::me()->getDbDriver();
+        }
+
         if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
         if (!$user_main) {
             $user_main = $R['user_author'];
@@ -1731,6 +1736,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $id = $db->QueryInsert('tt_troubles',$R);
 
         $trouble = YiiTrouble::findOne($id);
+
         $trouble->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
 
         $trouble->trigger(YiiTrouble::EVENT_AFTER_INSERT, new ModelEvent);

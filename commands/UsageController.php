@@ -18,34 +18,6 @@ use app\forms\usage\UsageVoipEditForm;
 
 class UsageController extends Controller
 {
-    public function actionCloseExpired()
-    {
-        /*
-        $now = new DateTime();
-
-        $usageQueries = [
-            UsageEmails::find(),
-            UsageExtra::find(),
-            UsageIpPorts::find(),
-            UsageSms::find(),
-            UsageVirtpbx::find(),
-            UsageVoip::find(),
-            UsageWelltime::find(),
-        ];
-
-        foreach ($usageQueries as $usageQuery) {
-            $usages =
-                $usageQuery
-                    ->andWhere(['status' => 'working'])
-                    ->andWhere('actual_to < :date', [':date' => $now->format('Y-m-d')])
-                    ->all();
-            foreach ($usages as $usage) {
-                $usage->status = 'archived';
-                $usage->save();
-            }
-        }
-        */
-    }
 
     public function actionClientUpdateIsActive()
     {
@@ -70,8 +42,10 @@ class UsageController extends Controller
 
         } catch (\Exception $e) {
             Yii::error($e);
-            return 1;
+            return Controller::EXIT_CODE_ERROR;
         }
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     public function actionVoipTestClean()
@@ -107,6 +81,7 @@ class UsageController extends Controller
             echo implode("\n", $info);
         }
 
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     private function cleanUsages($date, $action)
@@ -181,6 +156,7 @@ class UsageController extends Controller
                 $client->save();
             }
         }
+        return Controller::EXIT_CODE_NORMAL;
     }
 
 }

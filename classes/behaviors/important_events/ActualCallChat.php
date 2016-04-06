@@ -12,7 +12,6 @@ use app\models\important_events\ImportantEventsSources;
 
 class ActualCallChat extends Behavior
 {
-
     public function events()
     {
         return [

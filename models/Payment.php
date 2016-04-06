@@ -1,7 +1,11 @@
 <?php
 namespace app\models;
 
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use yii\db\ActiveRecord;
+use Yii;
 
 /**
  * @property int    $id             идентификатор платежа
@@ -80,6 +84,14 @@ class Payment extends ActiveRecord
 
         if ($insert) {
             Transaction::dao()->insertByPayment($this);
+
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD, ImportantEventsSources::SOURCE_STAT,[
+                'client_id' => $this->client_id,
+                'sum' => $this->sum,
+                'currency' => $this->currency,
+                'user_id' => Yii::$app->user->id
+            ]);
+
         } else {
             Transaction::dao()->updateByPayment($this);
         }
@@ -89,7 +101,12 @@ class Payment extends ActiveRecord
     public function beforeDelete()
     {
         Transaction::dao()->deleteByPaymentId($this->id);
-
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_DELETE, ImportantEventsSources::SOURCE_STAT,[
+            'client_id' => $this->client_id,
+            'sum' => $this->sum,
+            'currency' => $this->currency,
+            'user_id' => Yii::$app->user->id
+        ]);
         LogBill::dao()->log($this->bill_no, "Удаление платежа ({$this->id}), на сумму: {$this->sum}");
 
         return parent::beforeDelete();

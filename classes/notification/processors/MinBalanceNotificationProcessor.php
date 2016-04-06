@@ -1,0 +1,30 @@
+<?php
+
+namespace app\classes\notification\processors;
+
+use app\models\important_events\ImportantEventsNames;
+
+
+/**
+ * Class MinBalanceNotificationProcessor
+ * @package app\classes\notification\processors
+ */
+class MinBalanceNotificationProcessor extends NotificationProcessor
+{
+
+    public function getEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE;
+    }
+
+    public function getValue()
+    {
+        return $this->client->getRealtimeBalance();
+    }
+
+    public function getLimit()
+    {
+        return $this->client->lkClientSettings->min_balance;
+    }
+
+}

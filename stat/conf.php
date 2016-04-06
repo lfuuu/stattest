@@ -168,7 +168,9 @@ if (!defined('NO_INCLUDE')){
 
     require_once(INCLUDE_PATH.'sql_yii.php');
     require_once(INCLUDE_PATH.'sql.php');
-    $db        = new MySQLDatabase_yii(Yii::$app->getDb("db"));
+
+    $db        = app\classes\StatDbDriver::me()->getDbDriver();
+    //$db         = new MySQLDatabase_yii(Yii::$app->getDb("db"));
     //$db        = new MySQLDatabase();
 
     if (defined("SQL_ATS2_DB") && SQL_ATS2_DB) {

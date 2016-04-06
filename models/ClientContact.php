@@ -4,6 +4,20 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\models\ClientAccount;
 
+/**
+ * Class ClientContact
+ * @package app\models
+ *
+ * @property int id
+ * @property int client_id
+ * @property string type
+ * @property string data
+ * @property int user_id
+ * @property string ts
+ * @property string comment
+ * @property int is_active
+ * @property int is_official
+ */
 class ClientContact extends ActiveRecord
 {
     const TYPE_PHONE = 'phone';

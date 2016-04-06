@@ -26,7 +26,8 @@ use yii\db\Expression;
  * @property string $trouble_subtype
  * @property string $date_close
  * @property int $support_ticket_id
- * @property
+ * @property \app\classes\media\TroubleMedia mediaManager
+ *
  */
 class Trouble extends ActiveRecord
 {

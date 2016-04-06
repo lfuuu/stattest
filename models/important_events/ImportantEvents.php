@@ -13,6 +13,16 @@ use app\classes\validators\ArrayValidator;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 
+/**
+ * Class ImportantEvents
+ * @property int id
+ * @property int date
+ * @property int client_id
+ * @property string event
+ * @property int source_id
+ * @property ImportantEventsProperties properties
+ * @package app\models\important_events
+ */
 class ImportantEvents extends ActiveRecord
 {
 
