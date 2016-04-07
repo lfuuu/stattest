@@ -7,6 +7,7 @@ use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\filter\ClientAccountAgentFilter;
 use Yii;
 use app\classes\BaseController;
 use yii\helpers\ArrayHelper;
@@ -28,13 +29,6 @@ class AgentController extends BaseController
 
     public function actionReport()
     {
-        $partnerContractId = Yii::$app->request->get('partner_contract_id', 0);
-        list($dateFrom, $dateTo) = explode(' - ', Yii::$app->request->get('date', 0));
-
-        $dateFrom = (!empty($dateFrom)) ? $dateFrom : date("Y-m-d", strtotime("first day of previous month"));
-        $dateTo = (!empty($dateTo)) ? $dateTo : date("Y-m-d", strtotime("last day of previous month"));
-
-
         $partners = ClientContract::find()
                 ->andWhere(['business_id' => Business::PARTNER])
                 ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
@@ -47,30 +41,10 @@ class AgentController extends BaseController
             $partnerList[$account->id] = $partner->contragent->name . ' (#' . $account->id . ')';
         }
 
-
-        $account = ClientAccount::findOne($partnerContractId);
-
-        $data = [];
-        $report = new AgentReport;
-
-        if ($account) {
-            $data = $report->run($partnerContractId, $dateFrom, $dateTo);
-        }
-
-        if (Yii::$app->request->get('exportToCSV')) {
-            $this->exportToCSV($data);
-            Yii::$app->end();
-        } else {
-            return $this->render('report', [
-                'data' => $data,
-                'contractsWithoutReward' => $report->getWithoutRewardContracts(),
-                'contractsWithIncorrectBP' => $report->getContractsWithIncorrectBP(),
-                'partnerList' => $partnerList,
-                'dateFrom' => $dateFrom,
-                'dateTo' => $dateTo,
-                'partner' => $account
-            ]);
-        }
+        return $this->render('report', [
+            'filterModel' => (new ClientAccountAgentFilter)->load(),
+            'partnerList' => $partnerList,
+        ]);
     }
 
     private function exportToCSV($data)

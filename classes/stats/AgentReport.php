@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\stats;
 
+use app\models\Transaction;
 use Yii;
 use DateTime;
 use yii\db\Expression;
@@ -26,6 +27,8 @@ class AgentReport
         $dateFrom,
         $dateTo;
 
+    public $summary = [];
+
     /**
      * @param int $partnerId
      * @param string $dateFrom
@@ -50,7 +53,7 @@ class AgentReport
 
         $report = array_merge(array_values($reportVoip), array_values($reportVirpbx));
         $report = array_filter($report, function($row) {
-            return $row['once'] || $row['fee'] || $row['excess'];
+            return $row['amount'] > 0 || $row['amount_payed'] > 0;
         });
 
         return $report;
@@ -74,39 +77,52 @@ class AgentReport
                 $billDate < $dateOffset
             )
         ) {
-            if (!isset($result[$row['id']])) {
-                $result[$row['id']] = [
-                    'id' => $row['id'],
-                    'name' => $row['name'],
-                    'created' => $row['created'],
-                    'activationDate' => $row['activation_dt'],
-                    'amountIsPayed' => $row['amount_is_payed'],
+            $blockKey = $row['client_id'];
+
+            if (!isset($result[$blockKey])) {
+                $result[$blockKey] = [
+                    'client_id' => $row['client_id'],
+                    'contragent_name' => $row['contragent_name'],
+                    'client_created' => $row['client_created'],
+                    'activation_datetime' => $row['usage_activation_dt'],
                     'amount' => $row['amount'],
-                    'usage' => $row['usage'],
-                    'tariffName' => $row['tariff_name'],
+                    'amount_payed' => $row['amount_is_payed'],
                     'once' => 0,
                     'fee' => 0,
                     'excess' => 0,
+                    'details' => [],
                 ];
             }
-            else {
-                $result[$row['id']]['amount'] += $row['amount'];
-                $result[$row['id']]['amountIsPayed'] += $row['amount_is_payed'];
-            }
+
+            $result[$blockKey]['details'][] = $row;
 
             $firstPaymentDate = (new DateTime($row['first_payment_date']));
             if ($firstPaymentDate <= $this->dateTo && $firstPaymentDate >= $this->dateFrom) {
-                $result[$row['id']]['once'] = $row['once_only'];
+                $result[$blockKey]['once'] = $row['once_only'];
+                $this->summary['once'] += $row['once_only'];
             }
 
-            switch ($row['type']) {
-                case 'excess': {
-                    $result[$row['id']]['excess'] += $row['percentage_of_over'] * $row['amount'] / 100;
-                    break;
-                }
-                case 'fee': {
-                    $result[$row['id']]['fee'] += $row['percentage_of_fee'] * $row['amount'] / 100;
-                    break;
+            $result[$blockKey]['amount'] += $row['sum'];
+            $this->summary['amount'] += $row['sum'];
+
+            if ($row['is_payed'] == 1) {
+                $transactionSummaryValue = 0;
+                $result[$blockKey]['amount_payed'] += $row['sum'];
+                $this->summary['amount_payed'] += $row['sum'];
+
+                switch ($row['transaction_type']) {
+                    case Transaction::TYPE_RESOURCE: {
+                        $transactionSummaryValue = $row['percentage_of_over'] * $row['sum'] / 100;
+                        $result[$blockKey]['excess'] += $transactionSummaryValue;
+                        $this->summary['excess'] += $transactionSummaryValue;
+                        break;
+                    }
+                    case Transaction::TYPE_PERIODICAL: {
+                        $transactionSummaryValue = $row['percentage_of_fee'] * $row['sum'] / 100;
+                        $result[$blockKey]['fee'] += $transactionSummaryValue;
+                        $this->summary['fee'] += $transactionSummaryValue;
+                        break;
+                    }
                 }
             }
         }
@@ -124,74 +140,56 @@ class AgentReport
         $query = new Query;
 
         $query->select([
-            'clients.id',
-            'client_contragent.name',
-            'created' => 'DATE(clients.created)',
-            'activation_dt' => 'DATE(usage_voip.activation_dt)',
-            'client_contract_reward.once_only',
-            'client_contract_reward.percentage_of_fee',
-            'client_contract_reward.percentage_of_over',
-            'client_contract_reward.period_type',
-            'client_contract_reward.period_month',
-            'bill_date' => 'DATE(newbills.bill_date)',
-            'tariff_name' => 'tarifs_voip.name',
-            'usage' => new Expression('"voip"'),
-            'type' => 'IF(newbills.bill_date > newbill_lines.date_to, "excess", "fee")',
-            'amount' => '(
-                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
-                FROM newbills
-                WHERE
-                    newbills.client_id = clients.id
-                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
-            )',
-            'amount_is_payed' => '(
-                SELECT SUM(IF(MONTH(newbill_lines.date_from)-MONTH(bill_date)=0,newbill_lines.sum,0))
-                FROM newbills
-                WHERE
-                    newbills.client_id = clients.id
-                    AND is_payed = 1
-                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
-            )',
+            'client_id' => 'client.id',
+            'contragent_name' => 'contragent.name',
+            'client_created' => 'DATE(client.created)',
+            'usage_type' => new Expression('"voip"'),
+            'usage_id' => 'usage.id',
+            'rewards.once_only',
+            'rewards.percentage_of_fee',
+            'rewards.percentage_of_over',
+            'rewards.period_type',
+            'rewards.period_month',
+            'bill_date' => 'DATE(bills.bill_date)',
+            'transaction.name',
+            'transaction.transaction_type',
+            'transaction.sum',
+            'bills.is_payed',
+            'bills.bill_no',
             'first_payment_date' => '(
                 SELECT MIN(bill_date)
                 FROM newbills
                 WHERE
-                    newbills.client_id = clients.id
+                    newbills.client_id = client.id
                     AND is_payed = 1
             )',
         ]);
 
         $query
-            ->from(ClientAccount::tableName() . ' clients')
-            ->innerJoin(ClientContract::tableName() . ' client_contract', 'clients.contract_id = client_contract.id')
-            ->innerJoin(ClientContragent::tableName() . ' client_contragent', 'client_contragent.id = client_contract.contragent_id')
-            ->innerJoin(UsageVoip::tableName() . ' usage_voip', 'usage_voip.client = clients.client')
-            ->innerJoin(LogTarif::tableName() . ' log_tarif', 'log_tarif.service = :service AND id_service = usage_voip.id')
-            ->innerJoin(TariffVoip::tableName() . ' tarifs_voip', 'tarifs_voip.id = log_tarif.id_tarif')
+            ->from(['client' => ClientAccount::tableName()])
+            ->innerJoin(['contract' => ClientContract::tableName()], 'client.contract_id = contract.id')
+            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
+            ->innerJoin(['usage' => UsageVoip::tableName()], 'usage.client = client.client')
             ->innerJoin(
-                ClientContractReward::tableName() . ' client_contract_reward',
-                'client_contract_reward.contract_id = client_contragent.partner_contract_id AND client_contract_reward.usage_type = :usageType'
+                ['rewards' => ClientContractReward::tableName()],
+                'rewards.contract_id = contragent.partner_contract_id AND rewards.usage_type = :usageType'
             )
             ->innerJoin(
-                BillLine::tableName() . ' newbill_lines',
-                'newbill_lines.service = :service AND newbill_lines.id_service = usage_voip.id'
+                ['transaction' => Transaction::tableName()],
+                'transaction.service_type = :service AND transaction.service_id = usage.id'
             )
-            ->innerJoin(Bill::tableName() . ' newbills', 'newbills.bill_no = newbill_lines.bill_no');
+            ->innerJoin(['bills' => Bill::tableName()], 'bills.id = transaction.bill_id');
 
         $query
             ->where([
-                'client_contragent.partner_contract_id' => $partnerId,
-                'newbills.is_payed' => 1,
+                'contragent.partner_contract_id' => $partnerId,
+                'transaction.deleted' => 0,
             ])
-            ->andWhere(['between', 'newbills.bill_date', $dateFrom, $dateTo]);
-
-        $query->groupBy('newbill_lines.pk');
+            ->andWhere(['between', 'bills.bill_date', $dateFrom, $dateTo])
+            ->andWhere(['in', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]]);
 
         $query->params([
-            ':dateFrom' => $dateFrom,
-            ':dateTo' => $dateTo,
             ':service' => UsageVoip::tableName(),
-            '::billTbl' => Bill::tableName(),
             ':usageType' => 'voip',
         ]);
 
@@ -210,77 +208,56 @@ class AgentReport
         $query = new Query;
 
         $query->select([
-            'c.id',
-            'cg.name',
-            'created' => 'DATE(c.created)',
-            'activation_dt' => 'DATE(u.activation_dt)',
-            'rw.once_only',
-            'rw.percentage_of_fee',
-            'rw.percentage_of_over',
-            'rw.period_type',
-            'rw.period_month',
-            'bill_date' => 'DATE(nb.bill_date)',
-            'tariff_name' => 't.description',
-            'usage' => new Expression('"vpbx"'),
-            'type' => 'IF( nb.bill_date > nbl.date_to, "excess", "fee")',
-            'amount' => '(
-                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
-                FROM newbills
-                WHERE
-                    client_id = c.id
-                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
-            )',
-            'amount_is_payed' => '(
-                SELECT SUM(IF(MONTH(nbl.date_from)-MONTH(bill_date)=0,nbl.sum,0))
-                FROM newbills
-                WHERE
-                    client_id = c.id
-                    AND is_payed = 1
-                    AND bill_date BETWEEN CAST(:dateFrom AS DATE) AND CAST(:dateTo AS DATE)
-            )',
+            'client_id' => 'client.id',
+            'contragent_name' => 'contragent.name',
+            'client_created' => 'DATE(client.created)',
+            'usage_type' => new Expression('"vpbx"'),
+            'usage_id' => 'usage.id',
+            'rewards.once_only',
+            'rewards.percentage_of_fee',
+            'rewards.percentage_of_over',
+            'rewards.period_type',
+            'rewards.period_month',
+            'bill_date' => 'DATE(bills.bill_date)',
+            'transaction.name',
+            'transaction.transaction_type',
+            'transaction.sum',
+            'bills.is_payed',
+            'bills.bill_no',
             'first_payment_date' => '(
                 SELECT MIN(bill_date)
                 FROM newbills
                 WHERE
-                    client_id = c.id
+                    newbills.client_id = client.id
                     AND is_payed = 1
             )',
         ]);
 
         $query
-            ->from(ClientAccount::tableName() . ' c')
-            ->innerJoin(ClientContract::tableName() . ' cr', 'cr.id = c.contract_id')
-            ->innerJoin(ClientContragent::tableName() . ' cg', 'cg.id = cr.contragent_id')
-            ->innerJoin(UsageVirtpbx::tableName() . ' u', 'u.client = c.client')
+            ->from(['client' => ClientAccount::tableName()])
+            ->innerJoin(['contract' => ClientContract::tableName()], 'client.contract_id = contract.id')
+            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
+            ->innerJoin(['usage' => UsageVirtpbx::tableName()], 'usage.client = client.client')
             ->innerJoin(
-                LogTarif::tableName() . ' lt',
-                'lt.service = :service AND lt.id_service = u.id'
-            )
-            ->innerJoin(TariffVirtpbx::tableName() . ' t', 't.id = lt.id_tarif')
-            ->innerJoin(
-                ClientContractReward::tableName() . ' rw',
-                'rw.contract_id = cg.partner_contract_id AND rw.usage_type = :usageType'
+                ['rewards' => ClientContractReward::tableName()],
+                'rewards.contract_id = contragent.partner_contract_id AND rewards.usage_type = :usageType'
             )
             ->innerJoin(
-                BillLine::tableName() . ' nbl',
-                'nbl.service = :service AND nbl.id_service = u.id'
+                ['transaction' => Transaction::tableName()],
+                'transaction.service_type = :service AND transaction.service_id = usage.id'
             )
-            ->innerJoin(Bill::tableName() . ' nb', 'nb.bill_no = nbl.bill_no');
+            ->innerJoin(['bills' => Bill::tableName()], 'bills.id = transaction.bill_id');
 
         $query
             ->where([
-                'cg.partner_contract_id' => $partnerId,
-                'nb.is_payed' => 1,
+                'contragent.partner_contract_id' => $partnerId,
+                'transaction.deleted' => 0,
             ])
-            ->andWhere(['between', 'nb.bill_date', $dateFrom, $dateTo]);
-
-        $query->groupBy('nbl.pk');
+            ->andWhere(['between', 'bills.bill_date', $dateFrom, $dateTo])
+            ->andWhere(['in', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]]);
 
         $query->params([
-            ':dateFrom' => $dateFrom,
-            ':dateTo' => $dateTo,
             ':service' => UsageVirtpbx::tableName(),
-            '::billTbl' => Bill::tableName(),
             ':usageType' => 'virtpbx',
         ]);
 
