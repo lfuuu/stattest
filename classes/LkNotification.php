@@ -179,7 +179,7 @@ class LkNotification {
             ];
 
             $row = new LkNotice;
-            $row->setAttributes($params);
+            $row->setAttributes($params, false);
             $row->save();
         }
 
@@ -192,7 +192,7 @@ class LkNotification {
         ];
 
         $row = new LkNotice;
-        $row->setAttributes($params);
+        $row->setAttributes($params, false);
 
         return (bool) $row->save();
     }
