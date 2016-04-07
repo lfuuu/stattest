@@ -1760,12 +1760,6 @@ class m_newaccounts extends IModule
 
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
-        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected('bill');
-        if (!$bill_no) {
-            return false;
-        }
-
-
         self::$object = $object;
         if ($object) {
             list($obj,$source,$curr) = explode('-',$object.'---');
@@ -1773,6 +1767,11 @@ class m_newaccounts extends IModule
             $obj=get_param_protected("obj");
             $source = get_param_integer('source',1);
             $curr = get_param_raw('curr','RUB');
+        }
+
+        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected('bill');
+        if (!$bill_no && $obj !== 'receipt') {
+            return false;
         }
 
         $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
