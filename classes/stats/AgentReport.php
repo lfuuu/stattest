@@ -1,21 +1,17 @@
 <?php
 namespace app\classes\stats;
 
-use app\models\Transaction;
 use Yii;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
+use app\models\Bill;
 use app\models\Business;
+use app\models\Transaction;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
-use app\models\Bill;
-use app\models\BillLine;
-use app\models\LogTarif;
-use app\models\TariffVirtpbx;
-use app\models\TariffVoip;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 
@@ -269,27 +265,35 @@ class AgentReport
      */
     public function getWithoutRewardContracts()
     {
-        return Yii::$app->db
-            ->createCommand("
-            SELECT 
-                cc.id AS id,
-                c.id as account_id,
-                cg.name AS name
-            FROM 
-                (SELECT 
-                    DISTINCT partner_contract_id 
-                 FROM client_contragent 
-                 WHERE partner_contract_id > 0
-            ) p,
-            clients c, client_contragent cg, client_contract cc
-            LEFT JOIN client_contract_reward cr ON (cr.contract_id = cc.id)
-            WHERE 
-                    p.partner_contract_id = c.id
-                AND c.contract_id = cc.id
-                AND cc.contragent_id = cg.id
-                AND cr.id is null
-            ORDER BY cg.name
-            ")->queryAll(\PDO::FETCH_ASSOC);
+        $query = new Query;
+
+        $query->select([
+            'contract_id' => 'cc.id',
+            'contragent_name' => 'cg.name',
+        ]);
+
+        $query
+            ->from([
+                'p' => new Expression('(
+                    SELECT DISTINCT `partner_contract_id`
+                    FROM `client_contragent`
+                    WHERE `partner_contract_id` > 0
+                )'),
+                'cg' => ClientContragent::tableName(),
+                'cc' => ClientContract::tableName(),
+            ])
+            ->leftJoin(['cr' => ClientContractReward::tableName(),],'cr.contract_id = cc.id');
+
+        $query
+            ->where('p.partner_contract_id = cc.id')
+            ->andWhere('cc.contragent_id = cg.id')
+            ->andWhere(['IS', 'cr.id', new Expression('NULL')]);
+
+        $query->orderBy([
+            'cg.name' => SORT_ASC
+        ]);
+
+        return $query->all();
     }
 
     /**
@@ -297,29 +301,35 @@ class AgentReport
      */
     public function getContractsWithIncorrectBP()
     {
-        return Yii::$app->db
-            ->createCommand("
-            SELECT
-                cc.id AS id,
-                c.id as account_id,
-                cg.name AS name
-            FROM
-            (
-                SELECT DISTINCT 
-                    partner_contract_id
-                FROM client_contragent
-                WHERE partner_contract_id > 0
-            ) p,
-            clients c, client_contragent cg, client_contract cc
-        LEFT JOIN client_contract_reward cr ON (cr.contract_id = cc.id)
-        WHERE
-                p.partner_contract_id = c.id
-            AND c.contract_id = cc.id
-            AND cc.contragent_id = cg.id
-            AND cr.id is null
-            AND business_id != :business_id
-        ORDER BY cg.name
-        ", [':business_id' => Business::PARTNER])
-        ->queryAll(\PDO::FETCH_ASSOC);
+        $query = new Query;
+
+        $query->select([
+            'contract_id' => 'cc.id',
+            'contragent_name' => 'cg.name',
+        ]);
+
+        $query
+            ->from([
+                'p' => new Expression('(
+                    SELECT DISTINCT `partner_contract_id`
+                    FROM `client_contragent`
+                    WHERE `partner_contract_id` > 0
+                )'),
+                'cg' => ClientContragent::tableName(),
+                'cc' => ClientContract::tableName(),
+            ])
+            ->leftJoin(['cr' => ClientContractReward::tableName(),],'cr.contract_id = cc.id');
+
+        $query
+            ->where('p.partner_contract_id = cc.id')
+            ->andWhere('cc.contragent_id = cg.id')
+            ->andWhere(['IS', 'cr.id', new Expression('NULL')])
+            ->andWhere(['!=', 'business_id', Business::PARTNER]);
+
+        $query->orderBy([
+            'cg.name' => SORT_ASC,
+        ]);
+
+        return $query->all();
     }
 }

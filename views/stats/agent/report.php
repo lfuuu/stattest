@@ -95,31 +95,39 @@ echo Breadcrumbs::widget([
 </div>
 
 <div class="col-xs-12" style="padding-bottom: 20px;">
-    <div class="col-xs-6 bg-danger">
-        <?php if ($filterModel->contractsWithoutReward) { ?>
+    <?php if (count($filterModel->contractsWithoutReward)) { ?>
+        <div class="col-xs-6 bg-danger">
             <fieldset style="padding: 5px;">
                 <label>Отсутствуют настройки вознаграждений для договоров:</label>
                 <ul>
                     <?php foreach($filterModel->contractsWithoutReward as $contract) { ?>
-                        <li><a href="<?=Url::to(["contract/edit", "id" => $contract['id']])?>"><?=$contract['name']?> (#<?=$contract['account_id']?>)</a></li>
+                        <li>
+                            <a href="<?= Url::to(['contract/edit', 'id' => $contract['contract_id']]); ?>">
+                                <?= $contract['contragent_name']; ?> (#<?= $contract['contract_id']; ?>)
+                            </a>
+                        </li>
                     <?php } ?>
                 </ul>
             </fieldset>
-        <?php } ?>
-    </div>
+        </div>
+    <?php } ?>
 
-    <div class="col-xs-6 bg-danger">
-        <?php if ($filterModel->contractsWithIncorrectBP) { ?>
+    <?php if (count($filterModel->contractsWithIncorrectBP)) { ?>
+        <div class="col-xs-6 bg-danger">
             <fieldset style="padding: 5px;">
                 <label>Договора с неправильным бизнес-процессом:</label>
                 <ul>
                     <?php foreach($filterModel->contractsWithIncorrectBP as $contract) { ?>
-                        <li><a href="<?=Url::to(["contract/edit", "id" => $contract['id']])?>"><?=$contract['name']?> (#<?=$contract['account_id']?>)</a></li>
+                        <li>
+                            <a href="<?= Url::to(['contract/edit', 'id' => $contract['contract_id']]); ?>">
+                                <?= $contract['contragent_name']; ?> (#<?= $contract['contract_id']; ?>)
+                            </a>
+                        </li>
                     <?php } ?>
                 </ul>
             </fieldset>
-        <?php } ?>
-    </div>
+        </div>
+    <?php } ?>
 </div>
 
 <?= GridView::widget([

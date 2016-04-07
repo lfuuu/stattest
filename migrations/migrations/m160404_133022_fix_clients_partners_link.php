@@ -26,22 +26,16 @@ class m160404_133022_fix_clients_partners_link extends \app\classes\Migration
             ->where('cc.partner_contract_id')
             ->andWhere('c.id != c.contract_id');
 
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            foreach ($clientsOfParthers->all() as $record) {
-                $this->update(
-                    ClientContragent::tableName(),
-                    [
-                        'partner_contract_id' => $record['contract_id'],
-                    ],
-                    [
-                        'id' => $record['id'],
-                    ]
-                );
-            }
-        }
-        catch (\Exception $e) {
-            $transaction->rollBack();
+        foreach ($clientsOfParthers->all() as $record) {
+            $this->update(
+                ClientContragent::tableName(),
+                [
+                    'partner_contract_id' => $record['contract_id'],
+                ],
+                [
+                    'id' => $record['id'],
+                ]
+            );
         }
     }
 
