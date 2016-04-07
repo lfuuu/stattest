@@ -37,8 +37,7 @@ class AgentController extends BaseController
 
         $partnerList = [];
         foreach($partners as $partner) {
-            $account = $partner->accounts[0];
-            $partnerList[$account->id] = $partner->contragent->name . ' (#' . $account->id . ')';
+            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $partner->id . ')';
         }
 
         return $this->render('report', [
