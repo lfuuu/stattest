@@ -4,13 +4,15 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\dao\TariffVoipDao;
 use app\models\billing\Pricelist;
+use app\models\tariffs\TariffInterface;
+use app\helpers\tariffs\TariffVoipHelper;
 
 /**
  * @property int $id
  * @property string $name
  * @property
  */
-class TariffVoip extends ActiveRecord
+class TariffVoip extends ActiveRecord implements TariffInterface
 {
     const STATE_PUBLIC = 'public';
     const STATE_TRANSIT = 'transit';
@@ -80,6 +82,11 @@ class TariffVoip extends ActiveRecord
     public function getPricelist()
     {
         return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
+    }
+
+    public function getHelper()
+    {
+        return new TariffVoipHelper($this);
     }
 
 }

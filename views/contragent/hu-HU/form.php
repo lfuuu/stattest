@@ -237,10 +237,7 @@ use app\models\Business;
             $partners = [];
             $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->all();
             foreach($cts as $ct){
-                $accounts = $ct->getAccounts();
-                if($accounts){
-                    $partners[$accounts[0]->id] = $ct->getContragent()->name . ' (#' . $accounts[0]->id . ')';
-                }
+                $partners[$ct->id] = $ct->contragent->name . ' (#' . $ct->id . ')';
             }
             ?>
             <?=
