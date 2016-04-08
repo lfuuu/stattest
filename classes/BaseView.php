@@ -96,8 +96,8 @@ class BaseView extends View
     protected function appendTimestamp($url)
     {
         if (Yii::$app->assetManager->appendTimestamp && strncmp($url, '@web/', 5) === 0) {
-            $fileToCacheBust = Yii::getAlias(str_replace('@web', '@webroot', $url));
-            if (($timestamp = @filemtime("$fileToCacheBust")) > 0) {
+            $fileToCacheBust = preg_replace('#\?.*$#', '', Yii::getAlias(str_replace('@web', '@webroot', $url)));
+            if (($timestamp = filemtime($fileToCacheBust)) > 0) {
                 $url .= '?v=' . $timestamp;
             }
         }
