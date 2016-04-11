@@ -5,9 +5,9 @@ $rights = require(__DIR__ . '/rights.php');
 return [
     'rights' => $rights,
     'adminEmail' => 'admin@example.com',
-    'STORE_PATH' => realpath("../../store")."/",
-    'SMARTY_COMPILE_DIR' => realpath("../stat/design_c")."/",
-    'SMARTY_TEMPLATE_DIR' => realpath("../stat/design")."/",
+    'STORE_PATH' => realpath(\Yii::getAlias('@app') . '/../store') . '/',
+    'SMARTY_COMPILE_DIR' => \Yii::getAlias('@app') . '/stat/design_c/',
+    'SMARTY_TEMPLATE_DIR' => \Yii::getAlias('@app') . '/stat/design/',
     'API_SECURE_KEY' => '',
     'SIGNATURE_DIR' => '/images/signature/',
     'STAMP_DIR' => '/images/stamp/',
