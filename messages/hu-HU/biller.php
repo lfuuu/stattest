@@ -29,7 +29,7 @@ return [
     'welltime_service' => '{tariff}{date_range}',
 
     // VPBX
-    'vpbx_service' => '{tariff}{date_range}',
+    'vpbx_service' => '{tariff} virtuális alközpont előfizetési díja, {date_range}',
     'vpbx_over_disk_usage' => 'Tárhely túllépési díj, {date_range}',
     'vpbx_over_ports_count' => 'Port mennyiség túllépési díj, {date_range}',
     'vpbx_over_ext_did_count' => 'Külső operátori telefonszám bevezetés havidíja, {date_range}',
