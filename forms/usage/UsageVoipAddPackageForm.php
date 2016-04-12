@@ -10,6 +10,7 @@ use app\classes\Form;
 use app\models\LogTarif;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
+use app\models\usages\UsageInterface;
 
 class UsageVoipAddPackageForm extends Form
 {
@@ -44,8 +45,7 @@ class UsageVoipAddPackageForm extends Form
 
     public function process()
     {
-        $this->usage = UsageVoip::find()->where(['id' => $this->usage_voip_id])->actual()->one();
-        Assert::isObject($this->usage, 'Услуга не активна');
+        $this->usage = UsageVoip::find()->where(['id' => $this->usage_voip_id, 'actual_to' => UsageInterface::MAX_POSSIBLE_DATE ])->one();
 
         $this->clientTimezone = $this->usage->clientAccount->timezone;
 
