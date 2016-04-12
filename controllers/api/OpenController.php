@@ -3,11 +3,13 @@
 namespace app\controllers\api;
 
 use Yii;
-use app\classes\BaseController;
+use yii\web\Controller;
 use app\models\Number;
 
-final class OpenController extends BaseController
+final class OpenController extends Controller
 {
+
+    public $enableCsrfValidation = false;
 
     public function init()
     {
