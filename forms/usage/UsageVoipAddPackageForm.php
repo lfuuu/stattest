@@ -45,7 +45,13 @@ class UsageVoipAddPackageForm extends Form
 
     public function process()
     {
-        $this->usage = UsageVoip::find()->where(['id' => $this->usage_voip_id, 'actual_to' => UsageInterface::MAX_POSSIBLE_DATE ])->one();
+        $this->usage = UsageVoip::find()
+             ->where('id = :id AND ( actual_to = :max OR actual_to >= :now )', [
+                'id'  => $this->usage_voip_id,
+                'max' => UsageInterface::MAX_POSSIBLE_DATE,
+                'now' => (new DateTime('now'))->format('Y-m-d H:i:s')
+             ])
+             ->one();
 
         $this->clientTimezone = $this->usage->clientAccount->timezone;
 
