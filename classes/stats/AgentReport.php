@@ -148,7 +148,7 @@ class AgentReport
             'rewards.period_month',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
-            'transaction.transaction_type',
+            'transaction_type' => new Expression("IFNULL(transaction.transaction_type, '" . Transaction::TYPE_PERIODICAL . "')"),
             'transaction.sum',
             'bills.is_payed',
             'bills.bill_no',
@@ -181,8 +181,12 @@ class AgentReport
                 'contragent.partner_contract_id' => $partnerId,
                 'transaction.deleted' => 0,
             ])
-            ->andWhere(['between', 'bills.bill_date', $dateFrom, $dateTo])
-            ->andWhere(['in', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]]);
+            ->andWhere(['BETWEEN', 'bills.bill_date', $dateFrom, $dateTo])
+            ->andWhere([
+                'OR',
+                ['IN', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]],
+                ['IS', 'transaction.transaction_type', null]
+            ]);
 
         $query->params([
             ':service' => UsageVoip::tableName(),
@@ -216,7 +220,7 @@ class AgentReport
             'rewards.period_month',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
-            'transaction.transaction_type',
+            'transaction_type' => new Expression("IFNULL(transaction.transaction_type, '" . Transaction::TYPE_PERIODICAL . "')"),
             'transaction.sum',
             'bills.is_payed',
             'bills.bill_no',
@@ -249,8 +253,12 @@ class AgentReport
                 'contragent.partner_contract_id' => $partnerId,
                 'transaction.deleted' => 0,
             ])
-            ->andWhere(['between', 'bills.bill_date', $dateFrom, $dateTo])
-            ->andWhere(['in', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]]);
+            ->andWhere(['BETWEEN', 'bills.bill_date', $dateFrom, $dateTo])
+            ->andWhere([
+                'OR',
+                ['IN', 'transaction.transaction_type', [Transaction::TYPE_PERIODICAL, Transaction::TYPE_RESOURCE]],
+                ['IS', 'transaction.transaction_type', null]
+            ]);
 
         $query->params([
             ':service' => UsageVirtpbx::tableName(),
