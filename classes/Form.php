@@ -91,8 +91,23 @@ abstract class Form extends Model
         return $result;
     }
 
+    /**
+     * @return void
+     */
+    public function afterValidate()
+    {
+        if (count($this->getErrors())) {
+            Yii::$app->session->setFlash('error', Html::errorSummary($this, [
+                'class' => 'alert-danger fade in text-left',
+            ]));
+        }
+
+        parent::afterValidate();
+    }
+
     protected function preProcess()
     {
 
     }
+
 }
