@@ -46,10 +46,10 @@ class UsageVoipAddPackageForm extends Form
     public function process()
     {
         $this->usage = UsageVoip::find()
-             ->where('id = :id AND ( actual_to = :max OR actual_to = :now )', [
+             ->where('id = :id AND ( actual_to = :max OR actual_to >= :now )', [
                 'id'  => $this->usage_voip_id,
                 'max' => UsageInterface::MAX_POSSIBLE_DATE,
-                'now' => (new DateTime('now'))->getTimestamp()
+                'now' => (new DateTime('now'))->format('Y-m-d H:i:s')
              ])
              ->one();
 
