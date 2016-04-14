@@ -297,7 +297,12 @@ class ClientCreateExternalForm extends Form
                     if (!($usage instanceof UsageVoip)) {
                         $result['info'][] = 'voip';
 
-                        $freeNumber = Number::dao()->getRandomFreeNumber(DidGroup::MOSCOW_STANDART_GROUP_ID);
+                        $freeNumber =
+                            (new \app\models\filter\FreeNumberFilter)
+                                ->numbers
+                                ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                                ->orderByRand()
+                                ->result(1);
 
                         if (!($freeNumber instanceof Number)) {
                             throw new Exception('Not found free number into 499 DID group', 500);

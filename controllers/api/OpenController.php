@@ -5,6 +5,7 @@ namespace app\controllers\api;
 use Yii;
 use yii\web\Controller;
 use app\models\Number;
+use app\models\filter\FreeNumberFilter;
 
 final class OpenController extends Controller
 {
@@ -13,7 +14,7 @@ final class OpenController extends Controller
 
     public function init()
     {
-	Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
     }
 
     /**
@@ -41,7 +42,11 @@ final class OpenController extends Controller
      */
     public function actionGetFreeNumbers($region = null)
     {
-        $numbers = Number::dao()->getFreeNumbersByRegion($region);
+        $numbers =
+            (new FreeNumberFilter)
+                ->numbers
+                ->setRegions([$region])
+                ->result(null);
 
         $response = [];
         foreach($numbers as $r) {
@@ -73,21 +78,38 @@ final class OpenController extends Controller
      *   )
      * )
      */
-    public function actionGetFreeNumbersByList(array $regions = [])
+    public function actionGetFreeNumbersByFilter(
+        array $regions = [],
+        $minCost = null,
+        $maxCost = null,
+        $beautyLvl = null,
+        $like = null,
+        $offset = 0
+    )
     {
-        $response = [];
-	foreach ($regions as $region) {
-            $numbers = Number::dao()->getFreeNumbersByRegion($region);
+        $numbers  = new FreeNumberFilter;
+        $numbers->regions = $regions;
+        $numbers->minCost = $minCost;
+        $numbers->maxCost = $maxCost;
+        $numbers->numberMask = $like;
+        if ((int) $beautyLvl) {
+            $numbers->beautyLvl = $beautyLvl;
+        }
+        if ((int) $offset) {
+            $numbers->offset = $offset;
+        }
 
-            foreach($numbers as $r) {
-                $response []= [
-		    "number" => $r->number,
-		    "beauty" => $r->beauty_level,
-		    "price" => $r->price,
-		    "region" => $r->region
-		];
-            }
-	}
+        $response = [];
+
+        foreach($numbers->orderByPrice()->result() as $row) {
+            $response[] = [
+                'number' => $row->number,
+                'beauty' => $row->beauty_level,
+                'price' => $row->price,
+                'region' => $row->region,
+            ];
+        }
+
         return $response;
     }
 

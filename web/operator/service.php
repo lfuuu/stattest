@@ -122,7 +122,11 @@ if ($action=='add_client') {
 
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
-    $numbers = Number::dao()->getFreeNumbersByRegion($region);
+    $numbers =
+        (new \app\models\filter\FreeNumberFilter)
+            ->numbers
+            ->setRegions([$region])
+            ->result(null);
 
     foreach($numbers as $r) {
         echo implode(';', [$r->number, $r->beauty_level, $r->price, $r->region]) . "\n";

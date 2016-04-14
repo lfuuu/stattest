@@ -911,7 +911,11 @@ class ApiLk
 
         $ret = array();
 
-        $numbers = Number::dao()->getFreeNumbersByTariff($numberTariff);
+        $numbers =
+            (new \app\models\filter\FreeNumberFilter)
+                ->numbers
+                ->setDidGroup($numberTariff->did_group_id)
+                ->result(null);
 
         $skipFrom = 1;
         $areaLen = 3;
