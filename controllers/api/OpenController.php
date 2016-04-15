@@ -13,13 +13,13 @@ final class OpenController extends Controller
 
     public function init()
     {
-	Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
     }
 
     /**
      * @SWG\Get(
-     *   tags={"Выбрать список свободных номеров по одному региону"},
-     *   path="/api/open/",
+     *   tags={"Cписок свободных номеров"},
+     *   path="/open/get-free-numbers",
      *   summary="Выбрать список свободных номеров по одному региону",
      *   operationId="Выбрать список свободных номеров по одному региону",
      *   @SWG\Parameter(name="regions",type="integer[]",description="код региона",in="formData"),
@@ -44,16 +44,21 @@ final class OpenController extends Controller
         $numbers = Number::dao()->getFreeNumbersByRegion($region);
 
         $response = [];
-        foreach($numbers as $r) {
-            $response []= [ "number" => $r->number, "beauty" => $r->beauty_level, "price" => $r->price, "region" => $r->region ];
+        foreach ($numbers as $r) {
+            $response [] = [
+                "number" => $r->number,
+                "beauty" => $r->beauty_level,
+                "price" => $r->price,
+                "region" => $r->region
+            ];
         }
         return $response;
     }
 
     /**
      * @SWG\Get(
-     *   tags={"Выбрать список свободных номеров по списку регинов"},
-     *   path="/api/open/",
+     *   tags={"Cписок свободных номеров"},
+     *   path="/open/get-free-numbers-by-list",
      *   summary="Выбрать список свободных номеров по списку регионов",
      *   operationId="Выбрать список свободных номеров по списку регинов",
      *   @SWG\Parameter(name="regions",type="integer[]",description="код региона",in="formData"),
@@ -76,20 +81,19 @@ final class OpenController extends Controller
     public function actionGetFreeNumbersByList(array $regions = [])
     {
         $response = [];
-	foreach ($regions as $region) {
+        foreach ($regions as $region) {
             $numbers = Number::dao()->getFreeNumbersByRegion($region);
 
-            foreach($numbers as $r) {
-                $response []= [
-		    "number" => $r->number,
-		    "beauty" => $r->beauty_level,
-		    "price" => $r->price,
-		    "region" => $r->region
-		];
+            foreach ($numbers as $r) {
+                $response [] = [
+                    "number" => $r->number,
+                    "beauty" => $r->beauty_level,
+                    "price" => $r->price,
+                    "region" => $r->region
+                ];
             }
-	}
+        }
         return $response;
     }
-
 
 }
