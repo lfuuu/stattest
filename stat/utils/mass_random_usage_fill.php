@@ -126,10 +126,9 @@ foreach($confs as $conf)
     {
         $number =
             (new \app\models\filter\FreeNumberFilter)
-                ->numbers
+                ->getNumbers()
                 ->setDidGroup($conf['didGroupId'])
-                ->orderByRand()
-                ->result(1);
+                ->randomOne();
 
         $numbers = [$number->number];
 

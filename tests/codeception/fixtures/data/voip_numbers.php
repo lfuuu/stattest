@@ -11,6 +11,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '01',
     ],
     [
         'number' => '74592130002',
@@ -22,6 +23,7 @@ return [
         'did_group_id' => 6,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '02',
     ],
     [
         'number' => '74592130003',
@@ -33,6 +35,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '03',
     ],
     [
         'number' => '74592130004',
@@ -44,6 +47,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '04',
     ],
     [
         'number' => '74592130005',
@@ -55,6 +59,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '05',
     ],
     [
         'number' => '74592130006',
@@ -66,6 +71,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '06',
     ],
     [
         'number' => '74592130007',
@@ -77,6 +83,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '07',
     ],
     [
         'number' => '74592130008',
@@ -88,6 +95,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '08',
     ],
     [
         'number' => '74592130009',
@@ -99,6 +107,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '09',
     ],
     [
         'number' => '74592130010',
@@ -110,6 +119,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '10',
     ],
     [
         'number' => '74592130011',
@@ -121,6 +131,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '11',
     ],
     [
         'number' => '74592130012',
@@ -132,6 +143,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '12',
     ],
     [
         'number' => '74592130013',
@@ -143,6 +155,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '13',
     ],
     [
         'number' => '74592130014',
@@ -154,6 +167,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '14',
     ],
     [
         'number' => '74592130015',
@@ -165,6 +179,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '15',
     ],
     [
         'number' => '74592130016',
@@ -176,6 +191,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '16',
     ],
     [
         'number' => '74592130017',
@@ -187,6 +203,7 @@ return [
         'did_group_id' => 1,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '17',
     ],
     [
         'number' => '36192130018',
@@ -198,6 +215,7 @@ return [
         'did_group_id' => 62,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '18',
     ],
     [
         'number' => '36192130019',
@@ -209,6 +227,7 @@ return [
         'did_group_id' => 52,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '19',
     ],
     [
         'number' => '36192130020',
@@ -220,6 +239,7 @@ return [
         'did_group_id' => 52,
         'ndc' => null,
         'number_type' => 4,
+        'number_cut' => '20',
     ],
     [
         'number' => '78002003001',
@@ -231,6 +251,7 @@ return [
         'did_group_id' => null,
         'ndc' => 800,
         'number_type' => 5,
+        'number_cut' => '01',
     ],
     [
         'number' => '78002003002',
@@ -242,5 +263,6 @@ return [
         'did_group_id' => null,
         'ndc' => 800,
         'number_type' => 5,
+        'number_cut' => '02',
     ],
 ];

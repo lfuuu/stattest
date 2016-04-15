@@ -913,14 +913,13 @@ class ApiLk
 
         $numbers =
             (new \app\models\filter\FreeNumberFilter)
-                ->numbers
-                ->setDidGroup($numberTariff->did_group_id)
-                ->result(null);
+                ->getNumbers()
+                ->setDidGroup($numberTariff->did_group_id);
 
         $skipFrom = 1;
         $areaLen = 3;
         
-        foreach($numbers as $number) {
+        foreach($numbers->each()->result() as $number) {
             $line = [
                 'number' => $number->number,
                 'full_number' => $number->number,

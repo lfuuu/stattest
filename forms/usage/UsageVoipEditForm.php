@@ -534,10 +534,10 @@ class UsageVoipEditForm extends UsageVoipForm
                     /** @var \app\models\Number $number */
                     $number =
                         (new \app\models\filter\FreeNumberFilter)
-                            ->numbers
+                            ->getNumbers()
                             ->setDidGroup($numberTariff->did_group_id)
-                            ->orderByRand()
-                            ->result(1);
+                            ->randomOne();
+
                     if ($number) {
                         $this->did = $number->number;
                     }
@@ -581,11 +581,11 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->number_tariff_id = null;
 
                 if (!$this->did) {
+                    /** @var \app\models\Number $number */
                     $number =
                         (new \app\models\filter\FreeNumberFilter)
-                            ->numbers7800
-                            ->orderByRand()
-                            ->result(1);
+                            ->getNumbers7800()
+                            ->randomOne();
 
                     if ($number) {
                         $this->did = $number->number;

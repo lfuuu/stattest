@@ -124,11 +124,10 @@ if ($action=='add_client') {
 
     $numbers =
         (new \app\models\filter\FreeNumberFilter)
-            ->numbers
-            ->setRegions([$region])
-            ->result(null);
+            ->getNumbers()
+            ->setRegions([$region]);
 
-    foreach($numbers as $r) {
+    foreach($numbers->each()->result() as $r) {
         echo implode(';', [$r->number, $r->beauty_level, $r->price, $r->region]) . "\n";
     }
 

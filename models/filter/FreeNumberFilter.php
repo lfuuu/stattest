@@ -2,11 +2,12 @@
 
 namespace app\models\filter;
 
-use app\models\DidGroup;
 use yii\db\Expression;
+use app\classes\Assert;
 use app\exceptions\web\BadRequestHttpException;
 use app\models\Number;
 use app\models\NumberType;
+use app\models\DidGroup;
 
 /**
  * Фильтрация для свободных номеров
@@ -16,7 +17,11 @@ class FreeNumberFilter extends Number
 
     const FREE_NUMBERS_LIMIT = 12;
 
-    private $query;
+    private
+        /** @var \yii\db\ActiveQuery $query */
+        $query,
+        $eachMode = false,
+        $randomMode = false;
 
     /**
      * @return void
@@ -27,6 +32,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * Выборка только стандартных номеров
      * @return $this
      */
     public function getNumbers()
@@ -36,6 +42,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * Выборка номеров типа 7800
      * @return $this
      */
     public function getNumbers7800()
@@ -72,8 +79,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param array $regions
-     * @param bool|false $filterMode
+     * @param int[] $regions
      * @return $this
      */
     public function setRegions(array $regions = [])
@@ -127,15 +133,11 @@ class FreeNumberFilter extends Number
      * @param string $pattern
      * @return $this
      */
-    public function setNumberMask($numberPart = null, $pattern = '^%?\d{3,}%$')
+    public function setNumberMask($mask = null, $pattern = '^%?\d{3,}%$')
     {
-        if (!is_null($numberPart)) {
-            if (!preg_match('#' . $pattern . '#', $numberPart)) {
-                throw new BadRequestHttpException('Bad format for mask search' . $pattern);
-            }
-            $this->query->andWhere('number LIKE :part', [':part' => $numberPart]);
+        if (!is_null($mask)) {
+            $this->query->andWhere('number LIKE :part', [':part' => $mask]);
         }
-
         return $this;
     }
 
@@ -162,27 +164,27 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param int $descination
+     * @param int $direction
      * @return $this
      */
-    public function orderByPrice($descination = SORT_ASC)
+    public function orderByPrice($direction = SORT_ASC)
     {
-        $this->query->addOrderBy(['price' => $descination]);
+        $this->query->addOrderBy(['price' => $direction]);
         return $this;
     }
 
     /**
      * @return $this
      */
-    public function orderByRand()
+    public function each()
     {
-        $this->query->orderBy('RAND()');
+        $this->eachMode = true;
         return $this;
     }
 
     /**
      * @param int|null $limit
-     * @return null|\yii\db\ActiveRecord[]
+     * @return null|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public function result($limit = self::FREE_NUMBERS_LIMIT)
     {
@@ -192,14 +194,48 @@ class FreeNumberFilter extends Number
         ]);
 
         if (is_null($limit)) {
-            return $this->query->all();
+            return $this->eachMode ? $this->query->each() : $this->query->all();
         }
 
         if ($limit === 1) {
             return $this->query->one();
         }
 
-        return $this->query->limit($limit)->all();
+        $this->query->limit($limit);
+
+        return $this->eachMode ? $this->query->each()  : $this->query->all();
+    }
+
+    /**
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function one()
+    {
+        return $this->result(1);
+    }
+
+    /**
+     * @return null|\yii\db\ActiveRecord
+     */
+    public function randomOne()
+    {
+        $this->query->andWhere([
+            'number_cut' => mt_rand(0, 99),
+        ]);
+
+        $iteration = 5;
+
+        do {
+            $number = $this->one();
+            if ($number instanceof Number) {
+                return $number;
+            }
+
+            $iteration--;
+        }
+        while ($iteration > 0);
+
+        Assert::isUnreachable('No accidental availability');
     }
 
 }

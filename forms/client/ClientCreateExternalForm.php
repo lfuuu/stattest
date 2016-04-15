@@ -301,8 +301,7 @@ class ClientCreateExternalForm extends Form
                             (new \app\models\filter\FreeNumberFilter)
                                 ->numbers
                                 ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
-                                ->orderByRand()
-                                ->result(1);
+                                ->randomOne();
 
                         if (!($freeNumber instanceof Number)) {
                             throw new Exception('Not found free number into 499 DID group', 500);

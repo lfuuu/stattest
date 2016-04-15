@@ -21,25 +21,31 @@ class FreeNumbersTest extends TestCase
         (new NumberFixture)->load();
     }
 
-    public function testAllNumbers()
+    protected function tearDown()
+    {
+        (new NumberFixture)->unload();
+        parent::tearDown();
+    }
+
+    public function testAllFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
         $this->assertEquals(22, count($numbers->result(null)));
     }
 
-    public function testRegularNubmers()
+    public function testRegularFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
         $this->assertEquals(20, count($numbers->numbers->result(null)));
     }
 
-    public function testNumbers7800()
+    public function test7800FreeNumbers()
     {
         $numbers = new FreeNumberFilter;
         $this->assertEquals(2, count($numbers->numbers7800->result(null)));
     }
 
-    public function testNumbersByRegions()
+    public function testFreeNumbersByRegions()
     {
         // Москва
         $numbers = new FreeNumberFilter;
@@ -57,7 +63,7 @@ class FreeNumbersTest extends TestCase
         $this->assertEquals(22, count($numbers->result(null)));
     }
 
-    public function testNumbersByCost()
+    public function testFreeNumbersByCost()
     {
         // Between
         $numbers = new FreeNumberFilter;
@@ -82,7 +88,7 @@ class FreeNumbersTest extends TestCase
         $this->assertEquals(20, count($numbers->result(null)));
     }
 
-    public function testNumbersByBeautyLvl()
+    public function testFreeNumbersByBeautyLvl()
     {
         // Стандартные номера
         $numbers = new FreeNumberFilter;
@@ -104,7 +110,7 @@ class FreeNumbersTest extends TestCase
         }
     }
 
-    public function testNumbersByMask()
+    public function testFreeNumbersByMask()
     {
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '%9213%';
@@ -128,7 +134,7 @@ class FreeNumbersTest extends TestCase
         $this->assertEquals(1, count($numbers->result(null)));
     }
 
-    public function testNumbersOffset()
+    public function testFreeNumbersOffset()
     {
         $numbers = new FreeNumberFilter;
         $firstPage = $numbers->result();
@@ -140,7 +146,7 @@ class FreeNumbersTest extends TestCase
         $this->assertLessThan(FreeNumberFilter::FREE_NUMBERS_LIMIT, count($secondPage));
     }
 
-    public function testNumbersLimit()
+    public function testFreeNumbersLimit()
     {
         // Лимит 5
         $numbers = new FreeNumberFilter;
