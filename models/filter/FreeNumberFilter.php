@@ -17,11 +17,9 @@ class FreeNumberFilter extends Number
 
     const FREE_NUMBERS_LIMIT = 12;
 
-    private
-        /** @var \yii\db\ActiveQuery $query */
-        $query,
-        $eachMode = false,
-        $randomMode = false;
+    /** @var \yii\db\ActiveQuery */
+    private $query;
+    private $eachMode = false;
 
     /**
      * @return void
@@ -207,7 +205,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord
+     * @return null|\yii\db\ActiveRecord
      */
     public function one()
     {
@@ -219,23 +217,13 @@ class FreeNumberFilter extends Number
      */
     public function randomOne()
     {
-        $this->query->andWhere([
-            'number_cut' => mt_rand(0, 99),
-        ]);
+        $union = clone $this->query;
 
-        $iteration = 5;
+        $this->query
+            ->andWhere(['number_cut' => mt_rand(0, 99)])
+            ->union($union);
 
-        do {
-            $number = $this->one();
-            if ($number instanceof Number) {
-                return $number;
-            }
-
-            $iteration--;
-        }
-        while ($iteration > 0);
-
-        Assert::isUnreachable('No accidental availability');
+        return $this->one();
     }
 
 }

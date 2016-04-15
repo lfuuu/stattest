@@ -299,7 +299,7 @@ class ClientCreateExternalForm extends Form
 
                         $freeNumber =
                             (new \app\models\filter\FreeNumberFilter)
-                                ->numbers
+                                ->getNumbers()
                                 ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
                                 ->randomOne();
 

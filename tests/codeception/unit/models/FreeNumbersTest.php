@@ -36,7 +36,7 @@ class FreeNumbersTest extends TestCase
     public function testRegularFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(20, count($numbers->numbers->result(null)));
+        $this->assertEquals(19, count($numbers->numbers->result(null)));
     }
 
     public function test7800FreeNumbers()
@@ -114,7 +114,7 @@ class FreeNumbersTest extends TestCase
     {
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '%9213%';
-        $this->assertEquals(20, count($numbers->result(null)));
+        $this->assertEquals(19, count($numbers->result(null)));
 
         // Negative
         try {
@@ -127,7 +127,7 @@ class FreeNumbersTest extends TestCase
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '%9213000%';
-        $this->assertEquals(9, count($numbers->result(null)));
+        $this->assertEquals(8, count($numbers->result(null)));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '%92130003%';

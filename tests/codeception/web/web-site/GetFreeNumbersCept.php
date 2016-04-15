@@ -14,5 +14,5 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Get free numbers');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->see('74992130007;1;0;99');
-$I->see('74992130006;1;0;99');
+$I->see(';0;0;99');
+$I->see(';0;999;99');
