@@ -397,7 +397,11 @@ class m_stats extends IModule{
                     foreach ($reg_data as $r) {
                        if ($r['is_total'] == false) {
                             $r['price'] = number_format($r['price'], 2, '.','');
-                            $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>(isset($all_regions[$r_id])?$all_regions[$r_id]:$r_id))+$r;
+
+                            $Res[] = [
+                                    'mktime' => $r['mktime'],
+                                    'reg_id' => (isset($all_regions[$r_id]) ? $all_regions[$r_id]->name : $r_id)
+                                ] + $r;
 
                             if (isset($r['price'])) $rt['price']+=$r['price'];
                             if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
