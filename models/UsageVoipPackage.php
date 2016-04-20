@@ -84,10 +84,22 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         $link = $this->hasMany(BillingStatPackage::className(), ['package_id' => 'id']);
 
         if ($dateRangeFrom) {
-            $link->andWhere(['>=', 'activation_dt', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
+            $dateRangeFromStr =
+                (new DateTime($dateRangeFrom))
+                    ->modify('first day of this month')
+                    ->setTime(0, 0, 0)
+                    ->format(DateTime::ATOM);
+
+            $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
         }
         if ($dateRangeTo) {
-            $link->andWhere(['<=', 'activation_dt', (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
+            $dateRangeToStr =
+                (new DateTime($dateRangeTo))
+                    ->modify('last day of this month')
+                    ->setTime(23, 59, 59)
+                    ->format(DateTime::ATOM);
+
+            $link->andWhere(['<=', 'activation_dt', $dateRangeToStr]);
         }
 
         return $link->all();

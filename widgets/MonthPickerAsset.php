@@ -9,13 +9,16 @@ class MonthPickerAsset extends \yii\web\AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = __DIR__ . '/../vendor/KidSysco/jquery-ui-month-picker'; // берем из другого виджета
+        $this->sourcePath = '@vendor/KidSysco/jquery-ui-month-picker/src'; // берем из другого виджета
+
         $this->js = [
             'MonthPicker' . (YII_DEBUG ? '' : '.min') . '.js',
         ];
+
         $this->css = [
-            'css/MonthPicker' . (YII_DEBUG ? '' : '.min') . '.css',
+            'MonthPicker' . (YII_DEBUG ? '' : '.min') . '.css',
         ];
+
         parent::init();
     }
 }

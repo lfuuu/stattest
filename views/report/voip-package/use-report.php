@@ -63,7 +63,7 @@ foreach ($packages as $package) {
                                     <?php
                                     echo DateRangePicker::widget([
                                         'name' => 'filter[range]',
-                                        'presetDropdown' => true,
+                                        'hideInput' => true,
                                         'value' =>
                                             $filter->range
                                                 ?:
@@ -79,9 +79,6 @@ foreach ($packages as $package) {
                                         'containerOptions' => [
                                             'style' => 'overflow: hidden;',
                                             'class' => 'drp-container input-group',
-                                        ],
-                                        'options' => [
-                                            'style' => 'font-size: 12px; height: 30px;',
                                         ],
                                     ]);
                                     ?>

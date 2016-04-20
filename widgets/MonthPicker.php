@@ -60,7 +60,10 @@ class MonthPicker extends \yii\widgets\InputWidget
         $js = sprintf('$("#%s").MonthPicker(%s).MonthPicker("option", "OnAfterChooseMonth", function() { $(this).trigger("change"); });', $this->options['id'], json_encode($this->widgetOptions));
         $view->registerJs($js, $view::POS_READY);
 
-        return Html::activeTextInput($this->model, $this->attribute, $this->options);
+        return
+            $this->hasModel()
+                ? Html::activeTextInput($this->model, $this->attribute, $this->options)
+                : Html::textInput($this->name, $this->value, $this->options);
     }
 
 }
