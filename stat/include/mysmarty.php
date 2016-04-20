@@ -334,6 +334,11 @@ function smarty_modifier_rus_plural($value, $s1, $s2, $s3) {
     return Utils::rus_plural($value, $s1, $s2, $s3);
 }
 
+function smarty_modifier_moneyAndCurrency($value, $currency = 'RUB', $round = 2)
+{
+	return Utils::moneyAndCurrency($value, $currency, $round);
+}
+
 function smarty_modifier_usage_link($usageType, $usageId)
 {
     switch ($usageType) {
@@ -368,6 +373,11 @@ function smarty_modifier_usage_link($usageType, $usageId)
 function smarty_modifier_client_options(\app\models\ClientAccount $client, $optionName)
 {
     return (array) $client->getOption($optionName);
+}
+
+function smarty_modifier_currencySymbol($currency)
+{
+	return Currency::symbol($currency);
 }
 
 class MySmarty extends SmartyStat {
@@ -413,6 +423,8 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('rus_fin','smarty_modifier_rus_plural');
 		$this->register_modifier('usage_link','smarty_modifier_usage_link');
 		$this->register_modifier('client_options', 'smarty_modifier_client_options');
+		$this->register_modifier('money_currency', 'smarty_modifier_moneyAndCurrency');
+		$this->register_modifier('currency_symbol', 'smarty_modifier_currencySymbol');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

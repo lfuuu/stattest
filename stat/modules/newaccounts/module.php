@@ -3983,7 +3983,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $R[0]=array('type'=>'saldo','date'=>$date_from_val,'sum_outcome'=>$startsaldo);
         $B = array();
 
-        $W = array('AND','P.client_id="'.$fixclient_data['id'].'"','P.currency="RUB"');
+        $W = array('AND','P.client_id="' . $fixclient_data['id'] . '"','P.currency="' . $c->currency . '"');
         if ($saldo) $W[]='P.payment_date>="'.$saldo['ts'].'"';
         if ($date_from) $W[]='P.payment_date>="'.$date_from.'"';
         if ($date_to) $W[]='P.payment_date<="'.$date_to.'"';
@@ -4113,6 +4113,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('sum_zalog',$S_zalog);
         $design->assign('ressaldo',$ressaldo);
         $design->assign('formula',$formula);
+        $design->assign('currency', $c->currency);
 
         $fullscreen = get_param_protected('fullscreen',0);
         $is_pdf = get_param_protected('is_pdf',0);

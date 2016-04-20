@@ -60,7 +60,7 @@
 <h2>Акт сверки по клиенту {$fixclient_data.client}</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <thead>
-<tr ><td width=50% colspan=4>По данным {$firma.name}, руб.</td><td width=50% colspan=4>По данным {$company_full}, руб.</td></tr>
+<tr ><td width=50% colspan=4>По данным {$firma.name}, {$currency|currency_symbol}</td><td width=50% colspan=4>По данным {$company_full}, {$currency|currency_symbol}</td></tr>
 <tr><td width=4%>&#8470; п/п</td><td width=36%>Наименование операции,<br>документы</td><td width=5%>Дебет</td><td width=5%>Кредит</td>
 <td width=4%>&#8470; п/п</td><td width=24%>Наименование операции,<br>документы</td><td width=11%>Дебет</td><td width=11%>Кредит</td></tr></thead><tbody>
 {foreach from=$data item=item name=outer}
@@ -99,7 +99,7 @@
 {if $zalog} с учетом платежей полученных в обеспечение исполнения обязательств по договору:
 <table>
 {foreach from=$zalog item=z name=zalog}
-<tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|round:2|replace:".":","} рубл{$z.sum_income|rus_fin:'ь':'я':'ей'}</td></tr>
+<tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|money_currency:$currency}</td></tr>
 {/foreach}
 </table>
 
@@ -109,9 +109,9 @@
 
 &nbsp;задолженность
 {if $ressaldo.sum_income>0.0001}
-	в пользу {$firma.name} составляет {$ressaldo.sum_income|round:2|replace:".":","} рубл{$ressaldo.sum_income|rus_fin:'ь':'я':'ей'}
+	в пользу {$firma.name} составляет {$ressaldo.sum_income|money_currency:$currency}
 {elseif $ressaldo.sum_outcome>0.0001}
-	в пользу {$company_full} составляет {$ressaldo.sum_outcome|round:2|replace:".":","} рубл{$ressaldo.sum_outcome|rus_fin:'ь':'я':'ей'}
+	в пользу {$company_full} составляет {$ressaldo.sum_outcome|money_currency:$currency}
 {else}
 	отсутствует
 {/if}

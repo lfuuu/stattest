@@ -70,6 +70,15 @@ class Utils
         return $result;
     }
 
+    public static function moneyAndCurrency($value, $currency = 'RUB')
+    {
+        if ($currency == 'RUB') {
+            return number_format($value, 2, ',','') . ' ' . Utils::rus_plural((int)$value, 'рубль', 'рубля', 'рублей');
+        }
+
+        return \Yii::$app->formatter->asCurrency($value, $currency);
+    }
+
     public static function mround($value, $precision1, $precision2)
     {
         $result = $value - round($value, $precision1);
