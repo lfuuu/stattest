@@ -6,7 +6,6 @@ use app\classes\validators\InnKppValidator;
 
 /**
  * Class ClientContragent
- *
  * @property int id
  * @property int super_id
  * @property int country_id

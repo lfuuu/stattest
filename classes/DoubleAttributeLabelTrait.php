@@ -16,12 +16,15 @@ trait DoubleAttributeLabelTrait
         $t1 = \Yii::t($category, $name, [], $appLang);
         $t2 = ($formLang == $appLang || !$formLang) ? null : \Yii::t($category, $name, [], $formLang);
 
-        if($t1 == $name)
+        if($t1 == $name) {
             return Inflector::camel2words($name, true);
-        elseif($t2 === null)
+        } elseif($t2 === null) {
             return $t1;
-        else
-            return $t1.' / '.$t2;
+        } elseif ($t1 == $t2) {
+            return $t1;
+        } else {
+            return $t1 . ' / ' . $t2;
+        }
     }
 
     abstract protected function getLangCategory();

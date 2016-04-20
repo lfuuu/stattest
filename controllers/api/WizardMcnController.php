@@ -413,7 +413,7 @@ class WizardMcnController extends /*BaseController*/ApiController
      *     )
      *   )
      * )
-     */
+     **/
     public function actionSaveDocument()
     {
         $data = $this->loadAndCheck();

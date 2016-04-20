@@ -40,19 +40,29 @@ if ($action=='add_client') {
         'phone'   => 'official_phone',
         'fax'     => 'fax',
         'address' => 'address',
-        'client_comment' => 'comment', 
+        'client_comment' => 'comment',
+        'site_name' => 'site_name',
         'vats_tariff_id' => 'vats_tariff_id'
     );
 
 	$P = [];
     foreach ($V as $k1 => $k2) {
-        $P[$k2] = get_param_raw($k1, "");
+        $P[$k2] = trim(get_param_raw($k1, ""));
     }
 
     if ($P["company"] == "google") {
         echo "error:";
         exit();
     }
+
+    if (!$P['company']) {
+        $P['company'] = 'Клиент с сайта';
+    }
+
+    if (!$P['site_name']) {
+        $P['site_name'] = 'mcn.ru';
+    }
+
 
     $f = new ClientCreateExternalForm;
     $f->setAttributes($P);

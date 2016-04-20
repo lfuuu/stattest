@@ -38,4 +38,5 @@ class CountryDao extends Singleton
         }
         return $list;
     }
+
 }

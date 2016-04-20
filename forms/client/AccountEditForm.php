@@ -20,6 +20,7 @@ use app\classes\validators\ArrayValidator;
 
 class AccountEditForm extends Form
 {
+    /** @var ClientAccount */
     protected $clientM = null;
     public $historyVersionRequestedDate = null;
     public $historyVersionStoredDate = null;
@@ -68,7 +69,8 @@ class AccountEditForm extends Form
         $admin_email,
         $lk_balance_view_mode,
         $anti_fraud_disabled,
-        $options;
+        $options,
+        $site_name;
 
     public function rules()
     {
@@ -85,7 +87,7 @@ class AccountEditForm extends Form
             [
                 [
                     'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
-                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
+                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee', 'site_name',
                     'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties', 'admin_email'
                 ],
                 'default', 'value' => ''
@@ -203,6 +205,10 @@ class AccountEditForm extends Form
 
         if ($this->credit < 0) {
             $this->credit = 0;
+        }
+
+        if ($this->site_name) {
+            $client->site_name = $this->site_name;
         }
 
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';

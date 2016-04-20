@@ -1,6 +1,8 @@
 <?php
 namespace app\forms\client;
 
+use app\models\Country;
+use app\models\Region;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -50,6 +52,10 @@ class ClientCreateExternalForm extends Form
     public $comment;
     public $partner_id;
 
+    public $timezone;
+    public $country_id;
+    public $site_name;
+
     public $info = "";
     public $isCreated = null;
 
@@ -58,12 +64,17 @@ class ClientCreateExternalForm extends Form
     {
         $rules = [
             ['email', 'required'],
-            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment'], 'default', 'value' => ''],
-            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment'], FormFieldValidator::className()],
-            ['company', 'default', 'value' => 'Клиент с сайта'],
+            ['email', 'email'],
+            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment', 'site_name'], 'default', 'value' => ''],
+            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment', 'site_name'], FormFieldValidator::className()],
+            ['company', 'default', 'value' => 'Клиент без названия'],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id'], 'integer'],
-            [['partner_id'], 'validatePartnerId']
+            [['partner_id'], 'validatePartnerId'],
+            ['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
+            ['timezone', 'in', 'range' => Region::getTimezoneList()],
+            ['country_id', 'default', 'value' => Country::RUSSIA],
+            ['country_id', 'in', 'range' => array_keys(Country::dao()->getList())]
 
         ];
         return $rules;
@@ -78,7 +89,10 @@ class ClientCreateExternalForm extends Form
             'official_phone' => 'Официальный телефон',
             'email' => 'E-mail',
             'address' => 'Адрес',
-            'comment' => 'Комментарий'
+            'comment' => 'Комментарий',
+            'timezone' => 'Временная зона',
+            'country_id' => 'Код страны',
+            'site_name' => 'Сайт'
         ];
     }
 
@@ -124,8 +138,6 @@ class ClientCreateExternalForm extends Form
     public function create()
     {
         $transaction = Yii::$app->db->beginTransaction();
-
-        $retVast = [];
 
         if ($this->findByEmail()) {
             $this->isCreated = false;
@@ -174,6 +186,7 @@ class ClientCreateExternalForm extends Form
         $contragent->name = $contragent->name_full = $this->company;
         $contragent->address_jur = $this->address;
         $contragent->legal_type = 'legal';
+        $contragent->country_id = $this->country_id;
         if ($this->partner_id) {
             $contragent->partner_contract_id = $this->partner_id;
         }
@@ -197,6 +210,8 @@ class ClientCreateExternalForm extends Form
         $account->address_post_real = $this->address;
         $account->address_connect = $this->address;
         $account->status = "income";
+        $account->timezone_name = $this->timezone;
+        $account->site_name = $this->site_name;
         $account->validate();
 
         $account->save();
@@ -245,9 +260,9 @@ class ClientCreateExternalForm extends Form
             'client' => "id".$this->account_id,
             'date_start' => date('Y-m-d H:i:s'),
             'date_finish_desired' => date('Y-m-d H:i:s'),
-            'problem' => "Входящие клиент с сайта: ".$this->company,
+            'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' .$this->site_name: '') . ": " . $this->company,
             'user_author' => "system",
-            'first_comment' => $this->comment
+            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '')
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");

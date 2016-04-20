@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property int $price_include_vat
  * @property int $is_active
  * @property int $region
+ * @property string $site_name
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
  * @property Country $country
