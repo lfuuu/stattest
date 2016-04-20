@@ -21,7 +21,7 @@ class Ticket extends ActiveRecord
     const TROUBLE_STATE_OPEN = 1;
     const TROUBLE_STATE_DONE = 7;
     const TROUBLE_STATE_CLOSED = 2;
-    const TROUBLE_STATE_REOPENED = 51;
+    const TROUBLE_STATE_REOPENED = 50;
 
     private $stateIdToStatus = [
         self::TROUBLE_STATE_CLOSED => TicketStatusEnum::CLOSED,
