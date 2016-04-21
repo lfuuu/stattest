@@ -2,7 +2,7 @@
 namespace app\classes\grid\account;
 
 use app\classes\grid\account\operator\infrastructure\ActingFolder;
-use app\classes\grid\account\operator\infrastructure\AutoBlockedFolder;
+use app\classes\grid\account\operator\infrastructure\FormalFolder;
 use app\classes\grid\account\operator\infrastructure\BlockedFolder;
 use app\classes\grid\account\operator\infrastructure\IncomingFolder;
 use app\classes\grid\account\operator\infrastructure\NegotiationsFolder;
@@ -35,6 +35,7 @@ class OperatorInfrastructure extends AccountGrid
             NegotiationsFolder::create($this),
             TestingFolder::create($this),
             ActingFolder::create($this),
+            FormalFolder::create($this),
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
             BlockedFolder::create($this),

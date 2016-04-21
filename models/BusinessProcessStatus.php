@@ -85,6 +85,7 @@ class BusinessProcessStatus extends ActiveRecord
     const OPERATOR_INFRASTRUCTURE_NEGOTIATIONS = 63; // Инфраструктура - Переговоры
     const OPERATOR_INFRASTRUCTURE_TESTING = 64; // Инфраструктура - Тестирование
     const OPERATOR_INFRASTRUCTURE_ACTING = 65; // Инфраструктура - Действующий
+    const OPERATOR_INFRASTRUCTURE_FORMAL = 140; // Инфраструктура - Формальные
     const OPERATOR_INFRASTRUCTURE_SUSPENDED = 66; // Инфраструктура - Приостановлен
     const OPERATOR_INFRASTRUCTURE_TERMINATED = 67; // Инфраструктура - Расторгнут
     const OPERATOR_INFRASTRUCTURE_BLOCKED = 68; // Инфраструктура - Фрод блокировка
