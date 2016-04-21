@@ -65,7 +65,7 @@ class ServiceType extends \yii\db\ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCurrency()
+    public function getParent()
     {
         return $this->hasOne(self::className(), ['id' => 'parent_id']);
     }

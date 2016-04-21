@@ -4,7 +4,7 @@ namespace app\classes\uu\forms;
 
 use app\classes\uu\model\AccountTariff;
 
-class AccountTariffFormNew extends AccountTariffForm
+class AccountTariffAddForm extends AccountTariffForm
 {
     /** @var int ID клиента */
     public $clientAccountId = null;

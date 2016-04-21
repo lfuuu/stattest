@@ -7,7 +7,7 @@ use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
 
-class TariffFormEdit extends TariffForm
+class TariffEditForm extends TariffForm
 {
     /**
      * конструктор
@@ -28,10 +28,14 @@ class TariffFormEdit extends TariffForm
     {
         $tariffTableName = Tariff::tableName();
 
-        return Tariff::find()
+        $tariff = Tariff::find()
             ->where($tariffTableName . '.id = :id', [':id' => $this->id])
             ->joinWith(['tariffPeriods', 'country', 'status'])
             ->one();
+        if (!$tariff) {
+            throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
+        }
+        return $tariff;
     }
 
     /**

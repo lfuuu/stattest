@@ -2,10 +2,11 @@
 
 namespace app\classes\uu\model;
 
-use app\models\User;
+use app\classes\Html;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * Лог тарифов универсальной услуги
@@ -42,6 +43,8 @@ class AccountTariffLog extends ActiveRecord
             [['account_tariff_id', 'tariff_period_id'], 'integer'],
             [['account_tariff_id', 'actual_from'], 'required'],
             ['actual_from', 'date', 'format' => 'php:Y-m-d'],
+            ['actual_from', 'validatorFuture'],
+            ['actual_from', 'validatorOneInFuture'],
         ];
     }
 
@@ -61,6 +64,50 @@ class AccountTariffLog extends ActiveRecord
     {
         return $this->tariffPeriod ?
             $this->tariffPeriod->getName() :
-            Yii::t('common', 'Closed');
+            Yii::t('common', 'Switched off');
+    }
+
+    /**
+     * Вернуть html: имя + ссылка на тариф
+     * @return string
+     */
+    public function getTariffPeriodLink()
+    {
+        return $this->tariff_period_id ?
+            Html::a(
+                Html::encode($this->getName()),
+                $this->tariffPeriod->getUrl()
+            ) :
+            Yii::t('common', 'Switched off');
+    }
+
+    /**
+     * Валидировать, что дата смены тарифа в будущем
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorFuture($attribute, $params)
+    {
+        if (strtotime($this->actual_from) <= time()) {
+            $this->addError($attribute, 'К сожалению, машины времени нет, поэтому сменить тариф можно только в будущем.');
+        }
+    }
+
+    /**
+     * Валидировать, что в будущем не более одной смены тарифа
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorOneInFuture($attribute, $params)
+    {
+        if (
+            $this->isNewRecord &&
+            $a = self::find()
+                ->where(['account_tariff_id' => $this->account_tariff_id])
+                ->andWhere(['>=', 'actual_from', new Expression('now()')])
+                ->one()
+        ) {
+            $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
+        }
     }
 }

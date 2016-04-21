@@ -6,7 +6,6 @@
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  */
 
-use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 ?>
@@ -20,19 +19,5 @@ use yii\widgets\ActiveForm;
     ])
     ?>
 
-    <div class="form-group">
-        <?= Html::submitButton(Yii::t('tariff', 'Change tariff'), ['class' => 'btn btn-success']) ?>
-        <?= Html::submitButton(Yii::t('tariff', 'Close tariff'), ['class' => 'btn btn-danger', 'name' => 'closeTariff', 'id' => 'closeTariff']) ?>
-    </div>
-
 </div>
 <?php ActiveForm::end(); ?>
-
-<script type='text/javascript'>
-    $(function () {
-        $("#closeTariff")
-            .on("click", function (e, item) {
-                return confirm("<?= Html::encode(Yii::t('tariff', 'Are you sure you want to close this tariff?')) ?>");
-            });
-    });
-</script>

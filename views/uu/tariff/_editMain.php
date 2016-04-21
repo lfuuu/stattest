@@ -7,6 +7,7 @@
  * @var \yii\widgets\ActiveForm $form
  */
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\TariffPerson;
 use app\classes\uu\model\TariffStatus;
 use app\models\Country;
@@ -33,7 +34,9 @@ $tariff = $formModel->tariff;
 
             <div class="col-sm-2">
                 <label><?= $tariff->getAttributeLabel('insert_time') ?></label>
-                <div><?= $tariff->insert_time ?></div>
+                <div><?= ($tariff->insert_time && $tariff->insert_time[0] != '0') ?
+                        (new DateTimeWithUserTimezone($tariff->insert_time))->getDateTime() :
+                        Yii::t('common', '(not set)') ?></div>
             </div>
 
 
@@ -47,7 +50,9 @@ $tariff = $formModel->tariff;
 
             <div class="col-sm-2">
                 <label><?= $tariff->getAttributeLabel('update_time') ?></label>
-                <div><?= $tariff->update_time ?: Yii::t('common', '(not set)') ?></div>
+                <div><?= ($tariff->update_time && $tariff->update_time[0] != '0') ?
+                        (new DateTimeWithUserTimezone($tariff->update_time))->getDateTime() :
+                        Yii::t('common', '(not set)') ?></div>
             </div>
 
             <div class="col-sm-2">
@@ -94,6 +99,7 @@ $tariff = $formModel->tariff;
         <div class="col-sm-2">
             <?php //$form->field($tariff, 'is_charge_after_period')->checkbox() ?>
             <?= $form->field($tariff, 'is_autoprolongation')->checkbox() ?>
+            <?= $form->field($tariff, 'is_default')->checkbox() ?>
         </div>
         <div class="col-sm-2"></div>
     </div>

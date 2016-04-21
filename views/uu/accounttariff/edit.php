@@ -6,12 +6,18 @@
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  */
 
+use app\classes\uu\model\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 $accountTariff = $formModel->accountTariff;
 $isReadOnly = !($accountTariff->isNewRecord || $accountTariff->tariff_period_id);
+
 $serviceType = $formModel->getServiceType();
+if (!$serviceType) {
+    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    return;
+}
 
 if (!$accountTariff->isNewRecord) {
     $this->title = $accountTariff->getName();
@@ -23,14 +29,14 @@ if (!$accountTariff->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal services'),
-        ['label' => $serviceType ? $serviceType->name : '', 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType ? $serviceType->id : ''])],
+        ['label' => $serviceType->name, 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType->id])],
         $this->title
     ],
 ]) ?>
 
 <?php
 if ($formModel->IsNeedToSelectClient) {
-    echo $this->render('//layouts/_alert', ['type' => 'danger', 'message' => Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>'])]);
+    Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
     return;
 }
 ?>
@@ -38,7 +44,7 @@ if ($formModel->IsNeedToSelectClient) {
 <?php
 // сообщение об ошибке
 if ($formModel->validateErrors) {
-    echo $this->render('//layouts/_alert', ['type' => 'danger', 'message' => $formModel->validateErrors]);
+    Yii::$app->session->setFlash('error', $formModel->validateErrors);
 }
 ?>
 
@@ -47,23 +53,13 @@ $viewParams = [
     'formModel' => $formModel,
     'isReadOnly' => $isReadOnly
 ];
-?>
 
-<?php
-// свойства услуги конкретного типа услуги (ВАТС, телефония и пр.)
-$fileName = '_editMainServiceType' . $accountTariff->service_type_id;
-$fileNameFull = __DIR__ . '/' . $fileName . '.php';
-if (file_exists($fileNameFull)) {
-
-    // персональный шаблон
-    echo $this->render($fileName, $viewParams);
-
+if ($serviceType->id == ServiceType::ID_VOIP && $accountTariff->isNewRecord) {
+    // персональная форма
+    echo $this->render('_editVoip', $viewParams);
 } else {
-
-    // основная форма
+    // типовая форма
     echo $this->render($isReadOnly ? '_viewMain' : '_editMain', $viewParams);
-
     // лог тарифов
     echo $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams);
 }
-?>

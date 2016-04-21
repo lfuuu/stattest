@@ -12,7 +12,7 @@ use app\classes\uu\model\TariffVoipCity;
 use app\models\Country;
 use app\models\Currency;
 
-class TariffFormNew extends TariffForm
+class TariffAddForm extends TariffForm
 {
     public $serviceTypeId;
 

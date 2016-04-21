@@ -46,13 +46,17 @@ trait InsertUserTrait
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert)
+    public function beforeSave($insert, $isCallParent = true)
     {
         if ($insert) {
             $this->insert_time = date('c'); 
             $this->insert_user_id = Yii::$app->user->getId();
         }
 
-        return parent::beforeSave($insert);
+        if ($isCallParent) {
+            return parent::beforeSave($insert);
+        } else {
+            return true;
+        }
     }
 }

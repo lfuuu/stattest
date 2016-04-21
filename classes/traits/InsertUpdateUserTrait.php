@@ -14,11 +14,11 @@ use Yii;
 trait InsertUpdateUserTrait
 {
     use InsertUserTrait {
-        beforeSave as beforeSaveInsertUser;
+        InsertUserTrait::beforeSave as beforeSaveInsertUser;
     }
 
     use UpdateUserTrait {
-        beforeSave as beforeSaveUpdateUser;
+        UpdateUserTrait::beforeSave as beforeSaveUpdateUser;
     }
 
     /**
@@ -27,8 +27,8 @@ trait InsertUpdateUserTrait
      */
     public function beforeSave($insert)
     {
-        $this->beforeSaveInsertUser($insert);
-        $this->beforeSaveUpdateUser($insert);
+        $this->beforeSaveInsertUser($insert, false);
+        $this->beforeSaveUpdateUser($insert, false);
 
         return parent::beforeSave($insert);
     }

@@ -13,5 +13,5 @@ $tariff = $formModel->tariff;
 ?>
 
 <div class="form-group">
-    <?= Html::submitButton(Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary']) ?>
+    <?= Html::submitButton(Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
 </div>

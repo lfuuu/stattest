@@ -1,15 +1,12 @@
 <?php
 /**
- * свойства услуги для телефонии
+ * свойства услуги для телефонии. Пакеты
  *
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  * @var ActiveForm $form
  */
 
-use app\classes\Html;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
 use app\models\City;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -25,12 +22,6 @@ $accountTariff = $formModel->accountTariff;
             ->widget(Select2::className(), [
                 'data' => City::dao()->getList(true, $formModel->accountTariff->clientAccount->country_id),
             ]) ?>
-    </div>
-
-    <?php // номер ?>
-    <div class="col-sm-2">
-        <label><?= $accountTariff->getAttributeLabel('voip_number') ?></label>
-        <div><?= $accountTariff->voip_number ?></div>
     </div>
 
 </div>

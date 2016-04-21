@@ -7,9 +7,11 @@
  * @var bool $isReadOnly
  */
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountTariffLog;
 use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 ?>
 
@@ -17,7 +19,7 @@ use yii\helpers\Html;
 
 <?php
 // добавить тариф (только при редактировании)
-if (!$isReadOnly && !$formModel->accountTariff->isNewRecord) {
+if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->accountTariff->isCancelable()) {
     echo $this->render('_editLogForm', ['formModel' => $formModel]);
 }
 ?>
@@ -32,12 +34,26 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord) {
             'attribute' => 'tariff_period_id',
             'format' => 'html',
             'value' => function (AccountTariffLog $accountTariffLog) {
-                return $accountTariffLog->tariffPeriod ?
-                    Html::a(
-                        Html::encode($accountTariffLog->tariffPeriod->getName()),
-                        $accountTariffLog->tariffPeriod->getUrl()
-                    ) :
-                    Yii::t('common', 'Closed');
+                return
+                    ($accountTariffLog->tariffPeriod ?
+                        Html::a(
+                            Html::encode($accountTariffLog->tariffPeriod->getName()),
+                            $accountTariffLog->tariffPeriod->getUrl()
+                        ) :
+                        Yii::t('common', 'Switched off')) .
+                    ' ' .
+
+                    (
+                    strtotime($accountTariffLog->actual_from) >= time() ?
+                        Html::a(
+                            'Отменить',
+                            Url::toRoute(['/uu/accounttariff/cancel', 'id' => $accountTariffLog->account_tariff_id, 'tariffPeriodId' => $accountTariffLog->tariff_period_id]),
+                            [
+                                'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-button-cancel btn-xs',
+                                'title' => 'Отменить смену тарифа',
+                            ]
+                        ) : ''
+                    );
             }
         ],
 
@@ -50,7 +66,25 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord) {
             }
         ],
 
-        ['attribute' => 'insert_time'],
+        [
+            'attribute' => 'insert_time',
+            'value' => function (AccountTariffLog $accountTariffLog) {
+                return ($accountTariffLog->insert_time && $accountTariffLog->insert_time[0] != '0') ?
+                    (new DateTimeWithUserTimezone($accountTariffLog->insert_time))->getDateTime() :
+                    Yii::t('common', '(not set)');
+            }
+        ],
     ],
 ]) ?>
 
+
+<script type='text/javascript'>
+    $(function () {
+
+        $(".account-tariff-button-cancel")
+            .on("click", function (e, item) {
+                return confirm("Отменить смену тарифа?");
+            });
+
+    });
+</script>

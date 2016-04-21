@@ -23,7 +23,7 @@ $tariff = $formModel->tariff;
         </div>
     </div>
 
-    <?= $this->render('_editVoipCity', [
+    <?= $this->render('_editMainVoipCity', [
         'formModel' => $formModel,
         'form' => $form,
     ]) ?>

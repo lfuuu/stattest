@@ -14,6 +14,7 @@ class AccountTariffFilter extends AccountTariff
 {
     public $client_account_id = '';
     public $region_id = '';
+    public $city_id = '';
     public $is_active = '';
 
     public $service_type_id = '';
@@ -46,8 +47,7 @@ class AccountTariffFilter extends AccountTariff
         $query = AccountTariff::find()
             ->joinWith('clientAccount')
             ->joinWith('region')
-            ->joinWith('tariffPeriod')
-        ;
+            ->joinWith('tariffPeriod');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -57,7 +57,18 @@ class AccountTariffFilter extends AccountTariff
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
         $this->region_id !== '' && $query->andWhere([$accountTariffTableName . '.region_id' => $this->region_id]);
+        $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);
         $this->is_active !== '' && $query->andWhere([$accountTariffTableName . '.is_active' => $this->is_active]);
+
+        // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
+        if ($this->voip_number !== '' &&
+            ($this->voip_number = strtr($this->voip_number, ['.' => '_', '*' => '%'])) &&
+            preg_match('/^[\d_%]+$/', $this->voip_number)
+        ) {
+            $query->andWhere('voip_number LIKE :voip_number', [':voip_number' => $this->voip_number]);
+        } else {
+            $this->voip_number = '';
+        }
 
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
         if ($this->service_type_id !== '' && $this->tariff_period_id !== '') {

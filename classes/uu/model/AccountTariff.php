@@ -4,6 +4,7 @@ namespace app\classes\uu\model;
 
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
+use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
 use DateTime;
@@ -21,14 +22,18 @@ use yii\helpers\Url;
  * @property int $client_account_id
  * @property int $service_type_id
  * @property int $region_id
- * @property int $prev_account_tariff_id
- * @property int $tariff_period_id если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
+ * @property int $city_id
+ * @property int $prev_account_tariff_id   Основная услуга
+ * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
+ * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
  * @property Region $region
- * @property AccountTariff $prevAccountTariff
+ * @property City $city
+ * @property AccountTariff $prevAccountTariff  Основная услуга
+ * @property AccountTariff[] $nextAccountTariffs   Пакеты
  * @property AccountTariffLog[] $accountTariffLogs
  * @property TariffPeriod $tariffPeriod
  *
@@ -70,8 +75,9 @@ class AccountTariff extends ActiveRecord
     {
         return [
             [['client_account_id', 'service_type_id'], 'required'],
-            [['client_account_id', 'service_type_id', 'region_id', 'prev_account_tariff_id', 'tariff_period_id'], 'integer'],
+            [['client_account_id', 'service_type_id', 'region_id', 'city_id', 'prev_account_tariff_id', 'tariff_period_id'], 'integer'],
             [['comment'], 'string'],
+            ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
         ];
     }
 
@@ -81,7 +87,7 @@ class AccountTariff extends ActiveRecord
     public function getName($isWithAccount = true)
     {
         $tariffPeriod = $this->tariffPeriod;
-        $tariffPeriodName = $tariffPeriod ? $tariffPeriod->getName() : Yii::t('common', 'Closed');
+        $tariffPeriodName = $tariffPeriod ? $tariffPeriod->getName() : Yii::t('common', 'Switched off');
         return $isWithAccount ?
             sprintf('%s %s', $this->clientAccount->client, $tariffPeriodName) :
             $tariffPeriodName;
@@ -93,6 +99,42 @@ class AccountTariff extends ActiveRecord
     public function getUrl()
     {
         return Url::to(['uu/accounttariff/edit', 'id' => $this->id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка на услугу
+     * @param bool $isWithAccount
+     * @return string
+     */
+    public function getAccountTariffLink($isWithAccount = true)
+    {
+        return $this->getLink($isWithAccount, false);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка на тариф
+     * @param bool $isWithAccount
+     * @return string
+     */
+    public function getTariffPeriodLink($isWithAccount = true)
+    {
+        return $this->getLink($isWithAccount, true);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка на тариф
+     * @param bool $isWithAccount
+     * @param bool $isTariffPeriodLink
+     * @return string
+     */
+    public function getLink($isWithAccount = true, $isTariffPeriodLink = false)
+    {
+        return $this->tariff_period_id ?
+            Html::a(
+                Html::encode($this->getName($isWithAccount)),
+                $isTariffPeriodLink ? $this->tariffPeriod->getUrl() : $this->getUrl()
+            ) :
+            Yii::t('common', 'Switched off');
     }
 
     /**
@@ -130,9 +172,26 @@ class AccountTariff extends ActiveRecord
     /**
      * @return ActiveQuery
      */
+    public function getNextAccountTariffs()
+    {
+        return $this->hasMany(self::className(), ['prev_account_tariff_id' => 'id'])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getRegion()
     {
         return $this->hasOne(Region::className(), ['id' => 'region_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCity()
+    {
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 
     /**
@@ -457,4 +516,80 @@ class AccountTariff extends ActiveRecord
         return Html::a($id, sprintf($url, $id));
     }
 
+    /**
+     * @return string
+     */
+    public function getNextAccountTariffsAsString()
+    {
+        if ($this->nextAccountTariffs) {
+            $strings = array_map(function (AccountTariff $nextAccountTariff) {
+                return Html::a(
+                    Html::encode($nextAccountTariff->getName(false)),
+                    $nextAccountTariff->getUrl()
+                );
+            }, $this->nextAccountTariffs);
+            return implode('<br />', $strings);
+        } else {
+            return Yii::t('common', '(not set)');
+        }
+    }
+
+    /**
+     * Можно ли отменить последнюю смену тарифа
+     * @return bool
+     */
+    public function isCancelable()
+    {
+        $accountTariffLogs = $this->accountTariffLogs;
+        return strtotime(reset($accountTariffLogs)->actual_from) >= time();
+    }
+
+    /**
+     * сгруппировать одинаковые город-тариф-пакеты по строчкам
+     * @param ActiveQuery $query
+     * @return AccountTariff[][]
+     */
+    public static function getGroupedObjects(ActiveQuery $query)
+    {
+        $rows = [];
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($query->each() as $accountTariff) {
+
+            $hashes = [];
+
+            // город
+            $hashes[] = $accountTariff->city_id;
+
+            // лог тарифа и даты
+            foreach ($accountTariff->accountTariffLogs as $accountTariffLog) {
+                $hashes[] = $accountTariffLog->tariff_period_id ?: '';
+                $hashes[] = $accountTariffLog->actual_from;
+
+                if (strtotime($accountTariffLog->actual_from) < time()) {
+                    // показываем только текущий. Старье не нужно
+                    break;
+                }
+            }
+
+            // Пакет. Лог тарифа  и даты
+            foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
+                foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
+                    // лог тарифа
+                    $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
+                    $hashes[] = $accountTariffPackageLog->actual_from;
+
+                    if (strtotime($accountTariffPackageLog->actual_from) < time()) {
+                        // показываем только текущий. Старье не нужно
+                        break;
+                    }
+                }
+            }
+
+            $hash = md5(implode('_', $hashes));
+            !isset($rows[$hash]) && $rows[$hash] = [];
+            $rows[$hash][$accountTariff->id] = $accountTariff;
+        }
+        return $rows;
+    }
 }

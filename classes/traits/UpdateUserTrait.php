@@ -45,11 +45,15 @@ trait UpdateUserTrait
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert)
+    public function beforeSave($insert, $isCallParent = true)
     {
 //        $this->update_time = date('c'); // new CDbExpression('NOW()')
         $this->update_user_id = Yii::$app->user->getId();
 
-        return parent::beforeSave($insert);
+        if ($isCallParent) {
+            return parent::beforeSave($insert);
+        } else {
+            return true;
+        }
     }
 }

@@ -13,23 +13,27 @@ use app\classes\grid\column\universal\TariffPersonColumn;
 use app\classes\grid\column\universal\TariffStatusColumn;
 use app\classes\grid\column\universal\TariffVoipGroupColumn;
 use app\classes\grid\column\universal\TariffVoipTarificateColumn;
+use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\TariffFilter;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
-use app\classes\grid\GridView;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 $serviceType = $filterModel->getServiceType();
+if (!$serviceType) {
+    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    return;
+}
 ?>
 
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tariffs'),
-        ['label' => $this->title = ($serviceType ? $serviceType->name : ''), 'url' => Url::to(['uu/tariff', 'serviceTypeId' => $serviceType ? $serviceType->id : ''])],
+        ['label' => $this->title = $serviceType->name, 'url' => Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id])],
     ],
 ]) ?>
 
@@ -37,7 +41,7 @@ $serviceType = $filterModel->getServiceType();
         <?= Html::a(
             Yii::t('common', 'Create'),
             Tariff::getUrlNew($serviceType->id),
-            ['class' => 'btn btn-success']
+            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
         ) ?>
     </p>
 

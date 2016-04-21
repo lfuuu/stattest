@@ -1,8 +1,8 @@
-<?php 
+<?php
 
-use tests\codeception\_pages\NewClientPage;
-use tests\codeception\_pages\LoginPage;
 use app\models\Country;
+use tests\codeception\_pages\LoginPage;
+use tests\codeception\_pages\NewClientPage;
 
 $I = new _WebTester($scenario);
 $I->wantTo('create new LC');
@@ -12,6 +12,7 @@ $I->seeLink("Новый клиент");
 
 $cl = NewClientPage::openBy($I);
 
+$adminEmail = md5(microtime(true)) . '@mcb.ru.test';
 $data = [
     'ContragentEditForm' => [
         'country_id' => Country::RUSSIA,
@@ -20,7 +21,7 @@ $data = [
         'name' => 'Ромашка',
         'address_jur' => 'Южное поле. д.1',
         'name_full' => 'ООО "Ромашка"',
-        'inn' => '7707049388',
+        'inn' => \app\classes\utils\Inn::generateCompanyInn(),
         'kpp' => '',
         'okvd' => '',
         'ogrn' => '',
@@ -45,7 +46,7 @@ $data = [
     ],
 
     'AccountEditForm' => [
-        'admin_email' => 'fagob6@inboxstore.me',
+        'admin_email' => $adminEmail,
         'region' => '99',
         'timezone_name' => 'Europe/Moscow',
         'nal' => 'beznal',
@@ -54,7 +55,6 @@ $data = [
         'credit' => '0',
         'voip_credit_limit' => '',
         'voip_credit_limit_day' => '1000',
-        'voip_is_day_calc' => '0',
         'voip_is_day_calc' => '1',
         'is_with_consignee' => '0',
         'address_post' => '',
@@ -67,7 +67,6 @@ $data = [
         'stamp' => '0',
         'is_upd_without_sign' => '0',
         'is_agent' => '0',
-        'bill_rename1' => '',
         'bill_rename1' => 'no',
         'bik' => '',
         //'corr_acc' => '',
@@ -80,7 +79,7 @@ $data = [
 
 $cl->createClient($data);
 $I->seeInCurrentUrl("view");
-$I->see("fagob6@inboxstore.me");
+$I->see($adminEmail);
 //$I->see("Заказ услуг");
 $lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
 $I->seeLink("Договор № " . $lastAccount);

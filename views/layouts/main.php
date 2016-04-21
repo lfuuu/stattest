@@ -131,42 +131,56 @@ if (isset($fixclient_data['id'])) {
     </div>
 </div>
 
-<div class="layout_left col-sm-2">
+<?php
+$isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
+?>
+<div class="layout_left col-sm-2" <?= $isHideLeftLayout ? 'style="left: -350px;"' : '' ?>>
 
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>
 
     <div style="height: 100px;"></div>
 </div>
 
-<div class="layout_main col-sm-10 col-md-push-2">
+<div class="layout_main <?= $isHideLeftLayout ? 'col-sm-12' : 'col-sm-10 col-md-push-2' ?>">
 
     <?php // скрыть/показать левое меню ?>
-    <button type="button" class="btn btn-default btn-xs panel-toggle-button" data-hide="≪" data-show="≫">≪</button>
+    <button type="button" class="btn btn-info btn-xs panel-toggle-button <?= $isHideLeftLayout ? '' : 'active' ?>"><?= $isHideLeftLayout ? '›' : '‹' ?></button>
     <script type="text/javascript">
         $(function () {
             $('.panel-toggle-button').on('click', function() {
                 var $this = $(this);
-                var $showText = $this.data('show');
-                var $hideText = $this.data('hide');
-                var $currentText = $this.text();
-
-                if ($currentText == $hideText) {
-                    $('.layout_left').hide();
-                    $('.layout_main').removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
-                    $this.text($showText);
-                } else {
-                    $('.layout_left').show();
-                    $('.layout_main').removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
-                    $this.text($hideText);
-                }
+                var $layoutLeft = $('.layout_left');
+                var $layoutMain = $('.layout_main');
 
                 // перерендерить пришпиленную шапка таблицы
-                var $table = $('.kv-grid-table');
-                try {
-                    $table.floatThead && $table.floatThead('reflow');
-                } catch(err) {
+                var reflowFunc = function() {
+                    var $table = $('.kv-grid-table');
+                    try {
+                        $table.floatThead && $table.floatThead('reflow');
+                    } catch (err) {
+                    }
+                };
 
+                if ($this.hasClass('active')) {
+                    $layoutLeft.animate({left: '-350px'});
+                    $layoutMain.animate({left: 0}, function() {
+                        $layoutMain.removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
+                        reflowFunc();
+                    });
+                    $this.text('›');
+                    $this.removeClass('active');
+                    $.get('/utils/layout/hide/'); // запомнить
+                } else {
+                    $layoutLeft.animate({left: 0});
+                    $layoutMain.animate({left: '16.667%'}, function() {
+                        $layoutMain.removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
+                        reflowFunc();
+                    });
+                    $this.text('‹');
+                    $this.addClass('active');
+                    $.get('/utils/layout/show/'); // запомнить
                 }
+
             });
         });
     </script>

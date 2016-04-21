@@ -7,8 +7,8 @@ namespace app\controllers\uu;
 
 use app\classes\BaseController;
 use app\classes\uu\filter\TariffFilter;
-use app\classes\uu\forms\TariffFormEdit;
-use app\classes\uu\forms\TariffFormNew;
+use app\classes\uu\forms\TariffEditForm;
+use app\classes\uu\forms\TariffAddForm;
 use app\classes\uu\model\ServiceType;
 use Yii;
 use yii\filters\AccessControl;
@@ -65,19 +65,19 @@ class TariffController extends BaseController
      */
     public function actionNew($serviceTypeId)
     {
-        /** @var TariffFormNew $form */
-        $form = new TariffFormNew([
+        /** @var TariffAddForm $formModel */
+        $formModel = new TariffAddForm([
             'serviceTypeId' => $serviceTypeId
         ]);
 
-        if ($form->isSaved) {
+        if ($formModel->isSaved) {
             return $this->redirect([
                 'edit',
-                'id' => $form->id,
+                'id' => $formModel->id,
             ]);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -90,19 +90,27 @@ class TariffController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var TariffFormEdit $form */
-        $form = new TariffFormEdit([
-            'id' => $id
-        ]);
+        try {
+            /** @var TariffEditForm $formModel */
+            $formModel = new TariffEditForm([
+                'id' => $id
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
 
-        if ($form->isSaved) {
+            return $this->render('//layouts/empty', [
+                'content' => '',
+            ]);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect([
                 'edit',
-                'id' => $form->id,
+                'id' => $formModel->id,
             ]);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }

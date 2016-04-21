@@ -28,7 +28,7 @@ use yii\widgets\Breadcrumbs;
         <?= Html::a(
             Yii::t('common', 'Create'),
             '/voip/number-type/new/',
-            ['class' => 'btn btn-success']
+            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
         ) ?>
     </p>
 

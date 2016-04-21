@@ -19,7 +19,8 @@ class TariffPeriodColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = TariffPeriod::getList($this->serviceTypeId, null, true, true);
+
+        $this->filter = TariffPeriod::getList($defaultTariffPeriodId, $this->serviceTypeId, $currencyTmp = null, $cityTmp = null, $isWithEmptyTmp = true, $isWithClosedTmp = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' tariff-period-column';
     }

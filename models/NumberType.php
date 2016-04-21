@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use DateInterval;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -75,7 +76,7 @@ class NumberType extends ActiveRecord
     }
 
     /**
-     * Возврщает время "отстоя" номера
+     * Возвращает время "отстоя" номера
      * @return \DateInterval
      */
     public function getHold()

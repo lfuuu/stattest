@@ -26,6 +26,7 @@ use yii\helpers\Url;
  * @property integer $is_charge_after_blocking
  * @property integer $is_charge_after_period
  * @property integer $is_include_vat
+ * @property integer $is_default
  *
  * @property Currency $currency
  * @property TariffResource[] $tariffResources
@@ -152,6 +153,7 @@ class Tariff extends \yii\db\ActiveRecord
                     'is_include_vat',
                     'is_charge_after_blocking',
                     'is_charge_after_period',
+                    'is_default',
                     'country_id'
                 ],
                 'integer'
@@ -317,7 +319,11 @@ class Tariff extends \yii\db\ActiveRecord
         }
 
         if ($countryId && $countryId != Country::RUSSIA) {
-            unset($types['7800']);
+            unset($types[self::NUMBER_TYPE_7800]); // 7800 только в России
+        }
+
+        if ($countryId && $countryId == Country::RUSSIA) {
+            unset($types[self::NUMBER_TYPE_LINE]); // линия без номера только не в России
         }
 
         return $types;

@@ -1,10 +1,9 @@
 <?php
 namespace app\classes;
 
-use Yii;
 use DateTime;
 use DateTimeZone;
-use app\models\usages\UsageInterface;
+use Yii;
 
 class DateTimeWithUserTimezone extends DateTime
 {
@@ -59,7 +58,7 @@ class DateTimeWithUserTimezone extends DateTime
     }
 
     /**
-     * Определяем дата находится ли в "бесконесности"
+     * Определяем дата находится ли в "бесконечности"
      * @return bool
      */
     public function isInfinity()
@@ -75,6 +74,26 @@ class DateTimeWithUserTimezone extends DateTime
     public function formatWithInfinity($format)
     {
         return $this->isInfinity() ? self::INFINITY : $this->format($format);
+    }
+
+    /**
+     * Вернуть дату
+     * @param string $format "short", "medium", "long", or "full"
+     * @return string
+     */
+    public function getDate($format = 'medium')
+    {
+        return Yii::$app->formatter->asDate($this, $format);
+    }
+
+    /**
+     * Вернуть дату и время
+     * @param string $format "short", "medium", "long", or "full"
+     * @return string
+     */
+    public function getDateTime($format = 'medium')
+    {
+        return Yii::$app->formatter->asDatetime($this, $format);
     }
 
 }

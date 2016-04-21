@@ -8,14 +8,20 @@
  */
 
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
+use app\classes\uu\model\ServiceType;
 use app\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 
 $accountTariff = $formModel->accountTariff;
-$serviceType = $formModel->getServiceType();
 
+$serviceType = $formModel->getServiceType();
+if (!$serviceType) {
+    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    return;
+}
 ?>
 
 <div class="resource-tariff-form well">
@@ -35,6 +41,7 @@ $serviceType = $formModel->getServiceType();
         ?>
         <div class="row">
 
+            <?php // кто создал ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('insert_user_id') ?></label>
                 <div><?= $accountTariff->insertUser ?
@@ -43,12 +50,16 @@ $serviceType = $formModel->getServiceType();
                     ?></div>
             </div>
 
+            <?php // когда создал ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('insert_time') ?></label>
-                <div><?= $accountTariff->insert_time ?></div>
+                <div><?= ($accountTariff->insert_time && $accountTariff->insert_time[0] != '0') ?
+                        (new DateTimeWithUserTimezone($accountTariff->insert_time))->getDateTime() :
+                        Yii::t('common', '(not set)') ?></div>
             </div>
 
 
+            <?php // кто редактировал ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('update_user_id') ?></label>
                 <div><?= $accountTariff->updateUser ?
@@ -57,11 +68,15 @@ $serviceType = $formModel->getServiceType();
                     ?></div>
             </div>
 
+            <?php // когда редактировал ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('update_time') ?></label>
-                <div><?= $accountTariff->update_time ?: Yii::t('common', '(not set)') ?></div>
+                <div><?= ($accountTariff->update_time && $accountTariff->update_time[0] != '0') ?
+                        (new DateTimeWithUserTimezone($accountTariff->update_time))->getDateTime() :
+                        Yii::t('common', '(not set)') ?></div>
             </div>
 
+            <?php // аккаунт ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('client_account_id') ?></label>
                 <div><?= Html::a(
@@ -70,6 +85,7 @@ $serviceType = $formModel->getServiceType();
                     ) ?></div>
             </div>
 
+            <?php // неуниверсальная услуга ?>
             <div class="col-sm-2">
                 <label><?= Yii::t('tariff', 'Non-universal service') ?></label>
                 <div><?= $accountTariff->getNonUniversalUrl() ?></div>
@@ -83,62 +99,59 @@ $serviceType = $formModel->getServiceType();
 
     <div class="row">
 
-        <div class="col-sm-6">
-            <?= $form->field($accountTariff, 'comment')
-                ->textarea()
-                ->render()
-            ?>
-        </div>
-
-        <div class="col-sm-3">
+        <?php // регион ?>
+        <div class="col-sm-2">
             <?= $form->field($accountTariff, 'region_id')
                 ->widget(Select2::className(), [
                     'data' => Region::getList(true),
                 ]) ?>
         </div>
 
+        <?php // комментарий ?>
+        <div class="col-sm-4">
+            <?= $form->field($accountTariff, 'comment')
+                ->textarea()
+                ->render()
+            ?>
+        </div>
+
+        <?php // основная услуга ?>
+        <div class="col-sm-3">
+            <label><?= $accountTariff->getAttributeLabel('prev_account_tariff_id') ?></label>
+            <div><?= $accountTariff->prevAccountTariff ?
+                    Html::a(
+                        Html::encode($accountTariff->prevAccountTariff->getName()),
+                        $accountTariff->prevAccountTariff->getUrl()
+                    ) :
+                    Yii::t('common', '(not set)') ?></div>
+        </div>
+
+        <?php // пакеты ?>
+        <div class="col-sm-3">
+            <label><?= Yii::t('tariff', 'Packages') ?></label>
+            <div><?= $accountTariff->getNextAccountTariffsAsString() ?></div>
+        </div>
+
     </div>
 
     <?php
-    if ($accountTariff->prev_account_tariff_id) {
-        ?>
-        <div class="row">
-            <div class="col-sm-6">
-                <?php
-                $fieldPrevAccountTariff = $form->field($accountTariff, 'prev_account_tariff_id');
-                $fieldPrevAccountTariff->parts['{input}'] =
-                    Html::tag(
-                        'div',
-                        $accountTariff->prevAccountTariff ?
-                            Html::a(
-                                Html::encode($accountTariff->prevAccountTariff->getName()),
-                                $accountTariff->prevAccountTariff->getUrl()
-                            ) :
-                            Yii::t('common', '(not set)')
-                    );
-                echo $fieldPrevAccountTariff->render()
-                ?>
-            </div>
-        </div>
-        <?php
-    }
-    ?>
-
-    <?php // свойства услуги конкретного типа услуги (ВАТС, телефония и пр.) ?>
-    <?php
-    $fileName = '_editServiceType' . $accountTariff->service_type_id;
-    $fileNameFull = __DIR__ . '/' . $fileName . '.php';
-    if (file_exists($fileNameFull)) {
-        $viewParams = [
-            'formModel' => $formModel,
-            'form' => $form,
-        ];
-        echo $this->render($fileName, $viewParams);
+    // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.)
+    $viewParams = [
+        'formModel' => $formModel,
+        'form' => $form,
+    ];
+    switch ($serviceType->id) {
+        case ServiceType::ID_VOIP:
+            echo $this->render('_editMainVoip', $viewParams);
+            break;
+        case ServiceType::ID_VOIP_PACKAGE:
+            echo $this->render('_editMainVoipPackage', $viewParams);
+            break;
     }
     ?>
 
     <div class="form-group">
-        <?= Html::submitButton(Yii::t('common', $accountTariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton(Yii::t('common', $accountTariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

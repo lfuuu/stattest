@@ -5,7 +5,6 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
-use app\models\City;
 
 class m160211_172500_convert_voip_package_account_tariff extends \app\classes\Migration
 {
@@ -131,6 +130,7 @@ class m160211_172500_convert_voip_package_account_tariff extends \app\classes\Mi
 
 
         // кэш последнего тарифа
+        $serviceTypeIdVoip = ServiceType::ID_VOIP_PACKAGE;
         $this->execute("UPDATE {$accountTariffTableName}
         SET
           tariff_period_id = (
@@ -143,6 +143,8 @@ class m160211_172500_convert_voip_package_account_tariff extends \app\classes\Mi
               {$accountTariffLogTableName}.id DESC
             LIMIT 1
           )
+          WHERE
+              service_type_id = {$serviceTypeIdVoip}
         ");
     }
 }

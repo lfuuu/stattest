@@ -6,6 +6,7 @@
  * @var \app\classes\uu\forms\TariffForm $formModel
  */
 
+use app\classes\uu\model\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -19,12 +20,16 @@ if (!$tariff->isNewRecord) {
 }
 
 $serviceType = $tariff->serviceType;
+if (!$serviceType) {
+    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    return;
+}
 ?>
 
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tariffs'),
-        ['label' => $serviceType ? $serviceType->name : '', 'url' => Url::to(['uu/tariff', 'serviceTypeId' => $serviceType ? $serviceType->id : ''])],
+        ['label' => $serviceType->name, 'url' => Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id])],
         $this->title
     ],
 ]) ?>
@@ -44,19 +49,22 @@ $serviceType = $tariff->serviceType;
     <?php
     // сообщение об ошибке
     if ($formModel->validateErrors) {
-        echo $this->render('//layouts/_alert', ['type' => 'danger', 'message' => $formModel->validateErrors]);
+        Yii::$app->session->setFlash('error', $formModel->validateErrors);
     }
     ?>
 
     <?php // свойства тарифа из основной таблицы ?>
     <?= $this->render('_editMain', $viewParams) ?>
 
-    <?php // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.) ?>
     <?php
-    $fileName = '_editServiceType' . $tariff->service_type_id;
-    $fileNameFull = __DIR__ . '/' . $fileName . '.php';
-    if (file_exists($fileNameFull)) {
-        echo $this->render($fileName, $viewParams); // @todo
+    // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.)
+    switch ($serviceType->id) {
+        case ServiceType::ID_VOIP:
+            echo $this->render('_editMainVoip', $viewParams);
+            break;
+        case ServiceType::ID_VOIP_PACKAGE:
+            echo $this->render('_editMainVoipPackage', $viewParams);
+            break;
     }
     ?>
 

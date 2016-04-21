@@ -6,64 +6,45 @@
  * @var AccountTariffFilter $filterModel
  */
 
-use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\RegionColumn;
-use app\classes\grid\column\universal\TariffPeriodColumn;
 use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
 use app\classes\uu\model\AccountTariff;
-use app\classes\grid\GridView;
+use app\classes\uu\model\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
+
 $serviceType = $filterModel->getServiceType();
+if (!$serviceType) {
+    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    return;
+}
 ?>
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal services'),
-        ['label' => $this->title = ($serviceType ? $serviceType->name : ''), 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType ? $serviceType->id : ''])],
+        ['label' => $this->title = $serviceType->name, 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType->id])],
     ],
 ]) ?>
 
     <p>
         <?= Html::a(
             Yii::t('common', 'Create'),
-            AccountTariff::getUrlNew($serviceType ? $serviceType->id : ''),
-            ['class' => 'btn btn-success']
+            AccountTariff::getUrlNew($serviceType->id),
+            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
         ) ?>
     </p>
 
-<?= GridView::widget([
-    'dataProvider' => $filterModel->search(),
+<?php
+$viewParams = [
     'filterModel' => $filterModel,
-    'columns' => [
-        [
-            'label' => Yii::t('tariff', 'Universal services'),
-            'attribute' => 'tariff_period_id',
-            'class' => TariffPeriodColumn::className(),
-            'serviceTypeId' => $serviceType->id,
-            'format' => 'html',
-            'value' => function (AccountTariff $accountTariff) {
-                return Html::a(
-                    Html::encode($accountTariff->getName(false)),
-                    $accountTariff->getUrl()
-                );
-            }
-        ],
-        [
-            'attribute' => 'client_account_id',
-            'class' => IntegerColumn::className(),
-            'format' => 'html',
-            'value' => function (AccountTariff $accountTariff) {
-                return Html::a(
-                    Html::encode($accountTariff->clientAccount->client),
-                    ['/client/view', 'id' => $accountTariff->client_account_id]
-                );
-            }
-        ],
-        [
-            'attribute' => 'region_id',
-            'class' => RegionColumn::className(),
-        ],
-    ],
-]) ?>
+];
+
+if ($serviceType->id == ServiceType::ID_VOIP && $filterModel->client_account_id) {
+    // персональная форма
+    echo $this->render('_indexVoip', $viewParams);
+} else {
+    // типовая форма
+    echo $this->render('_indexMain', $viewParams);
+
+}

@@ -30,7 +30,7 @@ use yii\widgets\Breadcrumbs;
         <?= Html::a(
             Yii::t('common', 'Create'),
             '/dictionary/country/new/',
-            ['class' => 'btn btn-success']
+            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
         ) ?>
     </p>
 

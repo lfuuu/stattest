@@ -5,6 +5,7 @@ namespace app\classes\uu\forms;
 use app\classes\Form;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
 use DateTime;
@@ -77,8 +78,67 @@ abstract class AccountTariffForm extends Form
             $post = Yii::$app->request->post();
 
             // при создании услуга + лог в одной форме, при редактировании - в разных
-
             $isNewRecord = $this->accountTariff->isNewRecord;
+
+
+            // при создании услуги телефонии свой интерфейс, из которого данные надо преобразовать в нужный формат
+            $accountTariffVoip = new AccountTariffVoip();
+            if ($isNewRecord && $this->serviceTypeId == ServiceType::ID_VOIP
+                && $accountTariffVoip->load($post)
+                && $this->accountTariffLog->load($post)
+            ) {
+
+                if ($accountTariffVoip->validate() && ($this->accountTariffLog->account_tariff_id = -1 /* любое число, лишь бы прошла валидация */) && $this->accountTariffLog->validate(null, false)) {
+
+                    $this->accountTariff->city_id = $accountTariffVoip->city_id;
+
+                    // каждый выбранный номер телефона - отдельная услуга
+                    foreach ($accountTariffVoip->voip_numbers as $voipNumber) {
+
+                        // услуга
+                        $accountTariff = clone $this->accountTariff;
+                        $accountTariff->voip_number = $voipNumber;
+                        $accountTariff->tariff_period_id = $this->accountTariffLog->tariff_period_id;
+                        $accountTariff->id = 0;
+                        $accountTariff->save();
+
+                        // лог тарифов
+                        $accountTariffLog = clone $this->accountTariffLog;
+                        $accountTariffLog->account_tariff_id = $accountTariff->id;
+                        $accountTariffLog->id = 0;
+                        $accountTariffLog->save();
+
+                        // пакеты
+                        foreach ($accountTariffVoip->voip_package_tariff_period_ids as $voipPackageTariffPeriodId) {
+                            // услуга
+                            $accountTariffPackage = new AccountTariff;
+                            $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
+                            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+                            $accountTariffPackage->region_id = $accountTariff->region_id;
+                            $accountTariffPackage->city_id = $accountTariff->city_id;
+                            $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                            $accountTariffPackage->tariff_period_id = $voipPackageTariffPeriodId;
+                            $accountTariffPackage->save();
+
+                            // лог тарифов
+                            $accountTariffLogPackage = new AccountTariffLog;
+                            $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
+                            $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
+                            $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
+                            $accountTariffLogPackage->save();
+                        }
+                    }
+
+                    $this->isSaved = true;
+                } else {
+                    // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
+                    $this->validateErrors += $accountTariffVoip->getFirstErrors();
+                    $this->validateErrors += $this->accountTariffLog->getFirstErrors();
+                }
+
+                $this->accountTariffLog->account_tariff_id = 0; // вернуть обратно. 0 - потому что $isNewRecord
+                $post = []; // чтобы дальше логика универсальных услуг не отрабатывала
+            }
 
             if ($this->accountTariff->load($post)) {
 
@@ -89,7 +149,7 @@ abstract class AccountTariffForm extends Form
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $this->tariff->getFirstErrors();
+                    $this->validateErrors += $this->accountTariff->getFirstErrors();
                 }
 
             }
@@ -120,6 +180,34 @@ abstract class AccountTariffForm extends Form
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->accountTariffLog->getFirstErrors();
                 }
+
+                if (isset($post['closeTariff'])) {
+                    // если закрывается услуга, то надо закрыть и все пакеты
+                    foreach ($this->accountTariff->nextAccountTariffs as $accountTariffPackage) {
+
+                        if (!$accountTariffPackage->tariff_period_id) {
+                            // эта услуга и так закрыта
+                            continue;
+                        }
+
+                        // изменить услугу
+                        $accountTariffPackage->tariff_period_id = null;
+                        if (!$accountTariffPackage->save()) {
+                            $this->validateErrors += $accountTariffPackage->getFirstErrors();
+                        }
+
+                        // записать в лог тарифа
+                        $accountTariffLogPackage = new AccountTariffLog;
+                        $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
+                        $accountTariffLogPackage->tariff_period_id = null;
+                        $accountTariffLogPackage->actual_from = $this->accountTariffLog->actual_from;
+                        if (!$accountTariffLogPackage->save()) {
+                            $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
+                        }
+
+                    }
+                }
+
             }
 
             if ($this->validateErrors) {
@@ -168,11 +256,11 @@ abstract class AccountTariffForm extends Form
     }
 
     /**
-     * @return TariffPeriod[]
+     * @return []
      */
-    public function getAvailableTariffPeriods($isWithEmpty = false)
+    public function getAvailableTariffPeriods(&$defaultTariffPeriodId, $isWithEmpty = false, $serviceTypeId = null, $cityId = null)
     {
-        return TariffPeriod::getList($this->serviceTypeId, $this->accountTariff->clientAccount->currency, $isWithEmpty);
+        return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId, $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty);
     }
 
 }

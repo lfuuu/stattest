@@ -42,7 +42,7 @@ if (!$numberType->isNewRecord) {
     <?php
     // сообщение об ошибке
     if ($formModel->validateErrors) {
-        echo $this->render('//layouts/_alert', ['type' => 'danger', 'message' => $formModel->validateErrors]);
+        Yii::$app->session->setFlash('error', $formModel->validateErrors);
     }
     ?>
 
@@ -70,13 +70,13 @@ if (!$numberType->isNewRecord) {
     <?php // кнопки ?>
     <div class="form-group">
 
-        <?= Html::submitButton(Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton(Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
 
         <?php if (!$tariff->isNewRecord) : ?>
             <?= Html::submitButton(Yii::t('common', 'Drop'), [
                 'name' => 'dropButton',
                 'value' => 1,
-                'class' => 'btn btn-danger pull-right',
+                'class' => 'btn btn-danger pull-right glyphicon glyphicon-trash',
                 'onclick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
             ]) ?>
         <?php endif ?>

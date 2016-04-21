@@ -1,117 +1,214 @@
 class AccounttariffEdit
 
-  country = null
-  numberType = null
-  regions = null
-  didGroup = null
-  numbersList = null
-  numbersListSelectAllCheckbox = null
-  numbersListClass = null
-  numbersListOrderByField = null
-  numbersListOrderByType = null
-  numbersListMask = null
+  country: null
+  numberType: null
+  city: null
+  didGroup: null
 
-  # инициализация
+  numbersList: null
+  numbersListSelectAll: null
+  numbersListSelectAllCheckbox: null
+  numbersListFilter: null
+
+  numbersListClass: null
+  numbersListOrderByField: null
+  numbersListOrderByType: null
+  numbersListMask: null
+  numbersListLimit: null
+
+  tariffDiv: null
+  tariffPeriod: null
+  packageTariffPeriod: null
+
+  voipServiceTypeIdVal: null
+  voipPackageServiceTypeIdVal: null
+  currencyVal: null
+
+  form: null
+
+  errorClassName: 'alert-danger'
+  successClassName: 'alert-success'
+
+# инициализация
   constructor: () ->
     setTimeout () =>
       @country = $('#voipCountryId').on('change', @onCountryChange)
-      @numberType = $('#voipNumberType').on('change', @onNumberTypeOrRegionsChange)
-      @regions = $('#voipRegions').on('change', @onNumberTypeOrRegionsChange)
+      @numberType = $('#voipNumberType').on('change', @onNumberTypeChange)
+      @city = $('#voipRegions').on('change', @onCityChange)
       @didGroup = $('#voipDidGroup').on('change', @showNumbersList)
+
+      @numbersList = $('#voipNumbersList').on('change', 'input', @showTariffDiv)
+      @numbersListSelectAll = $('#voipNumbersListSelectAll')
+      @numbersListSelectAllCheckbox = @numbersListSelectAll.find('input').on('change', @selectAllNumbers)
+      @numbersListFilter = $('#voipNumbersListFilter')
+      @tariffDiv = $('#voipTariffDiv')
 
       @numbersListClass = $('#voipNumbersListClass').on('change', @showNumbersList)
       @numbersListOrderByField = $('#voipNumbersListOrderByField').on('change', @showNumbersList)
       @numbersListOrderByType = $('#voipNumbersListOrderByType').on('change', @showNumbersList)
       @numbersListMask = $('#voipNumbersListMask').on('change', @showNumbersList)
+      @numbersListLimit = $('#voipNumbersListLimit').on('change', @showNumbersList)
 
-      @numbersList = $('#voipNumbersList')
-      @numbersListSelectAll = $('#voipNumbersListSelectAll')
-      @numbersListSelectAllCheckbox = @numbersListSelectAll.find('input').on('change', @selectAllNumbers)
+      @tariffPeriod = $('.accountTariffTariffPeriod').on('change', @onTariffPeriodChange)
+      @packageTariffPeriod = $('#accountTariffPackageTariffPeriod')
+
+      @voipServiceTypeIdVal = $('#voipServiceTypeId').val()
+      @voipPackageServiceTypeIdVal = $('#voipPackageServiceTypeId').val()
+      @currencyVal = $('#voipCurrency').val()
+
+      @form = $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
+
+      @initCountry(false)
+      @numberType.trigger('change')
+
     , 200 # Потому что select2 рендерит чуть позже. @todo
 
 # при изменении страны
   onCountryChange: () =>
+    @initCountry(true)
+
+# при изменении страны
+  initCountry: (isUpdateNumberTypesAndCities) =>
     countryVal = @country.val()
     if countryVal
 
-      $.get '/uu/voip/get-number-types', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
-        @numberType.html(html) # обновить значения
-        @numberType.prop("disabled", false)
-        @numberType.val('').trigger('change')
+      if isUpdateNumberTypesAndCities
+# обновить список типов номеров в зависимости от страны. И включить
+        $.get '/uu/voip/get-number-types', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
+          @numberType.html(html) # обновить значения
+          @numberType.prop('disabled', false)
+          @numberType.val('').trigger('change')
 
-      $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
-        @regions.html(html) # обновить значения
-        @regions.prop("disabled", false)
-        @regions.val('').trigger('change')
+        # обновить список городов в зависимости от страны
+        $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
+          @city.html(html) # обновить значения
+          @city.val('').trigger('change')
 
+      @country.parent().parent().removeClass(@errorClassName)
     else
-      @numberType.prop("disabled", true)
+      @numberType.prop('disabled', true)
       @numberType.val('').trigger('change')
+      @city.val('').trigger('change')
+      @country.parent().parent().addClass(@errorClassName)
 
-      @regions.prop("disabled", true)
-      @regions.val('').trigger('change')
+    # город всегда выключаем. Включим его после выбора типа номера
+    @city.prop('disabled', true)
 
-# при изменении типа или региона
-  onNumberTypeOrRegionsChange: =>
+# при изменении типа номера
+  onNumberTypeChange: =>
     numberTypeVal = @numberType.val()
-    regionsVal = @regions.val()
 
-    if numberTypeVal == 'number' # для номера нужно выбрать город
-      @regions.prop("disabled", false)
-    else # для 7800, линии или неуказанного нельзя выбрать город
-      @regions.prop("disabled", true)
+    # пометить себя красным, если можно выбирать, но не выбран
+    if @numberType.prop('disabled') or numberTypeVal
+      @numberType.parent().parent().removeClass(@errorClassName)
+    else
+      @numberType.parent().parent().addClass(@errorClassName)
 
-    if regionsVal && numberTypeVal == 'number'
-      $.get '/uu/voip/get-did-groups', {cityId: regionsVal, isWithEmpty: true, format: 'options'}, (html) =>
+    if numberTypeVal
+      @city.prop('disabled', false)
+    else
+      @city.prop('disabled', true)
+
+    @city.trigger('change')
+
+# при изменении города
+  onCityChange: =>
+    cityVal = @city.val()
+    numberTypeVal = @numberType.val()
+
+    # пометить себя красным, если можно выбирать, но не выбран
+    if @city.prop('disabled') or cityVal
+      @city.parent().parent().removeClass(@errorClassName)
+    else
+      @city.parent().parent().addClass(@errorClassName)
+
+    if cityVal
+# заранее подготовить список тарифов
+      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options'}, (html) =>
+        @tariffPeriod.val('').html(html) # обновить значения
+        @tariffPeriod.trigger('change')
+
+      # заранее подготовить список пакетов
+      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options'}, (html) =>
+        @packageTariffPeriod.html(html) # обновить значения
+        @packageTariffPeriod.trigger('change')
+
+    if cityVal && numberTypeVal == 'number'
+      $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: true, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
-        @didGroup.prop("disabled", false)
+        @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')
     else
-      @didGroup.prop("disabled", true)
+      @didGroup.prop('disabled', true)
       @didGroup.val('').trigger('change')
-    @showNumbersList()
 
 # показать номера
 # при изменении красивости или кол-ва колонок или сортировки
   showNumbersList: =>
     numberTypeVal = @numberType.val()
-    regionsVal = @regions.val()
+    cityVal = @city.val()
     didGroupVal = @didGroup.val()
 
-    if regionsVal and numberTypeVal == 'number' # выбирать пока только для номера. Потом еще для 7800
-      @numbersListClass.prop("disabled", false)
-      @numbersListOrderByField.prop("disabled", false)
-      @numbersListOrderByType.prop("disabled", false)
-      @numbersListMask.prop("disabled", false)
+    if cityVal and numberTypeVal == 'number' # выбирать пока только для номера. Потом еще для 7800
+      @numbersListFilter.slideDown()
     else
-      @numbersListClass.prop("disabled", true)
-      @numbersListOrderByField.prop("disabled", true)
-      @numbersListOrderByType.prop("disabled", true)
-      @numbersListMask.prop("disabled", true)
+      @numbersListFilter.slideUp()
 
-    if numberTypeVal == '7800' or numberTypeVal == 'line' or (numberTypeVal and regionsVal)
+    if cityVal
+      @numbersList.html('')
       $.get '/uu/voip/get-free-numbers', {
-        cityId: regionsVal,
+        cityId: cityVal,
         didGroupId: didGroupVal,
         rowClass: @numbersListClass.val(),
         orderByField: @numbersListOrderByField.val(),
         orderByType: @numbersListOrderByType.val()
         mask: @numbersListMask.val()
+        limit: @numbersListLimit.val()
         numberType: numberTypeVal
       }, (html) =>
         @numbersList.html(html) # обновить значения
-        if @numbersList.find('input').length # есть чекбоксы - показать "выбрать все"
+        if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
           @numbersListSelectAll.show()
         else
           @numbersListSelectAll.hide()
+        @showTariffDiv()
 
     else
       @numbersList.html('')
       @numbersListSelectAll.hide()
+      @showTariffDiv()
 
 # выбрать все / снять выделение
   selectAllNumbers: =>
     isChecked = @numbersListSelectAllCheckbox.is(':checked')
     @numbersList.find('input').prop('checked', isChecked)
+    @showTariffDiv()
+
+# показать/скрыть выбор тарифа
+  showTariffDiv: =>
+    @tariffPeriod.trigger('change')
+    if @numbersList.find('input:checked').length
+      @numbersList.removeClass(@errorClassName)
+      @tariffDiv.slideDown()
+    else
+      if @numbersList.html()
+        @numbersList.addClass(@errorClassName)
+      else
+        @numbersList.removeClass(@errorClassName)
+      @tariffDiv.slideUp()
+
+# при изменении тарифа
+  onTariffPeriodChange: =>
+    if @tariffPeriod.val()
+      @tariffPeriod.parent().parent().removeClass(@errorClassName)
+    else
+      @tariffPeriod.parent().parent().addClass(@errorClassName)
+
+# при сабмите формы
+  onFormSubmit: (e) =>
+    # чтобы раньше времени не сабмитить, когда юзер нажимает enter в фильтре
+    if not @tariffPeriod.val()
+      e.stopPropagation()
+      e.preventDefault()
 
 new AccounttariffEdit()

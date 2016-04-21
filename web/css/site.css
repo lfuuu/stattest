@@ -67,7 +67,7 @@ a.nohover:hover { color: #000; }
    a[href]:after{content:none}
    abbr[title]:after{content:none}
    a[href^="javascript:"]:after,a[href^="#"]:after{content:none}
-   
+
 }
 
 @media screen {
@@ -210,6 +210,8 @@ a.nohover:hover { color: #000; }
     min-width: 110px;
 }
 
+.region-column,
+.city-column,
 .tariff-person-column,
 .tariff-status-column,
 .country-column,
@@ -247,6 +249,11 @@ a.nohover:hover { color: #000; }
     margin-left: -17px;
     top: 100px;
     cursor: pointer;
+    z-index: 1002;
+}
+
+.panel-toggle-button.active {
+    margin-left: -32px;
 }
 
 .dropdown-menu {
@@ -255,4 +262,20 @@ a.nohover:hover { color: #000; }
 
 .pointer {
     cursor: pointer;
+}
+
+.account-tariff-voip-numbers {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.loading {
+    background: white url('/images/ajax-loader.gif') center no-repeat;
+    min-width: 55px;
+    min-height: 55px;
+}
+
+.account-tariff-log-actual-from {
+    color: grey;
+    font-size: smaller;
 }

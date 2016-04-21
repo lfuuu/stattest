@@ -103,22 +103,29 @@ class TariffPeriod extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param int $defaultTariffPeriodId
      * @param int $serviceTypeId
      * @param int $currency
      * @param bool $isWithEmpty
      * @return []
      */
-    public static function getList($serviceTypeId, $currency = null, $isWithEmpty = false, $isWithClosed = false)
+    public static function getList(&$defaultTariffPeriodId, $serviceTypeId, $currency = null, $cityId = null, $isWithEmpty = false, $isWithClosed = false)
     {
-        $tariffTableName = Tariff::tableName();
+        $defaultTariffPeriodId = null;
 
         $activeQuery = self::find()
-            ->joinWith('tariff')
-            ->andWhere([$tariffTableName . '.service_type_id' => $serviceTypeId])
-            ->orderBy([$tariffTableName . '.tariff_status_id' => SORT_ASC]);
+            ->innerJoinWith('tariff tariff')
+            ->andWhere(['tariff.service_type_id' => $serviceTypeId])
+            ->orderBy(['tariff.tariff_status_id' => SORT_ASC]);
 
         if ($currency) {
-            $activeQuery->andWhere([$tariffTableName . '.currency_id' => $currency,]);
+            $activeQuery->andWhere(['tariff.currency_id' => $currency]);
+        }
+
+        if ($cityId) {
+            $activeQuery
+                ->innerJoin(TariffVoipCity::tableName() . ' cities', 'tariff.id = cities.tariff_id')
+                ->andWhere(['cities.city_id' => $cityId]);
         }
 
         $selectboxItems = [];
@@ -128,13 +135,16 @@ class TariffPeriod extends \yii\db\ActiveRecord
         }
 
         if ($isWithClosed) {
-            $selectboxItems[self::IS_NOT_SET] = Yii::t('common', 'Closed');
-            $selectboxItems[self::IS_SET] = Yii::t('common', 'Not closed');
+            $selectboxItems[self::IS_NOT_SET] = Yii::t('common', 'Switched off');
+            $selectboxItems[self::IS_SET] = Yii::t('common', 'Switched on');
         }
 
         /** @var TariffPeriod $tariffPeriod */
         foreach ($activeQuery->each() as $tariffPeriod) {
             $status = $tariffPeriod->tariff->status->name; // @todo надо бы заджойнить таблицу status
+            if ($tariffPeriod->tariff->is_default) {
+                $defaultTariffPeriodId = $tariffPeriod->id;
+            }
             if (!isset($selectboxItems[$status])) {
                 $selectboxItems[$status] = [];
             }

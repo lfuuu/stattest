@@ -134,6 +134,7 @@ class m160119_154547_convert_vbpx_account_tariff extends \app\classes\Migration
           ");
 
         // кэш последнего тарифа
+        $serviceTypeIdVoip = ServiceType::ID_VPBX;
         $this->execute("UPDATE {$accountTariffTableName}
         SET
           tariff_period_id = (
@@ -146,6 +147,8 @@ class m160119_154547_convert_vbpx_account_tariff extends \app\classes\Migration
               {$accountTariffLogTableName}.id DESC
             LIMIT 1
           )
+          WHERE
+              service_type_id = {$serviceTypeIdVoip}
         ");
     }
 

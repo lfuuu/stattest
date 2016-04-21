@@ -4,7 +4,7 @@ namespace app\classes\uu\forms;
 
 use app\classes\uu\model\AccountTariff;
 
-class AccountTariffFormEdit extends AccountTariffForm
+class AccountTariffEditForm extends AccountTariffForm
 {
     /**
      * @return AccountTariff
@@ -18,6 +18,9 @@ class AccountTariffFormEdit extends AccountTariffForm
             ->where($accountTariffTableName . '.id = :id', [':id' => $this->id])
             ->joinWith(['clientAccount', 'region', 'accountTariffLogs'])
             ->one();
+        if (!$accountTariff) {
+            throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
+        }
         $this->serviceTypeId = $accountTariff->service_type_id;
         return $accountTariff;
     }

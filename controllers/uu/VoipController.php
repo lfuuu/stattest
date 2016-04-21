@@ -8,9 +8,11 @@ namespace app\controllers\uu;
 use app\classes\BaseController;
 use app\classes\Html;
 use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffPeriod;
 use app\models\City;
 use app\models\DidGroup;
 use app\models\Number;
+use app\models\NumberType;
 use app\models\UsageVoip;
 use Yii;
 use yii\web\Response;
@@ -23,7 +25,6 @@ class VoipController extends BaseController
 
     /**
      * Вернуть массив типов номера в зависимости от страны
-     * 8800 только для России
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $countryId
@@ -78,19 +79,23 @@ class VoipController extends BaseController
      *
      * @param int $didGroupId
      */
-    public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '', $numberType = '')
+    public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '', $limit = 0, $numberType = '')
     {
+        $numberActiveQuery = Number::dao()->getFreeNumbers();
+
         switch ($numberType) {
             case Tariff::NUMBER_TYPE_NUMBER:
+                $numberActiveQuery->andWhere(['number_type' => NumberType::ID_INTERNAL]);
                 break;
             case Tariff::NUMBER_TYPE_7800:
-                return '<div class="alert alert-danger">Номера 7800 пока не заведены в базу данных</div>';
+                $numberActiveQuery->andWhere(['number_type' => NumberType::ID_EXTERNAL]); // 'ndc' => 800
                 break;
             case Tariff::NUMBER_TYPE_LINE:
                 $number = UsageVoip::dao()->getNextLineNumber();
                 return Html::checkbox('numberIds[]', true, [
                     'value' => $number,
                     'label' => $number,
+                    'disabled' => 'disabled',
                 ]);
                 break;
             default:
@@ -101,16 +106,21 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $numberActiveQuery = Number::dao()->getFreeNumbers();
         $numberActiveQuery->andWhere(['city_id' => $cityId]);
         $didGroupId && $numberActiveQuery->andWhere(['did_group_id' => $didGroupId]);
 
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        $mask && ($mask = strtr($mask, ['.' => '_', '*' => '%'])) && preg_match('/^[\d_%]+$/', $mask) && $numberActiveQuery->andWhere('number LIKE :mask', [':mask' => $mask]);
+        if ($mask &&
+            ($mask = strtr($mask, ['.' => '_', '*' => '%'])) &&
+            preg_match('/^[\d_%]+$/', $mask)
+        ) {
+            $numberActiveQuery->andWhere('number LIKE :mask', [':mask' => $mask]);
+        }
 
         $orderByField && $orderByType && $numberActiveQuery->orderBy([$orderByField => (int)$orderByType]);
 
-        $numberActiveQuery->limit(100);
+        $limit = (int)$limit;
+        $numberActiveQuery->limit($limit ?: 100);
 
         return $this->renderPartial('getFreeNumbers', [
             'numberActiveQuery' => $numberActiveQuery,
@@ -119,26 +129,40 @@ class VoipController extends BaseController
     }
 
     /**
+     * Вернуть массив тарифов в зависимости от города
+     * Используется для динамической подгрузки select2 или selectbox
+     *
+     * @param int $serviceTypeId
+     * @param string $currency
+     * @param int $cityId
+     * @param int $isWithEmpty
+     * @param string $format
+     */
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null)
+    {
+        if (!$cityId) {
+            throw new \InvalidArgumentException('Wrong cityId');
+        }
+
+        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty);
+        $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
+    }
+
+    /**
      * Вернуть массив в нужном формате
      *
      * @param string[] $values
      * @param string $format
      */
-    private function returnFormattedValues($values, $format)
+    private function returnFormattedValues($values, $format, $defaultValue = '')
     {
         $response = Yii::$app->getResponse();
 
         switch ($format) {
             case self::FORMAT_OPTIONS:
-                $options = '';
-                array_walk($values,
-                    function ($item, $key) use (&$options) {
-                        $options .= sprintf('<option value="%s">%s</option>', $key, $item);
-                    }
-                );
                 $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
                 $response->format = Response::FORMAT_HTML;
-                echo $options;
+                echo Html::renderSelectOptions($defaultValue, $values);
                 break;
 
             case self::FORMAT_JSON:
