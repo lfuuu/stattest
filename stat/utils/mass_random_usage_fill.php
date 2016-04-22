@@ -124,7 +124,12 @@ foreach($confs as $conf)
 
     for($i = 1; $i<=$conf["count_numbers"]; $i++)
     {
-        $number = Number::dao()->getRandomFreeNumber($conf["didGroupId"]);
+        $number =
+            (new \app\models\filter\FreeNumberFilter)
+                ->getNumbers()
+                ->setDidGroup($conf['didGroupId'])
+                ->randomOne();
+
         $numbers = [$number->number];
 
         foreach($numbers as $number)

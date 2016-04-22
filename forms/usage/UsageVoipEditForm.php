@@ -532,7 +532,12 @@ class UsageVoipEditForm extends UsageVoipForm
                 if ($this->city_id && $this->number_tariff_id && !$this->did) {
                     $numberTariff = TariffNumber::findOne($this->number_tariff_id);
                     /** @var \app\models\Number $number */
-                    $number = Number::dao()->getRandomFreeNumber($numberTariff->did_group_id);
+                    $number =
+                        (new \app\models\filter\FreeNumberFilter)
+                            ->getNumbers()
+                            ->setDidGroup($numberTariff->did_group_id)
+                            ->randomOne();
+
                     if ($number) {
                         $this->did = $number->number;
                     }
@@ -576,7 +581,12 @@ class UsageVoipEditForm extends UsageVoipForm
                 $this->number_tariff_id = null;
 
                 if (!$this->did) {
-                    $number = Number::dao()->getRandomFree7800();
+                    /** @var \app\models\Number $number */
+                    $number =
+                        (new \app\models\filter\FreeNumberFilter)
+                            ->getNumbers7800()
+                            ->randomOne();
+
                     if ($number) {
                         $this->did = $number->number;
                     }

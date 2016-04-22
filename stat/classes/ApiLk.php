@@ -911,12 +911,15 @@ class ApiLk
 
         $ret = array();
 
-        $numbers = Number::dao()->getFreeNumbersByTariff($numberTariff);
+        $numbers =
+            (new \app\models\filter\FreeNumberFilter)
+                ->getNumbers()
+                ->setDidGroup($numberTariff->did_group_id);
 
         $skipFrom = 1;
         $areaLen = 3;
         
-        foreach($numbers as $number) {
+        foreach($numbers->each()->result() as $number) {
             $line = [
                 'number' => $number->number,
                 'full_number' => $number->number,

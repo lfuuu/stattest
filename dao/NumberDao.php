@@ -4,8 +4,6 @@ namespace app\dao;
 use Yii;
 use DateTime;
 use DateTimeZone;
-use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -13,9 +11,7 @@ use app\models\Number;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
-use app\models\TariffNumber;
 use app\models\NumberLog;
-use app\models\NumberType;
 use app\models\billing\Calls;
 
 /**
@@ -24,61 +20,6 @@ use app\models\billing\Calls;
  */
 class NumberDao extends Singleton
 {
-    /**
-     * @param $didGroupId
-     * @return Number
-     */
-    public function getRandomFreeNumber($didGroupId)
-    {
-        return
-            Number::find()
-                ->andWhere([
-                    'status' => Number::STATUS_INSTOCK,
-                    'number_type' => NumberType::ID_INTERNAL,
-                    'did_group_id' => $didGroupId
-                ])
-                ->orderBy('RAND()')
-                ->limit(1)
-                ->one();
-    }
-
-    /**
-     * @return Number
-     */
-    public function getRandomFree7800()
-    {
-        return
-            Number::find()
-                ->andWhere([
-                    'status' => Number::STATUS_INSTOCK,
-                    'number_type' => NumberType::ID_EXTERNAL,
-                    'ndc' => '800'
-                ])
-                ->orderBy('RAND()')
-                ->limit(1)
-                ->one();
-    }
-
-    /**
-     * @param string $region
-     * @return ActiveRecord[]
-     */
-    public function getFreeNumbersByRegion($region = '')
-    {
-        return $this->getFreeNumbers()->andWhere([
-            'region' => $region,
-            'number_type' => NumberType::ID_INTERNAL
-        ])->all();
-    }
-
-    /**
-     * @param TariffNumber $tariff
-     * @return ActiveRecord[]
-     */
-    public function getFreeNumbersByTariff(TariffNumber $tariff)
-    {
-        return $this->getFreeNumbers()->andWhere(['did_group_id' => $tariff->did_group_id])->all();
-    }
 
     public function startReserve(Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
     {
@@ -287,24 +228,6 @@ class NumberDao extends Singleton
             ->createCommand()
             ->cache(86400)
             ->queryAll();
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getFreeNumbers()
-    {
-        return
-            Number::find()
-                ->where(['status' => Number::STATUS_INSTOCK])
-                ->having(new Expression('
-                    IF(
-                        `number` LIKE "7495%",
-                        `number` LIKE "74951059%" OR `number` LIKE "74951090%" OR `beauty_level` IN (1,2),
-                        true
-                    )
-                '))
-                ->orderBy([new Expression('IF(`beauty_level` = 0, 10, `beauty_level`) DESC, `number`')]);
     }
 
 }
