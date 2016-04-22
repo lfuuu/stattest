@@ -41,8 +41,8 @@ foreach ($contacts as $contact) {
         </div>
         <div class="col-sm-12 fullTable" style="display: none;">
             <div class="row head3">
-                <div class="col-sm-2"></div>
-                <div class="col-sm-1">Тип</div>
+                <div class="col-sm-1"></div>
+                <div class="col-sm-2">Тип</div>
                 <div class="col-sm-2">Контакт</div>
                 <div class="col-sm-2">Комментарий</div>
                 <div class="col-sm-2">Кто добавил</div>
@@ -52,16 +52,16 @@ foreach ($contacts as $contact) {
             <?php foreach ($contacts as $contact) : ?>
                 <div class="row"
                      style="<?= ($contact->is_official) ? 'font-weight:bold;' : '' ?><?= ($contact->is_active) ? 'color:black;' : 'color:#909090;' ?>">
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                         &nbsp;
                     </div>
-                    <div class="col-sm-1 text-nowrap"><?= ClientContact::$types[$contact->type] ?></div>
+                    <div class="col-sm-2"><?= ClientContact::$types[$contact->type] ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
                     <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
                     <div class="col-sm-2"><?= $contact->user? $contact->user->name: '' ?></div>
                     <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
-                    <div class="col-sm-1">
-                        <?php if ($contact->user && $contact->user->user == 'AutoLK'): ?>
+                    <div class="col-sm-1 text-center">
+                        <?php if ($contact->user && $contact->user->user === 'AutoLK'): ?>
                             <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id]) ?>">
                                 <img style="margin-left:-2px;margin-top:-3px" class="icon"
                                      src="/images/icons/<?= $contact->is_active ? 'action_check_off.gif' : 'action_check.gif' ?>"
