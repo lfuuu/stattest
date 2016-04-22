@@ -87,7 +87,7 @@
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
 	<tr>
 		{if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
-		<td class='header' vAlign='bottom' width="110">Оператор</td>
+		<td class='header' vAlign='bottom'>Оператор</td>
 		{foreach from=$report_dest item='dd' key='d'}
 		{if $d<>'sum'}
 		<td class='header' vAlign='bottom'  width="110">{if $d==9}Местные{elseif $d==10}Зона ст.{elseif $d==11}Зона моб.{elseif $d==100}7800{elseif $d==101}Россия{elseif $d==102}Международные{elseif $d==900}Сумма</td><td class='header' vAlign='bottom' width="110">Входящие{/if}</td>
@@ -129,13 +129,13 @@
 	{if $dkey<>'sum'}
 	{if isset($d[$dkey])}
 		{if $dkey<>900}
-			<td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /></td>
+			<td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /> стоимость: {$d[$dkey].price|round:2}<br /></td>
 		{else}
-			<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов<br /></td>
-            <td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /></td>
+			<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов<br /> стоимость: {$d.sum.price|round:2}<br /></td>
+            <td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /> стоимость: {$d[$dkey].price|round:2}<br /></td>
 		{/if}
 	{elseif $dkey==900}
-		<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов<br /></td><td>&mdash;</td>
+		<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов,<br /> стоимость: {$d.sum.price|round:2}<br /></td><td>&mdash;</td>
 	{else}
 		<td>&mdash;</td>
 	{/if}
@@ -168,14 +168,14 @@
 	<tr>
 		<td class="header" style="background-color: {$bg}; color: {$fg};" colspan="{if $groupp}2{else}1{/if}" vAlign='bottom'>Итого по всем операторам:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
-		{if $dkey<>'sum'}
-		{if $dkey<>900}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price|round:2}</td>
-		{else}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_dest.sum.clean/60`"|round:2} минут<br />{$report_dest.sum.human} часов<br />стоимость: {$report_dest.sum.price|round:2}</td>
-      <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price|round:2}</td>
-		{/if}
-		{/if}
+			{if $dkey<>'sum'}
+				{if $dkey<>900}
+					<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price|round:2}</td>
+				{else}
+					<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_dest.sum.clean/60`"|round:2} минут<br />{$report_dest.sum.human} часов<br />стоимость: {$report_dest.sum.price|round:2}</td>
+					<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price|round:2}</td>
+				{/if}
+			{/if}
 		{/foreach}
 	</tr>
 </table>
