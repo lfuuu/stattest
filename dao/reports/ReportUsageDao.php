@@ -141,7 +141,7 @@ class ReportUsageDao extends Singleton
         $query =
             UsageVoipPackage::find()
                 ->actual()
-                ->where(['usage_voip_id' => $usageId]);
+                ->andWhere(['usage_voip_id' => $usageId]);
 
         if ((int) $packageId) {
             $query->andWhere(['id' => $packageId]);

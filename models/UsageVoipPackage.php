@@ -1,9 +1,10 @@
 <?php
 namespace app\models;
 
-
 use DateTime;
+use DateTimeZone;
 use yii\db\ActiveRecord;
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
 use app\classes\transfer\VoipPackageServiceTransfer;
@@ -85,18 +86,19 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
 
         if ($dateRangeFrom) {
             $dateRangeFromStr =
-                (new DateTime($dateRangeFrom))
+                (new DateTimeWithUserTimezone($dateRangeFrom, new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
                     ->modify('first day of this month')
-                    ->setTime(0, 0, 0)
+                    ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->format(DateTime::ATOM);
 
             $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
         }
         if ($dateRangeTo) {
             $dateRangeToStr =
-                (new DateTime($dateRangeTo))
+                (new DateTimeWithUserTimezone($dateRangeTo, new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
+                    ->modify('-1 second')
+                    ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')
-                    ->setTime(23, 59, 59)
                     ->format(DateTime::ATOM);
 
             $link->andWhere(['<=', 'activation_dt', $dateRangeToStr]);
