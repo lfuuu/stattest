@@ -63,7 +63,6 @@ class m_voipreports_by_source_operator_report
                                                 where
                                                     server_id = {$f_instance_id}
                                                     and {$where}
-                                                    and operator_id > 0
                                                 group by o.name
                                                 order by minutes desc
 
