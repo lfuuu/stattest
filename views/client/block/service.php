@@ -4,6 +4,7 @@ use app\models\usages\UsageInterface;
 use app\models\UsageTechCpe;
 use app\classes\Html;
 use app\models\TariffVoip;
+use app\models\TariffInternet;
 use app\models\Number;
 
 $actual = function ($from, $to) {
@@ -69,8 +70,21 @@ if ($has) :
                     <h3><a href="?module=services&action=in_view">Интернет подключения</a></h3>
                     <table cellspacing="4" cellpadding="2" width="100%" border="0">
                         <tbody>
-                        <?php foreach ($services['ipport'] as $service): ?>
-                            <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
+                        <?php
+                        foreach ($services['ipport'] as $service):
+                            /** @var \app\models\LogTarif $currentLogTariff, $futureLogTariff */
+                            $currentLogTariff = $service->logTariff;
+                            $futureLogTariff = $service->getLogTariff(null);
+
+                            /** @var TariffVoip $currentTariff, $futureTraiff */
+                            $currentTariff = TariffInternet::findOne($currentLogTariff->id_tarif);
+                            $futureTariff = null;
+                            if ($currentLogTariff->id !== $futureLogTariff->id) {
+                                $futureTariff = TariffInternet::findOne($futureLogTariff->id_tarif);
+                            }
+                            ?>
+
+                            <tr bgcolor="<?= ($service->status === 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                                 <td width="1%" nowrap="">
                                     <a href="/pop_services.php?table=usage_ip_ports&id=<?= $service->id ?>"
                                        target="_blank">
@@ -109,17 +123,23 @@ if ($has) :
                                 <td>
                                     <b>
                                         <?= $service->port->port_type ?>
-                                        , <?= $service->port->port_name == 'mgts'
+                                        , <?= $service->port->port_name === 'mgts'
                                             ? $service->port->node
                                             : '<a href="/?module=routers&id=' . $service->port->node . '">' . $service->port->node . '</a>::' . $service->port->port_name ?>
                                     </b>
                                 </td>
                                 <td>
                                     <img alt="Текущий тариф" class="icon" src="/images/icons/tarif.gif">
-                            <span style="color:#0000C0"
-                                  title="Текущий тариф: <?= $service->tariff->mb_month ?>-<?= $service->tariff->pay_month ?>-<?= $service->tariff->pay_mb ?>">
-                                <?= $service->tariff->name ?>
-                            </span>
+                                    <span style="color:#0000C0" title="Текущий тариф: <?= $currentTariff->mb_month ?>-<?= $currentTariff->pay_month ?>-<?= $currentTariff->pay_mb ?>">
+                                        <?= $currentTariff->name; ?>
+                                    </span>
+                                    <?php if($futureTariff): ?>
+                                        <br />
+                                        <img alt="Текущий тариф" class="icon" src="/images/icons/tarif.gif">
+                                        <span style="color: #00C000" title="Будующий тариф: <?= $futureTariff->mb_month ?>-<?= $futureTariff->pay_month ?>-<?= $futureTariff->pay_mb ?>">
+                                        <?= $futureTariff->name; ?>
+                                    </span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
 
@@ -234,10 +254,16 @@ if ($has) :
                             /** @var UsageVoip $service */
                             foreach ($services['voip'] as $service): ?>
                                 <?php
-                                /** @var TariffVoip $currentTariff */
-                                /** @var \app\models\LogTarif $log */
-                                $log = $service->getLogTariff(null);
-                                $currentTariff = TariffVoip::findOne($log->id_tarif);
+                                /** @var \app\models\LogTarif $currentLogTariff, $futureLogTariff */
+                                $currentLogTariff = $service->logTariff;
+                                $futureLogTariff = $service->getLogTariff(null);
+
+                                /** @var TariffVoip $currentTariff, $futureTraiff */
+                                $currentTariff = TariffVoip::findOne($currentLogTariff->id_tarif);
+                                $futureTariff = null;
+                                if ($currentLogTariff->id !== $futureLogTariff->id) {
+                                    $futureTariff = TariffVoip::findOne($futureLogTariff->id_tarif);
+                                }
                                 ?>
                                 <tr bgcolor="<?= ($service->status === 'working' ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0') ?>">
                                     <td width="10%">
@@ -266,33 +292,80 @@ if ($has) :
                                     <td style="font-size: 8pt;">
                                         <?= $currentTariff->name ?> (<?= $currentTariff->month_number . '-' . $currentTariff->month_line ?>)
                                         <?php
-                                        if ($log->dest_group != '0') {
+                                        if ($currentLogTariff->dest_group != '0') {
                                             echo '/ Набор:';
-                                            if (strpos($log->dest_group, '5') !== false)
+                                            if (strpos($currentLogTariff->dest_group, '5') !== false) {
                                                 echo ' Моб';
-                                            if (strpos($log->dest_group, '1') !== false)
+                                            }
+                                            if (strpos($currentLogTariff->dest_group, '1') !== false) {
                                                 echo ' МГ';
-                                            if (strpos($log->dest_group, '2') !== false)
+                                            }
+                                            if (strpos($currentLogTariff->dest_group, '2') !== false) {
                                                 echo ' МН';
-                                            if (strpos($log->dest_group, '3') !== false)
+                                            }
+                                            if (strpos($currentLogTariff->dest_group, '3') !== false) {
                                                 echo ' СНГ';
-                                            echo $log->minpayment_group;
+                                            }
+                                            echo $currentLogTariff->minpayment_group;
                                         }
+
                                         /** @var TariffVoip $tariff */
                                         $tariff = null;
-                                        if (strpos($log->dest_group, '5') === false) {
-                                            $tariff = TariffVoip::findOne($log->id_tarif_local_mob);
-                                            echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($log->minpayment_local_mob > 0 ? '(' . $log->minpayment_local_mob . ')' : '');
+                                        if (strpos($currentLogTariff->dest_group, '5') === false) {
+                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_local_mob);
+                                            echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_local_mob > 0 ? '(' . $currentLogTariff->minpayment_local_mob . ')' : '');
                                         }
-                                        if (strpos($log->dest_group, '1') === false) {
-                                            $tariff = TariffVoip::findOne($log->id_tarif_russia);
-                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($log->minpayment_russia > 0 ? '(' . $log->minpayment_russia . ')' : '');
+                                        if (strpos($currentLogTariff->dest_group, '1') === false) {
+                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia);
+                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_russia > 0 ? '(' . $currentLogTariff->minpayment_russia . ')' : '');
                                             $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
                                             echo '/ МГ ' . ($tariff ? $tariff->name : '');
                                         }
-                                        if (strpos($log->dest_group, '2') === false) {
-                                            $tariff = TariffVoip::findOne($log->id_tarif_intern);
-                                            echo '/ МН ' . ($tariff ? $tariff->name : '') . ($log->minpayment_intern > 0 ? '(' . $log->minpayment_intern . ')' : '');
+                                        if (strpos($currentLogTariff->dest_group, '2') === false) {
+                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_intern);
+                                            echo '/ МН ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_intern > 0 ? '(' . $currentLogTariff->minpayment_intern . ')' : '');
+                                        }
+
+                                        if ($futureTariff !== null) {
+                                            echo Html::beginTag('div', ['class' => 'alert alert-success']);
+                                                echo Html::beginTag('abbr', ['title' => 'Тариф включится начиная с ' . $futureLogTariff->date_activation]);
+                                                    echo $futureTariff->name . ' (' . $futureTariff->month_number . '-' . $futureTariff->month_line . ')';
+
+                                                    if ($futureLogTariff->dest_group != '0') {
+                                                        echo '/ Набор:';
+                                                        if (strpos($futureLogTariff->dest_group, '5') !== false) {
+                                                            echo ' Моб';
+                                                        }
+                                                        if (strpos($futureLogTariff->dest_group, '1') !== false) {
+                                                            echo ' МГ';
+                                                        }
+                                                        if (strpos($futureLogTariff->dest_group, '2') !== false) {
+                                                            echo ' МН';
+                                                        }
+                                                        if (strpos($futureLogTariff->dest_group, '3') !== false) {
+                                                            echo ' СНГ';
+                                                        }
+                                                        echo $futureLogTariff->minpayment_group;
+                                                    }
+
+                                                    /** @var TariffVoip $tariff */
+                                                    $tariff = null;
+                                                    if (strpos($futureLogTariff->dest_group, '5') === false) {
+                                                        $tariff = TariffVoip::findOne($futureLogTariff->id_tarif_local_mob);
+                                                        echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($futureLogTariff->minpayment_local_mob > 0 ? '(' . $futureLogTariff->minpayment_local_mob . ')' : '');
+                                                    }
+                                                    if (strpos($futureLogTariff->dest_group, '1') === false) {
+                                                        $tariff = TariffVoip::findOne($futureLogTariff->id_tarif_russia);
+                                                        echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($futureLogTariff->minpayment_russia > 0 ? '(' . $futureLogTariff->minpayment_russia . ')' : '');
+                                                        $tariff = TariffVoip::findOne($futureLogTariff->id_tarif_russia_mob);
+                                                        echo '/ МГ ' . ($tariff ? $tariff->name : '');
+                                                    }
+                                                    if (strpos($futureLogTariff->dest_group, '2') === false) {
+                                                        $tariff = TariffVoip::findOne($futureLogTariff->id_tarif_intern);
+                                                        echo '/ МН ' . ($tariff ? $tariff->name : '') . ($futureLogTariff->minpayment_intern > 0 ? '(' . $futureLogTariff->minpayment_intern . ')' : '');
+                                                    }
+                                                echo Html::endTag('abbr');
+                                            echo Html::endTag('div');
                                         }
 
                                         $packages = $service->packages;
