@@ -318,7 +318,7 @@ if ($has) :
                                         if (strpos($currentLogTariff->dest_group, '1') === false) {
                                             $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia);
                                             echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_russia > 0 ? '(' . $currentLogTariff->minpayment_russia . ')' : '');
-                                            $tariff = TariffVoip::findOne($log->id_tarif_russia_mob);
+                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia_mob);
                                             echo '/ МГ ' . ($tariff ? $tariff->name : '');
                                         }
                                         if (strpos($currentLogTariff->dest_group, '2') === false) {
