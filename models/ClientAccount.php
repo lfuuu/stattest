@@ -341,8 +341,9 @@ class ClientAccount extends HistoryActiveRecord
     public function getContract()
     {
         $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $this->getHistoryVersionRequestedDate())
+        if ($contract && $this->getHistoryVersionRequestedDate()) {
             $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        }
         return $contract;
     }
 
@@ -464,7 +465,8 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getAdditionalInn($isActive = true)
     {
-        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])->andWhere(['is_active' => (int)$isActive])->all();
+        return $this->hasMany(ClientInn::className(),
+            ['client_id' => 'id'])->andWhere(['is_active' => (int)$isActive])->all();
     }
 
     public function getAdditionalPayAcc()
@@ -535,23 +537,25 @@ class ClientAccount extends HistoryActiveRecord
 
     public function sync1C()
     {
-        if (!defined('PATH_TO_ROOT'))
-        {
+        if (!defined('PATH_TO_ROOT')) {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
-        if (!defined("NO_WEB"))
+        if (!defined("NO_WEB")) {
             define("NO_WEB", 1);
-            
+        }
+
         require_once PATH_TO_ROOT . 'conf.php';
 
-        if(!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
+        if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL) {
             return;
+        }
 
         try {
-            if (($Client = \Sync1C::getClient())!==false)
+            if (($Client = \Sync1C::getClient()) !== false) {
                 $Client->saveClientCards($this->id);
-            else
+            } else {
                 throw new Exception('Ошибка синхронизации с 1С.');
+            }
         } catch (\Sync1CException $e) {
             $e->triggerError();
         }
@@ -565,8 +569,9 @@ class ClientAccount extends HistoryActiveRecord
 
     public function beforeSave($insert)
     {
-        if (!$this->password)
+        if (!$this->password) {
             $this->password = Utils::password_gen();
+        }
 
         return parent::beforeSave($insert);
     }
@@ -651,4 +656,13 @@ class ClientAccount extends HistoryActiveRecord
     {
         return $this->contract->business_id == Business::PARTNER;
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLkSettings()
+    {
+        return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+    }
+
 }

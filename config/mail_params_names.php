@@ -8,5 +8,7 @@ return [
     '{balance}' => 'getBalance',
     '{lk_link}' => 'getLnk',
     '{password}' => 'getPassword',
-
+    '{day_limit}' => 'getClientAccountDayLimit',
+    '{currency}' => 'getClientAccountCurrency',
+    '{pay_sum}' => 'getNewPaymentValue',
 ];

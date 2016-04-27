@@ -5,8 +5,6 @@ abstract class Singleton
 {
     private static $instances = array();
 
-    protected function __construct() {/* you can't create me */}
-
     /**
      * @param null $args
      * @return self
@@ -20,7 +18,6 @@ abstract class Singleton
             if (2 < func_num_args()) {
                 $args = func_get_args();
                 array_shift($args);
-
 
                 // emulat`ion of ReflectionClass->newInstanceWithoutConstructor
                 $object =
@@ -50,6 +47,7 @@ abstract class Singleton
         return self::$instances[$class];
     }
 
+    final protected function __construct() {/* you can't create me */}
     final private function __clone() {/* do not clone me */}
-    final private function __sleep() {/* restless class */}
+    final private function __wakeup() {/* restless class */}
 }

@@ -201,8 +201,9 @@ class MessageController extends ApiController
      * @param int $clientAccountId
      * @param int $contactId
      * @param string $type
+     * @param int|null $eventId
      */
-    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type='email')
+    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type='email', $eventId = null)
     {
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
@@ -211,17 +212,20 @@ class MessageController extends ApiController
             'type' => $type
         ]);
 
-	if (!is_null($templateContent)) {
-	    if ($type == 'email') {
-	        $content = $templateContent->getMediaManager()->getFile($templateContent, true);
-	        $content = $content['content'];
-	        echo RenderParams::tplFilter($content, $clientAccountId, $contactId);
-	        exit(0);
-	    } else if ($type == 'sms') {
-		echo RenderParams::tplFilter($templateContent->content, $clientAccountId, $contactId);
-		exit(0);
-	    }
-	}
+        if (!is_null($templateContent)) {
+            switch ($type) {
+                case 'email': {
+                    $content = $templateContent->getMediaManager()->getFile($templateContent, true);
+                    echo RenderParams::me(['clientAccountId' => $clientAccountId])->apply($content['content'], $clientAccountId, $contactId, $eventId);
+                    break;
+                }
+                case 'sms': {
+                    echo RenderParams::me()->apply($templateContent->content, $clientAccountId, $contactId, $eventId);
+                    break;
+                }
+            }
+            exit(0);
+        }
     }
 
 }
