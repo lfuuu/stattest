@@ -43,8 +43,7 @@ foreach ($contacts as $contact) {
             <div class="row head3">
                 <div class="col-sm-1"></div>
                 <div class="col-sm-2">Тип</div>
-                <div class="col-sm-2">Контакт</div>
-                <div class="col-sm-2">Комментарий</div>
+                <div class="col-sm-4">Контакт</div>
                 <div class="col-sm-2">Кто добавил</div>
                 <div class="col-sm-2">Когда</div>
                 <div class="col-sm-1"></div>
@@ -56,8 +55,10 @@ foreach ($contacts as $contact) {
                         &nbsp;
                     </div>
                     <div class="col-sm-2"><?= ClientContact::$types[$contact->type] ?></div>
-                    <div class="col-sm-2"><?= htmlspecialchars($contact->data) ?></div>
-                    <div class="col-sm-2"><?= htmlspecialchars($contact->comment) ?></div>
+                    <div class="col-sm-4">
+                        <?= htmlspecialchars($contact->data) ?><br />
+                        <?= htmlspecialchars($contact->comment) ?>
+                    </div>
                     <div class="col-sm-2"><?= $contact->user? $contact->user->name: '' ?></div>
                     <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
                     <div class="col-sm-1 text-center">
