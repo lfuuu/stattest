@@ -76,48 +76,4 @@ class LkWizardState extends ActiveRecord
         ]) || $contractId == 9130;
     }
 
-    public function add100Rub()
-    {
-        if (!$this->is_bonus_added)
-        {
-            $clientAccount = ClientAccount::findOne(['contract_id' => $this->contract_id]);
-
-            $sum = -100;
-
-            $bill = new Bill();
-            $bill->client_id = $clientAccount->id;
-            $bill->currency = $clientAccount->currency;
-            $bill->nal = $clientAccount->nal;
-            $bill->is_lk_show = 1;
-            $bill->is_user_prepay = 0;
-            $bill->is_approved = 1;
-            $bill->bill_date = date('Y-m-d');
-            $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
-            $bill->price_include_vat = $clientAccount->price_include_vat;
-            $bill->save();
-
-            $line = new BillLine(["bill_no" => $bill->bill_no]);
-            $line->item = "Услуга \"Бонус\"";
-            $line->date_from = date("Y-m-d", strtotime("first day of this month"));
-            $line->date_to = date("Y-m-d", strtotime("last day of this month"));
-            $line->type = 'service';
-            $line->amount = 1;
-            $line->price = $sum;
-            $line->tax_rate = $clientAccount->getTaxRate();
-            $line->calculateSum($bill->price_include_vat);
-            $line->sum = $sum;
-            $line->save();
-
-            Bill::dao()->recalcBill($bill);
-
-            $this->is_bonus_added = 1;
-            $this->save();
-
-            ClientAccount::dao()->updateBalance($clientAccount->id);
-
-            return true;
-        }
-
-        return false;
-    }
 }

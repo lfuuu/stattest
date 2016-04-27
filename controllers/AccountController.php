@@ -91,10 +91,6 @@ class AccountController extends BaseController
 
                     $wizard->state = $state;
                     $wizard->save();
-
-                    if ($state == "approve") {
-                        $wizard->add100Rub();
-                    }
                 }
             }
         }
