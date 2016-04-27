@@ -137,7 +137,7 @@ if ($action=='add_client') {
             ->getNumbers()
             ->setRegions([$region]);
 
-    foreach($numbers->each()->result() as $r) {
+    foreach($numbers->each()->result(null) as $r) {
         echo implode(';', [$r->number, $r->beauty_level, $r->price, $r->region]) . "\n";
     }
 

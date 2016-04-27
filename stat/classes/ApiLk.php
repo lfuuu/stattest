@@ -11,7 +11,6 @@ use app\models\Region;
 use app\models\ClientCounter;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
-use app\models\Number;
 use app\models\important_events\ImportantEventsNames;
 
 class ApiLk
@@ -919,7 +918,7 @@ class ApiLk
         $skipFrom = 1;
         $areaLen = 3;
         
-        foreach($numbers->each()->result() as $number) {
+        foreach($numbers->each()->result(null) as $number) {
             $line = [
                 'number' => $number->number,
                 'full_number' => $number->number,
