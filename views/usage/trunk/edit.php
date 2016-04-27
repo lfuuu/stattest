@@ -1,19 +1,19 @@
 <?php
+
 use app\classes\Html;
+use app\assets\AppAsset;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
 use yii\helpers\Url;
 use app\models\UsageTrunkSettings;
-use app\forms\usage\UsageTrunkSettingsForm;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
 use app\models\billing\Trunk;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
-use app\forms\usage\UsageTrunkSettingsDeleteForm;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageTrunk */
@@ -21,6 +21,8 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 /** @var $origination UsageTrunkSettings[] */
 /** @var $termination UsageTrunkSettings[] */
 /** @var $destination UsageTrunkSettings[] */
+
+$this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depends' => [AppAsset::className()]]);
 
 $trunk = Trunk::findOne($usage->trunk_id);
 
@@ -91,7 +93,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            '' => ['type' => Form::INPUT_RAW],
+            '' => ['type' => Form::INPUT_RAW, 'value' => Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company],
             'orig_enabled' => ['type' => Form::INPUT_CHECKBOX],
             'orig_min_payment' => ['type' => Form::INPUT_TEXT],
         ],
@@ -177,7 +179,7 @@ echo Breadcrumbs::widget([
                 <tr>
                     <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($origPricelists, ['class' => 'select2']) ?></td>
+                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($origPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]]) ?><?=Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id])?></td>
                     <td><?= $form->field($formModel, 'minimum_margin', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 105px']) ?></td>
                     <td><?= $form->field($formModel, 'minimum_margin_type', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList([
                             UsageTrunkSettings::MIN_MARGIN_ABSENT => 'нет',
@@ -234,7 +236,7 @@ echo Breadcrumbs::widget([
                 <tr>
                     <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers,  ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($termPricelists, ['class' => 'select2']) ?></td>
+                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($termPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]]) ?><?=Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id])?></td>
                     <td><?= $form->field($formModel, 'minimum_minutes', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $form->field($formModel, 'minimum_cost', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
