@@ -18,10 +18,7 @@ $attributes = [
     [
         'attribute' => 'client_account_id',
         'format' => 'html',
-        'value' => Html::a(
-            Html::encode($accountTariff->clientAccount->client),
-            ['/client/view', 'id' => $accountTariff->client_account_id]
-        )
+        'value' => $accountTariff->clientAccount->getLink(),
     ],
 
     [

@@ -4,9 +4,10 @@ namespace app\classes\uu\model;
 
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
- * Предварительное списание стоимости подключения
+ * Предварительное списание (транзакции) стоимости подключения
  *
  * @property int $id
  * @property string $date
@@ -14,9 +15,11 @@ use yii\db\ActiveRecord;
  * @property int $account_tariff_id
  * @property float $price кэш tariffPeriod -> price_setup
  * @property string $insert_time
+ * @property int $account_entry_id
  *
  * @property AccountTariff $accountTariff
  * @property TariffPeriod $tariffPeriod
+ * @property AccountEntry $accountEntry
  */
 class AccountLogSetup extends ActiveRecord
 {
@@ -54,56 +57,18 @@ class AccountLogSetup extends ActiveRecord
     }
 
     /**
-     * Рассчитать плату всех услуг
+     * @return ActiveQuery
      */
-    public static function tarificateAll()
+    public function getAccountEntry()
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
-        // в целях оптимизации удалить старые данные
-        self::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
-
-        $accountTariffs = AccountTariff::find();
-
-        // рассчитать по каждой универсальной услуге
-        foreach ($accountTariffs->each() as $accountTariff) {
-            echo '. ';
-
-            /** @var AccountTariffLog $accountTariffLog */
-            $accountTariffLogs = $accountTariff->accountTariffLogs;
-            $accountTariffLog = reset($accountTariffLogs);
-            if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
-            ) {
-                // услуга отключена давно - в целях оптимизации считать нет смысла
-                continue;
-            }
-
-            self::tarificateAccountTariff($accountTariff);
-        }
+        return $this->hasOne(AccountEntry::className(), ['id' => 'account_entry_id']);
     }
 
     /**
-     * Рассчитать плату по конкретной услуге
-     * @param AccountTariff $accountTariff
+     * @return string
      */
-    public static function tarificateAccountTariff(AccountTariff $accountTariff)
+    public function getUrl()
     {
-        /** @var AccountLogSetup[] $accountLogs */
-        $accountLogs = self::find()
-            ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
-            ->indexBy('date')
-            ->all(); // по которым произведен расчет
-
-        $untarificatedPeriods = $accountTariff->getUntarificatedSetupPeriods($accountLogs);
-        foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
-
-            $accountLogSetup = new self();
-            $accountLogSetup->date = $untarificatedPeriod->getDateFrom()->format('Y-m-d');
-            $accountLogSetup->tariff_period_id = $tariffPeriod->id;
-            $accountLogSetup->account_tariff_id = $accountTariff->id;
-            $accountLogSetup->price = $tariffPeriod->price_setup;
-            $accountLogSetup->save();
-        }
+        return Url::to(['uu/account-log/setup', 'AccountLogSetupFilter[id]' => $this->id]);
     }
 }

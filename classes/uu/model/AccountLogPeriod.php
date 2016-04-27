@@ -2,12 +2,12 @@
 
 namespace app\classes\uu\model;
 
-use RangeException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
- * Предварительное списание абонентской платы
+ * Предварительное списание (транзакции) абонентской платы
  *
  * @property int $id
  * @property string $date_from
@@ -18,9 +18,11 @@ use yii\db\ActiveRecord;
  * @property float $coefficient кэш (date_to - date_from) / n
  * @property float $price кэш period_price * coefficient
  * @property string $insert_time
+ * @property int $account_entry_id
  *
  * @property AccountTariff $accountTariff
  * @property TariffPeriod $tariffPeriod
+ * @property AccountEntry $accountEntry
  */
 class AccountLogPeriod extends ActiveRecord
 {
@@ -58,76 +60,18 @@ class AccountLogPeriod extends ActiveRecord
     }
 
     /**
-     * Рассчитать плату всех услуг
+     * @return ActiveQuery
      */
-    public static function tarificateAll()
+    public function getAccountEntry()
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
-        // в целях оптимизации удалить старые данные
-        self::deleteAll(['<', 'date_to', $minLogDatetime->format('Y-m-d')]);
-
-        $accountTariffs = AccountTariff::find();
-
-        // рассчитать по каждой универсальной услуге
-        foreach ($accountTariffs->each() as $accountTariff) {
-            echo '. ';
-
-            /** @var AccountTariffLog $accountTariffLog */
-            $accountTariffLogs = $accountTariff->accountTariffLogs;
-            $accountTariffLog = reset($accountTariffLogs);
-            if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
-            ) {
-                // услуга отключена давно - в целях оптимизации считать нет смысла
-                continue;
-            }
-
-            self::tarificateAccountTariff($accountTariff);
-        }
+        return $this->hasOne(AccountEntry::className(), ['id' => 'account_entry_id']);
     }
 
     /**
-     * Рассчитать плату по конкретной услуге
-     * @param AccountTariff $accountTariff
+     * @return string
      */
-    public static function tarificateAccountTariff(AccountTariff $accountTariff)
+    public function getUrl()
     {
-        // по которым произведен расчет
-        /** @var AccountLogPeriod[] $accountLogs */
-        $accountLogs = self::find()
-            ->where(['account_tariff_id' => $accountTariff->id])
-            ->indexBy('date_from')
-            ->all();
-
-        $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods($accountLogs);
-        foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
-            $period = $tariffPeriod->period;
-
-            $accountLogPeriod = new self();
-            $accountLogPeriod->date_from = $untarificatedPeriod->getDateFrom()->format('Y-m-d');
-            $accountLogPeriod->date_to = $untarificatedPeriod->getDateTo()->format('Y-m-d');
-            if ($untarificatedPeriod->getDateTo() < $untarificatedPeriod->getDateFrom()) {
-                throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d', $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));
-            }
-
-            $accountLogPeriod->tariff_period_id = $tariffPeriod->id;
-            $accountLogPeriod->account_tariff_id = $accountTariff->id;
-            $accountLogPeriod->period_price = $tariffPeriod->price_per_period;
-            $accountLogPeriod->coefficient = 1 + $untarificatedPeriod->getDateTo()
-                    ->diff($untarificatedPeriod->getDateFrom())
-                    ->days; // кол-во потраченных дней
-            if ($period->monthscount) {
-                // разделить на кол-во дней в периоде
-                $days = 1 + $untarificatedPeriod->getDateFrom()
-                        ->modify($period->getModify())
-                        ->modify('-1 day')
-                        ->diff($untarificatedPeriod->getDateFrom())
-                        ->days;
-                $accountLogPeriod->coefficient /= $days;
-            }
-            $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
-            $accountLogPeriod->save();
-        }
+        return Url::to(['uu/account-log/period', 'AccountLogPeriodFilter[id]' => $this->id]);
     }
 }

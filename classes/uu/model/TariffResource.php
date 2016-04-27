@@ -63,7 +63,7 @@ class TariffResource extends \yii\db\ActiveRecord
      */
     public function getTariffName()
     {
-        return $this->getTariff()->One()->name;
+        return $this->tariff->name;
     }
 
 }

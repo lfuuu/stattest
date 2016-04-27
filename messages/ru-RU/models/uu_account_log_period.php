@@ -9,4 +9,5 @@ return [
     'period_price' => 'Цена за период, у.е.',
     'price' => 'Стоимость, у.е.',
     'coefficient' => 'Коэффициент',
+    'account_entry_id' => 'Проводка',
 ];

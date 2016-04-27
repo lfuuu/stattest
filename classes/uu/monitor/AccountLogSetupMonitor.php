@@ -18,12 +18,12 @@ class AccountLogSetupMonitor extends AccountLogSetup implements AccountLogMonito
     protected static $logs = null;
 
     /**
-     * Вернуть лог за этот день или null, если его нет
+     * Вернуть статистику за этот день
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $monthDateTime
      * @param int $day
-     * @return int|null
+     * @return int 0 - нет данных, 1 - есть, но не в проводке, 2 - есть, в проводке
      */
     public static function getMonitor(AccountTariff $accountTariff, DateTimeImmutable $monthDateTime, $day)
     {
@@ -40,7 +40,8 @@ class AccountLogSetupMonitor extends AccountLogSetup implements AccountLogMonito
             self::$logs =
                 $accountTariff->getAccountLogSetups()
                     ->select([
-                        'date' => 'date',
+                        'date',
+                        'account_entry_id',
                     ])
                     ->where('date BETWEEN :date_from AND :date_to', [
                         ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
@@ -53,9 +54,9 @@ class AccountLogSetupMonitor extends AccountLogSetup implements AccountLogMonito
 
         $date = sprintf('%s-%02d', $monthDateTime->format('Y-m'), $day);
         if (isset(self::$logs[$date])) {
-            return 1;
+            return self::$logs[$date]['account_entry_id'] ? 2 : 1;
         }
 
-        return null;
+        return 0;
     }
 }

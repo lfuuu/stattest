@@ -12,6 +12,8 @@ use yii\data\ActiveDataProvider;
  */
 class AccountLogResourceFilter extends AccountLogResource
 {
+    public $id = '';
+
     public $date_from = '';
     public $date_to = '';
 
@@ -50,7 +52,7 @@ class AccountLogResourceFilter extends AccountLogResource
     public function rules()
     {
         return [
-            [['client_account_id', 'tariff_period_id', 'service_type_id', 'tariff_resource_id'], 'integer'],
+            [['id', 'client_account_id', 'tariff_period_id', 'service_type_id', 'tariff_resource_id'], 'integer'],
             [['amount_use_from', 'amount_use_to'], 'double'],
             [['amount_free_from', 'amount_free_to'], 'double'],
             [['amount_overhead_from', 'amount_overhead_to'], 'integer'],
@@ -79,6 +81,8 @@ class AccountLogResourceFilter extends AccountLogResource
         $tariffResourceTableName = TariffResource::tableName();
         $accountLogResourceTableName = AccountLogResource::tableName();
         $accountTariffTableName = AccountTariff::tableName();
+
+        $this->id !== '' && $query->andWhere([$accountLogResourceTableName . '.id' => $this->id]);
 
         $this->date_from !== '' && $query->andWhere($accountLogResourceTableName . '.date >= :date_from', [':date_from' => $this->date_from]);
         $this->date_to !== '' && $query->andWhere($accountLogResourceTableName . '.date <= :date_to', [':date_to' => $this->date_to]);

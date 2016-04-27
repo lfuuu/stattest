@@ -11,6 +11,8 @@ use yii\data\ActiveDataProvider;
  */
 class AccountLogPeriodFilter extends AccountLogPeriod
 {
+    public $id = '';
+
     public $date_from_from = '';
     public $date_from_to = '';
 
@@ -34,7 +36,7 @@ class AccountLogPeriodFilter extends AccountLogPeriod
     public function rules()
     {
         return [
-            [['client_account_id', 'tariff_period_id', 'service_type_id'], 'integer'],
+            [['id', 'client_account_id', 'tariff_period_id', 'service_type_id'], 'integer'],
 
             [['period_price_from', 'coefficient_from', 'price_from'], 'double'],
             [['period_price_to', 'coefficient_to', 'price_to'], 'double'],
@@ -61,6 +63,8 @@ class AccountLogPeriodFilter extends AccountLogPeriod
 
         $accountLogPeriodTableName = AccountLogPeriod::tableName();
         $accountTariffTableName = AccountTariff::tableName();
+
+        $this->id !== '' && $query->andWhere([$accountLogPeriodTableName . '.id' => $this->id]);
 
         $this->date_from_from !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from >= :date_from_from', [':date_from_from' => $this->date_from_from]);
         $this->date_from_to !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from <= :date_from_to', [':date_from_to' => $this->date_from_to]);

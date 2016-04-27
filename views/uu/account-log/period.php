@@ -25,7 +25,7 @@ $accountTariffTableName = AccountTariff::tableName();
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Period tariffication'), 'url' => '/uu/accountlog/period']
+        ['label' => $this->title = Yii::t('tariff', 'Period tariffication'), 'url' => '/uu/account-log/period']
     ],
 ]) ?>
 
@@ -33,6 +33,10 @@ $accountTariffTableName = AccountTariff::tableName();
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => [
+        [
+            'attribute' => 'id',
+            'class' => IntegerColumn::className(),
+        ],
         [
             'attribute' => 'date_from',
             'class' => DateRangeDoubleColumn::className(),
@@ -69,10 +73,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => IntegerColumn::className(),
             'format' => 'html',
             'value' => function (AccountLogPeriod $accountLogPeriod) {
-                return Html::a(
-                    Html::encode($accountLogPeriod->accountTariff->clientAccount->client),
-                    ['/client/view', 'id' => $accountLogPeriod->accountTariff->client_account_id]
-                );
+                return $accountLogPeriod->accountTariff->clientAccount->getLink();
             }
         ],
         [

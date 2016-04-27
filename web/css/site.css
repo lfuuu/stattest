@@ -223,6 +223,7 @@ a.nohover:hover { color: #000; }
     min-width: 110px;
 }
 
+.account-entry-type-column,
 .service-type-column,
 .region-column,
 .city-column,

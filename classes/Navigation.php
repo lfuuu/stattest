@@ -65,7 +65,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Мониторинг')
                 ->addStatModuleItems('monitoring')
-                ->addItem('Перемещаемые услуги',  ['/monitoring/transfered-usages'], [])
+                ->addItem('Перемещаемые услуги', ['/monitoring/transfered-usages'], [])
                 ->addItem('Ключевые события', ['/monitoring'], [])
         );
 
@@ -262,15 +262,17 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
-                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/accountlog/setup'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/accountlog/period'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/accountlog/resource'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
-                    'uu/accountlog/monitor',
+                    'uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],
                     ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Account entries'), ['uu/account-entry'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Bills'), ['uu/bill'], ['tarifs.read'])
         );
     }
 

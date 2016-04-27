@@ -39,10 +39,7 @@ $columns = [
         'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
-            return Html::a(
-                Html::encode($accountTariff->clientAccount->client),
-                ['/client/view', 'id' => $accountTariff->client_account_id]
-            );
+            return $accountTariff->clientAccount->getLink();
         }
     ],
     [

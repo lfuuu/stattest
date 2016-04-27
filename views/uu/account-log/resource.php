@@ -12,11 +12,11 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\ResourceColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
+use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountLogResourceFilter;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
-use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 $accountTariffTableName = AccountTariff::tableName();
@@ -25,13 +25,17 @@ $accountTariffTableName = AccountTariff::tableName();
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Resource tariffication'), 'url' => '/uu/accountlog/resource']
+        ['label' => $this->title = Yii::t('tariff', 'Resource tariffication'), 'url' => '/uu/account-log/resource']
     ],
 ]) ?>
 
 <?php
 // отображаемые колонки
 $columns = [
+    [
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
+    ],
     [
         'attribute' => 'date',
         'class' => DateRangeDoubleColumn::className(),
@@ -63,10 +67,7 @@ $columns = [
         'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (AccountLogResource $accountLogResource) {
-            return Html::a(
-                Html::encode($accountLogResource->accountTariff->clientAccount->client),
-                ['/client/view', 'id' => $accountLogResource->accountTariff->client_account_id]
-            );
+            return $accountLogResource->accountTariff->clientAccount->getLink();
         },
     ],
     [

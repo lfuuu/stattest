@@ -18,12 +18,12 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
     protected static $logs = null;
 
     /**
-     * Вернуть лог за этот день или null, если его нет
+     * Вернуть статистику за этот день
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $monthDateTime
      * @param int $day
-     * @return int|null
+     * @return int[] кол-во всего, кол-во в проводке
      */
     public static function getMonitor(AccountTariff $accountTariff, DateTimeImmutable $monthDateTime, $day)
     {
@@ -42,6 +42,7 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
                     ->select([
                         'date' => 'date',
                         'cnt' => 'COUNT(price)',
+                        'cnt_entry' => 'COUNT(account_entry_id)',
                     ])
                     ->where('date BETWEEN :date_from AND :date_to', [
                         ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
@@ -55,9 +56,12 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
 
         $date = sprintf('%s-%02d', $monthDateTime->format('Y-m'), $day);
         if (isset(self::$logs[$date])) {
-            return (int)self::$logs[$date]['cnt'];
+            return [
+                (int)self::$logs[$date]['cnt'],
+                (int)self::$logs[$date]['cnt_entry'],
+            ];
         }
 
-        return null;
+        return [0, 0];
     }
 }

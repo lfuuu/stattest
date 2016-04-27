@@ -1,16 +1,19 @@
 <?php
 namespace app\models;
 
+use app\classes\Assert;
+use app\classes\BillContract;
+use app\classes\Html;
+use app\classes\model\HistoryActiveRecord;
+use app\classes\Utils;
+use app\classes\voip\VoipStatus;
+use app\dao\ClientAccountDao;
+use app\models\billing\Locks;
+use app\queries\ClientAccountQuery;
 use DateTimeZone;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
-use app\classes\Assert;
-use app\classes\Utils;
-use app\classes\model\HistoryActiveRecord;
-use app\classes\BillContract;
-use app\dao\ClientAccountDao;
-use app\queries\ClientAccountQuery;
-use app\models\billing\Locks;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -72,28 +75,28 @@ class ClientAccount extends HistoryActiveRecord
 
     public $client_orig = '';
 
-    public static $statuses = array(
-        'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
-        'testing' => array('name' => 'тестируемый', 'color' => '#6DCFF6'),
-        'connecting' => array('name' => 'подключаемый', 'color' => '#F49AC1'),
-        'work' => array('name' => 'включенный', 'color' => ''),
-        'closed' => array('name' => 'отключенный', 'color' => '#FFFFCC'),
-        'tech_deny' => array('name' => 'тех. отказ', 'color' => '#996666'),
-        'telemarketing' => array('name' => 'телемаркетинг', 'color' => '#A0FFA0'),
-        'income' => array('name' => 'входящие', 'color' => '#CCFFFF'),
-        'deny' => array('name' => 'отказ', 'color' => '#A0A0A0'),
-        'debt' => array('name' => 'отключен за долги', 'color' => '#C00000'),
-        'double' => array('name' => 'дубликат', 'color' => '#60a0e0'),
-        'trash' => array('name' => 'мусор', 'color' => '#a5e934'),
-        'move' => array('name' => 'переезд', 'color' => '#f590f3'),
-        'suspended' => array('name' => 'приостановленные', 'color' => '#C4a3C0'),
-        'denial' => array('name' => 'отказ/задаток', 'color' => '#00C0C0'),
-        'once' => array('name' => 'Интернет Магазин', 'color' => 'silver'),
-        'reserved' => array('name' => 'резервирование канала', 'color' => 'silver'),
-        'blocked' => array('name' => 'временно заблокирован', 'color' => 'silver'),
-        'distr' => array('name' => 'Поставщик', 'color' => 'yellow'),
-        'operator' => array('name' => 'Оператор', 'color' => 'lightblue')
-    );
+    public static $statuses = [
+        'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
+        'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],
+        'connecting' => ['name' => 'подключаемый', 'color' => '#F49AC1'],
+        'work' => ['name' => 'включенный', 'color' => ''],
+        'closed' => ['name' => 'отключенный', 'color' => '#FFFFCC'],
+        'tech_deny' => ['name' => 'тех. отказ', 'color' => '#996666'],
+        'telemarketing' => ['name' => 'телемаркетинг', 'color' => '#A0FFA0'],
+        'income' => ['name' => 'входящие', 'color' => '#CCFFFF'],
+        'deny' => ['name' => 'отказ', 'color' => '#A0A0A0'],
+        'debt' => ['name' => 'отключен за долги', 'color' => '#C00000'],
+        'double' => ['name' => 'дубликат', 'color' => '#60a0e0'],
+        'trash' => ['name' => 'мусор', 'color' => '#a5e934'],
+        'move' => ['name' => 'переезд', 'color' => '#f590f3'],
+        'suspended' => ['name' => 'приостановленные', 'color' => '#C4a3C0'],
+        'denial' => ['name' => 'отказ/задаток', 'color' => '#00C0C0'],
+        'once' => ['name' => 'Интернет Магазин', 'color' => 'silver'],
+        'reserved' => ['name' => 'резервирование канала', 'color' => 'silver'],
+        'blocked' => ['name' => 'временно заблокирован', 'color' => 'silver'],
+        'distr' => ['name' => 'Поставщик', 'color' => 'yellow'],
+        'operator' => ['name' => 'Оператор', 'color' => 'lightblue']
+    ];
 
     public static $formTypes = [
         'manual' => 'ручное',
@@ -674,4 +677,22 @@ class ClientAccount extends HistoryActiveRecord
         return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
     }
 
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to(['/client/view', 'id' => $this->id]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(
+            Html::encode($this->client),
+            $this->getUrl()
+        );
+    }
 }

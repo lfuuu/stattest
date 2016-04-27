@@ -18,12 +18,12 @@ class AccountLogPeriodMonitor extends AccountLogPeriod implements AccountLogMoni
     protected static $logs = null;
 
     /**
-     * Вернуть лог за этот день или null, если его нет
+     * Вернуть статистику за этот день
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $monthDateTime
      * @param int $day
-     * @return int|null
+     * @return int 0 - нет данных, 1 - есть, но не в проводке, 2 - есть, в проводке
      */
     public static function getMonitor(AccountTariff $accountTariff, DateTimeImmutable $monthDateTime, $day)
     {
@@ -49,10 +49,10 @@ class AccountLogPeriodMonitor extends AccountLogPeriod implements AccountLogMoni
         $date = sprintf('%s-%02d', $monthDateTime->format('Y-m'), $day);
         foreach (self::$logs as $log) {
             if ($log->date_from <= $date && $date <= $log->date_to) {
-                return 1;
+                return $log->account_entry_id ? 2 : 1;
             }
         }
 
-        return null;
+        return 0;
     }
 }

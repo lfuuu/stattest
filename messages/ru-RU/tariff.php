@@ -7,6 +7,8 @@ return [
     'Period tariffication' => 'Абонентская плата',
     'Resource tariffication' => 'Плата за ресурсы',
     'Monitoring' => 'Мониторинг',
+    'Account entries' => 'Проводки',
+    'Bills' => 'Счета',
     'Select a month' => 'Выберите месяц',
     'Non-universal tariff' => 'Неуниверсальный тариф',
     'Non-universal service' => 'Неуниверсальная услуга',

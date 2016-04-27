@@ -1,6 +1,6 @@
 <?php
 /**
- * Универсальный тарификатор
+ * Мониторинг транзакций
  */
 
 namespace app\controllers\uu;
@@ -14,7 +14,7 @@ use app\classes\uu\filter\AccountLogSetupFilter;
 use Yii;
 use yii\filters\AccessControl;
 
-class AccountlogController extends BaseController
+class MonitorController extends BaseController
 {
     // Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
     use AddClientAccountFilterTraits;
@@ -31,7 +31,7 @@ class AccountlogController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['setup', 'period', 'resource', 'monitor'],
+                        'actions' => ['index'],
                         'roles' => ['tarifs.read'],
                     ],
                 ],
@@ -42,51 +42,12 @@ class AccountlogController extends BaseController
     /**
      * @return string
      */
-    public function actionSetup()
-    {
-        $filterModel = new AccountLogSetupFilter();
-        $this->addClientAccountFilter($filterModel);
-
-        return $this->render('setup', [
-            'filterModel' => $filterModel,
-        ]);
-    }
-
-    /**
-     * @return string
-     */
-    public function actionPeriod()
-    {
-        $filterModel = new AccountLogPeriodFilter();
-        $this->addClientAccountFilter($filterModel);
-
-        return $this->render('period', [
-            'filterModel' => $filterModel,
-        ]);
-    }
-
-    /**
-     * @return string
-     */
-    public function actionResource()
-    {
-        $filterModel = new AccountLogResourceFilter();
-        $this->addClientAccountFilter($filterModel);
-
-        return $this->render('resource', [
-            'filterModel' => $filterModel,
-        ]);
-    }
-
-    /**
-     * @return string
-     */
-    public function actionMonitor()
+    public function actionIndex()
     {
         $filterModel = new AccountLogMonitorFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('monitor', [
+        return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
     }

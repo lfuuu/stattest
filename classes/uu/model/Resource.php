@@ -118,15 +118,24 @@ class Resource extends \yii\db\ActiveRecord
     /**
      * Вернуть список всех доступных моделей
      * @param bool $isWithEmpty
-     * @return self[]
+     * @return string[]
      */
     public static function getList($serviceTypeId, $isWithEmpty = false)
     {
-        $list = self::find()
-            ->orderBy(['name' => SORT_ASC])
-            ->where(['service_type_id' => $serviceTypeId])
+        $query = self::find()
             ->indexBy('id')
-            ->all();
+            ->orderBy([
+                'service_type_id' => SORT_ASC,
+                'name' => SORT_ASC,
+            ]);
+        $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
+        $list = $query->all();
+
+        if (!$serviceTypeId) {
+            array_walk($list, function (\app\classes\uu\model\Resource &$resource) {
+                $resource = $resource->getFullName();
+            });
+        }
 
         if ($isWithEmpty) {
             $list = ['' => ''] + $list;
@@ -142,6 +151,15 @@ class Resource extends \yii\db\ActiveRecord
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * Вернуть полное имя (с типом услуги)
+     * @return string
+     */
+    public function getFullName()
+    {
+        return $this->serviceType->name . '. ' . $this->name;
     }
 
     /**

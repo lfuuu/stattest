@@ -28,7 +28,7 @@ use yii\widgets\Breadcrumbs;
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Monitoring'), 'url' => '/uu/accountlog/monitor']
+        ['label' => $this->title = Yii::t('tariff', 'Monitoring'), 'url' => '/uu/monitor']
     ],
 ]) ?>
 
@@ -65,10 +65,7 @@ $columns = [
         'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
-            return Html::a(
-                Html::encode($accountTariff->clientAccount->client),
-                ['/client/view', 'id' => $accountTariff->client_account_id]
-            );
+            return $accountTariff->clientAccount->getLink();
         }
     ],
 ];
@@ -87,7 +84,7 @@ if ($monthDateTime) {
 
                 $accountLogSetup = AccountLogSetupMonitor::getMonitor($accountTariff, $monthDateTime, $day);
                 $accountLogPeriod = AccountLogPeriodMonitor::getMonitor($accountTariff, $monthDateTime, $day);
-                $accountLogResource = (int)AccountLogResourceMonitor::getMonitor($accountTariff, $monthDateTime, $day);
+                list($accountLogResource, $accountLogResourceWithEntry) = AccountLogResourceMonitor::getMonitor($accountTariff, $monthDateTime, $day);
 
                 // сколько всего ресурсов должно быть посчитано
                 $totalResources = isset($resourcesGroupedByServiceType[$accountTariff->service_type_id]) ?
@@ -95,7 +92,9 @@ if ($monthDateTime) {
                     0;
 
                 // обязательно ли считать транзакции за этот день
-                $dateStr = $monthDateTime->modify($day . ' day')->format('Y-m-d');
+                $dateStr = $monthDateTime
+                    ->setDate($monthDateTime->format('Y'), $monthDateTime->format('n'), $day)
+                    ->format('Y-m-d');
                 if ($dateStr >= date('Y-m-d')) {
 
                     // дата в будущем, считать не обязательно
@@ -113,44 +112,68 @@ if ($monthDateTime) {
                     /** @var AccountTariffLog $accountTariffLog */
                     $accountTariffLogs = $accountTariff->accountTariffLogs;
                     $accountTariffLog = reset($accountTariffLogs);
-                    $isNeedCalculate = (!$accountTariffLog || $accountTariffLog->actual_from >= $dateStr);
+                    $isNeedCalculate = ($accountTariffLog && $accountTariffLog->actual_from > $dateStr);
 
                 }
 
-                // стили для ресурсов
-                $resourceTitle = $accountLogResource . ' / ' . $totalResources . '. ';
-                if ($accountLogResource) {
-                    if ($accountLogResource === $totalResources) {
-                        $resourceTitle .= 'Плата за все ресурсы посчитана';
-                        $resourceClassName = 'success';
+                ob_start();
+
+                ?>
+
+
+                <?php // подключение ?>
+                <?php if ($accountLogSetup) : ?>
+                    <span class="label label-<?= ($accountLogSetup === 2) ? 'success' : 'warning' ?>"
+                          title="Плата за подключение посчитана <?= ($accountLogSetup === 2) ? 'и учтена' : ', но не учтена' ?> в проводке">+</span>
+                <?php endif ?>
+                <br/>
+
+                <?php // абонентка ?>
+                <?php if ($accountLogPeriod) : ?>
+                    <span class="label label-<?= ($accountLogPeriod === 2) ? 'success' : 'warning' ?>"
+                          title="Абоненская плата посчитана <?= ($accountLogPeriod === 2) ? 'и учтена' : ', но не учтена' ?> в проводке">+</span>
+                <?php elseif ($isNeedCalculate): ?>
+                    <span class="label label-danger" title="Абоненская плата не посчитана">-</span>
+                <?php endif ?>
+                <br/>
+
+                <?php // ресурсы ?>
+                <?php if ($isNeedCalculate && $totalResources) : ?>
+                    <?php
+                    $resourceTitle = $accountLogResource . ' / ' . $totalResources . '. ';
+                    if ($accountLogResource) {
+
+                        if ($accountLogResource === $totalResources) {
+                            $resourceTitle .= 'Плата за все ресурсы посчитана';
+                            if ($accountLogResource === $accountLogResourceWithEntry) {
+                                $resourceTitle .= ' и учтена в проводках';
+                                $resourceClassName = 'success';
+                            } else {
+                                $resourceTitle .= ', но не учтена в проводках';
+                                $resourceClassName = 'warning';
+                            }
+
+                        } else {
+
+                            $resourceTitle .= 'Плата за часть ресурсов не посчитана';
+                            if ($accountLogResource !== $accountLogResourceWithEntry) {
+                                $resourceTitle .= ' и не учтена в проводках';
+                            }
+                            $resourceClassName = 'warning';
+                        }
                     } else {
-                        $resourceTitle .= 'Плата за часть ресурсов не посчитана';
-                        $resourceClassName = 'warning';
+                        $resourceTitle .= 'Плата за ресурсы не посчитана';
+                        $resourceClassName = 'danger';
                     }
-                } else {
-                    $resourceTitle .= 'Плата за ресурсы не посчитана';
-                    $resourceClassName = 'danger';
-                }
+                    ?>
+                    <span class="label label-<?= $resourceClassName ?>" title="<?= $resourceTitle ?>"><?= $accountLogResource ?></span>
+                <?php elseif ($accountLogResource): ?>
+                    <?= $accountLogResource ?>
+                <?php endif ?>
+                <br/>
 
-                return
-                    // подключение
-                    ($accountLogSetup ? '<span class="label label-success" title="Плата за подключение посчитана">+</span>' : '') . '<br />' .
-
-                    // абонентка
-                    ($accountLogPeriod ?
-                        '<span class="label label-success" title="Абоненская плата посчитана">+</span>' :
-                        ($isNeedCalculate ?
-                            '<span class="label label-danger" title="Абоненская плата не посчитана">-</span>' :
-                            ''
-                        )
-                    ) . '<br />' .
-
-                    // ресурсы
-                    (
-                    ($isNeedCalculate && $totalResources) ?
-                        sprintf('<span class="label label-%s" title="%s">%d</span>', $resourceClassName, $resourceTitle, $accountLogResource) :
-                        ($accountLogResource ?: '')
-                    );
+                <?php
+                return ob_get_clean();
             }
         ];
 
