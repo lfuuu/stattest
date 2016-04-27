@@ -1,16 +1,16 @@
 <?php
 namespace app\models;
 
-use app\classes\Assert;
-use app\classes\model\HistoryActiveRecord;
-use app\classes\voip\VoipStatus;
-use app\classes\BillContract;
 use DateTimeZone;
 use yii\base\Exception;
+use yii\helpers\ArrayHelper;
+use app\classes\Assert;
+use app\classes\Utils;
+use app\classes\model\HistoryActiveRecord;
+use app\classes\BillContract;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\classes\Utils;
-use yii\helpers\ArrayHelper;
+use app\models\billing\Locks;
 
 /**
  * @property int $id
@@ -576,42 +576,58 @@ class ClientAccount extends HistoryActiveRecord
         return parent::beforeSave($insert);
     }
 
-
-    public function getRealtimeBalance()
+    /**
+     * @return ClientCounter
+     */
+    public function getBillingCounters()
     {
-        $balance = VoipStatus::create($this)->getRealtimeBalance();
-
-        if ($balance == VoipStatus::STATUS_ERROR) {
-            $savedBalance = $this->makeBalance();
-            return $savedBalance['balance'];
-        }
-
-        return $balance;
+        return ClientCounter::getCounters($this->id);
     }
 
-    public function getDaySum()
-    {
-        //TODO: переделать на \app\models\ClientAccount::find()->one()->counters->daySum
-        //TODO: разобраться с разнообразием получения данных баланса и счетчиков
-
-        $daySum = VoipStatus::create($this)->getDaySum();
-
-        if ($daySum == VoipStatus::STATUS_ERROR) {
-            $counters = ClientCounter::dao()->getOrCreateCounter($this->id);
-            if ($counters) {
-                return $counters->amount_day_sum;
-            }
-            return 0;
-        }
-
-        return $daySum;
-    }
-
+    /**
+     * Возвращает список кодов предупреждений
+     * @return array
+     */
     public function getVoipWarnings()
     {
-        return VoipStatus::create($this)->getWarnings();
-    }
+        $warnings = [];
+        $counters = $this->billingCounters;
 
+        if ($counters->isLocal) {
+            $warnings['unavailable.billing'] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
+        }
+
+        try {
+            $locks = Locks::find()->where(['client_id' => $this->id])->one();
+
+            if ($locks->voip_auto_disabled_local) {
+                $warnings['voip.auto_disabled_local'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)';
+            }
+            if ($locks->voip_auto_disabled) {
+                $warnings['voip.auto_disabled'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)';
+            }
+        }
+        catch (\Exception $e) {
+            $warnings['unavailable.locks'] = 'Сервер статистики недоступен. Данные о блокировках недоступны';
+        }
+
+        $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && - $counters->daySummary > $this->voip_credit_limit_day);
+        $need_lock_limit_month = ($this->voip_credit_limit != 0 && - $counters->monthSummary > $this->voip_credit_limit);
+        $need_lock_credit = ($this->credit >= 0 && $counters->realtimeBalance + $this->credit < 0);
+        $need_lock_flag = ($this->voip_disabled > 0);
+
+        if ($need_lock_limit_day) {
+            $warnings['lock.limit_day'] = 'Превышен дневной лимит: ' . (- $counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
+        }
+        if ($need_lock_limit_month) {
+            $warnings['lock.limit_month'] = 'Превышен месячный лимит: ' . (- $counters->monthSummary) . ' > ' . $this->voip_credit_limit;
+        }
+        if ($need_lock_credit) {
+            $warnings['lock.credit'] = 'Превышен лимит кредита: ' . $counters->realtimeBalance . ' < -' . $this->credit;
+        }
+
+        return $warnings;
+    }
 
     public function getVoipNumbers()
     {
@@ -630,22 +646,15 @@ class ClientAccount extends HistoryActiveRecord
 
     public function makeBalance($isWithExp = false)
     {
-        $balance = $this->balance;
-        $expenditure = ClientCounter::dao()->getAmountSumByAccountId($this->id);
-
-        if ($this->credit >= 0) {
-            $balance += $expenditure['amount_sum'];
-        }
-
         $res = [
-            'balance' => $balance,
+            'balance' => $this->billingCounters->realtimeBalance,
             'currency' => $this->currency,
         ];
 
         if ($isWithExp) {
             $res['id'] = $this->id;
             $res['credit'] = $this->credit;
-            $res['expenditure'] = $expenditure;
+            $res['expenditure'] = $this->billingCounters->getAttributes();
             $res['view_mode'] = $this->lk_balance_view_mode;
         }
 

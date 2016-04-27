@@ -18,7 +18,7 @@ class DayLimitNotificationProcessor extends NotificationProcessor
 
     public function getValue()
     {
-        return -$this->client->getDaySum();
+        return -$this->client->billingCounters->daySummary;
     }
 
     public function getLimit()

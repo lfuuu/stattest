@@ -187,17 +187,8 @@ class ImportantEvents extends ActiveRecord
      */
     private function getBalance()
     {
-        $client = ClientAccount::findOne($this->client_id);
-        $balance = $client->balance;
-        if ($client->credit > -1) {
-            try {
-                $clientAmountSum = ClientCounter::dao()->getAmountSumByAccountId($client->id);
-                $balance += $clientAmountSum['amount_sum'];
-            }
-            catch (\yii\db\Exception $e) {
-            }
-        }
-        return $balance;
+        $clientAccount = ClientAccount::findOne($this->client_id);
+        return $clientAccount->billingCounters->realtimeBalance;
     }
 
     /**

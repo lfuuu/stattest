@@ -5,12 +5,12 @@ namespace app\models\billing;
 use Yii;
 use yii\db\ActiveRecord;
 
-class Counter extends ActiveRecord
+class Locks extends ActiveRecord
 {
 
     public static function tableName()
     {
-        return 'billing.counters';
+        return 'billing.locks';
     }
 
     public static function getDb()
@@ -24,9 +24,8 @@ class Counter extends ActiveRecord
 
         return
             $query->addSelect([
-                'amount_sum' => 'CAST(amount_sum AS NUMERIC(10,2))',
-                'amount_day_sum' => 'CAST(amount_day_sum AS NUMERIC(10,2))',
-                'amount_month_sum' => 'CAST(amount_month_sum AS NUMERIC(10,2))'
+                'voip_auto_disabled',
+                'voip_auto_disabled_local',
             ]);
     }
 

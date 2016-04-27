@@ -85,13 +85,13 @@ abstract class NotificationProcessor
             }
 
             if ($isSet) {
-                echo "\n" . date('r') . ': (+)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->getRealtimeBalance() . ', day: ' . $client->getDaySum() . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                echo "\n" . date('r') . ': (+)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, true);
                 $this->oldSetupSendAndSaveLog();
             }
 
             if ($isUnSet) {
-                echo "\n" . date('r') . ': (-)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->getRealtimeBalance() . ', day: ' . $client->getDaySum() . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                echo "\n" . date('r') . ': (-)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, false);
                 $this->oldUnsetSaveLog();
             }

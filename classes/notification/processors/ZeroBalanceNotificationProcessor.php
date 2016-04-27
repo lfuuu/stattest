@@ -21,7 +21,7 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
 
     public function getValue()
     {
-        return $this->client->getRealtimeBalance();
+        return $this->client->billingCounters->realtimeBalance;
     }
 
     public function getLimit()

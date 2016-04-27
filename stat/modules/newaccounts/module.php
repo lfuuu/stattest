@@ -120,16 +120,10 @@ class m_newaccounts extends IModule
         $design->assign("sum_l", $sum_l);
 
 
-        
-        try{
-            $billingCounter = ClientCS::getBillingCounters($fixclient_data["id"]);
-        }catch(Exception $e)
-        {
-            trigger_error2($e->getMessage());
-        }
+        $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-        $design->assign("counters", $billingCounter);
-        $design->assign("subscr_counter", ClientCounter::dao()->getOrCreateCounter($fixclient_data["id"]));
+        $design->assign("counters", $clientAccount->billingCounters);
+        $design->assign("subscr_counter", $clientAccount->billingCounters);
 
         $design->assign(
             'notLinkedtransactions',

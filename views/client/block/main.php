@@ -1,9 +1,10 @@
 <?php
-use \yii\helpers\Url;
-use \app\models\ClientContract;
-use app\helpers\DateTimeZoneHelper;
 
+use yii\helpers\Url;
+use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContract;
 ?>
+
 <div class="main-client">
 
     <div class="row">
@@ -44,7 +45,8 @@ use app\helpers\DateTimeZoneHelper;
                     </div>
                     <div class="col-sm-12">
                         <?php $contracts = $contragent->contracts;
-                        foreach ($contracts as $contract): ?>
+                        foreach ($contracts as $contract):
+                            ?>
                             <div class="row contract-block" style="margin-left: 0px;">
                                 <div class="col-sm-5">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
@@ -90,7 +92,7 @@ use app\helpers\DateTimeZoneHelper;
                                 <div class="col-sm-12">
                                     <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                         <?php
-                                        $realtimeBalance = $contractAccount->getRealtimeBalance();
+                                        $warnings = $contractAccount->voipWarnings;
                                         ?>
                                         <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
@@ -104,39 +106,69 @@ use app\helpers\DateTimeZoneHelper;
                                                 ЛС № <?= $contractAccount->id ?>
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
-                                                <?= $contractAccount->is_blocked ? 'Заблокирован' : '' ?>
+                                                <?php
+                                                $warningsKeys = array_keys($warnings);
+                                                $contractBlockers = [];
+
+                                                if ($contractAccount->is_blocked || in_array('voip.auto_disabled', $warningsKeys, true)) {
+                                                    $contractBlockers[] = 'Заблокирован';
+                                                }
+
+                                                if (in_array('voip.auto_disabled_local', $warningsKeys, true)) {
+                                                    $contractBlockers[] = 'Блок лок.';
+                                                }
+
+                                                if (in_array('lock.limit_day', $warningsKeys, true)) {
+                                                    $contractBlockers[] = 'Блок сут.';
+                                                }
+
+                                                if (in_array('lock.credit', $warningsKeys, true)) {
+                                                    $contractBlockers[] = 'Блок фин.';
+                                                }
+
+                                                echo implode(' / ', $contractBlockers);
+                                                ?>
                                             </span>
                                             <span class="col-sm-2" style="text-align: right;">
                                                 <?= $contractAccount->regionName ?>
                                             </span>
-                                            <span class="col-sm-2"
-                                                  style="text-align: right;color:<?= ($realtimeBalance < 0) ? 'red' : 'green'; ?>;">
-                                                <?= $realtimeBalance ?>
-                                                <?= $contractAccount->currency ?>
+                                            <span class="col-sm-1 text-nowrap" style="text-align: right;color:<?= ($contractAccount->billingCounters->realtimeBalance < 0) ? 'red' : 'green'; ?>;">
+                                                <abbr title="Текущий баланс лицевого счета">
+                                                    <?= $contractAccount->billingCounters->realtimeBalance ?>
+                                                    <?= $contractAccount->currency ?>
+                                                </abbr>
                                             </span>
-                                            <?php if ($realtimeBalance < 0 && abs($realtimeBalance) > $contractAccount->credit): ?>
-                                                <span class="col-sm-1" style="text-align: right;color: red;">
-                                                    <abbr title="Превышение кредита при отрицательном балансе">
-                                                        <?= $contractAccount->credit - abs($realtimeBalance); ?>
-                                                        <?= $contractAccount->currency ?>
-                                                    </abbr>
-                                                </span>
-                                            <?php endif; ?>
-                                            <span class="col-sm-2">
-                                                <?= $contractAccount->credit >= 0 ? '(Кредит: ' . $contractAccount->credit . ')': '' ?>
+                                            <span class="col-sm-1 text-nowrap">
+                                                <abbr title="Размер кредита">
+                                                    <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit: '' ?>
+                                                </abbr>
+                                            </span>
+                                            <span class="col-sm-1 text-nowrap" style="text-align: right;color:<?= ($contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary < 0) ? 'red' : 'green'; ?>;">
+                                                <abbr title="Остаток за текущий день (Истрачено: <?= $contractAccount->billingCounters->daySummary; ?>)">
+                                                    <?= $contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary; ?>
+                                                    <?= $contractAccount->currency; ?>
+                                                </abbr>
+                                            </span>
+                                            <span class="col-sm-1 text-nowrap">
+                                                <abbr title="Дневной лимит">
+                                                    <?php
+                                                    echo ($contractAccount->voip_is_day_calc === 1 ? 'Авто лим. ' : 'Сут.лим. ') . ': ';
+                                                    echo $contractAccount->voip_credit_limit_day;
+                                                    ?>
+                                                </abbr>
                                             </span>
                                             <div class="btn-group" style="float: right;">
                                                 <?php if($contractAccount->hasVoip): ?>
-						    <?php if ($contractAccount->voip_disabled) { ?>
-                                                <button type="button" class="btn btn-sm set-voip-disabled
-                                                <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
-                                                        style="width: 120px;padding: 3px 10px;"
-                                                        data-id="<?= $contractAccount->id ?>"
-                                                    title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
-                                                    <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
-                                                </button>
-						    <?php } ?>
+                                                    <?php if ($contractAccount->voip_disabled): ?>
+                                                        <button type="button" class="btn btn-sm set-voip-disabled
+                                                            <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                            style="width: 120px;padding: 3px 10px;"
+                                                            data-id="<?= $contractAccount->id ?>"
+                                                            title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
+                                                            <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
+                                                        </button>
                                                     <?php endif; ?>
+                                                <?php endif; ?>
                                                 <button type="button" class="btn btn-sm set-block
                                                 <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
                                                         style="width: 120px;padding: 3px 10px;"
@@ -144,11 +176,10 @@ use app\helpers\DateTimeZoneHelper;
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                                 </button>
                                             </div>
-                                            <?php
-                                            if ($account && $account->id == $contractAccount->id && $voipWarnings = $account->getVoipWarnings()): ?>
+                                            <?php if ($warnings): ?>
                                                 <div class="col-sm-12">
-                                                    <?php foreach($voipWarnings as $warning): ?>
-                                                        <span class="label label-danger"><?=$warning?></span>
+                                                    <?php foreach($warnings as $warningCode => $warningText): ?>
+                                                        <span class="label label-danger"><?= $warningText; ?></span>
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>

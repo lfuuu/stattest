@@ -2,7 +2,6 @@
 namespace app\dao;
 
 use app\classes\Singleton;
-use app\models\ClientCounter;
 use app\models\Courier;
 use yii\helpers\ArrayHelper;
 

@@ -1,7 +1,6 @@
 <?php 
 
 use app\models\ClientAccount;
-use app\models\ClientCounter;
 
 class Api
 {

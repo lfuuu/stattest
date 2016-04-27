@@ -795,58 +795,6 @@ class ClientCS {
     function __isset($k) { return isset($this->F[$k]); }
     function __unset($k) { unset($this->F[$k]); }
 
-    private static function sendBillingCountersNotification($clientId)
-    {
-        $subj = '[stat/include/util] База биллинга телефонии не доступна';
-        $c = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => ($clientId)]);
-        $body = 'Клиент ' . $c->client . ' не получил информацию по биллингу';
-        //mail(ADMIN_EMAIL, $subj, $body);
-    }
-    public static function getBillingCounters($clientId, $silent_mode = false)
-    {
-        global $pg_db,$db;
-
-        $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
-
-        try{
-
-            $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(10,2)) as amount_sum,
-                                                CAST(amount_day_sum as NUMERIC(10,2)) as amount_day_sum,
-                                                CAST(amount_month_sum as NUMERIC(10,2)) as amount_month_sum
-                                        FROM billing.counters
-                                        WHERE client_id='".$clientId."'");
-
-            if (!empty($counters_reg)) {
-                $db->Query('INSERT INTO client_counters(client_id, amount_sum, amount_day_sum, amount_month_sum) VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].')
-                            ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
-            } else {
-                $db->Query('DELETE FROM client_counters WHERE client_id = '.$clientId);
-                $counters_reg = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
-            }
-
-        }catch(Exception $e)
-        {
-            if (!$silent_mode)
-            {
-                trigger_error2("База биллинга телефонии не доступна");
-            }
-            self::sendBillingCountersNotification($clientId);
-        }
-
-        if (!isset($counters_reg)) {
-            $counters_reg = $db->GetRow('SELECT * FROM client_counters WHERE client_id = ' . $clientId);
-            if (empty($counters_reg)) {
-                $counters_reg = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
-            }
-        }
-
-        $counters['amount_sum'] = $counters_reg['amount_sum'];
-        $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
-        $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
-
-        return $counters;
-    }
-
     public static function getVoipPrefix($regionId = 0)
     {
         if ($regionId == 99) {
