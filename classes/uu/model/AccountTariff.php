@@ -86,8 +86,7 @@ class AccountTariff extends ActiveRecord
      */
     public function getName($isWithAccount = true)
     {
-        $tariffPeriod = $this->tariffPeriod;
-        $tariffPeriodName = $tariffPeriod ? $tariffPeriod->getName() : Yii::t('common', 'Switched off');
+        $tariffPeriodName = $this->tariff_period_id ? $this->tariffPeriod->getName() : Yii::t('common', 'Switched off');
         return $isWithAccount ?
             sprintf('%s %s', $this->clientAccount->client, $tariffPeriodName) :
             $tariffPeriodName;
@@ -308,24 +307,33 @@ class AccountTariff extends ActiveRecord
      * По возможности - по периодам списания, но иногда и меньше (от подключения до первого числа, а также при переключении тарифов).
      *
      * @param Period $chargePeriodMain если указано, то использовать указанное, а не из getAccountLogHugeFromToTariffs
+     * @param bool $isWithCurrent возвращать ли незаконченный (длится еще) тариф? Для предоплаты надо, для постоплаты нет
      * @return AccountLogFromToTariff[]
      */
-    public function getAccountLogFromToTariffs($chargePeriodMain = null)
+    public function getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true)
     {
         /** @var AccountLogFromToTariff[] $accountLogPeriods */
         $accountLogPeriods = [];
         $dateTo = $dateFrom = null;
+        $minLogDatetime = self::getMinLogDatetime();
 
         // взять больший периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
         $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
+            $dateTo = $accountLogHugePeriod->getDateTo();
+            if ($dateTo && $dateTo < $minLogDatetime) {
+                // слишком старый. Для оптимизации считать не будем
+                continue;
+            }
+
             $tariffPeriod = $accountLogHugePeriod->getTariffPeriod();
             $chargePeriod = $chargePeriodMain ?: $tariffPeriod->chargePeriod;
             $dateFrom = $accountLogHugePeriod->getDateFrom();
-            $dateTo = $accountLogHugePeriod->getDateTo();
-            $dateToLimited = $dateTo ?: (new DateTimeImmutable())->modify('-1 day');
+            $dateToLimited = $dateTo ?:
+                (new DateTimeImmutable())
+                    ->modify($chargePeriod->monthscount? 'last day of this month': '-1 day'); // помесячно - до конца месяца, посуточно - до вчерашнего дня
 
             if (
                 $chargePeriod->monthscount >= 1 &&
@@ -336,31 +344,42 @@ class AccountTariff extends ActiveRecord
                 )
             ) {
                 // если период списания не менее месяца, а даты начала и конца - в разных месяцах, то разбить по первым числам месяца
-                $accountLogPeriods[] = new AccountLogFromToTariff();
-                $count = count($accountLogPeriods);
-                $accountLogPeriods[$count - 1]->setTariffPeriod($tariffPeriod);
-                $accountLogPeriods[$count - 1]->setDateFrom($dateFrom);
+                $accountLogPeriod = new AccountLogFromToTariff();
+                $accountLogPeriod->setTariffPeriod($tariffPeriod);
+                $accountLogPeriod->setDateFrom($dateFrom);
 
                 // следующий период будет начинаться 1 числа следующего месяца
                 $dateFrom = $dateFrom->setDate($dateFrom->format('Y'), 1 + (int)$dateFrom->format('m'), 1);
-                $accountLogPeriods[$count - 1]->setDateTo($dateFrom->modify('-1 day'));
+                $accountLogPeriod->setDateTo($dateFrom->modify('-1 day'));
+
+                if ($accountLogPeriod->getDateTo() >= $minLogDatetime) {
+                    // Для оптимизации считаем только нестарые
+                    $accountLogPeriods[] = $accountLogPeriod;
+                }
             }
 
             do {
                 // начать новый период
-                $accountLogPeriods[] = new AccountLogFromToTariff();
-                $count = count($accountLogPeriods);
-                $accountLogPeriods[$count - 1]->setTariffPeriod($tariffPeriod);
-                $accountLogPeriods[$count - 1]->setDateFrom($dateFrom);
+                $accountLogPeriod = new AccountLogFromToTariff();
+                $accountLogPeriod->setTariffPeriod($tariffPeriod);
+                $accountLogPeriod->setDateFrom($dateFrom);
 
                 // следующий период будет начинаться через заданный период
                 $dateFrom = $dateFrom->modify($chargePeriod->getModify());
-                $accountLogPeriods[$count - 1]->setDateTo(min($dateFrom->modify('-1 day'), $dateToLimited));
+                $accountLogPeriod->setDateTo(min($dateFrom->modify('-1 day'), $dateToLimited));
+
+                if ($accountLogPeriod->getDateTo() >= $minLogDatetime) {
+                    // Для оптимизации считаем только нестарые
+                    $accountLogPeriods[] = $accountLogPeriod;
+                }
             } while ($dateFrom < $dateToLimited);
 
         }
 
-        if (($count = count($accountLogPeriods)) && !$dateTo && $dateFrom > (new DateTimeImmutable())) {
+        if (!$isWithCurrent &&
+            ($count = count($accountLogPeriods)) &&
+            !$dateTo && $dateFrom > (new DateTimeImmutable())
+        ) {
             // если count, то $dateTo и $dateFrom определены
             // если тариф действующий (!$dateTo) и следующий должен начаться не сегодня ($dateFrom > (new DateTimeImmutable()))
             //      значит, последний период еще длится - удалить из расчета
@@ -397,11 +416,19 @@ class AccountTariff extends ActiveRecord
     public function getUntarificatedSetupPeriods($accountLogs)
     {
         $untarificatedPeriods = [];
+        $minLogDatetime = self::getMinLogDatetime();
         $accountLogFromToTariffs = $this->getAccountLogHugeFromToTariffs(); // все
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->getDateFrom()->format('Y-m-d');
+
+            $dateFrom = $accountLogFromToTariff->getDateFrom();
+            if ($dateFrom < $minLogDatetime) {
+                // слишком старый. Для оптимизации считать не будем
+                continue;
+            }
+
+            $dateFromYmd = $dateFrom->format('Y-m-d');
             if (isset($accountLogs[$dateFromYmd])) {
                 unset($accountLogs[$dateFromYmd]);
             } else {
@@ -427,11 +454,13 @@ class AccountTariff extends ActiveRecord
     public function getUntarificatedPeriodPeriods($accountLogs)
     {
         $untarificatedPeriods = [];
-        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs(); // все
+        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs(null, true); // все
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->getDateFrom()->format('Y-m-d');
+
+            $dateFrom = $accountLogFromToTariff->getDateFrom();
+            $dateFromYmd = $dateFrom->format('Y-m-d');
             if (isset($accountLogs[$dateFromYmd])) {
                 // такой период рассчитан
                 // проверим, все ли корректно
@@ -470,7 +499,7 @@ class AccountTariff extends ActiveRecord
     {
         $untarificatedPeriods = [];
         $chargePeriod = Period::findOne(['id' => Period::ID_DAY]);
-        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod); // все
+        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, false); // все
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
@@ -591,5 +620,16 @@ class AccountTariff extends ActiveRecord
             $rows[$hash][$accountTariff->id] = $accountTariff;
         }
         return $rows;
+    }
+
+    /**
+     * Вернуть дату, с которой рассчитываем лог. Если date_from строго меньше этой даты, то этот период не нужен в расчете
+     * Фактически расчитываем за этот и предыдущий месяц
+     * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
+     * @return DateTime
+     */
+    public static function getMinLogDatetime()
+    {
+        return (new DateTime())->setTime(0, 0, 0)->modify('first day of this month -1 months');
     }
 }

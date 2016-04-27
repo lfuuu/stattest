@@ -19,8 +19,12 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
     {
         parent::__construct();
 
+        $minLogDatetime = AccountTariff::getMinLogDatetime();
+        $virtpbxStatQuery = VirtpbxStat::find()
+            ->where(['>=', 'date', $minLogDatetime->format('Y-m-d')]);
+
         /** @var VirtpbxStat $virtpbxStat */
-        foreach (VirtpbxStat::find()->each() as $virtpbxStat) {
+        foreach ($virtpbxStatQuery->each() as $virtpbxStat) {
             $usageId = $virtpbxStat->usage_id;
             $clientId = $virtpbxStat->client_id;
             $date = $virtpbxStat->date;

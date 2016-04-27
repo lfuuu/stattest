@@ -6,6 +6,7 @@
 namespace app\controllers\uu;
 
 use app\classes\BaseController;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountLogMonitorFilter;
 use app\classes\uu\filter\AccountLogPeriodFilter;
 use app\classes\uu\filter\AccountLogResourceFilter;
@@ -15,6 +16,9 @@ use yii\filters\AccessControl;
 
 class AccountlogController extends BaseController
 {
+    // Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
+    use AddClientAccountFilterTraits;
+
     /**
      * Права доступа
      * @return []
@@ -41,7 +45,7 @@ class AccountlogController extends BaseController
     public function actionSetup()
     {
         $filterModel = new AccountLogSetupFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $this->addClientAccountFilter($filterModel);
 
         return $this->render('setup', [
             'filterModel' => $filterModel,
@@ -54,7 +58,7 @@ class AccountlogController extends BaseController
     public function actionPeriod()
     {
         $filterModel = new AccountLogPeriodFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $this->addClientAccountFilter($filterModel);
 
         return $this->render('period', [
             'filterModel' => $filterModel,
@@ -67,7 +71,7 @@ class AccountlogController extends BaseController
     public function actionResource()
     {
         $filterModel = new AccountLogResourceFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $this->addClientAccountFilter($filterModel);
 
         return $this->render('resource', [
             'filterModel' => $filterModel,
@@ -80,7 +84,7 @@ class AccountlogController extends BaseController
     public function actionMonitor()
     {
         $filterModel = new AccountLogMonitorFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $this->addClientAccountFilter($filterModel);
 
         return $this->render('monitor', [
             'filterModel' => $filterModel,

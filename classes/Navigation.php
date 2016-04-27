@@ -252,7 +252,7 @@ class Navigation
             $block2->addItem($serviceType->name, Url::to([
                 'uu/accounttariff',
                 'serviceTypeId' => $serviceType->id,
-                'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
+                //'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
             ]), ['tarifs.read']);
         }
 
@@ -267,7 +267,6 @@ class Navigation
                 ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/accountlog/resource'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     'uu/accountlog/monitor',
-                    'AccountLogMonitorFilter[service_type_id]' => ServiceType::ID_VPBX,
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],

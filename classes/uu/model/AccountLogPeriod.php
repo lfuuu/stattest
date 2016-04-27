@@ -62,11 +62,26 @@ class AccountLogPeriod extends ActiveRecord
      */
     public static function tarificateAll()
     {
+        $minLogDatetime = AccountTariff::getMinLogDatetime();
+        // в целях оптимизации удалить старые данные
+        self::deleteAll(['<', 'date_to', $minLogDatetime->format('Y-m-d')]);
+
         $accountTariffs = AccountTariff::find();
 
         // рассчитать по каждой универсальной услуге
         foreach ($accountTariffs->each() as $accountTariff) {
             echo '. ';
+
+            /** @var AccountTariffLog $accountTariffLog */
+            $accountTariffLogs = $accountTariff->accountTariffLogs;
+            $accountTariffLog = reset($accountTariffLogs);
+            if (!$accountTariffLog ||
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
+            ) {
+                // услуга отключена давно - в целях оптимизации считать нет смысла
+                continue;
+            }
+
             self::tarificateAccountTariff($accountTariff);
         }
     }
@@ -77,17 +92,17 @@ class AccountLogPeriod extends ActiveRecord
      */
     public static function tarificateAccountTariff(AccountTariff $accountTariff)
     {
-        /** @var self[] $accountLogs */
+        // по которым произведен расчет
+        /** @var AccountLogPeriod[] $accountLogs */
         $accountLogs = self::find()
-            ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
+            ->where(['account_tariff_id' => $accountTariff->id])
             ->indexBy('date_from')
-            ->all(); // по которым произведен расчет
+            ->all();
 
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods($accountLogs);
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
             $period = $tariffPeriod->period;
-
 
             $accountLogPeriod = new self();
             $accountLogPeriod->date_from = $untarificatedPeriod->getDateFrom()->format('Y-m-d');

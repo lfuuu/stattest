@@ -210,6 +210,7 @@ a.nohover:hover { color: #000; }
     min-width: 110px;
 }
 
+.service-type-column,
 .region-column,
 .city-column,
 .tariff-person-column,

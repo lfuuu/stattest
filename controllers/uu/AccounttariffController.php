@@ -6,6 +6,7 @@
 namespace app\controllers\uu;
 
 use app\classes\BaseController;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountTariffFilter;
 use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\forms\AccountTariffAddForm;
@@ -20,6 +21,9 @@ use yii\web\Response;
 
 class AccounttariffController extends BaseController
 {
+    // Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
+    use AddClientAccountFilterTraits;
+
     /**
      * Права доступа
      * @return []
@@ -55,16 +59,7 @@ class AccounttariffController extends BaseController
     public function actionIndex($serviceTypeId = ServiceType::ID_VPBX)
     {
         $filterModel = new AccountTariffFilter($serviceTypeId);
-
-        $get = Yii::$app->request->get();
-
-        // если выбран клиент - принудительно выставить фильтр по нему
-        global $fixclient_data;
-        if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
-            $get['AccountTariffFilter']['client_account_id'] = $fixclient_data['id'];
-        }
-
-        $filterModel->load($get);
+        $this->addClientAccountFilter($filterModel);
 
         return $this->render('index', [
             'filterModel' => $filterModel,

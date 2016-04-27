@@ -8,6 +8,7 @@ use app\classes\uu\resourceReader\VpbxAbonentResourceReader;
 use app\classes\uu\resourceReader\VpbxDiskResourceReader;
 use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * Ресурс (дисковое пространство, абоненты и т.д.)
@@ -18,6 +19,8 @@ use Yii;
  * @property float $max_value
  * @property integer $service_type_id
  * @property string $unit
+ *
+ * @property ServiceType $serviceType
  */
 class Resource extends \yii\db\ActiveRecord
 {
@@ -65,6 +68,14 @@ class Resource extends \yii\db\ActiveRecord
             [['service_type_id'], 'integer'],
             [['name', 'unit'], 'string', 'max' => 50]
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceType()
+    {
+        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
     }
 
     /**
@@ -132,4 +143,21 @@ class Resource extends \yii\db\ActiveRecord
     {
         return $this->name;
     }
+
+    /**
+     * Вернуть ресурсы, сгруппированные по типу услуги
+     * @return self[][]
+     */
+    public static function getGroupedByServiceType()
+    {
+        $resources = [];
+        $resourceQuery = self::find();
+        /** @var self $resource */
+        foreach ($resourceQuery->each() as $resource) {
+            $resources[$resource->service_type_id][] = $resource;
+        }
+
+        return $resources;
+    }
+
 }

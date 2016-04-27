@@ -80,11 +80,11 @@ class AccountLogResource extends ActiveRecord
      */
     public static function tarificateAll()
     {
-        // удалить старое, чтобы не захламлять таблицу, ибо это приводит к тормозам
-        $dateFrom = (new DateTimeImmutable())->modify('-3 month');
-        self::deleteAll('date <= :date', ['date' => $dateFrom->format('Y-m-d')]);
+        $minLogDatetime = AccountTariff::getMinLogDatetime();
+        // в целях оптимизации удалить старые данные
+        self::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
 
-        // рассчитать по ресурсам, для которых раньше не было данных
+        // расcчитать по ресурсам, для которых раньше не было данных
         // обязательно до расчета новых, чтобы не делать двойную работу
         // @todo не надо считать, потому что нерассчитанные решил не добавлять в БД
 //        self::tarificateOld();
@@ -93,7 +93,18 @@ class AccountLogResource extends ActiveRecord
         $accountTariffs = AccountTariff::find();
         foreach ($accountTariffs->each() as $accountTariff) {
             echo '. ';
-            self::tarificateAccountTariff($accountTariff, $dateFrom);
+
+            /** @var AccountTariffLog $accountTariffLog */
+            $accountTariffLogs = $accountTariff->accountTariffLogs;
+            $accountTariffLog = reset($accountTariffLogs);
+            if (!$accountTariffLog ||
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
+            ) {
+                // услуга отключена давно - в целях оптимизации считать нет смысла
+                continue;
+            }
+
+            self::tarificateAccountTariff($accountTariff);
         }
     }
 
@@ -136,9 +147,9 @@ class AccountLogResource extends ActiveRecord
      * Рассчитать плату по конкретной услуге
      * @param AccountTariff $accountTariff
      */
-    public static function tarificateAccountTariff(AccountTariff $accountTariff, \DateTimeImmutable $dateFrom)
+    public static function tarificateAccountTariff(AccountTariff $accountTariff)
     {
-        /** @var self[] $accountLogs */
+        /** @var AccountLogResource[] $accountLogs */
         $accountLogs = self::find()
             ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
             ->indexBy('date')
@@ -147,9 +158,6 @@ class AccountLogResource extends ActiveRecord
         $untarificatedPeriods = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $date = $untarificatedPeriod->getDateFrom();
-            if ($date < $dateFrom) {
-                continue;
-            }
             $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
 
             $tariffId = $tariffPeriod->tariff_id;

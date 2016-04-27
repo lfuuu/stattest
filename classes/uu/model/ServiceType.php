@@ -13,6 +13,7 @@ use yii\db\ActiveQuery;
  * @property int $parent_id
  *
  * @property ServiceType $parent
+ * @property Resource[] $resources
  */
 class ServiceType extends \yii\db\ActiveRecord
 {
@@ -68,5 +69,22 @@ class ServiceType extends \yii\db\ActiveRecord
     public function getParent()
     {
         return $this->hasOne(self::className(), ['id' => 'parent_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getResources()
+    {
+        return $this->hasMany(Resource::className(), ['service_type_id' => 'id']);
+    }
+
+    /**
+     * По какому полю сортировать для getList()
+     * @return []
+     */
+    public static function getListOrderBy()
+    {
+        return ['id' => SORT_ASC];
     }
 }

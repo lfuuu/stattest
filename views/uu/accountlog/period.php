@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
 use app\classes\Html;
 use app\classes\uu\filter\AccountLogPeriodFilter;
@@ -40,16 +41,14 @@ $accountTariffTableName = AccountTariff::tableName();
             'attribute' => 'date_to',
             'class' => DateRangeDoubleColumn::className(),
         ],
-//        [
-//            'attribute' => 'tariff_period_id',
-//            'format' => 'html',
-//            'value' => function (AccountLogPeriod $accountLogPeriod) {
-//                return Html::a(
-//                    Html::encode($accountLogPeriod->tariffPeriod->getName()),
-//                    $accountLogPeriod->tariffPeriod->getUrl()
-//                );
-//            }
-//        ],
+        [
+            'label' => 'Тип услуги',
+            'attribute' => 'service_type_id',
+            'class' => ServiceTypeColumn::className(),
+            'value' => function (AccountLogPeriod $accountLogPeriod) {
+                return $accountLogPeriod->accountTariff->serviceType->name;
+            }
+        ],
         [
             'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
             'attribute' => 'tariff_period_id',

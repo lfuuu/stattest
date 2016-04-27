@@ -18,6 +18,9 @@ $tariffPeriodTableName = TariffPeriod::tableName();
 <div class="well chargePeriod">
     <?php
     $periodList = Period::getList();
+    $periodListNonGreaterMonth = array_filter($periodList, function (Period $period) {
+        return $period->monthscount <= 1;
+    });
     echo TabularInput::widget([
             'models' => array_values($tariffPeriods), // ключ должен быть автоинкрементный
             'allowEmptyList' => false,
@@ -36,7 +39,7 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                     'type' => Editable::INPUT_SELECT2,
                     'items' => $periodList,
                     'options' => [
-                        'data' => $periodList,
+                        'data' => $periodListNonGreaterMonth,
                     ],
                 ],
                 [

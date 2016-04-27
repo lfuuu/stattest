@@ -9,13 +9,14 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
+use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountLogSetupFilter;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
-use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 $accountLogPeriodTableName = AccountLogPeriod::tableName();
@@ -36,6 +37,14 @@ $accountTariffTableName = AccountTariff::tableName();
         [
             'attribute' => 'date',
             'class' => DateRangeDoubleColumn::className(),
+        ],
+        [
+            'label' => 'Тип услуги',
+            'attribute' => 'service_type_id',
+            'class' => ServiceTypeColumn::className(),
+            'value' => function (AccountLogSetup $accountLogSetup) {
+                return $accountLogSetup->accountTariff->serviceType->name;
+            }
         ],
         [
             'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),

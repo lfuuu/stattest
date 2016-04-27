@@ -28,7 +28,7 @@ class AccountLogSetupMonitor extends AccountLogSetup implements AccountLogMonito
     public static function getMonitor(AccountTariff $accountTariff, DateTimeImmutable $monthDateTime, $day)
     {
         if (self::$accountTariffId === null || self::$accountTariffId !== $accountTariff->id) {
-            // по этому клиенту кэша нет - надо все сбросит и посчитать заново
+            // по этому клиенту кэша нет - надо все сбросить и посчитать заново
             self::$accountTariffId = null;
             self::$logs = null;
         }
@@ -43,8 +43,8 @@ class AccountLogSetupMonitor extends AccountLogSetup implements AccountLogMonito
                         'date' => 'date',
                     ])
                     ->where('date BETWEEN :date_from AND :date_to', [
-                        ':date_from' => $monthDateTime->format('Y-m-d'),
-                        ':date_to' => $monthDateTime->modify('+1 month -1 day')->format('Y-m-d'),
+                        ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
+                        ':date_to' => $monthDateTime->modify('last day of this month')->format('Y-m-d'),
                     ])
                     ->indexBy('date')
                     ->asArray()

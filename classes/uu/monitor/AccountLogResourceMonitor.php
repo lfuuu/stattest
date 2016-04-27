@@ -44,8 +44,8 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
                         'cnt' => 'COUNT(price)',
                     ])
                     ->where('date BETWEEN :date_from AND :date_to', [
-                        ':date_from' => $monthDateTime->format('Y-m-d'),
-                        ':date_to' => $monthDateTime->modify('+1 month -1 day')->format('Y-m-d'),
+                        ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
+                        ':date_to' => $monthDateTime->modify('last day of this month')->format('Y-m-d'),
                     ])
                     ->groupBy('date')
                     ->indexBy('date')

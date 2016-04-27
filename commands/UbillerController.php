@@ -14,7 +14,17 @@ class UbillerController extends Controller
 {
 
     /**
-     * Рассчитать все
+     * Очистить все транзакции
+     */
+    public function actionClearAll()
+    {
+        AccountLogSetup::deleteAll();
+        AccountLogPeriod::deleteAll();
+        AccountLogResource::deleteAll();
+    }
+
+    /**
+     * Рассчитать все транзакции
      * @return int
      */
     public function actionIndex()
@@ -30,7 +40,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Рассчитать плату за подключение
+     * Рассчитать транзакции за подключение
      */
     public function actionSetup()
     {
@@ -46,7 +56,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Очистить плату за подключение
+     * Очистить транзакции за подключение
      */
     public function actionClearSetup()
     {
@@ -54,7 +64,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Рассчитать абоненскую плату
+     * Рассчитать транзакции абоненской платы
      */
     public function actionPeriod()
     {
@@ -70,7 +80,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Очистить абоненскую плату
+     * Очистить транзакции абоненской платы
      */
     public function actionClearPeriod()
     {
@@ -78,7 +88,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Рассчитать плату за ресурсы
+     * Рассчитать транзакции за ресурсы
      */
     public function actionResource()
     {
@@ -94,7 +104,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Очистить плату за ресурсы
+     * Очистить транзакции за ресурсы
      */
     public function actionClearResource()
     {
