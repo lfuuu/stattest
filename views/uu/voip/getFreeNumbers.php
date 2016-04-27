@@ -15,7 +15,7 @@ use app\classes\Html;
     <?php
     $isAnyShowed = false;
     /** @var \app\models\Number $number */
-    foreach ($numberActiveQuery->each() as $number) :
+    foreach ($numbers as $number) :
         $isAnyShowed = true;
         ?>
         <div class="col-sm-<?= $rowClass ?>">

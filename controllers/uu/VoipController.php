@@ -11,6 +11,7 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\models\City;
 use app\models\DidGroup;
+use app\models\filter\FreeNumberFilter;
 use app\models\Number;
 use app\models\NumberType;
 use app\models\UsageVoip;
@@ -81,14 +82,14 @@ class VoipController extends BaseController
      */
     public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '', $limit = 0, $numberType = '')
     {
-        $numberActiveQuery = Number::dao()->getFreeNumbers();
+        $numbers = new FreeNumberFilter;
 
         switch ($numberType) {
             case Tariff::NUMBER_TYPE_NUMBER:
-                $numberActiveQuery->andWhere(['number_type' => NumberType::ID_INTERNAL]);
+                $numbers->getNumbers();
                 break;
             case Tariff::NUMBER_TYPE_7800:
-                $numberActiveQuery->andWhere(['number_type' => NumberType::ID_EXTERNAL]); // 'ndc' => 800
+                $numbers->getNumbers7800();
                 break;
             case Tariff::NUMBER_TYPE_LINE:
                 $number = UsageVoip::dao()->getNextLineNumber();
@@ -106,24 +107,22 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $numberActiveQuery->andWhere(['city_id' => $cityId]);
-        $didGroupId && $numberActiveQuery->andWhere(['did_group_id' => $didGroupId]);
+        $numbers->setCity($cityId);
+        $didGroupId && $numbers->setDidGroup($didGroupId);
 
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
         if ($mask &&
             ($mask = strtr($mask, ['.' => '_', '*' => '%'])) &&
             preg_match('/^[\d_%]+$/', $mask)
         ) {
-            $numberActiveQuery->andWhere('number LIKE :mask', [':mask' => $mask]);
+            $numbers->setNumberMask($mask);
         }
 
-        $orderByField && $orderByType && $numberActiveQuery->orderBy([$orderByField => (int)$orderByType]);
-
+        $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
         $limit = (int)$limit;
-        $numberActiveQuery->limit($limit ?: 100);
 
         return $this->renderPartial('getFreeNumbers', [
-            'numberActiveQuery' => $numberActiveQuery,
+            'numbers' => $numbers->each()->result($limit ?: 100),
             'rowClass' => $rowClass,
         ]);
     }

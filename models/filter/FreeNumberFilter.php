@@ -131,7 +131,7 @@ class FreeNumberFilter extends Number
      * @param string $pattern
      * @return $this
      */
-    public function setNumberMask($mask = null, $pattern = '^%?\d{3,}%$')
+    public function setNumberMask($mask = null)
     {
         if (!is_null($mask)) {
             $this->query->andWhere('number LIKE :part', [':part' => $mask]);
@@ -152,12 +152,34 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int $cityId
+     * @return $this
+     */
+    public function setCity($cityId)
+    {
+        if ((int) $cityId) {
+            $this->query->andWhere(['city_id' => $cityId]);
+        }
+        return $this;
+    }
+
+    /**
      * @param int $offset
      * @return $this
      */
     public function setOffset($offset = 0)
     {
         $this->query->offset($offset);
+        return $this;
+    }
+
+    /**
+     * @param mixed $columns
+     * @return $this
+     */
+    public function orderBy($columns)
+    {
+        $this->query->addOrderBy($columns);
         return $this;
     }
 
