@@ -101,8 +101,7 @@ use app\models\ClientContract;
                                             style="position: relative;<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
                                             class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
-                                            <span class="col-sm-2"
-                                                  style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
+                                            <span class="col-sm-2" style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
                                                 ЛС № <?= $contractAccount->id ?>
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
@@ -129,50 +128,58 @@ use app\models\ClientContract;
                                                 echo implode(' / ', $contractBlockers);
                                                 ?>
                                             </span>
-                                            <span class="col-sm-2" style="text-align: right;">
+                                            <span class="col-sm-1" style="text-align: right;">
                                                 <?= $contractAccount->regionName ?>
                                             </span>
-                                            <span class="col-sm-1 text-nowrap" style="text-align: right;color:<?= ($contractAccount->billingCounters->realtimeBalance < 0) ? 'red' : 'green'; ?>;">
-                                                <abbr title="Текущий баланс лицевого счета">
+                                            <span class="col-sm-2 text-right">
+                                                <abbr
+                                                    title="Текущий баланс лицевого счета"
+                                                    class="text-nowrap"
+                                                    style="color:<?= ($contractAccount->billingCounters->realtimeBalance < 0) ? 'red' : 'green'; ?>;"
+                                                >
                                                     <?= $contractAccount->billingCounters->realtimeBalance ?>
                                                     <?= $contractAccount->currency ?>
                                                 </abbr>
-                                            </span>
-                                            <span class="col-sm-1 text-nowrap">
-                                                <abbr title="Размер кредита">
+                                                <br />
+                                                <abbr title="Размер кредита" class="text-nowrap">
                                                     <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit: '' ?>
                                                 </abbr>
                                             </span>
-                                            <span class="col-sm-1 text-nowrap" style="text-align: right;color:<?= ($contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary < 0) ? 'red' : 'green'; ?>;">
-                                                <abbr title="Остаток за текущий день (Истрачено: <?= $contractAccount->billingCounters->daySummary; ?>)">
+                                            <span class="col-sm-2 text-right" style="text-align: right;">
+                                                <abbr
+                                                    title="Остаток за текущий день (Истрачено: <?= $contractAccount->billingCounters->daySummary; ?>)"
+                                                    class="text-nowrap"
+                                                    style="color:<?= ($contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary < 0) ? 'red' : 'green'; ?>;"
+                                                >
                                                     <?= $contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary; ?>
                                                     <?= $contractAccount->currency; ?>
                                                 </abbr>
-                                            </span>
-                                            <span class="col-sm-1 text-nowrap">
-                                                <abbr title="Дневной лимит">
+                                                <br />
+                                                <abbr title="Дневной лимит" class="text-nowrap">
                                                     <?php
                                                     echo ($contractAccount->voip_is_day_calc === 1 ? 'Авто лим. ' : 'Сут.лим. ') . ': ';
                                                     echo $contractAccount->voip_credit_limit_day;
                                                     ?>
                                                 </abbr>
                                             </span>
-                                            <div class="btn-group" style="float: right;">
+                                            <div class="btn-group" style="float: right; padding-top: 12px;">
                                                 <?php if($contractAccount->hasVoip): ?>
                                                     <?php if ($contractAccount->voip_disabled): ?>
-                                                        <button type="button" class="btn btn-sm set-voip-disabled
-                                                            <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                        <button
+                                                            type="button" class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
                                                             style="width: 120px;padding: 3px 10px;"
                                                             data-id="<?= $contractAccount->id ?>"
-                                                            title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>">
+                                                            title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>"
+                                                        >
                                                             <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
                                                         </button>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
-                                                <button type="button" class="btn btn-sm set-block
-                                                <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                        style="width: 120px;padding: 3px 10px;"
-                                                        data-id="<?= $contractAccount->id ?>">
+                                                <button
+                                                    type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                    style="width: 120px;padding: 3px 10px;"
+                                                    data-id="<?= $contractAccount->id ?>"
+                                                >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                                 </button>
                                             </div>

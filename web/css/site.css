@@ -189,6 +189,19 @@ a.nohover:hover { color: #000; }
     }
 }
 
+@media screen {
+    @media (max-width: 1024px) {
+        abbr {
+            font-size: 10px;
+        }
+    }
+    @media (max-width: 768px) {
+        abbr {
+            font-size: 8px;
+        }
+    }
+}
+
 .table-responsive {
     overflow-x: visible;
 }
