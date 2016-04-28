@@ -86,7 +86,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
 
         if ($dateRangeFrom) {
             $dateRangeFromStr =
-                (new DateTimeWithUserTimezone($dateRangeFrom, new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
+                (new DateTimeWithUserTimezone($dateRangeFrom, $this->clientAccount->timezone))
                     ->modify('first day of this month')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->format(DateTime::ATOM);
@@ -95,7 +95,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         }
         if ($dateRangeTo) {
             $dateRangeToStr =
-                (new DateTimeWithUserTimezone($dateRangeTo, new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
+                (new DateTimeWithUserTimezone($dateRangeTo, $this->clientAccount->timezone))
                     ->modify('-1 second')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')

@@ -61,7 +61,7 @@ echo GridView::widget([
             'label' => 'Всего',
             'format' => 'raw',
             'value' => function ($package) {
-                return number_format($package->tariff->minutes_count, 2, '.', 2);
+                return sprintf('%.2f', $package->tariff->minutes_count);
             },
             'contentOptions' => ['class' => 'text-center',],
         ],
@@ -72,7 +72,7 @@ echo GridView::widget([
                 /** @var app\models\UsageVoipPackage $package */
                 /** @var app\classes\DynamicModel $filter */
                 $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
-                return number_format($package->tariff->minutes_count - array_sum(ArrayHelper::getColumn($stat, 'used_seconds')) / 60, 2, '.', 2);
+                return sprintf('%.2f', $package->tariff->minutes_count - array_sum(ArrayHelper::getColumn($stat, 'used_seconds')) / 60);
             },
             'contentOptions' => ['class' => 'text-center',],
         ],

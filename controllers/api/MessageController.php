@@ -2,14 +2,15 @@
 
 namespace app\controllers\api;
 
-use app\models\message\TemplateContent;
 use Yii;
-use app\classes\ApiController;
-use app\models\Message;
+use app\exceptions\FormValidationException;
 use app\classes\validators\AccountIdValidator;
 use app\classes\DynamicModel;
-use app\exceptions\FormValidationException;
+use app\classes\ApiController;
 use app\helpers\RenderParams;
+use app\models\Message;
+use app\models\message\Template;
+use app\models\message\TemplateContent;
 
 class MessageController extends ApiController
 {
@@ -203,7 +204,7 @@ class MessageController extends ApiController
      * @param string $type
      * @param int|null $eventId
      */
-    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type='email', $eventId = null)
+    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type = Template::TYPE_EMAIL, $eventId = null)
     {
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
@@ -214,12 +215,13 @@ class MessageController extends ApiController
 
         if (!is_null($templateContent)) {
             switch ($type) {
-                case 'email': {
+                case Template::TYPE_EMAIL: {
                     $content = $templateContent->getMediaManager()->getFile($templateContent, true);
-                    echo RenderParams::me(['clientAccountId' => $clientAccountId])->apply($content['content'], $clientAccountId, $contactId, $eventId);
+                    echo RenderParams::me()->apply($content['content'], $clientAccountId, $contactId, $eventId);
                     break;
                 }
-                case 'sms': {
+                case Template::TYPE_EMAIL_INNER:
+                case Template::TYPE_SMS: {
                     echo RenderParams::me()->apply($templateContent->content, $clientAccountId, $contactId, $eventId);
                     break;
                 }

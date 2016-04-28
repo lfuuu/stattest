@@ -3,6 +3,7 @@ namespace app\helpers;
 
 use Yii;
 use app\classes\Singleton;
+use app\models\Currency;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Country;
@@ -131,7 +132,7 @@ class RenderParams extends Singleton
      */
     private function getNewPaymentValue($clientAccountId, $contactId, $eventId)
     {
-        return $this->eventProperty($clientAccountId, $eventId, 'value');
+        return (float) $this->eventProperty($clientAccountId, $eventId, 'value');
     }
 
     /**
@@ -142,10 +143,13 @@ class RenderParams extends Singleton
      */
     private function eventProperty($clientAccountId, $eventId, $eventProperty = false)
     {
-        $event = ImportantEvents::findOne([
-            'client_id' => $clientAccountId,
-            'id' => $eventId
-        ]);
+        if (($event = ImportantEvents::findOne([
+                'client_id' => $clientAccountId,
+                'id' => $eventId
+            ])) === null
+        ) {
+            return false;
+        }
 
         $properties = ArrayHelper::map((array) $event->properties, 'property', 'value');
 
