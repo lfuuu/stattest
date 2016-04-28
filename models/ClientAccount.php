@@ -42,6 +42,7 @@ use yii\helpers\Url;
  * @property ClientContract $contract
  * @property ClientContragent $contragent
  * @property Organization organization
+ * @property ClientCounter $billingCounters
  * @method static ClientAccount findOne($condition)
  */
 class ClientAccount extends HistoryActiveRecord

@@ -80,7 +80,7 @@ class RenderParams extends Singleton
     **/
     private function getBalance($clientAccountId, $contactId)
     {
-        return ClientAccount::findOne($clientAccountId)->getRealtimeBalance();
+        return ClientAccount::findOne($clientAccountId)->billingCounters->realtimeBalance;
     }
 
     /**

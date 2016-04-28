@@ -14,6 +14,10 @@ use app\models\billing\Counter as BillingCounter;
  * @property float $subscription_rt_balance
  * @property float $subscription_rt_last_month
  * @property float $subscription_rt
+ * @property float $realtimeBalance
+ * @property float $totalSummary
+ * @property float $daySummary
+ * @property float $monthSummary
  */
 class ClientCounter extends ActiveRecord
 {
