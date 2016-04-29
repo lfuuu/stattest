@@ -43,6 +43,10 @@ class UsageVoipEditForm extends UsageVoipForm
         $tariffRussiaMobile,
         $tariffIntern;
 
+    public $needSetDefaultPrice = '';
+
+    public $minimalPayments = [];
+
     private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
         'tariff_group_russia_price' => 'tariff_russia_id',
@@ -75,6 +79,8 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [['number_tariff_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id === 'number'; }];
         $rules[] = [['line7800_id'], 'required', 'on' => 'add', 'when' => function($model) { return $model->type_id === '7800'; }];
         $rules[] = [['line7800_id'], 'validateNoUsedLine', 'on' => 'add', 'when' => function($model) { return $model->type_id === '7800'; }];
+
+        $rules[] = ['needSetDefaultPrice', 'string'];
 
         return $rules;
     }
@@ -195,32 +201,34 @@ class UsageVoipEditForm extends UsageVoipForm
         foreach(static::$mapPriceToId as $fieldMinPrice => $fieldTariffId) {
             $minimalPayment = $this->getMinByTariff($this->$fieldTariffId);
 
+            $this->minimalPayments[$fieldTariffId] = $minimalPayment;
+
             if ($this->usage) {
                 $this->{Inflector::variablize($fieldMinPrice)} = $minimalPayment;
 
-                if(
+                if (
                     (
                         $this->tariff_local_mob_id != $this->tariffLocalMobile
-                        &&
-                        $fieldTariffId === 'tariff_local_mob_id'
+                        && $fieldTariffId === 'tariff_local_mob_id'
+                        && $this->needSetDefaultPrice == 'tariff_local_mob_id'
                     )
-                        ||
+                    ||
                     (
                         $this->tariff_russia_id != $this->tariffRussia
-                        &&
-                        $fieldTariffId === 'tariff_russia_id'
+                        && $fieldTariffId === 'tariff_russia_id'
+                        && $this->needSetDefaultPrice == 'tariff_russia_id'
                     )
-                        ||
+                    ||
                     (
                         $this->tariff_russia_mob_id != $this->tariffRussiaMobile
-                        &&
-                        $fieldTariffId === 'tariff_russia_mob_id'
+                        && $fieldTariffId === 'tariff_russia_mob_id'
+                        && $this->needSetDefaultPrice == 'tariff_russia_mob_id'
                     )
-                        ||
+                    ||
                     (
                         $this->tariff_intern_id != $this->tariffIntern
-                        &&
-                        $fieldTariffId === 'tariff_intern_id'
+                        && $fieldTariffId === 'tariff_intern_id'
+                        && $this->needSetDefaultPrice == 'tariff_intern_id'
                     )
                 ) {
                     $this->$fieldMinPrice = $minimalPayment;
@@ -228,7 +236,9 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             if (!$this->usage || $this->tariff_main_status != $this->tariffMainStatus) {
-                $this->$fieldMinPrice = $minimalPayment;
+                if ($fieldTariffId == $this->needSetDefaultPrice) {
+                    $this->$fieldMinPrice = $minimalPayment;
+                }
             }
         }
 

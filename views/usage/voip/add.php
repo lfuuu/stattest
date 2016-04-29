@@ -155,20 +155,20 @@ echo Breadcrumbs::widget([
             'tariff_main_status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::$statuses, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
-            'tariff_local_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_local_mob_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_local_mob_price],
+            'tariff_local_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload', 'data' => ['tariff-group' => 'tariff_local_mob_id']]],
+            'tariff_group_local_mob_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->minimalPayments['tariff_local_mob_id']],
             'tariff_group_local_mob' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
-            'tariff_russia_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_russia_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_russia_price],
+            'tariff_russia_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload', 'data' => ['tariff-group' => 'tariff_russia_id']]],
+            'tariff_group_russia_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->minimalPayments['tariff_russia_id']],
             'tariff_group_russia' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2']],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
-            'tariff_intern_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload']],
-            'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariff_group_intern_price],
+            'tariff_intern_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency), 'options' => ['class' => 'select2 form-reload', 'data' => ['tariff-group' => 'tariff_intern_id']]],
+            'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->minimalPayments['tariff_intern_id']],
             'tariff_group_intern' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload']],
         ],
     ]);
@@ -211,6 +211,16 @@ echo Breadcrumbs::widget([
     ]);
 
     echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);
+    echo $form->field($model, 'needSetDefaultPrice',
+        [
+            'options' => [
+                'class' => 'hidden'
+            ],
+            'inputOptions' => [
+                'id' => 'needSetDefaultPrice'
+            ]
+        ]
+    )->hiddenInput();
     ActiveForm::end();
     ?>
 </div>
@@ -221,7 +231,8 @@ echo Breadcrumbs::widget([
         $('#<?=$form->getId()?>')[0].submit();
     }
     jQuery(document).ready(function () {
-        $('.form-reload').change(function () {
+        $('.form-reload').change(function (e) {
+            $('#needSetDefaultPrice').val($(e.target).data('tariff-group'));
             submitForm('default');
         });
     });
