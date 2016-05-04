@@ -6,6 +6,17 @@ use app\models\User;
 use app\models\ClientContract;
 use app\classes\media\ClientMedia;
 
+/**
+ * Class ClientFiles
+ *
+ * @property int id
+ * @property int contract_id
+ * @property int user_id
+ * @property string ts
+ * @property string comment
+ * @property string name
+ * @package app\models\media
+ */
 class ClientFiles extends ActiveRecord
 {
     public static function tableName()

@@ -10,6 +10,7 @@ use app\dao\ClientDocumentDao;
 
 /**
  * Class ClientDocument
+ *
  * @property int id
  * @property int contract_id
  * @property int account_id
@@ -22,6 +23,7 @@ use app\dao\ClientDocumentDao;
  * @property string comment
  * @property int is_active
  * @property string type
+ * @property string fileContent
  * @package app\models
  */
 class ClientDocument extends ActiveRecord
@@ -70,9 +72,6 @@ class ClientDocument extends ActiveRecord
         ];
     }
 
-    /**
-     * @return ClientDocumentQuery
-     */
     public static function find()
     {
         return new ClientDocumentQuery(get_called_class());

@@ -9,6 +9,10 @@ use app\models\ClientDocument;
 
 class DocumentTemplate extends ActiveRecord
 {
+    const ZAKAZ_USLUG = 13;
+    const DC_telefonia = 41;
+    const DEFAULT_WIZARD_MCN = 102;
+    const DEFAULT_WIZARD_EUR = 133;
 
     public static function tableName()
     {

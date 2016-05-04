@@ -14,9 +14,12 @@ use app\dao\user\UserDao;
  * @property string $pass
  * @property string $usergroup
  * @property string $name
+ * @property string $email
+ * @property string $phone_work
  * @property string $data_flag
  * @property integer $depart_id
  * @property string $enabled
+ * @method static User findOne($condition)
  */
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {

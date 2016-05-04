@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property int $price_include_vat
  * @property int $is_active
  * @property int $region
+ * @property string $address_post
  * @property string $site_name
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
@@ -42,7 +43,9 @@ use yii\helpers\Url;
  * @property ClientContract $contract
  * @property ClientContragent $contragent
  * @property Organization organization
- * @property ClientCounter $billingCounters
+ * @property User userAccountManager
+ * @property LkWizardState lkWizardState
+ * @property ClientCounter billingCounters
  * @method static ClientAccount findOne($condition)
  */
 class ClientAccount extends HistoryActiveRecord
@@ -336,8 +339,6 @@ class ClientAccount extends HistoryActiveRecord
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
-    /**************/
-
 
     /**
      * @return ClientContract
@@ -350,42 +351,66 @@ class ClientAccount extends HistoryActiveRecord
         }
         return $contract;
     }
-
+    /**
+     * @return Business
+     */
     public function getBusiness()
     {
         return $this->hasOne(Business::className(), ['id' => 'business_id']);
     }
 
+    /**
+     * @return int|string
+     */
     public function getRegionName()
     {
         return $this->accountRegion ? $this->accountRegion->name : $this->region;
     }
 
+    /**
+     * @return Country
+     */
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 
+    /**
+     * @return Region
+     */
     public function getAccountRegion()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @return User
+     */
     public function getUserManager()
     {
         return User::findOne(['user' => $this->contract->manager]);
     }
 
+    /**
+     * @param null $date
+     * @return array|false
+     */
     public function getLastContract($date = null)
     {
         return BillContract::getLastContract($this->id, $date);
     }
 
+    /**
+     * @return User
+     */
     public function getUserAccountManager()
     {
         return User::findOne(['user' => $this->contract->account_manager]);
     }
 
+    /**
+     * @return LkWizardState
+     */
     public function getLkWizardState()
     {
         return LkWizardState::findOne(["contract_id" => $this->contract->id, "is_on" => 1]);
@@ -401,6 +426,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getStatusName()
     {
+        /** @var $this ClientAccount */
         return
             isset(self::$statuses[$this->status])
                 ? self::$statuses[$this->status]['name']

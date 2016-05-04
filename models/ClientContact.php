@@ -17,6 +17,7 @@ use app\models\ClientAccount;
  * @property string comment
  * @property int is_active
  * @property int is_official
+ * @method static ClientContact findOne($condition)
  */
 class ClientContact extends ActiveRecord
 {

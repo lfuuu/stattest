@@ -2,187 +2,29 @@
 
 namespace app\controllers\api;
 
+use yii;
 use app\models\document\DocumentTemplate;
-use Yii;
-use app\classes\ApiController;
-use app\classes\BaseController;
-
-use app\classes\Assert;
 use app\models\LkWizardState;
-use app\models\ClientAccount;
-use app\models\ClientContact;
 use app\models\ClientDocument;
 use app\models\media\ClientFiles;
-use app\models\BusinessProcessStatus;
 use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
-use app\forms\lk_wizard\WizardContragentForm;
+use app\forms\lk_wizard\WizardContragentMcnForm;
 use app\forms\lk_wizard\ContactForm;
+use yii\base\InvalidParamException;
 
 
-class WizardMcnController extends /*BaseController*/ApiController
+/**
+ * Класс-контроллер работы с российским визардом
+ *
+ * Class WizardMcnController
+ * @package app\controllers\api
+ */
+class WizardMcnController extends WizardBaseController
 {
-    private $accountId = null;
-    private $account = null;
-    private $wizard = null;
-
-    private $postData = [];
-       
-
-    private function loadAndCheck($isCheckWizard = true)
-    {
-        $this->postData = Yii::$app->request->bodyParams;
-
-        if (!isset($this->postData["account_id"]))
-            throw new \Exception("account_is_bad");
-
-        $this->accountId = $this->postData["account_id"];
-
-        $this->account = $this->_checkAndGetAccount($this->accountId);
-
-        $this->wizard = LkWizardState::findOne(["contract_id" => $this->account->contract->id, "is_on" => 1]);
-
-        if ($isCheckWizard)
-            if (!$this->wizard)
-                throw new \Exception("account_is_bad");
-
-        return $this->postData;
-    }
-
-
-    private function _checkAndGetAccount($accountId)
-    {
-        if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId))
-            throw new \Exception("account_is_bad");
-
-        $account = ClientAccount::findOne($accountId);
-        if(!$account)
-            throw new \Exception("account_not_found");
-
-        $this->_checkClean($account);
-
-        return $account;
-    }
-
-    private function _checkClean($account)
-    {
-        if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
-        {
-            $wizard = LkWizardState::findOne($account->contract->id);
-            if ($wizard)
-            {
-                if ($wizard->step < 4 || ($wizard->step == 4 && $wizard->state == "review"))
-                {
-                    $wizard->is_on = 0;
-                    $wizard->save();
-                } else {
-                    if (
-                        !$wizard->trouble 
-                        || !in_array($wizard->trouble->currentStage->state_id, [
-                            TroubleState::CONNECT__INCOME,
-                            TroubleState::CONNECT__NEGOTIATION,
-                            TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS
-                        ])
-                    )
-                    {
-                        $wizard->is_on = 0;
-                        $wizard->save();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @SWG\Definition(
-     *   definition="wizard_state",
-     *   type="object",
-     *   required={"step","good","wizard_type"},
-     *   @SWG\Property(property="step",type="integer",description="текущий шаг визарда"),
-     *   @SWG\Property(property="good",type="integer",description="предыдущий завершённый шаг визарда"),
-     *   @SWG\Property(property="wizard_type",type="integer",description="тип визарда"),
-     *   @SWG\Property(property="step_state",type="integer",description="статус шага"),
-     * ),
-     * @SWG\Post(
-     *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/state/",
-     *   summary="Получение статуса, в котором находится визард",
-     *   operationId="Получение статуса, в котором находится визард",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="список тикетов",
-     *     @SWG\Definition(
-     *       type="array",
-     *       @SWG\Items(
-     *         ref="#/definitions/wizard_state"
-     *       )
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
-     * )
-     */
-    public function actionState()
-    {
-        $this->loadAndCheck(false);
-
-        return $this->getWizardState();
-    }
-
-    /**
-     * @SWG\Definition(
-     *   definition="wizard_data",
-     *   type="object",
-     *   @SWG\Property(property="step1",type="object",description="информация по первому шагу"),
-     *   @SWG\Property(property="step2",type="object",description="информация по второму шагу"),
-     *   @SWG\Property(property="step3",type="object",description="информация по третьему шагу"),
-     *   @SWG\Property(property="step4",type="object",description="информация по четвёртому шагу"),
-     *   @SWG\Property(property="state",type="object",description="текущий шаг"),
-     * ),
-     * @SWG\Post(
-     *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/read/",
-     *   summary="Получение всей необходимой информации для визарда",
-     *   operationId="Получение всей необходимой информации для визарда",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="информация по визарду",
-     *     @SWG\Schema(
-     *       ref="#/definitions/wizard_data"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
-     * )
-     */
-    public function actionRead()
-    {
-        $this->loadAndCheck();
-
-        $fullWizard = $this->makeWizardFull();
-
-        if ($this->wizard->step == 4 && $this->wizard->state != "review") //удаляем wizard после просмотра последнего шага, с участием менеджера
-        {
-            $this->wizard->is_on = 0;
-            $this->wizard->save();
-        }
-
-        return $fullWizard;
-    }
+    protected $lastStep = 4;
 
     /**
      * @SWG\Post(
@@ -214,7 +56,7 @@ class WizardMcnController extends /*BaseController*/ApiController
      */
     public function actionSave()
     {
-        $postData = $this->loadAndCheck();
+        $postData = $this->loadAndSet();
 
         $result = true;
 
@@ -231,25 +73,21 @@ class WizardMcnController extends /*BaseController*/ApiController
             }
         }
 
-        if ($result === true)
-        {
-            if ($step == 1 || $step == 3)
-            {
-                if ($step == 1 && $this->wizard->step >= 2) //если пользователь вернулся назад и пересохранил шаг 1
-                {
+        if ($result === true) {
+            if ($step == 1 || $step == 3) {
+                if ($step == 1 && $this->wizard->step >= 2) { //если пользователь вернулся назад и пересохранил шаг 1
                     $this->eraseContract();
                 }
-                $this->wizard->step = $step+1;
-                $this->wizard->state = ($step == 1 ? "process" : ($step == 3 ? "review" : "process"));
+                $this->wizard->step = $step + 1;
+                $this->wizard->state = ($step == 1 ? LkWizardState::STATE_PROCESS : ($step == 3 ? LkWizardState::STATE_REVIEW : LkWizardState::STATE_PROCESS));
                 $this->wizard->save();
 
-                if ($this->wizard->step == 4 && $this->wizard->state == "review")
-                {
+                if ($this->wizard->step == $this->lastStep && $this->wizard->state == LkWizardState::STATE_REVIEW) {
                     $manager = $this->makeNotify();
 
                     $this->wizard->trouble->addStage(
-                        TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS, 
-                        "Клиент ожидает проверки документов. ЛК - Wizard", 
+                        TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS,
+                        "Клиент ожидает проверки документов. ЛК - Wizard",
                         ($manager ? $manager->id : null),
                         User::LK_USER_ID
                     );
@@ -284,17 +122,16 @@ class WizardMcnController extends /*BaseController*/ApiController
      */
     public function actionGetContract()
     {
-        $this->loadAndCheck();
+        $this->loadAndSet();
 
         $contract = ClientDocument::findOne([
-            "contract_id" => $this->account->contract->id, 
+            "contract_id" => $this->account->contract->id,
             "user_id" => User::CLIENT_USER_ID
         ]);
-        
+
         $agreement = null;
 
-        if (!$contract)
-        {
+        if (!$contract) {
 
             $clientDocument = new ClientDocument();
             $clientDocument->contract_id = $this->account->contract->id;
@@ -303,78 +140,73 @@ class WizardMcnController extends /*BaseController*/ApiController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'Dog_UslugiSvayzi'])['id'];
+            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_MCN;
             $clientDocument->save();
 
 
-            $contract = ClientDocument::findOne([
-                "contract_id" => $this->account->contract->id,
-                "user_id" => User::CLIENT_USER_ID,
-                "type" => "contract"
-                ]);
-
+            $contract = ClientDocument::find()
+                ->where(["user_id" => User::CLIENT_USER_ID])
+                ->contractId($this->account->contract->id)
+                ->contract()
+                ->one();
 
             if (
-                    UsageVoip::find()   ->client($this->account->client)->count()
-                ||  UsageVirtpbx::find()->client($this->account->client)->count()
-            )
-            {
+                UsageVoip::find()->client($this->account->client)->count()
+                || UsageVirtpbx::find()->client($this->account->client)->count()
+            ) {
                 $clientDocument = new ClientDocument();
                 $clientDocument->contract_id = $this->account->contract->id;
-                $clientDocument->type = 'agreement';
+                $clientDocument->type = ClientDocument::DOCUMENT_AGREEMENT_TYPE;
                 $clientDocument->contract_no = 1;
                 $clientDocument->contract_date = date("Y-m-d");
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
-                $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'Zakaz_Uslug'])['id'];
+                $clientDocument->template_id = DocumentTemplate::ZAKAZ_USLUG;
                 $clientDocument->save();
 
                 $clientDocument = new ClientDocument;
                 $clientDocument->contract_id = $this->account->contract->id;
-                $clientDocument->type = 'agreement';
+                $clientDocument->type = ClientDocument::DOCUMENT_AGREEMENT_TYPE;
                 $clientDocument->contract_no = 1;
                 $clientDocument->contract_date = date('Y-m-d');
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
-                $clientDocument->template_id = DocumentTemplate::findOne(['name' => 'DC_telefonia'])['id'];
+                $clientDocument->template_id = DocumentTemplate::DC_telefonia;
                 $clientDocument->save();
             }
         }
 
-        if ($this->wizard->step == 2)
-        {
+        if ($this->wizard->step == 2) {
             $this->wizard->step = 3;
             $this->wizard->save();
         }
 
-        $content = "";
 
         if (!$contract || !$contract->fileContent) {
-            $content = "Ошибка в данных";
-        }
-        else {
+            $content = "error";
+        } else {
             $content = $contract->fileContent;
 
+            /** @var ClientDocument $agreements */
             $agreements =
                 ClientDocument::find()
-                    ->where(['contract_id' => $this->account->contract->id])
-                    ->andWhere(['user_id' => User::CLIENT_USER_ID])
-                    ->andWhere(['type' => 'agreement'])
+                    ->where(['user_id' => User::CLIENT_USER_ID])
+                    ->contractId($this->account->contract->id)
+                    ->agreement()
                     ->all();
 
             foreach ($agreements as $agreement) {
                 if ($agreement && $agreement->fileContent) {
-                    $content .= '<p style="page-break-after: always;"></p>';
+                    $content .= "<p style=\"page-break-after: always;\"></p>";
                     $content .= $agreement->fileContent;
                 }
             }
 
         }
 
-        $content = '<html><head><meta charset="UTF-8"/></head><body>' . $content . '</body></html>';
+        $content = $this->renderPartial("//wrapper_html", ['content' => $content]);
 
-        if (isset($this->postData['as_html']))
-        {
+        if (isset($this->postData['as_html'])) {
             return $content;
         }
 
@@ -416,20 +248,20 @@ class WizardMcnController extends /*BaseController*/ApiController
      **/
     public function actionSaveDocument()
     {
-        $data = $this->loadAndCheck();
+        $data = $this->loadAndSet();
 
-        if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["content"])
-            throw new \Exception("data_error");
+        if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["content"]) {
+            throw new InvalidParamException("data_error");
+        }
 
         $file = $this->account->contract->mediaManager->addFileFromParam(
-            $data["file"]["name"], 
-            base64_decode($data["file"]["content"]), 
-            "ЛК - wizard", 
+            $data["file"]["name"],
+            base64_decode($data["file"]["content"]),
+            "ЛК - wizard",
             User::CLIENT_USER_ID
         );
 
-        if ($file)
-        {
+        if ($file) {
             return ["file_name" => $file->name, "file_id" => $file->id];
         } else {
             return ["errors" => ["file" => "error upload file"]];
@@ -463,19 +295,18 @@ class WizardMcnController extends /*BaseController*/ApiController
      */
     public function actionSaveContacts()
     {
-        $data = $this->loadAndCheck();
+        $data = $this->loadAndSet();
         $result = $this->_saveStep3($data);
 
-        if ($result === true)
-        {
+        if ($result === true) {
             return $this->makeWizardFull();
         } else {
             return $result;
         }
     }
-        
 
-    private function makeWizardFull()
+
+    public function makeWizardFull()
     {
         return [
             "step1" => $this->getOrganizationInformation(),
@@ -486,44 +317,20 @@ class WizardMcnController extends /*BaseController*/ApiController
         ];
     }
 
-    public function getWizardState()
-    {
-        $wizard = $this->wizard;
-
-        if (!$wizard)
-            return ["step" => -1, "good" => -1, "wizard_type" => ""];
-
-        if ($wizard->step == 4)
-        {
-            return [
-                "step" => $wizard->step, 
-                "good" => ($wizard->step-($wizard->state == 'review' ? 1 : 0)), 
-                "step_state" => $wizard->state,
-                "wizard_type" => $wizard->type
-            ];
-        } else {
-            return [
-                "step" => $wizard->step, 
-                "good" => ($wizard->step-1),
-                "wizard_type" => $wizard->type
-            ];
-        }
-    }
-
 
     private function getOrganizationInformation()
     {
-        $c = $this->account->contract->contragent;
+        $c = $this->account->contragent;
         $d = [
-            "name" =>  $c->name,
-            "legal_type" =>  $c->legal_type,
-            "address_jur" =>  $c->address_jur,
+            "name" => $c->name,
+            "legal_type" => $c->legal_type,
+            "address_jur" => $c->address_jur,
             "address_post" => $this->account->address_post,
-            "inn" =>  $c->inn,
-            "kpp" =>  $c->kpp,
-            "position" =>  $c->position,
-            "fio" =>  $c->fio,
-            "ogrn" =>  $c->ogrn,
+            "inn" => $c->inn,
+            "kpp" => $c->kpp,
+            "position" => $c->position,
+            "fio" => $c->fio,
+            "ogrn" => $c->ogrn,
             "last_name" => ($c->person ? $c->person->last_name : ""),
             "first_name" => ($c->person ? $c->person->first_name : ""),
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
@@ -541,21 +348,6 @@ class WizardMcnController extends /*BaseController*/ApiController
         return ["link_dogovor" => "/lk/wizard/contract"];
     }
 
-    private function eraseContract()
-    {
-        $contracts = ClientDocument::findAll([
-            "contract_id" => $this->account->contract->id, 
-            "user_id" => User::CLIENT_USER_ID
-        ]);
-
-        if ($contracts)
-        {
-            foreach($contracts as $contract)
-            {
-                $contract->erase();
-            }
-        }
-    }
 
     private function getContactAndContractList()
     {
@@ -563,36 +355,22 @@ class WizardMcnController extends /*BaseController*/ApiController
         $files = $this->getClientFiles();
 
         $d = [
-                "contact_phone" => $contact["phone"],
-                "contact_fio" => $contact["fio"],
-                "file_list" => $files,
-                "is_upload" => count($files) < 10,
-            ];
+            "contact_phone" => $contact->data,
+            "contact_fio" => $contact->comment,
+            "file_list" => $files,
+            "is_upload" => count($files) < 10,
+        ];
 
         return $d;
-    }
-
-    private function getContact()
-    {
-        $contact = ClientContact::findOne([
-            "client_id" => $this->account->id, 
-            "user_id"   => User::CLIENT_USER_ID, 
-            "type"      => "phone"
-        ]);
-
-        if ($contact)
-        {
-            return ["phone" => $contact->data, "fio" => $contact->comment];
-        } 
-
-        return ["phone" => "", "fio" => ""];
     }
 
     private function getClientFiles()
     {
         $files = [];
-        foreach(ClientFiles::findAll(["contract_id" => $this->account->contract_id, "user_id" => User::CLIENT_USER_ID]) as $file)
-        {
+        foreach (ClientFiles::findAll([
+            "contract_id" => $this->account->contract_id,
+            "user_id" => User::CLIENT_USER_ID
+        ]) as $file) {
             $files[] = $file->name;
         }
 
@@ -603,57 +381,27 @@ class WizardMcnController extends /*BaseController*/ApiController
     {
         $manager = $this->account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
 
-        if (!$manager)
-        {
+        if (!$manager) {
             return [
-                "manager_name" => "", 
+                "manager_name" => "",
                 "manager_phone" => "(495) 105-99-99"
-                ];
+            ];
         }
 
         return [
             "manager_name" => $manager->name,
-            "manager_phone" => "(495) 105-99-99".($manager->phone_work ? " доп. ".$manager->phone_work : "")
+            "manager_phone" => "(495) 105-99-99" . ($manager->phone_work ? " доп. " . $manager->phone_work : "")
         ];
-    }
-
-
-    private function makeNotify()
-    {
-        $manager = $this->account->userAccountManager;
-
-        $subj = "ЛК - Wizard";
-        $text = "Клиент id: ".$this->account->id." заполнил Wizard в ЛК";
-
-        if ($manager && $manager->email)
-        {
-            mail($manager->email, $subj, $text);
-        } else {
-            $manager = User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
-            if ($manager && $manager->email)
-            {
-                mail($manager->email, $subj, $text);
-            }
-        }
-
-        return $manager ?: null;
     }
 
     private function _saveStep1($stepData)
     {
-        $form = new WizardContragentForm();
+        $form = new WizardContragentMcnForm();
 
-        $form->setScenario('mcn');
         $form->load($stepData, "");
 
-        if (!$form->validate())
-        {
-            $errors = [];
-            foreach($form->getErrors() as $field => $error)
-            {
-                $errors[] = ["field" => $field, "error" => $error[0]];
-            }
-            return ["errors" => $errors];
+        if (!$form->validate()) {
+            return $this->getFormErrors($form);
         } else {
             return $form->saveInContragent($this->account);
         }
@@ -662,46 +410,14 @@ class WizardMcnController extends /*BaseController*/ApiController
     private function _saveStep3($stepData)
     {
         $form = new ContactForm;
+        $form->setScenario('mcn');
 
         $form->load($stepData, "");
 
-        if (!$form->validate()) // all validators are turned off
-        {
-            $errors = [];
-            foreach($form->getErrors() as $field => $error)
-            {
-                $errors[] = ["field" => $field, "error" => $error[0]];
-            }
-            return ["errors" => $errors];
+        if (!$form->validate()) {
+            return $this->getFormErrors($form);
         } else {
             return $form->save($this->account);
         }
-    }
-
-    private function getPDFfromHTML($html)
-    {
-        $tmp_dir = sys_get_temp_dir();
-        $file_html = tempnam($tmp_dir, "lk_wizard_html");
-        $file_pdf  = tempnam($tmp_dir, "lk_wizard_pdf");
-
-        unlink($file_html);
-        unlink($file_pdf);
-
-        $file_html = $file_html . ".html";
-        $file_pdf  = $file_pdf  . ".pdf";
-
-        /*wkhtmltopdf*/
-        $options = ' --quiet -L 15 -R 15 -T 15 -B 15';
-
-        file_put_contents($file_html, $html);
-
-        exec($q = "/usr/bin/wkhtmltopdf ".$options." ".$file_html." ".$file_pdf);
-
-        $content = file_get_contents($file_pdf);
-
-        unlink($file_html);
-        unlink($file_pdf);
-
-        return $content;
     }
 }

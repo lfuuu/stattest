@@ -25,7 +25,7 @@ use app\models\media\ClientFiles;
  * @property string is_external
  * @property string lk_access
  * @property Organization $organization
- * @property
+ * @property ClientMedia mediaManager
  */
 class ClientContract extends HistoryActiveRecord
 {

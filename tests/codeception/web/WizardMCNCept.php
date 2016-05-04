@@ -86,7 +86,7 @@ $I->seeResponseContainsJson([
 
 $I->seeResponseContainsJson([
     "step4" => [
-        "manager_name" => "",
+        "manager_name" => "Default manager",
         "manager_phone" => "(495) 105-99-99"
     ]
 ]);
@@ -133,7 +133,7 @@ $s = [
         "is_upload" => true
     ],
     "step4" => [
-        "manager_name" => "",
+        "manager_name" => "Default manager",
         "manager_phone" => "(495) 105-99-99"
     ],
     "state" =>[

@@ -49,12 +49,13 @@ class AccountController extends BaseController
     {
         $accountId = $id;
 
-        $account = ClientAccount::findOne($accountId);
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne(['id' => $accountId]);
 
         if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id))
             throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
 
-        $wizard = LkWizardState::findOne($account->contract->id);
+        $wizard = LkWizardState::findOne(['contract_id' => $account->contract->id]);
 
         if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
@@ -69,7 +70,7 @@ class AccountController extends BaseController
                     LkWizardState::create(
                         $account->contract->id, 
                         0, 
-                        ($account->contract->contragent->country_id == Country::HUNGARY ? "t2t" : "mcn")
+                        ($account->contract->contragent->country_id != Country::RUSSIA ? LkWizardState::TYPE_EUR : LkWizardState::TYPE_MCN)
                     );
                 }
             } else {

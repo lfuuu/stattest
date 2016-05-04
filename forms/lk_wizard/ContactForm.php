@@ -2,6 +2,7 @@
 namespace app\forms\lk_wizard;
 
 use app\classes\Form;
+use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\User;
 
@@ -9,13 +10,15 @@ class ContactForm extends Form
 {
     public $contact_phone;
     public $contact_fio;
+    public $fio;
 
     public function rules()
     {
         $rules = [];
 
         $rules[] = [["contact_phone"], "string"];
-        $rules[] = ["contact_fio", "string"];
+        $rules[] = ["contact_fio", "string", "on" => "mcn"];
+        $rules[] = ["fio", "string", "on" => "eur"];
 
         return $rules;
     }
@@ -24,11 +27,12 @@ class ContactForm extends Form
     {
         return [
             "contact_phone" => "Контактный номер",
-            "contact_fio" => "Контактное ФИО"
+            "contact_fio" => "Контактное ФИО",
+            "fio" => "Контактное ФИО"
         ];
     }
 
-    public function save($account)
+    public function save(ClientAccount $account)
     {
         $contact = ClientContact::findOne([
             "client_id" => $account->id, 
@@ -36,15 +40,14 @@ class ContactForm extends Form
             "type"      => "phone"
         ]);
 
-        if (!$contact)
-        {
+        if (!$contact) {
             $contact = new ClientContact;
             $contact->client_id = $account->id;
             $contact->user_id = User::CLIENT_USER_ID;
             $contact->type = "phone";
         }
         $contact->data = $this->contact_phone;
-        $contact->comment = $this->contact_fio;
+        $contact->comment = ($this->getScenario() == 'mcn' ? $this->contact_fio : $this->fio);
         return $contact->save();
     }
 }

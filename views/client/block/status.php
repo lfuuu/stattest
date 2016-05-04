@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\models\LkWizardState;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use yii\helpers\Url;
@@ -30,12 +31,12 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
 
             <?php if ($account->lkWizardState) : ?>
                 <b style="color: green;"> Wizard
-                    включен</b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
+                    включен (<?= $account->lkWizardState->type ?>) </b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
                 <small>
                     [
                     <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
 
-                    <?php if ($account->lkWizardState->step == 4): ?>
+                    <?php if ($account->lkWizardState->step == ($account->lkWizardState->step == LkWizardState::TYPE_MCN ? 4 : 3 /** wizard_eur */)): ?>
 
                         <? if ($account->lkWizardState->step != 'rejected'): ?>
                             | <a
@@ -64,7 +65,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                     ]
                 </small>
             <?php else: ?>
-                <?php if (\app\models\LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
+                <?php if (LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
                     <b style="color: gray;"> Wizard выключен</b>
                     [<a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=on">включить</a>]
                 <?php endif; ?>

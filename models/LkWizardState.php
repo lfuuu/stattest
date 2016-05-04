@@ -2,19 +2,36 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\models\BusinessProcessStatus;
-use app\models\Bill;
-use app\models\BillLine;
-use app\models\ClientAccount;
 
 
 /**
- * @property int $account_id
- * @property int $step
- * @property string $state
+ * Class LkWizardState
+ *
+ * @property int contract_id
+ * @property int step
+ * @property string state
+ * @property int trouble_id
+ * @property string type
+ * @property int is_bonus_added
+ * @property int is_on
+ * @property int is_rules_accept_legal
+ * @property int is_rules_accept_person
+ * @property int is_contract_accept
+ * @property int client_contragent_person
+ * @property Trouble trouble
+ * 
+ * @package app\models
  */
 class LkWizardState extends ActiveRecord
 {
+    const TYPE_MCN = 'mcn';
+    const TYPE_EUR = 'eur';
+
+    const STATE_PROCESS = 'process';
+    const STATE_REVIEW = 'review';
+    const STATE_APPROVE = 'approve';
+    const STATE_REJECTED = 'rejected';
+
     public static function tableName()
     {
         return 'lk_wizard_state';
@@ -64,9 +81,9 @@ class LkWizardState extends ActiveRecord
                     }
                     return $s;
             }
-        } else { //t2t
-            return "Шаг ".$this->step;
         }
+
+        return "Шаг ".$this->step;
     }
 
     public static function isBPStatusAllow($bpsId, $contractId = 0)

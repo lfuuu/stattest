@@ -26,6 +26,7 @@ use yii\db\Expression;
  * @property string $trouble_subtype
  * @property string $date_close
  * @property int $support_ticket_id
+ * @property TroubleStage currentStage
  * @property \app\classes\media\TroubleMedia mediaManager
  *
  */
@@ -114,11 +115,14 @@ class Trouble extends ActiveRecord
         return TroubleDao::me();
     }
 
-    public function addStage($stateId, $comment, $userId = null)
+    public function addStage($stateId, $comment, $newUserId = null, $editUserId = null)
     {
-        return TroubleDao::me()->addStage($this, $stateId, $comment, $userId);
+        return TroubleDao::me()->addStage($this, $stateId, $comment, $newUserId, $editUserId);
     }
 
+    /**
+     * @return TroubleStage
+     */
     public function getCurrentStage()
     {
         return TroubleStage::findOne(["stage_id" => $this->cur_stage_id, "trouble_id" => $this->id]);
