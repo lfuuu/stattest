@@ -138,7 +138,7 @@ class WizardEurController extends WizardBaseController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_MCN;//DEFAULT_WIZARD_EUR;
+            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_EUR;
             $clientDocument->save();
 
             $contract = ClientDocument::find()
@@ -161,8 +161,6 @@ class WizardEurController extends WizardBaseController
             return $content;
         }
         return base64_encode($content);
-
-        return base64_encode($this->getPDFfromHTML($content));
     }
 
     /**
