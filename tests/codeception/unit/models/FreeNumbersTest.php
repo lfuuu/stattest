@@ -66,25 +66,29 @@ class FreeNumbersTest extends TestCase
     public function testFreeNumbersByCost()
     {
         // Between
-        $numbers = new FreeNumberFilter;
-        $numbers->minCost = 0;
-        $numbers->maxCost = 1999;
+        $numbers =
+            (new FreeNumberFilter)
+                ->setMinCost(0)
+                ->setMaxCost(1999);
         $this->assertEquals(22, count($numbers->result(null)));
 
         // Between
-        $numbers = new FreeNumberFilter;
-        $numbers->minCost = 999;
-        $numbers->maxCost = 1999;
+        $numbers =
+            (new FreeNumberFilter)
+                ->setMinCost(999)
+                ->setMaxCost(1999);
         $this->assertEquals(9, count($numbers->result(null)));
 
         // Greater than minCost
-        $numbers = new FreeNumberFilter;
-        $numbers->minCost = 999;
+        $numbers =
+            (new FreeNumberFilter)
+                ->setMinCost(999);
         $this->assertEquals(9, count($numbers->result(null)));
 
         // Less than maxCost
-        $numbers = new FreeNumberFilter;
-        $numbers->maxCost = 999;
+        $numbers =
+            (new FreeNumberFilter)
+                ->setMaxCost(999);
         $this->assertEquals(20, count($numbers->result(null)));
     }
 
@@ -92,22 +96,23 @@ class FreeNumbersTest extends TestCase
     {
         // Стандартные номера
         $numbers = new FreeNumberFilter;
-        $numbers->beautyLvl = 0;
+        $numbers->beautyLvl = [0];
         $this->assertEquals(20, count($numbers->result(null)));
 
         // Бронзовые номера
         $numbers = new FreeNumberFilter;
-        $numbers->beautyLvl = 4;
+        $numbers->beautyLvl = [4];
         $this->assertEquals(2, count($numbers->result(null)));
 
+        // Несколько
+        $numbers = new FreeNumberFilter;
+        $numbers->beautyLvl = [0, 4];
+        $this->assertEquals(22, count($numbers->result(null)));
+
         // Negative
-        try {
-            $numbers = new FreeNumberFilter;
-            $numbers->beautyLvl = 10;
-        }
-        catch (BadRequestHttpException $e) {
-            $this->assertFalse(false);
-        }
+        $numbers = new FreeNumberFilter;
+        $numbers->beautyLvl = [10];
+        $this->assertEquals(0, count($numbers->result(null)));
     }
 
     public function testFreeNumbersByMask()

@@ -3,7 +3,6 @@
 namespace app\models\filter;
 
 use yii\db\Expression;
-use app\classes\Assert;
 use app\exceptions\web\BadRequestHttpException;
 use app\models\Number;
 use app\models\NumberType;
@@ -19,7 +18,11 @@ class FreeNumberFilter extends Number
 
     /** @var \yii\db\ActiveQuery */
     private $query;
-    private $eachMode = false;
+    private
+        $eachMode = false,
+        $arrayMode = false,
+        $minCost = null,
+        $maxCost = null;
 
     /**
      * @return void
@@ -95,7 +98,7 @@ class FreeNumberFilter extends Number
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->query->andWhere(['>=', 'price', $minCost]);
+            $this->minCost = $minCost;
         }
         return $this;
     }
@@ -107,22 +110,26 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->query->andWhere(['<=', 'price', $maxCost]);
+            $this->maxCost = $maxCost;
         }
         return $this;
     }
 
     /**
-     * @param int $beautyLvl
+     * @param int[] $beautyLvl
      * @return $this
      */
-    public function setBeautyLvl($beautyLvl)
+    public function setBeautyLvl(array $beautyLvl = [])
     {
-        if (!in_array($beautyLvl, array_keys(DidGroup::$beautyLevelNames))) {
-            throw new BadRequestHttpException('Bad variant of beauty level');
+        if (count($beautyLvl)) {
+            $this->query->andWhere([
+                'IN',
+                'beauty_level',
+                array_filter($beautyLvl, function($row) {
+                    return isset(DidGroup::$beautyLevelNames[$row]);
+                })
+            ]);
         }
-
-        $this->query->andWhere(['beauty_level' => (int) $beautyLvl]);
         return $this;
     }
 
@@ -203,19 +210,51 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @return $this
+     */
+    public function asArray()
+    {
+        $this->arrayMode = true;
+        return $this;
+    }
+
+    /**
      * @param int|null $limit
      * @return null|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public function result($limit = self::FREE_NUMBERS_LIMIT)
     {
+        switch (true) {
+            case !is_null($this->minCost) && !is_null($this->maxCost): {
+                $this->query->andWhere([
+                    'OR',
+                    ['BETWEEN', 'price', $this->minCost, $this->maxCost],
+                    ['IS', 'price', null],
+                ]);
+                break;
+            }
+            case !is_null($this->minCost): {
+                $this->query->andWhere([
+                    'OR',
+                    ['>=', 'price', $this->minCost],
+                    ['IS', 'price', null],
+                ]);
+                break;
+            }
+            case !is_null($this->maxCost): {
+                $this->query->andWhere([
+                    'OR',
+                    ['<=', 'price', $this->maxCost],
+                    ['IS', 'price', null],
+                ]);
+                break;
+            }
+        }
+
         $this->query->addOrderBy([
             new Expression('IF(beauty_level = 0, 10, beauty_level) DESC'),
             'number' => SORT_ASC,
         ]);
-
-        if (is_null($limit)) {
-            return $this->eachMode ? $this->query->each() : $this->query->all();
-        }
 
         if ($limit === 1) {
             return $this->query->one();
@@ -223,7 +262,11 @@ class FreeNumberFilter extends Number
 
         $this->query->limit($limit);
 
-        return $this->eachMode ? $this->query->each()  : $this->query->all();
+        if ($this->arrayMode) {
+            $this->query->asArray();
+        }
+
+        return $this->eachMode ? $this->query->each() : $this->query->all();
     }
 
     /**
