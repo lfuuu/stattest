@@ -81,11 +81,10 @@ a.nohover:hover { color: #000; }
     }
 
     .layout_main {
-        overflow-y: auto;
-        overflow-x: auto;
         font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
         top: 100px;
         bottom: 0;
+        background-color: #fff;
     }
 
     .layout_left .menupanel {
