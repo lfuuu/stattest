@@ -7,7 +7,7 @@ use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\User;
 
-trait DetailsTrait
+abstract class DetailsHelper
 {
 
     /**

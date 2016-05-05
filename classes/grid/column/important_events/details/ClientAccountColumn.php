@@ -15,8 +15,6 @@ use app\models\ClientSuper;
 abstract class ClientAccountColumn
 {
 
-    use DetailsTrait;
-
     /**
      * @param ImportantEvents $column
      * @return array
@@ -80,13 +78,14 @@ abstract class ClientAccountColumn
     public static function renderExtendAccountContractDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['contract_id'])
             &&
             ($clientContract = ClientContract::findOne($properties['contract_id'])) !== false
         ) {
+            /** @var ClientContract $clientContract */
             $result[] =
                 Html::tag('b', 'Договор: ') .
                 Html::a(
@@ -107,13 +106,14 @@ abstract class ClientAccountColumn
     public static function renderContractTransferDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['contract_id'])
             &&
             ($clientContract = ClientContract::findOne($properties['contract_id'])) !== false
         ) {
+            /** @var ClientContract $clientContract */
             $result[] =
                 Html::tag('b', 'Договор: ') .
                 Html::a(
@@ -129,6 +129,7 @@ abstract class ClientAccountColumn
             &&
             ($clientContragent = ClientContragent::findOne($properties['to_contragent_id'])) !== false
         ) {
+            /** @var ClientContragent $clientContragent */
             $result[] =
                 Html::tag('b', 'Контрагент: ') .
                 Html::a(
@@ -195,13 +196,14 @@ abstract class ClientAccountColumn
     public static function renderTransferContragentDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['contragent_id'])
             &&
             ($clientContragent = ClientContragent::findOne($properties['contragent_id'])) !== false
         ) {
+            /** @var $clientContragent ClientContragent */
             $result[] =
                 Html::tag('b', 'Контрагент: ') .
                 Html::a(
@@ -216,6 +218,7 @@ abstract class ClientAccountColumn
             &&
             ($clientSuper = ClientSuper::findOne($properties['to_super_id'])) !== false
         ) {
+            /** @var ClientSuper $clientSuper */
             $result[] =
                 Html::tag('b', 'Клиент: ') .
                 $clientSuper->name;
@@ -231,12 +234,12 @@ abstract class ClientAccountColumn
     private static function renderDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             $column->client_id
             &&
-            ($value = self::renderClientAccount($column->client_id)) !== false
+            ($value = DetailsHelper::renderClientAccount($column->client_id)) !== false
         ) {
             $result[] = $value;
         }
@@ -244,7 +247,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = self::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }

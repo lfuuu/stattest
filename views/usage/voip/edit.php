@@ -44,6 +44,13 @@ $status = [
     'working' => 'Включенный',
 ];
 
+if ($usage->actual_to == '2029-01-01') {
+    $actualTo = null;
+} else {
+    $actualTo = new DateTime($usage->actual_to, $clientAccount->timezone);
+}
+$now = new DateTime('now', $clientAccount->timezone);
+$date_activation = '';
 
 echo Html::formLabel('Редактирование номера');
 echo Breadcrumbs::widget([
@@ -227,99 +234,89 @@ echo Breadcrumbs::widget([
         }
     </script>
 
-
     <h2>История тарифов:</h2>
     <table class="table table-condensed table-striped table-bordered">
         <thead>
-        <tr>
-            <th>Период</th>
-            <th>Тариф</th>
-            <th>Добавлено</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php
-            if ($usage->actual_to == '2029-01-01') {
-                $actualTo = null;
-            } else {
-                $actualTo = new DateTime($usage->actual_to, $clientAccount->timezone);
-            }
-            $now = new DateTime('now', $clientAccount->timezone);
-            $date_activation = '';
-        ?>
-        <?php
-        /** @var LogTarif[] $tariffHistory */
-        /** @var LogTarif $item */
-        foreach($tariffHistory as $item):
-            if ($item->date_activation == $date_activation) {
-                continue;
-            }
-            $date_activation = $item->date_activation;
-
-            $actualFrom = new DateTime($item->date_activation, $clientAccount->timezone);
-            $isActive = $actualFrom <= $now && ($actualTo === null || $actualTo >= $now);
-            ?>
-            <tr style="<?= $isActive ? 'font-weight: bold;' : '' ?>">
-                <td nowrap><?= $actualFrom->format('Y-m-d') . ' - ' . ($actualTo !== null ? $actualTo->format('Y-m-d') :  '') ?></td>
-                <td width="100%">
-                    <?= Html::encode($item->voipTariffMain->name) ?>
-                    (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
-                    / Моб <?= Html::encode($item->voipTariffLocalMob? $item->voipTariffLocalMob->name_short: '') ?>
-                    / МГ <?= Html::encode($item->voipTariffRussia? $item->voipTariffRussia->name_short: '') ?>
-                    / МГ Моб <?= Html::encode($item->voipTariffRussiaMob? $item->voipTariffRussiaMob->name_short:'') ?>
-                    / МН <?= Html::encode($item->voipTariffIntern? $item->voipTariffIntern->name_short: '') ?>
-
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                    Мин платеж:
-
-                    <?php if ($item->dest_group != 0 && $item->minpayment_group): ?>
-                        Набор:
-                        <?= strpos($item->dest_group, '5') !== false ? 'Моб' : '' ?>
-                        <?= strpos($item->dest_group, '1') !== false ? 'МГ' : '' ?>
-                        <?= strpos($item->dest_group, '2') !== false ? 'МН' : '' ?>
-                        = <?= $item->minpayment_group ?> /
-                    <?php endif; ?>
-
-                    <?php if (strpos($item->dest_group, '5') === false && $item->minpayment_local_mob): ?>
-                        Моб = <?= $item->minpayment_local_mob ?> /
-                    <?php endif; ?>
-
-                    <?php if (strpos($item->dest_group, '1') === false && $item->minpayment_russia): ?>
-                        МГ = <?= $item->minpayment_russia ?> /
-                    <?php endif; ?>
-
-                    <?php if (strpos($item->dest_group, '2') === false && $item->minpayment_intern): ?>
-                        МН <?= $item->minpayment_intern ?> /
-                    <?php endif; ?>
-                </td>
-                <td nowrap>
-                    <?php
-                        $user = User::findOne($item->id_user);
-                        $user = $user ? $user->name : $item->id_user;
-                        echo DateTimeZoneHelper::getDateTime($item->ts) . ' / ' . $user;
-                    ?>
-                </td>
-                <td>
-                    <?php
-                    if ($actualFrom > $now) {
-                        $formModel = new \app\forms\usage\UsageVoipDeleteHistoryForm;
-                        $formModel->id = $item->id;
-
-                        $form2 = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'display: inline-block;']]);
-                        echo Html::activeHiddenInput($formModel, 'id');
-                        echo Html::submitButton('Удалить', ['class' => 'btn btn-primary btn-xs']);
-                        $form2->end();
-                    }
-                    ?>
-                </td>
+            <tr>
+                <th>Период</th>
+                <th>Тариф</th>
+                <th>Добавлено</th>
+                <th></th>
             </tr>
+        </thead>
+            <tbody>
             <?php
-            $actualTo = $actualFrom;
-            $actualTo->modify('-1 day');
-            ?>
-        <?php endforeach; ?>
+            /** @var LogTarif[] $tariffHistory */
+            /** @var LogTarif $item */
+            foreach($tariffHistory as $item):
+                if ($item->date_activation == $date_activation) {
+                    continue;
+                }
+                $date_activation = $item->date_activation;
+
+                $actualFrom = new DateTime($item->date_activation, $clientAccount->timezone);
+                $isActive = $actualFrom <= $now && ($actualTo === null || $actualTo >= $now);
+                ?>
+                <tr style="<?= $isActive ? 'font-weight: bold;' : '' ?>">
+                    <td nowrap><?= $actualFrom->format('Y-m-d') . ' - ' . ($actualTo !== null ? $actualTo->format('Y-m-d') :  '') ?></td>
+                    <td width="100%">
+                        <?= Html::encode($item->voipTariffMain->name) ?>
+                        (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
+                        / Моб <?= Html::encode($item->voipTariffLocalMob? $item->voipTariffLocalMob->name_short: '') ?>
+                        / МГ <?= Html::encode($item->voipTariffRussia? $item->voipTariffRussia->name_short: '') ?>
+                        / МГ Моб <?= Html::encode($item->voipTariffRussiaMob? $item->voipTariffRussiaMob->name_short:'') ?>
+                        / МН <?= Html::encode($item->voipTariffIntern? $item->voipTariffIntern->name_short: '') ?>
+
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                        Мин платеж:
+
+                        <?php if ($item->dest_group != 0 && $item->minpayment_group): ?>
+                            Набор:
+                            <?= strpos($item->dest_group, '5') !== false ? 'Моб' : '' ?>
+                            <?= strpos($item->dest_group, '1') !== false ? 'МГ' : '' ?>
+                            <?= strpos($item->dest_group, '2') !== false ? 'МН' : '' ?>
+                            = <?= $item->minpayment_group ?> /
+                        <?php endif; ?>
+
+                        <?php if (strpos($item->dest_group, '5') === false && $item->minpayment_local_mob): ?>
+                            Моб = <?= $item->minpayment_local_mob ?> /
+                        <?php endif; ?>
+
+                        <?php if (strpos($item->dest_group, '1') === false && $item->minpayment_russia): ?>
+                            МГ = <?= $item->minpayment_russia ?> /
+                        <?php endif; ?>
+
+                        <?php if (strpos($item->dest_group, '2') === false && $item->minpayment_intern): ?>
+                            МН <?= $item->minpayment_intern ?> /
+                        <?php endif; ?>
+                    </td>
+                    <td nowrap>
+                        <?php
+                            $user = User::findOne($item->id_user);
+                            $user = $user ? $user->name : $item->id_user;
+                            echo DateTimeZoneHelper::getDateTime($item->ts) . ' / ' . $user;
+                        ?>
+                    </td>
+                    <td>
+                        <?php
+                        if ($actualFrom > $now) {
+                            $formModel = new \app\forms\usage\UsageVoipDeleteHistoryForm;
+                            $formModel->id = $item->id;
+
+                            $form2 = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'display: inline-block;']]);
+                            echo Html::activeHiddenInput($formModel, 'id');
+                            echo Html::submitButton('Удалить', ['class' => 'btn btn-primary btn-xs']);
+                            $form2->end();
+                        }
+                        ?>
+                    </td>
+                </tr>
+                <?php
+                $actualTo = $actualFrom;
+                $actualTo->modify('-1 day');
+                ?>
+            <?php endforeach; ?>
         </tbody>
     </table>
 
@@ -464,43 +461,59 @@ echo Breadcrumbs::widget([
 
 <h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">
-    <col width="10%" />
-    <col width="*" />
-    <col width="15%" />
-    <col width="5%" />
+    <colgroup>
+        <col width="10%" />
+        <col width="*" />
+        <col width="15%" />
+        <col width="15%" />
+        <col width="5%" />
+    </colgroup>
     <thead>
         <tr>
             <th>Период</th>
             <th>Тариф</th>
             <th>Добавлено</th>
+            <th>Изменено</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($usagePackages as $package): ?>
+        <?php
+        foreach ($usagePackages as $package): ?>
             <?php
             $actualTo = (new DateTimeWithUserTimezone($package->expire_dt))->formatWithInfinity('Y-m-d');
             $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
             ?>
-            <tr style="<?= ($isActive ? 'font-weight: bold;' : '') . ($package->status == 'connecting' ? 'background-color: #ffe0e0;' : ''); ?>">
+            <tr style="<?= ($isActive ? 'font-weight: bold;' : '') . ($package->status === 'connecting' ? 'background-color: #ffe0e0;' : ''); ?>">
                 <td nowrap="nowrap">
-                    <?php
-                        echo Html::a($package->actual_from . ' - ' . $actualTo, ['/usage/voip/edit-package', 'id' => $package->id]);
-                    ?>
+                    <?= Html::a($package->actual_from . ' - ' . $actualTo, ['/usage/voip/edit-package', 'id' => $package->id]); ?>
                 </td>
                 <td><?= $package->tariff->name; ?></td>
-                <? if ($packagesHistory[$package->id]) {
+                <?php if ($packagesHistory[$package->id]):
                     $hist = $packagesHistory[$package->id];
-                ?>
-                    <td><? 
-                        $user = User::findOne($hist->id_user);
-                        $user = $user ? $user->name : $hist->id_user;
-                        echo DateTimeZoneHelper::getDateTime($hist->ts) . '<br>' . $user;
+                    ?>
+                        <td>
+                            <?= DateTimeZoneHelper::getDateTime($hist->ts) ?><br />
+                            <?= ($hist->user ? $hist->user->name : $hist->id_user); ?>
+                        </td>
+                <?php else: ?>
+                    <td>&nbsp;</td>
+                <?php endif; ?>
 
-                    ?></td> 
-                <? } else { ?>
-                <td>&nbsp;</td>
-                <? } ?>
+                <td>
+                    <?php
+                    $updated = $package->lastUpdateData;
+                    $properties = \yii\helpers\ArrayHelper::map((array) $updated->properties, 'property', 'value');
+                    echo DateTimeZoneHelper::getDateTime($updated->date) . '<br />';
+
+                    if (isset($properties['user_id'])) {
+                        if (($user = User::findOne($properties['user_id'])) !== null) {
+                            /** @var User $user */
+                            echo $user->name;
+                        }
+                    }
+                    ?>
+                </td>
 
                 <td align="center">
                     <?php
@@ -509,7 +522,8 @@ echo Breadcrumbs::widget([
                             'class' => 'btn btn-primary btn-xs',
                             'onClick' => 'return confirm("Вы уверены, что хотите отменить пакет ?")',
                         ]);
-                    } else {
+                    }
+                    else {
                         if ($package->actual_from <= $now->format('Y-m-d') && $now->format('Y-m-d') <= $package->actual_to) {
                             echo Html::a('Редактировать', ['/usage/voip/edit-package', 'id' => $package->id], [
                                 'class' => 'btn btn-info btn-link btn-xs'

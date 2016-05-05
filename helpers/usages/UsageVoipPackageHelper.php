@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
+use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 
 class UsageVoipPackageHelper extends Object implements UsageHelperInterface
@@ -45,7 +46,7 @@ class UsageVoipPackageHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return '';
+        return Url::toRoute(['/usage/voip/edit-package', 'id' => $this->usage->id]);
     }
 
     /**

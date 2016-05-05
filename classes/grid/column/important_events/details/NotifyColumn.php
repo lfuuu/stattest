@@ -9,8 +9,6 @@ use app\models\important_events\ImportantEvents;
 abstract class NotifyColumn
 {
 
-    use DetailsTrait;
-
     /**
      * @param ImportantEvents $column
      * @return array
@@ -72,12 +70,12 @@ abstract class NotifyColumn
     private static function renderDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             $column->client_id
             &&
-            ($value = self::renderClientAccount($column->client_id)) !== false
+            ($value = DetailsHelper::renderClientAccount($column->client_id)) !== false
         ) {
             $result[] = $value;
         }
@@ -85,7 +83,7 @@ abstract class NotifyColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = self::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }

@@ -125,13 +125,12 @@ class VoipController extends BaseController
 
             $packagesHistory[$package->id] =
                 LogTarif::find()
-                ->andWhere(['service' => 'usage_voip_package'])
-                ->andWhere(['id_service' => $package->id])
-                ->andWhere('id_tarif!=0')
-                ->orderBy('date_activation desc, id desc')
-                ->one();
+                    ->andWhere(['service' => 'usage_voip_package'])
+                    ->andWhere(['id_service' => $package->id])
+                    ->andWhere('id_tarif!=0')
+                    ->orderBy('date_activation desc, id desc')
+                    ->one();
         }
-
 
         return $this->render('edit', [
             'model' => $model,

@@ -79,7 +79,7 @@ class UsageVoipAddPackageForm extends Form
 
         $today = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
 
-        $logTariff = new logTarif;
+        $logTariff = new LogTarif;
         $logTariff->service = 'usage_voip_package';
         $logTariff->id_tarif = $this->tariff_id;
         $logTariff->id_user = Yii::$app->user->getId();

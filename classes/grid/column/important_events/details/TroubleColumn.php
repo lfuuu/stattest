@@ -13,8 +13,6 @@ use app\models\User;
 abstract class TroubleColumn
 {
 
-    use DetailsTrait;
-
     /**
      * @param ImportantEvents $column
      * @return array
@@ -22,7 +20,7 @@ abstract class TroubleColumn
     public static function renderCreatedTroubleDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['trouble_id'])
@@ -35,7 +33,7 @@ abstract class TroubleColumn
         if (
             $column->client_id
             &&
-            ($value = self::renderClientAccount($column->client_id)) !== false
+            ($value = DetailsHelper::renderClientAccount($column->client_id)) !== false
         ) {
             $result[] = $value;
         }
@@ -43,7 +41,7 @@ abstract class TroubleColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = self::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -72,12 +70,14 @@ abstract class TroubleColumn
         }
         else if (isset($properties['trouble_id'])) {
             if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                /** @var Trouble $trouble */
                 $stageId = $trouble->cur_stage_id;
             }
         }
 
         if (!is_null($stageId)) {
             if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Комментарий: ') .
                     $stage->comment;
@@ -94,7 +94,7 @@ abstract class TroubleColumn
     public static function renderSetStateTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         $stageId = null;
 
@@ -103,12 +103,14 @@ abstract class TroubleColumn
         }
         else if (isset($properties['trouble_id'])) {
             if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                /** @var Trouble $trouble */
                 $stageId = $trouble->cur_stage_id;
             }
         }
 
         if (!is_null($stageId)) {
             if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Статус: ') .
                     $stage->state->name;
@@ -125,7 +127,7 @@ abstract class TroubleColumn
     public static function renderSetResponsibleTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         $stageId = null;
 
@@ -134,12 +136,14 @@ abstract class TroubleColumn
         }
         else if (isset($properties['trouble_id'])) {
             if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                /** @var Trouble $trouble */
                 $stageId = $trouble->cur_stage_id;
             }
         }
 
         if (!is_null($stageId)) {
             if (($stage = TroubleStage::findOne($stageId)) !== null) {
+                /** @var User $user */
                 $user = User::findOne(['user' => $stage->user_main]);
 
                 $result[] =
@@ -157,6 +161,7 @@ abstract class TroubleColumn
      */
     private static function renderTrouble($troubleId)
     {
+        /** @var Trouble $trouble */
         $trouble = Trouble::findOne($troubleId);
 
         if ($trouble === null) {

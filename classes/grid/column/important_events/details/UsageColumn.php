@@ -12,8 +12,6 @@ use app\models\LogUsageHistory;
 abstract class UsageColumn
 {
 
-    use DetailsTrait;
-
     /**
      * @param ImportantEvents $column
      * @return array
@@ -21,7 +19,7 @@ abstract class UsageColumn
     public static function renderCreatedUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['usage'], $properties['usage_id'])
@@ -34,7 +32,7 @@ abstract class UsageColumn
         if (
             $column->client_id
                 &&
-            ($value = self::renderClientAccount($column->client_id)) !== false
+            ($value = DetailsHelper::renderClientAccount($column->client_id)) !== false
         ) {
             $result[] = $value;
         }
@@ -42,7 +40,7 @@ abstract class UsageColumn
         if (
             isset($properties['user_id'])
                 &&
-            ($value = self::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -57,7 +55,7 @@ abstract class UsageColumn
     public static function renderUpdatedUsageDetails($column)
     {
         $result = self::renderCreatedUsageDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         $fields = LogUsageHistory::findOne(['service_id' => $properties['usage_id']])->fields;
 
@@ -122,7 +120,7 @@ abstract class UsageColumn
     public static function renderTransferUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
 
         if (
             isset($properties['usage'], $properties['usage_id'])
@@ -142,7 +140,7 @@ abstract class UsageColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = self::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }

@@ -57,4 +57,10 @@ class LogTarif extends ActiveRecord
     {
         return $this->hasOne(TariffVoip::className(), ['id' => 'id_tarif_intern']);
     }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'id_user']);
+    }
+
 }

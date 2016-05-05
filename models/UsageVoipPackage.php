@@ -4,6 +4,7 @@ namespace app\models;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
@@ -15,6 +16,9 @@ use app\models\usages\UsageInterface;
 use app\models\billing\StatPackage as BillingStatPackage;
 use app\models\billing\Calls as CallsStatPackage;
 use app\queries\UsageQuery;
+use app\classes\behaviors\important_events\UsageAction;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsProperties;
 
 /**
  * @property int $id
@@ -39,7 +43,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'ImportantEvent' => \app\classes\behaviors\important_events\UsageVoipPackage::className(),
+            'ImportantEvents' => UsageAction::className(),
             'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
         ];
     }
@@ -86,7 +90,8 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
 
         if ($dateRangeFrom) {
             $dateRangeFromStr =
-                (new DateTimeWithUserTimezone($dateRangeFrom, $this->clientAccount->timezone))
+                (new DateTimeWithUserTimezone($dateRangeFrom,
+                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
                     ->modify('first day of this month')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->format(DateTime::ATOM);
@@ -95,7 +100,8 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         }
         if ($dateRangeTo) {
             $dateRangeToStr =
-                (new DateTimeWithUserTimezone($dateRangeTo, $this->clientAccount->timezone))
+                (new DateTimeWithUserTimezone($dateRangeTo,
+                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
                     ->modify('-1 second')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')
@@ -120,10 +126,18 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         ]);
 
         if ($dateRangeFrom) {
-            $link->andWhere(['>=', 'connect_time', (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)]);
+            $link->andWhere([
+                '>=',
+                'connect_time',
+                (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)
+            ]);
         }
         if ($dateRangeTo) {
-            $link->andWhere(['<=', 'connect_time', (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)]);
+            $link->andWhere([
+                '<=',
+                'connect_time',
+                (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)
+            ]);
         }
 
         return $link->all();
@@ -162,6 +176,19 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoTariffTable(self::className(), TariffVoipPackage::tableName(), 'tariff_id');
+    }
+
+    public function getLastUpdateData()
+    {
+        return
+            ImportantEvents::find()
+                ->leftJoin(['iep' => ImportantEventsProperties::tableName()], 'iep.event_id = ' . ImportantEvents::tableName() . '.id')
+                ->where([
+                    'iep.property' => 'usage_id',
+                    'iep.value' => $this->id,
+                ])
+                ->orderBy(['date' => SORT_DESC])
+                ->one();
     }
 
 }
