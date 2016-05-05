@@ -40,14 +40,13 @@ class NumberController extends BaseController
 
     public function actionAdd()
     {
-        $model = new TariffNumberAddForm();
+        $model = new TariffNumberAddForm;
         $model->activation_fee = 0;
         $model->periodical_fee = 0;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            Yii::$app->session->addFlash('success', 'Запись добавлена');
+            $this->redirect('index');
         }
 
         return $this->render('edit', [
@@ -58,7 +57,7 @@ class NumberController extends BaseController
 
     public function actionEdit($id)
     {
-        $model = new TariffNumberEditForm();
+        $model = new TariffNumberEditForm;
 
         $tariff = TariffNumber::findOne($id);
         if ($tariff === null) {
@@ -66,10 +65,9 @@ class NumberController extends BaseController
         }
         $model->setAttributes($tariff->getAttributes(), false);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->scenario == 'save' && $model->save()) {
-                $this->redirect('index');
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            Yii::$app->session->addFlash('success', 'Запись сохранена');
+            $this->redirect('index');
         }
 
         return $this->render('edit', [

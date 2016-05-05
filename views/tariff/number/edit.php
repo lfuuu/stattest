@@ -59,7 +59,7 @@ echo Breadcrumbs::widget([
             'name' => ['type' => Form::INPUT_TEXT],
             'period' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $periods, 'options' => ['class' => 'select2']],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
-            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2']],
+            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::$beautyLevelNames, 'options' => ['class' => 'select2']],
         ],
     ]);
 
@@ -89,12 +89,3 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-<script>
-    function submitForm(scenario) {
-        $('#scenario').val(scenario);
-        $('#<?=$form->getId()?>').submit();
-    }
-    $('#city_id').change(function () {
-        submitForm('default');
-    });
-</script>
