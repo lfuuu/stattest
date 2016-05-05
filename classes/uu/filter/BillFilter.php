@@ -45,8 +45,8 @@ class BillFilter extends Bill
 
         $this->date !== '' && $query->andWhere(['date' => $this->date . '-01']);
 
-        $this->price_from !== '' && $query->andWhere('price >= :price_from', [':price_from' => $this->price_from]);
-        $this->price_to !== '' && $query->andWhere('price <= :price_to', [':price_to' => $this->price_to]);
+        $this->price_from !== '' && $query->andWhere(['>=', 'price', $this->price_from]);
+        $this->price_to !== '' && $query->andWhere(['<=', 'price', $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere(['client_account_id' => $this->client_account_id]);
 

@@ -15,4 +15,12 @@ interface ResourceReaderInterface
      * @return float Если null, то данные неизвестны
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime);
+
+    /**
+     * Как считать PricePerUnit - указана за месяц или за день
+     * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
+     * false - за день (при ежедневном расчете так и оставить)
+     * @return bool
+     */
+    public function getIsMonthPricePerUnit();
 }

@@ -90,14 +90,15 @@ class AccountLogResourceTarificator
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
                 $accountLogResource->amount_use = $reader->read($accountTariff, $date);
-                $accountLogResource->amount_free = $tariffResource->amount;
-                $accountLogResource->price_per_unit = $tariffResource->price_per_unit / $date->format('t'); // это "цена за месяц", а надо перевести в "цену за день"
-                if ($accountLogResource->amount_use !== null) {
-                    $accountLogResource->amount_overhead = max(0, (int)ceil($accountLogResource->amount_use - $accountLogResource->amount_free));
-                    $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
-                } else {
-                    continue; // @todo надо потом досчитывать вариант, когда один ресурс посчитался, а другой нет
+                if ($accountLogResource->amount_use === null) {
+                    continue; // нет данных. Пропустить
                 }
+                $accountLogResource->amount_free = $tariffResource->amount;
+                $accountLogResource->price_per_unit = $reader->getIsMonthPricePerUnit() ?
+                    $tariffResource->price_per_unit / $date->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
+                    $tariffResource->price_per_unit; // это "цена за день", так и оставить
+                $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
+                $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->save();
             }
         }

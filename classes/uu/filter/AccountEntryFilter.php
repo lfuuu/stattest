@@ -19,6 +19,18 @@ class AccountEntryFilter extends AccountEntry
     public $price_from = '';
     public $price_to = '';
 
+    public $price_without_vat_from = '';
+    public $price_without_vat_to = '';
+
+    public $price_with_vat_from = '';
+    public $price_with_vat_to = '';
+
+    public $vat_from = '';
+    public $vat_to = '';
+
+    public $vat_rate_from = '';
+    public $vat_rate_to = '';
+
     public $account_tariff_id = '';
     public $service_type_id = '';
     public $client_account_id = '';
@@ -30,6 +42,10 @@ class AccountEntryFilter extends AccountEntry
         return [
             [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id'], 'integer'],
             [['price_from', 'price_to'], 'double'],
+            [['price_without_vat_from', 'price_without_vat_to'], 'double'],
+            [['price_with_vat_from', 'price_with_vat_to'], 'double'],
+            [['vat_from', 'vat_to'], 'double'],
+            [['vat_rate_from', 'vat_rate_to'], 'integer'],
             [['date'], 'string', 'max' => 255],
         ];
     }
@@ -55,8 +71,20 @@ class AccountEntryFilter extends AccountEntry
 
         $this->date !== '' && $query->andWhere([$accountEntryTableName . '.date' => $this->date . '-01']);
 
-        $this->price_from !== '' && $query->andWhere($accountEntryTableName . '.price >= :price_from', [':price_from' => $this->price_from]);
-        $this->price_to !== '' && $query->andWhere($accountEntryTableName . '.price <= :price_to', [':price_to' => $this->price_to]);
+        $this->price_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price', $this->price_from]);
+        $this->price_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price', $this->price_to]);
+
+        $this->price_without_vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price_without_vat', $this->price_without_vat_from]);
+        $this->price_without_vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price_without_vat', $this->price_without_vat_to]);
+
+        $this->price_with_vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price_with_vat', $this->price_with_vat_from]);
+        $this->price_with_vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price_with_vat', $this->price_with_vat_to]);
+
+        $this->vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.vat', $this->vat_from]);
+        $this->vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.vat', $this->vat_to]);
+
+        $this->vat_rate_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.vat_rate', $this->vat_rate_from]);
+        $this->vat_rate_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.vat_rate', $this->vat_rate_to]);
 
         $this->account_tariff_id !== '' && $query->andWhere([$accountEntryTableName . '.account_tariff_id' => $this->account_tariff_id]);
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);

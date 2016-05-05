@@ -55,7 +55,7 @@ class AccountLogResourceFilter extends AccountLogResource
             [['id', 'client_account_id', 'tariff_period_id', 'service_type_id', 'tariff_resource_id'], 'integer'],
             [['amount_use_from', 'amount_use_to'], 'double'],
             [['amount_free_from', 'amount_free_to'], 'double'],
-            [['amount_overhead_from', 'amount_overhead_to'], 'integer'],
+            [['amount_overhead_from', 'amount_overhead_to'], 'double'],
             [['price_per_unit_from', 'price_per_unit_to'], 'double'],
             [['price_from', 'price_to'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 255],

@@ -18,7 +18,7 @@ use yii\helpers\Url;
  * @property int $account_tariff_id
  * @property float $amount_use кэш из пребиллера (например, virtpbx_stat)
  * @property float $amount_free кэш tariffResource -> amount
- * @property int $amount_overhead кэш ceil(amount_use - amount_free)
+ * @property float $amount_overhead кэш ceil(amount_use - amount_free)
  * @property float $price_per_unit кэш tariffResource -> price_per_unit
  * @property float $price кэш amount_overhead * price_per_unit
  * @property string $insert_time

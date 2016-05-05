@@ -6,6 +6,12 @@ use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffPeriod;
+use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\Organization;
 use Yii;
 use yii\db\Expression;
 
@@ -42,6 +48,10 @@ class AccountEntryTarificator
             'tariff_resource_id',
             '`date`'
         );
+
+        // Расчёт НДС
+        echo PHP_EOL . 'Расчёт НДС';
+        $this->_tarificateVat();
 
         echo PHP_EOL;
     }
@@ -110,6 +120,88 @@ SQL;
             account_entry.price = t.price
          WHERE
             account_entry.id = t.account_entry_id
+SQL;
+        $db->createCommand($updateSql)
+            ->execute();
+        unset($updateSql);
+    }
+
+
+    /**
+     * Посчитать НДС
+     * Проще через ClientAccount->getOrganization()->vat_rate, но это слишком долго. Поэтому хардкор
+     */
+    private function _tarificateVat()
+    {
+        $db = Yii::$app->db;
+        $accountEntryTableName = AccountEntry::tableName();
+
+        // посчитать ставку НДС для юр.лиц
+        echo '. ';
+        $accountTariffTableName = AccountTariff::tableName();
+        $clientAccountTableName = ClientAccount::tableName();
+        $clientContractTableName = ClientContract::tableName();
+        $organizationTableName = Organization::tableName();
+        $updateSql = <<<SQL
+            UPDATE
+            {$accountEntryTableName} account_entry,
+            {$accountTariffTableName} account_tariff,
+            {$clientAccountTableName} client_account,
+            {$clientContractTableName} client_contract,
+            {$organizationTableName} organization
+         SET
+            account_entry.vat_rate = organization.vat_rate
+         WHERE
+            account_entry.account_tariff_id = account_tariff.id
+            AND account_tariff.client_account_id = client_account.id
+            AND client_account.contract_id = client_contract.id
+            AND client_contract.organization_id = organization.organization_id
+            AND organization.actual_from <= account_entry.date
+            AND account_entry.date < organization.actual_to
+SQL;
+        $db->createCommand($updateSql)
+            ->execute();
+        unset($updateSql);
+
+
+        // посчитать цену без НДС для юр.лиц
+        echo '. ';
+        $accountTariffTableName = AccountTariff::tableName();
+        $tariffPeriodTableName = TariffPeriod::tableName();
+        $tariffTableName = Tariff::tableName();
+        $updateSql = <<<SQL
+            UPDATE
+            {$accountEntryTableName} account_entry,
+            {$accountTariffTableName} account_tariff,
+            {$tariffPeriodTableName} tariff_period,
+            {$tariffTableName} tariff
+         SET
+            account_entry.price_without_vat = IF(
+                account_entry.type_id < 0  AND tariff.is_include_vat,
+                account_entry.price * 100 / (100 + account_entry.vat_rate),
+                account_entry.price
+               )
+         WHERE
+            account_entry.vat_rate IS NOT NULL
+            AND account_entry.account_tariff_id = account_tariff.id
+            AND account_tariff.tariff_period_id = tariff_period.id
+            AND tariff_period.tariff_id = tariff.id
+SQL;
+        $db->createCommand($updateSql)
+            ->execute();
+        unset($updateSql);
+
+
+        // посчитать НДС и цену с НДС для юр.лиц
+        echo '. ';
+        $updateSql = <<<SQL
+            UPDATE
+            {$accountEntryTableName} account_entry
+         SET
+            vat = price_without_vat * vat_rate / 100,
+            price_with_vat = price_without_vat * (100 + vat_rate) / 100
+         WHERE
+            price_without_vat IS NOT NULL
 SQL;
         $db->createCommand($updateSql)
             ->execute();

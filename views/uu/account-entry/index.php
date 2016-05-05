@@ -7,6 +7,7 @@
  */
 
 use app\classes\grid\column\universal\AccountEntryTypeColumn;
+use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\MonthColumn;
@@ -86,10 +87,28 @@ $accountTariffTableName = AccountTariff::tableName();
         ],
         [
             'attribute' => 'price',
+            'class' => FloatRangeColumn::className(),
+            'format' => ['decimal', 'decimals' => 2],
+        ],
+        [
+            'attribute' => 'price_without_vat',
+            'class' => FloatRangeColumn::className(),
+            'format' => ['decimal', 'decimals' => 2],
+        ],
+        [
+            'attribute' => 'vat_rate',
             'class' => IntegerRangeColumn::className(),
-            'value' => function (AccountEntry $accountEntry) {
-                return sprintf('%.2f', $accountEntry->price);
-            }
+            'format' => ['decimal', 'decimals' => 2],
+        ],
+        [
+            'attribute' => 'vat',
+            'class' => FloatRangeColumn::className(),
+            'format' => ['decimal', 'decimals' => 2],
+        ],
+        [
+            'attribute' => 'price_with_vat',
+            'class' => FloatRangeColumn::className(),
+            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'label' => 'Транзакции, у.е.',

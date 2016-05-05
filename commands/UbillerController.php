@@ -21,7 +21,7 @@ class UbillerController extends Controller
 {
 
     /**
-     * Создать транзакции, проводки, счета
+     * Создать транзакции, проводки, счета. hot 4 минуты / cold 3 часа
      * @return int
      */
     public function actionIndex()
@@ -36,7 +36,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать транзакции за подключение
+     * Создать транзакции за подключение. hot 40 секунд / cold 1 минута
      */
     public function actionSetup()
     {
@@ -56,7 +56,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать транзакции абоненской платы
+     * Создать транзакции абоненской платы. hot 40 секунд / cold 13 минут
      */
     public function actionPeriod()
     {
@@ -76,7 +76,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать транзакции за ресурсы
+     * Создать транзакции за ресурсы. hot 3 минуты / cold 3 часа
      */
     public function actionResource()
     {
@@ -96,7 +96,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать проводки
+     * Создать проводки. hot 1 секунда / cold 5 сек
      * На основе новых транзакций создать новые проводки или добавить в существующие
      */
     public function actionEntry()
@@ -117,7 +117,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать счета
+     * Создать счета. hot 1 секунда / cold 5 сек
      * На основе новых проводок создать новые счета или добавить в существующие
      */
     public function actionBill()
@@ -138,54 +138,64 @@ class UbillerController extends Controller
     }
 
     /**
-     * Удалить транзакции, проводки, счета
+     * Удалить транзакции, проводки, счета. 10 сек
      */
     public function actionClear()
     {
         AccountLogSetup::deleteAll();
+        echo '. ';
         AccountLogPeriod::deleteAll();
+        echo '. ';
         AccountLogResource::deleteAll();
+        echo '. ';
         AccountEntry::deleteAll();
+        echo '. ';
         Bill::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 
     /**
-     * Удалить транзакции за подключение
+     * Удалить транзакции за подключение. 2 сек
      */
     public function actionClearSetup()
     {
         AccountLogSetup::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 
     /**
-     * Удалить транзакции абоненской платы
+     * Удалить транзакции абоненской платы. 2 сек
      */
     public function actionClearPeriod()
     {
         AccountLogPeriod::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 
     /**
-     * Удалить транзакции за ресурсы
+     * Удалить транзакции за ресурсы. 2 сек
      */
     public function actionClearResource()
     {
         AccountLogResource::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 
     /**
-     * Удалить проводки
+     * Удалить проводки. 2 сек
      */
     public function actionClearEntry()
     {
         AccountEntry::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 
     /**
-     * Удалить счета
+     * Удалить счета. 2 сек
      */
     public function actionClearBill()
     {
         Bill::deleteAll();
+        echo '. ' . PHP_EOL;
     }
 }

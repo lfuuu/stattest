@@ -7,8 +7,8 @@
  */
 
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
+use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\ResourceColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
@@ -72,23 +72,28 @@ $columns = [
     ],
     [
         'attribute' => 'amount_use',
-        'class' => IntegerRangeColumn::className(),
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'amount_free',
-        'class' => IntegerRangeColumn::className(),
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'amount_overhead',
-        'class' => IntegerRangeColumn::className(),
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'price_per_unit',
-        'class' => IntegerRangeColumn::className(),
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => FloatRangeColumn::className(),
+        'format' => ['decimal', 'decimals' => 2],
     ],
 ];
 

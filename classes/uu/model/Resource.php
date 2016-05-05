@@ -4,6 +4,7 @@ namespace app\classes\uu\model;
 
 use app\classes\uu\resourceReader\DummyResourceReader;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
+use app\classes\uu\resourceReader\VoipCallsResourceReader;
 use app\classes\uu\resourceReader\VpbxAbonentResourceReader;
 use app\classes\uu\resourceReader\VpbxDiskResourceReader;
 use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
@@ -109,7 +110,7 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_FAX => DummyResourceReader::className(), // @todo
 
             self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo
-            self::ID_VOIP_CALLS => DummyResourceReader::className(), // @todo
+            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(), 
         ];
         $className = $idToClassName[$id];
         return new $className();

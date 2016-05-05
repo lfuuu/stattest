@@ -16,6 +16,10 @@ use yii\helpers\Url;
  * @property int $account_tariff_id
  * @property int $type_id Если положительное, то TariffResource, иначе подключение или абонентка. Поэтому нет FK
  * @property float $price
+ * @property float $price_without_vat
+ * @property int $vat_rate
+ * @property float $vat
+ * @property float $price_with_vat
  * @property string $update_time
  *
  * @property AccountTariff $accountTariff
