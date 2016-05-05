@@ -1778,7 +1778,6 @@ class m_newaccounts extends IModule
         switch ($obj) {
             case 'receipt': {
                 $this->_print_receipt();
-                exit;
                 break;
             }
             case 'notice_mcm_telekom': {
@@ -2039,35 +2038,38 @@ class m_newaccounts extends IModule
         $design->ProcessEx('errors.tpl');
     }
 
-    function _print_receipt()
+    private function _print_receipt()
     {
         global $design;
-        $clientId = get_param_raw("client", 0);
-        $sum = get_param_raw("sum", 0);
-        $sum = (float)$sum;
+        $clientId = get_param_raw('client', 0);
+        $sum = (float) get_param_raw('sum', 0);
 
-        if($clientId && $sum)
-        {
-            $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
-            list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
+        if ($clientId && $sum) {
+            $clientAccount = ClientAccount::findOne($clientId);
+            $organization = $clientAccount->organization;
 
-            $sumNds = (($sum / (1 + $tax_rate/100)) * $tax_rate/100);
-            list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
+            list($sum, $sum_without_tax, $sum_tax) = $clientAccount->convertSum($sum, null);
 
-            $sSum = array(
-                    "rub" => $rub,
-                    "kop" => $kop,
-                    "nds" => array(
-                        "rub" => $ndsRub,
-                        "kop" => $ndsKop
-                        )
-                    );
-            $design->assign("sum", $sSum);
-            $design->assign("client", ClientCS::FetchClient($clientId));
-            echo $design->fetch("newaccounts/print_receipt.tpl");
+            list($rub, $kop) = explode('.', sprintf('%.2f', $sum));
+            list($ndsRub, $ndsKop) = explode('.', sprintf('%.2f', $sum_tax));
 
+            $summary  = [
+                'rub' => $rub,
+                'kop' => $kop,
+                'nds' => [
+                    'rub'=> $ndsRub,
+                    'kop' => $ndsKop
+                ]
+            ];
+
+            $design->assign('sum', $summary);
+            $design->assign('client', $clientAccount);
+            $design->assign('organization', $organization);
+
+            echo $design->fetch('newaccounts/print_receipt.tpl');
         }
 
+        exit;
     }
 
 
