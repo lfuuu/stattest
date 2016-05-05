@@ -29,7 +29,7 @@ class WizardMcnController extends WizardBaseController
     /**
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/save/",
+     *   path="/wizard-mcn/save/",
      *   summary="Сохранение состояния визарда",
      *   operationId="Сохранение состояния визарда",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -103,7 +103,7 @@ class WizardMcnController extends WizardBaseController
     /**
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/get_contract/",
+     *   path="/wizard-mcn/get-contract/",
      *   summary="Получение договора",
      *   operationId="Получение договора",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -223,7 +223,7 @@ class WizardMcnController extends WizardBaseController
      * ),
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/save_document/",
+     *   path="/wizard-mcn/save-'document/",
      *   summary="Сохранение документа",
      *   operationId="Сохранение документа",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -271,7 +271,7 @@ class WizardMcnController extends WizardBaseController
     /**
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/save_contracts/",
+     *   path="/wizard-mcn/save-contracts/",
      *   summary="Сохранение договора",
      *   operationId="Сохранение договора",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),

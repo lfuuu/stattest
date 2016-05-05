@@ -23,7 +23,7 @@ class WizardEurController extends WizardBaseController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с евроепейским визардом"},
+     *   tags={"Работа с европейским визардом"},
      *   path="/wizard-eur/save/",
      *   summary="Сохранение состояния визарда",
      *   operationId="Сохранение состояния визарда",
@@ -101,7 +101,7 @@ class WizardEurController extends WizardBaseController
     /**
      * @SWG\Post(
      *   tags={"Работа с европейским визардом"},
-     *   path="/wizard_mcn/get_contract/",
+     *   path="/wizard-eur/get_contract/",
      *   summary="Получение договора",
      *   operationId="Получение договора",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
