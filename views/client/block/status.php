@@ -58,7 +58,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                         | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=first">*первый шаг*</a>
                     <?php endif; ?>
 
-                    <? if ($account->lkWizardState->step != 4): ?>
+                    <? if ($account->lkWizardState->step != ($account->lkWizardState->type == 'mcn' ? 4 : 3)): ?>
                         | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=next">*след шаг*</a>
                     <?php endif; ?>
 

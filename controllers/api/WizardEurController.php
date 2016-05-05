@@ -74,22 +74,25 @@ class WizardEurController extends WizardBaseController
         }
 
         if ($result === true) {
-            if ($step == 1 && $this->wizard->step >= 2) { //если пользователь вернулся назад и пересохранил шаг 1
-                $this->eraseContract();
-            }
-            $this->wizard->step = $step + 1;
-            $this->wizard->state = ($step == 1 ? LkWizardState::STATE_PROCESS : ($step == $this->lastStep ? LkWizardState::STATE_REVIEW : LkWizardState::STATE_PROCESS));
-            $this->wizard->save();
+            if ($step == 1 || $step == 2) {
+                if ($step == 1 && $this->wizard->step >= 2) { //если пользователь вернулся назад и пересохранил шаг 1
+                    $this->eraseContract();
+                }
+                $step++;
+                $this->wizard->step = $step;
+                $this->wizard->state = ($step < $this->lastStep ? LkWizardState::STATE_PROCESS : LkWizardState::STATE_REVIEW);
+                $this->wizard->save();
 
-            if ($this->wizard->step == $this->lastStep && $this->wizard->state == LkWizardState::STATE_REVIEW) {
-                $manager = $this->makeNotify();
+                if ($this->wizard->step == $this->lastStep && $this->wizard->state == LkWizardState::STATE_REVIEW) {
+                    $manager = $this->makeNotify();
 
-                $this->wizard->trouble->addStage(
-                    TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS,
-                    "Клиент ожидает проверки документов. ЛК - Wizard",
-                    ($manager ? $manager->id : null),
-                    User::LK_USER_ID
-                );
+                    $this->wizard->trouble->addStage(
+                        TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS,
+                        "Клиент ожидает проверки документов. ЛК - Wizard",
+                        ($manager ? $manager->id : null),
+                        User::LK_USER_ID
+                    );
+                }
             }
         } else { //error
             return $result;
@@ -157,6 +160,7 @@ class WizardEurController extends WizardBaseController
         if (isset($this->postData['as_html'])) {
             return $content;
         }
+        return base64_encode($content);
 
         return base64_encode($this->getPDFfromHTML($content));
     }
@@ -252,9 +256,9 @@ class WizardEurController extends WizardBaseController
         } else {
             $transaction = Yii::$app->getDb()->beginTransaction();
             if (
-                $form->saveInContragent($this->account) &&
-                $contactForm->save($this->account) &&
-                $acceptForm->save($this->wizard)
+                $form->saveInContragent($this->account) 
+                && $contactForm->save($this->account) 
+                && $acceptForm->save($this->wizard)
             ) {
                 $transaction->commit();
                 return true;

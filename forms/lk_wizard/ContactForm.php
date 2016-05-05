@@ -16,9 +16,9 @@ class ContactForm extends Form
     {
         $rules = [];
 
-        $rules[] = [["contact_phone"], "string"];
-        $rules[] = ["contact_fio", "string", "on" => "mcn"];
-        $rules[] = ["fio", "string", "on" => "eur"];
+        $rules[] = [["contact_phone"], "required"];
+        $rules[] = ["contact_fio", "required", "on" => "mcn"];
+        $rules[] = ["fio", "required", "on" => "eur"];
 
         return $rules;
     }
@@ -46,8 +46,10 @@ class ContactForm extends Form
             $contact->user_id = User::CLIENT_USER_ID;
             $contact->type = "phone";
         }
+
         $contact->data = $this->contact_phone;
         $contact->comment = ($this->getScenario() == 'mcn' ? $this->contact_fio : $this->fio);
+
         return $contact->save();
     }
 }
