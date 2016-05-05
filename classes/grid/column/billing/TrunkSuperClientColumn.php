@@ -7,8 +7,9 @@ use app\models\UsageTrunk;
 use kartik\grid\GridView;
 use yii\db\ActiveRecord;
 
-class TrunkSuperСlientColumn extends DataColumn
+class TrunkSuperClientColumn extends DataColumn
 {
+
     public $filterType = GridView::FILTER_SELECT2;
     public $filter = ['' => ' ---- '];
     protected $trunkIdToSuperClientName = [];
@@ -47,7 +48,7 @@ class TrunkSuperСlientColumn extends DataColumn
      */
     protected function renderDataCellContent($model, $key, $index)
     {
-        $value = $this->getDataCellValue($model, $key, $index); // trunk_id, а не trunk_ids!
-        return isset($this->trunkIdToSuperClientName[$value]) ? (string)$this->trunkIdToSuperClientName[$value] : $value;
+        $value = is_array($model) ? $model['trunk_id'] : $model->trunk_id;
+        return isset($this->trunkIdToSuperClientName[$value]) ? (string) $this->trunkIdToSuperClientName[$value] : $value;
     }
 }

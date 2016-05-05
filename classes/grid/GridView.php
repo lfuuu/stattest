@@ -124,14 +124,16 @@ HTML;
         );
 
         // чтобы был валидный html, надо раскомемнтировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
-//        $rows = Html::tag(
-//            'tr',
-//            Html::tag(
-//                'td',
-//                $rows,
-//                ['colspan' => count($this->columns)]
-//            )
-//        );
+        /*
+        $rows = Html::tag(
+            'tr',
+            Html::tag(
+                'td',
+                $rows,
+                ['colspan' => count($this->columns)]
+            )
+        );
+        */
 
         return $rows;
     }

@@ -16,6 +16,16 @@ class Trunk extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    const TRUNK_DIRECTION_ORIG = 'orig_enabled';
+    const TRUNK_DIRECTION_TERM = 'term_enabled';
+    const TRUNK_DIRECTION_BOTH = 'both_enabled'; // Только для условий
+
+    public static $trunkTypes = [
+        self::TRUNK_DIRECTION_BOTH => 'Ориг. / Терм.',
+        self::TRUNK_DIRECTION_ORIG => 'Ориг.',
+        self::TRUNK_DIRECTION_TERM => 'Терм.',
+    ];
+
     /**
      * Вернуть имена полей
      * @return [] [полеВТаблице => Перевод]

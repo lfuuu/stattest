@@ -18,6 +18,7 @@ class m_voipnew_head extends IModuleHead
         'mass_activate' => array('voip', 'admin'),
         'pricelist' => array('voip', 'access'),
         'trunks' => array('voip', 'admin'),
+        '/voip/trunks' => array('voip', 'admin'),
         'calls_recalc' => array('voip', 'admin'),
         'network_price' => array('voip', 'access'),
         'network_config_show' => array('voip', 'admin'),
@@ -27,11 +28,21 @@ class m_voipnew_head extends IModuleHead
         'network_file_change_start_date' => array('voip', 'admin'),
     );
 
-    public $menu = array(
-        array('Справочники', 'catalogs'),
-        array('Транки', 'trunks'),
-        array('', 'catalogs'),
-        array('Пересчет звонков', 'calls_recalc'),
-        array('', 'catalogs'),
-    );
+    public $menu = [];
+
+    public function __construct()
+    {
+        $this->menu = [
+            ['Справочники', 'catalogs'],
+            ['Транки (старое)', 'trunks'],
+            ['Транки', function () {
+                return '/voip/trunks';
+            }],
+            ['', 'catalogs'],
+            ['Пересчет звонков', 'calls_recalc'],
+            ['', 'catalogs'],
+        ];
+
+        parent::__construct();
+    }
 }

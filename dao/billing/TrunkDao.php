@@ -1,9 +1,15 @@
 <?php
 namespace app\dao\billing;
 
+use yii\db\ActiveRecord;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 use app\classes\Singleton;
 use app\models\billing\Trunk;
-use yii\helpers\ArrayHelper;
+use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\ClientContragent;
+use app\models\UsageTrunk;
 
 /**
  * @method static TrunkDao me($args = null)
@@ -12,6 +18,10 @@ use yii\helpers\ArrayHelper;
 class TrunkDao extends Singleton
 {
 
+    /**
+     * @param int|false $serverId
+     * @return []
+     */
     public function getList($serverId = false)
     {
         $query = Trunk::find();
@@ -33,7 +43,9 @@ class TrunkDao extends Singleton
             );
     }
 
-
+    /**
+     * @return []
+     */
     public function getListAll()
     {
         $query = Trunk::find();
@@ -47,4 +59,40 @@ class TrunkDao extends Singleton
                 'name'
             );
     }
+
+    /**
+     * @param int $trunkId
+     * @return ActiveRecord[]
+     */
+    public function getContragents($trunkId = 0)
+    {
+        $query =
+            (new Query)
+                ->select([
+                    'client_account_id' => 'clients.id',
+                    'id' => 'contragents.id',
+                    'name' => 'contragents.name',
+                ])
+                ->from([
+                    'trunks' => UsageTrunk::tableName()
+                ])
+                ->leftJoin(
+                    ['clients' => ClientAccount::tableName()],
+                    'clients.id = trunks.client_account_id'
+                )
+                ->leftJoin(
+                    ['contracts' => ClientContract::tableName()],
+                    'contracts.id = clients.contract_id'
+                )
+                ->leftJoin(
+                    ['contragents' => ClientContragent::tableName()],
+                    'contragents.id = contracts.contragent_id'
+                )
+                ->groupBy('trunks.client_account_id');
+
+        $trunkId !== '' && $query->where(['trunks.id' => $trunkId]);
+
+        return $query->all();
+    }
+
 }
