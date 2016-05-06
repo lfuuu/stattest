@@ -4,7 +4,7 @@ namespace app\models\tariffication;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
+ * @property int $id
  * @property string $name
  * @property
  */

@@ -52,29 +52,29 @@ class UsageController extends Controller
     {
         $info = [];
 
-        $now     =  new DateTime("now");
+        $now = new DateTime("now");
 
-        echo "\nstart ".$now->format("Y-m-d H:i:s")."\n";
+        echo "\nstart " . $now->format("Y-m-d H:i:s") . "\n";
 
         $blockDate = (new DateTime("now"))->modify("-10 day");
-        $offDate   = (new DateTime("now"))->modify("-40 day");
+        $offDate = (new DateTime("now"))->modify("-40 day");
 
-        echo $now->format("Y-m-d").": block: ".$blockDate->format("Y-m-d")."\n";
-        echo $now->format("Y-m-d").": off: ".$offDate->format("Y-m-d")."\n";
+        echo $now->format("Y-m-d") . ": block: " . $blockDate->format("Y-m-d") . "\n";
+        echo $now->format("Y-m-d") . ": off: " . $offDate->format("Y-m-d") . "\n";
 
-        $infoBlock =$this->cleanUsages($blockDate, "set block");
+        $infoBlock = $this->cleanUsages($blockDate, "set block");
         $infoOff = $this->cleanUsages($offDate, "set off");
 
-        if ($infoBlock)
+        if ($infoBlock) {
             $info = array_merge($info, $infoBlock);
+        }
 
-        if ($infoOff)
+        if ($infoOff) {
             $info = array_merge($info, $infoOff);
+        }
 
-        if ($info)
-        {
-            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL)
-            {
+        if ($info) {
+            if (defined("ADMIN_EMAIL") && ADMIN_EMAIL) {
                 mail(ADMIN_EMAIL, "voip clean processor", implode("\n", $info));
             }
 
@@ -92,8 +92,7 @@ class UsageController extends Controller
 
         $info = [];
 
-        foreach ($usages as $usage)
-        {
+        foreach ($usages as $usage) {
             $tarif = $usage->tariff;
             $account = $usage->clientAccount;
 
@@ -101,20 +100,17 @@ class UsageController extends Controller
             {
                 if ($usage->actual_to != $now->format("Y-m-d")) // не выключенные сегодня
                 {
-                    if ($action == "set block")
-                    {
-                        if (!$account->is_blocked)
-                        {
-                            $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set block ".$tarif->status;
+                    if ($action == "set block") {
+                        if (!$account->is_blocked) {
+                            $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set block " . $tarif->status;
 
                             $account->is_blocked = 1;
                             $account->save();
                         }
                     }
 
-                    if ($action == "set off")
-                    {
-                        $info[] = $now->format("Y-m-d").": ".$usage->E164.", from: ".$usage->actual_from.": set off";
+                    if ($action == "set off") {
+                        $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
 
                         $model = new UsageVoipEditForm();
                         $model->initModel($usage->clientAccount, $usage);
@@ -130,8 +126,8 @@ class UsageController extends Controller
 
     public function actionCheckVoipDayDisable()
     {
-        $now     =  new DateTime("now");
-        echo "\nstart ".$now->format("Y-m-d H:i:s");
+        $now = new DateTime("now");
+        echo "\nstart " . $now->format("Y-m-d H:i:s");
 
         $ress = Yii::$app->dbPg->createCommand("
             SELECT cc.client_id
@@ -145,13 +141,11 @@ class UsageController extends Controller
             )
             ")->queryAll();
 
-        foreach($ress as $res)
-        {
+        foreach ($ress as $res) {
             $client = ClientAccount::findOne($res["client_id"]);
 
-            if ($client->voip_disabled == 0)
-            {
-                echo "\n...".$res["client_id"];
+            if ($client->voip_disabled == 0) {
+                echo "\n..." . $res["client_id"];
                 $client->voip_disabled = 1;
                 $client->save();
             }

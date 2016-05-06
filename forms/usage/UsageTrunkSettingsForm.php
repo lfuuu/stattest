@@ -20,7 +20,20 @@ class UsageTrunkSettingsForm extends Form
     public function rules()
     {
         return [
-            [['id','usage_id','type','src_number_id','dst_number_id','pricelist_id', 'minimum_minutes', 'minimum_cost', 'minimum_margin_type'], 'integer'],
+            [
+                [
+                    'id',
+                    'usage_id',
+                    'type',
+                    'src_number_id',
+                    'dst_number_id',
+                    'pricelist_id',
+                    'minimum_minutes',
+                    'minimum_cost',
+                    'minimum_margin_type'
+                ],
+                'integer'
+            ],
             [['minimum_margin'], 'double'],
         ];
     }

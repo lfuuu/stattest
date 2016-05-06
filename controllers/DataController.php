@@ -24,8 +24,9 @@ class DataController extends BaseController
         //if (!Yii::$app->request->getIsAjax())
         //    return false;
 
-        if (!($clientAccount = $this->getFixClient()) instanceof ClientAccount)
+        if (!($clientAccount = $this->getFixClient()) instanceof ClientAccount) {
             return false;
+        }
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         switch ($type) {

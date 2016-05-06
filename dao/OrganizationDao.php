@@ -23,8 +23,7 @@ class OrganizationDao extends Singleton
             $actual = Organization::find()->byId($record->organization_id)->actual()->one();
             if ($actual instanceof Organization) {
                 $result[] = $actual;
-            }
-            else {
+            } else {
                 $result[] = $record;
             }
         }

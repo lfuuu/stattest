@@ -74,7 +74,8 @@ abstract class NumberTypeForm extends Form
                 // страны
                 $numberTypeCountry = new NumberTypeCountry();
                 $numberTypeCountry->voip_number_type_id = $this->id;
-                self::crudMultipleSelect2($this->numberType->numberTypeCountries, $post, $numberTypeCountry, 'country_id');
+                self::crudMultipleSelect2($this->numberType->numberTypeCountries, $post, $numberTypeCountry,
+                    'country_id');
 
             }
 

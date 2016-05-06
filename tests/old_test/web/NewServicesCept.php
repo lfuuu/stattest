@@ -196,11 +196,9 @@ $services = array(
     ),
 );
 
-foreach ($services as $k=>$v)
-{
+foreach ($services as $k => $v) {
     // создаем клиентов для каждого вида услуг кроме ВАТС(используем клиента с телефонией)
-    if (!isset($v['client']) || !$v['client'])
-    {
+    if (!isset($v['client']) || !$v['client']) {
         $newClientPage = NewClient::openBy($I);
         $I->seeCurrentUrlEquals('/index.php?module=clients&action=new');
         $I->see('Регион');
@@ -217,7 +215,7 @@ foreach ($services as $k=>$v)
         $client = $v['client'];
     }
     //переходим на страницу клиента, дабы закрепить fixclient
-    $I->amOnPage('/?module=clients&id='.$client);
+    $I->amOnPage('/?module=clients&id=' . $client);
 
     //переходим на страницу просмотра существющих услуг "данного типа"
     $I->amOnPage($v['page']);
@@ -228,29 +226,22 @@ foreach ($services as $k=>$v)
 
     // для всех услуг кроме "Доп услуг" мы можем заполнить форму "вручную"
     // для доп услуг не можем из js
-    if (!isset($v['form']))
-    {
+    if (!isset($v['form'])) {
         //заполняем селектбоксы
-        if (isset($v['selectbox']) && !empty($v['selectbox']))
-        {
-            foreach ($v['selectbox'] as $select => $option)
-            {
+        if (isset($v['selectbox']) && !empty($v['selectbox'])) {
+            foreach ($v['selectbox'] as $select => $option) {
                 $I->selectOption($select, $option);
             }
         }
         //заполняем текстовые поля
-        if (isset($v['input']) && !empty($v['input']))
-        {
-            foreach ($v['input'] as $field => $value)
-            {
+        if (isset($v['input']) && !empty($v['input'])) {
+            foreach ($v['input'] as $field => $value) {
                 $I->fillField($field, $value);
             }
         }
         //выбираем чекбоксы
-        if (isset($v['checkbox']) && !empty($v['checkbox']))
-        {
-            foreach ($v['checkbox'] as $option)
-            {
+        if (isset($v['checkbox']) && !empty($v['checkbox'])) {
+            foreach ($v['checkbox'] as $option) {
                 $I->checkOption($option);
             }
         }
@@ -262,8 +253,7 @@ foreach ($services as $k=>$v)
     }
 
     // проверки
-    switch ($k)
-    {
+    switch ($k) {
         case 'email2':
             // при создании email'a редиректит на страницу просмотра всех email'ов
             //проверяем дату начала работы ящика и ссылку на ящик
@@ -291,24 +281,18 @@ foreach ($services as $k=>$v)
             );
         default:
             //проверка введенных значений селектбоксев
-            if (isset($v['selectbox']) && !empty($v['selectbox']))
-            {
-                foreach ($v['selectbox'] as $select => $option)
-                {
-                    if (strpos($select, 'tarif') === false)
-                    {
+            if (isset($v['selectbox']) && !empty($v['selectbox'])) {
+                foreach ($v['selectbox'] as $select => $option) {
+                    if (strpos($select, 'tarif') === false) {
                         $I->seeOptionIsSelected($select, $option);
                     }
                 }
             }
 
             //проверка введеных значений в текстовые поля
-            if (isset($v['input']) && !empty($v['input']))
-            {
-                foreach ($v['input'] as $field => $value)
-                {
-                    if (strpos($field, 'moved') === false)
-                    {
+            if (isset($v['input']) && !empty($v['input'])) {
+                foreach ($v['input'] as $field => $value) {
+                    if (strpos($field, 'moved') === false) {
                         $I->seeInField($field, $value);
                     }
                 }

@@ -22,13 +22,13 @@ class ArrayValidator extends Validator
     {
         if (is_array($value)) {
             if ($this->validator) {
-              $validator = Yii::createObject($this->validator);
-              foreach ($value as $item) {
-                $result = $validator->validateValue($item);
-                if (!empty($result)) {
-                  return $result;
+                $validator = Yii::createObject($this->validator);
+                foreach ($value as $item) {
+                    $result = $validator->validateValue($item);
+                    if (!empty($result)) {
+                        return $result;
+                    }
                 }
-              }
             }
             return null;
         } else {

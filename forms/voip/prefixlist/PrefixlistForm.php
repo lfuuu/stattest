@@ -24,12 +24,15 @@ class PrefixlistForm extends Form
     {
         return [
             [['name',], 'required'],
-            [['type_id','country_id','region_id','city_id','exclude_operators',], 'integer'],
+            [['type_id', 'country_id', 'region_id', 'city_id', 'exclude_operators',], 'integer'],
             ['operators', 'each', 'rule' => ['integer']],
             ['prefixes', 'each', 'rule' => ['integer']],
             [
-                'country_id', 'required',
-                'when' => function($model) { return $model->type_id == 3; },
+                'country_id',
+                'required',
+                'when' => function ($model) {
+                    return $model->type_id == 3;
+                },
                 'whenClient' => 'function(attribute, value) { return $(\'[name*="type_id"]:checked\').val() == 3; }'
             ],
             [['sub_type'], 'string'],
@@ -52,8 +55,9 @@ class PrefixlistForm extends Form
 
     public function save($prefixlist = false)
     {
-        if (!($prefixlist instanceof Prefixlist))
+        if (!($prefixlist instanceof Prefixlist)) {
             $prefixlist = new Prefixlist;
+        }
         $prefixlist->setAttributes($this->getAttributes(), false);
 
         $transaction = \Yii::$app->db->beginTransaction();

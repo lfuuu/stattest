@@ -125,7 +125,7 @@ class FreeNumberFilter extends Number
             $this->query->andWhere([
                 'IN',
                 'beauty_level',
-                array_filter($beautyLvl, function($row) {
+                array_filter($beautyLvl, function ($row) {
                     return isset(DidGroup::$beautyLevelNames[$row]);
                 })
             ]);
@@ -152,7 +152,7 @@ class FreeNumberFilter extends Number
      */
     public function setDidGroup($didGroupId)
     {
-        if ((int) $didGroupId) {
+        if ((int)$didGroupId) {
             $this->query->andWhere(['did_group_id' => $didGroupId]);
         }
         return $this;
@@ -164,7 +164,7 @@ class FreeNumberFilter extends Number
      */
     public function setCity($cityId)
     {
-        if ((int) $cityId) {
+        if ((int)$cityId) {
             $this->query->andWhere(['city_id' => $cityId]);
         }
         return $this;

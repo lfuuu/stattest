@@ -10,12 +10,12 @@ class Message extends ActiveRecord
     {
         return 'message';
     }
-    
+
     public function getText()
     {
         return $this->hasOne(MessageText::className(), ['message_id' => 'id']);
     }
-    
+
     public function getAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);

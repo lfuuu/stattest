@@ -43,14 +43,16 @@ class Utils
         return implode('-', $date);
     }
 
-    public static function bytesToMb($value,$nround = 2)
+    public static function bytesToMb($value, $nround = 2)
     {
-        if ($nround==2) {
+        if ($nround == 2) {
             $r = 100;
         } else {
-            for ($r = 1, $i = 0; $i < $nround; $i++) $r *= 10;
+            for ($r = 1, $i = 0; $i < $nround; $i++) {
+                $r *= 10;
+            }
         }
-        return round($value * $r / (1024*1024)) / $r;
+        return round($value * $r / (1024 * 1024)) / $r;
     }
 
     public static function money($value, $currency, $round = 2)
@@ -73,7 +75,7 @@ class Utils
     public static function moneyAndCurrency($value, $currency = 'RUB')
     {
         if ($currency == 'RUB') {
-            return number_format($value, 2, ',','') . ' ' . Utils::rus_plural((int)$value, 'рубль', 'рубля', 'рублей');
+            return number_format($value, 2, ',', '') . ' ' . Utils::rus_plural((int)$value, 'рубль', 'рубля', 'рублей');
         }
 
         return \Yii::$app->formatter->asCurrency($value, $currency);
@@ -93,26 +95,31 @@ class Utils
 
     public static function rus_plural($value, $s1, $s2, $s3)
     {
-        if ($value == 11)
+        if ($value == 11) {
             return $s3;
-        if (($value % 10) == 1)
+        }
+        if (($value % 10) == 1) {
             return $s1;
-        if (($value % 100) >= 11 && ($value % 100) <= 14)
+        }
+        if (($value % 100) >= 11 && ($value % 100) <= 14) {
             return $s3;
-        if (($value % 10) >= 2 && ($value %10) <= 4)
+        }
+        if (($value % 10) >= 2 && ($value % 10) <= 4) {
             return $s2;
+        }
         return $s3;
     }
 
-    public static function password_gen($len = 15, $isStrong = true){
-        mt_srand((double) microtime() * 1000000);
-        if ($isStrong)
-        {
-            $pass = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand())));
+    public static function password_gen($len = 15, $isStrong = true)
+    {
+        mt_srand((double)microtime() * 1000000);
+        if ($isStrong) {
+            $pass = preg_replace('/[^a-zA-Z0-9]/', '',
+                base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand())));
         } else {
-            $pass = md5(mt_rand().mt_rand().mt_rand().mt_rand().mt_rand());
+            $pass = md5(mt_rand() . mt_rand() . mt_rand() . mt_rand() . mt_rand());
         }
-        return substr($pass,0,$len);
+        return substr($pass, 0, $len);
     }
 
 }

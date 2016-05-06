@@ -78,19 +78,30 @@ class Trouble extends ActiveRecord
     public function rules()
     {
         return [
-            [['trouble_type', 'trouble_subtype', 'client', ], 'required'],
+            [['trouble_type', 'trouble_subtype', 'client',], 'required'],
             [
                 [
-                    'trouble_type', 'trouble_subtype', 'client', 'user_author',
-                    'problem', 'service', 'bill_no', 'bill_id', 'doer_comment',
+                    'trouble_type',
+                    'trouble_subtype',
+                    'client',
+                    'user_author',
+                    'problem',
+                    'service',
+                    'bill_no',
+                    'bill_id',
+                    'doer_comment',
                     'folder',
                 ],
                 'trim'
             ],
             [
                 [
-                    'service_id', 'cur_stage_id', 'is_important',
-                    'all4geo_id', 'support_ticket_id', 'server_id'
+                    'service_id',
+                    'cur_stage_id',
+                    'is_important',
+                    'all4geo_id',
+                    'support_ticket_id',
+                    'server_id'
                 ],
                 'integer'
             ],
@@ -154,11 +165,13 @@ class Trouble extends ActiveRecord
             $server = ServerPbx::findOne($this->server_id);
             return "Сервер: {$server->name},<br>Регион: {$server->datacenter->datacenterRegion->name}";
         } elseif ($this->service) {
-            if ($this->service != 'usage_voip')
+            if ($this->service != 'usage_voip') {
                 return str_replace('usage_', '', $this->service) . '-' . $this->service_id;
+            }
             return (null !== $m = UsageVoip::findOne($this->service_id)) ? $m->E164 : '';
-        } elseif ($this->bill_no)
+        } elseif ($this->bill_no) {
             return $this->bill_no;
+        }
 
         return '';
     }

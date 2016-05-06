@@ -24,15 +24,21 @@ class TariffVoipPackageForm extends Form
     public function rules()
     {
         return [
-            [['country_id','connection_point_id','currency_id','name',], 'required'],
+            [['country_id', 'connection_point_id', 'currency_id', 'name',], 'required'],
             [
                 [
-                    'id','country_id','connection_point_id','destination_id','pricelist_id',
-                    'min_payment','minutes_count','price_include_vat'
+                    'id',
+                    'country_id',
+                    'connection_point_id',
+                    'destination_id',
+                    'pricelist_id',
+                    'min_payment',
+                    'minutes_count',
+                    'price_include_vat'
                 ],
                 'integer'
             ],
-            [['currency_id','name','periodical_fee',], 'string'],
+            [['currency_id', 'name', 'periodical_fee',], 'string'],
         ];
     }
 

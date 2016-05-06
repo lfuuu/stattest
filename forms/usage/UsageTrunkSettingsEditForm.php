@@ -16,7 +16,8 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
 
     public function process()
     {
-        $item = UsageTrunkSettings::findOne($this->id); /** @var UsageTrunkSettings $item */
+        $item = UsageTrunkSettings::findOne($this->id);
+        /** @var UsageTrunkSettings $item */
         Assert::isObject($item);
         Assert::isTrue($item->usage->isActive());
 
@@ -78,7 +79,8 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
 
     private function delete(UsageTrunkSettings $item)
     {
-        $item = UsageTrunkSettings::findOne($this->id); /** @var UsageTrunkSettings $item */
+        $item = UsageTrunkSettings::findOne($this->id);
+        /** @var UsageTrunkSettings $item */
         Assert::isObject($item);
 
 
@@ -86,7 +88,8 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
             UsageTrunkSettings::find()
                 ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
                 ->andWhere('`order` > :order', [':order' => $item->order])
-                ->all(); /** @var UsageTrunkSettings[] $nextRules */
+                ->all();
+        /** @var UsageTrunkSettings[] $nextRules */
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

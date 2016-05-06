@@ -48,22 +48,22 @@ abstract class ClientAccountColumn
         foreach ($current as $field => $value) {
             $changes .=
                 Html::beginTag('tr') .
-                    Html::tag('td', $labels[$field]) .
-                    Html::tag('td', $previous->{$field}) .
-                    Html::tag('td', $value) .
+                Html::tag('td', $labels[$field]) .
+                Html::tag('td', $previous->{$field}) .
+                Html::tag('td', $value) .
                 Html::endTag('tr');
         }
 
         $changes =
             Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
-                Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
-                    Html::beginTag('tr') .
-                        Html::tag('th', 'Поле').
-                        Html::tag('th', 'Значение "До"').
-                        Html::tag('th', 'Значение "После"').
-                    Html::endTag('tr') .
-                    $changes .
-                Html::endTag('table') .
+            Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
+            Html::beginTag('tr') .
+            Html::tag('th', 'Поле') .
+            Html::tag('th', 'Значение "До"') .
+            Html::tag('th', 'Значение "После"') .
+            Html::endTag('tr') .
+            $changes .
+            Html::endTag('table') .
             Html::endTag('div');
 
         array_unshift($result, $changes);
@@ -78,7 +78,7 @@ abstract class ClientAccountColumn
     public static function renderExtendAccountContractDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             isset($properties['contract_id'])
@@ -106,7 +106,7 @@ abstract class ClientAccountColumn
     public static function renderContractTransferDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             isset($properties['contract_id'])
@@ -166,22 +166,22 @@ abstract class ClientAccountColumn
         foreach ($current as $field => $value) {
             $changes .=
                 Html::beginTag('tr') .
-                    Html::tag('td', $labels[$field]) .
-                    Html::tag('td', $previous->{$field}) .
-                    Html::tag('td', $value) .
+                Html::tag('td', $labels[$field]) .
+                Html::tag('td', $previous->{$field}) .
+                Html::tag('td', $value) .
                 Html::endTag('tr');
         }
 
         $changes =
             Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
-                Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
-                    Html::beginTag('tr') .
-                        Html::tag('th', 'Поле').
-                        Html::tag('th', 'Значение "До"').
-                        Html::tag('th', 'Значение "После"').
-                    Html::endTag('tr') .
-                    $changes .
-                Html::endTag('table') .
+            Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
+            Html::beginTag('tr') .
+            Html::tag('th', 'Поле') .
+            Html::tag('th', 'Значение "До"') .
+            Html::tag('th', 'Значение "После"') .
+            Html::endTag('tr') .
+            $changes .
+            Html::endTag('table') .
             Html::endTag('div');
 
         array_unshift($result, $changes);
@@ -196,7 +196,7 @@ abstract class ClientAccountColumn
     public static function renderTransferContragentDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             isset($properties['contragent_id'])
@@ -234,7 +234,7 @@ abstract class ClientAccountColumn
     private static function renderDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             $column->client_id

@@ -29,7 +29,7 @@ class TrunkContractTypeColumn extends DataColumn
 
         $this->contractTypes = ArrayHelper::map($query->all(), 'id', 'name');
 
-        if ((int) $this->filterByBusinessProcessId) {
+        if ((int)$this->filterByBusinessProcessId) {
             $query->where(['business_process_id' => $this->filterByBusinessProcessId]);
             $this->filter += ArrayHelper::map($query->all(), 'id', 'name');
         }

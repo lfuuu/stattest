@@ -177,27 +177,51 @@ class CallsFilter extends Calls
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
 
-        $this->connect_time_from !== '' && $query->andWhere(['>=', 'connect_time', $this->connect_time_from . ' 00:00:00']);
+        $this->connect_time_from !== '' && $query->andWhere([
+            '>=',
+            'connect_time',
+            $this->connect_time_from . ' 00:00:00'
+        ]);
         $this->connect_time_to !== '' && $query->andWhere(['<=', 'connect_time', $this->connect_time_to . ' 23:59:59']);
 
         $this->billed_time_from !== '' && $query->andWhere(['>=', 'billed_time', $this->billed_time_from]);
         $this->billed_time_to !== '' && $query->andWhere(['<=', 'billed_time', $this->billed_time_to]);
 
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        $this->src_number !== '' && ($this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%'])) && $query->andWhere('src_number::VARCHAR LIKE :src_number', [':src_number' => $this->src_number]);
-        $this->dst_number !== '' && ($this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%'])) && $query->andWhere('dst_number::VARCHAR LIKE :dst_number', [':dst_number' => $this->dst_number]);
+        $this->src_number !== '' && ($this->src_number = strtr($this->src_number,
+            ['.' => '_', '*' => '%'])) && $query->andWhere('src_number::VARCHAR LIKE :src_number',
+            [':src_number' => $this->src_number]);
+        $this->dst_number !== '' && ($this->dst_number = strtr($this->dst_number,
+            ['.' => '_', '*' => '%'])) && $query->andWhere('dst_number::VARCHAR LIKE :dst_number',
+            [':dst_number' => $this->dst_number]);
 
         $this->rate_from !== '' && $query->andWhere(['>=', 'rate', $this->rate_from]);
         $this->rate_to !== '' && $query->andWhere(['<=', 'rate', $this->rate_to]);
 
-        $this->interconnect_rate_from !== '' && $query->andWhere(['>=', 'interconnect_rate', $this->interconnect_rate_from]);
-        $this->interconnect_rate_to !== '' && $query->andWhere(['<=', 'interconnect_rate', $this->interconnect_rate_to]);
+        $this->interconnect_rate_from !== '' && $query->andWhere([
+            '>=',
+            'interconnect_rate',
+            $this->interconnect_rate_from
+        ]);
+        $this->interconnect_rate_to !== '' && $query->andWhere([
+            '<=',
+            'interconnect_rate',
+            $this->interconnect_rate_to
+        ]);
 
         $this->cost_from !== '' && $query->andWhere(['>=', 'cost', $this->cost_from]);
         $this->cost_to !== '' && $query->andWhere(['<=', 'cost', $this->cost_to]);
 
-        $this->interconnect_cost_from !== '' && $query->andWhere(['>=', 'interconnect_cost', $this->interconnect_cost_from]);
-        $this->interconnect_cost_to !== '' && $query->andWhere(['<=', 'interconnect_cost', $this->interconnect_cost_to]);
+        $this->interconnect_cost_from !== '' && $query->andWhere([
+            '>=',
+            'interconnect_cost',
+            $this->interconnect_cost_from
+        ]);
+        $this->interconnect_cost_to !== '' && $query->andWhere([
+            '<=',
+            'interconnect_cost',
+            $this->interconnect_cost_to
+        ]);
 
         $this->destination_id !== '' && $query->andWhere(['destination_id' => $this->destination_id]);
 
@@ -223,26 +247,66 @@ class CallsFilter extends Calls
         $this->calls_count_from !== '' && $query->andHaving(['>=', 'COUNT(*)', (int)$this->calls_count_from]);
         $this->calls_count_to !== '' && $query->andHaving(['<=', 'COUNT(*)', (int)$this->calls_count_to]);
 
-        $this->rate_with_interconnect_from !== '' && $query->andHaving(['>=', 'AVG(rate + interconnect_rate)', (int)$this->rate_with_interconnect_from]);
-        $this->rate_with_interconnect_to !== '' && $query->andHaving(['<=', 'AVG(rate + interconnect_rate)', (int)$this->rate_with_interconnect_to]);
+        $this->rate_with_interconnect_from !== '' && $query->andHaving([
+            '>=',
+            'AVG(rate + interconnect_rate)',
+            (int)$this->rate_with_interconnect_from
+        ]);
+        $this->rate_with_interconnect_to !== '' && $query->andHaving([
+            '<=',
+            'AVG(rate + interconnect_rate)',
+            (int)$this->rate_with_interconnect_to
+        ]);
 
-        $this->interconnect_cost_sum_from !== '' && $query->andHaving(['>=', 'SUM(interconnect_cost)', (int)$this->interconnect_cost_sum_from]);
-        $this->interconnect_cost_sum_to !== '' && $query->andHaving(['<=', 'SUM(interconnect_cost)', (int)$this->interconnect_cost_sum_to]);
+        $this->interconnect_cost_sum_from !== '' && $query->andHaving([
+            '>=',
+            'SUM(interconnect_cost)',
+            (int)$this->interconnect_cost_sum_from
+        ]);
+        $this->interconnect_cost_sum_to !== '' && $query->andHaving([
+            '<=',
+            'SUM(interconnect_cost)',
+            (int)$this->interconnect_cost_sum_to
+        ]);
 
-        $this->cost_with_interconnect_sum_from !== '' && $query->andHaving(['>=', 'SUM(interconnect_cost)', (int)$this->cost_with_interconnect_sum_from]);
-        $this->cost_with_interconnect_sum_to !== '' && $query->andHaving(['<=', 'SUM(interconnect_cost)', (int)$this->cost_with_interconnect_sum_to]);
+        $this->cost_with_interconnect_sum_from !== '' && $query->andHaving([
+            '>=',
+            'SUM(interconnect_cost)',
+            (int)$this->cost_with_interconnect_sum_from
+        ]);
+        $this->cost_with_interconnect_sum_to !== '' && $query->andHaving([
+            '<=',
+            'SUM(interconnect_cost)',
+            (int)$this->cost_with_interconnect_sum_to
+        ]);
 
         $this->cost_sum_from !== '' && $query->andHaving(['>=', 'SUM(cost)', (int)$this->cost_sum_from]);
         $this->cost_sum_to !== '' && $query->andHaving(['<=', 'SUM(cost)', (int)$this->cost_sum_to]);
 
-        $this->asr_from !== '' && $query->andHaving(['>=', '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)', (int)$this->asr_from]);
-        $this->asr_to !== '' && $query->andHaving(['<=', '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)', (int)$this->asr_to]);
+        $this->asr_from !== '' && $query->andHaving([
+            '>=',
+            '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)',
+            (int)$this->asr_from
+        ]);
+        $this->asr_to !== '' && $query->andHaving([
+            '<=',
+            '100.0 * SUM(CASE WHEN billed_time > 0 THEN 1 ELSE 0 END) / COUNT(*)',
+            (int)$this->asr_to
+        ]);
 
         $this->acd_from !== '' && $query->andHaving(['>=', 'SUM(billed_time) / COUNT(*)', (int)$this->acd_from]);
         $this->acd_to !== '' && $query->andHaving(['<=', 'SUM(billed_time) / COUNT(*)', (int)$this->acd_to]);
 
-        $this->billed_time_sum_from !== '' && $query->andHaving(['>=', 'SUM(billed_time)', (int)$this->billed_time_sum_from]);
-        $this->billed_time_sum_to !== '' && $query->andHaving(['<=', 'SUM(billed_time)', (int)$this->billed_time_sum_to]);
+        $this->billed_time_sum_from !== '' && $query->andHaving([
+            '>=',
+            'SUM(billed_time)',
+            (int)$this->billed_time_sum_from
+        ]);
+        $this->billed_time_sum_to !== '' && $query->andHaving([
+            '<=',
+            'SUM(billed_time)',
+            (int)$this->billed_time_sum_to
+        ]);
 
         return $dataProvider;
     }
@@ -288,7 +352,8 @@ class CallsFilter extends Calls
                 'prefix',
                 'rate',
                 'interconnect_rate',
-                'rate_with_interconnect' => '1.0 * (rate + interconnect_rate)', // иначе интерпретируется, как строка, а не поля
+                'rate_with_interconnect' => '1.0 * (rate + interconnect_rate)',
+                // иначе интерпретируется, как строка, а не поля
             ] + $query->select);
         $query->groupBy(['prefix', 'rate', 'interconnect_rate']);
         $query->orderBy(['CAST(prefix AS VARCHAR)' => SORT_ASC]); // prefix::VARCHAR почему-то не работает

@@ -63,15 +63,15 @@ class ImportantEventsNoticesForm extends Form
                         ['client_account_id' => $this->clientAccountId],
                         [], // Headers array
                         (
-                            isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
                             ? $client->auth(Yii::$app->params['MAILER']['auth'])
                             : []
                         ) // Options array
                     )
                     ->send();
-        }
-        catch (\Exception $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error',
+                'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
             return false;
         }
 
@@ -140,14 +140,14 @@ class ImportantEventsNoticesForm extends Form
                         $result,
                         [], // Headers array
                         (
-                            isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
                             ? $client->auth(Yii::$app->params['MAILER']['auth'])
                             : []
                         ) // Options array
                     )->send();
-        }
-        catch (\Exception $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error',
+                'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
             return false;
         }
 

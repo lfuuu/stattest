@@ -35,9 +35,9 @@ class ContactForm extends Form
     public function save(ClientAccount $account)
     {
         $contact = ClientContact::findOne([
-            "client_id" => $account->id, 
-            "user_id"   => User::CLIENT_USER_ID, 
-            "type"      => "phone"
+            "client_id" => $account->id,
+            "user_id" => User::CLIENT_USER_ID,
+            "type" => "phone"
         ]);
 
         if (!$contact) {

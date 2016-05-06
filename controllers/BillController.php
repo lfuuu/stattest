@@ -18,10 +18,11 @@ class BillController extends BaseController
         $sendEmail = Yii::$app->request->get('emailed') == 1;
         $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail);
 
-        if ($is_pdf == 1)
+        if ($is_pdf == 1) {
             $report->renderAsPDF();
-        else
+        } else {
             echo $report->render($inline_img = false);
+        }
     }
 
     public function actionGetMhtml($bill_no, $doc_type = 'bill')

@@ -21,7 +21,7 @@ class ExtraBiller extends Biller
 
     protected function processPeriodical()
     {
-        $template  = 'extra_service';
+        $template = 'extra_service';
         $template_data = [
             'tariff' => $this->tariff->description,
             'by_agreement' => ''

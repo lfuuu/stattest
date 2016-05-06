@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use app\models\Number;
 use app\models\UsageVoip;
@@ -40,6 +40,7 @@ function checkInStock($I, $number)
     $I->assertNull($number->reserve_till);
     $I->assertNull($number->hold_to);
 }
+
 checkInStock($I, $number);
 
 
@@ -65,6 +66,7 @@ function checkHold($I, $number)
     $I->assertNotNull($diff);
     $I->assertEquals($diff->m, 6); // 6 month
 }
+
 checkHold($I, $number);
 
 //
@@ -95,7 +97,7 @@ checkInStock($I, $number);
 //active normal
 //
 $now = new \DateTime("now", new \DateTimeZone("UTC"));
-$usagevoip = new UsageVoip( [
+$usagevoip = new UsageVoip([
     "client" => $account->client,
     "actual_from" => $now->format("Y-m-d"),
     "actual_to" => $now->modify("+1 month")->format("Y-m-d"),
@@ -122,7 +124,7 @@ checkHold($I, $number);
 //active normal. test tarif
 //
 $now = new \DateTime("now", new \DateTimeZone("UTC"));
-$usagevoip = new UsageVoip( [
+$usagevoip = new UsageVoip([
     "client" => $account->client,
     "actual_from" => $now->format("Y-m-d"),
     "actual_to" => $now->modify("+1 month")->format("Y-m-d"),
@@ -131,12 +133,12 @@ $usagevoip = new UsageVoip( [
 ]);
 $I->assertTrue($usagevoip->save());
 
-$logTarif = new logTarif( [
+$logTarif = new logTarif([
     "service" => "usage_voip",
-    "id_service" =>$usagevoip->id,
+    "id_service" => $usagevoip->id,
     "id_tarif" => 624,
     "date_activation" => $now->format("Y-m-d")
-] );
+]);
 $I->assertTrue($logTarif->save());
 
 Number::dao()->actualizeStatus($number);
@@ -207,7 +209,8 @@ $transaction->rollBack();
  * Создание болванки аккаунта
  * @return int
  */
-function createSingleClientAccount() {
+function createSingleClientAccount()
+{
     $client = new ClientAccount;
     $client->is_active = 0;
     $client->validate();

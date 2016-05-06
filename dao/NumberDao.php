@@ -82,7 +82,7 @@ class NumberDao extends Singleton
             && ($currentTariff->status == "test")
         ) {
             Number::dao()->toInstock($number);
-            return ;
+            return;
         }
 
         Number::dao()->startHold($number);
@@ -183,7 +183,7 @@ class NumberDao extends Singleton
             ->andWhere(['E164' => $number->number])
             ->andWhere('actual_from<=DATE(now()) and actual_to >= DATE(now())')
             ->one();
-        
+
         if ($usage) {
             if ($number->status != Number::STATUS_ACTIVE) {
                 Number::dao()->startActiveStat($number, $usage);
@@ -215,7 +215,8 @@ class NumberDao extends Singleton
                 'orig' => false
             ])
             ->groupBy([
-                'u', 'm'
+                'u',
+                'm'
             ]);
 
         if ($region == 99) {

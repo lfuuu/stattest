@@ -126,50 +126,53 @@ class VoipBiller extends Biller
             $minPayment = null;
             $minPaymentTemplate = null;
 
-            if ($dest == '4'){
+            if ($dest == '4') {
                 $template = 'voip_overlimit';
-            }elseif($dest == '5'){
+            } elseif ($dest == '5') {
                 $template = 'voip_local_mobile_call_payment';
                 $minPayment = $this->logTariff->minpayment_local_mob;
                 $minPaymentTemplate = 'voip_local_mobile_call_minpay';
-            }elseif($dest == '1'){
+            } elseif ($dest == '1') {
                 $template = 'voip_long_distance_call_payment';
                 $minPayment = $this->logTariff->minpayment_russia;
                 $minPaymentTemplate = 'voip_long_distance_call_minpay';
-            }elseif($dest == '2'){
+            } elseif ($dest == '2') {
                 $template = 'voip_international_call_payment';
                 $minPayment = $this->logTariff->minpayment_intern;
                 $minPaymentTemplate = 'voip_international_call_minpay';
-            }elseif($dest == '100'){
+            } elseif ($dest == '100') {
                 $group = array();
-                if (strpos($this->logTariff->dest_group, '5') !== FALSE)
+                if (strpos($this->logTariff->dest_group, '5') !== false) {
                     $group[] = Yii::t(
                         $this->getTranslateFilename(),
                         'voip_group_local',
                         [],
                         $this->clientAccount->contragent->country->lang
                     );
-                if (strpos($this->logTariff->dest_group, '1') !== FALSE)
+                }
+                if (strpos($this->logTariff->dest_group, '1') !== false) {
                     $group[] = Yii::t(
                         $this->getTranslateFilename(),
                         'voip_group_long_distance',
                         [],
                         $this->clientAccount->contragent->country->lang
                     );
-                if (strpos($this->logTariff->dest_group, '2') !== FALSE)
+                }
+                if (strpos($this->logTariff->dest_group, '2') !== false) {
                     $group[] = Yii::t(
                         $this->getTranslateFilename(),
                         'voip_group_international',
                         [],
                         $this->clientAccount->contragent->country->lang
                     );
+                }
 
                 $template_data['group'] = implode(', ', $group);
 
                 $template = 'voip_group_payment';
                 $minPayment = $this->logTariff->minpayment_group;
                 $minPaymentTemplate = 'voip_group_minpay';
-            }elseif($dest == '900'){
+            } elseif ($dest == '900') {
                 if ($is7800) {
                     $template = 'voip_calls_payment';
                     $minPayment = $this->tariff->month_min_payment;
@@ -197,7 +200,7 @@ class VoipBiller extends Biller
                     ->setPrice($r['price'])
                     ->setMinPayment($minPayment)
                     ->setMinPaymentTemplate($minPaymentTemplate)
-                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                    ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
             );
@@ -244,7 +247,7 @@ class VoipBiller extends Biller
 
         foreach ($res as $r) {
             $dest = $r['rdest'];
-            if (strpos($groups, $dest) !== FALSE) {
+            if (strpos($groups, $dest) !== false) {
                 $dest = '100';
             }
             if ((int)$logTarif->minpayment_group +
@@ -256,7 +259,7 @@ class VoipBiller extends Biller
             }
 
             if (!isset($lines[$dest])) {
-                $lines[$dest] = array('price'=>0);
+                $lines[$dest] = array('price' => 0);
             }
             $lines[$dest]['price'] += $r['price'];
         }
@@ -276,6 +279,8 @@ function cmp_calc_voip_by_dest($a, $b)
 {
     $a = ($a < 4 ? $a + 10 : $a);
     $b = ($b < 4 ? $b + 10 : $b);
-    if ($a == $b) return 0;
+    if ($a == $b) {
+        return 0;
+    }
     return ($a < $b) ? -1 : 1;
 }

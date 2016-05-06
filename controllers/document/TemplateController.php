@@ -26,10 +26,11 @@ class TemplateController extends BaseController
     public function actionEdit($id = false)
     {
         $model = DocumentTemplate::findOne($id);
-        if(!$model)
+        if (!$model) {
             $model = new DocumentTemplate();
+        }
         $request = \Yii::$app->request->post('DocumentTemplate');
-        if($request) {
+        if ($request) {
             $model->content = $request['content'];
             $model->save();
         }
@@ -39,12 +40,13 @@ class TemplateController extends BaseController
     public function actionEditForm($id = false)
     {
         $model = DocumentTemplate::findOne($id);
-        if (!$model)
+        if (!$model) {
             $model = new DocumentTemplate();
+        }
 
         $request = \Yii::$app->request->post();
-        if($request) {
-            if(!empty($request['DocumentTemplate']['folder_name'])){
+        if ($request) {
+            if (!empty($request['DocumentTemplate']['folder_name'])) {
                 $folder = new DocumentFolder();
                 $folder->name = $request['DocumentTemplate']['folder_name'];
                 $folder->sort = 0;
@@ -52,8 +54,9 @@ class TemplateController extends BaseController
                 $request['DocumentTemplate']['folder_id'] = $folder->id;
             }
 
-            if ($model->load($request) && $model->save())
+            if ($model->load($request) && $model->save()) {
                 \Yii::$app->session->setFlash('success');
+            }
         }
         $this->layout = 'minimal';
         return $this->render('short', ['model' => $model]);

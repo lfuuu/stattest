@@ -54,7 +54,20 @@ class HistoryActiveRecord extends ActiveRecord
 
     public function getDateList()
     {
-        $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря'];
+        $months = [
+            'января',
+            'февраля',
+            'марта',
+            'апреля',
+            'мая',
+            'июня',
+            'июля',
+            'августа',
+            'сенября',
+            'октября',
+            'ноября',
+            'декабря'
+        ];
         return
             ($this->historyVersionStoredDate ? [$this->historyVersionStoredDate => $this->historyVersionStoredDate] : [])
             +
@@ -74,7 +87,10 @@ class HistoryActiveRecord extends ActiveRecord
         } else {
             $date = $this->getHistoryVersionStoredDate();
             if (strtotime($date) < time() && HistoryVersion::find()
-                    ->andWhere(['model' => HistoryVersion::prepareClassName($this->className()), 'model_id' => $this->id])
+                    ->andWhere([
+                        'model' => HistoryVersion::prepareClassName($this->className()),
+                        'model_id' => $this->id
+                    ])
                     ->andWhere(['<=', 'date', date('Y-m-d')])
                     ->andWhere(['>', 'date', $date])
                     ->count() == 0
@@ -98,7 +114,8 @@ class HistoryActiveRecord extends ActiveRecord
             'model' => substr(get_class($this), 11),
             'model_id' => $this->primaryKey,
             'date' => $date,
-            'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
+            'data_json' => json_encode($this->toArray(),
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
         ];
 
         $model = HistoryVersion::findOne([
@@ -107,10 +124,12 @@ class HistoryActiveRecord extends ActiveRecord
             'date' => $date,
         ]);
 
-        if (!$model)
+        if (!$model) {
             $model = new \app\models\HistoryVersion($queryData);
+        }
 
-        $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
+        $model->data_json = json_encode($this->toArray(),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
         $model->save();
     }
 }

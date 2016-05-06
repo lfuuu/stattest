@@ -25,8 +25,9 @@ class HistoryVersion extends ActiveRecord
     public static function generateVersionsJson(array $versions)
     {
         $arr = [];
-        foreach ($versions as $version)
+        foreach ($versions as $version) {
             $arr[] = '["' . $version['model'] . '","' . $version['model_id'] . '","' . $version['date'] . '",' . $version['data_json'] . ']';
+        }
 
         return '[' . implode(',', $arr) . ']';
     }
@@ -68,23 +69,26 @@ class HistoryVersion extends ActiveRecord
 
     public static function getVersionOnDate($modelName, $modelId, $date = null)
     {
-        if (strpos($modelName, 'app\\models\\') === false)
+        if (strpos($modelName, 'app\\models\\') === false) {
             $modelClass = 'app\\models\\' . $modelName;
-        else {
+        } else {
             $modelClass = $modelName;
             $modelName = substr($modelName, strlen('app\\models\\'));
         }
 
         $currentModel = $modelClass::findOne($modelId);
 
-        if (null === $date && null !== $currentModel)
+        if (null === $date && null !== $currentModel) {
             return $currentModel;
+        }
 
-        if (null === $date)
+        if (null === $date) {
             $date = date('Y-m-d');
+        }
 
-        if (null === $currentModel)
+        if (null === $currentModel) {
             $currentModel = new $modelClass();
+        }
 
         if (!($currentModel instanceof HistoryActiveRecord)) {
             Assert::isUnreachable('model must be instance of HistoryActiveRecord');
@@ -107,8 +111,9 @@ class HistoryVersion extends ActiveRecord
     {
         $modelName = substr($model->className(), strlen('app\\models\\'));
 
-        if (null === $date && null !== $model)
+        if (null === $date && null !== $model) {
             return $model;
+        }
 
         $historyModel = static::find()
             ->andWhere(['model' => $modelName])
@@ -116,7 +121,7 @@ class HistoryVersion extends ActiveRecord
             ->andWhere(['<=', 'date', $date])
             ->orderBy('date DESC')->one();
 
-        if($historyModel) {
+        if ($historyModel) {
             $model->setAttributes(json_decode($historyModel['data_json'], true), false);
             $model->setHistoryVersionStoredDate($historyModel['date']);
         }
@@ -127,8 +132,9 @@ class HistoryVersion extends ActiveRecord
 
     public static function prepareClassName($className)
     {
-        if (strpos($className, 'app\\models\\') !== false)
+        if (strpos($className, 'app\\models\\') !== false) {
             $className = substr($className, strlen('app\\models\\'));
+        }
         return $className;
     }
 }

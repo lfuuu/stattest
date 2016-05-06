@@ -82,7 +82,7 @@ trait CrudMultipleTrait
             /** @var string[] $dataParam */
             foreach ($data[$formName] as $id) {
 
-                $id = (int) $id;
+                $id = (int)$id;
                 if ($id && isset($models[$id])) {
                     // update
                     $model = $models[$id];

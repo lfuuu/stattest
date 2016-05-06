@@ -43,8 +43,7 @@ class TariffVoipListForm extends TariffVoipForm
 
         if ($this->status) {
             $query->andWhere(['tarifs_voip.status' => $this->status]);
-        }
-        else {
+        } else {
             $query->andWhere(['!=', 'tarifs_voip.status', 'archive']);
         }
 

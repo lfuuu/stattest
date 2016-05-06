@@ -48,7 +48,7 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
             [
                 'label' => 'Результат',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     $usage = UsageVoip::findOne($data['usage_id']);
 
                     if ($data['status'] == Number::STATUS_INSTOCK && $usage->id) {

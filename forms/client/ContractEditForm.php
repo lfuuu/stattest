@@ -45,7 +45,6 @@ class ContractEditForm extends Form
         $rewards = [];
 
 
-
     public $contract = null;
 
     public $historyVersionRequestedDate;
@@ -55,27 +54,52 @@ class ContractEditForm extends Form
     {
         $rules = [
             [['date', 'manager', 'account_manager', 'comment', 'historyVersionStoredDate',], 'string'],
-            [['contragent_id', 'business_id', 'business_process_id', 'business_process_status_id', 'super_id',
-                'organization_id', 'contract_type_id'], 'integer'],
+            [
+                [
+                    'contragent_id',
+                    'business_id',
+                    'business_process_id',
+                    'business_process_status_id',
+                    'super_id',
+                    'organization_id',
+                    'contract_type_id'
+                ],
+                'integer'
+            ],
             [['contract_type_id'], 'default', 'value' => 0],
             ['business_process_id', 'default', 'value' => BusinessProcess::TELECOM_MAINTENANCE],
             ['number', 'default', 'value' => ''],
-            ['business_process_status_id', 'default', 'value' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES],
+            [
+                'business_process_status_id',
+                'default',
+                'value' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
+            ],
             [['public_comment', 'save_comment_stage'], 'safe'],
             ['financial_type', 'in', 'range' => array_keys(ClientContract::$financialTypes)],
-            ['federal_district', function($attribute){
-                SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
-            }],
+            [
+                'federal_district',
+                function ($attribute) {
+                    SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
+                }
+            ],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
             ['state', 'validateState'],
-            [['business_process_id', 'business_process_status_id'], function($attribute){
-                if(!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute)
-                    $this->addError('state', 'Вы не можете менять бизнес процесс');
-            }],
-            ['business_id', function($attribute){
-                if( !$this->getIsNewRecord() &&  $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus'))
-                    $this->addError('state', 'Вы не можете менять тип договора');
-            }],
+            [
+                ['business_process_id', 'business_process_status_id'],
+                function ($attribute) {
+                    if (!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute) {
+                        $this->addError('state', 'Вы не можете менять бизнес процесс');
+                    }
+                }
+            ],
+            [
+                'business_id',
+                function ($attribute) {
+                    if (!$this->getIsNewRecord() && $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus')) {
+                        $this->addError('state', 'Вы не можете менять тип договора');
+                    }
+                }
+            ],
             ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
             ['is_external', 'default', 'value' => ClientContract::IS_INTERNAL],
             ['rewards', 'safe'],
@@ -100,7 +124,7 @@ class ContractEditForm extends Form
     {
         if ($this->id) {
             $this->contract = ClientContract::findOne($this->id);
-            if($this->contract && $this->historyVersionRequestedDate) {
+            if ($this->contract && $this->historyVersionRequestedDate) {
                 $this->contract->loadVersionOnDate($this->historyVersionRequestedDate);
             }
             if ($this->contract === null) {
@@ -110,21 +134,21 @@ class ContractEditForm extends Form
         } elseif ($this->contragent_id) {
             $this->contract = new ClientContract();
             $this->contract->contragent_id = $this->contragent_id;
-            $this->super_id = $this->super_id ? $this->super_id  : ClientContragent::findOne($this->contragent_id)->super_id;
+            $this->super_id = $this->super_id ? $this->super_id : ClientContragent::findOne($this->contragent_id)->super_id;
             $this->contract->super_id = $this->super_id;
-        } else{
+        } else {
             $this->contract = new ClientContract();
         }
 
-        foreach(ClientContractReward::$usages as $usage => $name){
+        foreach (ClientContractReward::$usages as $usage => $name) {
             $reward = null;
-            if($this->contract->id){
+            if ($this->contract->id) {
                 $reward = ClientContractReward::findOne([
                     'contract_id' => $this->contract->id,
                     'usage_type' => $usage,
                 ]);
             }
-            if(!$reward){
+            if (!$reward) {
                 $reward = new ClientContractReward();
             }
             $this->rewards[$usage] = $reward;
@@ -134,8 +158,9 @@ class ContractEditForm extends Form
     public function getOrganizationsList()
     {
         $date = date('Y-m-d');
-        if($this->contract && $this->contract->getHistoryVersionStoredDate())
+        if ($this->contract && $this->contract->getHistoryVersionStoredDate()) {
             $date = $this->contract->getHistoryVersionStoredDate();
+        }
         $organizations = Organization::find()
             ->andWhere(['<=', 'actual_from', $date])
             ->andWhere(['>=', 'actual_to', $date])
@@ -148,13 +173,14 @@ class ContractEditForm extends Form
         /** @var ClientContract $contract */
         $contract = $this->contract;
 
-        if($this->save_comment_stage) {
+        if ($this->save_comment_stage) {
             $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
             foreach ($comments as $comment) {
-                if (in_array($comment->id, array_keys($this->public_comment)))
+                if (in_array($comment->id, array_keys($this->public_comment))) {
                     $comment->is_publish = 1;
-                else
+                } else {
                     $comment->is_publish = 0;
+                }
                 $comment->save();
             }
 
@@ -171,12 +197,12 @@ class ContractEditForm extends Form
 
         $contract->setAttributes(
             array_filter($attributes,
-                function($var){
+                function ($var) {
                     return $var !== null;
                 }
             ),
             false);
-        if($contract && $this->historyVersionStoredDate) {
+        if ($contract && $this->historyVersionStoredDate) {
             $contract->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
 
@@ -184,12 +210,12 @@ class ContractEditForm extends Form
             $this->setAttributes($contract->getAttributes(), false);
             $this->newClient = $contract->newClient;
 
-            foreach($this->rewards as $usage => &$reward){
+            foreach ($this->rewards as $usage => &$reward) {
                 $model = ClientContractReward::findOne([
                     'contract_id' => $contract->id,
                     'usage_type' => $usage,
                 ]);
-                if(!$model){
+                if (!$model) {
                     $model = new ClientContractReward();
                 }
                 $model->setAttributes([
@@ -205,12 +231,14 @@ class ContractEditForm extends Form
                 $reward = $model;
             }
 
-            foreach($contract->getAccounts() as $account)
+            foreach ($contract->getAccounts() as $account) {
                 Event::go('client_set_status', $account->id);
+            }
 
             return true;
-        } else
+        } else {
             $this->addErrors($contract->getErrors());
+        }
 
         return false;
     }
@@ -222,20 +250,26 @@ class ContractEditForm extends Form
 
     public function validateState($attribute)
     {
-        if(!array_key_exists($this->$attribute, $this->getModel()->statusesForChange()))
+        if (!array_key_exists($this->$attribute, $this->getModel()->statusesForChange())) {
             $this->addError($attribute, 'Вы не можете менять статус');
+        }
 
         if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
             $contragent = ClientContragent::findOne($this->contragent_id);
-            if(!$contragent->getIsNewRecord())
+            if (!$contragent->getIsNewRecord()) {
                 $contragent->hasChecked = true;
+            }
             if (!$contragent->validate()) {
-                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
-                    $this->addError('state', 'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                elseif (isset($contragent->errors['inn']))
-                    $this->addError('state', 'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                elseif (isset($contragent->errors['kpp']))
-                    $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp'])) {
+                    $this->addError('state',
+                        'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                } elseif (isset($contragent->errors['inn'])) {
+                    $this->addError('state',
+                        'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                } elseif (isset($contragent->errors['kpp'])) {
+                    $this->addError('state',
+                        'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                }
             }
         }
     }

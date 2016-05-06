@@ -11,7 +11,9 @@ class m160404_133022_fix_clients_partners_link extends \app\classes\Migration
 
         $clientsOfParthers
             ->select([
-                'cc.id', 'cc.partner_contract_id', 'c.contract_id'
+                'cc.id',
+                'cc.partner_contract_id',
+                'c.contract_id'
             ]);
 
         $clientsOfParthers

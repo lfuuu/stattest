@@ -13,13 +13,13 @@ class BillUtils
         $currentFrom = clone $actualFrom;
         $currentTo = clone $actualFrom;
 
-        $yearFrom  = (int)$date->format('Y');
-        $yearTo    = $yearFrom;
+        $yearFrom = (int)$date->format('Y');
+        $yearTo = $yearFrom;
         $monthFrom = (int)$date->format('m');
-        $monthTo   = $monthFrom;
+        $monthTo = $monthFrom;
 
         $usageMonth = (int)$actualFrom->format('m');
-        $usageDay   = (int)$actualFrom->format('d');
+        $usageDay = (int)$actualFrom->format('d');
 
         if ($isAlign) {
             $dayFrom = $dayTo = 1;

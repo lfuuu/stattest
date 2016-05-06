@@ -9,28 +9,36 @@ abstract class MediaManager
 {
 
     public $mimesTypes = [
-        'doc'  => 'application/msword',
+        'doc' => 'application/msword',
         'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'pdf'  => 'application/pdf',
-        'gif'  => 'image/gif',
-        'tif'  => 'image/tiff',
+        'pdf' => 'application/pdf',
+        'gif' => 'image/gif',
+        'tif' => 'image/tiff',
         'tiff' => 'image/tiff',
         'jpeg' => 'image/jpeg',
-        'jpg'  => 'image/jpeg',
-        'jpe'  => 'image/jpeg',
-        'png'  => 'image/png',
-        'htm'  => 'text/html',
+        'jpg' => 'image/jpeg',
+        'jpe' => 'image/jpeg',
+        'png' => 'image/png',
+        'htm' => 'text/html',
         'html' => 'text/html',
-        'txt'  => 'text/plain',
-        'zip'  => 'application/zip',
-        'rar'  => 'application/rar',
-        'xls'  => 'application/vnd.ms-excel',
+        'txt' => 'text/plain',
+        'zip' => 'application/zip',
+        'rar' => 'application/rar',
+        'xls' => 'application/vnd.ms-excel',
         'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'ppt'  => 'application/vnd.ms-powerpoint',
+        'ppt' => 'application/vnd.ms-powerpoint',
     ];
 
     public $downloadable = [
-        'doc', 'docx', 'pdf', 'zip', 'rar', 'xls', 'xlsx', 'ppt', 'txt',
+        'doc',
+        'docx',
+        'pdf',
+        'zip',
+        'rar',
+        'xls',
+        'xlsx',
+        'ppt',
+        'txt',
     ];
 
     /**
@@ -58,11 +66,12 @@ abstract class MediaManager
      * @param string $fileField
      * @param string $names
      */
-    public function addFiles($fileField = '', $names = '') {
+    public function addFiles($fileField = '', $names = '')
+    {
         if (isset($_FILES[$fileField])) {
-            $files = (array) $_FILES[$fileField];
+            $files = (array)$_FILES[$fileField];
             $names = Yii::$app->request->post('names', []);
-            for ($i=0, $s=count($files['name']); $i<$s; $i++) {
+            for ($i = 0, $s = count($files['name']); $i < $s; $i++) {
                 if (!$files['size'][$i]) {
                     continue;
                 }
@@ -87,8 +96,9 @@ abstract class MediaManager
      */
     public function addFile(array $file, $comment = '', $name = '')
     {
-        if (!file_exists($file['tmp_name']) || !is_file($file['tmp_name']))
+        if (!file_exists($file['tmp_name']) || !is_file($file['tmp_name'])) {
             return false;
+        }
 
         if (!$name) {
             $name = $file['name'];
@@ -173,8 +183,7 @@ abstract class MediaManager
             if (in_array($fileData['ext'], $this->downloadable, true)) {
                 Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
                 Yii::$app->end();
-            }
-            else {
+            } else {
                 Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
                 Header('Content-Type:' . $fileData['mimeType']);
                 echo file_get_contents($filePath);

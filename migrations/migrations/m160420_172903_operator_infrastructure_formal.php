@@ -9,7 +9,8 @@ class m160420_172903_operator_infrastructure_formal extends \app\classes\Migrati
     {
         $this->update(BusinessProcessStatus::tableName(),
             ['sort' => (new \yii\db\Expression('sort+1'))],
-            ['and',
+            [
+                'and',
                 ['>=', 'sort', 4],
                 ['business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE]
             ]
@@ -32,9 +33,11 @@ class m160420_172903_operator_infrastructure_formal extends \app\classes\Migrati
 
         $this->update(BusinessProcessStatus::tableName(),
             ['sort' => (new \yii\db\Expression('sort-1'))],
-            ['and',
+            [
+                'and',
                 ['>=', 'sort', 4],
-                ['business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE]]
+                ['business_process_id' => BusinessProcess::OPERATOR_INFRASTRUCTURE]
+            ]
         );
     }
 }

@@ -89,19 +89,19 @@ class GridViewCustomFilters extends \kartik\grid\GridView
             'action' => $this->formAction,
         ]);
 
-            echo Html::beginTag('div', [
-                'class' => 'col-xs-12',
-                'style' => 'border-bottom: 1px solid #D0D0D0; padding-bottom: 10px; padding-top: 10px; background: #F0F0F0; padding-left: 0px;'
-            ]);
-                echo Html::tag('label', 'Фильтр', ['style' => 'padding-left: 15px;']);
-                echo Html::beginTag('fieldset');
+        echo Html::beginTag('div', [
+            'class' => 'col-xs-12',
+            'style' => 'border-bottom: 1px solid #D0D0D0; padding-bottom: 10px; padding-top: 10px; background: #F0F0F0; padding-left: 0px;'
+        ]);
+        echo Html::tag('label', 'Фильтр', ['style' => 'padding-left: 15px;']);
+        echo Html::beginTag('fieldset');
 
-                    echo $this->renderFilters();
+        echo $this->renderFilters();
 
-                echo Html::endTag('fieldset');
-            echo Html::endTag('div');
+        echo Html::endTag('fieldset');
+        echo Html::endTag('div');
 
-            echo Html::tag('div', '', ['style' => 'clear: both;']);
+        echo Html::tag('div', '', ['style' => 'clear: both;']);
 
         ActiveForm::end();
 
@@ -141,8 +141,7 @@ class GridViewCustomFilters extends \kartik\grid\GridView
             return
                 implode('', $cells) .
                 Html::tag('div', Html::submitButton('Применить', ['class' => 'btn btn-success']));
-        }
-        else {
+        } else {
             return '';
         }
     }

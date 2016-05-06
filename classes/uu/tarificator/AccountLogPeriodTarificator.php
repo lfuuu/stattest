@@ -63,7 +63,8 @@ class AccountLogPeriodTarificator
             $accountLogPeriod->date_from = $untarificatedPeriod->getDateFrom()->format('Y-m-d');
             $accountLogPeriod->date_to = $untarificatedPeriod->getDateTo()->format('Y-m-d');
             if ($untarificatedPeriod->getDateTo() < $untarificatedPeriod->getDateFrom()) {
-                throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d', $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));
+                throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d',
+                    $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));
             }
 
             $accountLogPeriod->tariff_period_id = $tariffPeriod->id;

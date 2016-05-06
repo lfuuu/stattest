@@ -15,7 +15,6 @@ use app\helpers\usages\LogTariffTrait;
 
 /**
  * @property int $id
-
  * @property TariffVirtpbx $tariff
  * @property
  */

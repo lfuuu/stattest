@@ -74,16 +74,36 @@ class AccountEntryFilter extends AccountEntry
         $this->price_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price', $this->price_to]);
 
-        $this->price_without_vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price_without_vat', $this->price_without_vat_from]);
-        $this->price_without_vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price_without_vat', $this->price_without_vat_to]);
+        $this->price_without_vat_from !== '' && $query->andWhere([
+            '>=',
+            $accountEntryTableName . '.price_without_vat',
+            $this->price_without_vat_from
+        ]);
+        $this->price_without_vat_to !== '' && $query->andWhere([
+            '<=',
+            $accountEntryTableName . '.price_without_vat',
+            $this->price_without_vat_to
+        ]);
 
-        $this->price_with_vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price_with_vat', $this->price_with_vat_from]);
-        $this->price_with_vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price_with_vat', $this->price_with_vat_to]);
+        $this->price_with_vat_from !== '' && $query->andWhere([
+            '>=',
+            $accountEntryTableName . '.price_with_vat',
+            $this->price_with_vat_from
+        ]);
+        $this->price_with_vat_to !== '' && $query->andWhere([
+            '<=',
+            $accountEntryTableName . '.price_with_vat',
+            $this->price_with_vat_to
+        ]);
 
         $this->vat_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.vat', $this->vat_from]);
         $this->vat_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.vat', $this->vat_to]);
 
-        $this->vat_rate_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.vat_rate', $this->vat_rate_from]);
+        $this->vat_rate_from !== '' && $query->andWhere([
+            '>=',
+            $accountEntryTableName . '.vat_rate',
+            $this->vat_rate_from
+        ]);
         $this->vat_rate_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.vat_rate', $this->vat_rate_to]);
 
         $this->account_tariff_id !== '' && $query->andWhere([$accountEntryTableName . '.account_tariff_id' => $this->account_tariff_id]);

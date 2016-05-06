@@ -36,7 +36,7 @@ class ContragentController extends BaseController
         $request = Yii::$app->request->post();
         $notSave = (isset($request['notSave']) && $request['notSave']);
         if ($model->load($request) && !$notSave && $model->validate() && $model->save()) {
-            $this->redirect(['client/view','id'=>$childId]);
+            $this->redirect(['client/view', 'id' => $childId]);
         }
 
         return $this->render("edit", [
@@ -49,7 +49,7 @@ class ContragentController extends BaseController
     {
         $model = new ContragentEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
-        if(!($this->getFixClient() && $this->getFixClient()->getContract()->contragent_id == $id)){
+        if (!($this->getFixClient() && $this->getFixClient()->getContract()->contragent_id == $id)) {
             $contragentModel = $model->getContragentModel();
             $contracts = $contragentModel->getContracts();
 
@@ -62,12 +62,12 @@ class ContragentController extends BaseController
             }
         }
 
-        if($childId===null) {
+        if ($childId === null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
             $params = Yii::$app->request->getQueryParams();
             $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
             Yii::$app->request->setQueryParams($params);
-            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl() . '&childId=' . $childId);
         }
 
         $showLastChanges = false;

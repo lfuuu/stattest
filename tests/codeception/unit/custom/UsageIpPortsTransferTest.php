@@ -53,8 +53,8 @@ class UsageIpPortsTransferTest extends \yii\codeception\TestCase
         $client = 'id' . $client->id;
 
         $usage = new UsageIpPorts;
-        $usage->actual_from  = $actualFrom;
-        $usage->actual_to  = $actualTo;
+        $usage->actual_from = $actualFrom;
+        $usage->actual_to = $actualTo;
         $usage->client = $client;
         $usage->address = 'test address';
         $usage->save();

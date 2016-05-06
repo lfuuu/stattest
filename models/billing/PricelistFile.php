@@ -6,17 +6,17 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
- * @property int    $pricelist_id
+ * @property int $id
+ * @property int $pricelist_id
  * @property string $date
  * @property string $format
  * @property string $filename
- * @property bool   $full
- * @property bool   $active
- * @property int    $rows
+ * @property bool $full
+ * @property bool $active
+ * @property int $rows
  * @property string $startdate
  * @property string $store_filename
- * @property bool   $parsed
+ * @property bool $parsed
  *
  * @property Pricelist $pricelist
  */

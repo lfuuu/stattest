@@ -20,8 +20,7 @@ class UserGrantUsers extends ActiveRecord
         try {
             self::deleteAll(['name' => $user->user]);
             $transaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -55,8 +54,7 @@ class UserGrantUsers extends ActiveRecord
                     $transaction->commit();
 
                     continue(2);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     $transaction->rollBack();
                     throw $e;
                 }

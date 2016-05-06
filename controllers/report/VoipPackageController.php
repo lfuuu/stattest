@@ -59,7 +59,11 @@ class VoipPackageController extends BaseController
             $filter = DynamicModel::validateData($data, [
                 ['number', 'integer'],
                 ['number', 'required', 'message' => 'Необходимо выбрать номер'],
-                ['mode', 'in', 'range' => [self::FILTER_VOIP_PACKAGE_BY_PACKAGE, self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS]],
+                [
+                    'mode',
+                    'in',
+                    'range' => [self::FILTER_VOIP_PACKAGE_BY_PACKAGE, self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS]
+                ],
                 [['range', 'date_range_from', 'date_range_to'], 'string'],
                 ['range', 'required', 'message' => 'Необходимо указать период'],
                 [
@@ -74,8 +78,7 @@ class VoipPackageController extends BaseController
 
             if ($filter->hasErrors()) {
                 Yii::$app->session->setFlash('error', $filter->getFirstErrors());
-            }
-            else {
+            } else {
                 /** @var UsageVoip $usage */
                 $usage = UsageVoip::findOne($filter->number);
                 list($filter->date_range_from, $filter->date_range_to) = explode(':', $filter->range);

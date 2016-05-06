@@ -8,7 +8,22 @@ class TariffNumberAddForm extends TariffNumberForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['country_id', 'city_id', 'connection_point_id', 'currency_id','name','status','period','did_group_id','activation_fee','periodical_fee'], 'required', 'on' => 'save'];
+        $rules[] = [
+            [
+                'country_id',
+                'city_id',
+                'connection_point_id',
+                'currency_id',
+                'name',
+                'status',
+                'period',
+                'did_group_id',
+                'activation_fee',
+                'periodical_fee'
+            ],
+            'required',
+            'on' => 'save'
+        ];
         $rules[] = [['scenario'], 'safe'];
         return $rules;
     }

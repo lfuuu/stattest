@@ -177,15 +177,18 @@ abstract class Biller
         return true;
     }
 
-    protected function processConnecting() {
+    protected function processConnecting()
+    {
 
     }
 
-    protected function processPeriodical() {
+    protected function processPeriodical()
+    {
 
     }
 
-    protected function processResource() {
+    protected function processResource()
+    {
 
     }
 
@@ -215,7 +218,8 @@ abstract class Biller
         if ($contract) {
             return Yii::t('biller', 'by_agreement', [
                 'contract_no' => $contract->contract_no,
-                'contract_date' => (new \DateTime($contract->contract_date, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
+                'contract_date' => (new \DateTime($contract->contract_date,
+                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
             ], $this->clientAccount->contragent->country->lang);
         } else {
             return '';

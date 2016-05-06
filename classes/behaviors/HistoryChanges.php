@@ -36,7 +36,7 @@ class HistoryChanges extends Behavior
 
     private function logChanges($action, $data, $prevData)
     {
-        $queryData =[
+        $queryData = [
             'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
             'model_id' => $this->owner->primaryKey,
             'user_id' => Yii::$app->user->getId(),
@@ -47,11 +47,11 @@ class HistoryChanges extends Behavior
         ];
 
         $sql = Yii::$app->db->queryBuilder
-                ->insert(
-                    \app\models\HistoryChanges::tableName(),
-                    $queryData,
-                    $params
-                );
+            ->insert(
+                \app\models\HistoryChanges::tableName(),
+                $queryData,
+                $params
+            );
         Yii::$app->db->createCommand($sql, $params)->execute();
 
     }

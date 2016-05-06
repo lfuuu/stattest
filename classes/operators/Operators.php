@@ -51,8 +51,9 @@ abstract class Operators extends Object
     public function getProductById($id)
     {
         foreach ($this->products as $product) {
-            if ($id == $product['id'])
+            if ($id == $product['id']) {
                 return $product;
+            }
         }
     }
 

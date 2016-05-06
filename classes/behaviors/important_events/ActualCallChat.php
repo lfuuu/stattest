@@ -27,12 +27,13 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatAddEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->client_id,
-            'usage' => 'usage_call_chat',
-            'usage_id' => $event->sender->usage_id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->client_id,
+                'usage' => 'usage_call_chat',
+                'usage_id' => $event->sender->usage_id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
     /**
@@ -41,12 +42,13 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatUpdateEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->client_id,
-            'usage' => 'usage_call_chat',
-            'usage_id' => $event->sender->usage_id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->client_id,
+                'usage' => 'usage_call_chat',
+                'usage_id' => $event->sender->usage_id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
     /**
@@ -55,12 +57,13 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatDeleteEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->client_id,
-            'usage' => 'usage_call_chat',
-            'usage_id' => $event->sender->usage_id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->client_id,
+                'usage' => 'usage_call_chat',
+                'usage_id' => $event->sender->usage_id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
 }

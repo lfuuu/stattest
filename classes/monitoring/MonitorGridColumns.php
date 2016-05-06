@@ -29,10 +29,10 @@ abstract class MonitorGridColumns
             'label' => '#',
             'format' => 'raw',
             'value' =>
-                /**
-                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
-                 * @return string
-                 */
+            /**
+             * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
+             * @return string
+             */
                 function ($data) use ($combineChainsValue) {
                     $value = self::getCombineResult($data, $combineChainsValue);
 
@@ -59,10 +59,10 @@ abstract class MonitorGridColumns
             'label' => 'ID',
             'format' => 'raw',
             'value' =>
-                /**
-                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
-                 * @return string
-                 */
+            /**
+             * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
+             * @return string
+             */
                 function ($data) use ($combineChainsValue) {
                     $value = self::getCombineResult($data, $combineChainsValue);
                     return
@@ -83,10 +83,10 @@ abstract class MonitorGridColumns
             'label' => 'Контрагент',
             'format' => 'raw',
             'value' =>
-                /**
-                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
-                 * @return string
-                 */
+            /**
+             * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
+             * @return string
+             */
                 function ($data) use ($combineClientId, $combineChainsValue) {
                     $client = self::getCombineResult($data, $combineClientId);
                     $value = self::getCombineResult($data, $combineChainsValue);
@@ -135,10 +135,10 @@ abstract class MonitorGridColumns
             'label' => 'Менеджер',
             'format' => 'raw',
             'value' =>
-                /**
-                 * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
-                 * @return string
-                 */
+            /**
+             * @param object $data - запись выборки в виде модели (UsageInterface / ClientContract / ClientAccount)
+             * @return string
+             */
                 function ($data) use ($combineChainsValue) {
                     $value = self::getCombineResult($data, $combineChainsValue);
                     return $value->manager_name;
@@ -177,7 +177,8 @@ abstract class MonitorGridColumns
             'label' => 'Номер',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data['number'], ['/usage/number/view', 'did' => $data['number']], ['target' => '_blank']);
+                return Html::a($data['number'], ['/usage/number/view', 'did' => $data['number']],
+                    ['target' => '_blank']);
             },
         ];
     }
@@ -188,7 +189,7 @@ abstract class MonitorGridColumns
             'attribute' => 'status',
             'label' => 'Статус',
             'format' => 'raw',
-            'value' => function($data) {
+            'value' => function ($data) {
                 return Number::$statusList[$data['status']];
             },
         ];
@@ -199,7 +200,7 @@ abstract class MonitorGridColumns
         return [
             'label' => 'Клиент',
             'format' => 'raw',
-            'value' => function($data) {
+            'value' => function ($data) {
                 return Html::a(
                     $data->clientAccount->contract->contragent->name .
                     ' / Договор № ' . $data->clientAccount->contract->number .
@@ -218,7 +219,7 @@ abstract class MonitorGridColumns
         return [
             'label' => 'Актуальность',
             'format' => 'raw',
-            'value' => function($data) {
+            'value' => function ($data) {
                 return
                     DateTimeZoneHelper::getDateTime($data->actual_from)
                     . ' -> ' .
@@ -232,7 +233,7 @@ abstract class MonitorGridColumns
         return [
             'label' => 'ID услуги',
             'format' => 'raw',
-            'value' => function($data) {
+            'value' => function ($data) {
                 return Html::a($data->id, $data->helper->editLink, ['target' => '_blank']);
             },
         ];
@@ -243,7 +244,7 @@ abstract class MonitorGridColumns
         return [
             'label' => 'Тип услуги',
             'format' => 'raw',
-            'value' => function($data) {
+            'value' => function ($data) {
                 return Html::a($data->helper->title, $data->helper->editLink, ['target' => '_blank']);
             },
         ];
@@ -254,8 +255,8 @@ abstract class MonitorGridColumns
         return [
             'label' => 'Описание услуги',
             'format' => 'raw',
-            'value' => function($data) {
-                list ($title, $description, $other) = (array) $data->helper->description;
+            'value' => function ($data) {
+                list ($title, $description, $other) = (array)$data->helper->description;
                 return $title . ' ' . $description;
             }
         ];
@@ -265,7 +266,10 @@ abstract class MonitorGridColumns
     {
         $filterValues =
             ['' => 'Статус бизнесс процесса'] +
-            ['Телеком-клиент' => ArrayHelper::map(BusinessProcessStatus::getStatusesByBusinessId(Business::TELEKOM), 'id', 'name')];
+            [
+                'Телеком-клиент' => ArrayHelper::map(BusinessProcessStatus::getStatusesByBusinessId(Business::TELEKOM),
+                    'id', 'name')
+            ];
 
         return [
             'label' => 'Статус бизнес процесса',

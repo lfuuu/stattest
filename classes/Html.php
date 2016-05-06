@@ -9,13 +9,15 @@ class Html extends \yii\helpers\Html
         if (strpos($src, '://') === false) {
             $filename = \Yii::$app->basePath . '/web' . $src;
             $file = file_get_contents($filename);
-            if ($mimeType === false)
+            if ($mimeType === false) {
                 $mimeType = mime_content_type($filename);
+            }
         } else {
             $filename = tempnam('/tmp', 'img_');
             $file = file_get_contents($src);
-            if ($mimeType === false)
+            if ($mimeType === false) {
                 $mimeType = mime_content_type($filename);
+            }
             file_put_contents($filename, $file);
             unlink($filename);
         }

@@ -34,7 +34,7 @@ class m160329_132730_view_with_region_and_country extends \app\classes\Migration
 
     public function down()
     {
-	$this->execute("DROP VIEW view_country_ro");
-	$this->execute("DROP VIEW view_regions_ro");
+        $this->execute("DROP VIEW view_country_ro");
+        $this->execute("DROP VIEW view_regions_ro");
     }
 }

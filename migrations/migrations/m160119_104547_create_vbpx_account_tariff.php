@@ -48,25 +48,32 @@ class m160119_104547_create_vbpx_account_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'client_account_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'service_type_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'region_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Region::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Region::tableName(), 'id',
+            'RESTRICT');
 
         $fieldName = 'prev_account_tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, $tableName, 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, $tableName, 'id',
+            'RESTRICT');
 
         $fieldName = 'tariff_period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'insert_user_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id', 'SET NULL');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id',
+            'SET NULL');
 
         $fieldName = 'update_user_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id', 'SET NULL');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id',
+            'SET NULL');
     }
 
     /**
@@ -90,13 +97,16 @@ class m160119_104547_create_vbpx_account_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'account_tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),
+            'id', 'CASCADE');
 
         $fieldName = 'tariff_period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'insert_user_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id', 'SET NULL');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id',
+            'SET NULL');
 
         $this->createIndex('i-' . $tableName . '-actual_from', $tableName, 'actual_from');
     }

@@ -14,7 +14,7 @@ class InnValidator extends Validator
 
     public function validateValue($value)
     {
-        if(!$this->checkInn($value)){
+        if (!$this->checkInn($value)) {
             return [$this->message];
         }
         return null;
@@ -22,26 +22,28 @@ class InnValidator extends Validator
 
     private function checkInn($inn)
     {
-        if (strlen($inn) == 10)
-        {
+        if (strlen($inn) == 10) {
             return $this->checkInn10($inn);
-        } else if (strlen($inn) == 12)
-        {
-            return $this->checkInn12($inn);
-        } else if (strlen($inn) == 13)
-        {
-            return $this->checkInnHU($inn);
+        } else {
+            if (strlen($inn) == 12) {
+                return $this->checkInn12($inn);
+            } else {
+                if (strlen($inn) == 13) {
+                    return $this->checkInnHU($inn);
+                }
+            }
         }
         return false;
     }
 
     private function checkInn10($inn)
     {
-        $f1 = [2,4,10,3,5,9,4,6,8];
+        $f1 = [2, 4, 10, 3, 5, 9, 4, 6, 8];
         $n10 = 0;
 
-        foreach($f1 as $k => $v)
+        foreach ($f1 as $k => $v) {
             $n10 += $inn[$k] * $v;
+        }
 
 
         $n10 %= 11;
@@ -52,19 +54,21 @@ class InnValidator extends Validator
 
     private function checkInn12($inn)
     {
-        $f1 = [7,2,4,10,3,5,9,4,6,8];
-        $f2 = [3,7,2,4,10,3,5,9,4,6,8];
+        $f1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8];
+        $f2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8];
 
         $n11 = 0;
-        foreach($f1 as $k => $v)
+        foreach ($f1 as $k => $v) {
             $n11 += $inn[$k] * $v;
+        }
 
         $n11 %= 11;
         $n11 %= 10;
 
         $n12 = 0;
-        foreach($f2 as $k => $v)
+        foreach ($f2 as $k => $v) {
             $n12 += $inn[$k] * $v;
+        }
 
         $n12 %= 11;
         $n12 %= 10;

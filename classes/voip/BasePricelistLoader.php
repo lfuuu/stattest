@@ -86,12 +86,17 @@ abstract class BasePricelistLoader extends BaseLoader
         $q = "INSERT INTO voip.raw_price (rawfile_id, ndef, deleting, price, mob) VALUES ";
         $is_first = true;
         foreach ($new_rows as $row) {
-            if ($is_first == false) $q .= ","; else $is_first = false;
+            if ($is_first == false) {
+                $q .= ",";
+            } else {
+                $is_first = false;
+            }
 
             $mob = false ? 'TRUE' : 'NULL';
 
-            if (!isset($row['deleting']))
+            if (!isset($row['deleting'])) {
                 $row['deleting'] = 0;
+            }
 
             if ($row['rate'] === 'DEL') {
                 $row['deleting'] = 1;

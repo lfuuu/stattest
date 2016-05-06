@@ -11,7 +11,7 @@ class TariffNumberListForm extends TariffNumberForm
         return [
             [['id'], 'integer'],
             [['name'], 'string'],
-            [['country_id','city_id'], 'integer'],
+            [['country_id', 'city_id'], 'integer'],
         ];
     }
 
@@ -20,7 +20,7 @@ class TariffNumberListForm extends TariffNumberForm
      */
     public function spawnQuery()
     {
-        return TariffNumber::find()->joinWith(['country','city']);
+        return TariffNumber::find()->joinWith(['country', 'city']);
     }
 
     public function applyFilter(Query $query)

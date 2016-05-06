@@ -25,7 +25,12 @@ class ActualCallChatDao extends Singleton
             ])
             ->from(['u' => UsageCallChat::tableName()])
             ->innerJoin(ClientAccount::tableName() . ' c', '`c`.`client` = `u`.`client`')
-            ->where(['between', new Expression("NOW()"), new Expression('activation_dt'), new Expression('expire_dt')]) //надо что-то получше придумать...
+            ->where([
+                'between',
+                new Expression("NOW()"),
+                new Expression('activation_dt'),
+                new Expression('expire_dt')
+            ])//надо что-то получше придумать...
             ->orderBy(['u.id' => SORT_ASC]);
 
         if ($usageId) {

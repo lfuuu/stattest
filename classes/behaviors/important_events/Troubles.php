@@ -28,11 +28,12 @@ class Troubles extends Behavior
     public function registerAddEvent($event)
     {
         if ($event->sender->trouble_type == 'trouble' || $event->sender->trouble_type == 'task') {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'trouble_id' => $event->sender->id,
-                'client_id' => $event->sender->account->id,
-                'user_id' => Yii::$app->user->id,
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_TROUBLE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'trouble_id' => $event->sender->id,
+                    'client_id' => $event->sender->account->id,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
     }
 
@@ -43,11 +44,12 @@ class Troubles extends Behavior
     public function registerUpdateEvent($event)
     {
         if ($event->sender->date_close) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'trouble_id' => $event->sender->id,
-                'client_id' => $event->sender->account->id,
-                'user_id' => Yii::$app->user->id,
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'trouble_id' => $event->sender->id,
+                    'client_id' => $event->sender->account->id,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
     }
 

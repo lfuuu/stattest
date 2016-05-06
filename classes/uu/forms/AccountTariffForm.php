@@ -88,7 +88,9 @@ abstract class AccountTariffForm extends Form
                 && $this->accountTariffLog->load($post)
             ) {
 
-                if ($accountTariffVoip->validate() && ($this->accountTariffLog->account_tariff_id = -1 /* любое число, лишь бы прошла валидация */) && $this->accountTariffLog->validate(null, false)) {
+                if ($accountTariffVoip->validate() && ($this->accountTariffLog->account_tariff_id = -1 /* любое число, лишь бы прошла валидация */) && $this->accountTariffLog->validate(null,
+                        false)
+                ) {
 
                     $this->accountTariff->city_id = $accountTariffVoip->city_id;
 
@@ -258,9 +260,14 @@ abstract class AccountTariffForm extends Form
     /**
      * @return []
      */
-    public function getAvailableTariffPeriods(&$defaultTariffPeriodId, $isWithEmpty = false, $serviceTypeId = null, $cityId = null)
-    {
-        return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId, $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty);
+    public function getAvailableTariffPeriods(
+        &$defaultTariffPeriodId,
+        $isWithEmpty = false,
+        $serviceTypeId = null,
+        $cityId = null
+    ) {
+        return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId,
+            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty);
     }
 
 }

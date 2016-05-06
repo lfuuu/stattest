@@ -39,8 +39,7 @@ class ApiInternalController extends ApiController
                 'status' => 'OK',
                 'result' => parent::runAction($id, $params)
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = $e->getMessage();
             $code = $e->getCode();
 

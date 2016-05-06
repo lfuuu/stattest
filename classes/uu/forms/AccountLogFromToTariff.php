@@ -12,13 +12,13 @@ use DateTimeImmutable;
 
 class AccountLogFromToTariff
 {
-    /** @var DateTimeImmutable $dateFrom  */
+    /** @var DateTimeImmutable $dateFrom */
     protected $dateFrom = null;
 
-    /** @var DateTimeImmutable $dateTo  */
+    /** @var DateTimeImmutable $dateTo */
     protected $dateTo = null;
 
-    /** @var TariffPeriod $dateTo  */
+    /** @var TariffPeriod $dateTo */
     protected $tariffPeriod = null;
 
     /**

@@ -27,7 +27,7 @@ class ClientContractComments extends Behavior
         if ($contract instanceof ClientContract) {
             if (
                 isset($event->changedAttributes['business_id'])
-                    &&
+                &&
                 $event->changedAttributes['business_id'] != $contract->business_id
             ) {
                 $comment = new ClientContractCommentForm;
@@ -38,7 +38,7 @@ class ClientContractComments extends Behavior
 
             if (
                 isset($event->changedAttributes['business_process_id'])
-                    &&
+                &&
                 $event->changedAttributes['business_process_id'] != $contract->business_process_id
             ) {
                 $comment = new ClientContractCommentForm;
@@ -49,7 +49,7 @@ class ClientContractComments extends Behavior
 
             if (
                 isset($event->changedAttributes['business_process_status_id'])
-                    &&
+                &&
                 $event->changedAttributes['business_process_status_id'] != $contract->business_process_status_id
             ) {
                 $comment = new ClientContractCommentForm;

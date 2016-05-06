@@ -52,8 +52,7 @@ class MultiSelect extends InputWidget
     {
         if ($this->hasModel()) {
             echo Html::activeDropDownList($this->model, $this->attribute, $this->data, $this->options);
-        }
-        else {
+        } else {
             echo Html::dropDownList($this->name, $this->value, $this->data, $this->options);
         }
 

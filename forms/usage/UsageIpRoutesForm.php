@@ -32,13 +32,34 @@ class UsageIpRoutesForm extends Form
             [['port_id', 'net'], 'required'],
             [
                 [
-                    'actual_from', 'actual_to', 'net', 'nat_net',
-                    'dnat', 'up_node', 'flows_node', 'comment'
-                ], 'string'
+                    'actual_from',
+                    'actual_to',
+                    'net',
+                    'nat_net',
+                    'dnat',
+                    'up_node',
+                    'flows_node',
+                    'comment'
+                ],
+                'string'
             ],
             [['actual_from', 'actual_to'], 'date', 'format' => 'Y-m-d'],
-            [['id', 'port_id', 'gpon_reserv', ], 'integer'],
-            ['type', 'in', 'range' => ['unused','uplink','uplink+pool','client','client-nat','pool','aggregate','reserved','gpon']],
+            [['id', 'port_id', 'gpon_reserv',], 'integer'],
+            [
+                'type',
+                'in',
+                'range' => [
+                    'unused',
+                    'uplink',
+                    'uplink+pool',
+                    'client',
+                    'client-nat',
+                    'pool',
+                    'aggregate',
+                    'reserved',
+                    'gpon'
+                ]
+            ],
             ['net', 'validateUsingNet'],
         ];
     }
@@ -64,7 +85,7 @@ class UsageIpRoutesForm extends Form
 
         $query->where(new Expression('id IS NOT NULL'));
 
-        if ((int) $this->id) {
+        if ((int)$this->id) {
             $query->andWhere(['!=', 'id', $this->id]);
         }
 

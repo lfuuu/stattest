@@ -35,15 +35,14 @@ class OnlimeOperatorToExcel extends Excel
             $colIdx = $this->columnShift;
             $rowIdx += $this->insertRowPosition;
 
-            foreach($fields as $title => $field) {
+            foreach ($fields as $title => $field) {
                 $worksheet->setCellValueByColumnAndRow(0, $rowIdx, $rowIdx - $this->insertRowPosition + 1);
 
                 if ($field == 'products') {
                     foreach ($products as $key => $product) {
                         if (is_string($key)) {
                             $key = 'count_' . $key;
-                        }
-                        else {
+                        } else {
                             $key = 'count_' . ($key + 1);
                         }
                         $worksheet->setCellValueByColumnAndRow(
@@ -52,29 +51,30 @@ class OnlimeOperatorToExcel extends Excel
                             isset($item[$key]) ? strip_tags($item[$key]) : ''
                         );
                     }
-                }
-                else if ($field == 'contacts') {
-                    $worksheet->setCellValueByColumnAndRow(
-                        $colIdx++,
-                        $rowIdx,
-                        $item['phone'] . "\n" . $item['address']
-                    );
-                }
-                else if ($field == 'stages_text') {
-                    $last_stage = array_pop($item['stages']);
+                } else {
+                    if ($field == 'contacts') {
+                        $worksheet->setCellValueByColumnAndRow(
+                            $colIdx++,
+                            $rowIdx,
+                            $item['phone'] . "\n" . $item['address']
+                        );
+                    } else {
+                        if ($field == 'stages_text') {
+                            $last_stage = array_pop($item['stages']);
 
-                    $worksheet->setCellValueByColumnAndRow(
-                        $colIdx++,
-                        $rowIdx,
-                        $last_stage['date_finish_desired'] . "\n" . $last_stage['state_name'] . "\n" . $last_stage['user_edit'] . "\n" . $last_stage['comment']
-                    );
-                }
-                else {
-                    $worksheet->setCellValueByColumnAndRow(
-                        $colIdx++,
-                        $rowIdx,
-                        isset($item[$field]) ? strip_tags($item[$field]) : ''
-                    );
+                            $worksheet->setCellValueByColumnAndRow(
+                                $colIdx++,
+                                $rowIdx,
+                                $last_stage['date_finish_desired'] . "\n" . $last_stage['state_name'] . "\n" . $last_stage['user_edit'] . "\n" . $last_stage['comment']
+                            );
+                        } else {
+                            $worksheet->setCellValueByColumnAndRow(
+                                $colIdx++,
+                                $rowIdx,
+                                isset($item[$field]) ? strip_tags($item[$field]) : ''
+                            );
+                        }
+                    }
                 }
                 $worksheet->getRowDimension($rowIdx)->setRowHeight(40);
             }

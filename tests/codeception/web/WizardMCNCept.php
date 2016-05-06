@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use tests\codeception\_pages\LoginPage;
 use tests\codeception\_pages\ClientViewPage;
@@ -43,8 +43,9 @@ function readState($I, $accountId)
     $I->dontSee("Exception");
     $I->see("wizard_type");
 }
+
 readState($I, $accountId);
-$I->seeResponseContainsJson(['wizard_type'=>'mcn']);
+$I->seeResponseContainsJson(['wizard_type' => 'mcn']);
 $I->seeResponseContainsJson(['step' => 1]);
 $I->seeResponseContainsJson(['good' => 0]);
 
@@ -60,6 +61,7 @@ function readFull($I, $accountId)
 
     return $s_base;
 }
+
 $s_base = readFull($I, $accountId);
 
 $I->seeResponseContainsJson([
@@ -136,7 +138,7 @@ $s = [
         "manager_name" => "Default manager",
         "manager_phone" => "(495) 105-99-99"
     ],
-    "state" =>[
+    "state" => [
         "step" => 1,
         "good" => 0,
         "wizard_type" => "mcn"
@@ -162,7 +164,6 @@ function save_step1_legal($I, $s_base, $s)
     ];
 
 
-
     $I->sendPOST("/api/wizard-mcn/save", merge($s_base, ["step1" => $s_step1_legal]));
     $I->dontSee("Exception");
     $I->dontSee("errors");
@@ -184,7 +185,7 @@ function save_step1_legal($I, $s_base, $s)
     ];
     $I->seeResponseContainsJson($a);
 
-    foreach($s_step1_legal as $f => $v) {
+    foreach ($s_step1_legal as $f => $v) {
         $I->seeResponseContainsJson(["step1" => [$f => $v]]);
     }
     $I->seeResponseContainsJson(["step1" => $s_step1_legal]);
@@ -221,8 +222,8 @@ function save_step1_ip($I, $s_base, $s)
     $I->sendPOST("/api/wizard-mcn/save", merge($s_base, ["step1" => $s_step1_ip]));
     $I->dontSee("Exception");
     $I->dontSee("errors");
-    $I->dontSeeResponseContainsJson([ "step1" => [ "name" => "test" ] ]);
-    $I->seeResponseContainsJson([ "step1" => [ "name" => $s_step1_ip["name"] ] ]);
+    $I->dontSeeResponseContainsJson(["step1" => ["name" => "test"]]);
+    $I->seeResponseContainsJson(["step1" => ["name" => $s_step1_ip["name"]]]);
 
     $a = [
         "step2" => $s["step2"],
@@ -231,7 +232,7 @@ function save_step1_ip($I, $s_base, $s)
     ];
     $I->seeResponseContainsJson($a);
 
-    foreach($s_step1_ip as $f => $v) {
+    foreach ($s_step1_ip as $f => $v) {
         $I->seeResponseContainsJson(["step1" => [$f => $v]]);
     }
     $I->seeResponseContainsJson(["step1" => $s_step1_ip]);
@@ -264,13 +265,13 @@ function save_step1_person($I, $s_base, $s)
     $I->sendPOST("/api/wizard-mcn/save", merge($s_base, ["step1" => $s_step1_person]));
     $I->dontSee("Exception");
     $I->dontSee("errors4");
-    $I->dontSeeResponseContainsJson([ "step1" => [ "name" => "test" ] ]);
+    $I->dontSeeResponseContainsJson(["step1" => ["name" => "test"]]);
     $I->seeResponseContainsJson([
-        "step1" => [ 
-            "name" => 
-            $s_step1_person["last_name"] . ' ' .
-            $s_step1_person["first_name"] . ' ' .
-            $s_step1_person["middle_name"]
+        "step1" => [
+            "name" =>
+                $s_step1_person["last_name"] . ' ' .
+                $s_step1_person["first_name"] . ' ' .
+                $s_step1_person["middle_name"]
         ]
     ]);
 
@@ -281,13 +282,14 @@ function save_step1_person($I, $s_base, $s)
     ];
     $I->seeResponseContainsJson($a);
 
-    foreach($s_step1_person as $f => $v) {
+    foreach ($s_step1_person as $f => $v) {
         $I->seeResponseContainsJson(["step1" => [$f => $v]]);
     }
     $I->seeResponseContainsJson(["step1" => $s_step1_person]);
 
     return $s_step1_person;
 }
+
 $s_step1_person = save_step1_person($I, $s_base, $s);
 
 //
@@ -297,19 +299,21 @@ $s_step1_person = save_step1_person($I, $s_base, $s);
 //contract person
 function testContractHTML($I, $accountId, $s_step1)
 {
-    $I->sendPOST("/api/wizard-mcn/get-contract", ["account_id" => $accountId, "as_html" => 1]); //test -- для получения договора в виде html
+    $I->sendPOST("/api/wizard-mcn/get-contract",
+        ["account_id" => $accountId, "as_html" => 1]); //test -- для получения договора в виде html
     $I->dontSee("Exception");
     $I->dontSee("Ошибка в данных");
     $I->see("Договор оказания услуг связи");
-    $I->see("№ ".$accountId);
-    foreach($s_step1 as $k => $v) 
-    {
-        if ($k == "legal_type" || $k == "passport_date_issued")
+    $I->see("№ " . $accountId);
+    foreach ($s_step1 as $k => $v) {
+        if ($k == "legal_type" || $k == "passport_date_issued") {
             continue;
+        }
 
         $I->see($v);
     }
 }
+
 testContractHTML($I, $accountId, $s_step1_person);
 
 readState($I, $accountId);
@@ -339,7 +343,7 @@ $I->sendPOST("/api/wizard-mcn/save", $s_base);
 $I->dontSee("Exception");
 $I->dontSee("errors");
 
-$I->seeResponseContainsJson( [
+$I->seeResponseContainsJson([
     "step3" => [
         "contact_phone" => $contact_phone,
         "contact_fio" => $contact_fio
@@ -389,8 +393,8 @@ function saveFile($I, $fileName, $accountId)
 {
     $I->sendPOST("/api/wizard-mcn/save-document", [
         "file" => [
-            "name" => $fileName.".file",
-            "content" => base64_encode("this content for file ".$fileName.".file")
+            "name" => $fileName . ".file",
+            "content" => base64_encode("this content for file " . $fileName . ".file")
         ],
         "account_id" => $accountId
     ]);
@@ -412,15 +416,14 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-foreach(["b", "c", "z"] as $fileName) 
-{
+foreach (["b", "c", "z"] as $fileName) {
     saveFile($I, $fileName, $accountId);
 }
 readFull($I, $accountId);
 $I->seeResponseContainsJson([
     "step3" => [
         "file_list" => [
-            "a.file", 
+            "a.file",
             "b.file",
             "c.file",
             "z.file"
@@ -430,8 +433,7 @@ $I->seeResponseContainsJson([
 ]);
 
 //is_upload max
-foreach(["5", "6", "7", "8", "9", "10"] as $fileName)
-{
+foreach (["5", "6", "7", "8", "9", "10"] as $fileName) {
     saveFile($I, $fileName, $accountId);
 }
 readFull($I, $accountId);

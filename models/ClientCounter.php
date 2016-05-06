@@ -102,8 +102,7 @@ class ClientCounter extends ActiveRecord
             $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
             $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
             $localCounter->save();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $localCounter->isLocal = true;
             Yii::error('Failed to load billing data. ' . self::className() . '.', __METHOD__);
         }

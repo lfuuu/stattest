@@ -23,11 +23,11 @@ class Person extends ActiveRecord
     public function getOldModeInfo()
     {
         return [
-            'name'      => $this->name_nominative,
-            'name_'     => $this->name_genitive,
-            'position'  => $this->post_nominative,
+            'name' => $this->name_nominative,
+            'name_' => $this->name_genitive,
+            'position' => $this->post_nominative,
             'position_' => $this->post_genitive,
-            'sign'      => [
+            'sign' => [
                 'src' => str_replace('/images/', '', \Yii::$app->params['SIGNATURE_DIR']) . $this->signature_file_name,
             ]
         ];

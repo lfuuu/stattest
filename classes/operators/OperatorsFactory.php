@@ -21,7 +21,7 @@ class OperatorsFactory extends Singleton
     {
         $operators = self::getOperatorsList();
 
-        if (isset($operators[ $operator ])) {
+        if (isset($operators[$operator])) {
             return new $operators[$operator];
         }
 

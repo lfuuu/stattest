@@ -37,8 +37,8 @@ class UsageTrunkTransferTest extends \yii\codeception\TestCase
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $usage = new $usageClass;
-        $usage->actual_from  = $actualFrom;
-        $usage->actual_to  = $actualTo;
+        $usage->actual_from = $actualFrom;
+        $usage->actual_to = $actualTo;
         $usage->client_account_id = $client->id;
         $usage->connection_point_id = Region::MOSCOW;
         $usage->save();

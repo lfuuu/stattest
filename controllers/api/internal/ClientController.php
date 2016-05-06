@@ -127,15 +127,15 @@ class ClientController extends ApiInternalController
                 }
 
                 $contragents[] = [
-                    'id' => $c->id, 
-                    'name' => $c->name, 
+                    'id' => $c->id,
+                    'name' => $c->name,
                     'contracts' => $contracts
                 ];
             }
 
             $data = [
-                'name' => $super->name, 
-                'id' => $super->id, 
+                'name' => $super->name,
+                'id' => $super->id,
                 'contragents' => $contragents
             ];
 
@@ -201,7 +201,7 @@ class ClientController extends ApiInternalController
                 return [
                     'client_id' => $form->super_id,
                     'is_created' => $form->isCreated,
-                    ];
+                ];
             }
         } else {
             $fields = array_keys($form->errors);

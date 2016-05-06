@@ -56,8 +56,9 @@ class ClientController extends BaseController
     public function actionView($id)
     {
         $account = ClientAccount::findOne($id);
-        if (!$account)
+        if (!$account) {
             throw new Exception('Client not found');
+        }
 
         //Для старого стата, для старых модулей
         Yii::$app->session->set('clients_client', $account->id);
@@ -121,10 +122,10 @@ class ClientController extends BaseController
                 ->all();
 
         $services['voip_reserve'] =
-                Number::find()
-                    ->where(['status' => Number::STATUS_RESERVED])
-                    ->andWhere(['client_id' => $account->id])
-                    ->all();
+            Number::find()
+                ->where(['status' => Number::STATUS_RESERVED])
+                ->andWhere(['client_id' => $account->id])
+                ->all();
 
         $services['trunk'] =
             UsageTrunk::find()
@@ -178,8 +179,9 @@ class ClientController extends BaseController
                     if ($contract->load($request) && $contract->validate() && $contract->save()) {
                         $account = new AccountEditForm(['id' => $contract->newClient->id]);
                         $account->load($request) && $account->validate();
-                        if ($account->load($request) && $account->validate() && $account->save())
+                        if ($account->load($request) && $account->validate() && $account->save()) {
                             $commit = true;
+                        }
                     }
                 }
             }
@@ -215,9 +217,8 @@ class ClientController extends BaseController
 
         if (Yii::$app->request->isAjax) {
             $res = [];
-            foreach ($dataProvider->models as $model)
-                if(isset(Yii::$app->request->queryParams['contractNo']))
-                {
+            foreach ($dataProvider->models as $model) {
+                if (isset(Yii::$app->request->queryParams['contractNo'])) {
                     $res[] = [
                         'url' => Url::toRoute(['client/view', 'id' => $model->id]),
                         'value' => $model->contract->number,
@@ -232,16 +233,18 @@ class ClientController extends BaseController
                         'id' => $model->id,
                     ];
                 }
+            }
             Yii::$app->response->format = Response::FORMAT_JSON;
             return $res;
         } else {
-            if ($dataProvider->query->count() == 1)
+            if ($dataProvider->query->count() == 1) {
                 return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
-            else
+            } else {
                 return $this->render('search', [
 //              'searchModel' => $dataProvider,
                     'dataProvider' => $dataProvider,
                 ]);
+            }
         }
     }
 

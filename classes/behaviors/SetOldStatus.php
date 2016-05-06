@@ -36,8 +36,9 @@ class SetOldStatus extends Behavior
                 if (!$event->sender->is_blocked) {
                     $newStatus = "work";
                     $bpStatus = BusinessProcessStatus::findOne($event->sender->business_process_status_id);
-                    if (isset($bpStatus['oldstatus']) && $bpStatus['oldstatus'])
+                    if (isset($bpStatus['oldstatus']) && $bpStatus['oldstatus']) {
                         $newStatus = $bpStatus['oldstatus'];
+                    }
                 }
 
                 $event->sender->status = $newStatus;

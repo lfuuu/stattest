@@ -14,8 +14,9 @@ class m150928_130820_fix_bik extends \app\classes\Migration
         foreach ($history as $record) {
             $data = Json::decode($record['data_json']);
 
-            if (!($bik = Bik::findOne(['bik' => '0' . $data['bik']])) instanceof Bik)
+            if (!($bik = Bik::findOne(['bik' => '0' . $data['bik']])) instanceof Bik) {
                 continue;
+            }
 
             print_r($bik);
             $data['bik'] = $bik->bik;

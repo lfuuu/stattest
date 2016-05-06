@@ -44,19 +44,21 @@ class IncomeDifferentFolder extends AccountGridFolder
         parent::queryParams($query);
 
         list($dateFrom, $dateTo) = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
-        if (!$dateFrom)
+        if (!$dateFrom) {
             $dateFrom = date('Y-m-01');
-        if (!$dateTo)
+        }
+        if (!$dateTo) {
             $dateTo = date('Y-m-t');
+        }
 
         $query->select = array_merge($query->select, [
             'l.service',
-            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN DATE_ADD( \''.$dateFrom.'\', INTERVAL -1 MONTH) AND DATE_ADD( \''.$dateTo.'\', INTERVAL -1 MONTH),l.sum,0)) AS abon',
-            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN  \''.$dateFrom.'\' AND  \''.$dateTo.'\',l.sum,0)) AS abon1',
-            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN DATE_ADD( \''.$dateFrom.'\', INTERVAL -1 MONTH) AND DATE_ADD( \''.$dateTo.'\', INTERVAL -1 MONTH),l.sum,0)) AS over',
-            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN  \''.$dateFrom.'\' AND  \''.$dateTo.'\',l.sum,0)) AS over1',
-            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN  \''.$dateFrom.'\' AND  \''.$dateTo.'\',l.sum,0))-SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN DATE_ADD( \''.$dateFrom.'\', INTERVAL -1 MONTH) AND DATE_ADD( \''.$dateTo.'\', INTERVAL -1 MONTH),l.sum,0)) AS abondiff',
-            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN  \''.$dateFrom.'\' AND  \''.$dateTo.'\',l.sum,0))-SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN DATE_ADD( \''.$dateFrom.'\', INTERVAL -1 MONTH) AND DATE_ADD( \''.$dateTo.'\', INTERVAL -1 MONTH),l.sum,0)) As overdiff',
+            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN DATE_ADD( \'' . $dateFrom . '\', INTERVAL -1 MONTH) AND DATE_ADD( \'' . $dateTo . '\', INTERVAL -1 MONTH),l.sum,0)) AS abon',
+            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN  \'' . $dateFrom . '\' AND  \'' . $dateTo . '\',l.sum,0)) AS abon1',
+            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN DATE_ADD( \'' . $dateFrom . '\', INTERVAL -1 MONTH) AND DATE_ADD( \'' . $dateTo . '\', INTERVAL -1 MONTH),l.sum,0)) AS over',
+            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN  \'' . $dateFrom . '\' AND  \'' . $dateTo . '\',l.sum,0)) AS over1',
+            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN  \'' . $dateFrom . '\' AND  \'' . $dateTo . '\',l.sum,0))-SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0 AND b.bill_date BETWEEN DATE_ADD( \'' . $dateFrom . '\', INTERVAL -1 MONTH) AND DATE_ADD( \'' . $dateTo . '\', INTERVAL -1 MONTH),l.sum,0)) AS abondiff',
+            'SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN  \'' . $dateFrom . '\' AND  \'' . $dateTo . '\',l.sum,0))-SUM(IF((MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11) AND b.bill_date BETWEEN DATE_ADD( \'' . $dateFrom . '\', INTERVAL -1 MONTH) AND DATE_ADD( \'' . $dateTo . '\', INTERVAL -1 MONTH),l.sum,0)) As overdiff',
             'b.bill_date',
         ]);
 
@@ -71,7 +73,7 @@ class IncomeDifferentFolder extends AccountGridFolder
             'date_to' => $dateTo
         ]);
 
-        $query->groupBy(['l.service','c.id',]);
+        $query->groupBy(['l.service', 'c.id',]);
     }
 
     public function queryOrderBy()

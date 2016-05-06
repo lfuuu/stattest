@@ -318,7 +318,7 @@ abstract class WizardBaseController extends ApiController
     protected function getFormErrors($error)
     {
         $errors = [];
-        
+
         if ($error instanceof Form) {
             $error = $error->getErrors();
         }

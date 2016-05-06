@@ -97,8 +97,8 @@ class VoipController extends ApiInternalController
                 $model->limit
             ) as $call
         ) {
-            $call['cost'] = (double) $call['cost'];
-            $call['rate'] = (double) $call['rate'];
+            $call['cost'] = (double)$call['cost'];
+            $call['rate'] = (double)$call['rate'];
             $result[] = $call;
         }
 

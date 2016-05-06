@@ -35,8 +35,8 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
         $logTariff->save();
 
         $usage = new UsageVoip;
-        $usage->actual_from  = $this->actual_from;
-        $usage->actual_to  = $this->actual_to;
+        $usage->actual_from = $this->actual_from;
+        $usage->actual_to = $this->actual_to;
         $usage->client = $this->client;
         $usage->address = 'test address';
         $usage->E164 = '123456' . mt_rand(0, 9);

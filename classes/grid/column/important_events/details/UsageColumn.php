@@ -19,11 +19,11 @@ abstract class UsageColumn
     public static function renderCreatedUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             isset($properties['usage'], $properties['usage_id'])
-                &&
+            &&
             ($value = self::renderUsage($properties['usage'], $properties['usage_id'])) !== false
         ) {
             $result[] = $value;
@@ -31,7 +31,7 @@ abstract class UsageColumn
 
         if (
             $column->client_id
-                &&
+            &&
             ($value = DetailsHelper::renderClientAccount($column->client_id)) !== false
         ) {
             $result[] = $value;
@@ -39,7 +39,7 @@ abstract class UsageColumn
 
         if (
             isset($properties['user_id'])
-                &&
+            &&
             ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
         ) {
             $result[] = $value;
@@ -55,7 +55,7 @@ abstract class UsageColumn
     public static function renderUpdatedUsageDetails($column)
     {
         $result = self::renderCreatedUsageDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         $fields = LogUsageHistory::findOne(['service_id' => $properties['usage_id']])->fields;
 
@@ -63,22 +63,22 @@ abstract class UsageColumn
         foreach ($fields as $field) {
             $changes .=
                 Html::beginTag('tr') .
-                    Html::tag('td', $field->field) .
-                    Html::tag('td', $field->value_from) .
-                    Html::tag('td', $field->value_to) .
+                Html::tag('td', $field->field) .
+                Html::tag('td', $field->value_from) .
+                Html::tag('td', $field->value_to) .
                 Html::endTag('tr');
         }
 
         $changes =
             Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
-                Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
-                    Html::beginTag('tr') .
-                        Html::tag('th', 'Поле').
-                        Html::tag('th', 'Значение "До"').
-                        Html::tag('th', 'Значение "После"').
-                    Html::endTag('tr') .
-                    $changes .
-                Html::endTag('table') .
+            Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
+            Html::beginTag('tr') .
+            Html::tag('th', 'Поле') .
+            Html::tag('th', 'Значение "До"') .
+            Html::tag('th', 'Значение "После"') .
+            Html::endTag('tr') .
+            $changes .
+            Html::endTag('table') .
             Html::endTag('div');
 
         array_unshift($result, $changes);
@@ -120,10 +120,10 @@ abstract class UsageColumn
     public static function renderTransferUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
-            isset($properties['usage'], $properties['usage_id'])
+        isset($properties['usage'], $properties['usage_id'])
         ) {
 
             $fromUsage = UsageFactory::getUsage($properties['usage'])->findOne($properties['usage_id']);
@@ -133,8 +133,10 @@ abstract class UsageColumn
 
             $result[] =
                 Html::tag('b', 'Услуга: ') . Html::a($value, $toUsage->helper->editLink, ['target' => '_blank']) .
-                ' перемещана от ' . Html::a($fromUsage->clientAccount->contragent->name, Url::toRoute(['/client/view', 'id' => $fromUsage->clientAccount->id]), ['target' => '_blank']) .
-                ' к ' . Html::a($toUsage->clientAccount->contragent->name, Url::toRoute(['/client/view', 'id' => $toUsage->clientAccount->id]), ['target' => '_blank']);
+                ' перемещана от ' . Html::a($fromUsage->clientAccount->contragent->name,
+                    Url::toRoute(['/client/view', 'id' => $fromUsage->clientAccount->id]), ['target' => '_blank']) .
+                ' к ' . Html::a($toUsage->clientAccount->contragent->name,
+                    Url::toRoute(['/client/view', 'id' => $toUsage->clientAccount->id]), ['target' => '_blank']);
         }
 
         if (
@@ -162,7 +164,8 @@ abstract class UsageColumn
         }
 
         list($value) = $usage->helper->description;
-        return Html::tag('b', 'Услуга: ') . Html::tag('u', $usage->helper->title) . ' ' . Html::a($value, $usage->helper->editLink, ['target' => '_blank']);
+        return Html::tag('b', 'Услуга: ') . Html::tag('u', $usage->helper->title) . ' ' . Html::a($value,
+            $usage->helper->editLink, ['target' => '_blank']);
     }
 
 }

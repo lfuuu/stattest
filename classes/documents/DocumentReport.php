@@ -58,7 +58,8 @@ abstract class DocumentReport extends Object
      */
     public function getTemplateFile()
     {
-        return self::TEMPLATE_PATH . $this->getLanguage() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(), 'UTF-8');
+        return self::TEMPLATE_PATH . $this->getLanguage() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(),
+            'UTF-8');
     }
 
     /**
@@ -156,21 +157,22 @@ abstract class DocumentReport extends Object
             ->addContents(
                 'index.html',
                 $this->render($inline_img = false),
-                function($content) {
+                function ($content) {
                     return preg_replace('#font\-size:\s?[0-7]{1,2}\%#', 'font-size:8pt', $content);
                 }
             )
-            ->addImages(function($image_src) {
+            ->addImages(function ($image_src) {
                 $file_path = '';
                 $file_name = '';
 
                 if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src)) {
                     $file_name = 'host_img_' . mt_rand(0, 50);
                     $file_path = Yii::$app->request->hostInfo . $image_src;
-                }
-                else if (strpos($image_src, 'http:\/\/') === false) {
-                    $file_path = Yii::$app->basePath . '/web' . $image_src;
-                    $file_name = basename($image_src);
+                } else {
+                    if (strpos($image_src, 'http:\/\/') === false) {
+                        $file_path = Yii::$app->basePath . '/web' . $image_src;
+                        $file_name = basename($image_src);
+                    }
                 }
 
                 return [$file_name, $file_path];
@@ -236,7 +238,9 @@ abstract class DocumentReport extends Object
         $filtered_lines = [];
 
         foreach ($this->lines as $line) {
-            if (!$line['sum']) continue;
+            if (!$line['sum']) {
+                continue;
+            }
 
             $filtered_lines[] = $line;
         }
@@ -259,16 +263,16 @@ abstract class DocumentReport extends Object
      */
     protected function calculateSummary()
     {
-        $this->sum              =
-        $this->sum_without_tax  =
-        $this->sum_with_tax     =
-        $this->sum_discount     = 0;
+        $this->sum =
+        $this->sum_without_tax =
+        $this->sum_with_tax =
+        $this->sum_discount = 0;
 
         foreach ($this->lines as $line) {
-            $this->sum              += $line['sum'];
-            $this->sum_without_tax  += $line['sum_without_tax'];
-            $this->sum_with_tax     += $line['sum_tax'];
-            $this->sum_discount     += $line['discount_auto'] + $line['discount_set'];
+            $this->sum += $line['sum'];
+            $this->sum_without_tax += $line['sum_without_tax'];
+            $this->sum_with_tax += $line['sum_tax'];
+            $this->sum_discount += $line['discount_auto'] + $line['discount_set'];
         }
 
         return $this;

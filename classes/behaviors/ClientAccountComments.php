@@ -27,9 +27,9 @@ class ClientAccountComments extends Behavior
             $comment = new ClientContractCommentForm;
             $comment->comment =
                 (
-                    $event->sender->is_blocked
-                        ? ClientContractCommentForm::SET_CLIENT_BLOCKED_TRUE
-                        : ClientContractCommentForm::SET_CLIENT_BLOCKED_FALSE
+                $event->sender->is_blocked
+                    ? ClientContractCommentForm::SET_CLIENT_BLOCKED_TRUE
+                    : ClientContractCommentForm::SET_CLIENT_BLOCKED_FALSE
                 );
             $comment->contract_id = $event->sender->contract_id;
             $comment->save();

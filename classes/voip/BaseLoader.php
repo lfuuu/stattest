@@ -70,7 +70,8 @@ abstract class BaseLoader extends Object
             $data = [];
             $emptyRow = true;
             $emptyColsCount = 0;
-            foreach ($row->getCellIterator() as $cell) { /** @var \PHPExcel_Cell $cell */
+            foreach ($row->getCellIterator() as $cell) {
+                /** @var \PHPExcel_Cell $cell */
                 $value = $cell->getFormattedValue();
 
                 $data[] = $value;
@@ -86,7 +87,9 @@ abstract class BaseLoader extends Object
                 }
 
             }
-            while ($emptyColsCount-- > 0) array_pop($data);
+            while ($emptyColsCount-- > 0) {
+                array_pop($data);
+            }
 
             $result[] = $data;
 
@@ -105,23 +108,25 @@ abstract class BaseLoader extends Object
             }
         }
 
-        while ($emptyRowsCount-- > 0) array_pop($result);
+        while ($emptyRowsCount-- > 0) {
+            array_pop($result);
+        }
 
         return $result;
     }
 
     public function read(array $settings)
     {
-        $skipRows        = isset($settings['skip_rows']) ? $settings['skip_rows'] : 0;
-        $prefix0         = isset($settings['prefix']) ? $settings['prefix'] : null;
-        $nPrefix1        = isset($settings['cols']['prefix1']) ? $settings['cols']['prefix1'] : null;
-        $nPrefix2_smart  = isset($settings['cols']['prefix2_smart']) ? $settings['cols']['prefix2_smart'] : null;
-        $nPrefix2_from   = isset($settings['cols']['prefix2_from']) ? $settings['cols']['prefix2_from'] : null;
-        $nPrefix2_to     = isset($settings['cols']['prefix2_to']) ? $settings['cols']['prefix2_to'] : null;
-        $nRate           = isset($settings['cols']['rate']) ? $settings['cols']['rate'] : null;
-        $nNetworkType    = isset($settings['cols']['network_type']) ? $settings['cols']['network_type'] : null;
-        $nDestination    = isset($settings['cols']['destination']) ? $settings['cols']['destination'] : null;
-        $nComment        = isset($settings['cols']['comment']) ? $settings['cols']['comment'] : null;
+        $skipRows = isset($settings['skip_rows']) ? $settings['skip_rows'] : 0;
+        $prefix0 = isset($settings['prefix']) ? $settings['prefix'] : null;
+        $nPrefix1 = isset($settings['cols']['prefix1']) ? $settings['cols']['prefix1'] : null;
+        $nPrefix2_smart = isset($settings['cols']['prefix2_smart']) ? $settings['cols']['prefix2_smart'] : null;
+        $nPrefix2_from = isset($settings['cols']['prefix2_from']) ? $settings['cols']['prefix2_from'] : null;
+        $nPrefix2_to = isset($settings['cols']['prefix2_to']) ? $settings['cols']['prefix2_to'] : null;
+        $nRate = isset($settings['cols']['rate']) ? $settings['cols']['rate'] : null;
+        $nNetworkType = isset($settings['cols']['network_type']) ? $settings['cols']['network_type'] : null;
+        $nDestination = isset($settings['cols']['destination']) ? $settings['cols']['destination'] : null;
+        $nComment = isset($settings['cols']['comment']) ? $settings['cols']['comment'] : null;
 
         $result = [];
         foreach ($this->readRaw() as $row) {
@@ -140,7 +145,8 @@ abstract class BaseLoader extends Object
             $comment = '';
 
             $nCol = 1;
-            foreach ($row as $value) { /** @var \PHPExcel_Cell $cell */
+            foreach ($row as $value) {
+                /** @var \PHPExcel_Cell $cell */
 
                 if ($nPrefix1 == $nCol) {
                     $prefix1 = trim($value);
@@ -240,7 +246,7 @@ abstract class BaseLoader extends Object
                 $result = array_merge($result, $this->explodePrefixRange($prefixFrom, $prefixTo));
 
             } else {
-                throw new \Exception('Bad range: "' . $prefixPart. '"');
+                throw new \Exception('Bad range: "' . $prefixPart . '"');
             }
         }
 
@@ -260,7 +266,7 @@ abstract class BaseLoader extends Object
         }
 
         if (strlen($prefixFrom) != strlen($prefixTo)) {
-            throw new \Exception('Len '. $prefixFrom .' <> Len ' . $prefixTo);
+            throw new \Exception('Len ' . $prefixFrom . ' <> Len ' . $prefixTo);
         }
 
         self::make_numbers($result, $prefixFrom, $prefixTo);
@@ -296,7 +302,7 @@ abstract class BaseLoader extends Object
         } else {
 
             $from = str_pad('', strlen($prefixFrom) - 1, '0');
-            $to   = str_pad('', strlen($prefixTo) - 1, '9');
+            $to = str_pad('', strlen($prefixTo) - 1, '9');
 
             self::make_numbers($result, substr($prefixFrom, 1), $to, $prefix . $nn1, 0);
 
@@ -311,7 +317,7 @@ abstract class BaseLoader extends Object
 
     public function compress($defs)
     {
-        usort($defs, function($a, $b){
+        usort($defs, function ($a, $b) {
             return strcmp($a["prefix"], $b["prefix"]);
         });
 
@@ -335,7 +341,11 @@ abstract class BaseLoader extends Object
 
             $cur_l = strlen($def);
             if ($pre_l <> $cur_l || substr($def, 0, $cur_l - 1) <> substr($def, 0, $pre_l - 1)) {
-                if ($pre_l > $cur_l) $n = $pre_l; else $n = $cur_l;
+                if ($pre_l > $cur_l) {
+                    $n = $pre_l;
+                } else {
+                    $n = $cur_l;
+                }
                 while ($n > 0) {
                     if ($m_def[$n] == '' || $m_def[$n] <> substr($def, 0, strlen($m_def[$n]))) {
                         $m_def[$n] = '';
@@ -351,14 +361,18 @@ abstract class BaseLoader extends Object
                 $pre_price = '';
                 $n = $cur_l - 1;
                 while ($n > 0) {
-                    if ($pre_def === '' && $m_def[$n] !== '')
+                    if ($pre_def === '' && $m_def[$n] !== '') {
                         $pre_def = $m_def[$n];
-                    if ($pre_country_id === '' && $m_country_id[$n] !== '')
+                    }
+                    if ($pre_country_id === '' && $m_country_id[$n] !== '') {
                         $pre_country_id = $m_country_id[$n];
-                    if ($pre_city_region_id === '' && $m_city_region_id[$n] !== '')
+                    }
+                    if ($pre_city_region_id === '' && $m_city_region_id[$n] !== '') {
                         $pre_city_region_id = $m_city_region_id[$n];
-                    if ($pre_price === '' && $m_price[$n] !== '')
+                    }
+                    if ($pre_price === '' && $m_price[$n] !== '') {
                         $pre_price = $m_price[$n];
+                    }
                     $n = $n - 1;
                 }
             }
@@ -404,11 +418,11 @@ abstract class BaseLoader extends Object
                     $country_id != $pre_country_id || $city_region_id != $pre_city_region_id ||
                     $price != $pre_price
                 ) {
-                    if (count($m) < 10)
+                    if (count($m) < 10) {
                         foreach ($m as $mm) {
                             $defs3[] = $mm;
                         }
-                    else {
+                    } else {
                         $mm = $m[0];
                         $mm['prefix'] = substr($mm['prefix'], 0, strlen($mm['prefix']) - 1);
                         $defs3[] = $mm;
@@ -425,11 +439,11 @@ abstract class BaseLoader extends Object
                 $pre_city_region_id = $city_region_id;
                 $pre_price = $price;
             }
-            if (count($m) < 10)
+            if (count($m) < 10) {
                 foreach ($m as $mm) {
                     $defs3[] = $mm;
                 }
-            else {
+            } else {
                 $mm = $m[0];
                 $mm['prefix'] = substr($mm['prefix'], 0, strlen($mm['prefix']) - 1);
                 $defs3[] = $mm;

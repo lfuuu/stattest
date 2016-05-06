@@ -20,7 +20,7 @@ trait _TransferTrait
     /**
      * @param $usageType - Класс услуги
      */
-    protected function checkTransfer($usageType,  $extendsData)
+    protected function checkTransfer($usageType, $extendsData)
     {
         // Создание услуги для переноса
         $fromUsage = $usageType::findOne(static::createSingleUsage($this->fromClientAccount, $usageType));
@@ -35,9 +35,9 @@ trait _TransferTrait
             $serviceTransfer =
                 $fromUsage::getTransferHelper($fromUsage)
                     ->setTargetAccount($this->toClientAccount)
-                    ->setActivationDate((new DateTime('first day of next month midnight', new DateTimeZone('UTC')))->format('Y-m-d'));
-        }
-        catch (\Exception $e) {
+                    ->setActivationDate((new DateTime('first day of next month midnight',
+                        new DateTimeZone('UTC')))->format('Y-m-d'));
+        } catch (\Exception $e) {
             $this->fail($e->getMessage());
         }
 
@@ -58,7 +58,8 @@ trait _TransferTrait
     {
         // Проверка результата переноса
         $this->assertEquals(
-            (new DateTime($from->actual_to))->format('Y-m-d'), (new DateTime($to->actual_from))->modify('-1 day')->format('Y-m-d'),
+            (new DateTime($from->actual_to))->format('Y-m-d'),
+            (new DateTime($to->actual_from))->modify('-1 day')->format('Y-m-d'),
             'ActualFrom equals'
         );
         $this->assertEquals($from->id, $to->prev_usage_id, 'UsagePrevId equals');
@@ -91,7 +92,8 @@ trait _TransferTrait
      * Создание болванки аккаунта для переноса
      * @return int
      */
-    private function createSingleClientAccount() {
+    private function createSingleClientAccount()
+    {
         $client = new ClientAccount;
         $client->is_active = 0;
         $client->validate();
@@ -113,8 +115,8 @@ trait _TransferTrait
         $client = 'id' . $client->id;
 
         $usage = new $usageClass;
-        $usage->actual_from  = $actualFrom;
-        $usage->actual_to  = $actualTo;
+        $usage->actual_from = $actualFrom;
+        $usage->actual_to = $actualTo;
         $usage->client = $client;
         $usage->save();
 

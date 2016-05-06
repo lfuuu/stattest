@@ -85,13 +85,13 @@ abstract class NotificationProcessor
             }
 
             if ($isSet) {
-                echo "\n" . date('r') . ': (+)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, true);
                 $this->oldSetupSendAndSaveLog();
             }
 
             if ($isUnSet) {
-                echo "\n" . date('r') . ': (-)' .  $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, false);
                 $this->oldUnsetSaveLog();
             }
@@ -127,10 +127,11 @@ abstract class NotificationProcessor
     {
         /** Оправка самих сообщений по старому */
         foreach ($this->getContactsForSend() as $contact) {
-            $Notification = new LkNotification($this->client->id, $contact->id, $this->getEvent(), $this->getValue(), $this->client->balance);
+            $Notification = new LkNotification($this->client->id, $contact->id, $this->getEvent(), $this->getValue(),
+                $this->client->balance);
             if ($Notification->send()) {
-            $this->oldAddLogRaw($this->client->id, $contact->id, $this->getEvent(), true,
-                $this->client->balance, $this->getLimit(), $this->getValue());
+                $this->oldAddLogRaw($this->client->id, $contact->id, $this->getEvent(), true,
+                    $this->client->balance, $this->getLimit(), $this->getValue());
             }
         }
     }

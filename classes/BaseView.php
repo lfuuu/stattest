@@ -11,6 +11,7 @@ use yii\web\AssetBundle;
  * Class BaseView
  * @package app\classes
  */
+
 /**
  * @todo Удалить registerCssFile / registerJsFile / appendTimestamp
  * @todo когда в Yii добавит собственный функционал использования appendTimestamp для них
@@ -43,7 +44,7 @@ class BaseView extends View
                 'baseUrl' => '',
                 'css' => [strncmp($url, '//', 2) === 0 ? $url : ltrim($url, '/')],
                 'cssOptions' => $options,
-                'depends' => (array) $depends,
+                'depends' => (array)$depends,
             ]);
             $this->registerAssetBundle($key);
         }
@@ -81,7 +82,7 @@ class BaseView extends View
                 'baseUrl' => '',
                 'js' => [strncmp($url, '//', 2) === 0 ? $url : ltrim($url, '/')],
                 'jsOptions' => $options,
-                'depends' => (array) $depends,
+                'depends' => (array)$depends,
             ]);
             $this->registerAssetBundle($key);
         }

@@ -79,7 +79,8 @@ HTML;
 
             $filterOptions = isset($filterColumn['filterOptions']) ? $filterColumn['filterOptions'] : [];
             !isset($filterOptions['class']) && $filterOptions['class'] = '';
-            strpos($filterOptions['class'], 'col-sm-') === false && $filterOptions['class'] .= ' col-sm-3'; // если класс ширины не указан, указать его
+            strpos($filterOptions['class'],
+                'col-sm-') === false && $filterOptions['class'] .= ' col-sm-3'; // если класс ширины не указан, указать его
             $filterColumn['grid'] = $this;
 
             /** @var \app\classes\grid\column\DataColumn $column */

@@ -109,7 +109,8 @@ class m160203_132400_create_voip_tariff extends \app\classes\Migration
         $tableName = Tariff::tableName();
         $fieldName = 'voip_tarificate_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffVoipTarificate::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName,
+            TariffVoipTarificate::tableName(), 'id', 'RESTRICT');
     }
 
     /**
@@ -218,10 +219,12 @@ class m160203_132400_create_voip_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id',
+            'CASCADE');
 
         $fieldName = 'city_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, City::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, City::tableName(), 'id',
+            'RESTRICT');
     }
 
     /**

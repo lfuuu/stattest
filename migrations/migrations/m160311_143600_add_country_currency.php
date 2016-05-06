@@ -10,7 +10,8 @@ class m160311_143600_add_country_currency extends \app\classes\Migration
         $tableName = Country::tableName();
         $fieldName = 'currency_id';
         $this->addColumn($tableName, $fieldName, 'char(3) CHARACTER SET utf8 COLLATE utf8_bin');
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Currency::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Currency::tableName(), 'id',
+            'RESTRICT');
 
         Country::updateAll(['currency_id' => Currency::RUB], ['code' => Country::RUSSIA]);
         Country::updateAll(['currency_id' => Currency::EUR, 'lang' => 'de-DE'], ['code' => Country::GERMANY]);

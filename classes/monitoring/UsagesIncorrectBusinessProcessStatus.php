@@ -45,7 +45,8 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
         return
             'Лицевые счета с активными услугами и бизнес-процесс статусом не соответствующем:' .
             Html::tag('br') .
-            Html::tag('span', 'Телеком-клиент: "Включенные", "Подключаемые", "Заказ услуг"', ['style' => 'margin-left: 20px;']) .
+            Html::tag('span', 'Телеком-клиент: "Включенные", "Подключаемые", "Заказ услуг"',
+                ['style' => 'margin-left: 20px;']) .
             Html::tag('br') .
             Html::tag('span', 'Партнер: "Действующий"', ['style' => 'margin-left: 20px;']) .
             Html::tag('br') .
@@ -94,7 +95,7 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
         foreach ($usages as $usage) {
             $result = array_merge(
                 $result,
-                (array) $usage::find()
+                (array)$usage::find()
                     ->select('u.*')
                     ->from($usage::tableName() . ' u')
                     ->leftJoin(ClientAccount::tableName() . ' c', 'c.client = u.client')
@@ -114,7 +115,9 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
                         ]
                     ])
                     ->andWhere([
-                        '!=', 'cc.business_id', Business::OPERATOR
+                        '!=',
+                        'cc.business_id',
+                        Business::OPERATOR
                     ])
                     ->andFilterWhere(['cc.manager' => $params['manager']])
                     ->groupBy('u.client')

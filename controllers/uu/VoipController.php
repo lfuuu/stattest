@@ -80,8 +80,16 @@ class VoipController extends BaseController
      *
      * @param int $didGroupId
      */
-    public function actionGetFreeNumbers($cityId = null, $didGroupId = null, $rowClass = 6, $orderByField = null, $orderByType = null, $mask = '', $limit = 0, $numberType = '')
-    {
+    public function actionGetFreeNumbers(
+        $cityId = null,
+        $didGroupId = null,
+        $rowClass = 6,
+        $orderByField = null,
+        $orderByType = null,
+        $mask = '',
+        $limit = 0,
+        $numberType = ''
+    ) {
         $numbers = new FreeNumberFilter;
 
         switch ($numberType) {
@@ -143,7 +151,8 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty);
+        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId,
+            $isWithEmpty);
         $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
     }
 

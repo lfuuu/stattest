@@ -4,10 +4,10 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $client_id
+ * @property int $client_id
  * @property string $bill_no
- * @property int    $payment_id
- * @property float  $sum
+ * @property int $payment_id
+ * @property float $sum
  * @property
  */
 class PaymentOrder extends ActiveRecord

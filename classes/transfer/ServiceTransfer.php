@@ -9,6 +9,7 @@ use app\models\usages\UsageInterface;
 use \DateTime;
 use \DateTimeZone;
 use yii\base\InvalidValueException;
+
 /**
  * Абстрактный класс переноса услуг
  * @package app\classes\transfer
@@ -66,8 +67,9 @@ abstract class ServiceTransfer extends \yii\base\Component
      */
     public function process()
     {
-        if ($this->service->actual_to < $this->getActualDate())
+        if ($this->service->actual_to < $this->getActualDate()) {
             throw new InvalidValueException('Услуга не может быть перенесена на указанную дату');
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -101,8 +103,9 @@ abstract class ServiceTransfer extends \yii\base\Component
      */
     public function fallback()
     {
-        if (!(int)$this->service->next_usage_id)
+        if (!(int)$this->service->next_usage_id) {
             throw new InvalidValueException('Услуга не была подготовлена к переносу');
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -131,8 +134,8 @@ abstract class ServiceTransfer extends \yii\base\Component
     {
         $activationDatetime = clone $this->activationDate;
         return $activationDatetime
-                    ->setTimezone(new DateTimeZone('UTC'))
-                    ->format('Y-m-d H:i:s');
+            ->setTimezone(new DateTimeZone('UTC'))
+            ->format('Y-m-d H:i:s');
     }
 
     public function getActualDate()
@@ -144,18 +147,18 @@ abstract class ServiceTransfer extends \yii\base\Component
     {
         $expireDatetime = clone $this->activationDate;
         return $expireDatetime
-                    ->modify('-1 day')
-                    ->setTime(23, 59, 59)
-                    ->setTimezone(new DateTimeZone('UTC'))
-                    ->format('Y-m-d H:i:s');
+            ->modify('-1 day')
+            ->setTime(23, 59, 59)
+            ->setTimezone(new DateTimeZone('UTC'))
+            ->format('Y-m-d H:i:s');
     }
 
     public function getExpireDate()
     {
         $expireDate = clone $this->activationDate;
         return $expireDate
-                    ->modify('-1 day')
-                    ->format('Y-m-d');
+            ->modify('-1 day')
+            ->format('Y-m-d');
     }
 
 }

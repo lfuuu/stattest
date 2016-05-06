@@ -122,7 +122,7 @@ class BillDao extends Singleton
 
             return ['type' => 'bill', 'bill_type' => '1c'];
 
-        } elseif (preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)){
+        } elseif (preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
             // mcn telekom || all4net
 
             return ['type' => 'bill', 'bill_type' => 'stat'];
@@ -153,7 +153,8 @@ class BillDao extends Singleton
                 ->scalar();
     }
 
-    public function setManager($billNo, $userId) {
+    public function setManager($billNo, $userId)
+    {
         $owner = BillOwner::findOne($billNo);
         if ($userId) {
             if ($owner == null) {

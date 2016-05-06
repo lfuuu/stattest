@@ -81,10 +81,11 @@ class ApiVpbx
     }
 
     public static function transfer(
-        $fromAccountId, $fromUsageId,
-        $toAccountId, $toUsageId
-    )
-    {
+        $fromAccountId,
+        $fromUsageId,
+        $toAccountId,
+        $toUsageId
+    ) {
         $query = [
             'from_account_id' => $fromAccountId,
             'from_stat_product_id' => $fromUsageId,
@@ -100,8 +101,8 @@ class ApiVpbx
         ApiVpbx::exec(
             'delete',
             [
-                "client_id"  => (int)$clientId,
-                "stat_product_id"  => (int)$usageId,
+                "client_id" => (int)$clientId,
+                "stat_product_id" => (int)$usageId,
             ]
         );
     }
@@ -113,13 +114,13 @@ class ApiVpbx
         ApiVpbx::exec(
             'update',
             [
-                "client_id"         => (int)$clientId,
-                "stat_product_id"   => (int)$usageId,
-                "phones"            => $tariff["num_ports"],
-                "faxes"             => $tariff["is_fax"] ? 5 : 0,
-                "record"            => (bool)$tariff["is_record"],
-                "enable_web_call"   => (bool)$tariff["is_web_call"],
-                "region"            => (int)$regionId,
+                "client_id" => (int)$clientId,
+                "stat_product_id" => (int)$usageId,
+                "phones" => $tariff["num_ports"],
+                "faxes" => $tariff["is_fax"] ? 5 : 0,
+                "record" => (bool)$tariff["is_record"],
+                "enable_web_call" => (bool)$tariff["is_web_call"],
+                "region" => (int)$regionId,
             ]
         );
     }
@@ -154,8 +155,13 @@ class ApiVpbx
         return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format('Y-m-d')]);
     }
 
-    public static function getStatistic($clientId, $usageId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")
-    {
+    public static function getStatistic(
+        $clientId,
+        $usageId,
+        $date,
+        $statisticFunction = "get_total_space_usage",
+        $statisticField = "total"
+    ) {
         $result = self::exec(
             $statisticFunction,
             [

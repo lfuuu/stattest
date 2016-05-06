@@ -26,9 +26,15 @@ class UsageWelltimeForm extends Form
         return [
             [
                 [
-                    'client', 'ip', 'status', 'comment',
-                    'actual_from', 'actual_to', 'router'
-                ], 'string'
+                    'client',
+                    'ip',
+                    'status',
+                    'comment',
+                    'actual_from',
+                    'actual_to',
+                    'router'
+                ],
+                'string'
             ],
             [['amount',], 'number'],
             [['tarif_id',], 'integer'],

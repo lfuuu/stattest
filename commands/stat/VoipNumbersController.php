@@ -73,7 +73,8 @@ class VoipNumbersController extends Controller
         $this->stdout(
             "\t\t" . $this->ansiFormat(' <regionId>', Console::FG_YELLOW) . ': int regions.id' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' <cityId>', Console::FG_YELLOW) . ': int city.id' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>', Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL
+            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>',
+                Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL
         );
 
         $this->stdout(PHP_EOL . PHP_EOL);
@@ -89,7 +90,8 @@ class VoipNumbersController extends Controller
         $this->stdout(
             "\t\t" . $this->ansiFormat(' <regionId>', Console::FG_YELLOW) . ': int regions.id' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' <cityId>', Console::FG_YELLOW) . ': int city.id' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>', Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL
+            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>',
+                Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL
         );
 
         $this->stdout(PHP_EOL . PHP_EOL);
@@ -110,7 +112,8 @@ class VoipNumbersController extends Controller
         $this->stdout(
             "\t\t" . $this->ansiFormat(' <regionId>', Console::FG_YELLOW) . ': int regions.id' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' <cityId>', Console::FG_YELLOW) . ': int city.id' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>', Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL .
+            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>',
+                Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' -- BeautyLvl0=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' -- BeautyLvl1=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' -- BeautyLvl2=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
@@ -141,7 +144,9 @@ class VoipNumbersController extends Controller
         list ($rangeStart, $rangeEnd) = explode('-', $numbersRange);
 
         $this->runAction('clear-numbers', [
-            $regionId, $cityId, $numbersRange
+            $regionId,
+            $cityId,
+            $numbersRange
         ]);
 
         $insert = [];
@@ -165,8 +170,7 @@ class VoipNumbersController extends Controller
                     $chunk
                 )->execute();
             }
-        }
-        else {
+        } else {
             $inserted += Yii::$app->db->createCommand()->batchInsert(
                 Number::tableName(),
                 ['number', 'region', 'city_id'],
@@ -178,7 +182,9 @@ class VoipNumbersController extends Controller
 
         if ($this->confirm('Продолжить с установкой уровня красоты: ')) {
             $this->runAction('set-beauty', [
-                $regionId, $cityId, $numbersRange
+                $regionId,
+                $cityId,
+                $numbersRange
             ]);
         }
 
@@ -204,9 +210,10 @@ class VoipNumbersController extends Controller
 
         $groups =
             ArrayHelper::map(
-                (array) DidGroup::find()
+                (array)DidGroup::find()
                     ->select([
-                        'id', 'beauty_level'
+                        'id',
+                        'beauty_level'
                     ])
                     ->where(['city_id' => $cityId])
                     ->orderBy([
@@ -214,7 +221,7 @@ class VoipNumbersController extends Controller
                         'beauty_level' => SORT_ASC,
                         'id' => SORT_ASC,
                     ])->asArray()->all(),
-                'beauty_level' ,
+                'beauty_level',
                 'id'
             );
 
@@ -230,13 +237,16 @@ class VoipNumbersController extends Controller
         $numbers =
             Number::find()
                 ->select([
-                    'number', 'city_id', 'beauty_level', 'did_group_id'
+                    'number',
+                    'city_id',
+                    'beauty_level',
+                    'did_group_id'
                 ])
                 ->where(['region' => $regionId])
                 ->andWhere(['city_id' => $cityId])
                 ->andWhere(['between', 'number', $cityId . $rangeStart, $cityId . $rangeEnd]);
 
-        foreach($numbers->all() as $number) {
+        foreach ($numbers->all() as $number) {
             $beautyLevel = NumberBeautyDao::getNumberBeautyLvl(substr($number->number, -7));
             $didGroupId = null;
 
@@ -258,12 +268,10 @@ class VoipNumbersController extends Controller
                     );
 
                     $changedCount++;
-                }
-                else {
+                } else {
                     $skippedCount++;
                 }
-            }
-            else {
+            } else {
                 $this->stdout('Номер ' . $number->number . ' не найдена Did группа' . PHP_EOL, Console::FG_RED);
 
                 $errorsCount++;
@@ -276,7 +284,9 @@ class VoipNumbersController extends Controller
 
         if ($this->confirm('Продолжить с установкой цен: ')) {
             $this->runAction('set-prices', [
-                $regionId, $cityId, $numbersRange
+                $regionId,
+                $cityId,
+                $numbersRange
             ]);
         }
 
@@ -306,13 +316,13 @@ class VoipNumbersController extends Controller
             }
 
             $this->{'BeautyLvl' . $level} = (
-                $this->{'BeautyLvl' . $level} === 'null'
-                    ? null
-                    : (
-                        is_numeric($this->{'BeautyLvl' . $level})
-                            ? $this->{'BeautyLvl' . $level}
-                            : NumberBeautyDao::$beautyLvlPrices[$level]
-                    )
+            $this->{'BeautyLvl' . $level} === 'null'
+                ? null
+                : (
+            is_numeric($this->{'BeautyLvl' . $level})
+                ? $this->{'BeautyLvl' . $level}
+                : NumberBeautyDao::$beautyLvlPrices[$level]
+            )
             );
 
             $this->stdout(
@@ -375,12 +385,12 @@ class VoipNumbersController extends Controller
      */
     private function checkRequiredParams($regionId, $cityId, $numbersRange)
     {
-        if (!(int) $regionId) {
+        if (!(int)$regionId) {
             $this->stderr('Некорректный ID региона' . PHP_EOL, Console::FG_RED);
             return Controller::EXIT_CODE_ERROR;
         }
 
-        if (!(int) $cityId) {
+        if (!(int)$cityId) {
             $this->stderr('Некорректный ID города' . PHP_EOL, Console::FG_RED);
             return Controller::EXIT_CODE_ERROR;
         }

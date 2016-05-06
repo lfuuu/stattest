@@ -36,7 +36,7 @@ class ClientContract extends HistoryActiveRecord
 
     const FINANCIAL_TYPE_EMPTY = '';
     const FINANCIAL_TYPE_PROFITABLE = 'profitable';
-    const FINANCIAL_TYPE_CONSUMABLES= 'consumables';
+    const FINANCIAL_TYPE_CONSUMABLES = 'consumables';
     const FINANCIAL_TYPE_YIELD_CONSUMABLE = 'yield-consumable';
 
     const IS_EXTERNAL = 'external';
@@ -270,8 +270,10 @@ class ClientContract extends HistoryActiveRecord
 
     public function save($runValidation = true, $attributeNames = null)
     {
-        if(is_array($this->federal_district))
-            $this->federal_district = SetFieldTypeHelper::generateFieldValue($this, 'federal_district', $this->federal_district, false);
+        if (is_array($this->federal_district)) {
+            $this->federal_district = SetFieldTypeHelper::generateFieldValue($this, 'federal_district',
+                $this->federal_district, false);
+        }
 
         return parent::save($runValidation, $attributeNames);
     }
@@ -296,30 +298,35 @@ class ClientContract extends HistoryActiveRecord
             $this->save();
         }
 
-        foreach ($this->getAccounts() as $account)
+        foreach ($this->getAccounts() as $account) {
             $account->sync1C();
+        }
     }
 
     public function statusesForChange()
     {
-        if (!$this->state || $this->state == self::STATE_UNCHECKED || \Yii::$app->user->can('clients.changeback_contract_state'))
+        if (!$this->state || $this->state == self::STATE_UNCHECKED || \Yii::$app->user->can('clients.changeback_contract_state')) {
             return self::$states;
+        }
 
-        if ($this->state == self::STATE_CHECKED_ORIGINAL)
+        if ($this->state == self::STATE_CHECKED_ORIGINAL) {
             return [self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL]];
+        }
 
-        if ($this->state == self::STATE_CHECKED_COPY)
+        if ($this->state == self::STATE_CHECKED_COPY) {
             return [
                 self::STATE_CHECKED_COPY => self::$states[self::STATE_CHECKED_COPY],
                 self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL],
             ];
+        }
 
-        if ($this->state == self::STATE_OFFER)
+        if ($this->state == self::STATE_OFFER) {
             return [
                 self::STATE_OFFER => self::$states[self::STATE_OFFER],
                 self::STATE_CHECKED_COPY => self::$states[self::STATE_CHECKED_COPY],
                 self::STATE_CHECKED_ORIGINAL => self::$states[self::STATE_CHECKED_ORIGINAL],
             ];
+        }
 
         return [];
     }

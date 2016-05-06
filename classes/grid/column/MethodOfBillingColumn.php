@@ -12,15 +12,17 @@ class MethodOfBillingColumn extends DataColumn
     {
         $valueText = '';
 
-        if ($model->tariffication_free_first_seconds > 0)
+        if ($model->tariffication_free_first_seconds > 0) {
             $valueText = 'c 6 секунды, ';
+        }
 
-        if ($model->tariffication_by_minutes > 0)
+        if ($model->tariffication_by_minutes > 0) {
             $valueText .= 'поминутная';
-        else {
+        } else {
             $valueText = 'посекундная';
-            if ($model->tariffication_full_first_minute > 0)
+            if ($model->tariffication_full_first_minute > 0) {
                 $valueText .= ' со второй минуты';
+            }
         }
 
         return $valueText;

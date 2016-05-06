@@ -18,11 +18,9 @@ use yii\db\ActiveRecord;
  * @property int $did_group_id
  * @property int $old_beauty_level
  * @property int $old_prefix
-
  * @property Country $country
  * @property City $city
  * @property Region $connectionPoint
-
  * @method static TariffNumber findOne($condition)
  * @property
  */

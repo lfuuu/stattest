@@ -52,10 +52,12 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
         $this->addPrimaryKey('pk-' . $tableName, $tableName, ['voip_number_type_id', 'country_id']);
 
         $fieldName = 'voip_number_type_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, NumberType::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, NumberType::tableName(),
+            'id', 'CASCADE');
 
         $fieldName = 'country_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Country::tableName(), 'code', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Country::tableName(),
+            'code', 'RESTRICT');
 
         $this->batchInsert($tableName, ['voip_number_type_id', 'country_id'], [
             [NumberType::ID_GEO_DID, Country::RUSSIA],
@@ -82,7 +84,8 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
     {
         $tableName = Number::tableName();
         $fieldName = 'number_type';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, NumberType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, NumberType::tableName(),
+            'id', 'RESTRICT');
     }
 
     /**

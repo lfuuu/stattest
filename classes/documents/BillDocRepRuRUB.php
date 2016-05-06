@@ -33,10 +33,11 @@ class BillDocRepRuRUB extends DocumentReport
         $now = (new DateTime())->format('Ym');
 
         foreach ($this->lines as &$line) {
-            if(
+            if (
                 $now <= (new DateTime($line['date_from']))->format('Ym')
-                && preg_match('/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС/', $line['item'])
-            ){
+                && preg_match('/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС/',
+                    $line['item'])
+            ) {
                 $line['item'] = str_replace('Абонентская', 'абонентскую', str_replace('плата', 'плату', $line['item']));
                 $line['item'] = str_replace('Поддержка', 'поддержку', $line['item']);
                 $line['item'] = str_replace('Виртуальная', 'виртуальную', $line['item']);

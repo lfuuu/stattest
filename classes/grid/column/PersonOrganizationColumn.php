@@ -16,11 +16,13 @@ class PersonOrganizationColumn extends DataColumn
         $organizations = Organization::find()->byPerson($model->id)->actual()->all();
 
         foreach ($organizations as $organization) {
-            $result[] = Html::a($organization->name, '/organization/edit?id=' . $organization->organization_id . '&date='  .$organization->actual_from);
+            $result[] = Html::a($organization->name,
+                '/organization/edit?id=' . $organization->organization_id . '&date=' . $organization->actual_from);
         }
 
-        if (sizeof($result))
+        if (sizeof($result)) {
             $model->canDelete = false;
+        }
 
         return implode(', ', $result);
     }

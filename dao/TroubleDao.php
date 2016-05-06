@@ -50,14 +50,20 @@ class TroubleDao extends Singleton
                 )->createCommand()->queryAll();
     }
 
-    public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId, $author = false)
-    {
+    public function createTroubleForSupportTicket(
+        $clientAccountId,
+        $department,
+        $subject,
+        $description,
+        $supportTicketId,
+        $author = false
+    ) {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
 
         $problem = '';
         if ($department) {
-          $problem .= 'Отдел: ' . DepartmentEnum::getName($department) . "\n";
+            $problem .= 'Отдел: ' . DepartmentEnum::getName($department) . "\n";
         }
         $problem .= 'Тема: ' . $subject . "\n";
         $problem .= $description;
@@ -99,7 +105,9 @@ class TroubleDao extends Singleton
     public function updateTroubleBySupportTicket(Ticket $ticket)
     {
         $trouble = Trouble::findOne(['support_ticket_id' => $ticket->id]);
-        if (!$trouble) return;
+        if (!$trouble) {
+            return;
+        }
 
         $supportUser = $this->getUserByDepartment($ticket->department);
 
@@ -108,18 +116,18 @@ class TroubleDao extends Singleton
 
         $newStateId = $ticket->spawnTroubleStatus();
         if ($newStateId != $oldStage->state_id) {
-          $oldStage->user_edit = $supportUser;
-          $oldStage->save();
+            $oldStage->user_edit = $supportUser;
+            $oldStage->save();
 
-          $stage = new TroubleStage();
-          $stage->trouble_id = $trouble->id;
-          $stage->state_id = $newStateId;
-          $stage->user_main = $supportUser;
-          $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
-          $stage->save();
+            $stage = new TroubleStage();
+            $stage->trouble_id = $trouble->id;
+            $stage->state_id = $newStateId;
+            $stage->user_main = $supportUser;
+            $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
+            $stage->save();
 
-          $trouble->cur_stage_id = $stage->stage_id;
-          $trouble->save();
+            $trouble->cur_stage_id = $stage->stage_id;
+            $trouble->save();
         }
 
     }
@@ -157,16 +165,16 @@ class TroubleDao extends Singleton
 
     public function addStage($trouble, $newStateId, $comment, $newUserMainId = null, $userEditId = null)
     {
-        if (!$userEditId)
-        {
+        if (!$userEditId) {
             $userEdit = \Yii::$app->user->getIdentity();
         } else {
             $userEdit = User::findOne(["id" => $userEditId]);
         }
 
         $userMain = null;
-        if ($newUserMainId)
+        if ($newUserMainId) {
             $userMain = User::findOne(["id" => $newUserMainId]);
+        }
 
         Assert::isObject($userEdit);
         Assert::isObject($trouble);
@@ -176,8 +184,9 @@ class TroubleDao extends Singleton
 
         $curStage->user_edit = $userEdit->user;
 
-        if (trim($comment))
+        if (trim($comment)) {
             $curStage->comment = $comment;
+        }
 
         $curStage->save();
 

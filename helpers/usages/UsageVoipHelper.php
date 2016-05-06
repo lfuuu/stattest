@@ -48,7 +48,8 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
         if ($this->usage->type_id == 'line') {
             $number7800 = UsageVoip::findOne(['line7800_id' => $this->usage->id]);
             if ($number7800 instanceof UsageVoip) {
-                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)', ['data-linked' => $number7800->id]);
+                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)',
+                        ['data-linked' => $number7800->id]);
                 $checkboxOptions['disabled'] = 'disabled';
             }
         }

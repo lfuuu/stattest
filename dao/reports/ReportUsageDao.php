@@ -41,11 +41,19 @@ class ReportUsageDao extends Singleton
      * @throws \Exception
      */
     public static function getUsageVoipStatistic(
-        $region, $from, $to, $detality, $clientId, $usages = [],
-        $paidonly = 0, $destination = 'all', $direction = 'both', $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW, $isFull = false,
+        $region,
+        $from,
+        $to,
+        $detality,
+        $clientId,
+        $usages = [],
+        $paidonly = 0,
+        $destination = 'all',
+        $direction = 'both',
+        $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
+        $isFull = false,
         $packages = []
-    )
-    {
+    ) {
         if (!$timezone) {
             $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         }
@@ -72,7 +80,12 @@ class ReportUsageDao extends Singleton
             Calls::find()
                 ->from(['cr' => Calls::tableName()]);
 
-        $query->andWhere(['between', 'cr.connect_time', $from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s.999999')]);
+        $query->andWhere([
+            'between',
+            'cr.connect_time',
+            $from->format('Y-m-d H:i:s'),
+            $to->format('Y-m-d H:i:s.999999')
+        ]);
 
         if ($direction !== 'both') {
             $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
@@ -89,11 +102,10 @@ class ReportUsageDao extends Singleton
         if ($destination !== 'all') {
             list ($dest, $mobile, $zone) = explode('-', $destination);
 
-            if ((int) $dest == 0) {
-                $query->andWhere(['<=', 'cr.destination_id', (int) $dest]);
-            }
-            else {
-                $query->andWhere(['cr.destination_id' => (int) $dest]);
+            if ((int)$dest == 0) {
+                $query->andWhere(['<=', 'cr.destination_id', (int)$dest]);
+            } else {
+                $query->andWhere(['cr.destination_id' => (int)$dest]);
             }
 
             switch ($mobile) {
@@ -105,7 +117,7 @@ class ReportUsageDao extends Singleton
                     break;
             }
 
-            if ((int) $dest == 0 && $mobile === 'f') {
+            if ((int)$dest == 0 && $mobile === 'f') {
                 $query
                     ->leftJoin(['iss' => InstanceSettings::tableName()], 'iss.city_geo_id = cr.geo_id')
                     ->leftJoin(['g' => Geo::tableName()], 'g.id = iss.city_geo_id');
@@ -143,7 +155,7 @@ class ReportUsageDao extends Singleton
                 ->actual()
                 ->andWhere(['usage_voip_id' => $usageId]);
 
-        if ((int) $packageId) {
+        if ((int)$packageId) {
             $query->andWhere(['id' => $packageId]);
         }
 
@@ -161,8 +173,15 @@ class ReportUsageDao extends Singleton
      * @return array
      * @throws \Exception
      */
-    private static function voipStatistic(ActiveQuery $query, ClientAccount $clientAccount, DateTime $from, $packages = [], $detality, $paidOnly = 0, $isFull = false)
-    {
+    private static function voipStatistic(
+        ActiveQuery $query,
+        ClientAccount $clientAccount,
+        DateTime $from,
+        $packages = [],
+        $detality,
+        $paidOnly = 0,
+        $isFull = false
+    ) {
         $offset = $from->getOffset();
 
         if (isset($packages) && count($packages) > 0) {
@@ -206,11 +225,12 @@ class ReportUsageDao extends Singleton
         $query->addSelect([
             'price' => ($groupBy ? '-SUM' : '-') . '(cr.cost)',
             'ts2' => ($groupBy ? 'SUM' : '') . '(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN cr.billed_time ELSE 0 END' : 'cr.billed_time') . ')',
-            'cnt' => $groupBy ? 'SUM(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN 1 ELSE 0 END' : new Expression('1')) .')' : new Expression('1'),
+            'cnt' => $groupBy ? 'SUM(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN 1 ELSE 0 END' : new Expression('1')) . ')' : new Expression('1'),
         ]);
 
         if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
-            Yii::$app->session->setFlash('error', 'Статистика отображается не полностью.' . '<br />' . PHP_EOL . ' Сделайте ее менее детальной или сузьте временной период');
+            Yii::$app->session->setFlash('error',
+                'Статистика отображается не полностью.' . '<br />' . PHP_EOL . ' Сделайте ее менее детальной или сузьте временной период');
         }
 
         $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
@@ -226,7 +246,7 @@ class ReportUsageDao extends Singleton
 
             if (isset($record['geo_id'])) {
                 if (!isset($geo[$record['geo_id']])) {
-                    $geo[$record['geo_id']] = Geo::find()->select('name')->where(['id' => (int) $record['geo_id']])->scalar();
+                    $geo[$record['geo_id']] = Geo::find()->select('name')->where(['id' => (int)$record['geo_id']])->scalar();
                 }
                 $record['geo'] = $geo[$record['geo_id']];
                 if ($record['geo_mob'] === true) {
@@ -235,7 +255,8 @@ class ReportUsageDao extends Singleton
             }
 
             $ts =
-                (new DateTimeWithUserTimezone($record['ts1'], new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)))
+                (new DateTimeWithUserTimezone($record['ts1'],
+                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)))
                     ->setTimezone(self::$timezone);
 
             $record['tsf1'] = $ts->format('Y-m-d H:i:s');
@@ -244,8 +265,7 @@ class ReportUsageDao extends Singleton
 
             if ($record['ts2'] >= 24 * 60 * 60) {
                 $d = floor($record['ts2'] / (24 * 60 * 60));
-            }
-            else {
+            } else {
                 $d = 0;
             }
 
@@ -264,9 +284,8 @@ class ReportUsageDao extends Singleton
         $rt['num_from'] = '&nbsp;';
 
         if ($rt['ts2'] >= 24 * 60 * 60) {
-            $d = floor($rt['ts2'] / (24 *60 *60));
-        }
-        else {
+            $d = floor($rt['ts2'] / (24 * 60 * 60));
+        } else {
             $d = 0;
         }
 
@@ -294,7 +313,7 @@ class ReportUsageDao extends Singleton
             'cnt' => 'SUM(1)'
         ]);
 
-        $query->andWhere(['cr.server_id' => (int) $region]);
+        $query->andWhere(['cr.server_id' => (int)$region]);
         $query->groupBy(['cr.destination_id', 'mob']);
 
         $result = [
@@ -340,30 +359,28 @@ class ReportUsageDao extends Singleton
                 $result['mos_loc']['len'] += $record['len'];
                 $result['mos_loc']['price'] += $record['price'];
                 $result['mos_loc']['cnt'] += $record['cnt'];
-            }
-            elseif ($record['dest'] <= 0 && $record['mob'] === true) {
+            } elseif ($record['dest'] <= 0 && $record['mob'] === true) {
                 $result['mos_mob']['len'] += $record['len'];
                 $result['mos_mob']['price'] += $record['price'];
                 $result['mos_mob']['cnt'] += $record['cnt'];
-            }
-            elseif ($record['dest'] == 1 && $record['mob'] === false) {
+            } elseif ($record['dest'] == 1 && $record['mob'] === false) {
                 $result['rus_fix']['len'] += $record['len'];
                 $result['rus_fix']['price'] += $record['price'];
                 $result['rus_fix']['cnt'] += $record['cnt'];
-            }
-            elseif ($record['dest'] == 1 && $record['mob'] === true){
+            } elseif ($record['dest'] == 1 && $record['mob'] === true) {
                 $result['rus_mob']['len'] += $record['len'];
                 $result['rus_mob']['price'] += $record['price'];
                 $result['rus_mob']['cnt'] += $record['cnt'];
-            }
-            elseif ($record['dest'] == 2 || $record['dest'] == 3){
+            } elseif ($record['dest'] == 2 || $record['dest'] == 3) {
                 $result['int']['len'] += $record['len'];
                 $result['int']['price'] += $record['price'];
                 $result['int']['cnt'] += $record['cnt'];
             }
         }
 
-        $cnt = 0; $len = 0; $price = 0;
+        $cnt = 0;
+        $len = 0;
+        $price = 0;
         foreach ($result as $destination => $data) {
             $cnt += $data['cnt'];
             $len += $data['len'];
@@ -374,8 +391,9 @@ class ReportUsageDao extends Singleton
                 $delta = floor($data['len'] / (24 * 60 * 60));
             }
 
-            $result[$destination]['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $data['len'] - $delta * 24 * 60 * 60);
-            $result[$destination]['price'] = number_format($data['price'], 2, '.','');
+            $result[$destination]['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s',
+                    $data['len'] - $delta * 24 * 60 * 60);
+            $result[$destination]['price'] = number_format($data['price'], 2, '.', '');
         }
 
         $delta = 0;
@@ -384,7 +402,7 @@ class ReportUsageDao extends Singleton
             'tsf1' => 'Итого'
         ];
 
-        if ($len >= 24 * 60 * 60){
+        if ($len >= 24 * 60 * 60) {
             $delta = floor($len / (24 * 60 * 60));
         }
 
@@ -410,8 +428,7 @@ class ReportUsageDao extends Singleton
             $row['price_without_tax'] = number_format($row['price'] * 100 / (100 + $taxRate), 2, '.', '');
             $row['price_with_tax'] = number_format($row['price'], 2, '.', '');
             $row['price'] = $row['price_with_tax'] . ' (включая НДС)';
-        }
-        else {
+        } else {
             $row['price_without_tax'] = number_format($row['price'], 2, '.', '');
             $row['price_with_tax'] = number_format($row['price'] * (100 + $taxRate) / 100, 2, '.', '');
             $row['price'] = $row['price_without_tax'] . ' (<b>' . $row['price_with_tax'] . ' - Сумма с НДС</b>)';

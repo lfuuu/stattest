@@ -26,7 +26,8 @@ class DummyResourceReader extends Object implements ResourceReaderInterface
      * false - за день (при ежедневном расчете так и оставить)
      * @return bool
      */
-    public function getIsMonthPricePerUnit() {
+    public function getIsMonthPricePerUnit()
+    {
         return true;
     }
 }

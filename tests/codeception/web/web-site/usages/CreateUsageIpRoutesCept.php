@@ -1,6 +1,6 @@
 <?php
 
-return ;
+return;
 use tests\codeception\_pages\LoginPage;
 
 /**

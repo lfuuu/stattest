@@ -131,8 +131,9 @@ class ControlController extends BaseController
 
     public function actionAjaxDeptUsers($id)
     {
-        if (!Yii::$app->request->isAjax)
+        if (!Yii::$app->request->isAjax) {
             return;
+        }
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $usersList = User::getUserListByDepart($id, ['enabled' => true, 'primary' => 'user']);

@@ -12,7 +12,8 @@ class m160403_084544_number_type_internal extends \app\classes\Migration
         $this->execute('ALTER TABLE `voip_number_type` ENGINE=InnoDB');
         $this->execute('ALTER TABLE `voip_number_type_country` ENGINE=InnoDB');
 
-        $this->addForeignKey('fk-voip_numbers-number_type', 'voip_numbers', 'number_type', 'voip_number_type', 'id', 'RESTRICT', 'CASCADE');
+        $this->addForeignKey('fk-voip_numbers-number_type', 'voip_numbers', 'number_type', 'voip_number_type', 'id',
+            'RESTRICT', 'CASCADE');
     }
 
     public function down()

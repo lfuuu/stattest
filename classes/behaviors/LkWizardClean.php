@@ -18,16 +18,12 @@ class LkWizardClean extends Behavior
 
     public function afterUpdate($event)
     {
-        if ($event->changedAttributes)
-        {
-            if (isset($event->changedAttributes["business_process_status_id"]))
-            {
-                if (!LkWizardState::isBPStatusAllow($event->sender->business_process_status_id, $event->sender->id))
-                {
+        if ($event->changedAttributes) {
+            if (isset($event->changedAttributes["business_process_status_id"])) {
+                if (!LkWizardState::isBPStatusAllow($event->sender->business_process_status_id, $event->sender->id)) {
                     $wizard = LkWizardState::findOne($event->sender->id);
 
-                    if ($wizard)
-                    {
+                    if ($wizard) {
                         $wizard->is_on = 0;
                         $wizard->save();
                     }

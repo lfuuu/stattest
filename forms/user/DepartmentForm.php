@@ -36,8 +36,9 @@ class DepartmentForm extends Form
 
     public function save($department = false)
     {
-        if (!($department instanceof UserDeparts))
+        if (!($department instanceof UserDeparts)) {
             $department = new UserDeparts;
+        }
         $department->setAttributes($this->getAttributes(), false);
 
         $transaction = Yii::$app->db->beginTransaction();

@@ -42,26 +42,56 @@ class WizardContragentMcnForm extends Form
 
         $rules[] = [['legal_type'], 'required'];
 
-        $rules[] = [["name", "inn", "address_jur", "position", "fio"], "required",
-            'when' => function($model){ return $model->legal_type=='legal';}
+        $rules[] = [
+            ["name", "inn", "address_jur", "position", "fio"],
+            "required",
+            'when' => function ($model) {
+                return $model->legal_type == 'legal';
+            }
         ];
 
-        $rules[] = [['first_name', 'last_name', 'middle_name', "address"], "required",
-            'when' => function($model){ return $model->legal_type=='person';}
+        $rules[] = [
+            ['first_name', 'last_name', 'middle_name', "address"],
+            "required",
+            'when' => function ($model) {
+                return $model->legal_type == 'person';
+            }
         ];
 
-        $rules[] = [["kpp"], "required",
-            'when' => function($model){ return $model->legal_type=='legal';}
+        $rules[] = [
+            ["kpp"],
+            "required",
+            'when' => function ($model) {
+                return $model->legal_type == 'legal';
+            }
         ];
 
-        $rules[] = [['name', /*'address_jur',*/ 'first_name', 'last_name', 'inn', 'ogrn', 'address'], 'required',
-            'when' => function($model){ return $model->legal_type=='ip';}
+        $rules[] = [
+            [
+                'name', /*'address_jur',*/
+                'first_name',
+                'last_name',
+                'inn',
+                'ogrn',
+                'address'
+            ],
+            'required',
+            'when' => function ($model) {
+                return $model->legal_type == 'ip';
+            }
         ];
 
-        $rules[] = [[
-            'passport_serial', 'passport_number', 'passport_date_issued',
-            'passport_issued'], 'required',
-            'when' => function($model){ return $model->legal_type=='person';}
+        $rules[] = [
+            [
+                'passport_serial',
+                'passport_number',
+                'passport_date_issued',
+                'passport_issued'
+            ],
+            'required',
+            'when' => function ($model) {
+                return $model->legal_type == 'person';
+            }
         ];
 
         return $rules;
@@ -81,28 +111,23 @@ class WizardContragentMcnForm extends Form
         $contragent->fio = $this->fio;
 
 
-        if ($contragent->legal_type == "legal")
-        {
-            if (trim($contragent->name_full) == "")
-            {
+        if ($contragent->legal_type == "legal") {
+            if (trim($contragent->name_full) == "") {
                 $contragent->name_full = $contragent->name;
             }
         }
 
-        if ($contragent->legal_type == "person")
-        {
-            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
+        if ($contragent->legal_type == "person") {
+            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
         }
 
         $contragent->save(false);
 
         $contract = ClientContract::findOne($account->contract->id);
 
-        if ($contragent->legal_type == "ip" || $contragent->legal_type == "person")
-        {
+        if ($contragent->legal_type == "ip" || $contragent->legal_type == "person") {
             $person = $contragent->person;
-            if (!$person)
-            {
+            if (!$person) {
                 $person = new ClientContragentPerson();
                 $person->contragent_id = $contragent->id;
             }
@@ -119,14 +144,12 @@ class WizardContragentMcnForm extends Form
             $person->save();
             $contragent->refresh();
 
-            if ($contract->organization_id != Organization::MCM_TELEKOM)
-            {
+            if ($contract->organization_id != Organization::MCM_TELEKOM) {
                 $contract->organization_id = Organization::MCM_TELEKOM;
                 $contract->save();
             }
         } else { //legal
-            if ($contract->organization_id != Organization::MCN_TELEKOM)
-            {
+            if ($contract->organization_id != Organization::MCN_TELEKOM) {
                 $contract->organization_id = Organization::MCN_TELEKOM;
                 $contract->save();
             }

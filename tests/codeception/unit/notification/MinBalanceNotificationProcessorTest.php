@@ -16,7 +16,7 @@ use yii\db\Expression;
 
 class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 {
-    /** @var \yii\db\Transaction  */
+    /** @var \yii\db\Transaction */
     private $transaction = null;
 
     /** @var \app\models\ClientAccount */
@@ -75,7 +75,12 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->init(false);
 
         $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
-            'getValue', 'getLimit', 'createImportantEventSet', 'oldSetupSendAndSaveLog', 'oldUnsetSaveLog', 'oldAddLogRaw'
+            'getValue',
+            'getLimit',
+            'createImportantEventSet',
+            'oldSetupSendAndSaveLog',
+            'oldUnsetSaveLog',
+            'oldAddLogRaw'
         ]);
 
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1000));
@@ -100,7 +105,8 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 0);
 
         $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
-            'getValue', 'getLimit'
+            'getValue',
+            'getLimit'
         ]);
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(100));
         $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
@@ -126,7 +132,11 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($event->id);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent(), 'is_set' => 1]);
+        $lkNoticeLog = LkNotificationLog::findOne([
+            'client_id' => $this->account->id,
+            'event' => $mockObj->getEvent(),
+            'is_set' => 1
+        ]);
         $this->assertNotNull($lkNoticeLog);
         $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
 
@@ -143,7 +153,8 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->init(true);
 
         $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
-            'getValue', 'getLimit'
+            'getValue',
+            'getLimit'
         ]);
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(100));
         $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
@@ -168,7 +179,11 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNull($event);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent(), 'is_set' => 1]);
+        $lkNoticeLog = LkNotificationLog::findOne([
+            'client_id' => $this->account->id,
+            'event' => $mockObj->getEvent(),
+            'is_set' => 1
+        ]);
         $this->assertNull($lkNoticeLog);
 
         $this->end();
@@ -182,7 +197,8 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
 
         $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
-            'getValue', 'getLimit'
+            'getValue',
+            'getLimit'
         ]);
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1000));
         $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
@@ -211,7 +227,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($eventProperty);
         $isFind = false;
         $findObj = null;
-        foreach($eventProperty as $prop) {
+        foreach ($eventProperty as $prop) {
             if ($prop->property == 'is_set') {
                 $findObj = $prop;
                 $isFind = true;
@@ -224,7 +240,11 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertEquals($findObj->value, 0);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent(), 'is_set' => 0]);
+        $lkNoticeLog = LkNotificationLog::findOne([
+            'client_id' => $this->account->id,
+            'event' => $mockObj->getEvent(),
+            'is_set' => 0
+        ]);
         $this->assertNotNull($lkNoticeLog);
         $this->assertEquals($lkNoticeLog->contact_id, 0);
 

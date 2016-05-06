@@ -28,9 +28,9 @@ class UsageVoipAddPackageForm extends Form
     public function rules()
     {
         return [
-            [['usage_voip_id','tariff_id',], 'integer'],
+            [['usage_voip_id', 'tariff_id',], 'integer'],
             [['actual_from',], 'string'],
-            [['tariff_id','actual_from',], 'required'],
+            [['tariff_id', 'actual_from',], 'required'],
             ['status', 'default', 'value' => 'connecting']
         ];
     }
@@ -46,12 +46,12 @@ class UsageVoipAddPackageForm extends Form
     public function process()
     {
         $this->usage = UsageVoip::find()
-             ->where('id = :id AND ( actual_to = :max OR actual_to >= :now )', [
-                'id'  => $this->usage_voip_id,
+            ->where('id = :id AND ( actual_to = :max OR actual_to >= :now )', [
+                'id' => $this->usage_voip_id,
                 'max' => UsageInterface::MAX_POSSIBLE_DATE,
                 'now' => (new DateTime('now'))->format('Y-m-d H:i:s')
-             ])
-             ->one();
+            ])
+            ->one();
 
         $this->clientTimezone = $this->usage->clientAccount->timezone;
 

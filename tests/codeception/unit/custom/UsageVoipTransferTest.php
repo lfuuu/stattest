@@ -76,8 +76,8 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
         }
 
         $usage = new UsageVoip;
-        $usage->actual_from  = $actualFrom;
-        $usage->actual_to  = $actualTo;
+        $usage->actual_from = $actualFrom;
+        $usage->actual_to = $actualTo;
         $usage->client = $client;
         $usage->address = 'test address';
         $usage->line7800_id = $line7800_id;

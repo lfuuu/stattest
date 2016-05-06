@@ -48,6 +48,7 @@ class SiteController extends BaseController
             ],
         ];
     }
+
     public function beforeAction()
     {
         $this->operator = Yii::$app->session->get('operator');
@@ -69,13 +70,14 @@ class SiteController extends BaseController
                 $operatorsCount = count($this->operatorsList);
                 if ($operatorsCount > 1) {
                     $this->redirect('/site/who-is-it');
-                }
-                else if ($operatorsCount == 1) {
-                    Yii::$app->session->set('operator', str_replace('operator_', '', array_pop(array_keys($this->operatorsList))));
-                    $this->operator = Yii::$app->session->get('operator');
-                }
-                else {
-                    return $this->actionLogout();
+                } else {
+                    if ($operatorsCount == 1) {
+                        Yii::$app->session->set('operator',
+                            str_replace('operator_', '', array_pop(array_keys($this->operatorsList))));
+                        $this->operator = Yii::$app->session->get('operator');
+                    } else {
+                        return $this->actionLogout();
+                    }
                 }
             }
         }
@@ -107,8 +109,7 @@ class SiteController extends BaseController
 
         if ($filter['range']) {
             list ($dateFrom, $dateTo) = explode(' : ', $filter['range']);
-        }
-        else {
+        } else {
             $today = new DateTime('now');
             $firstDayThisMonth = clone $today;
             $lastDayThisMonth = clone $today;
@@ -137,7 +138,8 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionWhoIsIt() {
+    public function actionWhoIsIt()
+    {
         $mode = Yii::$app->request->get('mode');
 
         if ($mode == 'do') {
@@ -186,8 +188,7 @@ class SiteController extends BaseController
                     $bill->comment = Yii::$app->request->post('comment');
                     $bill->save();
                     $transaction->commit();
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     $transaction->rollBack();
                     throw $e;
                 }
@@ -198,7 +199,9 @@ class SiteController extends BaseController
                 return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
                 break;
             default:
-                if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill, $trouble)) {
+                if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($operator, $bill,
+                        $trouble)
+                ) {
                     return $this->redirect(['set-state', 'bill_no' => $bill->bill_no]);
                 }
                 break;

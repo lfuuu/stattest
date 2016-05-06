@@ -5,7 +5,7 @@ namespace app\classes;
 class BillQRCode
 {
     public static $codes = [
-        "bill"  => ["code" => "01", "c" => "bill",          "name" => "Счет"],
+        "bill" => ["code" => "01", "c" => "bill", "name" => "Счет"],
         "akt-1" => ["code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"],
         "akt-2" => ["code" => "12", "c" => "akt", "s" => 2, "name" => "Акт 2"],
         "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"],
@@ -15,7 +15,7 @@ class BillQRCode
 
     public static function encode($docType, $billNo)
     {
-        if(!isset(self::$codes[$docType])) {
+        if (!isset(self::$codes[$docType])) {
             return false;
         }
 
@@ -29,12 +29,11 @@ class BillQRCode
         $billNo = self::convertBillNo($billNo);
         $result = [];
 
-        foreach(self::$codes as $code) {
-            if(isset($code["s"])) {
-                $result[ $code["c"] ][ $code["s"] ] = $code["code"] . "" . $billNo;
-            }
-            else {
-                $result[ $code["c"] ] = $code["code"] . "" . $billNo;
+        foreach (self::$codes as $code) {
+            if (isset($code["s"])) {
+                $result[$code["c"]][$code["s"]] = $code["code"] . "" . $billNo;
+            } else {
+                $result[$code["c"]] = $code["code"] . "" . $billNo;
             }
         }
 
@@ -43,11 +42,11 @@ class BillQRCode
 
     public static function decodeNo($no)
     {
-        if(strlen($no) == 13) {
+        if (strlen($no) == 13) {
             $type = self::getType(substr($no, 0, 2));
             $number = self::getNumber(substr($no, 2));
 
-            if($type) {
+            if ($type) {
                 return array("type" => $type, "number" => $number);
             }
         }
@@ -56,7 +55,7 @@ class BillQRCode
 
     public static function decodeFile($file)
     {
-        exec("zbarimg -q ".$file, $result);
+        exec("zbarimg -q " . $file, $result);
 
         if (!$result) {
             return false;
@@ -82,8 +81,8 @@ class BillQRCode
 
     private static function getType($type)
     {
-        foreach(self::$codes as $code) {
-            if ($code["code"] == $type){
+        foreach (self::$codes as $code) {
+            if ($code["code"] == $type) {
                 return $code;
             }
         }
@@ -94,9 +93,14 @@ class BillQRCode
     private static function getNumber($no)
     {
         switch ($no[6]) {
-            case '1' : $no[6] = "-"; break;
-            case '2' : $no[6] = "/"; break;
-            default: return false;
+            case '1' :
+                $no[6] = "-";
+                break;
+            case '2' :
+                $no[6] = "/";
+                break;
+            default:
+                return false;
         }
 
         return $no;

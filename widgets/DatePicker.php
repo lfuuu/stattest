@@ -46,10 +46,11 @@ class DatePicker extends \kartik\date\DatePicker
         if ($this->_hasAddon) {
             Html::addCssClass($this->_container, 'date');
             $picker = $this->renderAddon($this->pickerButton);
-            if ($this->removeButton)
+            if ($this->removeButton) {
                 $remove = $this->renderAddon($this->removeButton, 'remove');
-            else
+            } else {
                 $remove = '';
+            }
 
             $addons = [];
             if (is_array($this->addons)) {

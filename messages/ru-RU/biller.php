@@ -8,8 +8,8 @@ return [
     'date_once' => ', {0, date, dd}',
 
     'date_range_month' => ' с{0, date, dd} по {1, date, dd MMMM}',
-    'date_range_year' =>  ' с{0, date, dd MMMM} г. по {1, date, dd MMMM yyyy} г.',
-    'date_range_full' =>  ' с{0, date, dd MMMM yyyy} г. по {1, date, dd MMMM yyyy} г.',
+    'date_range_year' => ' с{0, date, dd MMMM} г. по {1, date, dd MMMM yyyy} г.',
+    'date_range_full' => ' с{0, date, dd MMMM yyyy} г. по {1, date, dd MMMM yyyy} г.',
 
 
     'by_agreement' => ', согласно Договора {contract_no} от {contract_date,date,dd MMM yyyy} г.',

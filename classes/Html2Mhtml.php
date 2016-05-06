@@ -37,9 +37,8 @@ class Html2Mhtml
     public function setBoundary($boundary = null)
     {
         if (is_null($boundary)) {
-            $this->boundary = '--' . strtoupper( md5( mt_rand() ) ) . '_MULTIPART_MIXED';
-        }
-        else {
+            $this->boundary = '--' . strtoupper(md5(mt_rand())) . '_MULTIPART_MIXED';
+        } else {
             $this->boundary = $boundary;
         }
         return $this;
@@ -100,12 +99,13 @@ class Html2Mhtml
 
     public function addContents($file_path, $content, $callback = false)
     {
-        if (is_callable($callback))
+        if (is_callable($callback)) {
             $content = $callback($content);
+        }
 
         $this->files[] = [
             'file_path' => $file_path,
-            'content'  => $content,
+            'content' => $content,
         ];
 
         return $this;
@@ -130,7 +130,7 @@ class Html2Mhtml
 
         foreach ($this->files as $file) {
             $contents .= "--" . $this->boundary . "\r\n";
-            $contents .= "Content-Type: " . (mime_content_type($file['file_path'])?:'text/html') . "\r\n";
+            $contents .= "Content-Type: " . (mime_content_type($file['file_path']) ?: 'text/html') . "\r\n";
             $contents .= "Content-Transfer-Encoding: base64\r\n";
             $contents .= "Content-Location: " . $file['file_path'] . "\r\n";
             $contents .= "\r\n";
@@ -159,4 +159,5 @@ class Html2Mhtml
     }
 
 }
+
 ?>

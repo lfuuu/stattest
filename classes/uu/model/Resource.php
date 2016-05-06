@@ -110,7 +110,7 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_FAX => DummyResourceReader::className(), // @todo
 
             self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo
-            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(), 
+            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
         ];
         $className = $idToClassName[$id];
         return new $className();

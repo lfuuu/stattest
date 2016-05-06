@@ -33,8 +33,7 @@ class SmsBiller extends Biller
         $tariff = $this->usage->tariff;
 
         $smsCount = $this->getSmsCount();
-        if ($smsCount > 0 && $tariff->per_sms_price > 0)
-        {
+        if ($smsCount > 0 && $tariff->per_sms_price > 0) {
             $template = 'sms_service';
             $template_data = [
                 'tariff' => $tariff->description

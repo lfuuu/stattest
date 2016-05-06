@@ -199,14 +199,16 @@ class PricelistController extends BaseController
             }
 
             if (Yii::$app->request->post('save_settings', 0) > 0) {
-                $file->pricelist->parser_settings = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                $file->pricelist->parser_settings = json_encode($settings,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                 $file->pricelist->save();
             }
             $file->save();
         }
 
         $loaderClass = $settings['loader'];
-        $parser = new $loaderClass(); /** @var BasePricelistLoader $parser */
+        $parser = new $loaderClass();
+        /** @var BasePricelistLoader $parser */
 
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_upload') !== null) {
 
@@ -246,10 +248,13 @@ class PricelistController extends BaseController
 
     public function actionFileDownload($fileId)
     {
-        $file = PricelistFile::findOne($fileId); /** @var PricelistFile $file */
+        $file = PricelistFile::findOne($fileId);
+        /** @var PricelistFile $file */
         Assert::isObject($file);
 
-        while (ob_get_level()) ob_end_clean();
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
 
         if (preg_match('/\.csv$/', $file->filename)) {
             header("Content-Type: application/csv");
@@ -263,7 +268,7 @@ class PricelistController extends BaseController
         header('Content-Transfer-Encoding: binary');
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Cache-Control: private",false);
+        header("Cache-Control: private", false);
 
         readfile($file->getStorageFilePath());
 
@@ -299,7 +304,7 @@ class PricelistController extends BaseController
             $errors .= "<br/>\nПрайслист используется в тарифах телефонии:<br/>\n";
         }
         foreach ($tariffs as $tariff) {
-            $errors .= $tariff->name . " (" . $tariff->id. ")<br/>\n";
+            $errors .= $tariff->name . " (" . $tariff->id . ")<br/>\n";
         }
 
         /** @var TariffVoipPackage[] $tariffPackages */
@@ -308,7 +313,7 @@ class PricelistController extends BaseController
             $errors .= "<br/>\nПрайслист используется в тарифах на пакеты телефонии:<br/>\n";
         }
         foreach ($tariffPackages as $tariffPackage) {
-            $errors .= $tariffPackage->name . " (" . $tariffPackage->id. ")<br/>\n";
+            $errors .= $tariffPackage->name . " (" . $tariffPackage->id . ")<br/>\n";
         }
 
         if ($errors) {

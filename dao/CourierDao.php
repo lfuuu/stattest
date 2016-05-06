@@ -18,8 +18,9 @@ class CourierDao extends Singleton
             ->andWhere(['enabled' => 'yes'])
             ->orderBy('name');
 
-        if($depart)
+        if ($depart) {
             $models = $models->andWhere(['depart' => 'Курьер']);
+        }
 
         $list =
             ArrayHelper::map(
@@ -36,7 +37,7 @@ class CourierDao extends Singleton
     public function getNameById($courierId)
     {
         $courier = Courier::findOne($courierId);
-        return $courier ? str_replace("-","", $courier->name) : '';
+        return $courier ? str_replace("-", "", $courier->name) : '';
     }
 
 }

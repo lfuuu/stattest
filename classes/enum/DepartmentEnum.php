@@ -5,13 +5,13 @@ use app\classes\Enum;
 
 class DepartmentEnum extends Enum
 {
-    const SALES      = 'sales';
+    const SALES = 'sales';
     const ACCOUNTING = 'accounting';
-    const TECHNICAL  = 'technical';
+    const TECHNICAL = 'technical';
 
     protected static $names = [
-        self::SALES      => 'Отдел продаж',
+        self::SALES => 'Отдел продаж',
         self::ACCOUNTING => 'Бухгалтерия',
-        self::TECHNICAL  => 'Техподдержка',
+        self::TECHNICAL => 'Техподдержка',
     ];
 }

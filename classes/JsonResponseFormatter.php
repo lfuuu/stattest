@@ -10,18 +10,21 @@ class JsonResponseFormatter extends \yii\web\JsonResponseFormatter
     {
         $response->getHeaders()->set('Content-Type', 'application/json; charset=UTF-8');
         if ($response->data !== null) {
-            $response->content = Json::encode($response->data, /*JSON_NUMERIC_CHECK |*/ JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $response->content = Json::encode($response->data, /*JSON_NUMERIC_CHECK |*/
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
     }
-    
+
     protected function formatJsonp($response)
     {
         $response->getHeaders()->set('Content-Type', 'application/javascript; charset=UTF-8');
         if (is_array($response->data) && isset($response->data['data'], $response->data['callback'])) {
-            $response->content = sprintf('%s(%s);', $response->data['callback'], Json::encode($response->data['data'], JSON_NUMERIC_CHECK));
+            $response->content = sprintf('%s(%s);', $response->data['callback'],
+                Json::encode($response->data['data'], JSON_NUMERIC_CHECK));
         } elseif ($response->data !== null) {
             $response->content = '';
-            Yii::warning("The 'jsonp' response requires that the data be an array consisting of both 'data' and 'callback' elements.", __METHOD__);
+            Yii::warning("The 'jsonp' response requires that the data be an array consisting of both 'data' and 'callback' elements.",
+                __METHOD__);
         }
     }
 }

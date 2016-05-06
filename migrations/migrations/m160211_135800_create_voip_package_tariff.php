@@ -30,7 +30,8 @@ class m160211_135800_create_voip_package_tariff extends \app\classes\Migration
         $tableName = ServiceType::tableName();
         $fieldName = 'parent_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
+            'id', 'RESTRICT');
     }
 
     /**

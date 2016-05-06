@@ -17,7 +17,7 @@ class m160226_145950_client_account_options_delivery extends \app\classes\Migrat
         ')->queryColumn('client');
 
         foreach ($paymentDeliveryAccounts as $clientAccountName) {
-            $model  = new UsageExtra;
+            $model = new UsageExtra;
             $model->client = $clientAccountName;
             $model->code = 'uspd';
             $model->tarif_id = 383; // Доставка комплекта бухгалтерских документов почтой РФ

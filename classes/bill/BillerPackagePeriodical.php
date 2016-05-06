@@ -82,7 +82,7 @@ class BillerPackagePeriodical extends BillerPackage
 
         list($this->currentFrom, $this->currentTo) = $usagePeriod;
 
-        if ($this->currentFrom === null ||  $this->currentTo === null) {
+        if ($this->currentFrom === null || $this->currentTo === null) {
             return false;
         }
 

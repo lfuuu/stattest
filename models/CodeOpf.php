@@ -14,8 +14,10 @@ class CodeOpf extends ActiveRecord
     public static function getList()
     {
         $list = [0 => 'Не выбрано'];
-        foreach(self::find()->all() as $model)
-            $list[$model->id] = /*$model->code.' '.*/ $model->name;
+        foreach (self::find()->all() as $model) {
+            $list[$model->id] = /*$model->code.' '.*/
+                $model->name;
+        }
         return $list;
     }
 

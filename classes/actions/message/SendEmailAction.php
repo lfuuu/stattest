@@ -9,5 +9,4 @@ class SendEmailAction extends SendAction
     const ACTION_TITLE = 'Отправка почтового сообщения';
 
 
-
 }

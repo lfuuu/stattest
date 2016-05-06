@@ -33,13 +33,16 @@ class m160128_185500_create_account_log_resource extends \app\classes\Migration
         ]);
 
         $fieldName = 'tariff_period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'account_tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),
+            'id', 'CASCADE');
 
         $fieldName = 'tariff_resource_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffResource::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffResource::tableName(),
+            'id', 'RESTRICT');
     }
 
     public function safeDown()

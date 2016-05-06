@@ -66,14 +66,14 @@ class ClientAccountDao extends Singleton
 
         $saldo = $this->getSaldo($clientAccount);
 
-        $R1 = $this->enumBillsFullSum($clientAccount,$saldo['ts']);
-        $R2 = $this->enumPayments($clientAccount,$saldo['ts']);
+        $R1 = $this->enumBillsFullSum($clientAccount, $saldo['ts']);
+        $R2 = $this->enumPayments($clientAccount, $saldo['ts']);
 
         $sum = -$saldo['saldo'];
 
         $balance = 0;
 
-        if ($sum > 0){
+        if ($sum > 0) {
 
             array_unshift($R2, Array
             (
@@ -89,8 +89,8 @@ class ClientAccountDao extends Singleton
                 'add_user' => 0,
                 'sum' => $sum,
                 "is_billpay" => 0,
-            ) );
-        }elseif($sum < 0){
+            ));
+        } elseif ($sum < 0) {
 
             array_unshift($R1, Array
                 (
@@ -109,15 +109,16 @@ class ClientAccountDao extends Singleton
         }
 
         foreach ($R2 as $r) {
-            if (!$r["is_billpay"])
-            {
+            if (!$r["is_billpay"]) {
                 $balance = $balance + $r['sum'];
             }
         }
 
         // Цикл оплачивает минусовые счета
         foreach ($R2 as $kp => $r) {
-            if ($r['sum'] >= 0) continue;
+            if ($r['sum'] >= 0) {
+                continue;
+            }
 
             $bill_no = $r['bill_no'];
 
@@ -138,40 +139,44 @@ class ClientAccountDao extends Singleton
 
         // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета
         foreach ($R2 as $kp => $r) {
-            if ($r['sum'] < 0.01) {continue;}
+            if ($r['sum'] < 0.01) {
+                continue;
+            }
 
 
-            if ($r['bill_no'] == '') continue;
+            if ($r['bill_no'] == '') {
+                continue;
+            }
             $bill_no = $r['bill_no'];
 
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum'] >= 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum'])) {
+            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
+                if ($this->sum_more($r['sum'], $R1[$bill_no]['sum'])) {
                     $sum = round($R1[$bill_no]['sum'], 2);
 
                     $paymentsOrders[] = [
                         'payment_id' => $r['id'],
-                        'bill_no'    => $bill_no,
-                        'sum'        => $sum,
+                        'bill_no' => $bill_no,
+                        'sum' => $sum,
                     ];
 
 
                     $R2[$kp]['sum'] -= $sum;
 
-                    if  ($R2[$kp]['sum'] < 0.01) {
+                    if ($R2[$kp]['sum'] < 0.01) {
                         $R2[$kp]['sum'] = 0;
                     }
 
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
 
-                } elseif ($r['sum'] >= 0.01){
+                } elseif ($r['sum'] >= 0.01) {
 
                     $sum = $r['sum'];
 
                     $paymentsOrders[] = [
                         'payment_id' => $r['id'],
-                        'bill_no'=>$bill_no,
-                        'sum'=>$sum,
+                        'bill_no' => $bill_no,
+                        'sum' => $sum,
                     ];
 
                     $R2[$kp]['sum'] = 0;
@@ -191,26 +196,28 @@ class ClientAccountDao extends Singleton
         // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
         // Новых счетов с привязкой не будет. Нужно для совместимости
         foreach ($R2 as $kp => $r) {
-            if ($r['sum'] < 0.01) continue;
+            if ($r['sum'] < 0.01) {
+                continue;
+            }
 
             $bill_no = $r['bill_vis_no'];
 
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum'] >= 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum'])) {
+            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
+                if ($this->sum_more($r['sum'], $R1[$bill_no]['sum'])) {
                     $sum = round($R1[$bill_no]['sum'], 2);
 
-                    if (abs($sum) >= 0.01){
+                    if (abs($sum) >= 0.01) {
                         $paymentsOrders[] = [
                             'payment_id' => $r['id'],
-                            'bill_no'=>$bill_no,
-                            'sum'=>$sum,
+                            'bill_no' => $bill_no,
+                            'sum' => $sum,
                         ];
                     }
 
 
                     $R2[$kp]['sum'] -= $sum;
 
-                    if  ($R2[$kp]['sum'] < 0.01) {
+                    if ($R2[$kp]['sum'] < 0.01) {
                         $R2[$kp]['sum'] = 0;
                     }
 
@@ -218,14 +225,14 @@ class ClientAccountDao extends Singleton
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
 
-                } elseif ($r['sum'] >= 0.01){
+                } elseif ($r['sum'] >= 0.01) {
                     $sum = $r['sum'];
 
-                    if (abs($sum) >= 0.01){
+                    if (abs($sum) >= 0.01) {
                         $paymentsOrders[] = [
                             'payment_id' => $r['id'],
-                            'bill_no'=>$bill_no,
-                            'sum'=>$sum,
+                            'bill_no' => $bill_no,
+                            'sum' => $sum,
                         ];
                     }
 
@@ -234,7 +241,7 @@ class ClientAccountDao extends Singleton
                     $R1[$bill_no]['new_is_payed'] = 2;
                     $R1[$bill_no]['sum'] -= $sum;
 
-                    if  ($R1[$bill_no]['sum'] < 0.01) {
+                    if ($R1[$bill_no]['sum'] < 0.01) {
                         $R1[$bill_no]['sum'] = 0;
                         $R1[$bill_no]['new_is_payed'] = 1;
                     }
@@ -242,25 +249,29 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        if ($clientAccount->contract->business_id != Business::INTERNET_SHOP){ // не магазин
+        if ($clientAccount->contract->business_id != Business::INTERNET_SHOP) { // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {
-                if ($r['sum'] < 0.01) continue;
+                if ($r['sum'] < 0.01) {
+                    continue;
+                }
 
                 foreach ($R1 as $kb => $rb) {
 
-                    if ($rb['new_is_payed']==1 || $rb['new_is_payed']==3 || $rb['sum'] < 0 || $r['sum'] < 0.01) continue;
+                    if ($rb['new_is_payed'] == 1 || $rb['new_is_payed'] == 3 || $rb['sum'] < 0 || $r['sum'] < 0.01) {
+                        continue;
+                    }
 
-                    if ($this->sum_more($r['sum'],$rb['sum'])) {
+                    if ($this->sum_more($r['sum'], $rb['sum'])) {
 
                         $sum = $rb['sum'];
 
-                        if (abs($sum) >= 0.01){
+                        if (abs($sum) >= 0.01) {
                             $paymentsOrders[] = [
                                 'payment_id' => $r['id'],
-                                'bill_no'=>$rb['bill_no'],
-                                'sum'=>$sum,
+                                'bill_no' => $rb['bill_no'],
+                                'sum' => $sum,
                             ];
                         }
 
@@ -268,7 +279,7 @@ class ClientAccountDao extends Singleton
                         $r['sum'] -= $sum;
                         $R2[$kp]['sum'] -= $sum;
 
-                        if  ($R2[$kp]['sum'] < 0.01) {
+                        if ($R2[$kp]['sum'] < 0.01) {
                             $R2[$kp]['sum'] = 0;
                             $r['sum'] = 0;
                         }
@@ -277,15 +288,15 @@ class ClientAccountDao extends Singleton
                         $R1[$kb]['new_is_payed'] = 1;
                         $R1[$kb]['sum'] = 0;
 
-                    } elseif ($r['sum'] >= 0.01){
+                    } elseif ($r['sum'] >= 0.01) {
 
                         $sum = $r['sum'];
 
-                        if (abs($sum) >= 0.01){
+                        if (abs($sum) >= 0.01) {
                             $paymentsOrders[] = [
                                 'payment_id' => $r['id'],
-                                'bill_no'=>$rb['bill_no'],
-                                'sum'=>$sum,
+                                'bill_no' => $rb['bill_no'],
+                                'sum' => $sum,
                             ];
                         }
 
@@ -305,11 +316,11 @@ class ClientAccountDao extends Singleton
             $last_payment = null;
             foreach ($R1 as $k => $r) {
 
-                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum'], 1)) {
+                if (($r['new_is_payed'] == 0 || $r['new_is_payed'] == 2) && $this->sum_more(0, $r['sum'], 1)) {
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
-                if ($r['sum'] < 0){
+                if ($r['sum'] < 0) {
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
@@ -317,15 +328,17 @@ class ClientAccountDao extends Singleton
             }
 
             foreach ($R2 as $k => $v) {
-                if ($v['sum'] == 0) continue;
+                if ($v['sum'] == 0) {
+                    continue;
+                }
 
                 $sum = $v['sum'];
 
-                if (abs($sum) >= 0.01){
+                if (abs($sum) >= 0.01) {
                     $paymentsOrders[] = [
                         'payment_id' => $v['id'],
-                        'bill_no'=>$last_payment['bill_no'],
-                        'sum'=>$sum,
+                        'bill_no' => $last_payment['bill_no'],
+                        'sum' => $sum,
                     ];
                 }
             }
@@ -334,12 +347,12 @@ class ClientAccountDao extends Singleton
 
         $transaction = Bill::getDb()->beginTransaction();
 
-        foreach ($R1 as $billNo => $v)
-        {
-            if($v["bill_no"] == "saldo") continue;
+        foreach ($R1 as $billNo => $v) {
+            if ($v["bill_no"] == "saldo") {
+                continue;
+            }
 
-            if ($v['is_payed'] != $v['new_is_payed'])
-            {
+            if ($v['is_payed'] != $v['new_is_payed']) {
                 $documentType = Bill::dao()->getDocumentType($billNo);
                 if ($documentType['type'] == 'bill') {
                     $bill = Bill::findOne(['bill_no' => $billNo]);
@@ -357,8 +370,9 @@ class ClientAccountDao extends Singleton
 
         foreach ($paymentsOrders as $r) {
 
-            if (!$r["bill_no"])
+            if (!$r["bill_no"]) {
                 continue;
+            }
 
             PaymentOrder::getDb()
                 ->createCommand('
@@ -402,7 +416,11 @@ class ClientAccountDao extends Singleton
     {
         $saldo =
             Saldo::find()
-                ->andWhere(['client_id' => $clientAccount->id, 'is_history' => 0, 'currency' => $clientAccount->currency])
+                ->andWhere([
+                    'client_id' => $clientAccount->id,
+                    'is_history' => 0,
+                    'currency' => $clientAccount->currency
+                ])
                 ->orderBy('id desc')
                 ->limit(1)
                 ->one();
@@ -424,7 +442,7 @@ class ClientAccountDao extends Singleton
                     B.currency as currency,
                     B.is_payed,
                     B.sum,
-                    '.($saldoDate?' CASE B.bill_date>="'.$saldoDate.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed
+                    ' . ($saldoDate ? ' CASE B.bill_date>="' . $saldoDate . '" WHEN true THEN 0 ELSE 3 END ' : '0') . ' as new_is_payed
                 FROM
                     newbills B
                 WHERE
@@ -440,7 +458,7 @@ class ClientAccountDao extends Singleton
                     currency as currency,
                     G.is_payed,
                     G.sum,
-                    '.($saldoDate?' CASE G.date>="'.$saldoDate.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed
+                    ' . ($saldoDate ? ' CASE G.date>="' . $saldoDate . '" WHEN true THEN 0 ELSE 3 END ' : '0') . ' as new_is_payed
 
                   FROM g_income_order G
                   WHERE
@@ -473,12 +491,16 @@ class ClientAccountDao extends Singleton
             Bill::getDb()
                 ->createCommand(
                     $sql,
-                    [':clientAccountId' => $clientAccount->id, ':currency' => $clientAccount->currency, ':saldoDate' => $saldoDate]
+                    [
+                        ':clientAccountId' => $clientAccount->id,
+                        ':currency' => $clientAccount->currency,
+                        ':saldoDate' => $saldoDate
+                    ]
                 )
                 ->queryAll();
 
         $result = [];
-        foreach($bills as $bill) {
+        foreach ($bills as $bill) {
             if ($bill['currency'] == 'USD' && $bill['currency']) {
 
             }
@@ -513,7 +535,11 @@ class ClientAccountDao extends Singleton
         $payments =
             Bill::getDb()->createCommand(
                 $sql,
-                [':clientAccountId' => $clientAccount->id, ':currency' => $clientAccount->currency, ':saldoDate' => $saldoDate]
+                [
+                    ':clientAccountId' => $clientAccount->id,
+                    ':currency' => $clientAccount->currency,
+                    ':saldoDate' => $saldoDate
+                ]
             )->queryAll();
 
         $paymentsById = [];
@@ -552,14 +578,13 @@ class ClientAccountDao extends Singleton
             if (!isset($paymentsAndChargebacks[$v['bill_no']])) {
 
                 foreach ($paymentsById as $v2) {
-                    if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0)
-                    {
+                    if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) {
                         $v['sum'] -= $v2['sum'];
                     }
                 }
 
                 if ($v['sum'] < 0) {
-                    $pay = array (
+                    $pay = array(
                         'id' => $v['bill_no'],
                         'client_id' => $v['client_id'],
                         'payment_date' => $v['bill_date'],
@@ -577,8 +602,9 @@ class ClientAccountDao extends Singleton
         return $paymentsById;
     }
 
-    private function sum_more($pay,$bill,$diff=0.01) {
-        return ($pay-$bill>-$diff);
+    private function sum_more($pay, $bill, $diff = 0.01)
+    {
+        return ($pay - $bill > -$diff);
     }
 
     public function updateIsActive(ClientAccount $clientAccount)

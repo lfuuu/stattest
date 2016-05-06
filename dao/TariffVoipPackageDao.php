@@ -28,15 +28,15 @@ class TariffVoipPackageDao extends Singleton
         }
 
         $list = [];
-        foreach($query
-            ->orderBy('name asc')
-            ->all() as $row) {
-                $list[$row->id] = $row->name . " (" . 
-                    $row->periodical_fee." " . $row->currency->symbol . ", " . 
-                    $row->minutes_count . " минут" . 
-                    ($row->min_payment ? ", Мин. платеж: " . $row->min_payment . " " .$row->currency->symbol : "") .
-                    ")";
-            }
+        foreach ($query
+                     ->orderBy('name asc')
+                     ->all() as $row) {
+            $list[$row->id] = $row->name . " (" .
+                $row->periodical_fee . " " . $row->currency->symbol . ", " .
+                $row->minutes_count . " минут" .
+                ($row->min_payment ? ", Мин. платеж: " . $row->min_payment . " " . $row->currency->symbol : "") .
+                ")";
+        }
 
         if ($withEmpty) {
             $list = ['' => '-- Тариф --'] + $list;

@@ -48,15 +48,15 @@ class m160218_150650_virtpbx_stat_missdata extends \app\classes\Migration
             $date = (new DateTime($record['start_period_date']));
             $useSpace =
                 (
-                    $record['start_use_space'] == $record['end_use_space']
-                        ? $record['start_use_space']
-                        : round(abs($record['end_use_space'] - $record['start_use_space']) / $record['period'])
+                $record['start_use_space'] == $record['end_use_space']
+                    ? $record['start_use_space']
+                    : round(abs($record['end_use_space'] - $record['start_use_space']) / $record['period'])
                 );
             $numbers =
                 (
-                    $record['start_numbers'] == $record['end_numbers']
-                        ? $record['start_numbers']
-                        : abs($record['end_numbers'] - $record['start_numbers']) / $record['period']
+                $record['start_numbers'] == $record['end_numbers']
+                    ? $record['start_numbers']
+                    : abs($record['end_numbers'] - $record['start_numbers']) / $record['period']
                 );
 
             for ($i = 0, $s = $record['period']; $i < $s; $i++) {

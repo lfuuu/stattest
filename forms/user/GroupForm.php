@@ -62,15 +62,17 @@ class GroupForm extends Form
     {
         if ($this->{$model} != $this->id) {
             $group = UserGroups::findOne(['usergroup' => $this->{$model}]);
-            if ($group instanceof UserGroups && $group->usergroup)
+            if ($group instanceof UserGroups && $group->usergroup) {
                 $this->addError($model, 'Группа уже существует');
+            }
         }
     }
 
     public function save($group = false)
     {
-        if (!($group instanceof UserGroups))
+        if (!($group instanceof UserGroups)) {
             $group = new UserGroups;
+        }
         $group->setAttributes($this->getAttributes(), false);
 
         $transaction = Yii::$app->db->beginTransaction();

@@ -7,6 +7,7 @@ use yii\helpers\ArrayHelper;
 class SaleChannelOld extends ActiveRecord
 {
     private static $list;
+
     public static function tableName()
     {
         return 'sale_channels_old';
@@ -30,7 +31,7 @@ class SaleChannelOld extends ActiveRecord
             [['name'], 'string'],
             [['dealer_id', 'is_agent', 'courier_id'], 'integer'],
             ['interest', 'double'],
-            [['dealer_id', 'is_agent' ,'interest', 'courier_id'], 'default', 'value' => 0]
+            [['dealer_id', 'is_agent', 'interest', 'courier_id'], 'default', 'value' => 0]
         ];
     }
 
@@ -45,8 +46,9 @@ class SaleChannelOld extends ActiveRecord
 
     public function getCourierName()
     {
-        if(!$this->courier_id)
+        if (!$this->courier_id) {
             return '';
+        }
         $courier = Courier::findOne($this->courier_id);
         return ($courier) ? $courier->name : '';
     }

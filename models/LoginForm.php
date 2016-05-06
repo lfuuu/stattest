@@ -65,12 +65,12 @@ class LoginForm extends Model
     {
         if ($this->validate()) {
             $user = $this->getUser();
-            if(Yii::$app->user->login($user, $this->rememberMe ? 3600*24*30 : 0)) {
+            if (Yii::$app->user->login($user, $this->rememberMe ? 3600 * 24 * 30 : 0)) {
                 \app\classes\Language::setCurrentLanguage($user->language);
                 return true;
-            }
-            else
+            } else {
                 return false;
+            }
         } else {
             return false;
         }

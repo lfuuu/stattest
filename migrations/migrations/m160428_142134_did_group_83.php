@@ -6,7 +6,7 @@ class m160428_142134_did_group_83 extends \app\classes\Migration
 {
     public function up()
     {
-        $this->batchInsert(DidGroup::tableName(),['id','name','city_id','beauty_level'],
+        $this->batchInsert(DidGroup::tableName(), ['id', 'name', 'city_id', 'beauty_level'],
             [
                 [null, 'Стандартные', 74212, 0],
                 [null, 'Платиновые', 74212, 1],

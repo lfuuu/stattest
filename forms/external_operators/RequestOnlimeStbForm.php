@@ -14,7 +14,7 @@ class RequestOnlimeStbForm extends RequestOnlimeForm
     {
         return [
             [['fullname', 'address', 'phone', 'operator_name', 'partner',], 'required'],
-            [['fullname', 'address', 'phone', 'comment', 'operator_name','partner',], 'string'],
+            [['fullname', 'address', 'phone', 'comment', 'operator_name', 'partner',], 'string'],
             ['time_interval', 'in', 'range' => array_keys(self::getTimeIntervals())],
             ['products', 'required', 'message' => 'Выберите хотя бы один товар'],
             ['products_counts', 'required', 'message' => 'Выберите хотя бы один товар'],

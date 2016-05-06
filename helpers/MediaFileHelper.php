@@ -31,7 +31,7 @@ class MediaFileHelper extends \yii\helpers\FileHelper
             $files = $result;
         }
 
-        return (array) $files;
+        return (array)$files;
     }
 
     public static function checkExists($path, $file_name)

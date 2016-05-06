@@ -4,16 +4,15 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int        $id
- * @property string     $model
- * @property int        $model_id
- * @property int        $user_id
- * @property string     $created_at
- * @property string     $action
- * @property string     $data_json
- * @property string     $prev_data_json
-
- * @property User       $user
+ * @property int $id
+ * @property string $model
+ * @property int $model_id
+ * @property int $user_id
+ * @property string $created_at
+ * @property string $action
+ * @property string $data_json
+ * @property string $prev_data_json
+ * @property User $user
  * @property
  */
 class HistoryChanges extends ActiveRecord

@@ -32,8 +32,14 @@ class UsageEmailsForm extends Form
             [['client', 'local_part'], 'required'],
             [
                 [
-                    'actual_from', 'actual_to', 'client', 'local_part', 'domain', 'password',
-                ], 'string'
+                    'actual_from',
+                    'actual_to',
+                    'client',
+                    'local_part',
+                    'domain',
+                    'password',
+                ],
+                'string'
             ],
             ['spam_act', 'in', 'range' => ['pass', 'mark', 'discard']],
             ['status', 'in', 'range' => ['connecting', 'working']],
@@ -62,7 +68,7 @@ class UsageEmailsForm extends Form
 
     public function validateLocalPart()
     {
-        if(!is_null(
+        if (!is_null(
             UsageEmails::find()
                 ->where(new Expression('id IS NOT NULL'))
                 ->andWhere(['!=', 'id', $this->id])
@@ -71,7 +77,8 @@ class UsageEmailsForm extends Form
                 ->andWhere(['domain' => $this->domain])
                 ->andWhere(['local_part' => $this->local_part])
                 ->one()
-        )) {
+        )
+        ) {
             $this->addError('local_part', 'Такой адрес уже занят');
         }
     }

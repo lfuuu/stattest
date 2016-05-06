@@ -89,7 +89,8 @@ class AccountTariffLog extends ActiveRecord
     public function validatorFuture($attribute, $params)
     {
         if (strtotime($this->actual_from) <= time()) {
-            $this->addError($attribute, 'К сожалению, машины времени нет, поэтому сменить тариф можно только в будущем.');
+            $this->addError($attribute,
+                'К сожалению, машины времени нет, поэтому сменить тариф можно только в будущем.');
         }
     }
 
@@ -107,7 +108,8 @@ class AccountTariffLog extends ActiveRecord
                 ->andWhere(['>=', 'actual_from', new Expression('now()')])
                 ->one()
         ) {
-            $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
+            $this->addError($attribute,
+                'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
         }
     }
 }

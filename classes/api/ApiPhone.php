@@ -7,11 +7,13 @@ use yii\base\Exception;
 
 class ApiPhone
 {
-    public static function isAvailable() {
+    public static function isAvailable()
+    {
         return isset(\Yii::$app->params['PHONE_SERVER']) && \Yii::$app->params['PHONE_SERVER'];
     }
 
-    public static function getApiUrl() {
+    public static function getApiUrl()
+    {
         return self::isAvailable() ? 'https://' . \Yii::$app->params['PHONE_SERVER'] . '/phone/api/' : false;
     }
 
@@ -19,17 +21,18 @@ class ApiPhone
     {
         $data = [];
         try {
-            foreach(self::exec("multitrunks", null) as $d) {
+            foreach (self::exec("multitrunks", null) as $d) {
                 $data[$d["id"]] = $d["name"];
             }
-        }catch(\Exception $e) {
+        } catch (\Exception $e) {
             //
         }
 
         return $data;
     }
 
-    public static function exec($action, $data) {
+    public static function exec($action, $data)
+    {
         if (!self::isAvailable()) {
             throw new Exception('API Phone was not configured');
         }

@@ -318,7 +318,7 @@ class AccountTariffController extends BaseController
                         $errors = $accountTariff->getFirstErrors();
                         throw new LogicException(reset($errors));
                     }
-                    
+
                     // редиректить на список, а не карточку
                     $id = null;
 
@@ -422,6 +422,7 @@ class AccountTariffController extends BaseController
             return $accountTariffPackage;
         }
 
-        throw new InvalidArgumentException(sprintf('Услуга %d с тарифом %d не найдена', $accountTariffId, $tariffPeriodIdOld));
+        throw new InvalidArgumentException(sprintf('Услуга %d с тарифом %d не найдена', $accountTariffId,
+            $tariffPeriodIdOld));
     }
 }

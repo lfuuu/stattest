@@ -14,7 +14,6 @@ use app\dao\services\CallChatServiceDao;
 
 /**
  * @property int $id
-
  * @property TariffCallChat $tariff
  * @property
  */

@@ -172,7 +172,9 @@ class AuthManager extends BaseManager
         if (!isset($this->permissionsByUser[$userId])) {
 
             $user = User::findOne($userId);
-            if (!$user) return false;
+            if (!$user) {
+                return false;
+            }
 
             $permissions = [];
 
@@ -322,7 +324,8 @@ class AuthManager extends BaseManager
      * @param string $roleName
      * @return array
      */
-    public function getUserIdsByRole($roleName) {
+    public function getUserIdsByRole($roleName)
+    {
         return [];
     }
 }

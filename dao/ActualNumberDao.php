@@ -14,11 +14,13 @@ class ActualNumberDao extends Singleton
     {
         $params = [];
 
-        if ($number)
+        if ($number) {
             $params[":number"] = $number;
+        }
 
-        if ($clientId)
+        if ($clientId) {
             $params[":client_id"] = $clientId;
+        }
 
 
         $data = ActualNumber::getDb()->createCommand("
@@ -71,8 +73,8 @@ class ActualNumberDao extends Singleton
                             AND u.client = c.client 
                             AND ct.id = c.contract_id
                             AND LENGTH(e164) > 3
-                            ".($number ? "and e164 = :number" : "")."
-                            ".($clientId ? "and c.id = :client_id" : "")."
+                            " . ($number ? "and e164 = :number" : "") . "
+                            " . ($clientId ? "and c.id = :client_id" : "") . "
                         ORDER BY u.id
                     )a
                 WHERE e164 NOT LIKE '7800%'
@@ -81,8 +83,9 @@ class ActualNumberDao extends Singleton
                     ", $params)->queryAll();
 
         $d = array();
-        foreach($data as $l)
+        foreach ($data as $l) {
             $d[$l["number"]] = $l;
+        }
 
         return $d;
 
@@ -92,11 +95,13 @@ class ActualNumberDao extends Singleton
     {
         $params = [];
 
-        if ($number)
+        if ($number) {
             $params[":number"] = $number;
+        }
 
-        if ($clientId)
+        if ($clientId) {
             $params[":client_id"] = $clientId;
+        }
 
         $data = ActualNumber::getDb()->createCommand("
                 SELECT 
@@ -106,13 +111,14 @@ class ActualNumberDao extends Singleton
                 FROM 
                     actual_number a
                 WHERE number not like '7800%'
-                ".($number ? "and number = :number" : "")."
-                ".($clientId ? "and client_id = :client_id" : "")."
+                " . ($number ? "and number = :number" : "") . "
+                " . ($clientId ? "and client_id = :client_id" : "") . "
                 ORDER BY id", $params)->queryAll();
 
         $d = array();
-        foreach($data as $l)
+        foreach ($data as $l) {
             $d[$l["number"]] = $l;
+        }
 
         return $d;
     }

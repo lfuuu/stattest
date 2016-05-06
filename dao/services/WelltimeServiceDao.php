@@ -40,7 +40,7 @@ class WelltimeServiceDao extends Singleton implements ServiceDao
                 FROM usage_welltime s
                         INNER JOIN tarifs_extra t ON t.`id` = s.`tarif_id` AND t.`code` in ('welltime')
                 WHERE
-                    s.`client` = '" . $client ."'
+                    s.`client` = '" . $client . "'
             ")->queryAll();
     }
 

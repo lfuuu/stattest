@@ -86,7 +86,6 @@ $emails = new EmailsFixture();
 $emails->load();
 
 
-
 $loginPage = LoginPage::loginAsAdmin($I);
 
 $clients = array(
@@ -95,12 +94,12 @@ $clients = array(
             'Абонентская плата за телефонный номер 74992130216',
             'Тариф АТС'
         )
-    ), 
+    ),
     'welltime' => array(
         'links' => array(
             'Тариф Welltime'
         )
-    ), 
+    ),
     'sms' => array(
         'links' => array(
             'Абонентская плата за СМС рассылки, Тариф СМС'
@@ -134,16 +133,13 @@ $dates = array(
     '2014-11-01' => ' с 01 по 20 ноября',
 );
 
-foreach ($clients as $client => $data)
-{
-    $I->amOnPage('/?module=clients&id='.$client);
-    foreach ($dates as $date => $period)
-    {
+foreach ($clients as $client => $data) {
+    $I->amOnPage('/?module=clients&id=' . $client);
+    foreach ($dates as $date => $period) {
         $bill = BillsPage::openBy($I);
         $bill->createRegularBill($date);
         //проверка существования ссылок
-        foreach ($data['links'] as $l)
-        {
+        foreach ($data['links'] as $l) {
             $link = $l . $period;
             $I->seeLink($link);
         }

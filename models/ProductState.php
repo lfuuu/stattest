@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+
 /**
  * Class ProductState
  * @package app\models

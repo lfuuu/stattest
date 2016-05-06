@@ -112,7 +112,7 @@ class NumberController extends BaseController
         }
 
         if (!$statuses) {
-            $statusList= Number::$statusList;
+            $statusList = Number::$statusList;
             unset($statusList[Number::STATUS_HOLD]);
             $statuses = array_keys($statusList);
         }
@@ -125,7 +125,7 @@ class NumberController extends BaseController
             $dt->setDate(date('Y'), date('m'), 15);
             $dt->modify('-6 month');
             $emptyMonths = [];
-            for($i = 0; $i < 6; $i++) {
+            for ($i = 0; $i < 6; $i++) {
                 $dt->modify('+1 month');
                 $headMonths[(int)$dt->format('m')] = DateFunction::mdate($dt->getTimestamp(), 'месяц');
                 $emptyMonths[(int)$dt->format('m')] = 0;
@@ -158,12 +158,12 @@ class NumberController extends BaseController
             $city = City::findOne($cityId);
             if (
                 $city
-                    &&
+                &&
                 $city->connection_point_id
-                    &&
+                &&
                 (
                     in_array(Number::STATUS_HOLD, $statuses, true)
-                        ||
+                    ||
                     in_array(Number::STATUS_INSTOCK, $statuses, true)
                 )
             ) {
@@ -179,7 +179,7 @@ class NumberController extends BaseController
                     $callsCountByNumber[$calls['u']][(int)$calls['m']] = $calls['c'];
                 }
 
-                foreach($numbers as $k => $n) {
+                foreach ($numbers as $k => $n) {
                     if (isset($callsCountByNumber[$n['number']])) {
                         $numbers[$k]['month'] = $callsCountByNumber[$n['number']];
                     }
@@ -189,7 +189,8 @@ class NumberController extends BaseController
 
         if (!empty($viewTypeFile)) {
             $result = implode("\r\n", ArrayHelper::getColumn($numbers, 'number'));
-            Yii::$app->response->sendContentAsFile($result, 'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
+            Yii::$app->response->sendContentAsFile($result,
+                'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
             Yii::$app->end();
         }
 
@@ -206,7 +207,8 @@ class NumberController extends BaseController
             'externalGroupList' => $externalGroupList,
             'statusList' => Number::$statusList,
             'numbers' => $numbers,
-            'minCalls' => 10, //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
+            'minCalls' => 10,
+            //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
             'headMonths' => $headMonths
         ]);
     }

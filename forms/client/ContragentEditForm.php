@@ -63,25 +63,105 @@ class ContragentEditForm extends Form
     {
         $rules = [
             [['legal_type', 'super_id'], 'required'],
-            [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment', 'tax_regime'], 'string'],
-            [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'default', 'value' => ''],
-            [['name', 'name_full', 'address_jur', 'inn',
-                'kpp', 'position', 'fio', 'okpo', 'okvd', 'ogrn', 'signer_passport', 'comment'], 'trim'],
+            [
+                [
+                    'name',
+                    'name_full',
+                    'address_jur',
+                    'inn',
+                    'kpp',
+                    'position',
+                    'fio',
+                    'okpo',
+                    'okvd',
+                    'ogrn',
+                    'signer_passport',
+                    'comment',
+                    'tax_regime'
+                ],
+                'string'
+            ],
+            [
+                [
+                    'name',
+                    'name_full',
+                    'address_jur',
+                    'inn',
+                    'kpp',
+                    'position',
+                    'fio',
+                    'okpo',
+                    'okvd',
+                    'ogrn',
+                    'signer_passport',
+                    'comment'
+                ],
+                'default',
+                'value' => ''
+            ],
+            [
+                [
+                    'name',
+                    'name_full',
+                    'address_jur',
+                    'inn',
+                    'kpp',
+                    'position',
+                    'fio',
+                    'okpo',
+                    'okvd',
+                    'ogrn',
+                    'signer_passport',
+                    'comment'
+                ],
+                'trim'
+            ],
 
-            [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
-                'passport_number', 'passport_issued', 'registration_address', 'historyVersionStoredDate',
-                'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'string'],
-            [['first_name', 'last_name', 'middle_name', 'passport_serial',
-                'passport_number', 'passport_issued', 'registration_address',
-                'mother_maiden_name', 'birthplace', 'birthday', 'other_document',], 'default', 'value' => ''],
+            [
+                [
+                    'first_name',
+                    'last_name',
+                    'middle_name',
+                    'passport_date_issued',
+                    'passport_serial',
+                    'passport_number',
+                    'passport_issued',
+                    'registration_address',
+                    'historyVersionStoredDate',
+                    'mother_maiden_name',
+                    'birthplace',
+                    'birthday',
+                    'other_document',
+                ],
+                'string'
+            ],
+            [
+                [
+                    'first_name',
+                    'last_name',
+                    'middle_name',
+                    'passport_serial',
+                    'passport_number',
+                    'passport_issued',
+                    'registration_address',
+                    'mother_maiden_name',
+                    'birthplace',
+                    'birthday',
+                    'other_document',
+                ],
+                'default',
+                'value' => ''
+            ],
             ['passport_date_issued', 'default', 'value' => '1970-01-01'],
             [['opf_id', 'sale_channel_id'], 'default', 'value' => 0],
             [['tax_regime'], 'default', 'value' => ClientContragent::TAX_REGTIME_UNDEFINED],
             ['country_id', 'default', 'value' => Country::RUSSIA],
 
-            ['legal_type', 'in', 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]],
+            [
+                'legal_type',
+                'in',
+                'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]
+            ],
             [['super_id', 'country_id', 'opf_id', 'partner_contract_id', 'sale_channel_id'], 'integer'],
 
         ];
@@ -104,8 +184,9 @@ class ContragentEditForm extends Form
                 if ($this->historyVersionRequestedDate) {
                     $this->person->loadVersionOnDate($this->historyVersionRequestedDate);
                 }
-            } else
+            } else {
                 $this->person = new ClientContragentPerson();
+            }
 
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
         } else {
@@ -130,8 +211,9 @@ class ContragentEditForm extends Form
                     $this->person->setHistoryVersionStoredDate($this->historyVersionStoredDate);
                 }
                 $person = $this->person;
-                if (!$person->contragent_id)
+                if (!$person->contragent_id) {
                     $person->contragent_id = $contragent->id;
+                }
 
                 if ($person->save()) {
                     $contragent->refresh();
@@ -142,8 +224,9 @@ class ContragentEditForm extends Form
                 }
             }
             return true;
-        } else
+        } else {
             $this->addErrors($contragent->getErrors());
+        }
 
         return false;
     }
@@ -188,10 +271,11 @@ class ContragentEditForm extends Form
     {
         switch ($this->legal_type) {
             case ClientContragent::LEGAL_TYPE:
-                if (empty($this->name) && !empty($this->name_full))
+                if (empty($this->name) && !empty($this->name_full)) {
                     $this->name = $this->name_full;
-                elseif (empty($this->name_full) && !empty($this->name))
+                } elseif (empty($this->name_full) && !empty($this->name)) {
                     $this->name_full = $this->name;
+                }
                 break;
             case ClientContragent::IP_TYPE:
                 $name = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
@@ -218,10 +302,11 @@ class ContragentEditForm extends Form
         $contragent->fio = $this->fio;
         $contragent->comment = $this->comment;
 
-        if ($contragent->legal_type == 'person')
+        if ($contragent->legal_type == 'person') {
             $contragent->tax_regime = ClientContragent::TAX_REGTIME_UNDEFINED;
-        else
+        } else {
             $contragent->tax_regime = $this->tax_regime;
+        }
 
         $contragent->opf_id = $this->opf_id;
         $contragent->okpo = $this->okpo;

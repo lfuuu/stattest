@@ -20,12 +20,12 @@ class PartnerDao extends Singleton
             $contracts = [];
             foreach ($c->contracts as $cc) {
                 $accounts = [];
-                foreach(ClientAccount::findAll(['contract_id' => $cc->id]) as $a) {
+                foreach (ClientAccount::findAll(['contract_id' => $cc->id]) as $a) {
                     $accounts[] = $a->id;
                 }
 
                 $contracts[] = [
-                    'id' => $cc->id, 
+                    'id' => $cc->id,
                     'number' => $cc->number,
                     'date' => $cc->document ? $cc->document->contract_date : null,
                     'accounts' => $accounts,

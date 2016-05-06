@@ -23,8 +23,10 @@ class UsageTechCpeDao extends Singleton
 
         $v = count($ips);
 
-        $P1 = 0; $P2 = 0;
-        $C1 = 0; $C2 = 0;
+        $P1 = 0;
+        $P2 = 0;
+        $C1 = 0;
+        $C2 = 0;
 
         foreach ($stat as $record) {
             if ($v == 1 || (@$record['ip_int'] & 2) == 0) {
@@ -36,30 +38,32 @@ class UsageTechCpeDao extends Singleton
             }
         }
 
-        if (!$C1)
+        if (!$C1) {
             $P1 = '#808080';
-        elseif ($P1 == $C1 * 5)
+        } elseif ($P1 == $C1 * 5) {
             $P1 = '#00e000';
-        elseif ($P1 > 2 * $C1)
+        } elseif ($P1 > 2 * $C1) {
             $P1 = '#c0c000';
-        else
+        } else {
             $P1 = '#ff0000';
+        }
 
-        if (!$C2)
+        if (!$C2) {
             $P2 = '#808080';
-        elseif ($P2 == $C2 * 5)
+        } elseif ($P2 == $C2 * 5) {
             $P2 = '#00e000';
-        elseif ($P2 > 2 * $C2)
+        } elseif ($P2 > 2 * $C2) {
             $P2 = '#c0c000';
-        else
+        } else {
             $P2 = '#ff0000';
+        }
 
         return
             '<div class="ping" style="background-color:' . $P1 . '">&nbsp;</div>' .
             (
-                $v == 1
-                    ? ''
-                    : '<div class="ping2" style="background-color:' . $P2 . '">&nbsp;</div>'
+            $v == 1
+                ? ''
+                : '<div class="ping2" style="background-color:' . $P2 . '">&nbsp;</div>'
             );
     }
 

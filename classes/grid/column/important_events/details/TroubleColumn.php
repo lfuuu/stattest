@@ -20,11 +20,11 @@ abstract class TroubleColumn
     public static function renderCreatedTroubleDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         if (
             isset($properties['trouble_id'])
-                &&
+            &&
             ($value = self::renderTrouble($properties['trouble_id'])) !== false
         ) {
             $result[] = $value;
@@ -67,11 +67,12 @@ abstract class TroubleColumn
 
         if (isset($properties['stage_id'])) {
             $stageId = $properties['stage_id'];
-        }
-        else if (isset($properties['trouble_id'])) {
-            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
-                /** @var Trouble $trouble */
-                $stageId = $trouble->cur_stage_id;
+        } else {
+            if (isset($properties['trouble_id'])) {
+                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                    /** @var Trouble $trouble */
+                    $stageId = $trouble->cur_stage_id;
+                }
             }
         }
 
@@ -94,17 +95,18 @@ abstract class TroubleColumn
     public static function renderSetStateTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         $stageId = null;
 
         if (isset($properties['stage_id'])) {
             $stageId = $properties['stage_id'];
-        }
-        else if (isset($properties['trouble_id'])) {
-            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
-                /** @var Trouble $trouble */
-                $stageId = $trouble->cur_stage_id;
+        } else {
+            if (isset($properties['trouble_id'])) {
+                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                    /** @var Trouble $trouble */
+                    $stageId = $trouble->cur_stage_id;
+                }
             }
         }
 
@@ -127,17 +129,18 @@ abstract class TroubleColumn
     public static function renderSetResponsibleTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map((array) $column->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
 
         $stageId = null;
 
         if (isset($properties['stage_id'])) {
             $stageId = $properties['stage_id'];
-        }
-        else if (isset($properties['trouble_id'])) {
-            if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
-                /** @var Trouble $trouble */
-                $stageId = $trouble->cur_stage_id;
+        } else {
+            if (isset($properties['trouble_id'])) {
+                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                    /** @var Trouble $trouble */
+                    $stageId = $trouble->cur_stage_id;
+                }
             }
         }
 
@@ -173,11 +176,15 @@ abstract class TroubleColumn
                 Html::tag('b', 'Счет №' . $trouble->bill_no . ': ') .
                 Html::a(
                     $trouble->bill_no,
-                    Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $trouble->bill_no]),
+                    Url::toRoute([
+                        '/',
+                        'module' => 'newaccounts',
+                        'action' => 'bill_view',
+                        'bill' => $trouble->bill_no
+                    ]),
                     ['target' => '_blank']
                 );
-        }
-        else {
+        } else {
             return
                 Html::tag('b', 'Заявка №' . $troubleId . ': ') .
                 Html::a(

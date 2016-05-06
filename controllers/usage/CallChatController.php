@@ -100,7 +100,6 @@ class CallChatController extends BaseController
         }
 
 
-
         return $this->render('edit', [
             'model' => $model,
             'clientAccount' => $clientAccount

@@ -18,22 +18,25 @@ class UserGrantGroups extends ActiveRecord
 
         foreach ($rights as $resource => $actions) {
             foreach ($baseRights as $baseRight) {
-                if ($resource != $baseRight->resource)
+                if ($resource != $baseRight->resource) {
                     continue;
+                }
 
                 $groupRightsAccess = explode(',', $baseRight->values);
                 $userRights = [];
-                for ($i=0, $s=sizeof($actions); $i<$s; $i++) {
-                    if (in_array($actions[$i], $groupRightsAccess))
+                for ($i = 0, $s = sizeof($actions); $i < $s; $i++) {
+                    if (in_array($actions[$i], $groupRightsAccess)) {
                         $userRights[] = $actions[$i];
+                    }
                 }
 
                 $currentRights = self::findOne(['resource' => $resource, 'name' => $group->usergroup]);
 
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
-                    if ($currentRights instanceof self)
+                    if ($currentRights instanceof self) {
                         $currentRights->delete();
+                    }
 
                     $rights = new self;
                     $rights->resource = $resource;

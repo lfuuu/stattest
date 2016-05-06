@@ -24,13 +24,13 @@ class DynamicModel extends \yii\base\DynamicModel
             $validators = $model->getValidators();
             foreach ($rules as $rule) {
                 if ($rule instanceof Validator) {
-                    foreach($rule->attributes as $attribute) {
+                    foreach ($rule->attributes as $attribute) {
                         $model->defineAttribute($attribute);
                     }
                     $validators->append($rule);
                 } elseif (is_array($rule) && isset($rule[0], $rule[1])) { // attributes, validator type
-                    $validator = Validator::createValidator($rule[1], $model, (array) $rule[0], array_slice($rule, 2));
-                    foreach($validator->attributes as $attribute) {
+                    $validator = Validator::createValidator($rule[1], $model, (array)$rule[0], array_slice($rule, 2));
+                    foreach ($validator->attributes as $attribute) {
                         $model->defineAttribute($attribute);
                     }
                     $validators->append($validator);

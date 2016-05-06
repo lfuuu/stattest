@@ -38,7 +38,8 @@ class BalanceSellToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(1, $line, '01');
             $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no'] . ';' . date('d.m.Y', $row['inv_date']));
             $worksheet->setCellValueByColumnAndRow(6, $line, $companyName);
-            $worksheet->setCellValueByColumnAndRow(7, $line, $row['inn'] . ($row['type'] == 'org' ? '/' . ($row['kpp'] ?: '') : ''));
+            $worksheet->setCellValueByColumnAndRow(7, $line,
+                $row['inn'] . ($row['type'] == 'org' ? '/' . ($row['kpp'] ?: '') : ''));
             $worksheet->setCellValueByColumnAndRow(13, $line, sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(14, $line, sprintf('%0.2f', round($row['sum_without_tax'], 2)));
             $worksheet->setCellValueByColumnAndRow(17, $line, sprintf('%0.2f', round($row['sum_tax'], 2)));
@@ -67,11 +68,11 @@ class BalanceSellToExcel extends Excel
             str_replace(
                 '{InnKpp}',
                 $this->organization->tax_registration_id .
-                    (
-                        $this->organization->tax_registration_reason
-                            ? '/' . $this->organization->tax_registration_reason
-                            : ''
-                    ),
+                (
+                $this->organization->tax_registration_reason
+                    ? '/' . $this->organization->tax_registration_reason
+                    : ''
+                ),
                 $cell->getValue()
             );
         $worksheet->setCellValue('A5', $value);

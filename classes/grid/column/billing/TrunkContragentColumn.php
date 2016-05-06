@@ -51,7 +51,8 @@ class TrunkContragentColumn extends DataColumn
             reset($this->contragents[$value]);
             list($contragent_id, $contragent_name) = each($this->contragents[$value]);
 
-            return Html::a($contragent_name, Url::toRoute(['contragent/edit', 'id' => $contragent_id]), ['target' => '_blank']);
+            return Html::a($contragent_name, Url::toRoute(['contragent/edit', 'id' => $contragent_id]),
+                ['target' => '_blank']);
         }
 
         return $value;

@@ -11,8 +11,9 @@ class BillContract
     {
         $contract = self::getString($clientId, $date);
 
-        if($contract)
-            return ", согласно Договора ".$contract;
+        if ($contract) {
+            return ", согласно Договора " . $contract;
+        }
 
         return "";
     }
@@ -21,16 +22,18 @@ class BillContract
     {
         $contract = self::getLastContract($clientId, $date);
 
-        if($contract)
-            return $contract["no"]." от ".DateFunction::mdate($contract["date"], "d месяца Y") . " г.";
+        if ($contract) {
+            return $contract["no"] . " от " . DateFunction::mdate($contract["date"], "d месяца Y") . " г.";
+        }
 
         return "";
     }
 
     public static function getLastContract($contractId, $dateTs)
     {
-        if (!$dateTs)
+        if (!$dateTs) {
             $dateTs = time();
+        }
 
         return ClientDocument::getDb()->createCommand("
             select 

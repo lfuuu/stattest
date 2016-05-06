@@ -122,7 +122,7 @@ class AccountController extends ApiInternalController
         $account = $this->getAccountFromParams();
 
         $activeVoips = [];
-        foreach(ActualNumber::findAll(['client_id' => $account->id]) as $v) {
+        foreach (ActualNumber::findAll(['client_id' => $account->id]) as $v) {
             $activeVoips[$v->id] = [
                 'stat_product_id' => $v->id,
                 'number' => $v->number,
@@ -131,7 +131,7 @@ class AccountController extends ApiInternalController
         }
 
         $activeVats = [];
-        foreach(ActualVirtpbx::findAll(['client_id' => $account->id]) as $v) {
+        foreach (ActualVirtpbx::findAll(['client_id' => $account->id]) as $v) {
             $activeVats[$v->usage_id] = [
                 'stat_product_id' => $v->usage_id,
                 'region' => $v->region_id
@@ -139,7 +139,7 @@ class AccountController extends ApiInternalController
         }
 
         $data = [
-            'id' => $account->id, 
+            'id' => $account->id,
             'usages' => [
                 'active' => [
                     'voip' => $activeVoips,

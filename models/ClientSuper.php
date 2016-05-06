@@ -1,12 +1,12 @@
 <?php
 namespace app\models;
+
 use yii\db\ActiveRecord;
 
 /**
  * @property int $id
  * @property string $name
  * @property int $financial_manager_id
-
  * @property ClientContragent[] $contragents
  * @property
  */
@@ -27,7 +27,7 @@ class ClientSuper extends ActiveRecord
 
     public function getContragents()
     {
-       return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
+        return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
     }
 
 }

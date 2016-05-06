@@ -25,7 +25,8 @@ class m160211_172500_convert_voip_package_account_tariff extends \app\classes\Mi
         $serviceTypeIdVoipPackage = ServiceType::ID_VOIP_PACKAGE;
 
         // AccountTariffLog удалится CASCADE
-        $this->delete(AccountTariff::tableName(), 'service_type_id = :service_type_id', [':service_type_id' => $serviceTypeIdVoipPackage]);
+        $this->delete(AccountTariff::tableName(), 'service_type_id = :service_type_id',
+            [':service_type_id' => $serviceTypeIdVoipPackage]);
 
     }
 

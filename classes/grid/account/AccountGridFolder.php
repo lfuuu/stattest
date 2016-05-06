@@ -53,8 +53,24 @@ abstract class AccountGridFolder extends Model
     {
         return [
             [['id', 'regionId', 'sale_channel', 'contract_type', 'legal_entity'], 'integer'],
-            [['companyName', 'createdDate', 'account_manager', 'manager', 'bill_date', 'currency',
-                'service', 'partner_clients_service', 'block_date', 'financial_type', 'federal_district', 'contractNo', 'contract_created'], 'string'],
+            [
+                [
+                    'companyName',
+                    'createdDate',
+                    'account_manager',
+                    'manager',
+                    'bill_date',
+                    'currency',
+                    'service',
+                    'partner_clients_service',
+                    'block_date',
+                    'financial_type',
+                    'federal_district',
+                    'contractNo',
+                    'contract_created'
+                ],
+                'string'
+            ],
         ];
     }
 
@@ -150,7 +166,8 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
-        $query->join('LEFT JOIN', 'client_document doc', 'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
+        $query->join('LEFT JOIN', 'client_document doc',
+            'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
         $query->groupBy('c.id');
     }
 
@@ -186,8 +203,10 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['c.region' => $this->regionId]);
 
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
-        if ($this->federal_district)
-            $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district', $this->federal_district));
+        if ($this->federal_district) {
+            $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district',
+                $this->federal_district));
+        }
         $query->andFilterWhere(['cr.contract_type_id' => $this->contract_type]);
 
         if ($this->currency) {
@@ -241,8 +260,9 @@ abstract class AccountGridFolder extends Model
                     ? $columns[$column]['filter']
                     : array_pop($columns[$column]['filter']);
 
-            if ($callback instanceof \Closure)
+            if ($callback instanceof \Closure) {
                 $columns[$column]['filter'] = $callback();
+            }
 
         }
 
@@ -289,7 +309,7 @@ abstract class AccountGridFolder extends Model
                 'value' => function ($data) {
                     return '<a href="/client/view?id=' . $data['id'] . '">' . $data['contractNo'] . '</a>';
                 },
-                'filter' => function() {
+                'filter' => function () {
                     return '<input name="contractNo"
                         id="searchByContractNo" value="' . Yii::$app->request->get('contractNo') . '"
                         class="form-control" style="min-width:150px" />';
@@ -649,7 +669,7 @@ abstract class AccountGridFolder extends Model
                             ? $this->organizationList[$data['organization_id']]
                             : '';
                 },
-                'filter' => function() {
+                'filter' => function () {
                     return Html::dropDownList(
                         'legal_entity',
                         Yii::$app->request->get('legal_entity'),

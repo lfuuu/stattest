@@ -84,5 +84,4 @@ class ClientDocumentQuery extends ActiveQuery
     }
 
 
-
 }

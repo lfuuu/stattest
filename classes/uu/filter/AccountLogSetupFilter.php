@@ -53,11 +53,15 @@ class AccountLogSetupFilter extends AccountLogSetup
 
         $this->id !== '' && $query->andWhere([$accountLogSetupTableName . '.id' => $this->id]);
 
-        $this->date_from !== '' && $query->andWhere($accountLogSetupTableName . '.date >= :date_from', [':date_from' => $this->date_from]);
-        $this->date_to !== '' && $query->andWhere($accountLogSetupTableName . '.date <= :date_to', [':date_to' => $this->date_to]);
+        $this->date_from !== '' && $query->andWhere($accountLogSetupTableName . '.date >= :date_from',
+            [':date_from' => $this->date_from]);
+        $this->date_to !== '' && $query->andWhere($accountLogSetupTableName . '.date <= :date_to',
+            [':date_to' => $this->date_to]);
 
-        $this->price_from !== '' && $query->andWhere($accountLogSetupTableName . '.price >= :price_from', [':price_from' => $this->price_from]);
-        $this->price_to !== '' && $query->andWhere($accountLogSetupTableName . '.price <= :price_to', [':price_to' => $this->price_to]);
+        $this->price_from !== '' && $query->andWhere($accountLogSetupTableName . '.price >= :price_from',
+            [':price_from' => $this->price_from]);
+        $this->price_to !== '' && $query->andWhere($accountLogSetupTableName . '.price <= :price_to',
+            [':price_to' => $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
 

@@ -55,7 +55,7 @@ final class OpenController extends Controller
                 ->setRegions([$region]);
 
         $response = [];
-        foreach($numbers->each()->result(null) as $r) {
+        foreach ($numbers->each()->result(null) as $r) {
             $response[] = [
                 'number' => $r->number,
                 'beauty' => $r->beauty_level,
@@ -106,9 +106,8 @@ final class OpenController extends Controller
         $like = null,
         $offset = 0,
         $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT
-    )
-    {
-        $numbers  =
+    ) {
+        $numbers =
             (new FreeNumberFilter)
                 ->setRegions($regions)
                 ->setMinCost($minCost)
@@ -120,16 +119,16 @@ final class OpenController extends Controller
             }
             $numbers->setNumberMask($like);
         }
-        if ((int) $offset) {
-            $numbers->setOffset((int) $offset);
+        if ((int)$offset) {
+            $numbers->setOffset((int)$offset);
         }
-        if ((int) $numberType) {
-            $numbers->setType((int) $numberType);
+        if ((int)$numberType) {
+            $numbers->setType((int)$numberType);
         }
 
         $response = [];
 
-        foreach($numbers->orderByPrice()->each()->result($limit) as $row) {
+        foreach ($numbers->orderByPrice()->each()->result($limit) as $row) {
             $response[] = [
                 'number' => $row->number,
                 'beauty' => $row->beauty_level,
@@ -414,7 +413,7 @@ final class OpenController extends Controller
 
         $cities =
             City::find()
-                ->where(['IN', 'country_id', (array) ArrayHelper::getColumn($countries, 'code')])
+                ->where(['IN', 'country_id', (array)ArrayHelper::getColumn($countries, 'code')])
                 ->orderBy('name')
                 ->asArray()
                 ->all();

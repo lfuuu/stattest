@@ -35,8 +35,9 @@ class UserCreateForm extends UserForm
     public function validateExistsUser($model)
     {
         $user = User::findOne(['user' => $this->{$model}]);
-        if ($user instanceof User && $user->user)
+        if ($user instanceof User && $user->user) {
             $this->addError($model, 'Пользователь уже существует');
+        }
     }
 
     public function save()

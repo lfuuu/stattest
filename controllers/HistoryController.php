@@ -27,14 +27,16 @@ class HistoryController extends BaseController
         $models = [];
         $getRequest = Yii::$app->request->get();
         $getOptions = $getRequest['options'];
-        if(!$getRequest)
+        if (!$getRequest) {
             throw new Exception('Models does not exists');
+        }
 
         $changes = HistoryChanges::find()
             ->joinWith('user');
         foreach ($getRequest as $modelName => $modelId) {
-            if ($modelName == 'options')
+            if ($modelName == 'options') {
                 continue;
+            }
             $className = 'app\\models\\' . $modelName;
             if (!class_exists($className)) {
                 throw new Exception('Bad model type');
@@ -45,12 +47,13 @@ class HistoryController extends BaseController
         }
 
         $changes = $changes->orderBy('created_at desc');
-        if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges']))
-            $changes = $changes->limit(isset($getOptions['howMany']) ? (int) $getOptions['howMany'] : 1);
+        if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges'])) {
+            $changes = $changes->limit(isset($getOptions['howMany']) ? (int)$getOptions['howMany'] : 1);
+        }
         $changes = $changes->all();
 
-        foreach($changes as &$change){
-            if(false !== strpos($change->data_json, 'contragent_id')){
+        foreach ($changes as &$change) {
+            if (false !== strpos($change->data_json, 'contragent_id')) {
                 $data = json_decode($change->data_json, true);
                 $dataPrev = json_decode($change->prev_data_json, true);
                 $data['contragent_id'] = ClientContragent::findOne($data['contragent_id'])->name;

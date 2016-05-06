@@ -91,11 +91,16 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Телефония')
                 ->addStatModuleItems('voipnew')
-                ->addItem('Прайс-листы Клиент Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1], ['voip.access'])
-                ->addItem('Прайс-листы Клиент Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0], ['voip.access'])
-                ->addItem('Прайс-листы Опер Ориг', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1], ['voip.access'])
-                ->addItem('Прайс-листы Опер Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0], ['voip.access'])
-                ->addItem('Прайс-листы Местные Терм', ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0], ['voip.access'])
+                ->addItem('Прайс-листы Клиент Ориг',
+                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1], ['voip.access'])
+                ->addItem('Прайс-листы Клиент Терм',
+                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0], ['voip.access'])
+                ->addItem('Прайс-листы Опер Ориг',
+                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1], ['voip.access'])
+                ->addItem('Прайс-листы Опер Терм',
+                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0], ['voip.access'])
+                ->addItem('Прайс-листы Местные Терм',
+                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0], ['voip.access'])
                 ->addItem('Местные Префиксы', ['voip/network-config/list'], ['voip.access'])
                 ->addItem('Списки префиксов', ['voip/prefixlist'], ['voip.access'])
                 ->addItem('Направления', ['voip/destination'], ['voip.access'])
@@ -251,7 +256,8 @@ class Navigation
         // типы услуг в тарифах и услугах
         $serviceTypes = ServiceType::find()->all();
         foreach ($serviceTypes as $serviceType) {
-            $block->addItem($serviceType->name, Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id]), ['tarifs.read']);
+            $block->addItem($serviceType->name, Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id]),
+                ['tarifs.read']);
             $block2->addItem($serviceType->name, Url::to([
                 'uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
@@ -266,9 +272,12 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
-                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'],
+                    ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'],
+                    ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'],
+                    ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     'uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,

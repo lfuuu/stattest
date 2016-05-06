@@ -123,11 +123,10 @@ class BillFactory
                 $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();
                 $sort = 1;
-            }
-            else {
+            } else {
                 $sort = count($bill->lines) + 1;
             }
-            
+
             foreach ($transactions as $transaction) {
                 Transaction::dao()->insertBillLine($transaction, $bill, $sort);
                 $sort++;
@@ -138,8 +137,7 @@ class BillFactory
             $dbTransaction->commit();
 
             return $bill;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }

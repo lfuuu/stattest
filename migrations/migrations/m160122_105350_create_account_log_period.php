@@ -30,10 +30,12 @@ class m160122_105350_create_account_log_period extends \app\classes\Migration
         ]);
 
         $fieldName = 'tariff_period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'account_tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),
+            'id', 'CASCADE');
     }
 
     public function safeDown()

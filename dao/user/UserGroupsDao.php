@@ -37,9 +37,11 @@ class UserGroupsDao extends Singleton
     {
         $res = [];
         $groups = UserGroups::find()->innerJoinWith('users')->asArray()->all();
-        foreach($groups as $group)
-            foreach($group['users'] as $user)
+        foreach ($groups as $group) {
+            foreach ($group['users'] as $user) {
                 $res[$group['comment']][$user['id']] = $user['name'];
+            }
+        }
         return $res;
     }
 

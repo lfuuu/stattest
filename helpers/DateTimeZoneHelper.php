@@ -90,11 +90,11 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
         return
             $date->format('Y-m-d') == UsageInterface::MAX_POSSIBLE_DATE
-                ||
+            ||
             round(($date->getTimestamp() - (new DateTime('now'))->getTimestamp()) / 365 / 24 / pow(60, 2)) > 20
                 ?
-                    self::INFINITY :
-                    self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
+                self::INFINITY :
+                self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
     }
 
     /**
@@ -113,13 +113,13 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         $timezone = static::getUserTimeZone();
         if ($timezone == self::TIMEZONE_MOSCOW) {
             return 'Msk';
-        }
-        else if (strpos($timezone, '/') !== false) {
-            list(, $region) = explode('/', $timezone);
-            return substr(str_replace(['a', 'o', 'e', 'u', 'i', 'y'], '', $region), 0, 3);
-        }
-        else {
-            return $timezone;
+        } else {
+            if (strpos($timezone, '/') !== false) {
+                list(, $region) = explode('/', $timezone);
+                return substr(str_replace(['a', 'o', 'e', 'u', 'i', 'y'], '', $region), 0, 3);
+            } else {
+                return $timezone;
+            }
         }
     }
 

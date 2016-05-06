@@ -41,7 +41,9 @@ class BillerPackageResource extends BillerPackage
         $amount = round($amount, 6);
         $price = $this->price;
 
-        if (!is_null($this->minPayment) && round($amount * $price, 2) < $this->minPayment * $effectivePeriod / $currentPeriod) {
+        if (!is_null($this->minPayment) && round($amount * $price,
+                2) < $this->minPayment * $effectivePeriod / $currentPeriod
+        ) {
             $amount = $effectivePeriod / $currentPeriod;
             $price = $this->minPayment;
             $template = $this->minPaymentTemplate;

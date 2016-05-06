@@ -49,7 +49,7 @@ class VirtpbxBiller extends Biller
 
             if ($stats['sum_space'] > 0) {
                 $price = $stats['overrun_per_gb'];
-                $amount = $stats['sum_space']/$stats['overrun_per_gb'];
+                $amount = $stats['sum_space'] / $stats['overrun_per_gb'];
                 if ($price > 0) {
                     $template = 'vpbx_over_disk_usage';
 
@@ -66,7 +66,7 @@ class VirtpbxBiller extends Biller
 
             if ($stats['sum_number'] > 0) {
                 $price = $stats['overrun_per_port'];
-                $amount = $stats['sum_number']/$stats['overrun_per_port'];
+                $amount = $stats['sum_number'] / $stats['overrun_per_port'];
 
                 if ($price > 0) {
                     $template = 'vpbx_over_ports_count';
@@ -131,7 +131,7 @@ class VirtpbxBiller extends Biller
             $useSpaceMb = Utils::bytesToMb($vpbxStat['use_space']);
 
             if ($useSpaceMb > $tariff->space) {
-                $spaceForBill = ceil(($useSpaceMb - $tariff->space)/1024);
+                $spaceForBill = ceil(($useSpaceMb - $tariff->space) / 1024);
                 //$totals['amount_space'] += $spaceForBill;
 
                 $sumForSpace = ($spaceForBill * $tariff->overrun_per_gb) / $from->format('t');
@@ -150,7 +150,7 @@ class VirtpbxBiller extends Biller
                 $totals['sum_ext_dids'] +=
                     (
                         ($vpbxStat['ext_did_count'] - $tariff->ext_did_count)
-                            *
+                        *
                         $tariff->ext_did_monthly_payment
                     ) / $from->format('t');
             }
@@ -189,7 +189,7 @@ class VirtpbxBiller extends Biller
         $lastTariffId = null;
         $lastTariffDate = null;
         foreach ($tariffChanges as $activationDate => $tariffId) {
-            $activationDate = new DateTime($activationDate , $this->timezone);
+            $activationDate = new DateTime($activationDate, $this->timezone);
             if ($activationDate <= $this->billerActualFrom) {
                 $lastTariffId = $tariffId;
                 $lastTariffDate = $this->billerActualFrom;

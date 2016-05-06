@@ -16,6 +16,6 @@ class m160329_140217_view_for_linked_tables_events_templates extends \app\classe
 
     public function down()
     {
-	$this->execute("DROP VIEW view_message_templates_events_ro;");
+        $this->execute("DROP VIEW view_message_templates_events_ro;");
     }
 }

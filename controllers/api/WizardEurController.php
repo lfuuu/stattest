@@ -254,8 +254,8 @@ class WizardEurController extends WizardBaseController
         } else {
             $transaction = Yii::$app->getDb()->beginTransaction();
             if (
-                $form->saveInContragent($this->account) 
-                && $contactForm->save($this->account) 
+                $form->saveInContragent($this->account)
+                && $contactForm->save($this->account)
                 && $acceptForm->save($this->wizard)
             ) {
                 $transaction->commit();

@@ -24,7 +24,7 @@ class UsageCallChatEditForm extends UsageCallChatForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['actual_from', 'status','tarif_id'], 'required'];
+        $rules[] = [['actual_from', 'status', 'tarif_id'], 'required'];
         $rules[] = ['comment', 'string'];
         return $rules;
     }

@@ -54,24 +54,22 @@ class MessageController extends ApiController
     public function actionList()
     {
         $form = DynamicModel::validateData(
-                        Yii::$app->request->bodyParams,
-                        [
-                            ['client_account_id', AccountIdValidator::className()],
-                            ['order', 'in', 'range' => ['desc', 'asc']],
-                        ]
+            Yii::$app->request->bodyParams,
+            [
+                ['client_account_id', AccountIdValidator::className()],
+                ['order', 'in', 'range' => ['desc', 'asc']],
+            ]
         );
 
         if (!$form->hasErrors()) {
             $listMessages = [];
             $fromQuery = Message::find()
-                            ->where(['account_id' => $form->client_account_id])
-                            ->orderBy(['created_at' => $form->order == 'desc'  ? SORT_DESC : SORT_ASC])
-                            ->limit(100)
-                            ->all();
-            if ($fromQuery)
-            {
-                foreach($fromQuery as $message)
-                {
+                ->where(['account_id' => $form->client_account_id])
+                ->orderBy(['created_at' => $form->order == 'desc' ? SORT_DESC : SORT_ASC])
+                ->limit(100)
+                ->all();
+            if ($fromQuery) {
+                foreach ($fromQuery as $message) {
                     $listMessages[] = $message->toArray();
                 }
             }
@@ -119,20 +117,19 @@ class MessageController extends ApiController
     public function actionDetails()
     {
         $form = DynamicModel::validateData(
-                        Yii::$app->request->bodyParams, [
-                            ['client_account_id', AccountIdValidator::className()],
-                            ['id', 'integer'],
-                            [['id'], 'required'],
-                        ]
+            Yii::$app->request->bodyParams, [
+                ['client_account_id', AccountIdValidator::className()],
+                ['id', 'integer'],
+                [['id'], 'required'],
+            ]
         );
 
         if (!$form->hasErrors()) {
             $message = Message::find()
-                    ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
-                    ->one();
+                ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
+                ->one();
 
-            if ($message)
-            {
+            if ($message) {
                 $messageText = $message->text->text;
                 $message = $message->toArray();
                 $message["text"] = $messageText;
@@ -173,11 +170,11 @@ class MessageController extends ApiController
     public function actionRead()
     {
         $form = DynamicModel::validateData(
-                        Yii::$app->request->bodyParams, [
-                            ['client_account_id', AccountIdValidator::className()],
-                            ['id', 'integer'],
-                            [['id'], 'required'],
-                        ]
+            Yii::$app->request->bodyParams, [
+                ['client_account_id', AccountIdValidator::className()],
+                ['id', 'integer'],
+                [['id'], 'required'],
+            ]
         );
 
         if (!$form->hasErrors()) {
@@ -204,8 +201,14 @@ class MessageController extends ApiController
      * @param string $type
      * @param int|null $eventId
      */
-    public function actionEmailTemplateContent($templateId, $langCode, $clientAccountId, $contactId, $type = Template::TYPE_EMAIL, $eventId = null)
-    {
+    public function actionEmailTemplateContent(
+        $templateId,
+        $langCode,
+        $clientAccountId,
+        $contactId,
+        $type = Template::TYPE_EMAIL,
+        $eventId = null
+    ) {
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
             'template_id' => $templateId,

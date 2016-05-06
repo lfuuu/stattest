@@ -33,8 +33,12 @@ class UsageTrunkFilter extends UsageTrunk
         return [
             [
                 [
-                    'connection_point_id', 'contragent_id',
-                    'contract_id', 'contract_type_id', 'business_process_id', 'trunk_id',
+                    'connection_point_id',
+                    'contragent_id',
+                    'contract_id',
+                    'contract_type_id',
+                    'business_process_id',
+                    'trunk_id',
                 ],
                 'integer'
             ],
@@ -105,7 +109,11 @@ class UsageTrunkFilter extends UsageTrunk
          * Установка условий фильтрации
          */
         !empty($this->connection_point_id) && $query->andWhere(['trunk.connection_point_id' => $this->connection_point_id]);
-        is_array($this->trunkIDs) && count($this->trunkIDs) > 0 && $query->andWhere(['IN', 'trunk.trunk_id', $this->trunkIDs]);
+        is_array($this->trunkIDs) && count($this->trunkIDs) > 0 && $query->andWhere([
+            'IN',
+            'trunk.trunk_id',
+            $this->trunkIDs
+        ]);
         !empty($this->contragent_id) && $query->andWhere(['contract.contragent_id' => $this->contragent_id]);
         !empty($this->contract_id) && $query->andWhere(['contract.id' => $this->contract_id]);
         !empty($this->contract_type_id) && $query->andWhere(['contract.contract_type_id' => $this->contract_type_id]);

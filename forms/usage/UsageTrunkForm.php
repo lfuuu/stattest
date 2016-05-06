@@ -20,9 +20,9 @@ class UsageTrunkForm extends Form
     public function rules()
     {
         return [
-            [['id','client_account_id','connection_point_id','trunk_id'], 'integer'],
-            [['actual_from', 'actual_to','description'], 'string'],
-            [['orig_enabled','term_enabled', 'orig_min_payment','term_min_payment'], 'integer'],
+            [['id', 'client_account_id', 'connection_point_id', 'trunk_id'], 'integer'],
+            [['actual_from', 'actual_to', 'description'], 'string'],
+            [['orig_enabled', 'term_enabled', 'orig_min_payment', 'term_min_payment'], 'integer'],
         ];
     }
 

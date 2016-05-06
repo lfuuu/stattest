@@ -40,7 +40,7 @@ class TariffVoipDao extends Singleton
 
         $result = [];
         foreach ($list as $tariff) {
-            $result[ $tariff['id'] ] = $tariff['name'] . ' (' . $tariff['month_number'] . '-' . $tariff['month_line'] . ')';
+            $result[$tariff['id']] = $tariff['name'] . ' (' . $tariff['month_number'] . '-' . $tariff['month_line'] . ')';
         }
 
         if ($withEmpty) {

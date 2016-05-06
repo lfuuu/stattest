@@ -13,7 +13,6 @@ use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
-
  * @property TariffSms $tariff
  * @property
  */

@@ -33,11 +33,13 @@ class ImportantEventsRunner
                 break;
             }
 
-            $property = ImportantEventsProperties::findOne(['property' => $condition['property'], 'event_id' => self::$event->id]);
+            $property = ImportantEventsProperties::findOne([
+                'property' => $condition['property'],
+                'event_id' => self::$event->id
+            ]);
             if (!($property instanceof ImportantEventsProperties)) {
                 $property = $value = self::$event->{$condition['property']};
-            }
-            else {
+            } else {
                 $value = $property->value;
             }
 

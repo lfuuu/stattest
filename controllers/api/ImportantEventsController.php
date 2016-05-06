@@ -57,7 +57,7 @@ class ImportantEventsController extends ApiInternalController
             throw new FormValidationException($model);
         }
 
-        if (ImportantEvents::create($model->event, $model->source, (array) $data)) {
+        if (ImportantEvents::create($model->event, $model->source, (array)$data)) {
             return ['success' => true];
         }
     }

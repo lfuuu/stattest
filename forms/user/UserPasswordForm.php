@@ -20,11 +20,11 @@ class UserPasswordForm extends Form
     {
         return [
             [
-                ['password', 'passwordRepeat','passwordCurrent',],
+                ['password', 'passwordRepeat', 'passwordCurrent',],
                 'required'
             ],
             [
-                ['password', 'passwordRepeat','passwordCurrent',],
+                ['password', 'passwordRepeat', 'passwordCurrent',],
                 'string'
             ],
             ['password', 'validatePasswordCompare'],
@@ -65,8 +65,9 @@ class UserPasswordForm extends Form
 
     public function save(User $user)
     {
-        if ($this->hasErrors())
+        if ($this->hasErrors()) {
             return false;
+        }
 
         $user->pass = AuthManager::getPasswordHash($this->password);
 
