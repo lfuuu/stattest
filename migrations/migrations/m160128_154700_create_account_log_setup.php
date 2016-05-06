@@ -24,7 +24,7 @@ class m160128_154700_create_account_log_setup extends \app\classes\Migration
             'price' => $this->float()->notNull(),
 
             'insert_time' => $this->timestamp()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'tariff_period_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPeriod::tableName(),

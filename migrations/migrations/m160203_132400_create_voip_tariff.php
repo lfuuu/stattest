@@ -134,7 +134,7 @@ class m160203_132400_create_voip_tariff extends \app\classes\Migration
             'id' => $this->primaryKey(),
             // текст
             'name' => $this->string()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->insert($tableName, [
             'id' => TariffVoipTarificate::ID_VOIP_BY_SECOND,
@@ -216,7 +216,7 @@ class m160203_132400_create_voip_tariff extends \app\classes\Migration
             // fk
             'tariff_id' => $this->integer()->notNull(),
             'city_id' => $this->integer()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'tariff_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id',

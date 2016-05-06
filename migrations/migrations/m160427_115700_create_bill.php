@@ -39,7 +39,7 @@ class m160427_115700_create_bill extends \app\classes\Migration
             'client_account_id' => $this->integer()->notNull(),
             'price' => $this->float()->notNull(),
             'update_time' => $this->timestamp()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'client_account_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(),

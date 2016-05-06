@@ -34,7 +34,7 @@ class m160323_131100_create_tariff_voip_group extends \app\classes\Migration
             'id' => $this->primaryKey(),
             // текст
             'name' => $this->string()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->batchInsert($tableName, ['id', 'name'], [
             [TariffVoipGroup::ID_DEFAULT, 'Универсальные'],

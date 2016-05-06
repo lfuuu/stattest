@@ -45,7 +45,7 @@ class m160119_104547_create_vbpx_account_tariff extends \app\classes\Migration
             'insert_user_id' => $this->integer(),
             'update_time' => $this->dateTime(),
             'update_user_id' => $this->integer(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'client_account_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(),
@@ -94,7 +94,7 @@ class m160119_104547_create_vbpx_account_tariff extends \app\classes\Migration
 
             'insert_time' => $this->timestamp()->notNull(), // dateTime
             'insert_user_id' => $this->integer(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'account_tariff_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),

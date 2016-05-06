@@ -51,7 +51,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             //число
             'dayscount' => $this->integer()->notNull()->defaultValue(0),
             'monthscount' => $this->integer()->notNull()->defaultValue(0),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->insert($tableName, [
             'id' => Period::ID_DAY,
@@ -97,7 +97,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             'name' => $this->string()->notNull(),
             // fk
             'service_type_id' => $this->integer(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'service_type_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
@@ -131,7 +131,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             'id' => $this->primaryKey(),
             // текст
             'name' => $this->string()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->insert($tableName, [
             'id' => TariffPerson::ID_ALL,
@@ -159,7 +159,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             'id' => $this->primaryKey(),
             // текст
             'name' => $this->string()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->insert($tableName, [
             'id' => ServiceType::ID_VPBX,
@@ -201,7 +201,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             'insert_user_id' => $this->integer(),
             'update_time' => $this->dateTime(),
             'update_user_id' => $this->integer(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
 //        $this->alterColumn('currency', 'id', $this->string(3)->notNull());
 
@@ -250,7 +250,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             'tariff_id' => $this->integer()->notNull(),
             'period_id' => $this->integer()->notNull(),
             'charge_period_id' => $this->integer()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'tariff_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id',
@@ -284,7 +284,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
 
             // fk
             'service_type_id' => $this->integer()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'service_type_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
@@ -362,7 +362,7 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
             // fk
             'resource_id' => $this->integer()->notNull(),
             'tariff_id' => $this->integer()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'resource_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Resource::tableName(), 'id',

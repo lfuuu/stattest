@@ -33,7 +33,7 @@ class m160225_130010_call_chat extends \app\classes\Migration
             "tarif_id" => "int(11) NOT NULL DEFAULT '0'",
             "prev_usage_id" => "int(11) DEFAULT '0'",
             "next_usage_id" => "int(11) DEFAULT '0'"
-        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->addPrimaryKey("id", "usage_call_chat", "id");
 

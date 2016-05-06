@@ -26,7 +26,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
         $this->createTable($tableName, [
             'id' => $this->primaryKey(),
             'name' => $this->string(255),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->batchInsert($tableName, ['id', 'name'], [
             [NumberType::ID_GEO_DID, 'Национальный географический'],
@@ -47,7 +47,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
         $this->createTable($tableName, [
             'voip_number_type_id' => $this->integer(),
             'country_id' => $this->integer(4),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $this->addPrimaryKey('pk-' . $tableName, $tableName, ['voip_number_type_id', 'country_id']);
 

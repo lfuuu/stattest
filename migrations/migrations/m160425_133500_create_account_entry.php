@@ -43,7 +43,7 @@ class m160425_133500_create_account_entry extends \app\classes\Migration
             'type_id' => $this->integer()->notNull(),
             'price' => $this->float()->notNull(),
             'update_time' => $this->timestamp()->notNull(),
-        ]);
+        ], 'ENGINE=InnoDB CHARSET=utf8');
 
         $fieldName = 'account_tariff_id';
         $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),
