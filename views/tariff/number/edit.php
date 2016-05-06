@@ -59,7 +59,7 @@ echo Breadcrumbs::widget([
             'name' => ['type' => Form::INPUT_TEXT],
             'period' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $periods, 'options' => ['class' => 'select2']],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
-            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::$beautyLevelNames, 'options' => ['class' => 'select2']],
+            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2']],
         ],
     ]);
 
@@ -78,7 +78,10 @@ echo Breadcrumbs::widget([
                             'style' => 'margin-right: 15px;',
                             'onClick' => 'self.location = "' . Url::toRoute(['tariff/number']) . '";',
                         ]) .
-                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                        Html::button('Сохранить', [
+                            'class' => 'btn btn-primary',
+                            'onClick' => 'submitForm("save")'
+                        ]),
                         ['style' => 'text-align: right; padding-right: 0px;']
                     )
             ],
@@ -89,3 +92,13 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
+
+<script>
+function submitForm(scenario) {
+    $('#scenario').val(scenario);
+    $('#<?= $form->getId(); ?>').submit();
+}
+$('#city_id').change(function () {
+    submitForm('default');
+});
+</script>

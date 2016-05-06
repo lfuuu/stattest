@@ -44,9 +44,11 @@ class NumberController extends BaseController
         $model->activation_fee = 0;
         $model->periodical_fee = 0;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            Yii::$app->session->addFlash('success', 'Запись добавлена');
-            $this->redirect('index');
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->scenario === 'save' && $model->save()) {
+                Yii::$app->session->addFlash('success', 'Запись добавлена');
+                $this->redirect('index');
+            }
         }
 
         return $this->render('edit', [
@@ -65,9 +67,11 @@ class NumberController extends BaseController
         }
         $model->setAttributes($tariff->getAttributes(), false);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            Yii::$app->session->addFlash('success', 'Запись сохранена');
-            $this->redirect('index');
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->scenario === 'save' && $model->save()) {
+                Yii::$app->session->addFlash('success', 'Запись сохранена');
+                $this->redirect('index');
+            }
         }
 
         return $this->render('edit', [
