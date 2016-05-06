@@ -29,7 +29,7 @@ if (!$accountTariff->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal services'),
-        ['label' => $serviceType->name, 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType->id])],
+        ['label' => $serviceType->name, 'url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])],
         $this->title
     ],
 ]) ?>

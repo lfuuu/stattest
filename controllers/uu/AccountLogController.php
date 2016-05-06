@@ -31,7 +31,7 @@ class AccountLogController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['setup', 'period', 'resource'],
-                        'roles' => ['tarifs.read'],
+                        'roles' => ['newaccounts_balance.read'],
                     ],
                 ],
             ],

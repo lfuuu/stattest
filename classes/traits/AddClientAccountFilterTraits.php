@@ -17,13 +17,25 @@ trait AddClientAccountFilterTraits
     {
         $get = Yii::$app->request->get();
 
-        // если выбран клиент - принудительно выставить фильтр по нему
-        global $fixclient_data;
-        if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
+        if ($clientAccountId = $this->getCurrentClientAccountId()) {
             $className = $filterModel->formName();
-            $get[$className]['client_account_id'] = $fixclient_data['id'];
+            $get[$className]['client_account_id'] = $clientAccountId;
         }
 
         $filterModel->load($get);
+    }
+
+    /**
+     * Вернуть текущего клиента, если он есть
+     * @return int|null
+     */
+    private function getCurrentClientAccountId()
+    {
+        global $fixclient_data;
+        if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
+            return (int) $fixclient_data['id'];
+        }
+
+        return null;
     }
 }

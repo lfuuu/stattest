@@ -9,6 +9,8 @@ return [
     'Monitoring' => 'Мониторинг',
     'Account entries' => 'Проводки',
     'Bills' => 'Счета',
+    'Invoice' => 'Счёт-фактура',
+    'Balance' => 'Баланс',
     'Select a month' => 'Выберите месяц',
     'Non-universal tariff' => 'Неуниверсальный тариф',
     'Non-universal service' => 'Неуниверсальная услуга',

@@ -12,7 +12,7 @@ use app\classes\grid\column\billing\MobColumn;
 use app\classes\grid\column\billing\OrigColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
-use app\classes\grid\column\billing\TrunkSuperСlientColumn;
+use app\classes\grid\column\billing\TrunkSuperClientColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
@@ -48,7 +48,7 @@ $columns = [
     [
         'attribute' => 'trunk_ids', // фейковое поле
         'label' => 'Оператор (суперклиент)',
-        'class' => TrunkSuperСlientColumn::className(),
+        'class' => TrunkSuperClientColumn::className(),
         'enableSorting' => false,
         'value' => function (Calls $call) {
             return $call->trunk_id;

@@ -27,7 +27,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 
 <?php foreach ($rows as $row) : ?>
 
-    <?php $form = ActiveForm::begin(['action' => 'uu/accounttariff/save-voip']); ?>
+    <?php $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']); ?>
 
     <div class="panel panel-info">
         <div class="panel-heading">
@@ -85,7 +85,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                                 <?= $isCancelable ?
                                     Html::a(
                                         'Отменить',
-                                        Url::toRoute(['/uu/accounttariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffFirst->tariff_period_id]),
+                                        Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffFirst->tariff_period_id]),
                                         [
                                             'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                             'title' => 'Отменить смену тарифа',
@@ -136,7 +136,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                                     <?= $isPackageCancelable ?
                                         Html::a(
                                             'Отменить',
-                                            Url::toRoute(['/uu/accounttariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffPackage->tariff_period_id]),
+                                            Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffPackage->tariff_period_id]),
                                             [
                                                 'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                                 'title' => 'Отменить смену тарифа для пакета',
@@ -216,7 +216,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                     $checkboxes.show(); // показать чекбоксы у номеров
                     $div.show()  // загрузить форму смены тарифа
                         .addClass('loading')
-                        .load('/uu/accounttariff/edit-voip?id=' + $this.data('id') + '&cityId=' + $this.data('city_id'), function () {
+                        .load('/uu/account-tariff/edit-voip?id=' + $this.data('id') + '&cityId=' + $this.data('city_id'), function () {
                             $div.removeClass('loading');
                         });
                     // скрыть все остальные кнопки загрузки формы смены тарифа, чтобы не было нескольких форм на странице. Иначе это путает

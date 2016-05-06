@@ -47,7 +47,7 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
                     strtotime($accountTariffLog->actual_from) >= time() ?
                         Html::a(
                             'Отменить',
-                            Url::toRoute(['/uu/accounttariff/cancel', 'id' => $accountTariffLog->account_tariff_id, 'tariffPeriodId' => $accountTariffLog->tariff_period_id]),
+                            Url::toRoute(['/uu/account-tariff/cancel', 'id' => $accountTariffLog->account_tariff_id, 'tariffPeriodId' => $accountTariffLog->tariff_period_id]),
                             [
                                 'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-button-cancel btn-xs',
                                 'title' => 'Отменить смену тарифа',

@@ -37,7 +37,7 @@ use yii\widgets\Breadcrumbs;
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (Bill $bill) {
-                return (new DateTime($bill->date))->format('Y-m');
+                return Yii::$app->formatter->asDate($bill->date, 'php:M Y');
             }
         ],
         [

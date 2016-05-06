@@ -1,4 +1,4 @@
-class AccounttariffEdit
+class AccountTariffEdit
 
   country: null
   numberType: null
@@ -211,4 +211,4 @@ class AccounttariffEdit
       e.stopPropagation()
       e.preventDefault()
 
-new AccounttariffEdit()
+new AccountTariffEdit()

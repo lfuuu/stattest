@@ -202,5 +202,5 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 <?php ActiveForm::end(); ?>
 
-<script type="text/javascript" src="/js/uu/accounttariffEdit.js"></script>
+<script type="text/javascript" src="/js/uu/accountTariffEdit.js"></script>
 

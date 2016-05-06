@@ -236,21 +236,24 @@ class Navigation
     }
 
     /**
-     *
+     * Добавить меню универсальных услуг (тарифы, услуги, мониторинг)
      */
     private function addBlockUniversalUsage()
     {
+        // тарифы
         $block = NavigationBlock::create();
         $block->setTitle(Yii::t('tariff', 'Universal tariffs'));
 
+        // услуги
         $block2 = NavigationBlock::create();
         $block2->setTitle(Yii::t('tariff', 'Universal services'));
 
+        // типы услуг в тарифах и услугах
         $serviceTypes = ServiceType::find()->all();
         foreach ($serviceTypes as $serviceType) {
             $block->addItem($serviceType->name, Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id]), ['tarifs.read']);
             $block2->addItem($serviceType->name, Url::to([
-                'uu/accounttariff',
+                'uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
                 //'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
             ]), ['tarifs.read']);
@@ -259,20 +262,23 @@ class Navigation
         $this->addBlock($block);
         $this->addBlock($block2);
 
+        // мониторинг
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
-                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     'uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],
-                    ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Account entries'), ['uu/account-entry'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Bills'), ['uu/bill'], ['tarifs.read'])
+                    ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Account entries'), ['uu/account-entry'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Bills'), ['uu/bill'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Invoice'), ['uu/invoice/view'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Balance'), ['uu/balance/view'], ['newaccounts_balance.read'])
         );
     }
 

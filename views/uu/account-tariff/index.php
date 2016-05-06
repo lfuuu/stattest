@@ -23,7 +23,7 @@ if (!$serviceType) {
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal services'),
-        ['label' => $this->title = $serviceType->name, 'url' => Url::to(['uu/accounttariff', 'serviceTypeId' => $serviceType->id])],
+        ['label' => $this->title = $serviceType->name, 'url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])],
     ],
 ]) ?>
 

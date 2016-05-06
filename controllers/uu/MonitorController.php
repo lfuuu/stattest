@@ -32,7 +32,7 @@ class MonitorController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['index'],
-                        'roles' => ['tarifs.read'],
+                        'roles' => ['newaccounts_balance.read'],
                     ],
                 ],
             ],

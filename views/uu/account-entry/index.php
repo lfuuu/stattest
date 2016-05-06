@@ -45,8 +45,8 @@ $accountTariffTableName = AccountTariff::tableName();
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
-                return (new DateTime($accountEntry->date))->format('Y-m');
-            }
+                return Yii::$app->formatter->asDate($accountEntry->date, 'php:M Y');
+            },
         ],
         [
             'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
@@ -55,7 +55,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'format' => 'html',
             'value' => function (AccountEntry $accountEntry) {
                 return $accountEntry->accountTariff->clientAccount->getLink();
-            }
+            },
         ],
         [
             'label' => 'Тип услуги',
@@ -63,7 +63,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => ServiceTypeColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
                 return $accountEntry->accountTariff->serviceType->name;
-            }
+            },
         ],
         [
             'attribute' => 'account_tariff_id',
@@ -76,14 +76,14 @@ $accountTariffTableName = AccountTariff::tableName();
                     Html::encode($accountTariff->getName(false)),
                     $accountTariff->getUrl()
                 );
-            }
+            },
         ],
         [
             'attribute' => 'type_id',
             'class' => AccountEntryTypeColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
                 return $accountEntry->getTypeName();
-            }
+            },
         ],
         [
             'attribute' => 'price',
@@ -156,7 +156,7 @@ $accountTariffTableName = AccountTariff::tableName();
 
                 return implode('<br />', $accountLogs);
 
-            }
+            },
         ],
     ],
 ]) ?>

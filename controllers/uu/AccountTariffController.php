@@ -19,7 +19,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\web\Response;
 
-class AccounttariffController extends BaseController
+class AccountTariffController extends BaseController
 {
     // Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
     use AddClientAccountFilterTraits;

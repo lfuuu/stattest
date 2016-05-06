@@ -97,7 +97,7 @@ class AccountTariff extends ActiveRecord
      */
     public function getUrl()
     {
-        return Url::to(['uu/accounttariff/edit', 'id' => $this->id]);
+        return Url::to(['uu/account-tariff/edit', 'id' => $this->id]);
     }
 
     /**
@@ -141,7 +141,7 @@ class AccountTariff extends ActiveRecord
      */
     public static function getUrlNew($serviceTypeId)
     {
-        return Url::to(['uu/accounttariff/new', 'serviceTypeId' => $serviceTypeId]);
+        return Url::to(['uu/account-tariff/new', 'serviceTypeId' => $serviceTypeId]);
     }
 
     /**
