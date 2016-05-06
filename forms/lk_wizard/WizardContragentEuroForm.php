@@ -7,8 +7,9 @@ use app\classes\validators\FormFieldValidator;
 use app\models\ClientContragent;
 use app\models\ClientAccount;
 
-class WizardContragentEurForm extends Form
+class WizardContragentEuroForm extends Form
 {
+    public $is_inn = null;
     public $legal_type;
     public $name;
     public $inn;
@@ -32,9 +33,21 @@ class WizardContragentEurForm extends Form
 
         $rules[] = [['address_post'], FormFieldValidator::className()];
 
+        $rules[] = [['is_inn'], 'required', 'when' => function($model){
+            return $model->legal_type == ClientContragent::LEGAL_TYPE;
+        }];
+
+        $rules[] = [['inn'], 'required', 'when' => function($model){
+            return $model->legal_type == ClientContragent::LEGAL_TYPE && $model->is_inn;
+        }];
+
+        $rules[] = [['inn'], FormFieldValidator::className(), 'when' => function($model){
+            return $model->legal_type == ClientContragent::LEGAL_TYPE && $model->is_inn;
+        }];
+
         foreach (['required', FormFieldValidator::className()] as $validator) {
             $rules[] = [
-                ['name', 'inn', 'address_jur', 'position', 'fio'],
+                ['name', 'address_jur', 'position', 'fio'],
                 $validator,
                 "when" => function ($model) {
                     return $model->legal_type == ClientContragent::LEGAL_TYPE;

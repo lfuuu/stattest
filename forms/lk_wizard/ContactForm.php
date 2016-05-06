@@ -18,7 +18,7 @@ class ContactForm extends Form
 
         $rules[] = [["contact_phone"], "required"];
         $rules[] = ["contact_fio", "required", "on" => "mcn"];
-        $rules[] = ["fio", "required", "on" => "eur"];
+        $rules[] = ["fio", "required", "on" => "euro"];
 
         return $rules;
     }

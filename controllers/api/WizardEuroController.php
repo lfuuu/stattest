@@ -9,22 +9,22 @@ use app\models\LkWizardState;
 use app\models\ClientDocument;
 use app\models\TroubleState;
 use app\models\User;
-use app\forms\lk_wizard\WizardContragentEurForm;
+use app\forms\lk_wizard\WizardContragentEuroForm;
 use app\forms\lk_wizard\ContactForm;
 
 /**
- * Class WizardEurController
+ * Class WizardEuroController
  *
  * @package app\controllers\api
  */
-class WizardEurController extends WizardBaseController
+class WizardEuroController extends WizardBaseController
 {
     protected $lastStep = 3;
 
     /**
      * @SWG\Post(
      *   tags={"Работа с европейским визардом"},
-     *   path="/wizard-eur/save/",
+     *   path="/wizard-euro/save/",
      *   summary="Сохранение состояния визарда",
      *   operationId="Сохранение состояния визарда",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -79,6 +79,7 @@ class WizardEurController extends WizardBaseController
                     $this->eraseContract();
                 }
                 $step++;
+
                 $this->wizard->step = $step;
                 $this->wizard->state = ($step < $this->lastStep ? LkWizardState::STATE_PROCESS : LkWizardState::STATE_REVIEW);
                 $this->wizard->save();
@@ -104,7 +105,7 @@ class WizardEurController extends WizardBaseController
     /**
      * @SWG\Post(
      *   tags={"Работа с европейским визардом"},
-     *   path="/wizard-eur/get_contract/",
+     *   path="/wizard-euro/get_contract/",
      *   summary="Получение договора",
      *   operationId="Получение договора",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -138,7 +139,7 @@ class WizardEurController extends WizardBaseController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_EUR;
+            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_EURO;
             $clientDocument->save();
 
             $contract = ClientDocument::find()
@@ -160,6 +161,7 @@ class WizardEurController extends WizardBaseController
         if (isset($this->postData['as_html'])) {
             return $content;
         }
+
         return base64_encode($content);
     }
 
@@ -237,11 +239,11 @@ class WizardEurController extends WizardBaseController
      */
     private function _saveStep1($stepData)
     {
-        $form = new WizardContragentEurForm();
+        $form = new WizardContragentEuroForm();
         $contactForm = new ContactForm();
         $acceptForm = new AcceptsForm();
 
-        $contactForm->setScenario('eur');
+        $contactForm->setScenario('euro');
 
         $stepData['contact_fio'] = (isset($stepData['fio']) ? $stepData['fio'] : '');
 

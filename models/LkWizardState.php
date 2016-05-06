@@ -25,7 +25,7 @@ use yii\db\ActiveRecord;
 class LkWizardState extends ActiveRecord
 {
     const TYPE_MCN = 'mcn';
-    const TYPE_EUR = 'eur';
+    const TYPE_EURO = 'euro';
 
     const STATE_PROCESS = 'process';
     const STATE_REVIEW = 'review';
