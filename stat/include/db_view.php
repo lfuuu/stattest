@@ -153,10 +153,12 @@ class DbViewCommonTarif extends DbView {
 		$this->SQLFilters['a']='status="archive"';
 		$this->SQLFilters['s']='status="special"';
 		$this->SQLFilters['su']='status="adsl_su"';
+		$this->SQLFilters['itos']='status="itos"';
 		$this->SQLFilterNames['p']='публичный';
 		$this->SQLFilterNames['a']='архивный';
 		$this->SQLFilterNames['s']='специальный';
 		$this->SQLFilterNames['su']='adsl.su';
+		$this->SQLFilterNames['itos']='ИТ-аутсорсинг';
 
 		$currencies = Currency::enum();
 
@@ -310,6 +312,13 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
         ];
 		$this->fieldset='z';
 
+		$currencies = Currency::enum();
+
+		$this->SQLFilterGroups = [
+			'Тип тарифа' => ['p','a','s','su','itos'],
+			'Валюта тарифа' => $currencies,
+		];
+
 		$this->SQLFilters['pa']='1 and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['pm']='period="month" and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['py']='period="year" and code not in ("welltime","wellsystem")';
@@ -330,7 +339,7 @@ class DbFormTarifsExtra extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
 		$this->fields['currency']=array('enum'=>Currency::enum(),'default'=>Currency::RUB);
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный', 'itos' => 'ИТ-аутсорсинг'));
 		$this->fields['description']=array();
 		$this->fields['code']=array('assoc_enum'=>array(
                     ''=>'',
