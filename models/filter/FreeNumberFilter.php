@@ -152,8 +152,8 @@ class FreeNumberFilter extends Number
      */
     public function setDidGroup($didGroupId)
     {
-        if ((int)$didGroupId) {
-            $this->query->andWhere(['did_group_id' => $didGroupId]);
+        if ((int) $didGroupId) {
+            $this->query->andWhere(['did_group_id' => (int) $didGroupId]);
         }
         return $this;
     }
@@ -164,8 +164,8 @@ class FreeNumberFilter extends Number
      */
     public function setCity($cityId)
     {
-        if ((int)$cityId) {
-            $this->query->andWhere(['city_id' => $cityId]);
+        if ((int) $cityId) {
+            $this->query->andWhere(['city_id' => (int) $cityId]);
         }
         return $this;
     }
