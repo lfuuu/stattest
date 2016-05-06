@@ -100,7 +100,8 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'service_type_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
+            'id', 'RESTRICT');
 
         $this->insert($tableName, [
             'id' => TariffStatus::ID_PUBLIC,
@@ -205,25 +206,32 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
 //        $this->alterColumn('currency', 'id', $this->string(3)->notNull());
 
         $fieldName = 'currency_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Currency::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Currency::tableName(), 'id',
+            'RESTRICT');
 
         $fieldName = 'service_type_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'tariff_status_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffStatus::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffStatus::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'country_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Country::tableName(), 'code', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Country::tableName(),
+            'code', 'RESTRICT');
 
         $fieldName = 'tariff_person_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPerson::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffPerson::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'insert_user_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id', 'SET NULL');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id',
+            'SET NULL');
 
         $fieldName = 'update_user_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id', 'SET NULL');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, User::tableName(), 'id',
+            'SET NULL');
     }
 
     /**
@@ -245,13 +253,16 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id',
+            'CASCADE');
 
         $fieldName = 'period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Period::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Period::tableName(), 'id',
+            'RESTRICT');
 
         $fieldName = 'charge_period_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Period::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Period::tableName(), 'id',
+            'RESTRICT');
     }
 
     /**
@@ -276,7 +287,8 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'service_type_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ServiceType::tableName(),
+            'id', 'RESTRICT');
 
         $this->insert($tableName, [
             'id' => Resource::ID_VPBX_DISK,
@@ -353,10 +365,12 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
         ]);
 
         $fieldName = 'resource_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Resource::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Resource::tableName(), 'id',
+            'RESTRICT');
 
         $fieldName = 'tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id', 'CASCADE');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Tariff::tableName(), 'id',
+            'CASCADE');
 
         $this->createIndex('u-' . $tableName . '-resource_id-tariff_id', $tableName, ['resource_id', 'tariff_id']);
     }

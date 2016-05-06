@@ -30,8 +30,7 @@ class ImportantEventsRules extends ActiveRecord
         if (parent::beforeDelete()) {
             ImportantEventsRulesConditions::deleteAll($this->id);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

@@ -23,6 +23,6 @@ trait ListTrait
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = $this->getDataCellValue($model, $key, $index);
-        return isset($this->filter[$value]) ? (string) $this->filter[$value] : $value;
+        return isset($this->filter[$value]) ? (string)$this->filter[$value] : $value;
     }
 }

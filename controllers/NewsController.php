@@ -46,10 +46,11 @@ class NewsController extends BaseController
         $model->priority = $data['priority'];
         $model->date = date('Y-m-d H:i:s');
 
-        if($model->save())
+        if ($model->save()) {
             $res = ['status' => 'ok'];
-        else
+        } else {
             $res = ['status' => 'error'];
+        }
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
@@ -64,8 +65,9 @@ class NewsController extends BaseController
             ->limit(50)->all();
         $this->layout = false;
         krsort($news);
-        foreach($news as $item)
+        foreach ($news as $item) {
             echo $this->render('_message', ['item' => $item]);
+        }
         die;
     }
 }

@@ -30,13 +30,14 @@ class VersionController extends BaseController
     public function actionShow()
     {
         $getRequest = Yii::$app->request->get();
-        if(!$getRequest)
+        if (!$getRequest) {
             throw new Exception('Models does not exists');
+        }
 
         $versions = HistoryVersion::find();
         $models = [];
 
-        foreach($getRequest as $model => $id) {
+        foreach ($getRequest as $model => $id) {
             $className = 'app\\models\\' . $model;
             if (!class_exists($className)) {
                 throw new Exception('Bad model type');
@@ -61,8 +62,9 @@ class VersionController extends BaseController
     {
         $version = HistoryVersion::findOne(['model' => $model, 'model_id' => $modelId, 'date' => $date]);
 
-        if(!$version)
+        if (!$version) {
             throw new Exception('Version does not exists');
+        }
 
         $version->delete();
 

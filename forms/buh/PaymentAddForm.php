@@ -11,17 +11,34 @@ class PaymentAddForm extends PaymentForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['client_id', 'payment_date', 'oper_date', 'bill_no','original_currency','original_sum','sum','payment_rate','type'], 'required'];
         $rules[] = [
-            ['payment_no','bank'],
+            [
+                'client_id',
+                'payment_date',
+                'oper_date',
+                'bill_no',
+                'original_currency',
+                'original_sum',
+                'sum',
+                'payment_rate',
+                'type'
+            ],
+            'required'
+        ];
+        $rules[] = [
+            ['payment_no', 'bank'],
             'required',
-            'when' => function ($model) { return $model->type == 'bank'; },
+            'when' => function ($model) {
+                return $model->type == 'bank';
+            },
             'whenClient' => 'function (attribute, value) { return $("#payment_type").val() == "bank"; }'
         ];
         $rules[] = [
             ['ecash_operator'],
             'required',
-            'when' => function ($model) { return $model->type == 'ecash'; },
+            'when' => function ($model) {
+                return $model->type == 'ecash';
+            },
             'whenClient' => 'function (attribute, value) { return $("#payment_type").val() == "ecash"; }'
         ];
         return $rules;

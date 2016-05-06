@@ -40,8 +40,8 @@ class ExtraServiceDao extends Singleton implements ServiceDao
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])
-                ->andWhere(['tarifs_extra.status' => ['public','special','archive']])
-                ->andWhere(['not in', 'tarifs_extra.code', ['welltime','wellsystem']])
+                ->andWhere(['tarifs_extra.status' => ['public', 'special', 'archive']])
+                ->andWhere(['not in', 'tarifs_extra.code', ['welltime', 'wellsystem']])
                 ->all();
     }
 

@@ -10,7 +10,7 @@ class NetworkConfigEditForm extends NetworkConfigForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['id','name'], 'required'];
+        $rules[] = [['id', 'name'], 'required'];
         return $rules;
     }
 

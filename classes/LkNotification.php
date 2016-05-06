@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace app\classes;
 
 use Yii;
@@ -7,10 +7,11 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\important_events\ImportantEventsNames;
 
-class LkNotification {
+class LkNotification
+{
 
     /**
-     * 
+     *
      * @var ClientAccount $clientId Идентификатор клиента
      */
     private $Client = null;
@@ -25,7 +26,7 @@ class LkNotification {
     private $type = null;
 
     /**
-     * 
+     *
      * @var int $contactId Идентификатор контакта клиента
      */
     private $Contact = null;
@@ -49,7 +50,7 @@ class LkNotification {
     private $design = null;
 
     /**
-     * 
+     *
      * @var string $tpl_dir Папка с шаблонами сообщений
      */
     private $tpl_dir = '@app/stat/design/letters/notification/';
@@ -67,7 +68,7 @@ class LkNotification {
 
     public function send()
     {
-        switch( $this->Contact->type) {
+        switch ($this->Contact->type) {
             case 'email':
                 return $this->sendMail();
             case 'phone':
@@ -90,7 +91,6 @@ class LkNotification {
         $path = Yii::getAlias($this->tpl_dir . $lang . DIRECTORY_SEPARATOR . $contactType . DIRECTORY_SEPARATOR);
 
 
-
         $assigns = [
             'value' => $this->value,
             'balance' => $this->balance,
@@ -104,7 +104,11 @@ class LkNotification {
         $message = $this->design->fetch($path . $this->type . '.tpl');
 
         if ($contactType === 'email') {
-            if (in_array($this->type, [ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT, ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE, ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])) {
+            if (in_array($this->type, [
+                ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT,
+                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
+                ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE
+            ])) {
                 // реклама услуги ""Уведомление о критическом остатке"
                 $message .= $this->design->fetch($path . '__sms_notification.tpl');
             }
@@ -121,7 +125,8 @@ class LkNotification {
             case ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE:
             case ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT:
             case ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF:
-                return Yii::t('settings', 'email_subject_' . $this->type, ['organization' => $this->Client->organization], $this->Client->country->lang);
+                return Yii::t('settings', 'email_subject_' . $this->type,
+                    ['organization' => $this->Client->organization], $this->Client->country->lang);
                 break;
             default:
                 break;
@@ -161,7 +166,7 @@ class LkNotification {
         $row = new LkNotice;
         $row->setAttributes($params, false);
 
-        return (bool) $row->save();
+        return (bool)$row->save();
     }
 
     private function sendSMS()
@@ -171,8 +176,8 @@ class LkNotification {
         if (defined('MONITORING_EMAIL')) {
             $params = [
                 'data' => MONITORING_EMAIL,
-                'message' => 'SMS: '. $this->getMessage(),
-                'subject' => 'SMS - '.$phoneNumber,
+                'message' => 'SMS: ' . $this->getMessage(),
+                'subject' => 'SMS - ' . $phoneNumber,
                 'type' => LkNotice::TYPE_EMAIL,
                 'contact_id' => $this->Contact->id,
                 'lang' => $this->Client->country->lang,
@@ -194,7 +199,7 @@ class LkNotification {
         $row = new LkNotice;
         $row->setAttributes($params, false);
 
-        return (bool) $row->save();
+        return (bool)$row->save();
     }
 }
 

@@ -34,7 +34,7 @@ class SaleChannelController extends BaseController
     public function actionCreate()
     {
         $model = new SaleChannelOld();
-        if($model->load(Yii::$app->request->post()) && $model->save()){
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['sale-channel/index']);
         }
 
@@ -44,10 +44,11 @@ class SaleChannelController extends BaseController
     public function actionEdit($id)
     {
         $model = SaleChannelOld::findOne($id);
-        if(!$model)
+        if (!$model) {
             throw new Exception('Sale Channel does not exist');
+        }
 
-        if($model->load(Yii::$app->request->post()) && $model->save()){
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['sale-channel/index']);
         }
 

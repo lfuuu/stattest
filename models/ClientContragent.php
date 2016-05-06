@@ -89,18 +89,22 @@ class ClientContragent extends HistoryActiveRecord
             $super->save();
         }
 
-        foreach ($this->getContracts() as $contact)
-            foreach ($contact->getAccounts() as $account)
+        foreach ($this->getContracts() as $contact) {
+            foreach ($contact->getAccounts() as $account) {
                 $account->sync1C();
+            }
+        }
     }
 
     public function beforeSave($insert)
     {
-        if (!parent::beforeSave($insert))
+        if (!parent::beforeSave($insert)) {
             return false;
+        }
 
-        if (!$this->name && !$this->name_full)
+        if (!$this->name && !$this->name_full) {
             $this->name = $this->name_full = 'Новый контрагент ';
+        }
         return true;
     }
 
@@ -122,11 +126,11 @@ class ClientContragent extends HistoryActiveRecord
     public function getPerson()
     {
         $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
-        if ($person){
-            if($this->getHistoryVersionRequestedDate())
+        if ($person) {
+            if ($this->getHistoryVersionRequestedDate()) {
                 $person = $person->loadVersionOnDate($this->getHistoryVersionRequestedDate());
-        }
-        else {
+            }
+        } else {
             $person = new ClientContragentPerson();
             $person->contragent_id = $this->id;
         }

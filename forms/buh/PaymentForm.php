@@ -27,11 +27,11 @@ class PaymentForm extends Form
     public function rules()
     {
         return [
-            [['id','client_id','payment_no',], 'integer'],
-            [['bill_no','type','ecash_operator','comment','bank'], 'string'],
-            [['payment_date','oper_date'], 'string'],
-            [['currency','original_currency'], 'string'],
-            [['sum','original_sum'], 'double'],
+            [['id', 'client_id', 'payment_no',], 'integer'],
+            [['bill_no', 'type', 'ecash_operator', 'comment', 'bank'], 'string'],
+            [['payment_date', 'oper_date'], 'string'],
+            [['currency', 'original_currency'], 'string'],
+            [['sum', 'original_sum'], 'double'],
         ];
     }
 
@@ -116,7 +116,7 @@ class PaymentForm extends Form
                 ->orderBy('number desc')
                 ->asArray()
                 ->all();
-        foreach($incomeGoodsNotPayed as $order) {
+        foreach ($incomeGoodsNotPayed as $order) {
             $result['-- заказы не оплаченые --'] = [];
             $result['-- заказы не оплаченые --'][$order['number']] =
                 $order['number'] . ' = ' . $order['sum'] . ' ' . Currency::symbol($order['currency']);

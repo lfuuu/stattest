@@ -19,7 +19,7 @@ use yii\db\ActiveRecord;
  * @property int is_contract_accept
  * @property int client_contragent_person
  * @property Trouble trouble
- * 
+ *
  * @package app\models
  */
 class LkWizardState extends ActiveRecord
@@ -57,8 +57,7 @@ class LkWizardState extends ActiveRecord
 
     public function getStepName()
     {
-        if ($this->type == "mcn")
-        {
+        if ($this->type == "mcn") {
             switch ($this->step) {
                 case 1:
                     return "Заполнение реквизитов";
@@ -83,7 +82,7 @@ class LkWizardState extends ActiveRecord
             }
         }
 
-        return "Шаг ".$this->step;
+        return "Шаг " . $this->step;
     }
 
     public static function isBPStatusAllow($bpsId, $contractId = 0)

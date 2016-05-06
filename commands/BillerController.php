@@ -64,13 +64,15 @@ class BillerController extends Controller
 
         try {
 
-            ClientAccountBiller::create($clientAccount, $date, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
+            ClientAccountBiller::create($clientAccount, $date, $onlyConnecting = false, $connecting = false,
+                $periodical = true, $resource = false)
                 ->process();
 
             $resourceDate = clone $date;
             $resourceDate->modify('-1 day');
 
-            ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
+            ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false,
+                $periodical = false, $resource = true)
                 ->process();
 
         } catch (\Exception $e) {

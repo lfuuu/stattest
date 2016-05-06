@@ -48,9 +48,9 @@ class Calls extends ActiveRecord
 
     public $calls_count = '';
     public $billed_time_sum = '';
-    
+
     public $rate_with_interconnect = '';
-    
+
     public $cost_sum = '';
     public $interconnect_cost_sum = '';
     public $cost_with_interconnect_sum = '';
@@ -65,15 +65,20 @@ class Calls extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'server_id' => 'Точка присоединения', // public.server или billing.instance_settings
+            'server_id' => 'Точка присоединения',
+            // public.server или billing.instance_settings
             'id' => 'ID',
-            'orig' => 'Оригинация', // оригинация - вход, терминация - выход
+            'orig' => 'Оригинация',
+            // оригинация - вход, терминация - выход
             //'peer_id' => 'xxx',
-            'cdr_id' => 'CDR', // call data record
+            'cdr_id' => 'CDR',
+            // call data record
             'connect_time' => 'Время начала разговора (UTC)',
             'trunk_id' => 'Транк',
-            'account_id' => 'Клиент', // Но вообще он же оператор
-            'trunk_service_id' => 'Номер договора', // Услуга транк, billing.service_trunk или usage_trunk
+            'account_id' => 'Клиент',
+            // Но вообще он же оператор
+            'trunk_service_id' => 'Номер договора',
+            // Услуга транк, billing.service_trunk или usage_trunk
             'number_service_id' => 'Услуга номер',
             'src_number' => 'Исходящий №',
             'dst_number' => 'Входящий №',
@@ -87,12 +92,16 @@ class Calls extends ActiveRecord
             'service_package_stats_id' => 'Пакет в stat (?)',
             'package_time' => 'Секунд из пакета',
             'package_credit' => 'Перерасход (?)',
-            'destination_id' => 'Направление', // auth.destination
+            'destination_id' => 'Направление',
+            // auth.destination
             'pricelist_id' => 'Прайслист',
-            'prefix' => 'Префикс', // соответствие префиксу из прайса
-            'geo_id' => 'География',  // География, Локация B-номера
+            'prefix' => 'Префикс',
+            // соответствие префиксу из прайса
+            'geo_id' => 'География',
+            // География, Локация B-номера
             //'geo_operator_id' => 'xxx',
-            'mob' => 'Мобильный', // Стационарный
+            'mob' => 'Мобильный',
+            // Стационарный
             //'operator_id' => 'Оператор', // deprecated. Надо trunk_id -> mysql.stat.usage_trunk -> postgresql.voip.operator
             'geo_mob' => 'Россвязь мобильные',
             'our' => 'Наш клиент',

@@ -48,10 +48,12 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
         $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
 
         list($dateFrom, $dateTo) = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
-        if (!$dateFrom)
+        if (!$dateFrom) {
             $dateFrom = date('Y-m-01');
-        if (!$dateTo)
+        }
+        if (!$dateTo) {
             $dateTo = date('Y-m-t');
+        }
 
         $query->andWhere('b.bill_date BETWEEN DATE_ADD( :date_from, INTERVAL -1 MONTH) AND  :date_to', [
             'date_from' => $dateFrom,

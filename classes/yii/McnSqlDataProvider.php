@@ -12,11 +12,11 @@ use yii\data\SqlDataProvider;
 
 class McnSqlDataProvider extends SqlDataProvider
 {
-   // в базовом классе не реализованна возможность поэтому пилю сам
-   protected function prepareTotalCount()
+    // в базовом классе не реализованна возможность поэтому пилю сам
+    protected function prepareTotalCount()
     {
-        $sql = 'select count(*) as totalcount from ('.$this->sql.') as q';
+        $sql = 'select count(*) as totalcount from (' . $this->sql . ') as q';
         return intval($this->db->createCommand($sql, $this->params)->queryScalar());
     }
-    
+
 }

@@ -24,15 +24,15 @@ class RenderParams extends Singleton
     }
 
     /**
-    *
-    * @param string $tpl
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     *
+     * @param string $tpl
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     public function apply($tpl, $clientAccountId, $contactId, $eventId = null)
     {
         assert(!empty($tpl));
-        foreach(Yii::$app->params['mail_map_names'] as $replaceFrom => $call) {
+        foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $call) {
             $replaceTo = $this->{$call}($clientAccountId, $contactId, $eventId);
             $tpl = str_replace($replaceFrom, $replaceTo, $tpl);
         }
@@ -40,54 +40,54 @@ class RenderParams extends Singleton
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getClientAccountId($clientAccountId, $contactId)
     {
         return $clientAccountId;
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getContactId($clientAccountId, $contactId)
     {
         return $contactId;
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getKey($clientAccountId, $contactId)
     {
         return 'key';
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getContractNum($clientAccountId, $contactId)
     {
         return ClientAccount::findOne($clientAccountId)->contract_id;
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getBalance($clientAccountId, $contactId)
     {
         return ClientAccount::findOne($clientAccountId)->billingCounters->realtimeBalance;
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getLnk($clientAccountId, $contactId)
     {
         $region_id = ClientAccount::findOne($clientAccountId)->region;
@@ -97,9 +97,9 @@ class RenderParams extends Singleton
     }
 
     /**
-    * @param int $clientAccountId
-    * @param int $contactId
-    **/
+     * @param int $clientAccountId
+     * @param int $contactId
+     **/
     private function getPassword($clientAccountId, $contactId)
     {
         return 'anyPass';
@@ -132,7 +132,7 @@ class RenderParams extends Singleton
      */
     private function getNewPaymentValue($clientAccountId, $contactId, $eventId)
     {
-        return (float) $this->eventProperty($clientAccountId, $eventId, 'value');
+        return (float)$this->eventProperty($clientAccountId, $eventId, 'value');
     }
 
     /**
@@ -151,7 +151,7 @@ class RenderParams extends Singleton
             return false;
         }
 
-        $properties = ArrayHelper::map((array) $event->properties, 'property', 'value');
+        $properties = ArrayHelper::map((array)$event->properties, 'property', 'value');
 
         return
             $eventProperty !== false && isset($properties[$eventProperty])

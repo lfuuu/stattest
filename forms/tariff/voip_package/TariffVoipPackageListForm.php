@@ -10,8 +10,8 @@ class TariffVoipPackageListForm extends TariffVoipPackageForm
     public function rules()
     {
         return [
-            [['country_id','connection_point_id','destination_id','currency_id'], 'integer'],
-            [['currency_id','name'], 'string']
+            [['country_id', 'connection_point_id', 'destination_id', 'currency_id'], 'integer'],
+            [['currency_id', 'name'], 'string']
         ];
     }
 

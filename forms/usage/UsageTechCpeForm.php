@@ -42,10 +42,22 @@ class UsageTechCpeForm extends Form
             [['client', 'id_model'], 'required'],
             [
                 [
-                    'actual_from', 'actual_to', 'client', 'serial', 'mac',
-                    'ip', 'ip_nat', 'ip_cidr', 'ip_gw', 'admin_login', 'admin_pass',
-                    'numbers', 'logins', 'service',
-                ], 'string'
+                    'actual_from',
+                    'actual_to',
+                    'client',
+                    'serial',
+                    'mac',
+                    'ip',
+                    'ip_nat',
+                    'ip_cidr',
+                    'ip_gw',
+                    'admin_login',
+                    'admin_pass',
+                    'numbers',
+                    'logins',
+                    'service',
+                ],
+                'string'
             ],
             ['owner', 'in', 'range' => ['', 'mcn', 'client', 'mgts']],
             ['tech_support', 'in', 'range' => ['', 'mcn', 'client', 'mgts']],
@@ -92,7 +104,7 @@ class UsageTechCpeForm extends Form
 
         $query->where(new Expression('id IS NOT NULL'));
 
-        if ((int) $this->id) {
+        if ((int)$this->id) {
             $query->andWhere(['!=', 'id', $this->id]);
         }
 

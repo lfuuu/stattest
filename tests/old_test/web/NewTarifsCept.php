@@ -18,7 +18,7 @@ $tariffs = array(
         'selectbox' => array(
             'select[name="region"]' => '99. Москва',
             'select[name="dest"]' => 'Местные Мобильные',
-        ), 
+        ),
         'input' => array(
             'input[name="name"]' => 'test_voip',
             'input[name="name_short"]' => 'short_voip',
@@ -40,7 +40,7 @@ $tariffs = array(
         'add_link' => 'Добавить тариф',
         'selectbox' => array(
             'select[name="region"]' => '99. Москва',
-        ), 
+        ),
         'input' => array(
             'input[name="name"]' => 'test_voip2',
             'input[name="name_short"]' => 'short_voip2',
@@ -63,7 +63,7 @@ $tariffs = array(
         'selectbox' => array(
             'select[name="region"]' => '99. Москва',
             'select[name="dest"]' => 'Россия',
-        ), 
+        ),
         'input' => array(
             'input[name="name"]' => 'test_voip3',
             'input[name="name_short"]' => 'short_voip3',
@@ -86,7 +86,7 @@ $tariffs = array(
         'selectbox' => array(
             'select[name="region"]' => '99. Москва',
             'select[name="dest"]' => 'Международка',
-        ), 
+        ),
         'input' => array(
             'input[name="name"]' => 'test_voip5',
             'input[name="name_short"]' => 'short_voip5',
@@ -108,7 +108,7 @@ $tariffs = array(
         'add_link' => 'Добавить',
         'selectbox' => array(
             'select[name="dbform[adsl_speed]"]' => '768/10000',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[name]"]' => 'test_internet',
             'input[name="dbform[pay_once]"]' => '300',
@@ -150,7 +150,7 @@ $tariffs = array(
         'selectbox' => array(
             'select[name="dbform[adsl_speed]"]' => '768/10000',
             'select[name="dbform[type]"]' => 'VPN (V)',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[name]"]' => 'test_vpn',
             'input[name="dbform[pay_once]"]' => '300',
@@ -171,7 +171,7 @@ $tariffs = array(
         'selectbox' => array(
             'select[name="dbform[is_countable]"]' => 'любое',
             'select[name="dbform[code]"]' => 'АТС',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[description]"]' => 'test_extra',
             'input[name="dbform[price]"]' => '300',
@@ -189,7 +189,7 @@ $tariffs = array(
             'select[name="dbform[okvd_code]"]' => 'мин',
             'select[name="dbform[code]"]' => 'Конференц-зал',
             'select[name="dbform[period]"]' => 'ежемесячно',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[description]"]' => 'test_itpark',
             'input[name="dbform[price]"]' => '300',
@@ -201,7 +201,7 @@ $tariffs = array(
         'add_link' => 'Добавить',
         'selectbox' => array(
             'select[name="dbform[period]"]' => 'ежемесячно',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[description]"]' => 'test_welltime',
             'input[name="dbform[price]"]' => '300',
@@ -217,7 +217,7 @@ $tariffs = array(
         'add_link' => 'Добавить',
         'selectbox' => array(
             'select[name="dbform[is_fax]"]' => 'Нет',
-        ), 
+        ),
         'input' => array(
             'input[name="dbform[description]"]' => 'test_vpbx',
             'input[name="dbform[price]"]' => '300',
@@ -255,8 +255,7 @@ $tariffs = array(
     ),
 );
 
-foreach ($tariffs as $v)
-{
+foreach ($tariffs as $v) {
     $I->amOnPage($v['page']);
 
     // ссылка на добавление нового тарифа
@@ -269,24 +268,24 @@ foreach ($tariffs as $v)
             $I->selectOption($select, $option);
         }
     }
-    
+
     // заполнение текстовый полей формы
     if (isset($v['input'])) {
         foreach ($v['input'] as $field => $value) {
             $I->fillField($field, $value);
         }
     }
-    
+
     // выбор чекбоксов формы
     if (isset($v['checkbox'])) {
         foreach ($v['checkbox'] as $option) {
             $I->checkOption($option);
         }
     }
-    
+
     // жмем кнопку "Добавить"
     $I->click($v['button']);
-    
+
     //проверка
     if (isset($v['verifications'])) {
         foreach ($v['verifications'] as $type => $verification) {
@@ -294,30 +293,28 @@ foreach ($tariffs as $v)
             if ($type == 'link') {
                 $I->seeLink($verification);
             }
-            
+
             // проверка текста короткого имени тарифа
             if ($type == 'text') {
                 $I->see($verification);
             }
-            
+
             //проверка введенных значений селектбоксев
             if ($type == 'selectboxes' && isset($v['selectbox'])) {
-                foreach ($v['selectbox'] as $select => $option)
-                {
+                foreach ($v['selectbox'] as $select => $option) {
                     $I->seeOptionIsSelected($select, $option);
                 }
             }
-            
+
             //проверка введеных значений в текстовые поля
             if ($type == 'inputs' && isset($v['input'])) {
-                foreach ($v['input'] as $field => $value)
-                {
+                foreach ($v['input'] as $field => $value) {
                     $I->seeInField($field, $value);
                 }
             }
         }
     }
-    
+
 }
 
 

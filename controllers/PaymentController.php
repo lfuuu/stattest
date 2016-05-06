@@ -49,7 +49,7 @@ class PaymentController extends BaseController
         $model->oper_date = date('Y-m-d');
         $model->payment_rate = 1;
 
-        if ((int) $billId && ($bill = Bill::findOne($billId)) instanceof Bill) {
+        if ((int)$billId && ($bill = Bill::findOne($billId)) instanceof Bill) {
             $model->original_sum = $bill->sum;
             $model->bill_no = $bill->bill_no;
         }

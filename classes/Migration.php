@@ -33,7 +33,7 @@ class Migration extends \yii\db\Migration
         $dbName = $matches[2][0];
         $dbUser = $this->db->username;
         $dbPass = $this->db->password;
-        $fullFileName =  $this->getFullFileName($fileName);
+        $fullFileName = $this->getFullFileName($fileName);
 
         $command = "mysql -h $dbHost -u $dbUser";
         if ($dbPass) {
@@ -57,7 +57,7 @@ class Migration extends \yii\db\Migration
 
     private function readFile($fileName)
     {
-        $fullFileName =  $this->getFullFileName($fileName);
+        $fullFileName = $this->getFullFileName($fileName);
 
         if (!file_exists($fullFileName)) {
             throw new Exception('Can\'t read file. Not exists. ' . $fullFileName);

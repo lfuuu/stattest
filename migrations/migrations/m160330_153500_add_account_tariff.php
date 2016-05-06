@@ -15,7 +15,8 @@ class m160330_153500_add_account_tariff extends \app\classes\Migration
 
         $fieldName = 'city_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, City::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, City::tableName(), 'id',
+            'RESTRICT');
 
         $fieldName = 'voip_number';
         $this->addColumn($tableName, $fieldName, $this->string(15));

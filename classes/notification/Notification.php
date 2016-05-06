@@ -13,7 +13,7 @@ class Notification extends Object
 {
     public function checkForNotification()
     {
-        foreach($this->getNotificationProcessors() as $processor) {
+        foreach ($this->getNotificationProcessors() as $processor) {
             $processor->filterClients()->checkAndMakeNotifications();
         }
     }

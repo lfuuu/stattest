@@ -67,7 +67,8 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      * false - за день (при ежедневном расчете так и оставить)
      * @return bool
      */
-    public function getIsMonthPricePerUnit() {
+    public function getIsMonthPricePerUnit()
+    {
         return true;
     }
 }

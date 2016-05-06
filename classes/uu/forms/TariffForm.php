@@ -141,7 +141,8 @@ abstract class TariffForm extends Form
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
-                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post,
+                            $tariffVoipCity, 'city_id');
                         break;
                 }
 

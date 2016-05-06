@@ -9,10 +9,12 @@ use app\forms\external_operators\RequestOnlimeStateForm;
 use app\models\Bill;
 use app\models\TroubleState;
 
-if (!defined('PATH_TO_ROOT'))
+if (!defined('PATH_TO_ROOT')) {
     define('PATH_TO_ROOT', Yii::$app->basePath . '/stat/');
-if (!defined('NO_WEB'))
+}
+if (!defined('NO_WEB')) {
     define('NO_WEB', 1);
+}
 
 require_once PATH_TO_ROOT . 'conf.php';
 
@@ -89,17 +91,17 @@ class OperatorOnlimeDevices extends Operators
     ];
 
     public static $reportFields = [
-        'Оператор'                      => 'fio_oper',
-        'Л / С'                         => 'acc_no',
-        'Номер счета Маркомнет Сервис'  => 'bill_no',
-        'Дата создания заказа'          => 'date_creation',
-        'Кол-во'                        => 'products',
-        'ФИО клиента'                   => 'fio',
-        'Телефон, Адрес'                => 'contacts',
-        'Серийный номер'                => 'serials',
-        'Дата доставки желаемая'        => 'date_deliv',
-        'Дата доставки фактическая'     => 'date_delivered',
-        'Этап'                          => 'stages_text',
+        'Оператор' => 'fio_oper',
+        'Л / С' => 'acc_no',
+        'Номер счета Маркомнет Сервис' => 'bill_no',
+        'Дата создания заказа' => 'date_creation',
+        'Кол-во' => 'products',
+        'ФИО клиента' => 'fio',
+        'Телефон, Адрес' => 'contacts',
+        'Серийный номер' => 'serials',
+        'Дата доставки желаемая' => 'date_deliv',
+        'Дата доставки фактическая' => 'date_delivered',
+        'Этап' => 'stages_text',
     ];
 
     public static $reportTemplate = 'onlime_devices_operator';
@@ -166,7 +168,8 @@ class OperatorOnlimeDevices extends Operators
         $query->andWhere(['in', 'state_id', [4, 18, 28]]);
     }
 
-    public function modeRejectModify(Query $query, $dao) {
+    public function modeRejectModify(Query $query, $dao)
+    {
         $query->leftJoin('tt_stages s', 's.stage_id = t.cur_stage_id');
 
         $query->andWhere(['between', 'date_creation', $dao->dateFrom, $dao->dateTo]);
@@ -183,27 +186,28 @@ class OperatorOnlimeDevices extends Operators
                 list($item['id'], $item['descr_id']) = explode(':', $item['id']);
 
                 $items_list[] = [
-                    'КодНоменклатура1С'     => $item['id'],
-                    'КодХарактеристика1С'   => $item['descr_id'] ?: '00000000-0000-0000-0000-000000000000',
-                    'Количество'            => $item['quantity'],
-                    'КодСтроки'             => (int) $item['code_1c'],
-                    'Цена'                  => $item['price'],
+                    'КодНоменклатура1С' => $item['id'],
+                    'КодХарактеристика1С' => $item['descr_id'] ?: '00000000-0000-0000-0000-000000000000',
+                    'Количество' => $item['quantity'],
+                    'КодСтроки' => (int)$item['code_1c'],
+                    'Цена' => $item['price'],
                 ];
             }
         }
 
         $query = [
-            'НомерЗаказа'           => $data['order_number'],
+            'НомерЗаказа' => $data['order_number'],
             'ИдКарточкиКлиентаСтат' => $data['client_tid'],
-            'Комментарий'           => $data['order_comment'],
-            'ЭтоВозврат'            => (bool) $data['is_rollback'],
-            'Пользователь'          => (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system'),
-            'ДопИнформацияЗаказа'   => $data['add_info'],
-            'КодСклад1С'            => $data['store_id'],
+            'Комментарий' => $data['order_comment'],
+            'ЭтоВозврат' => (bool)$data['is_rollback'],
+            'Пользователь' => (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system'),
+            'ДопИнформацияЗаказа' => $data['add_info'],
+            'КодСклад1С' => $data['store_id'],
         ];
 
-        if ($items_list !== false)
-            $query['СписокПозиций']= ['Список' => $items_list];
+        if ($items_list !== false) {
+            $query['СписокПозиций'] = ['Список' => $items_list];
+        }
 
         $response = $soap->utSaveOrder($query);
         $result = $response->return;
@@ -213,8 +217,9 @@ class OperatorOnlimeDevices extends Operators
         }
         $response = $response->{'ЗаказТовара'};
 
-        if (!isset($response->{'ДопИнформацияЗаказа'}))
+        if (!isset($response->{'ДопИнформацияЗаказа'})) {
             $response->{'ДопИнформацияЗаказа'} = null;
+        }
 
         return $response;
     }
@@ -228,18 +233,18 @@ class OperatorOnlimeDevices extends Operators
                 'НомерЗаказа' => $bill->bill_no,
                 'Статус' => $state->state_1c,
                 'Пользователь' => (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system'),
-                'ЭтоВозврат' => (bool) $bill->is_rollback
+                'ЭтоВозврат' => (bool)$bill->is_rollback
             ])->return;
-        }
-        catch (\SoapFault $e) {
+        } catch (\SoapFault $e) {
             throw new \Exception('Не удалось обновить статус заказа:', 1000);
         }
     }
 
     private function initSoap1C()
     {
-        if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL)
+        if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL) {
             return false;
+        }
 
         $wsdl = \Sync1C::me()->utWsdlUrl;
         $login = \Sync1C::me()->utLogin;
@@ -252,9 +257,8 @@ class OperatorOnlimeDevices extends Operators
             $params['login'] = $login;
             $params['password'] = $pass;
         }
-        return new \SoapClient($wsdl,$params);
+        return new \SoapClient($wsdl, $params);
     }
-
 
 
 }

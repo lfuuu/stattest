@@ -64,8 +64,9 @@ class FileController extends BaseController
     public function actionList($contractId)
     {
         $model = ClientContract::findOne($contractId);
-        if (null === $model)
+        if (null === $model) {
             throw new Exception('Договор не найден');
+        }
 
         return $this->render('list', ['model' => $model]);
     }
@@ -74,26 +75,29 @@ class FileController extends BaseController
     {
         $model = ClientContract::findOne($contractId);
 
-        if (!$model)
+        if (!$model) {
             throw new Exception("Договор не найден");
+        }
 
         $request = Yii::$app->request->post();
         if (isset($_FILES['file'])) {
             $model->mediaManager->addFile($_FILES['file'], $request['comment'], $request['name']);
         }
 
-        if ($childId)
+        if ($childId) {
             return $this->redirect(['client/view', 'id' => $childId]);
-        else
+        } else {
             return $this->redirect(['file/list', 'contractId' => $contractId]);
+        }
     }
 
     public function actionDeleteClientFile($id)
     {
         $fileModel = ClientFiles::findOne($id);
 
-        if (null === $fileModel)
+        if (null === $fileModel) {
             throw new Exception('Файл не найден');
+        }
 
         $fileModel->contract->mediaManager->removeFile($fileModel);
 
@@ -105,8 +109,9 @@ class FileController extends BaseController
     {
         $model = ClientFiles::findOne($id);
 
-        if (null === $model)
+        if (null === $model) {
             throw new Exception('Файл не найден');
+        }
 
         $file = $model->mediaManager->getFile($model, $with_content = 1);
 
@@ -126,12 +131,15 @@ class FileController extends BaseController
         $request = Yii::$app->request->post();
         $query = ClientFiles::find()->orderBy(['ts' => SORT_DESC]);
 
-        if($request['user_id'])
+        if ($request['user_id']) {
             $query->andWhere(['user_id' => $request['user_id']]);
-        if($request['date_from'])
-            $query->andWhere(['<=','ts', $request['date_from']]);
-        if($request['date_to'])
-            $query->andWhere(['>=','ts', $request['date_to']]);
+        }
+        if ($request['date_from']) {
+            $query->andWhere(['<=', 'ts', $request['date_from']]);
+        }
+        if ($request['date_to']) {
+            $query->andWhere(['>=', 'ts', $request['date_to']]);
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

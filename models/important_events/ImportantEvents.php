@@ -36,8 +36,8 @@ class ImportantEvents extends ActiveRecord
     public function rules()
     {
         return [
-            [['event', 'source_id', ], 'required', 'on' => 'create'],
-            [['event', ], 'trim', 'on' => 'create'],
+            [['event', 'source_id',], 'required', 'on' => 'create'],
+            [['event',], 'trim', 'on' => 'create'],
             ['source_id', 'integer', 'on' => 'create'],
             [['event', 'source_id'], ArrayValidator::className(), 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
@@ -100,7 +100,8 @@ class ImportantEvents extends ActiveRecord
         $event = new self;
 
         $event->scenario = 'create';
-        $event->date = (new DateTime($date, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
+        $event->date = (new DateTime($date,
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
         $event->event = $eventType;
 
         $source = ImportantEventsSources::findOne(['code' => $eventSource]);
@@ -115,13 +116,12 @@ class ImportantEvents extends ActiveRecord
         foreach ($data as $key => $value) {
             if (!array_key_exists($key, $event->attributes)) {
                 $event->propertiesCollection[] = [0, $key, $value];
-            }
-            else {
+            } else {
                 $event->{$key} = $value;
             }
         }
 
-        if ((int) $event->client_id) {
+        if ((int)$event->client_id) {
             $event->propertiesCollection[] = [0, 'balance', $event->getBalance()];
         }
 
@@ -222,14 +222,14 @@ class ImportantEvents extends ActiveRecord
             return $dataProvider;
         }
 
-        if ((int) $this->client_id) {
+        if ((int)$this->client_id) {
             $query->andFilterWhere(['client_id' => $this->client_id]);
         }
         if (is_array($this->event) && count($this->event)) {
-            $query->andFilterWhere(['in', 'event', (array) $this->event]);
+            $query->andFilterWhere(['in', 'event', (array)$this->event]);
         }
         if (is_array($this->source_id) && count($this->source_id)) {
-            $query->andFilterWhere(['in', 'source_id', (array) $this->source_id]);
+            $query->andFilterWhere(['in', 'source_id', (array)$this->source_id]);
         }
 
         list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);

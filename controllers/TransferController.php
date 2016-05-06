@@ -36,11 +36,12 @@ class TransferController extends BaseController
         return $this->render('index', [
             'model' => $model,
             'client' => $clientAccount,
-            'only_usages' => $only_usage ? (array) $only_usage : [],
+            'only_usages' => $only_usage ? (array)$only_usage : [],
         ]);
     }
 
-    public function actionSuccess($client_account_id, $target_account_id) {
+    public function actionSuccess($client_account_id, $target_account_id)
+    {
         $clientAccount = ClientAccount::findOne($client_account_id);
         Assert::isObject($clientAccount);
 
@@ -55,7 +56,7 @@ class TransferController extends BaseController
 
         $this->layout = 'minimal';
         return $this->render('success', [
-            'model'         => new ServiceTransferForm,
+            'model' => new ServiceTransferForm,
             'clientAccount' => $clientAccount,
             'targetAccount' => $targetAccount,
             'movedServices' => $movedServices
@@ -64,8 +65,9 @@ class TransferController extends BaseController
 
     public function actionAccountSearch($client_id, $term)
     {
-        if (!Yii::$app->request->getIsAjax())
+        if (!Yii::$app->request->getIsAjax()) {
             $this->redirect('/');
+        }
 
         $result = ClientAccount::getDB()->createCommand("
             SELECT SQL_CALC_FOUND_ROWS c.`id`, c.`client`, cc.`name` AS 'contragent'
@@ -73,28 +75,29 @@ class TransferController extends BaseController
                     INNER JOIN `client_contract` cr ON cr.`id` = c.`contract_id`
                     INNER JOIN `client_contragent` cc ON cc.`id` = cr.`contragent_id`
             WHERE
-                c.`id` != " . (int) $client_id . " AND
+                c.`id` != " . (int)$client_id . " AND
                 c.`client` LIKE '%" . $term . "%' OR
-                c.`id` = " . (int) $term . " OR
+                c.`id` = " . (int)$term . " OR
                 cc.`name` LIKE '%" . $term . "%'
             ORDER BY cc.`name` DESC, c.`id` DESC
             LIMIT 10
         ")->queryAll();
 
         $items = [];
-        foreach ($result as $row)
+        foreach ($result as $row) {
             $items[] = [
                 'label' => html_entity_decode(
-                        '№ ' . $row['id'] . ' - ' .
-                        (
-                            mb_strlen($row['contragent'], 'UTF-8') > 27
-                                ? mb_substr($row['contragent'], 0, 27, 'UTF-8') . '...'
-                                : $row['contragent']
-                        )
+                    '№ ' . $row['id'] . ' - ' .
+                    (
+                    mb_strlen($row['contragent'], 'UTF-8') > 27
+                        ? mb_substr($row['contragent'], 0, 27, 'UTF-8') . '...'
+                        : $row['contragent']
+                    )
                 ),
                 'full' => '№ ' . $row['id'] . ' - ' . $row['contragent'],
                 'value' => $row['id']
             ];
+        }
 
         return Json::encode($items);
     }

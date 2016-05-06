@@ -52,8 +52,11 @@ class AccountController extends BaseController
         /** @var ClientAccount $account */
         $account = ClientAccount::findOne(['id' => $accountId]);
 
-        if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id))
+        if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id,
+                $account->contract->id)
+        ) {
             throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
+        }
 
         $wizard = LkWizardState::findOne(['contract_id' => $account->contract->id]);
 
@@ -68,8 +71,8 @@ class AccountController extends BaseController
                     $wizard->save();
                 } else {
                     LkWizardState::create(
-                        $account->contract->id, 
-                        0, 
+                        $account->contract->id,
+                        0,
                         ($account->contract->contragent->country_id != Country::RUSSIA ? LkWizardState::TYPE_EUR : LkWizardState::TYPE_MCN)
                     );
                 }
@@ -117,11 +120,16 @@ class AccountController extends BaseController
         $model = new AccountEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['account/edit', 'id' => $id, 'showLastChanges' => 1, 'date' => $model->historyVersionStoredDate]);
+            return $this->redirect([
+                'account/edit',
+                'id' => $id,
+                'showLastChanges' => 1,
+                'date' => $model->historyVersionStoredDate
+            ]);
         }
 
-        if(!($this->getFixClient() && $this->getFixClient()->id == $id)){
-            if($id) {
+        if (!($this->getFixClient() && $this->getFixClient()->id == $id)) {
+            if ($id) {
                 Yii::$app->session->set('clients_client', $id);
                 $this->applyFixClient($id);
             }
@@ -138,12 +146,12 @@ class AccountController extends BaseController
     {
         $model = new ClientEditForm(['id' => $id]);
 
-        if($childId===null) {
+        if ($childId === null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
             $params = Yii::$app->request->getQueryParams();
             $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
             Yii::$app->request->setQueryParams($params);
-            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl() . '&childId=' . $childId);
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
@@ -157,8 +165,9 @@ class AccountController extends BaseController
 
     public function actionSuperClientSearch($query)
     {
-        if (!Yii::$app->request->isAjax)
+        if (!Yii::$app->request->isAjax) {
             return;
+        }
 
         $result =
             ClientSuper::find()
@@ -191,8 +200,9 @@ class AccountController extends BaseController
     public function actionSetBlock($id)
     {
         $model = ClientAccount::findOne($id);
-        if (!$model)
+        if (!$model) {
             throw new Exception('ЛС не найден');
+        }
         $model->is_blocked = !$model->is_blocked;
         $model->save();
         return $this->redirect(['client/view', 'id' => $id]);
@@ -201,8 +211,9 @@ class AccountController extends BaseController
     public function actionSetVoipDisable($id)
     {
         $model = ClientAccount::findOne($id);
-        if (!$model)
+        if (!$model) {
             throw new Exception('ЛС не найден');
+        }
         $model->voip_disabled = !$model->voip_disabled;
         $model->save();
         return $this->redirect(['client/view', 'id' => $id]);
@@ -211,8 +222,9 @@ class AccountController extends BaseController
     public function actionAdditionalInnCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
-        if(!$account)
+        if (!$account) {
             throw new Exception('Account does not exist');
+        }
 
         $model = new ClientInn();
         $model->load(Yii::$app->request->post());
@@ -225,8 +237,9 @@ class AccountController extends BaseController
     public function actionAdditionalInnDelete($id)
     {
         $model = ClientInn::findOne($id);
-        if(!$model)
+        if (!$model) {
             throw new Exception('Inn does not exist');
+        }
         $model->is_active = 0;
         $model->save();
 
@@ -236,8 +249,9 @@ class AccountController extends BaseController
     public function actionAdditionalPayAccCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
-        if(!$account)
+        if (!$account) {
             throw new Exception('Account does not exist');
+        }
 
         $model = new ClientPayAcc();
         $model->load(Yii::$app->request->post());
@@ -250,8 +264,9 @@ class AccountController extends BaseController
     public function actionAdditionalPayAccDelete($id)
     {
         $model = ClientPayAcc::findOne($id);
-        if(!$model)
+        if (!$model) {
             throw new Exception('Pay does not exist');
+        }
         $model->delete();
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);

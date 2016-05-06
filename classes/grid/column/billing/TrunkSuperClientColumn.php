@@ -49,6 +49,6 @@ class TrunkSuperClientColumn extends DataColumn
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = is_array($model) ? $model['trunk_id'] : $model->trunk_id;
-        return isset($this->trunkIdToSuperClientName[$value]) ? (string) $this->trunkIdToSuperClientName[$value] : $value;
+        return isset($this->trunkIdToSuperClientName[$value]) ? (string)$this->trunkIdToSuperClientName[$value] : $value;
     }
 }

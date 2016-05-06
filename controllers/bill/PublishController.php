@@ -49,7 +49,7 @@ class PublishController extends BaseController
                     ':region' => $region,
                 ]
             )
-            ->execute();
+                ->execute();
 
         Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
         return $this->redirect('/bill/publish/index');

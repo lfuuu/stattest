@@ -120,7 +120,7 @@ class VoipController extends BaseController
 
         $packageStat = $packagesHistory = [];
 
-        foreach($usagePackages as $package) {
+        foreach ($usagePackages as $package) {
             $packageStat[$package->id] = StatPackage::findOne(['package_id' => $package->id]);
 
             $packagesHistory[$package->id] =
@@ -169,8 +169,7 @@ class VoipController extends BaseController
 
             $transaction->commit();
             Yii::$app->session->addFlash('success', 'Пакет удален');
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }

@@ -351,6 +351,7 @@ class ClientAccount extends HistoryActiveRecord
         }
         return $contract;
     }
+
     /**
      * @return Business
      */
@@ -636,21 +637,20 @@ class ClientAccount extends HistoryActiveRecord
             if ($locks->voip_auto_disabled) {
                 $warnings['voip.auto_disabled'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)';
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $warnings['unavailable.locks'] = 'Сервер статистики недоступен. Данные о блокировках недоступны';
         }
 
-        $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && - $counters->daySummary > $this->voip_credit_limit_day);
-        $need_lock_limit_month = ($this->voip_credit_limit != 0 && - $counters->monthSummary > $this->voip_credit_limit);
+        $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && -$counters->daySummary > $this->voip_credit_limit_day);
+        $need_lock_limit_month = ($this->voip_credit_limit != 0 && -$counters->monthSummary > $this->voip_credit_limit);
         $need_lock_credit = ($this->credit >= 0 && $counters->realtimeBalance + $this->credit < 0);
         $need_lock_flag = ($this->voip_disabled > 0);
 
         if ($need_lock_limit_day) {
-            $warnings['lock.limit_day'] = 'Превышен дневной лимит: ' . (- $counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
+            $warnings['lock.limit_day'] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
         }
         if ($need_lock_limit_month) {
-            $warnings['lock.limit_month'] = 'Превышен месячный лимит: ' . (- $counters->monthSummary) . ' > ' . $this->voip_credit_limit;
+            $warnings['lock.limit_month'] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
         }
         if ($need_lock_credit) {
             $warnings['lock.credit'] = 'Превышен лимит кредита: ' . $counters->realtimeBalance . ' < -' . $this->credit;

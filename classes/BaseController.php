@@ -129,7 +129,7 @@ class BaseController extends Controller
             Yii::$app->session->open();
             $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
         }
-        $param = (is_numeric($fixclient)) ? $fixclient :['client' => $fixclient];
+        $param = (is_numeric($fixclient)) ? $fixclient : ['client' => $fixclient];
 
         $fixclient_data = ClientAccount::findOne($param);
 
@@ -143,14 +143,16 @@ class BaseController extends Controller
     public function getFixClient()
     {
         global $fixclient_data;
-        if($fixclient_data['id'])
+        if ($fixclient_data['id']) {
             $accountId = $fixclient_data['id'];
-        elseif($_SESSION["clients_client"])
+        } elseif ($_SESSION["clients_client"]) {
             $accountId = $_SESSION["clients_client"];
-        elseif(Yii::$app->user->identity->restriction_client_id)
+        } elseif (Yii::$app->user->identity->restriction_client_id) {
             $accountId = Yii::$app->user->identity->restriction_client_id;
-        if($accountId)
+        }
+        if ($accountId) {
             return ClientAccount::findOne($accountId);
+        }
         return null;
     }
 }

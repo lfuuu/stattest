@@ -35,9 +35,10 @@ class UsageVirtpbxTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageVirtpbxTransferWithNumbersAndLines()
     {
-        list($fromUsage, $toUsage) = $this->checkTransfer(_UsageVirtpbx::className(), function(UsageInterface $fromUsage) {
-            $fromUsage->createUsageVoip();
-        });
+        list($fromUsage, $toUsage) = $this->checkTransfer(_UsageVirtpbx::className(),
+            function (UsageInterface $fromUsage) {
+                $fromUsage->createUsageVoip();
+            });
 
         $this->checkLogTariffAfter($fromUsage, $toUsage);
 
@@ -47,13 +48,14 @@ class UsageVirtpbxTransferTest extends \yii\codeception\TestCase
 
             $fromVoipUsage = $toVoipUsage = null;
 
-            if ((int) $voipUsage->next_usage_id) {
+            if ((int)$voipUsage->next_usage_id) {
                 $fromVoipUsage = $voipUsage;
                 $toVoipUsage = UsageVoip::findOne($voipUsage->next_usage_id);
-            }
-            else if ((int) $voipUsage->prev_usage_id) {
-                $toVoipUsage = $voipUsage;
-                $fromVoipUsage = UsageVoip::findOne($voipUsage->prev_usage_id);
+            } else {
+                if ((int)$voipUsage->prev_usage_id) {
+                    $toVoipUsage = $voipUsage;
+                    $fromVoipUsage = UsageVoip::findOne($voipUsage->prev_usage_id);
+                }
             }
 
             $this->assertNotNull($fromVoipUsage, 'See object "fromVoipUsage" after transfer');

@@ -125,8 +125,7 @@ class FreeNumbersTest extends TestCase
         try {
             $numbers = new FreeNumberFilter;
             $numbers->numberMask = '%92%';
-        }
-        catch (BadRequestHttpException $e) {
+        } catch (BadRequestHttpException $e) {
             $this->assertFalse(false);
         }
 

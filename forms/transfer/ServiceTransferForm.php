@@ -62,10 +62,39 @@ class ServiceTransferForm extends Form
     {
         return [
             [['target_account_id', 'source_service_ids'], 'required', 'message' => 'Необходимо заполнить'],
-            ['target_account_id_custom', 'required', 'when' => function ($model) { return !(int)$model->target_account_id; }, 'message' => 'Необходимо заполнить'],
-            ['actual_from', 'required', 'when' => function ($model) { return $model->actual_from != 'custom'; }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'required', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'date', 'format' => 'php:Y-m-d', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Неверный формат даты переноса'],
+            [
+                'target_account_id_custom',
+                'required',
+                'when' => function ($model) {
+                    return !(int)$model->target_account_id;
+                },
+                'message' => 'Необходимо заполнить'
+            ],
+            [
+                'actual_from',
+                'required',
+                'when' => function ($model) {
+                    return $model->actual_from != 'custom';
+                },
+                'message' => 'Необходимо заполнить'
+            ],
+            [
+                'actual_custom',
+                'required',
+                'when' => function ($model) {
+                    return $model->actual_from == 'custom';
+                },
+                'message' => 'Необходимо заполнить'
+            ],
+            [
+                'actual_custom',
+                'date',
+                'format' => 'php:Y-m-d',
+                'when' => function ($model) {
+                    return $model->actual_from == 'custom';
+                },
+                'message' => 'Неверный формат даты переноса'
+            ],
             ['target_account_id', 'validateTargetAccountId']
         ];
     }
@@ -98,26 +127,25 @@ class ServiceTransferForm extends Form
      */
     public function process()
     {
-        $services = $this->getServicesByIDs((array) $this->source_service_ids);
+        $services = $this->getServicesByIDs((array)$this->source_service_ids);
 
         foreach ($services as $service) {
             $serviceTransfer =
                 $service::getTransferHelper($service)
-                        ->setTargetAccount($this->targetAccount)
-                        ->setActivationDate(
-                            $this->actual_from == 'custom'
-                                ? $this->actual_custom
-                                : $this->actual_from
-                        );
+                    ->setTargetAccount($this->targetAccount)
+                    ->setActivationDate(
+                        $this->actual_from == 'custom'
+                            ? $this->actual_custom
+                            : $this->actual_from
+                    );
 
             try {
                 try {
                     $this->servicesSuccess[get_class($service)][] = $serviceTransfer->process()->id;
                 } catch (\yii\base\InvalidValueException $e) {
-                    $this->servicesErrors[ $service->id ][] = $e->getMessage();
+                    $this->servicesErrors[$service->id][] = $e->getMessage();
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 \Yii::error($e);
             }
 
@@ -159,8 +187,9 @@ class ServiceTransferForm extends Form
         $services = [];
         foreach ($this->getServicesGroups() as $serviceDao) {
             $modelName = str_replace('Dao', '', (new \ReflectionClass($serviceDao))->getShortName());
-            if (count($usages) && !in_array($modelName, $usages))
+            if (count($usages) && !in_array($modelName, $usages)) {
                 continue;
+            }
 
             $services = array_merge(
                 $services,
@@ -170,11 +199,12 @@ class ServiceTransferForm extends Form
 
         $total = 0;
         $result = [];
-        if (count($services))
+        if (count($services)) {
             foreach ($services as $service) {
-                $result[ get_class($service) ][] = $service;
+                $result[get_class($service)][] = $service;
                 $total++;
             }
+        }
 
         //print_r($result);
         return array(
@@ -214,7 +244,8 @@ class ServiceTransferForm extends Form
      * Получение списка доступных для переноса дат
      * @return array
      */
-    public function getActualDateVariants() {
+    public function getActualDateVariants()
+    {
         return $this->datesVariants;
     }
 

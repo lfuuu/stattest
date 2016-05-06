@@ -49,7 +49,12 @@ class Template extends ActiveRecord
         return [
             ['id', 'integer'],
             [['name',], 'required'],
-            ['event', 'in', 'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')]
+            [
+                'event',
+                'in',
+                'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(),
+                    'code')
+            ]
         ];
     }
 
@@ -103,11 +108,11 @@ class Template extends ActiveRecord
     public function getTemplateContent($languageCode, $type)
     {
         if ($templateContent =
-                TemplateContent::findOne([
-                    'template_id' => $this->id,
-                    'lang_code' => $languageCode,
-                    'type' => $type,
-                ])
+            TemplateContent::findOne([
+                'template_id' => $this->id,
+                'lang_code' => $languageCode,
+                'type' => $type,
+            ])
         ) {
             return $templateContent;
         }

@@ -93,7 +93,7 @@ class TemplateContentMedia extends MediaManager
      */
     protected function getFileModels()
     {
-        return (array) $this->message;
+        return (array)$this->message;
     }
 
     /**
@@ -102,7 +102,8 @@ class TemplateContentMedia extends MediaManager
      */
     protected function getFilePath(ActiveRecord $fileModel)
     {
-        return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), implode('_', $fileModel->primaryKey)]);
+        return implode('/',
+            [Yii::$app->params['STORE_PATH'], static::getFolder(), implode('_', $fileModel->primaryKey)]);
     }
 
 }

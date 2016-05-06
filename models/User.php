@@ -65,9 +65,11 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     {
         $user = static::findOne(['user' => $user]);
 
-        if ($user)
-            if ($user->enabled != 'yes')
-                $user->name = "(--".$user->name."--)";
+        if ($user) {
+            if ($user->enabled != 'yes') {
+                $user->name = "(--" . $user->name . "--)";
+            }
+        }
 
         return $user;
     }
@@ -149,8 +151,9 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     {
         $models = self::find()->andWhere(['depart_id' => $id]);
 
-        if (isset($options['enabled']))
+        if (isset($options['enabled'])) {
             $models->andWhere(['enabled' => 'yes']);
+        }
 
         $primary = isset($options['primary']) ? $options['primary'] : 'id';
 

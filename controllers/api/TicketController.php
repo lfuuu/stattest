@@ -63,7 +63,7 @@ class TicketController extends ApiController
         $model->load(Yii::$app->request->bodyParams, '');
         if ($model->validate()) {
             $data = [];
-            foreach($model->spawnFilteredQuery()->all() as $ticket) {
+            foreach ($model->spawnFilteredQuery()->all() as $ticket) {
                 $data[] = $ticket->toArray();
             }
             return $data;
@@ -123,13 +123,13 @@ class TicketController extends ApiController
     public function actionDetails()
     {
         $model = DynamicModel::validateData(
-              Yii::$app->request->bodyParams,
-              [
-                  ['client_account_id', AccountIdValidator::className()],
-                  ['ticket_id', TicketIdValidator::className()],
-                  [['ticket_id'], 'required'],
-              ]
-          );
+            Yii::$app->request->bodyParams,
+            [
+                ['client_account_id', AccountIdValidator::className()],
+                ['ticket_id', TicketIdValidator::className()],
+                [['ticket_id'], 'required'],
+            ]
+        );
 
         if (!$model->hasErrors()) {
             $ticket =
@@ -139,15 +139,13 @@ class TicketController extends ApiController
                     ->one();
             if ($ticket !== null) {
                 $ticket = $ticket->toArray();
-                $ticket['comments'] =[];
+                $ticket['comments'] = [];
                 $ticketComments = TicketComment::find()
-                        ->andWhere(['ticket_id' => $model->ticket_id])
-                        ->orderBy('created_at')
-                        ->all();
-                if ($ticketComments)
-                {
-                    foreach($ticketComments as $ticketComment)
-                    {
+                    ->andWhere(['ticket_id' => $model->ticket_id])
+                    ->orderBy('created_at')
+                    ->all();
+                if ($ticketComments) {
+                    foreach ($ticketComments as $ticketComment) {
                         $ticket["comments"][] = $ticketComment->toArray();
                     }
                 }
@@ -258,13 +256,13 @@ class TicketController extends ApiController
     public function actionSetRead()
     {
         $model = DynamicModel::validateData(
-              Yii::$app->request->bodyParams,
-              [
-                  ['client_account_id', AccountIdValidator::className()],
-                  ['ticket_id', TicketIdValidator::className()],
-                  [['ticket_id'], 'required'],
-              ]
-          );
+            Yii::$app->request->bodyParams,
+            [
+                ['client_account_id', AccountIdValidator::className()],
+                ['ticket_id', TicketIdValidator::className()],
+                [['ticket_id'], 'required'],
+            ]
+        );
 
         if (!$model->hasErrors()) {
             $ticket =
@@ -273,10 +271,10 @@ class TicketController extends ApiController
                     ->andWhere(['client_account_id' => $model->client_account_id])
                     ->one();
 
-               if ($ticket->is_with_new_comment) {
-                   $ticket->is_with_new_comment = 0;
-                   $ticket->save();
-               }
+            if ($ticket->is_with_new_comment) {
+                $ticket->is_with_new_comment = 0;
+                $ticket->save();
+            }
             return $ticket->toArray();
         } else {
             throw new FormValidationException($model);

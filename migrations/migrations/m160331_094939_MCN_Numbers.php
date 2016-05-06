@@ -19,7 +19,8 @@ class m160331_094939_MCN_Numbers extends \app\classes\Migration
         $this->createIndex('voip_numbers__number_tech', 'voip_numbers', 'number_tech', true);
 
         $data = $this->getData();
-        $dateStart = (new \DateTime('now', new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
+        $dateStart = (new \DateTime('now',
+            new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
 
         $this->getDb()->transaction(function () use ($data, $dateStart) {
             $this->batchInsert(

@@ -40,7 +40,17 @@ class UserForm extends Form
         return [
             [['user', 'usergroup', 'name',], 'required'],
             [
-                ['name', 'language','email', 'phone_work', 'phone_mobile', 'icq', 'trouble_redirect', 'usergroup', 'enabled'],
+                [
+                    'name',
+                    'language',
+                    'email',
+                    'phone_work',
+                    'phone_mobile',
+                    'icq',
+                    'trouble_redirect',
+                    'usergroup',
+                    'enabled'
+                ],
                 'string'
             ],
             [
@@ -84,10 +94,12 @@ class UserForm extends Form
 
     public function save($user = false)
     {
-        if (!($user instanceof User))
+        if (!($user instanceof User)) {
             $user = new User;
-        if (!$this->setPhoto())
+        }
+        if (!$this->setPhoto()) {
             return false;
+        }
         $user->setAttributes($this->getAttributes(), false);
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -154,11 +166,11 @@ class UserForm extends Form
 
                     $resample = imagecreatetruecolor($newWidth, $newHeight);
                     imagecopyresampled($resample, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    imagejpeg($resample, MediaFileHelper::getLocalPath() . Yii::$app->params['USER_PHOTO_DIR'] . $this->id . '.jpg', 65);
+                    imagejpeg($resample,
+                        MediaFileHelper::getLocalPath() . Yii::$app->params['USER_PHOTO_DIR'] . $this->id . '.jpg', 65);
 
                     $this->photo = 'jpg';
-                }
-                else {
+                } else {
                     $this->addError('photo', 'Невозможно изменить размер картинки.');
                     return false;
                 }

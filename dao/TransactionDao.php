@@ -16,17 +16,17 @@ class TransactionDao extends Singleton
 {
     public function copy(Transaction $from, Transaction $to)
     {
-        $to->name                   = $from->name;
-        $to->transaction_date       = $from->transaction_date;
-        $to->amount                 = $from->amount;
-        $to->price                  = $from->price;
-        $to->is_partial_write_off   = $from->is_partial_write_off;
-        $to->tax_rate               = $from->tax_rate;
-        $to->sum                    = $from->sum;
-        $to->sum_tax                = $from->sum_tax;
-        $to->sum_without_tax        = $from->sum_without_tax;
-        $to->effective_amount       = $from->effective_amount;
-        $to->effective_sum          = $from->effective_sum;
+        $to->name = $from->name;
+        $to->transaction_date = $from->transaction_date;
+        $to->amount = $from->amount;
+        $to->price = $from->price;
+        $to->is_partial_write_off = $from->is_partial_write_off;
+        $to->tax_rate = $from->tax_rate;
+        $to->sum = $from->sum;
+        $to->sum_tax = $from->sum_tax;
+        $to->sum_without_tax = $from->sum_without_tax;
+        $to->effective_amount = $from->effective_amount;
+        $to->effective_sum = $from->effective_sum;
     }
 
     public function insertByPayment(Payment $payment)

@@ -12,16 +12,18 @@ class SetFieldTypeHelper
 
     public static function generateCondition(ActiveRecord $model, $fieldName, $values, $separator = 'AND', $not = false)
     {
-        if (!is_array($values))
+        if (!is_array($values)) {
             $values = [$values];
+        }
 
         $conditions = [];
         $values = array_intersect(self::getValidValues($model, $fieldName), $values);
 
         foreach ($values as $value) {
             $queryString = "FIND_IN_SET('{$value}', `{$fieldName}`)";
-            if ($not)
+            if ($not) {
                 $queryString = 'NOT ' . $queryString;
+            }
             $conditions[] = $queryString;
         }
         return implode(" $separator ", $conditions);
@@ -40,8 +42,9 @@ class SetFieldTypeHelper
 
         $resValues = [];
         foreach (self::getValidValues($model, $fieldName) as $value) {
-            if(in_array($value, $values))
+            if (in_array($value, $values)) {
                 $resValues[] = $value;
+            }
         }
 
         return implode(',', $resValues);
@@ -49,22 +52,25 @@ class SetFieldTypeHelper
 
     public static function validateField(ActiveRecord $model, $fieldName, $values, $setErrorTo = null)
     {
-        if($setErrorTo === null || !($setErrorTo instanceof Model))
+        if ($setErrorTo === null || !($setErrorTo instanceof Model)) {
             $setErrorTo = $model;
+        }
 
         $validValues = self::getValidValues($model, $fieldName);
 
         if (!is_array($values)) {
-            if(strpos($values, ',') === false)
+            if (strpos($values, ',') === false) {
                 $values = [$values];
-            else
+            } else {
                 $values = self::parseValue($values);
+            }
         }
 
         $diffs = array_diff($values, $validValues);
 
-        if (count($diffs) == 0)
+        if (count($diffs) == 0) {
             return true;
+        }
 
         foreach ($diffs as $diff) {
             $setErrorTo->addError($fieldName, "Value \"{$diff}\" incorrect ");
@@ -81,13 +87,15 @@ class SetFieldTypeHelper
     private static function getValidValues(ActiveRecord $model, $fieldName)
     {
         $column = $model->getTableSchema()->getColumn($fieldName);
-        if (!$column)
+        if (!$column) {
             throw new Exception('Field "' . $fieldName . '" does not exists');
+        }
 
         $type = $column->dbType;
 
-        if (substr($type, 0, 4) != 'set(')
+        if (substr($type, 0, 4) != 'set(') {
             throw new Exception("Field type '{$fieldName}' is not a 'SET'");
+        }
 
         return array_merge([''], array_map(
             function ($val) {

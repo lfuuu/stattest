@@ -25,9 +25,9 @@ class UsageTrunkSettings extends ActiveRecord
     const TYPE_TERMINATION = 2;
     const TYPE_DESTINATION = 3;
 
-    const MIN_MARGIN_ABSENT  = 0;
+    const MIN_MARGIN_ABSENT = 0;
     const MIN_MARGIN_PERCENT = 1;
-    const MIN_MARGIN_VALUE   = 2;
+    const MIN_MARGIN_VALUE = 2;
 
     public static function tableName()
     {

@@ -34,7 +34,7 @@ class VoipTrunkBiller extends Biller
         $this->addPackage(
             BillerPackageResource::create($this)
                 ->setPrice($prices['price_orig'])
-                ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                 ->setTemplate('voip_operator_trunk_orig')
                 ->setTemplateData($template_data)
         );
@@ -42,7 +42,7 @@ class VoipTrunkBiller extends Biller
         $this->addPackage(
             BillerPackageResource::create($this)
                 ->setPrice($prices['price_term'])
-                ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                 ->setTemplate('voip_operator_trunk_term')
                 ->setTemplateData($template_data)
         );

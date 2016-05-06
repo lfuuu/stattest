@@ -51,9 +51,9 @@ class DocumentTemplate extends ActiveRecord
 
     public function save($runValidation = true, $attributeNames = null)
     {
-        $this->content =  preg_replace_callback(
+        $this->content = preg_replace_callback(
             '#\{[^\}]+\}#',
-            function($matches) {
+            function ($matches) {
                 return preg_replace('#&[^;]+;#', '', strip_tags($matches[0]));
             },
             $this->content
@@ -62,11 +62,9 @@ class DocumentTemplate extends ActiveRecord
         try {
             $smarty = Smarty::init();
             $smarty->fetch('string:' . $this->content);
-        }
-        catch (\SmartyException $e) {
+        } catch (\SmartyException $e) {
             Yii::$app->session->setFlash('error', 'Ошибка преобразования шаблона<br />' . $e->getMessage());
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Yii::$app->session->setFlash('error', 'Ошибка преобразования шаблона<br />' . $e->getMessage());
         }
 

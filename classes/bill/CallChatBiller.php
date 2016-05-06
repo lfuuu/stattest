@@ -17,7 +17,7 @@ class CallChatBiller extends Biller
 
     protected function processPeriodical()
     {
-        $template  = 'call_chat_service';
+        $template = 'call_chat_service';
         $template_data = [
             'tariff' => $this->tariff->description,
         ];

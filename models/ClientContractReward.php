@@ -31,11 +31,15 @@ class ClientContractReward extends ActiveRecord
     {
         return [
             [['contract_id', 'usage_type', 'period_type'], 'required'],
-            [['contract_id', 'once_only', 'percentage_of_fee', 'percentage_of_over','period_month'], 'integer', 'integerOnly' => true],
+            [
+                ['contract_id', 'once_only', 'percentage_of_fee', 'percentage_of_over', 'period_month'],
+                'integer',
+                'integerOnly' => true
+            ],
             ['period_type', 'in', 'range' => [self::PERIOD_ALWAYS, self::PERIOD_MONTH]],
             ['usage_type', 'in', 'range' => [self::USAGE_VOIP, self::USAGE_VIRTPBX]],
 
-            [['once_only', 'percentage_of_fee', 'percentage_of_over','period_month'], 'default', 'value' => 0],
+            [['once_only', 'percentage_of_fee', 'percentage_of_over', 'period_month'], 'default', 'value' => 0],
             [['period_type'], 'default', 'value' => self::PERIOD_ALWAYS],
         ];
     }

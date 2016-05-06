@@ -33,7 +33,7 @@ $loginPage = LoginPage::loginAsAdmin($I);
 
 $I->amOnPage('/client/view?id=' . $clientAccountId);
 
-    $I->amOnPage('/?module=services&action=sms_add');
+$I->amOnPage('/?module=services&action=sms_add');
 // Don't see alert about missed client
 $I->dontSeeElement('div.alert-danger');
 

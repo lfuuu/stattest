@@ -27,7 +27,8 @@ class OrganizationQuery extends ActiveQuery
         return
             $this
                 ->select('organization.*')
-                ->leftJoin('organization o2', 'organization.`organization_id` = o2.`organization_id` and organization.`actual_from` = o2.`actual_from`')
+                ->leftJoin('organization o2',
+                    'organization.`organization_id` = o2.`organization_id` and organization.`actual_from` = o2.`actual_from`')
                 ->andWhere('organization.`actual_from` <= CAST(:date AS date)', [':date' => $filter_date])
                 ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $filter_date])
                 ->orderBy('organization.`actual_from` DESC');
@@ -52,7 +53,8 @@ class OrganizationQuery extends ActiveQuery
     {
         return
             $this
-                ->andFilterWhere(['or',
+                ->andFilterWhere([
+                    'or',
                     ['=', 'organization.`director_id`', $person],
                     ['=', 'organization.`accountant_id`', $person]
                 ]);
@@ -68,11 +70,9 @@ class OrganizationQuery extends ActiveQuery
 
         if (is_array($bill_or_time) && isset($bill_or_time['bill_date'])) {
             $billDate = strtotime($bill_or_time['bill_date']);
-        }
-        elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
+        } elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
             $billDate = $bill_or_time;
-        }
-        elseif (preg_match("/\d{4}-\d{2}-\d{2}/", $bill_or_time)) { // date
+        } elseif (preg_match("/\d{4}-\d{2}-\d{2}/", $bill_or_time)) { // date
             $billDate = strtotime($bill_or_time);
         }
 

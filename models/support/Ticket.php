@@ -6,8 +6,8 @@ use app\classes\enum\TicketStatusEnum;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
- * @property int    $account_id
+ * @property int $id
+ * @property int $account_id
  * @property string $user_id
  * @property string $subject
  * @property string $status
@@ -31,13 +31,13 @@ class Ticket extends ActiveRecord
 
     public static function tableName()
     {
-    return 'support_ticket';
+        return 'support_ticket';
     }
 
     public function behaviors()
     {
         return [
-          'createdAt' => CreatedAt::className(),
+            'createdAt' => CreatedAt::className(),
         ];
     }
 

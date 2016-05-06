@@ -19,8 +19,7 @@ class Html2Pdf extends Object
 {
     private
         $html = '',
-        $pdf = ''
-    ;
+        $pdf = '';
 
     private $execTool = "/usr/bin/wkhtmltopdf";
 

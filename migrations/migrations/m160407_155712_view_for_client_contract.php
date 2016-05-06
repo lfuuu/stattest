@@ -11,6 +11,6 @@ class m160407_155712_view_for_client_contract extends \app\classes\Migration
 
     public function down()
     {
-	$this->execute("DROP VIEW view_client_contract_ro;");
+        $this->execute("DROP VIEW view_client_contract_ro;");
     }
 }

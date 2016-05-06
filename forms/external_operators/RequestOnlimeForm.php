@@ -31,31 +31,31 @@ class RequestOnlimeForm extends Form
     ];
 
     protected static $fields1C = [
-        'ФИО'                       => 'fio',
-        'Адрес'                     => 'address',
-        'НомерЗаявки'               => 'req_no',
-        'ЛицевойСчет'               => 'acc_no',
-        'НомерПодключения'          => 'connum',
-        'Комментарий1'              => 'comment1',
-        'Комментарий2'              => 'comment2',
-        'ПаспортСерия'              => 'passp_series',
-        'ПаспортНомер'              => 'passp_num',
-        'ПаспортКемВыдан'           => 'passp_whos_given',
-        'ПаспортКогдаВыдан'         => 'passp_when_given',
-        'ПаспортКодПодразделения'   => 'passp_code',
-        'ПаспортДатаРождения'       => 'passp_birthday',
-        'ПаспортГород'              => 'reg_city',
-        'ПаспортУлица'              => 'reg_street',
-        'ПаспортДом'                => 'reg_house',
-        'ПаспортКорпус'             => 'reg_housing',
-        'ПаспортСтроение'           => 'reg_build',
-        'ПаспортКвартира'           => 'reg_flat',
-        'Email'                     => 'email',
-        'ПроисхождениеЗаказа'       => 'order_given',
-        'КонтактныйТелефон'         => 'phone',
-        'Метро'                     => 'metro_id',
-        'Логистика'                 => 'logistic',
-        'ВладелецЛинии'             => 'line_owner',
+        'ФИО' => 'fio',
+        'Адрес' => 'address',
+        'НомерЗаявки' => 'req_no',
+        'ЛицевойСчет' => 'acc_no',
+        'НомерПодключения' => 'connum',
+        'Комментарий1' => 'comment1',
+        'Комментарий2' => 'comment2',
+        'ПаспортСерия' => 'passp_series',
+        'ПаспортНомер' => 'passp_num',
+        'ПаспортКемВыдан' => 'passp_whos_given',
+        'ПаспортКогдаВыдан' => 'passp_when_given',
+        'ПаспортКодПодразделения' => 'passp_code',
+        'ПаспортДатаРождения' => 'passp_birthday',
+        'ПаспортГород' => 'reg_city',
+        'ПаспортУлица' => 'reg_street',
+        'ПаспортДом' => 'reg_house',
+        'ПаспортКорпус' => 'reg_housing',
+        'ПаспортСтроение' => 'reg_build',
+        'ПаспортКвартира' => 'reg_flat',
+        'Email' => 'email',
+        'ПроисхождениеЗаказа' => 'order_given',
+        'КонтактныйТелефон' => 'phone',
+        'Метро' => 'metro_id',
+        'Логистика' => 'logistic',
+        'ВладелецЛинии' => 'line_owner',
     ];
 
     public function rules()
@@ -100,7 +100,7 @@ class RequestOnlimeForm extends Form
                 'sum' => 0,
                 'number' => '',
                 'comment' => $this->comment,
-                'is_rollback' => (int) $operator->isRollback,
+                'is_rollback' => (int)$operator->isRollback,
             ];
 
             for ($i = 0, $s = count($this->products); $i < $s; $i++) {
@@ -131,8 +131,7 @@ class RequestOnlimeForm extends Form
                     'add_info' => $addInfo,
                     'store_id' => $operator->storeId,
                 ]);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->addError('1C_error', str_replace('|||', '', $e->getMessage()));
                 $this->addError('1C_order', 'Не удалось создать заказ в 1С');
                 return false;
@@ -149,8 +148,7 @@ class RequestOnlimeForm extends Form
 
             $soap = new \_1c\SoapHandler;
             $soap->statSaveOrder($class, $this->bill_no, $error, []);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -164,7 +162,7 @@ class RequestOnlimeForm extends Form
             case 'fio':
                 return $this->fullname;
             case 'comment1':
-                return self::$time_intervals[ $this->time_interval ];
+                return self::$time_intervals[$this->time_interval];
             case 'comment2':
                 $info = '';
                 if (isset($this->operator_name)) {
@@ -177,7 +175,7 @@ class RequestOnlimeForm extends Form
             case 'acc_no':
                 return $this->account_id;
             default:
-                return isset($this->{$field}) ? $this->{$field}  : '';
+                return isset($this->{$field}) ? $this->{$field} : '';
         }
     }
 

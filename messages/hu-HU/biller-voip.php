@@ -15,7 +15,7 @@ return [
     'voip_monthly_fee_per_number_custom' => '{service} telefonszámon nyújtott szolgáltatások {date_range}{by_agreement}',
 
     // Client "bill_rename1" = Előfizetési díj hangcsatornáért
-    'voip_monthly_fee_per_line' => 'Előfizetési díj {lines_number} hangcsatornáért a {service}telefonszámhoz, {date_range}' ,
+    'voip_monthly_fee_per_line' => 'Előfizetési díj {lines_number} hangcsatornáért a {service}telefonszámhoz, {date_range}',
     // Yii::t plural not work
     // https://github.com/yiisoft/yii2/issues/4259
 

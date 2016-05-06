@@ -16,7 +16,7 @@ class NetworkConfigForm extends Form
     public function rules()
     {
         return [
-            [['id','connection_point_id','geo_city_id','geo_operator_id'], 'integer'],
+            [['id', 'connection_point_id', 'geo_city_id', 'geo_operator_id'], 'integer'],
             [['name'], 'string'],
         ];
     }

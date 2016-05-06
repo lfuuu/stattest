@@ -61,8 +61,9 @@ class Organization extends ActiveRecord
 
     public function beforeSave($query)
     {
-        if (!(int) $this->organization_id)
+        if (!(int)$this->organization_id) {
             $this->organization_id = $this->find()->max('organization_id') + 1;
+        }
 
         $this->getDb()
             ->createCommand(
@@ -80,7 +81,7 @@ class Organization extends ActiveRecord
                     ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format('Y-m-d')
                 ]
             )
-                ->execute();
+            ->execute();
 
         $next_record = $this
             ->find()
@@ -136,31 +137,31 @@ class Organization extends ActiveRecord
         $director = $this->director;
 
         return [
-            'name'              => $this->name,
-            'name_full'         => $this->full_name,
-            'address'           => $this->legal_address,
-            'post_address'      => $this->post_address,
-            'inn'               => $this->tax_registration_id,
-            'kpp'               => $this->tax_registration_reason,
-            'acc'               => $this->bank_account,
-            'bank'              => $this->bank_name,
-            'bank_name'         => $this->bank_name,
-            'kor_acc'           => $this->bank_correspondent_account,
-            'bik'               => $this->bank_bik,
-            'phone'             => $this->contact_phone,
-            'fax'               => $this->contact_fax,
-            'email'             => $this->contact_email,
-            'director'          => $director->name_nominative,
-            'director_'         => $director->name_genitive,
-            'director_post'     => $director->post_nominative,
-            'director_post_'    => $director->post_genitive,
-            'firma'             => $this->firma,
+            'name' => $this->name,
+            'name_full' => $this->full_name,
+            'address' => $this->legal_address,
+            'post_address' => $this->post_address,
+            'inn' => $this->tax_registration_id,
+            'kpp' => $this->tax_registration_reason,
+            'acc' => $this->bank_account,
+            'bank' => $this->bank_name,
+            'bank_name' => $this->bank_name,
+            'kor_acc' => $this->bank_correspondent_account,
+            'bik' => $this->bank_bik,
+            'phone' => $this->contact_phone,
+            'fax' => $this->contact_fax,
+            'email' => $this->contact_email,
+            'director' => $director->name_nominative,
+            'director_' => $director->name_genitive,
+            'director_post' => $director->post_nominative,
+            'director_post_' => $director->post_genitive,
+            'firma' => $this->firma,
             'is_simple_tax_system' => $this->is_simple_tax_system,
-            'logo'              => str_replace('/images/', '', \Yii::$app->params['ORGANIZATION_LOGO_DIR']) . $this->logo_file_name,
-            'site'              => $this->contact_site,
-            'src'               => str_replace('/images/', '', \Yii::$app->params['STAMP_DIR']) . $this->stamp_file_name,
-            'width'             => 200,
-            'height'            => 200,
+            'logo' => str_replace('/images/', '', \Yii::$app->params['ORGANIZATION_LOGO_DIR']) . $this->logo_file_name,
+            'site' => $this->contact_site,
+            'src' => str_replace('/images/', '', \Yii::$app->params['STAMP_DIR']) . $this->stamp_file_name,
+            'width' => 200,
+            'height' => 200,
         ];
     }
 

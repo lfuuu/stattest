@@ -110,7 +110,6 @@ class BusinessProcessStatus extends ActiveRecord
     const ITOUTSOURSING_MAINTENANCE_TRASH = 139; // Мусор
 
 
-
     const FOLDER_TELECOM_AUTOBLOCK = 21;
 
     public static function tableName()
@@ -128,10 +127,11 @@ class BusinessProcessStatus extends ActiveRecord
     {
         return
             self::find()
-            ->leftJoin(BusinessProcess::tableName() . ' bp', 'bp.`id` = ' . self::tableName() . '.`business_process_id`')
-            ->leftJoin(Business::tableName() . ' b', 'b.`id` = bp.`business_id`')
-            ->where(['b.`id`' => $id])
-            ->all();
+                ->leftJoin(BusinessProcess::tableName() . ' bp',
+                    'bp.`id` = ' . self::tableName() . '.`business_process_id`')
+                ->leftJoin(Business::tableName() . ' b', 'b.`id` = bp.`business_id`')
+                ->where(['b.`id`' => $id])
+                ->all();
     }
 
     public static function getTree()
@@ -140,7 +140,7 @@ class BusinessProcessStatus extends ActiveRecord
         $statuses = [];
         $businessProcesses = BusinessProcess::find()
             ->joinWith('businessProcessStatuses')
-            ->andWhere([BusinessProcess::tableName().'.show_as_status' => '1'])
+            ->andWhere([BusinessProcess::tableName() . '.show_as_status' => '1'])
             ->orderBy([
                 BusinessProcess::tableName() . '.sort' => SORT_ASC,
                 BusinessProcessStatus::tableName() . '.business_process_id' => SORT_ASC,
@@ -154,12 +154,13 @@ class BusinessProcessStatus extends ActiveRecord
                 'up_id' => $businessProcess->business_id,
                 'name' => $businessProcess->name
             ];
-            foreach ($businessProcess->businessProcessStatuses as $status)
+            foreach ($businessProcess->businessProcessStatuses as $status) {
                 $statuses[] = [
                     'id' => $status->id,
                     'name' => $status->name,
                     'up_id' => $status->business_process_id
                 ];
+            }
 
         }
         return ["processes" => $processes, "statuses" => $statuses];

@@ -45,14 +45,19 @@ class DefInfo
             $str = substr($phone, 0, $i + 1);
             while ($min < $max) {
                 $pos = (($min + $max) - ($min + $max) % 2) / 2;
-                if (strcmp($str, $this->country_zones[$pos]['prefix']) <= 0)
+                if (strcmp($str, $this->country_zones[$pos]['prefix']) <= 0) {
                     $max = $pos;
-                else
+                } else {
                     $min = $pos + 1;
+                }
 
                 $cmp = strcmp($str, substr($this->country_zones[$pos]['prefix'], 0, $i + 1));
-                if ($cmp < 0) $maxmax = $pos - 1;
-                if ($cmp > 0) $minmin = $pos + 1;
+                if ($cmp < 0) {
+                    $maxmax = $pos - 1;
+                }
+                if ($cmp > 0) {
+                    $minmin = $pos + 1;
+                }
 
                 $nnn = $nnn + 1;
             }
@@ -60,10 +65,11 @@ class DefInfo
                 $last_def = $this->country_zones[$max];
             }
         }
-        if ($last_def != null)
+        if ($last_def != null) {
             return $last_def['country'];
-        else
+        } else {
             return null;
+        }
     }
 
     function get_region($phone)
@@ -78,14 +84,19 @@ class DefInfo
             $str = substr($phone, 0, $i + 1);
             while ($min < $max) {
                 $pos = (($min + $max) - ($min + $max) % 2) / 2;
-                if (strcmp($str, $this->region_zones[$pos]['prefix']) <= 0)
+                if (strcmp($str, $this->region_zones[$pos]['prefix']) <= 0) {
                     $max = $pos;
-                else
+                } else {
                     $min = $pos + 1;
+                }
 
                 $cmp = strcmp($str, substr($this->region_zones[$pos]['prefix'], 0, $i + 1));
-                if ($cmp < 0) $maxmax = $pos - 1;
-                if ($cmp > 0) $minmin = $pos + 1;
+                if ($cmp < 0) {
+                    $maxmax = $pos - 1;
+                }
+                if ($cmp > 0) {
+                    $minmin = $pos + 1;
+                }
 
                 $nnn = $nnn + 1;
             }
@@ -93,10 +104,11 @@ class DefInfo
                 $last_def = $this->region_zones[$max];
             }
         }
-        if ($last_def != null)
+        if ($last_def != null) {
             return $last_def['region'];
-        else
+        } else {
             return null;
+        }
     }
 
 
@@ -112,14 +124,19 @@ class DefInfo
             $str = substr($phone, 0, $i + 1);
             while ($min < $max) {
                 $pos = (($min + $max) - ($min + $max) % 2) / 2;
-                if (strcmp($str, $this->mob_zones[$pos]['prefix']) <= 0)
+                if (strcmp($str, $this->mob_zones[$pos]['prefix']) <= 0) {
                     $max = $pos;
-                else
+                } else {
                     $min = $pos + 1;
+                }
 
                 $cmp = strcmp($str, substr($this->mob_zones[$pos]['prefix'], 0, $i + 1));
-                if ($cmp < 0) $maxmax = $pos - 1;
-                if ($cmp > 0) $minmin = $pos + 1;
+                if ($cmp < 0) {
+                    $maxmax = $pos - 1;
+                }
+                if ($cmp > 0) {
+                    $minmin = $pos + 1;
+                }
 
                 $nnn = $nnn + 1;
             }

@@ -121,7 +121,11 @@ abstract class BaseNetworkLoader extends BaseLoader
         $q = "insert into voip.network_file_data(network_file_id, prefix, network_type_id) values ";
         $is_first = true;
         foreach ($new_rows as $row) {
-            if ($is_first == false) $q .= ","; else $is_first = false;
+            if ($is_first == false) {
+                $q .= ",";
+            } else {
+                $is_first = false;
+            }
 
             $q .= "('" . pg_escape_string($file->id) . "','" . pg_escape_string($row['prefix']) . "','" . pg_escape_string($row['network_type_id']) . "')";
         }

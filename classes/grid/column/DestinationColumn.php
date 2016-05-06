@@ -20,7 +20,7 @@ class DestinationColumn extends DataColumn
     public function getDataCellValue($model, $key, $index)
     {
         $value = parent::getDataCellValue($model, $key, $index);
-        return isset(TariffVoip::$destinations[$value]) ?TariffVoip::$destinations[$value] : $value;
+        return isset(TariffVoip::$destinations[$value]) ? TariffVoip::$destinations[$value] : $value;
     }
 
 }

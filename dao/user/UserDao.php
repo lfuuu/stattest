@@ -21,7 +21,7 @@ class UserDao extends Singleton
 
         $result = [];
         foreach ($list as $user) {
-            $result[ $user->user ] = $user->name . ' (' . $user->user . ')';
+            $result[$user->user] = $user->name . ' (' . $user->user . ')';
         }
 
         if ($withEmpty) {
@@ -33,11 +33,13 @@ class UserDao extends Singleton
 
     public function getListByDepartments($departments, $asArray = true)
     {
-        if (!is_array($departments))
-            $departments = (array) $departments;
+        if (!is_array($departments)) {
+            $departments = (array)$departments;
+        }
 
-        if(in_array('manager', $departments))
+        if (in_array('manager', $departments)) {
             $departments[] = 'account_managers';
+        }
 
         $query =
             User::find()
@@ -46,11 +48,13 @@ class UserDao extends Singleton
                 ->where(['enabled' => 'yes'])
                 ->orderBy('`user_users`.`name` ASC');
 
-        if (sizeof($departments))
+        if (sizeof($departments)) {
             $query->andWhere(['`user_users`.`usergroup`' => $departments]);
+        }
 
-        if ($asArray !== false)
+        if ($asArray !== false) {
             $query->asArray();
+        }
 
         return $query->all();
     }

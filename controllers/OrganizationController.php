@@ -77,8 +77,9 @@ class OrganizationController extends BaseController
     {
         $organization = Organization::find()->byId($id)->actual($date)->one();
 
-        if (!$organization instanceof Organization)
+        if (!$organization instanceof Organization) {
             $organization = Organization::find()->byId($id)->orderBy('actual_from DESC')->one();
+        }
 
         Assert::isObject($organization);
 

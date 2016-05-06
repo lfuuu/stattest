@@ -17,7 +17,19 @@ class NumberForm extends Form
         return [
             [['did'], 'string'],
             [['client_account_id'], 'string'],
-            [['did'], 'required', 'on' => ['default', 'startReserve','stopReserve','startHold','stopHold','startNotSell','stopNotSell']],
+            [
+                ['did'],
+                'required',
+                'on' => [
+                    'default',
+                    'startReserve',
+                    'stopReserve',
+                    'startHold',
+                    'stopHold',
+                    'startNotSell',
+                    'stopNotSell'
+                ]
+            ],
             [['hold_month'], 'default', 'value' => 6],
             [['hold_month'], 'in', 'range' => [6, 3, 1]],
             [['scenario'], 'safe'],

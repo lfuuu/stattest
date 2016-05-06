@@ -15,7 +15,7 @@ class HttpClient extends Client
     public function auth(array $config)
     {
         if (isset($config['method'])) {
-            switch($config['method']) {
+            switch ($config['method']) {
                 case 'basic': {
                     return [
                         CURLOPT_HTTPAUTH => CURLAUTH_BASIC,

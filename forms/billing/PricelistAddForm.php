@@ -8,7 +8,7 @@ class PricelistAddForm extends PricelistForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['name','connection_point_id','currency_id'], 'required'];
+        $rules[] = [['name', 'connection_point_id', 'currency_id'], 'required'];
         return $rules;
     }
 

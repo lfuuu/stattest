@@ -41,10 +41,11 @@ class InnKppValidator extends Validator
                     && ($this->when === null || call_user_func($this->when, $model, $attribute))
                 ) {
                     $has = true;
-                    self::createValidator($this->attrValidator[$attribute], $model, $attribute)->validateAttribute($model, $attribute);
+                    self::createValidator($this->attrValidator[$attribute], $model,
+                        $attribute)->validateAttribute($model, $attribute);
                 }
             }
-            if(!$contracts && ($has || $hasCheckedContracts)) {
+            if (!$contracts && ($has || $hasCheckedContracts)) {
                 $this->checkUnique($model, $attributes);
             }
         }
@@ -80,8 +81,9 @@ class InnKppValidator extends Validator
         $models = $query->all();
 
         if ($models) {
-            foreach ($attributes as $attribute)
+            foreach ($attributes as $attribute) {
                 $this->addError($model, $attribute, '{attrs} must be unique', ['attrs' => implode(', ', $labels)]);
+            }
             //$this->addError($model, $attribute, 'Связка {attrs} должна быть уникальной', ['attrs' => implode(', ', $labels)]);
         }
 
@@ -90,7 +92,9 @@ class InnKppValidator extends Validator
             ->andWhere(['!=', 'super_id', $model->super_id])
             ->one();
         if ($double instanceof $model) {
-            $this->addError($model, 'inn', 'Inn is already in another client <a href="/contragent/edit?id={contragentId}" target="_blank">контрагента</a>', ['contragentId' => $double->id]);
+            $this->addError($model, 'inn',
+                'Inn is already in another client <a href="/contragent/edit?id={contragentId}" target="_blank">контрагента</a>',
+                ['contragentId' => $double->id]);
         }
     }
 }

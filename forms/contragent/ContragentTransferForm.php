@@ -26,9 +26,9 @@ class ContragentTransferForm extends Form
     public function rules()
     {
         return [
-            [['targetClientAccount','sourceClientAccount',], 'required'],
-            [['targetClientAccount','sourceClientAccount',], 'integer'],
-            [['contracts', 'clients', ], ArrayValidator::className()],
+            [['targetClientAccount', 'sourceClientAccount',], 'required'],
+            [['targetClientAccount', 'sourceClientAccount',], 'integer'],
+            [['contracts', 'clients',], ArrayValidator::className()],
         ];
     }
 
@@ -61,8 +61,7 @@ class ContragentTransferForm extends Form
 
         try {
             ApiCore::transferContragent($contragent->id, $super->id, $this->targetClientAccount);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->addError('transfer-error', 'API: ' . $e->getMessage());
             return false;
         }
@@ -72,25 +71,24 @@ class ContragentTransferForm extends Form
             foreach ($clients as $client) {
                 $client->super_id = $this->targetClientAccount;
                 if ($client->save() === false) {
-                    throw new Exception( implode( '<br />', array_values($client->getFirstErrors()) ) );
+                    throw new Exception(implode('<br />', array_values($client->getFirstErrors())));
                 }
             }
 
             foreach ($contracts as $contract) {
                 $contract->super_id = $this->targetClientAccount;
-                if ($contract->save() === false){
-                    throw new Exception( implode( '<br />', array_values($contract->getFirstErrors()) ) );
+                if ($contract->save() === false) {
+                    throw new Exception(implode('<br />', array_values($contract->getFirstErrors())));
                 }
             }
 
             $contragent->super_id = $this->targetClientAccount;
             if ($contragent->save(false) === false) {
-                throw new Exception( implode( '<br />', array_values($contragent->getFirstErrors()) ) );
+                throw new Exception(implode('<br />', array_values($contragent->getFirstErrors())));
             }
 
             $transaction->commit();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $transaction->rollBack();
             $this->addError('transfer-error', $e->getMessage());
             return false;

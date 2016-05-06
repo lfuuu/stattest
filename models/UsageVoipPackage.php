@@ -182,7 +182,8 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     {
         return
             ImportantEvents::find()
-                ->leftJoin(['iep' => ImportantEventsProperties::tableName()], 'iep.event_id = ' . ImportantEvents::tableName() . '.id')
+                ->leftJoin(['iep' => ImportantEventsProperties::tableName()],
+                    'iep.event_id = ' . ImportantEvents::tableName() . '.id')
                 ->where([
                     'iep.property' => 'usage_id',
                     'iep.value' => $this->id,

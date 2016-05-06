@@ -25,7 +25,7 @@ abstract class Form extends Model
 
         if (!$model->save($runValidation)) {
             foreach ($model->getErrors() as $attribute => $errors) {
-                foreach($errors as $error) {
+                foreach ($errors as $error) {
                     $this->addError($attribute, $error);
                 }
             }
@@ -77,7 +77,8 @@ abstract class Form extends Model
     /**
      * @return ActiveQuery
      */
-    public function spawnQuery() {
+    public function spawnQuery()
+    {
 
     }
 

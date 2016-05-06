@@ -19,8 +19,7 @@ class ReportsController extends BaseController
 
         if (isset($filter['range'])) {
             list($dateFrom, $dateTo) = explode(' : ', $filter['range']);
-        }
-        else {
+        } else {
             $today = new DateTime('now');
             $firstDayThisMonth = clone $today;
             $lastDayThisMonth = clone $today;
@@ -56,8 +55,7 @@ class ReportsController extends BaseController
 
         if (isset($filter['range'])) {
             list($dateFrom, $dateTo) = explode(' : ', $filter['range']);
-        }
-        else {
+        } else {
             $today = new DateTime('now');
             $firstDayThisMonth = clone $today;
             $lastDayThisMonth = clone $today;

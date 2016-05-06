@@ -17,7 +17,8 @@ class NumberController extends Controller
             Number::find()
                 ->andWhere(['status' => Number::STATUS_HOLD])
                 ->andWhere('hold_to < NOW()')
-                ->all(); /** @var Number[] $numbers */
+                ->all();
+        /** @var Number[] $numbers */
 
         foreach ($numbers as $number) {
             Number::dao()->stopHold($number);
@@ -30,12 +31,13 @@ class NumberController extends Controller
         $today = new DateTime("now");
         $yesterday = (new DateTime("now"))->modify("-1 day");
         $usages = UsageVoip::find()->andWhere(
-            ["or", 
+            [
+                "or",
                 [
-                    "=", 
-                    "actual_from", 
+                    "=",
+                    "actual_from",
                     $today->format("Y-m-d")
-                ], 
+                ],
                 [
                     "=",
                     "actual_to",
@@ -43,25 +45,25 @@ class NumberController extends Controller
                 ]
             ])->all();
 
-        foreach($usages as $usage) {
+        foreach ($usages as $usage) {
 
             Number::dao()->actualizeStatusByE164($usage->E164);
-            echo $today->format("Y-m-d").": ".$usage->E164."\n";
+            echo $today->format("Y-m-d") . ": " . $usage->E164 . "\n";
         }
     }
 
     public function actionPreloadDetailReport()
     {
-        echo "\n".date("r").": start";
+        echo "\n" . date("r") . ": start";
         if (date("N") > 5) {
-            echo "\n".date("r").": non working day";
+            echo "\n" . date("r") . ": non working day";
         } else {
-            foreach(Region::find()->all() as $region) {
-                echo "\n".date("r").": region ".$region->id;
+            foreach (Region::find()->all() as $region) {
+                echo "\n" . date("r") . ": region " . $region->id;
                 Number::dao()->getCallsWithoutUsages($region->id);
             }
         }
-        echo "\n".date("r").": end";
+        echo "\n" . date("r") . ": end";
     }
 
 }

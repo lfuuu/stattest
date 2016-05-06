@@ -15,18 +15,19 @@ class VatsController extends Controller
     private
         $actualVirtpbx = [],
         $startPeriods = [
-            'today' => ['now', 'now'],
-            'yesterday' => ['-1 day', '-1 day'],
-            'month' => ['first day of this month', 'now'],
-            'prevmonth' => ['first day of previous month', 'last day of previous month'],
-        ];
+        'today' => ['now', 'now'],
+        'yesterday' => ['-1 day', '-1 day'],
+        'month' => ['first day of this month', 'now'],
+        'prevmonth' => ['first day of previous month', 'last day of previous month'],
+    ];
 
     public function beforeAction($action)
     {
         if ($this->action->id != 'index') {
             require_once Yii::$app->basePath . '/stat/conf.php';
 
-            $this->actualVirtpbx = ArrayHelper::map(ActualVirtpbx::find()->select(['client_id', 'usage_id'])->all(), 'usage_id', 'client_id');
+            $this->actualVirtpbx = ArrayHelper::map(ActualVirtpbx::find()->select(['client_id', 'usage_id'])->all(),
+                'usage_id', 'client_id');
         }
 
         return parent::beforeAction($this->action);
@@ -48,11 +49,14 @@ class VatsController extends Controller
         $this->stdout("\n\t");
         $this->stdout('yesterday: ' . $this->ansiFormat('получить и сохранить статистику за вчера'), Console::FG_RED);
         $this->stdout("\n\t");
-        $this->stdout('month: ' . $this->ansiFormat('получить и сохранить статистику с первого дня текущего месяца, по сегодня'), Console::FG_RED);
+        $this->stdout('month: ' . $this->ansiFormat('получить и сохранить статистику с первого дня текущего месяца, по сегодня'),
+            Console::FG_RED);
         $this->stdout("\n\t");
-        $this->stdout('prevmonth: ' . $this->ansiFormat('получить и сохранить статистику с первого дня предыдущего месяца, по сегодня'), Console::FG_RED);
+        $this->stdout('prevmonth: ' . $this->ansiFormat('получить и сохранить статистику с первого дня предыдущего месяца, по сегодня'),
+            Console::FG_RED);
         $this->stdout("\n\n\t");
-        $this->stdout('Y-m-d: ' . $this->ansiFormat('получить и сохранить статистику за указанную дату'), Console::FG_YELLOW);
+        $this->stdout('Y-m-d: ' . $this->ansiFormat('получить и сохранить статистику за указанную дату'),
+            Console::FG_YELLOW);
         $this->stdout("\n");
     }
 
@@ -62,12 +66,10 @@ class VatsController extends Controller
             list($periodStart, $periodEnd) = $this->startPeriods[$period];
             $periodStart = (new DateTime($periodStart))->setTime('00', '00', '00');
             $periodEnd = (new DateTime($periodEnd))->setTime('00', '00', '00');
-        }
-        else {
+        } else {
             try {
                 $periodStart = $periodEnd = (new DateTime($period))->setTime('00', '00', '00');
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->throwError($e->getMessage());
             }
         }
@@ -92,8 +94,7 @@ class VatsController extends Controller
 
         try {
             $result = \app\classes\api\ApiVpbx::getResourceStatistics($date);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             if ($e->getCode() != 540) {
                 $this->throwError($e->getMessage());
             }
@@ -159,7 +160,13 @@ class VatsController extends Controller
                 [
                     'and',
                     'date = :date',
-                    ['in', 'client_id', ArrayHelper::getColumn($insert, function ($row) { return $row[1]; })]
+                    [
+                        'in',
+                        'client_id',
+                        ArrayHelper::getColumn($insert, function ($row) {
+                            return $row[1];
+                        })
+                    ]
                 ],
                 [
                     ':date' => $day,
@@ -171,8 +178,7 @@ class VatsController extends Controller
                 ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count'],
                 $insert
             )->execute();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             $this->throwError($e->getMessage());
         }

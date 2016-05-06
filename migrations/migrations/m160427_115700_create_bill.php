@@ -42,9 +42,11 @@ class m160427_115700_create_bill extends \app\classes\Migration
         ]);
 
         $fieldName = 'client_account_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, ClientAccount::tableName(),
+            'id', 'RESTRICT');
 
-        $this->createIndex('uniq-' . $tableName . '-' . 'date-client_account_id', $tableName, ['date', 'client_account_id'], true);
+        $this->createIndex('uniq-' . $tableName . '-' . 'date-client_account_id', $tableName,
+            ['date', 'client_account_id'], true);
 
     }
 
@@ -56,7 +58,8 @@ class m160427_115700_create_bill extends \app\classes\Migration
         $tableName = AccountEntry::tableName();
         $fieldName = 'bill_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Bill::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, Bill::tableName(), 'id',
+            'RESTRICT');
     }
 
     /**

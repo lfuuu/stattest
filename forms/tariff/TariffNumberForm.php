@@ -20,9 +20,9 @@ class TariffNumberForm extends Form
     public function rules()
     {
         return [
-            [['id','country_id','city_id','connection_point_id'], 'integer'],
-            [['currency_id','name','status','period'], 'string'],
-            [['activation_fee','periodical_fee'], 'number'],
+            [['id', 'country_id', 'city_id', 'connection_point_id'], 'integer'],
+            [['currency_id', 'name', 'status', 'period'], 'string'],
+            [['activation_fee', 'periodical_fee'], 'number'],
             [['did_group_id'], 'integer'],
         ];
     }

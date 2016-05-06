@@ -14,7 +14,7 @@ use app\models\Trouble;
 class TroubleStages extends Behavior
 {
 
-    private $closedStates = [2,20,7,8,48];
+    private $closedStates = [2, 20, 7, 8, 48];
 
     public function events()
     {
@@ -32,31 +32,36 @@ class TroubleStages extends Behavior
         /** @var Trouble $trouble */
         $trouble = Trouble::findOne($event->sender->trouble_id);
 
-        if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id, $this->closedStates, true)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'trouble_id' => $trouble->id,
-                'stage_id' => $trouble->stage->stage_id,
-                'client_id' => $trouble->account->id,
-                'user_id' => Yii::$app->user->id,
-            ]);
+        if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id,
+                $this->closedStates, true)
+        ) {
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'trouble_id' => $trouble->id,
+                    'stage_id' => $trouble->stage->stage_id,
+                    'client_id' => $trouble->account->id,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
 
         if ($trouble->stage->user_main != $event->sender->user_main) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'trouble_id' => $trouble->id,
-                'stage_id' => $trouble->stage->stage_id,
-                'client_id' => $trouble->account->id,
-                'user_id' => Yii::$app->user->id,
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'trouble_id' => $trouble->id,
+                    'stage_id' => $trouble->stage->stage_id,
+                    'client_id' => $trouble->account->id,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
 
         if (!empty($trouble->stage->comment)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'trouble_id' => $trouble->id,
-                'stage_id' => $trouble->stage->stage_id,
-                'client_id' => $trouble->account->id,
-                'user_id' => Yii::$app->user->id,
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'trouble_id' => $trouble->id,
+                    'stage_id' => $trouble->stage->stage_id,
+                    'client_id' => $trouble->account->id,
+                    'user_id' => Yii::$app->user->id,
+                ]);
         }
     }
 

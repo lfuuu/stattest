@@ -92,10 +92,8 @@ class PhoneSales
         $dateFrom = strtotime($dateFrom);
         $dateTo = strtotime($dateTo);
 
-        foreach ($usages as $usage)
-        {
-            if (!isset($managers[$usage['id']]))
-            {
+        foreach ($usages as $usage) {
+            if (!isset($managers[$usage['id']])) {
                 $managers[$usage['id']]['name'] = $usage['name'];
 
                 $managers[$usage['id']]['data'] = [
@@ -120,18 +118,12 @@ class PhoneSales
                 $type == 'departure'
                 && strtotime($usage['dateFrom']) <= $dateTo
                 && strtotime($usage['dateFrom']) >= $dateFrom
-            )
-            {
+            ) {
                 $managers[$usage['id']]['data'][$type]++;
-            }
-            else
-            {
-                if (isset($clients[$usage['client_id']][$type]))
-                {
+            } else {
+                if (isset($clients[$usage['client_id']][$type])) {
                     $suffix = '_old';
-                }
-                else
-                {
+                } else {
                     $clients[$usage['client_id']][$type] = true;
                     $suffix = '_new';
                 }
@@ -139,15 +131,11 @@ class PhoneSales
                 if (
                     strtotime($usage['dateFrom']) <= $dateTo
                     && strtotime($usage['dateFrom']) >= $dateFrom
-                )
-                {
-                    if ($type == 'number')
-                    {
+                ) {
+                    if ($type == 'number') {
                         $managers[$usage['id']]['data'][$type . $suffix]++;
                         $managers[$usage['id']]['data']['line' . $suffix] += $usage['count'];
-                    }
-                    else
-                    {
+                    } else {
                         $managers[$usage['id']]['data'][$type . $suffix]++;
                     }
                 }

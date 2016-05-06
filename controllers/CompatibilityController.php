@@ -24,8 +24,7 @@ class CompatibilityController extends BaseController
 
     private function runOldStat($lite = false)
     {
-        if (!defined('PATH_TO_ROOT'))
-        {
+        if (!defined('PATH_TO_ROOT')) {
             define("PATH_TO_ROOT", Yii::$app->basePath . '/stat/');
         }
 
@@ -35,26 +34,26 @@ class CompatibilityController extends BaseController
 
         ob_start();
 
-        $design  = new \MySmarty();
-        $user    = new \AuthUser();
+        $design = new \MySmarty();
+        $user = new \AuthUser();
 
         $user->AuthorizeByUserId(Yii::$app->user->id);
 
-        $module = get_param_raw('module','clients');
-        $action = get_param_raw('action','default');
+        $module = get_param_raw('module', 'clients');
+        $action = get_param_raw('action', 'default');
 
         $design->assign('module', $module);
 
-        if ($newClient = get_param_raw("clients_client"))
+        if ($newClient = get_param_raw("clients_client")) {
             $_SESSION["clients_client"] = $newClient;
+        }
 
         if (Yii::$app->user->identity->restriction_client_id) {
-          $fixclient = Yii::$app->user->identity->restriction_client_id;
-        } elseif($cc = Yii::$app->request->get('clients_client')) {
+            $fixclient = Yii::$app->user->identity->restriction_client_id;
+        } elseif ($cc = Yii::$app->request->get('clients_client')) {
             $fixclient = $cc;
-        }
-        else {
-          $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : 0;
+        } else {
+            $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : 0;
         }
         $fixclient_data = array();
 
@@ -77,7 +76,7 @@ class CompatibilityController extends BaseController
         }
 
         if (
-            $renderLayout && access('tt','view')
+            $renderLayout && access('tt', 'view')
             && Yii::$app->user->getIdentity()->hasAttribute('show_troubles_on_every_page')
             && Yii::$app->user->getIdentity()->show_troubles_on_every_page > 0
         ) {

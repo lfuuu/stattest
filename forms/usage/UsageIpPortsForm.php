@@ -29,9 +29,15 @@ class UsageIpPortsForm extends Form
             [['client', 'address'], 'required'],
             [
                 [
-                    'actual_from', 'actual_to', 'client', 'address', 'date_last_writeoff',
-                    'speed_mgts', 'speed_update'
-                ], 'string'
+                    'actual_from',
+                    'actual_to',
+                    'client',
+                    'address',
+                    'date_last_writeoff',
+                    'speed_mgts',
+                    'speed_update'
+                ],
+                'string'
             ],
             [['port_id', 'amount'], 'integer'],
             ['status', 'in', 'range' => ['connecting', 'working']],

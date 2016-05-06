@@ -42,10 +42,11 @@ class ContactController extends BaseController
     public function actionActivate($id)
     {
         $model = ClientContact::findOne($id);
-        if (!$model)
+        if (!$model) {
             throw new Exception('Contact not found');
+        }
 
-        $model->is_active = (int) !$model->is_active;
+        $model->is_active = (int)!$model->is_active;
         $model->save();
         $this->redirect(Yii::$app->request->referrer);
     }
@@ -54,15 +55,17 @@ class ContactController extends BaseController
     {
         $statuses = ['working', 'connecting'];
         $contact = ClientContact::findOne($id);
-        if (!$contact)
+        if (!$contact) {
             throw new Exception('Contact not found');
+        }
 
         $lk = LkNoticeSetting::find()->where('client_id', $contact->client_id)->one();
 
-        if (!$lk)
+        if (!$lk) {
             throw new Exception('Contact not found');
+        }
 
-        $contact->is_active = (int) !$contact->is_active;
+        $contact->is_active = (int)!$contact->is_active;
         $lk->status = $statuses[$contact->is_active];
         $contact->save();
         $lk->save();

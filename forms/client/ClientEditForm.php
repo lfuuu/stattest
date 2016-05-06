@@ -36,8 +36,9 @@ class ClientEditForm extends Form
                 throw new Exception('SuperClient not found');
             }
             $this->setAttributes($this->super->getAttributes(), false);
-        } else
+        } else {
             throw new Exception('You must send id');
+        }
     }
 
     public function save()
@@ -48,8 +49,9 @@ class ClientEditForm extends Form
         if ($super->save()) {
             $this->setAttributes($super->getAttributes(), false);
             return true;
-        } else
+        } else {
             $this->addErrors($super->getErrors());
+        }
 
         return false;
     }

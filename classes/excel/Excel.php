@@ -26,14 +26,11 @@ abstract class Excel extends Component
     {
         if (preg_match('/\.csv$/', $filename)) {
             $reader = \PHPExcel_IOFactory::createReader('CSV');
-        }
-        elseif (preg_match('/\.xls$/', $filename)) {
+        } elseif (preg_match('/\.xls$/', $filename)) {
             $reader = \PHPExcel_IOFactory::createReader('Excel5');
-        }
-        elseif (preg_match('/\.xlsx$/', $filename)) {
+        } elseif (preg_match('/\.xlsx$/', $filename)) {
             $reader = \PHPExcel_IOFactory::createReader('Excel2007');
-        }
-        else {
+        } else {
             return false;
         }
 

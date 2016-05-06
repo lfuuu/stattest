@@ -15,13 +15,12 @@ class BillsPage extends BasePage
     public function createRegularBill($date = null)
     {
         $this->actor->click('Создать счёт');
-        if (!is_null($date) && strtotime($date) !== false)
-        {
+        if (!is_null($date) && strtotime($date) !== false) {
             $this->actor->click('редактировать');
             $this->actor->fillField('input[name="bill_date"]', $date);
             $this->actor->click('Изменить');
         }
         $this->actor->click('Ежемесячное');
-        
+
     }
 }

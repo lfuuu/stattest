@@ -50,7 +50,7 @@ class MissingManager extends Component implements MonitoringInterface
             [
                 'label' => 'Контрагент',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     return Html::a($data->contragent->name, ['/contragent/edit', 'id' => $data->contragent->id]);
                 },
                 'width' => '30%',
@@ -58,7 +58,7 @@ class MissingManager extends Component implements MonitoringInterface
             [
                 'label' => '№ Договор',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     return Html::a($data->number, ['/contract/edit', 'id' => $data->id]);
                 },
                 'width' => '30%',
@@ -66,10 +66,11 @@ class MissingManager extends Component implements MonitoringInterface
             [
                 'label' => 'Лицевые счета',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     $accounts = '';
                     foreach ($data->accounts as $clientAccount) {
-                        $accounts[] = Html::a('Л/С ' . $clientAccount->id, ['/client/view', 'id' => $clientAccount->id]);
+                        $accounts[] = Html::a('Л/С ' . $clientAccount->id,
+                            ['/client/view', 'id' => $clientAccount->id]);
                     }
                     return implode(', ', $accounts);
                 },

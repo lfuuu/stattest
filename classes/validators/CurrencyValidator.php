@@ -12,7 +12,7 @@ class CurrencyValidator extends Validator
         parent::init();
 
         if ($this->message === null) {
-          $this->message = Yii::t('yii', '{attribute} is invalid. Must be in range ({range})');
+            $this->message = Yii::t('yii', '{attribute} is invalid. Must be in range ({range})');
         }
     }
 

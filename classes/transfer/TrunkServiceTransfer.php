@@ -19,8 +19,9 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     public function process()
     {
-        if ((int) $this->service->next_usage_id)
+        if ((int)$this->service->next_usage_id) {
             throw new InvalidValueException('Услуга уже перенесена');
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -39,8 +40,7 @@ class TrunkServiceTransfer extends ServiceTransfer
             $this->service->save();
 
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
@@ -67,8 +67,7 @@ class TrunkServiceTransfer extends ServiceTransfer
                 $targetSetting->save();
 
                 $dbTransaction->commit();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }

@@ -77,35 +77,81 @@ class AccountEditForm extends Form
         $rules = [
             [
                 [
-                    'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
-                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee',
-                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties',
+                    'client',
+                    'address_post',
+                    'address_post_real',
+                    'address_connect',
+                    'phone_connect',
+                    'mail_who',
+                    'head_company',
+                    'head_company_address_jur',
+                    'consignee',
+                    'bik',
+                    'corr_acc',
+                    'pay_acc',
+                    'bank_name',
+                    'bank_city',
+                    'bank_properties',
                     'historyVersionStoredDate',
                 ],
                 'string'
             ],
             [
                 [
-                    'client', 'address_post', 'address_post_real', 'address_connect', 'phone_connect',
-                    'mail_who', 'head_company', 'head_company_address_jur', 'consignee', 'site_name',
-                    'bik','corr_acc','pay_acc','bank_name','bank_city', 'bank_properties', 'admin_email'
+                    'client',
+                    'address_post',
+                    'address_post_real',
+                    'address_connect',
+                    'phone_connect',
+                    'mail_who',
+                    'head_company',
+                    'head_company_address_jur',
+                    'consignee',
+                    'site_name',
+                    'bik',
+                    'corr_acc',
+                    'pay_acc',
+                    'bank_name',
+                    'bank_city',
+                    'bank_properties',
+                    'admin_email'
                 ],
-                'default', 'value' => ''
+                'default',
+                'value' => ''
             ],
             [
                 [
-                    'id', 'super_id', 'contract_id', 'stamp', 'credit', 'voip_credit_limit',
-                    'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'is_with_consignee', 'is_upd_without_sign',
-                    'is_agent', 'admin_contact_id', 'admin_is_active', 'anti_fraud_disabled'
+                    'id',
+                    'super_id',
+                    'contract_id',
+                    'stamp',
+                    'credit',
+                    'voip_credit_limit',
+                    'voip_disabled',
+                    'voip_credit_limit_day',
+                    'voip_is_day_calc',
+                    'is_with_consignee',
+                    'is_upd_without_sign',
+                    'is_agent',
+                    'admin_contact_id',
+                    'admin_is_active',
+                    'anti_fraud_disabled'
                 ],
                 'integer'
             ],
             [
                 [
-                    'stamp', 'credit', 'voip_credit_limit', 'is_agent',
-                    'voip_disabled', 'voip_credit_limit_day', 'is_with_consignee', 'is_upd_without_sign',
+                    'stamp',
+                    'credit',
+                    'voip_credit_limit',
+                    'is_agent',
+                    'voip_disabled',
+                    'voip_credit_limit_day',
+                    'is_with_consignee',
+                    'is_upd_without_sign',
                 ],
-                'default', 'value' => 0
+                'default',
+                'value' => 0
             ],
             [['voip_credit_limit_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['admin_email', 'email'],
@@ -122,7 +168,11 @@ class AccountEditForm extends Form
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
             ['bik', BikValidator::className()],
             ['lk_balance_view_mode', 'in', 'range' => array_keys(ClientAccount::$balanceViewMode)],
-            ['options', 'default', 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]],
+            [
+                'options',
+                'default',
+                'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]
+            ],
             [['options',], ArrayValidator::className()],
         ];
         return $rules;
@@ -148,7 +198,7 @@ class AccountEditForm extends Form
         if ($this->id) {
             $this->clientM = ClientAccount::findOne($this->id);
 
-            if($this->clientM && $this->historyVersionRequestedDate) {
+            if ($this->clientM && $this->historyVersionRequestedDate) {
                 $this->clientM->loadVersionOnDate($this->historyVersionRequestedDate);
             }
 
@@ -157,8 +207,7 @@ class AccountEditForm extends Form
             }
 
             $this->setAttributes($this->clientM->getAttributes(), false);
-        }
-        elseif ($this->contract_id) {
+        } elseif ($this->contract_id) {
             $contract = ClientContract::findOne($this->contract_id);
             $contragent = ClientContragent::findOne($contract->contragent_id);
 
@@ -178,8 +227,7 @@ class AccountEditForm extends Form
             $this->voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC;
             $this->anti_fraud_disabled = 0;
             $this->bill_rename1 = 'no';
-        }
-        else {
+        } else {
             $this->clientM = new ClientAccount();
         }
 
@@ -190,7 +238,7 @@ class AccountEditForm extends Form
             $options[$element->option] =
                 !isset($options[$element->option])
                     ? $element->value
-                    : array_merge((array) $options[$element->option], (array) $element->value);
+                    : array_merge((array)$options[$element->option], (array)$element->value);
         }
 
         $this->options = ArrayHelper::merge($this->options, $options);
@@ -200,8 +248,9 @@ class AccountEditForm extends Form
     {
         $client = $this->clientM;
 
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             $this->is_active = 0;
+        }
 
         if ($this->credit < 0) {
             $this->credit = 0;
@@ -214,7 +263,7 @@ class AccountEditForm extends Form
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
 
         $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
-        if($client && $this->historyVersionStoredDate) {
+        if ($client && $this->historyVersionStoredDate) {
             $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
 
@@ -249,11 +298,11 @@ class AccountEditForm extends Form
                 'client_account_id = :clientAccountId',
                 ['in', 'option', array_keys($this->options)]
             ],
-            [
-                ':clientAccountId' => $client->id,
-            ]);
+                [
+                    ':clientAccountId' => $client->id,
+                ]);
 
-                foreach ($this->options as $option => $value) {
+            foreach ($this->options as $option => $value) {
                 if (is_array($value)) {
                     foreach ($value as $record) {
                         (new ClientAccountOptionsForm)
@@ -262,8 +311,7 @@ class AccountEditForm extends Form
                             ->setValue($record)
                             ->save();
                     }
-                }
-                else {
+                } else {
                     (new ClientAccountOptionsForm)
                         ->setClientAccountId($client->id)
                         ->setOption($option)
@@ -278,7 +326,7 @@ class AccountEditForm extends Form
                 $client->client = 'id' . $client->id;
                 $client->save();
             }
-            if($this->admin_email){
+            if ($this->admin_email) {
                 $contact = new ClientContact(["client_id" => $client->id]);
                 $contact->addEmail($this->admin_email);
                 $contact->setActiveAndOfficial();
@@ -295,8 +343,9 @@ class AccountEditForm extends Form
             }
             $this->setAttributes($client->getAttributes(), false);
             return true;
-        } else
+        } else {
             $this->addErrors($client->getErrors());
+        }
 
         return false;
     }

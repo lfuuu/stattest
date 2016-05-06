@@ -23,7 +23,10 @@ class ImportantEventsBehavior extends Behavior
             Yii::$app->db->createCommand()->batchInsert(
                 ImportantEventsProperties::tableName(),
                 ['event_id', 'property', 'value'],
-                array_map(function($row) use ($event) { $row[0] = $event->sender->id; return $row; }, $event->sender->propertiesCollection)
+                array_map(function ($row) use ($event) {
+                    $row[0] = $event->sender->id;
+                    return $row;
+                }, $event->sender->propertiesCollection)
             )->execute();
         }
 

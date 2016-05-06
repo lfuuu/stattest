@@ -47,7 +47,7 @@ class LkNotificationLog extends ActiveRecord
         $row->client_id = $clientId;
         $row->contact_id = $contactId;
         $row->event = $event;
-        $row->is_set = (int) $isSet;
+        $row->is_set = (int)$isSet;
         $row->balance = $balance;
         $row->limit = $limit;
         $row->value = $value;

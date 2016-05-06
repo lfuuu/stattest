@@ -29,7 +29,7 @@ class LostCalls
         /* @var $pg Yii\db\Connection */
         $pg = Yii::$app->dbPg;
         $calls = $pg->createCommand('
-            SELECT id, cdr_id, server_id AS region, connect_time, src_number, dst_number, billed_time, \''.$mode.'\' AS mode
+            SELECT id, cdr_id, server_id AS region, connect_time, src_number, dst_number, billed_time, \'' . $mode . '\' AS mode
                 FROM "calls_raw"."calls_raw_' . date('Ym', strtotime($date)) . '"
                 WHERE server_id = :region AND billed_time > 0 AND account_id IS NULL
                 AND connect_time BETWEEN :dateFrom AND :dateTo'
@@ -42,10 +42,11 @@ class LostCalls
             if (self::isOurNumber($call, $mode, $date)) {
                 $numbers[] = $call;
                 $size++;
-                if ($size >= 10000)
+                if ($size >= 10000) {
                     break;
-                elseif ($size % 1000 === 0)
+                } elseif ($size % 1000 === 0) {
                     self::saveNumbers($numbers);
+                }
             }
             unset($call);
         }
@@ -89,24 +90,27 @@ class LostCalls
     private static function isOurNumber($call, $mode = self::CALL_MODE_OUTCOMING, $date = false)
     {
         if (!self::$ourNumbers) {
-            if ($mode == self::CALL_MODE_INCOMING8800)
+            if ($mode == self::CALL_MODE_INCOMING8800) {
                 self::$ourNumbers = UsageVoip::find()
                     ->select('E164')
                     ->andWhere(new Expression("'$date' BETWEEN `actual_from` AND `actual_to`"))
                     ->andWhere(['type_id' => '7800'])
                     ->column();
-            else
+            } else {
                 self::$ourNumbers = Number::find()
                     ->select('number')
                     ->column();
+            }
         }
-        return in_array($mode == self::CALL_MODE_OUTCOMING ? $call['src_number'] : $call['dst_number'], self::$ourNumbers);
+        return in_array($mode == self::CALL_MODE_OUTCOMING ? $call['src_number'] : $call['dst_number'],
+            self::$ourNumbers);
     }
 
     private static function saveNumbers(&$numbers)
     {
-        if ($numbers)
+        if ($numbers) {
             Yii::$app->db->createCommand()->batchInsert('tmp_calls_raw', array_keys($numbers[0]), $numbers)->execute();
+        }
         $numbers = [];
     }
 

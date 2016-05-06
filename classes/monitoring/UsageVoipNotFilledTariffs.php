@@ -47,10 +47,10 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
             [
                 'label' => 'Услуга',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     $usage = UsageVoip::findOne($data['id']);
 
-                    list ($title, $description) = (array) $usage->helper->description;
+                    list ($title, $description) = (array)$usage->helper->description;
 
                     return
                         Html::a(
@@ -64,7 +64,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
             [
                 'label' => 'Клиент',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     $usage = UsageVoip::findOne($data['id']);
 
                     return
@@ -80,7 +80,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
             [
                 'label' => 'Отсутствует информация',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     $result = [];
 
                     if (!$data['id_tarif']) {
@@ -105,7 +105,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
             [
                 'label' => 'Активация тарифа',
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     return $data['date_activation'];
                 }
             ],

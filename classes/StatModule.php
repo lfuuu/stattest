@@ -34,7 +34,7 @@ class StatModule
             require_once $fileName;
             $className = 'm_' . $moduleName;
             $object = new $className();
-            return self::$map[$moduleName . '_head'] = self::$map[$moduleName]= $object;
+            return self::$map[$moduleName . '_head'] = self::$map[$moduleName] = $object;
         }
 
         throw new Exception("Невозможно подключить модуль " . $moduleName);

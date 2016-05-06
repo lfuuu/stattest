@@ -20,7 +20,7 @@ class UsageVoipEditPackageForm extends Form
     public $is_package_active = false;
     public $is_package_in_future = false;
 
-    /** @var UsageVoipPackage  */
+    /** @var UsageVoipPackage */
     public $package = null;
 
     public function rules()
@@ -45,7 +45,7 @@ class UsageVoipEditPackageForm extends Form
         $this->connecting_date = $package->actual_from;
         $this->disconnecting_date = $package->actual_to == UsageInterface::MAX_POSSIBLE_DATE ? '' : $package->actual_to;
         $this->is_package_active = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
-        $this->is_package_in_future = $package->actual_from >  $now->format('Y-m-d') && $package->actual_to >  $now->format('Y-m-d');
+        $this->is_package_in_future = $package->actual_from > $now->format('Y-m-d') && $package->actual_to > $now->format('Y-m-d');
         $this->tariff = $package->tariff->name;
         $this->status = $package->status;
 

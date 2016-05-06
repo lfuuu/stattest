@@ -32,7 +32,6 @@ use app\helpers\DateTimeZoneHelper;
  * Форма добавления клиента из внешнего мира.
  *
  **/
-
 class ClientCreateExternalForm extends Form
 {
     public $super_id = 0;
@@ -65,8 +64,35 @@ class ClientCreateExternalForm extends Form
         $rules = [
             ['email', 'required'],
             ['email', 'email'],
-            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment', 'site_name'], 'default', 'value' => ''],
-            [['company', 'fio', 'contact_phone', 'email', 'official_phone', 'fax', 'address', 'comment', 'site_name'], FormFieldValidator::className()],
+            [
+                [
+                    'company',
+                    'fio',
+                    'contact_phone',
+                    'email',
+                    'official_phone',
+                    'fax',
+                    'address',
+                    'comment',
+                    'site_name'
+                ],
+                'default',
+                'value' => ''
+            ],
+            [
+                [
+                    'company',
+                    'fio',
+                    'contact_phone',
+                    'email',
+                    'official_phone',
+                    'fax',
+                    'address',
+                    'comment',
+                    'site_name'
+                ],
+                FormFieldValidator::className()
+            ],
             ['company', 'default', 'value' => 'Клиент без названия'],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id'], 'integer'],
@@ -99,9 +125,9 @@ class ClientCreateExternalForm extends Form
     public function validatePartnerId($attr, $params = [])
     {
         $partnerId = $this->$attr;
-        
+
         if (!$partnerId) {
-            return ;
+            return;
         }
 
         if (
@@ -119,10 +145,10 @@ class ClientCreateExternalForm extends Form
         $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
 
         if ($c) {
-            $this->account_id    = $c->client->id;
-            $this->contract_id   = $c->client->contract->id;
+            $this->account_id = $c->client->id;
+            $this->contract_id = $c->client->contract->id;
             $this->contragent_id = $c->client->contragent->id;
-            $this->super_id      = $c->client->superClient->id;
+            $this->super_id = $c->client->superClient->id;
 
             return true;
         }
@@ -257,10 +283,10 @@ class ClientCreateExternalForm extends Form
         $R = array(
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
-            'client' => "id".$this->account_id,
+            'client' => "id" . $this->account_id,
             'date_start' => date('Y-m-d H:i:s'),
             'date_finish_desired' => date('Y-m-d H:i:s'),
-            'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' .$this->site_name: '') . ": " . $this->company,
+            'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
             'user_author' => "system",
             'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '')
         );
@@ -329,7 +355,8 @@ class ClientCreateExternalForm extends Form
                             $form->initModel($client);
                             $form->did = $freeNumber->number;
                             $form->prepareAdd();
-                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region, $client->currency);
+                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region,
+                                $client->currency);
                             $form->create_params = \yii\helpers\Json::encode([
                                 'vpbx_stat_product_id' => $vats->id,
                             ]);

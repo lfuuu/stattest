@@ -19,8 +19,9 @@ class EmailServiceTransfer extends ServiceTransfer
      */
     public function process()
     {
-        if ((int) $this->service->next_usage_id)
+        if ((int)$this->service->next_usage_id) {
             throw new InvalidValueException('Услуга уже перенесена');
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -39,8 +40,7 @@ class EmailServiceTransfer extends ServiceTransfer
             $this->service->save();
 
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
@@ -54,8 +54,9 @@ class EmailServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        if (!(int) $this->service->next_usage_id)
+        if (!(int)$this->service->next_usage_id) {
             throw new InvalidValueException('Услуга не была подготовлена к переносу');
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -70,8 +71,7 @@ class EmailServiceTransfer extends ServiceTransfer
 
             $movedService->delete();
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }

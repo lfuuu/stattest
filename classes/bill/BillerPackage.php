@@ -165,7 +165,7 @@ abstract class BillerPackage
                 ],
                 $this->clientAccount->contragent->country->lang
             );
-            
+
         }
 
         $name = Yii::t(

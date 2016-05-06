@@ -16,7 +16,7 @@ class AgentController extends BaseController
         $behaviors['access']['rules'] = [
             [
                 'allow' => true,
-                'actions' => ['report','test'],
+                'actions' => ['report', 'test'],
                 'roles' => ['clients.read'],
             ],
         ];
@@ -26,13 +26,13 @@ class AgentController extends BaseController
     public function actionReport()
     {
         $partners = ClientContract::find()
-                ->andWhere(['business_id' => Business::PARTNER])
-                ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
-                ->orderBy(ClientContragent::tableName() . '.name')
-                ->all();
+            ->andWhere(['business_id' => Business::PARTNER])
+            ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
+            ->orderBy(ClientContragent::tableName() . '.name')
+            ->all();
 
         $partnerList = [];
-        foreach($partners as $partner) {
+        foreach ($partners as $partner) {
             $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $partner->id . ')';
         }
 

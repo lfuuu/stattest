@@ -49,8 +49,7 @@ abstract class LogTarifTransfer
             $targetLogTariff->save();
 
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }

@@ -26,8 +26,10 @@ class m160204_180300_convert_voip_account_tariff extends \app\classes\Migration
         $accountTariffTableName = AccountTariff::tableName();
 
         // AccountTariffLog удалится CASCADE
-        $this->update($accountTariffTableName, ['prev_account_tariff_id' => null], 'service_type_id = :service_type_id', [':service_type_id' => $serviceTypeIdVoip]);
-        $this->delete($accountTariffTableName, 'service_type_id = :service_type_id', [':service_type_id' => $serviceTypeIdVoip]);
+        $this->update($accountTariffTableName, ['prev_account_tariff_id' => null], 'service_type_id = :service_type_id',
+            [':service_type_id' => $serviceTypeIdVoip]);
+        $this->delete($accountTariffTableName, 'service_type_id = :service_type_id',
+            [':service_type_id' => $serviceTypeIdVoip]);
 
     }
 

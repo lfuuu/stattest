@@ -10,8 +10,7 @@ class Smarty
 
     public static function init()
     {
-        if (self::$smarty == null)
-        {
+        if (self::$smarty == null) {
             $smarty = new \Smarty;
             $smarty->compile_dir = Yii::$app->params['SMARTY_COMPILE_DIR'];
             $smarty->template_dir = Yii::$app->params['SMARTY_TEMPLATE_DIR'];

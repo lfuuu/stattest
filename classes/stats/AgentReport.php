@@ -18,7 +18,7 @@ use app\models\UsageVirtpbx;
 class AgentReport
 {
 
-    /** @var DateTime $dateFrom, $dateTo */
+    /** @var DateTime $dateFrom , $dateTo */
     private
         $dateFrom,
         $dateTo;
@@ -48,7 +48,7 @@ class AgentReport
         }
 
         $report = array_merge(array_values($reportVoip), array_values($reportVirpbx));
-        $report = array_filter($report, function($row) {
+        $report = array_filter($report, function ($row) {
             return $row['amount'] > 0 || $row['amount_payed'] > 0;
         });
 
@@ -66,10 +66,10 @@ class AgentReport
 
         if (
             $this->dateFrom <= $billDate && $this->dateTo >= $billDate
-                &&
+            &&
             (
                 $row['period_type'] === 'always'
-                    ||
+                ||
                 $billDate < $dateOffset
             )
         ) {
@@ -290,7 +290,7 @@ class AgentReport
                 'cg' => ClientContragent::tableName(),
                 'cc' => ClientContract::tableName(),
             ])
-            ->leftJoin(['cr' => ClientContractReward::tableName(),],'cr.contract_id = cc.id');
+            ->leftJoin(['cr' => ClientContractReward::tableName(),], 'cr.contract_id = cc.id');
 
         $query
             ->where('p.partner_contract_id = cc.id')
@@ -326,7 +326,7 @@ class AgentReport
                 'cg' => ClientContragent::tableName(),
                 'cc' => ClientContract::tableName(),
             ])
-            ->leftJoin(['cr' => ClientContractReward::tableName(),],'cr.contract_id = cc.id');
+            ->leftJoin(['cr' => ClientContractReward::tableName(),], 'cr.contract_id = cc.id');
 
         $query
             ->where('p.partner_contract_id = cc.id')

@@ -17,7 +17,8 @@ class UsageTrunkSettingsAddForm extends UsageTrunkSettingsForm
 
     public function process()
     {
-        $usage = UsageTrunk::findOne($this->usage_id); /** @var UsageTrunk $usage */
+        $usage = UsageTrunk::findOne($this->usage_id);
+        /** @var UsageTrunk $usage */
         Assert::isObject($usage);
         Assert::isTrue($usage->isActive());
 

@@ -98,7 +98,7 @@ class ReportExtendsOperatorsDao extends Singleton
             return $items;
         }
 
-        $mode = $modes[ $mode ];
+        $mode = $modes[$mode];
         if (array_key_exists('queryModify', $mode) && method_exists($this->operator, $mode['queryModify'])) {
             $this->operator->{$mode['queryModify']}($query, $this);
         }
@@ -181,8 +181,7 @@ class ReportExtendsOperatorsDao extends Singleton
         foreach ($this->operator->products as $key => $product) {
             if (is_string($key)) {
                 $key = 'count_' . $key;
-            }
-            else {
+            } else {
                 $key = 'count_' . ($key + 1);
             }
 
@@ -191,7 +190,7 @@ class ReportExtendsOperatorsDao extends Singleton
                     SELECT SUM(`amount`)
                     FROM `newbill_lines` nl
                     WHERE
-                        `item_id` IN ('" . implode('\',\'', (array) $product['id_1c']) . "')
+                        `item_id` IN ('" . implode('\',\'', (array)$product['id_1c']) . "')
                         AND nl.`bill_no` = t.`bill_no`
                 ) AS " . $key
             );
@@ -202,7 +201,8 @@ class ReportExtendsOperatorsDao extends Singleton
     private function prepareAddress($address)
     {
         if (strpos($address, '^') !== false) {
-            list($street, $home, $bild, $porch, $floor, $flat, $intercom) = explode(' ^ ', $address . ' ^  ^  ^  ^  ^  ^  ^  ^ ');
+            list($street, $home, $bild, $porch, $floor, $flat, $intercom) = explode(' ^ ',
+                $address . ' ^  ^  ^  ^  ^  ^  ^  ^ ');
             $a = $street;
 
             if ($home) {

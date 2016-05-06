@@ -60,7 +60,8 @@ class m160323_131100_create_tariff_voip_group extends \app\classes\Migration
         $tableName = Tariff::tableName();
         $fieldName = 'voip_group_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, TariffVoipGroup::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName,
+            TariffVoipGroup::tableName(), 'id', 'RESTRICT');
     }
 
     /**

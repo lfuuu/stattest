@@ -13,9 +13,15 @@ class SubmitTicketForm extends TicketForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [[
-          'client_account_id', 'user_id', 'subject', 'description',
-        ], 'required'];
+        $rules[] = [
+            [
+                'client_account_id',
+                'user_id',
+                'subject',
+                'description',
+            ],
+            'required'
+        ];
         return $rules;
     }
 
@@ -50,8 +56,8 @@ class SubmitTicketForm extends TicketForm
                         $this->author
                     );
 
-                  $transaction->commit();
-                  return true;
+                    $transaction->commit();
+                    return true;
                 }
             } catch (\Exception $e) {
                 $transaction->rollBack();

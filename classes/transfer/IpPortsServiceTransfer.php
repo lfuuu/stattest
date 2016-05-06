@@ -77,8 +77,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $route->save();
 
                 $dbTransaction->commit();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }
@@ -109,8 +108,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
                 $movedRoute->delete();
                 $dbTransaction->commit();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }
@@ -147,8 +145,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $device->save();
 
                 $dbTransaction->commit();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }
@@ -182,8 +179,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
                 $movedDevice->delete();
                 $dbTransaction->commit();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }

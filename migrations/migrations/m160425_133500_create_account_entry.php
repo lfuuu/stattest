@@ -46,12 +46,14 @@ class m160425_133500_create_account_entry extends \app\classes\Migration
         ]);
 
         $fieldName = 'account_tariff_id';
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountTariff::tableName(),
+            'id', 'RESTRICT');
 
         $fieldName = 'type_id';
         $this->createIndex('idx-' . $tableName . '-' . $fieldName, $tableName, $fieldName);
 
-        $this->createIndex('uniq-' . $tableName . '-' . 'date-type_id-account_tariff_id', $tableName, ['date', 'type_id', 'account_tariff_id'], true);
+        $this->createIndex('uniq-' . $tableName . '-' . 'date-type_id-account_tariff_id', $tableName,
+            ['date', 'type_id', 'account_tariff_id'], true);
 
     }
 
@@ -62,7 +64,8 @@ class m160425_133500_create_account_entry extends \app\classes\Migration
     {
         $fieldName = 'account_entry_id';
         $this->addColumn($tableName, $fieldName, $this->integer());
-        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountEntry::tableName(), 'id', 'RESTRICT');
+        $this->addForeignKey('fk-' . $tableName . '-' . $fieldName, $tableName, $fieldName, AccountEntry::tableName(),
+            'id', 'RESTRICT');
     }
 
     /**

@@ -109,8 +109,14 @@ class TariffPeriod extends \yii\db\ActiveRecord
      * @param bool $isWithEmpty
      * @return []
      */
-    public static function getList(&$defaultTariffPeriodId, $serviceTypeId, $currency = null, $cityId = null, $isWithEmpty = false, $isWithClosed = false)
-    {
+    public static function getList(
+        &$defaultTariffPeriodId,
+        $serviceTypeId,
+        $currency = null,
+        $cityId = null,
+        $isWithEmpty = false,
+        $isWithClosed = false
+    ) {
         $defaultTariffPeriodId = null;
 
         $activeQuery = self::find()

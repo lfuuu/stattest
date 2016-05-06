@@ -49,13 +49,41 @@ class UsageVoipForm extends Form
     public function rules()
     {
         return [
-            [['id','client_account_id','city_id','connection_point_id','number_tariff_id','line7800_id','no_of_lines'], 'integer'],
-            [['type_id','did','connecting_date','tariff_change_date','address', 'status'], 'string'],
+            [
+                [
+                    'id',
+                    'client_account_id',
+                    'city_id',
+                    'connection_point_id',
+                    'number_tariff_id',
+                    'line7800_id',
+                    'no_of_lines'
+                ],
+                'integer'
+            ],
+            [['type_id', 'did', 'connecting_date', 'tariff_change_date', 'address', 'status'], 'string'],
             [['mass_change_tariff'], 'boolean'],
-            [['tariff_main_id','tariff_local_mob_id','tariff_russia_id','tariff_russia_mob_id','tariff_intern_id'], 'integer'],
+            [
+                [
+                    'tariff_main_id',
+                    'tariff_local_mob_id',
+                    'tariff_russia_id',
+                    'tariff_russia_mob_id',
+                    'tariff_intern_id'
+                ],
+                'integer'
+            ],
             [['tariff_main_status'], 'string'],
-            [['tariff_group_local_mob','tariff_group_russia','tariff_group_intern'], 'integer'],
-            [['tariff_group_local_mob_price','tariff_group_russia_price','tariff_group_intern_price','tariff_group_price'], 'number'],
+            [['tariff_group_local_mob', 'tariff_group_russia', 'tariff_group_intern'], 'integer'],
+            [
+                [
+                    'tariff_group_local_mob_price',
+                    'tariff_group_russia_price',
+                    'tariff_group_intern_price',
+                    'tariff_group_price'
+                ],
+                'number'
+            ],
             ['status', 'default', 'value' => 'connecting'],
             [['connecting_date'], 'validateDate', 'on' => 'edit'],
             [['connecting_date'], 'validateUsageDate'],
@@ -97,12 +125,12 @@ class UsageVoipForm extends Form
 
     public function validateDate()
     {
-        $expireDt = new \DateTime($this->usage->actual_to.' 23:59:59');
+        $expireDt = new \DateTime($this->usage->actual_to . ' 23:59:59');
         $nowDt = new \DateTime('now');
 
         // не включеную услугу в будущем можно менять.
         if (!$this->usage->isActive() && $expireDt < $nowDt) {
-            $this->addError('disconnecting_date', 'Услуга отключена '.($expireDt->format('d.m.Y')));
+            $this->addError('disconnecting_date', 'Услуга отключена ' . ($expireDt->format('d.m.Y')));
         }
     }
 
@@ -113,14 +141,16 @@ class UsageVoipForm extends Form
 
         $queryVoip =
             UsageVoip::find()
-                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)', [':from' => $from, ':to' => $to])
+                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)',
+                    [':from' => $from, ':to' => $to])
                 ->andWhere(['E164' => $this->did]);
         if ($this->id) {
             $queryVoip->andWhere('id != :id', [':id' => $this->id]);
         }
 
         foreach ($queryVoip->all() as $usage) {
-            $this->addError('did', "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
+            $this->addError('did',
+                "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
         }
     }
 

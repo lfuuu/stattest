@@ -37,8 +37,9 @@ class DocumentController extends BaseController
     public function actionActivate($id)
     {
         $model = ClientDocument::findOne($id);
-        if (!$model)
+        if (!$model) {
             throw new Exception('Document not found');
+        }
 
         $isActive = !$model->is_active;
         $model->is_active = $isActive ? 1 : 0;
@@ -58,8 +59,9 @@ class DocumentController extends BaseController
     public function actionEdit($id)
     {
         $model = ClientDocument::findOne($id);
-        if (null === $model)
+        if (null === $model) {
             throw new Exception('Документ не найден');
+        }
 
         $request = Yii::$app->request->post();
 
@@ -73,8 +75,9 @@ class DocumentController extends BaseController
     public function actionSend($id)
     {
         $document = ClientDocument::findOne($id);
-        if (null === $document)
+        if (null === $document) {
             throw new Exception('Документ не найден');
+        }
 
         $account = $document->getAccount();
         $contact = ClientContact::find()
@@ -86,7 +89,7 @@ class DocumentController extends BaseController
         $email = $contact ? $contact->data : '';
 
         $p = $document->getLink();
-        $adr = Yii::$app->params['LK_PATH'].'docs/?code=' . str_replace('=', '%%3D', $p);
+        $adr = Yii::$app->params['LK_PATH'] . 'docs/?code=' . str_replace('=', '%%3D', $p);
         $body = "Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
         $body .= "<a href=\"" . $adr . "\">" . $adr . "</a><br><br>";
 
@@ -97,8 +100,9 @@ class DocumentController extends BaseController
     public function actionPrint($id)
     {
         $document = ClientDocument::findOne($id);
-        if (null === $document)
+        if (null === $document) {
             throw new Exception('Документ не найден');
+        }
 
         echo $document->getFileContent();
         die;
@@ -118,8 +122,9 @@ class DocumentController extends BaseController
         $p = explode('-', $p);
         $p = array(isset($p[0]) ? intval($p[0]) : 0, isset($p[1]) ? intval($p[1]) : 0);
         $id = $p[0];
-        if (!$id)
+        if (!$id) {
             die();
+        }
 
         return $this->actionPrint($id);
     }
@@ -127,8 +132,9 @@ class DocumentController extends BaseController
     public function actionPrintEnvelope($clientId)
     {
         $model = ClientAccount::findOne($clientId);
-        if (!$model)
+        if (!$model) {
             throw new Exception('ЛС не найден');
+        }
         $this->layout = false;
 
         return $this->render('envelope', ['account' => $model]);

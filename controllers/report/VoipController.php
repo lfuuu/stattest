@@ -35,7 +35,7 @@ class VoipController extends BaseController
 
             $post = \Yii::$app->request->post();
 
-            switch ( $post['operation'] ) {
+            switch ($post['operation']) {
 
                 case 'update_trunks':
                     $query = Trunk::find()->where('show_in_stat = true');
@@ -58,7 +58,7 @@ class VoipController extends BaseController
                         }
                     }
 
-                    return json_encode( $json, JSON_UNESCAPED_UNICODE );
+                    return json_encode($json, JSON_UNESCAPED_UNICODE);
 
                     break;
             }
@@ -80,13 +80,9 @@ class VoipController extends BaseController
                 'SUM(rc.interconnect_cost) AS interconnect_cost',
             ])
             ->from('calls_raw.calls_raw rc')
-
-            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
+            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id')
             ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
-
-
             ->andWhere('rc.destination_id IS NOT NULL')
-
             ->groupBy([
                 'rc.prefix',
                 'rc.trunk_id',
@@ -151,25 +147,26 @@ class VoipController extends BaseController
 
     private function addFilters(Query $query)
     {
-        if ( !empty( \Yii::$app->request->get('trunk') ) ) {
-            $query->andWhere('rc.trunk_id = :trunkId', [ ':trunkId' =>\Yii::$app->request->get('trunk') ]);
+        if (!empty(\Yii::$app->request->get('trunk'))) {
+            $query->andWhere('rc.trunk_id = :trunkId', [':trunkId' => \Yii::$app->request->get('trunk')]);
         }
 
-        if ( !empty( \Yii::$app->request->get('server') ) ) {
+        if (!empty(\Yii::$app->request->get('server'))) {
             $query->andWhere('rc.server_id = :serverId', [':serverId' => \Yii::$app->request->get('server')]);
         } else {
             $query->andWhere('rc.server_id = 99');
         }
 
-        if ( !empty( \Yii::$app->request->get('dateRange') ) ) {
+        if (!empty(\Yii::$app->request->get('dateRange'))) {
             list($startDate, $endDate) = explode(' - ', \Yii::$app->request->get('dateRange'));
 
             $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
         } else {
-            $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
+            $query->andWhere('rc.connect_time BETWEEN :start AND :end',
+                [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
         }
 
-        if ( !empty( \Yii::$app->request->get('mob_or_base') ) ) {
+        if (!empty(\Yii::$app->request->get('mob_or_base'))) {
             switch (\Yii::$app->request->get('mob_or_base')) {
                 case 2:
                     $query->andWhere('rc.mob = TRUE');
@@ -181,7 +178,7 @@ class VoipController extends BaseController
             }
         }
 
-        if ( !empty( \Yii::$app->request->get('orig_term') ) ) {
+        if (!empty(\Yii::$app->request->get('orig_term'))) {
             switch (\Yii::$app->request->get('orig_term')) {
                 case 1:
                 case 2:
@@ -197,7 +194,7 @@ class VoipController extends BaseController
             }
         }
 
-        if ( !empty( \Yii::$app->request->get('time') ) ) {
+        if (!empty(\Yii::$app->request->get('time'))) {
             switch (\Yii::$app->request->get('time')) {
                 case 1:
                     $query->andWhere('rc.billed_time > 0');
@@ -213,12 +210,12 @@ class VoipController extends BaseController
         }
 
 
-        if ( !empty( \Yii::$app->request->get('region') ) ) {
-            $query->andWhere('g.region = :region', [ ':region' => \Yii::$app->request->get('region') ]);
+        if (!empty(\Yii::$app->request->get('region'))) {
+            $query->andWhere('g.region = :region', [':region' => \Yii::$app->request->get('region')]);
         }
 
-        if ( !empty( \Yii::$app->request->get('country') ) ) {
-            $query->andWhere('g.country = :country', [ ':country' => \Yii::$app->request->get('country') ]);
+        if (!empty(\Yii::$app->request->get('country'))) {
+            $query->andWhere('g.country = :country', [':country' => \Yii::$app->request->get('country')]);
         }
 
         $query->andWhere('NOT rc.our');
@@ -234,10 +231,8 @@ class VoipController extends BaseController
                 'SUM(rc.interconnect_cost) AS interconnect_cost',
             ])
             ->from('calls_raw.calls_raw rc')
-
-            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id' )
+            ->leftJoin('public.voip_destinations vd', 'vd.ndef = rc.destination_id')
             ->leftJoin('geo.geo g', 'vd.geo_id = g.id')
-
             ->andWhere('rc.destination_id IS NOT NULL');
 
         $this->addFilters($query);

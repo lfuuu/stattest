@@ -31,7 +31,7 @@ class UserGroups extends ActiveRecord
 
     public function getUsers()
     {
-        return $this->hasMany(User::className(),['usergroup' => 'usergroup']);
+        return $this->hasMany(User::className(), ['usergroup' => 'usergroup']);
     }
 
 }

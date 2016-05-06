@@ -4,9 +4,9 @@ namespace app\models\tariffication;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
- * @property int    $service_id
- * @property int    $feature_id
+ * @property int $id
+ * @property int $service_id
+ * @property int $feature_id
  * @property
  */
 class ServiceFeatureItem extends ActiveRecord

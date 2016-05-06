@@ -57,7 +57,8 @@ class MonthPicker extends \yii\widgets\InputWidget
         $view = $this->getView();
         MonthPickerAsset::register($view);
 
-        $js = sprintf('$("#%s").MonthPicker(%s).MonthPicker("option", "OnAfterChooseMonth", function() { $(this).trigger("change"); });', $this->options['id'], json_encode($this->widgetOptions));
+        $js = sprintf('$("#%s").MonthPicker(%s).MonthPicker("option", "OnAfterChooseMonth", function() { $(this).trigger("change"); });',
+            $this->options['id'], json_encode($this->widgetOptions));
         $view->registerJs($js, $view::POS_READY);
 
         return

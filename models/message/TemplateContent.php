@@ -20,7 +20,13 @@ class TemplateContent extends ActiveRecord
             [['template_id', 'lang_code', 'type'], 'required'],
             [['title', 'content'], 'string'],
             [['title', 'content'], 'trim'],
-            ['filename', 'file', 'checkExtensionByMimeType' => false, 'extensions' => 'htm, html', 'mimeTypes' => ['text/html', 'text/plain']],
+            [
+                'filename',
+                'file',
+                'checkExtensionByMimeType' => false,
+                'extensions' => 'htm, html',
+                'mimeTypes' => ['text/html', 'text/plain']
+            ],
         ];
     }
 

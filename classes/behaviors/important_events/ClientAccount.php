@@ -27,10 +27,11 @@ class ClientAccount extends Behavior
      */
     public function ClientAccountAddEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_ACCOUNT, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_ACCOUNT,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
     /**
@@ -41,11 +42,12 @@ class ClientAccount extends Behavior
     {
         $changed = array_diff_assoc($event->changedAttributes, $event->sender->attributes);
         if (count($changed)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CHANGED, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'client_id' => $event->sender->id,
-                'user_id' => Yii::$app->user->id,
-                'changed' => implode(', ' , array_keys($changed)),
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CHANGED,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'client_id' => $event->sender->id,
+                    'user_id' => Yii::$app->user->id,
+                    'changed' => implode(', ', array_keys($changed)),
+                ]);
         }
     }
 

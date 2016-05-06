@@ -47,7 +47,15 @@ abstract class Singleton
         return self::$instances[$class];
     }
 
-    final protected function __construct() {/* you can't create me */}
-    final private function __clone() {/* do not clone me */}
-    final private function __wakeup() {/* restless class */}
+    final protected function __construct()
+    {/* you can't create me */
+    }
+
+    final private function __clone()
+    {/* do not clone me */
+    }
+
+    final private function __wakeup()
+    {/* restless class */
+    }
 }

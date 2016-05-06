@@ -12,10 +12,11 @@ class Language
     public static function setCurrentLanguage($lang = null)
     {
         if (!self::languageExists($lang)) {
-            if (Yii::$app->session->has('language') && self::languageExists(Yii::$app->session->get('language')))
+            if (Yii::$app->session->has('language') && self::languageExists(Yii::$app->session->get('language'))) {
                 $lang = Yii::$app->session->get('language');
-            else
+            } else {
                 $lang = static::DEFAULT_LANGUAGE;
+            }
         }
 
         Yii::$app->session->set('language', $lang);

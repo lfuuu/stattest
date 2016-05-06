@@ -65,9 +65,10 @@ class TrunkColumn extends DataColumn
         return
             isset($this->filter[$value])
                 ?
-                    Html::beginTag('abbr', ['title' => (is_array($model) ? $model['description'] : $model->description)]) .
-                        '(' . $value . ') ' . Html::a((string) $this->filter[$value], Url::toRoute(['usage/trunk/edit', 'id' => $value]), ['target' => '_blank']) .
-                    Html::endTag('abbr')
+                Html::beginTag('abbr', ['title' => (is_array($model) ? $model['description'] : $model->description)]) .
+                '(' . $value . ') ' . Html::a((string)$this->filter[$value],
+                    Url::toRoute(['usage/trunk/edit', 'id' => $value]), ['target' => '_blank']) .
+                Html::endTag('abbr')
                 : $value;
     }
 

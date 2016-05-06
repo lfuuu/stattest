@@ -20,7 +20,8 @@ class ActaulizerCallChatUsage extends Singleton
         if (($diff = $this->checkDiff(
             ActualCallChatDao::me()->loadSaved(),
             ActualCallChatDao::me()->collectFromUsages()
-        ))){
+        ))
+        ) {
             $this->makeEventFromDiff($diff);
         }
     }
@@ -63,13 +64,13 @@ class ActaulizerCallChatUsage extends Singleton
     private function makeEventFromDiff($diff)
     {
         if (isset($diff['add'])) {
-            foreach($diff['add'] as $row) {
+            foreach ($diff['add'] as $row) {
                 Event::go('call_chat__add', $row);
             }
         }
 
         if (isset($diff['del'])) {
-            foreach($diff['del'] as $row) {
+            foreach ($diff['del'] as $row) {
                 Event::go('call_chat__del', $row);
             }
         }
@@ -78,13 +79,13 @@ class ActaulizerCallChatUsage extends Singleton
     private function applyDiff($diff)
     {
         if (isset($diff['add'])) {
-            foreach($diff['add'] as $row) {
+            foreach ($diff['add'] as $row) {
                 $this->applyAdd($row);
             }
         }
 
         if (isset($diff['del'])) {
-            foreach($diff['del'] as $row) {
+            foreach ($diff['del'] as $row) {
                 $this->applyDel($row);
             }
         }
@@ -117,7 +118,7 @@ class ActaulizerCallChatUsage extends Singleton
         try {
             $callChatRow = ActualCallChat::findOne([
                 'client_id' => $row['client_id'],
-                'usage_id'  => $row['usage_id']
+                'usage_id' => $row['usage_id']
             ]);
 
             if ($this->sendDelEvent($callChatRow)) {
@@ -188,8 +189,9 @@ class ActaulizerCallChatUsage extends Singleton
     {
         if ($usage = ProductState::findOne([
             'client_id' => $callChatRow->client_id,
-            'product'   => ProductState::FEEDBACK
-        ])) {
+            'product' => ProductState::FEEDBACK
+        ])
+        ) {
 
             try {
                 ApiCore::remoteProduct('feedback', $callChatRow->client_id);

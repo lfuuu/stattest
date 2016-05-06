@@ -26,13 +26,12 @@ class CallsDao extends Singleton
     }
 
     public static function _calcByDest(
-        UsageVoip $usage, 
-        DateTime $from, 
-        DateTime $to, 
-        $callsTable = 'calls_raw.calls_raw', 
+        UsageVoip $usage,
+        DateTime $from,
+        DateTime $to,
+        $callsTable = 'calls_raw.calls_raw',
         $timeField = 'connect_time'
-    )
-    {
+    ) {
 
         $command =
             \Yii::$app->get('dbPg')
@@ -43,11 +42,11 @@ class CallsDao extends Singleton
                             else destination_id end rdest,
                             cast( - sum(cost) as NUMERIC(10,2)) as price
                         from
-                            ".$callsTable."
+                            " . $callsTable . "
                         where
                             number_service_id = '" . $usage->id . "'
-                            and ".$timeField." >= '" . $from->format('Y-m-d H:i:s') . "'
-                            and ".$timeField." <= '" . $to->format('Y-m-d H:i:s') . "'
+                            and " . $timeField . " >= '" . $from->format('Y-m-d H:i:s') . "'
+                            and " . $timeField . " <= '" . $to->format('Y-m-d H:i:s') . "'
                             and abs(cost) > 0.00001
                         group by rdest
                         having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
@@ -130,7 +129,12 @@ class CallsDao extends Singleton
             $query->offset($offset);
         }
 
-        $query->andWhere(['between', 'connect_time', $firstDayOfDate->format('Y-m-d H:i:s'), $lastDayOfDate->format('Y-m-d H:i:s')]);
+        $query->andWhere([
+            'between',
+            'connect_time',
+            $firstDayOfDate->format('Y-m-d H:i:s'),
+            $lastDayOfDate->format('Y-m-d H:i:s')
+        ]);
 
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
         $query->orderBy('connect_time');

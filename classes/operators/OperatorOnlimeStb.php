@@ -68,17 +68,17 @@ class OperatorOnlimeStb extends OperatorOnlimeDevices
     ];
 
     public static $reportFields = [
-        'Партнер'                       => 'partner',
-        'Номер счета Маркомнет Сервис'  => 'bill_no',
-        'Дата создания заказа'          => 'date_creation',
-        'Кол-во'                        => 'products',
-        'Оператор'                      => 'fio_oper',
-        'ФИО клиента'                   => 'fio',
-        'Телефон, Адрес'                => 'contacts',
-        'Серийный номер'                => 'serials',
-        'Дата доставки желаемая'        => 'date_deliv',
-        'Дата доставки фактическая'     => 'date_delivered',
-        'Этап'                          => 'stages_text',
+        'Партнер' => 'partner',
+        'Номер счета Маркомнет Сервис' => 'bill_no',
+        'Дата создания заказа' => 'date_creation',
+        'Кол-во' => 'products',
+        'Оператор' => 'fio_oper',
+        'ФИО клиента' => 'fio',
+        'Телефон, Адрес' => 'contacts',
+        'Серийный номер' => 'serials',
+        'Дата доставки желаемая' => 'date_deliv',
+        'Дата доставки фактическая' => 'date_delivered',
+        'Этап' => 'stages_text',
     ];
 
     public static $reportTemplate = 'onlime_operator';

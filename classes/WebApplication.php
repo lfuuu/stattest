@@ -11,20 +11,22 @@ class WebApplication extends \yii\web\Application
     {
         parent::init();
 
-        register_shutdown_function(function(){
+        register_shutdown_function(function () {
             $messageData = '';
             $request = Yii::$app->request;
             list($route, $params) = $request->resolve();
 
             if ($params) {
                 $messageData .= "PARAMS:\n";
-                $messageData .= json_encode($params, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                $messageData .= json_encode($params,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 $messageData .= "\n\n";
             }
 
             if ($request->getBodyParams()) {
                 $messageData .= "BODY:\n";
-                $messageData .= json_encode($request->getBodyParams(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                $messageData .= json_encode($request->getBodyParams(),
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 $messageData .= "\n\n";
             }
 
@@ -40,7 +42,7 @@ class WebApplication extends \yii\web\Application
                     ->setShortMessage($request->getMethod() . ' ' . $requestUri)
                     ->setFullMessage($messageData)
                     ->setAdditional('route', $route)
-                    ->setAdditional('duration' , microtime(true) - YII_BEGIN_TIME),
+                    ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME),
                 'request'
             );
         });

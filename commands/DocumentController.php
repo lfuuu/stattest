@@ -30,29 +30,29 @@ class DocumentController extends Controller
 
     public function actionMigrate()
     {
-        $tmplDir = Yii::$app->params['STORE_PATH']."contracts/";
+        $tmplDir = Yii::$app->params['STORE_PATH'] . "contracts/";
         echo "Check dir '$tmplDir'\n";
-        if(!file_exists($tmplDir)){
+        if (!file_exists($tmplDir)) {
             echo "Dir not exists\n";
             return false;
         }
         echo "Dir exists\n\n";
 
         $files = $this->getTree($tmplDir);
-        echo 'Найдено '.count($files)." файла(ов)\n\n";
+        echo 'Найдено ' . count($files) . " файла(ов)\n\n";
 
         DocumentTemplate::deleteAll();
         DocumentFolder::deleteAll();
 
-        foreach($files as $file){
+        foreach ($files as $file) {
             $folderId = $this->getFolderIdByName($file['folder']);
-            $type = $this->getDocumentTypeByName($file['folder'].'_'.$file['name']);
+            $type = $this->getDocumentTypeByName($file['folder'] . '_' . $file['name']);
             $this->createTemplate($file['name'], $file['content'], $type, $folderId);
         }
 
         echo "Создано всего:\n";
-        echo "\t-папок: ".count($this->folders)."\n";
-        echo "\t-шаблонов: ".count($this->templates)."\n";
+        echo "\t-папок: " . count($this->folders) . "\n";
+        echo "\t-шаблонов: " . count($this->templates) . "\n";
         return true;
     }
 
@@ -60,7 +60,7 @@ class DocumentController extends Controller
     {
         $res = [];
         $files = FileHelper::findFiles($dir, ['only' => ['template_*.html']]);
-        foreach($files as $file){
+        foreach ($files as $file) {
             $tmp = [];
             $arr = explode('_', basename($file, '.html'));
             $tmp['folder'] = $arr[1];
@@ -77,7 +77,7 @@ class DocumentController extends Controller
     {
         $name = $this->folderName[$name];
         $id = array_search($name, $this->folders, true);
-        if($id==false) {
+        if ($id == false) {
             $f = new DocumentFolder();
             $f->name = $name;
             $f->save();
@@ -101,8 +101,9 @@ class DocumentController extends Controller
 
     private function getDocumentTypeByName($name)
     {
-        if(isset($this->types[$name]))
+        if (isset($this->types[$name])) {
             return $this->types[$name];
+        }
 
         $arr = Yii::$app->db
             ->createCommand("SELECT * FROM contract;")

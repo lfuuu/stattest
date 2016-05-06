@@ -74,7 +74,7 @@ class SiteController extends BaseController
 
     public function actionChangeLanguage($lang = null, $country = null)
     {
-        Language::setCurrentLanguage($lang?:$country?Language::getLanguageByCountryId($country):null);
+        Language::setCurrentLanguage($lang ?: $country ? Language::getLanguageByCountryId($country) : null);
         return $this->goBack();
     }
 }

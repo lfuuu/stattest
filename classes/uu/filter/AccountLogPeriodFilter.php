@@ -66,20 +66,30 @@ class AccountLogPeriodFilter extends AccountLogPeriod
 
         $this->id !== '' && $query->andWhere([$accountLogPeriodTableName . '.id' => $this->id]);
 
-        $this->date_from_from !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from >= :date_from_from', [':date_from_from' => $this->date_from_from]);
-        $this->date_from_to !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from <= :date_from_to', [':date_from_to' => $this->date_from_to]);
+        $this->date_from_from !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from >= :date_from_from',
+            [':date_from_from' => $this->date_from_from]);
+        $this->date_from_to !== '' && $query->andWhere($accountLogPeriodTableName . '.date_from <= :date_from_to',
+            [':date_from_to' => $this->date_from_to]);
 
-        $this->date_to_from !== '' && $query->andWhere($accountLogPeriodTableName . '.date_to >= :date_to_from', [':date_to_from' => $this->date_to_from]);
-        $this->date_to_to !== '' && $query->andWhere($accountLogPeriodTableName . '.date_to <= :date_to_to', [':date_to_to' => $this->date_to_to]);
+        $this->date_to_from !== '' && $query->andWhere($accountLogPeriodTableName . '.date_to >= :date_to_from',
+            [':date_to_from' => $this->date_to_from]);
+        $this->date_to_to !== '' && $query->andWhere($accountLogPeriodTableName . '.date_to <= :date_to_to',
+            [':date_to_to' => $this->date_to_to]);
 
-        $this->period_price_from !== '' && $query->andWhere($accountLogPeriodTableName . '.period_price >= :period_price_from', [':period_price_from' => $this->period_price_from]);
-        $this->period_price_to !== '' && $query->andWhere($accountLogPeriodTableName . '.period_price <= :period_price_to', [':period_price_to' => $this->period_price_to]);
+        $this->period_price_from !== '' && $query->andWhere($accountLogPeriodTableName . '.period_price >= :period_price_from',
+            [':period_price_from' => $this->period_price_from]);
+        $this->period_price_to !== '' && $query->andWhere($accountLogPeriodTableName . '.period_price <= :period_price_to',
+            [':period_price_to' => $this->period_price_to]);
 
-        $this->coefficient_from !== '' && $query->andWhere($accountLogPeriodTableName . '.coefficient >= :coefficient_from', [':coefficient_from' => $this->coefficient_from]);
-        $this->coefficient_to !== '' && $query->andWhere($accountLogPeriodTableName . '.coefficient <= :coefficient_to', [':coefficient_to' => $this->coefficient_to]);
+        $this->coefficient_from !== '' && $query->andWhere($accountLogPeriodTableName . '.coefficient >= :coefficient_from',
+            [':coefficient_from' => $this->coefficient_from]);
+        $this->coefficient_to !== '' && $query->andWhere($accountLogPeriodTableName . '.coefficient <= :coefficient_to',
+            [':coefficient_to' => $this->coefficient_to]);
 
-        $this->price_from !== '' && $query->andWhere($accountLogPeriodTableName . '.price >= :price_from', [':price_from' => $this->price_from]);
-        $this->price_to !== '' && $query->andWhere($accountLogPeriodTableName . '.price <= :price_to', [':price_to' => $this->price_to]);
+        $this->price_from !== '' && $query->andWhere($accountLogPeriodTableName . '.price >= :price_from',
+            [':price_from' => $this->price_from]);
+        $this->price_to !== '' && $query->andWhere($accountLogPeriodTableName . '.price <= :price_to',
+            [':price_to' => $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
 

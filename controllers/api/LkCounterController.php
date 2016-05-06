@@ -36,13 +36,13 @@ class LkCounterController extends ApiController
      * )
      */
     public function actionRead()
-    { 
+    {
         $accountId = Yii::$app->request->bodyParams["account_id"];
 
         return [
-            "tickets_unread" => $this->getTicketCount($accountId), 
+            "tickets_unread" => $this->getTicketCount($accountId),
             "messages_unread" => $this->getMessagesUnreadCount($accountId)
-            ];
+        ];
     }
 
     private function getTicketCount($accountId)

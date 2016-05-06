@@ -89,7 +89,7 @@ class UsagesActiveConnecting extends Component implements MonitoringInterface
         foreach ($usages as $usage) {
             $result = array_merge(
                 $result,
-                (array) $usage::find()
+                (array)$usage::find()
                     ->select('u.*')
                     ->from($usage::tableName() . ' u')
                     ->leftJoin(ClientAccount::tableName() . ' c', 'c.client = u.client')

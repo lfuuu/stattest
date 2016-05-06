@@ -21,7 +21,7 @@ class ActingFolder extends AccountGridFolder
             'id',
             'company',
             'contractNo',
-			'contract_created',
+            'contract_created',
             'currency',
             'manager',
             'account_manager',

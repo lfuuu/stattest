@@ -30,12 +30,13 @@ class UsageAction extends Behavior
      */
     public function UsageAfterInsert($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->clientAccount->id,
-            'usage' =>  $event->sender->tableName(),
-            'usage_id' => $event->sender->id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CREATED_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->clientAccount->id,
+                'usage' => $event->sender->tableName(),
+                'usage_id' => $event->sender->id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
     /**
@@ -48,13 +49,14 @@ class UsageAction extends Behavior
         $changedCount = count($changed);
 
         if ($changedCount) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-                'client_id' => $event->sender->clientAccount->id,
-                'usage' => $event->sender->tableName(),
-                'usage_id' => $event->sender->id,
-                'user_id' => Yii::$app->user->id,
-                'changed' => implode(', ', array_keys($changed)),
-            ]);
+            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                    'client_id' => $event->sender->clientAccount->id,
+                    'usage' => $event->sender->tableName(),
+                    'usage_id' => $event->sender->id,
+                    'user_id' => Yii::$app->user->id,
+                    'changed' => implode(', ', array_keys($changed)),
+                ]);
         }
     }
 
@@ -64,12 +66,13 @@ class UsageAction extends Behavior
      */
     public function UsageAfterDelete($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->clientAccount->id,
-            'usage' => $event->sender->tableName(),
-            'usage_id' => $event->sender->id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DELETED_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->clientAccount->id,
+                'usage' => $event->sender->tableName(),
+                'usage_id' => $event->sender->id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
     /**
@@ -78,12 +81,13 @@ class UsageAction extends Behavior
      */
     public function UsageTransferEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE, ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
-            'client_id' => $event->sender->service->clientAccount->id,
-            'usage' => $event->sender->service->tableName(),
-            'usage_id' => $event->sender->service->id,
-            'user_id' => Yii::$app->user->id,
-        ]);
+        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_USAGE,
+            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+                'client_id' => $event->sender->service->clientAccount->id,
+                'usage' => $event->sender->service->tableName(),
+                'usage_id' => $event->sender->service->id,
+                'user_id' => Yii::$app->user->id,
+            ]);
     }
 
 }

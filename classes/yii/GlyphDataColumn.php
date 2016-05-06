@@ -12,19 +12,20 @@ use yii\grid\DataColumn;
 use yii\helpers\Html;
 use Yii;
 
-class GlyphDataColumn extends DataColumn {   
-    
+class GlyphDataColumn extends DataColumn
+{
+
     public $format = 'html';
-    
+
     public function getDataCellValue($model, $key, $index)
     {
         //получение короткого соответствия для значения
         $value = parent::getDataCellValue($model, $key, $index);
-        $cssclass = 'cell'.md5($value);
-        
-        $options = ['class' => $cssclass.' btn btn-grid'];
-        return Html::tag('span', '&nbsp;<!--'.$value.'-->', $options);//<!--
-                        
+        $cssclass = 'cell' . md5($value);
+
+        $options = ['class' => $cssclass . ' btn btn-grid'];
+        return Html::tag('span', '&nbsp;<!--' . $value . '-->', $options);//<!--
+
     }
 }
 

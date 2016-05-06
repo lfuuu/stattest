@@ -43,14 +43,13 @@ class LkController extends ApiController
     public function actionAccountInfo()
     {
         $form = DynamicModel::validateData(
-            Yii::$app->request->bodyParams, 
+            Yii::$app->request->bodyParams,
             [
                 ['account_id', AccountIdValidator::className()],
             ]
         );
 
-        if ($form->hasErrors()) 
-        {
+        if ($form->hasErrors()) {
             throw new FormValidationException($form);
         }
 
@@ -62,6 +61,6 @@ class LkController extends ApiController
             "country_id" => $account->country_id,
             "connect_point_id" => $account->region,
             "currency" => $account->currency
-            ];
+        ];
     }
 }

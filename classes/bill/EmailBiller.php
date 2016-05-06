@@ -69,7 +69,7 @@ class EmailBiller extends Biller
                 $price = $this->clientAccount->currency == 'RUB' ? 27 : 1;
             }
 
-            $template  = 'email_service';
+            $template = 'email_service';
             $template_data = [
                 'local_part' => $this->usage->local_part,
                 'domain' => $this->usage->domain,

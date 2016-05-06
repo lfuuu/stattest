@@ -149,7 +149,8 @@ class NetworkConfigController extends BaseController
 
     public function actionGeoUpload($networkConfigId)
     {
-        $networkConfig = NetworkConfig::findOne($networkConfigId); /** @var NetworkConfig $networkConfig */
+        $networkConfig = NetworkConfig::findOne($networkConfigId);
+        /** @var NetworkConfig $networkConfig */
         Assert::isObject($networkConfig);
 
         Assert::isNotEmpty($networkConfig->geo_city_id, 'Не указан город');
@@ -164,7 +165,8 @@ class NetworkConfigController extends BaseController
     public function actionFileParse($fileId)
     {
         $file = NetworkFile::findOne($fileId);
-        Assert::isObject($file); /** @var NetworkFile $file */
+        Assert::isObject($file);
+        /** @var NetworkFile $file */
 
         Assert::isFalse($file->parsed);
         Assert::isFalse($file->active);
@@ -178,7 +180,8 @@ class NetworkConfigController extends BaseController
 
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_set_loader') !== null) {
             $settings['loader'] = Yii::$app->request->post('loader', '');
-            $file->config->pricelist->parser_settings = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $file->config->pricelist->parser_settings = json_encode($settings,
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             $file->config->pricelist->save();
         }
 
@@ -203,7 +206,8 @@ class NetworkConfigController extends BaseController
         }
 
         $loaderClass = $settings['loader'];
-        $parser = new $loaderClass(); /** @var BaseNetworkLoader $parser */
+        $parser = new $loaderClass();
+        /** @var BaseNetworkLoader $parser */
 
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_upload') !== null) {
 
@@ -243,9 +247,12 @@ class NetworkConfigController extends BaseController
     public function actionFileDownload($fileId)
     {
         $file = NetworkFile::findOne($fileId);
-        Assert::isObject($file); /** @var NetworkFile $file */
+        Assert::isObject($file);
+        /** @var NetworkFile $file */
 
-        while (ob_get_level()) ob_end_clean();
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
 
         if (preg_match('/\.csv$/', $file->filename)) {
             header("Content-Type: application/csv");
@@ -259,7 +266,7 @@ class NetworkConfigController extends BaseController
         header('Content-Transfer-Encoding: binary');
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Cache-Control: private",false);
+        header("Cache-Control: private", false);
 
         readfile($file->getStorageFilePath());
 

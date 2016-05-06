@@ -100,7 +100,8 @@ class ClientDocumentDao extends Singleton
     private function fix_style(&$content)
     {
         if (strpos($content, '{/literal}</style>') === false) {
-            $content = preg_replace('/<style([^>]*)>(.*?)<\/style>/six', '<style\\1>{literal}\\2{/literal}</style>', $content);
+            $content = preg_replace('/<style([^>]*)>(.*?)<\/style>/six', '<style\\1>{literal}\\2{/literal}</style>',
+                $content);
         }
     }
 
@@ -110,7 +111,16 @@ class ClientDocumentDao extends Singleton
         $clientAccount = $document->contract->accounts[0];
         $client = $clientAccount->client;
 
-        $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
+        $data = [
+            'voip' => [],
+            'ip' => [],
+            'colocation' => [],
+            'vpn' => [],
+            'welltime' => [],
+            'vats' => [],
+            'sms' => [],
+            'extra' => []
+        ];
         $data['has8800'] = false;
 
         $taxRate = $clientAccount->getTaxRate();
@@ -126,10 +136,10 @@ class ClientDocumentDao extends Singleton
                 'from' => strtotime($usage->actual_from),
                 'address' => $usage->address ?: $usage->datacenter->address,
                 'description' => 'Телефонный номер: ' . $usage->E164,
-                'number' => $usage->E164.' x '.$usage->no_of_lines,
+                'number' => $usage->E164 . ' x ' . $usage->no_of_lines,
                 'lines' => $usage->no_of_lines,
                 'free_local_min' => $usage->tariff->free_local_min * ($usage->tariff->freemin_for_number ? 1 : $usage->no_of_lines),
-                'connect_price' => (string) $usage->voipNumber->price,
+                'connect_price' => (string)$usage->voipNumber->price,
                 'tariff' => $usage->tariff,
                 'per_month' => round($sum, 2),
                 'per_month_without_tax' => round($sum_without_tax, 2),
@@ -191,17 +201,19 @@ class ClientDocumentDao extends Singleton
                 $row['minpayments'][] = $minpayment;
             }
 
-            if ($currentTariff->minpayment_local_mob > 0)
+            if ($currentTariff->minpayment_local_mob > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_local_mob, 'variants' => [1, 0, 0, 0,]];
-            if ($currentTariff->minpayment_russia > 0)
+            }
+            if ($currentTariff->minpayment_russia > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_russia, 'variants' => [0, 1, 1, 0,]];
-            if ($currentTariff->minpayment_intern > 0)
+            }
+            if ($currentTariff->minpayment_intern > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
+            }
 
             if ($usage->type_id == '7800') {
                 $data['voip_7800'][] = $row;
-            }
-            else {
+            } else {
                 $data['voip'][] = $row;
             }
         }
@@ -265,7 +277,8 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageExtra::find()->client($client)->actual()->all() as $usage) {
 
             $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $usageTaxRate);
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount,
+                $usageTaxRate);
 
             $data['extra'][] = [
                 'from' => strtotime($usage->actual_from),
@@ -280,7 +293,8 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage) {
 
             $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
-            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount, $usageTaxRate);
+            list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount,
+                $usageTaxRate);
 
             $data['welltime'][] = [
                 'from' => $usage->actual_from,
@@ -368,7 +382,7 @@ class ClientDocumentDao extends Singleton
                     . $contragent->person->passport_issued
                     . $contragent->person->passport_date_issued
                 )
-            )
+            ) {
                 return
                     $result .
                     'Паспорт серия ' . $contragent->person->passport_serial .
@@ -376,10 +390,11 @@ class ClientDocumentDao extends Singleton
                     '<br />Выдан: ' . $contragent->person->passport_issued .
                     '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.' .
                     (
-                        count($officialContacts)
-                            ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
-                            : ''
+                    count($officialContacts)
+                        ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                        : ''
                     );
+            }
 
         } else {
             return
@@ -393,9 +408,9 @@ class ClientDocumentDao extends Singleton
                 ', БИК ' . $account->bik .
                 (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '') .
                 (
-                    count($officialContacts)
-                        ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
-                        : ''
+                count($officialContacts)
+                    ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
+                    : ''
                 );
         }
     }

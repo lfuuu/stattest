@@ -21,7 +21,8 @@ class UsageVoipDeleteHistoryForm extends Form
 
     public function process()
     {
-        $historyItem = LogTarif::findOne($this->id); /** @var LogTarif $historyItem */
+        $historyItem = LogTarif::findOne($this->id);
+        /** @var LogTarif $historyItem */
         Assert::isObject($historyItem);
 
         $usage = $historyItem->usageVoip;

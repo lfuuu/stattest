@@ -21,10 +21,10 @@ class PricelistForm extends Form
     public function rules()
     {
         return [
-            [['id','connection_point_id','local_network_config_id'], 'integer'],
+            [['id', 'connection_point_id', 'local_network_config_id'], 'integer'],
             [['name'], 'string'],
             [['type'], 'string'],
-            [['orig','tariffication_by_minutes','tariffication_full_first_minute','price_include_vat'], 'boolean'],
+            [['orig', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'price_include_vat'], 'boolean'],
             [['initiate_mgmn_cost', 'initiate_zona_cost'], 'number'],
         ];
     }

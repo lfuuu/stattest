@@ -54,7 +54,7 @@ $config = [
         'request' => [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
-            'parsers' => [ 'application/json' => 'yii\web\JsonParser'],
+            'parsers' => ['application/json' => 'yii\web\JsonParser'],
         ],
         'response' => [
             'formatters' => [

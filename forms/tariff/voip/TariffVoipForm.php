@@ -38,17 +38,27 @@ class TariffVoipForm extends Form
     public function rules()
     {
         return [
-            [['country_id','connection_point_id','dest','currency_id','name',], 'required'],
+            [['country_id', 'connection_point_id', 'dest', 'currency_id', 'name',], 'required'],
             [
                 [
-                    'id','connection_point_id','pricelist_id', 'is_virtual', 'is_testing', 'price_include_vat',
-                    'free_local_min','freemin_for_number',
-                    'dest', 'paid_redirect', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'tariffication_free_first_seconds',
+                    'id',
+                    'connection_point_id',
+                    'pricelist_id',
+                    'is_virtual',
+                    'is_testing',
+                    'price_include_vat',
+                    'free_local_min',
+                    'freemin_for_number',
+                    'dest',
+                    'paid_redirect',
+                    'tariffication_by_minutes',
+                    'tariffication_full_first_minute',
+                    'tariffication_free_first_seconds',
                 ],
                 'integer'
             ],
-            [['month_line','month_number','once_line','once_number','month_min_payment'], 'number'],
-            [['currency_id','name','name_short','status',], 'string'],
+            [['month_line', 'month_number', 'once_line', 'once_number', 'month_min_payment'], 'number'],
+            [['currency_id', 'name', 'name_short', 'status',], 'string'],
         ];
     }
 
@@ -82,7 +92,7 @@ class TariffVoipForm extends Form
 
     public function save(TariffVoip $tariff = null)
     {
-        if ($tariff  === null) {
+        if ($tariff === null) {
             $tariff = new TariffVoip;
         }
 

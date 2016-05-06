@@ -18,7 +18,7 @@ class CallChatServiceDao extends Singleton implements ServiceDao
                 ->client($client->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])
-                ->andWhere(['tarifs_call_chat.status' => ['public','special','archive']])
+                ->andWhere(['tarifs_call_chat.status' => ['public', 'special', 'archive']])
                 ->all();
     }
 

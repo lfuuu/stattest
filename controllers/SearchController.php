@@ -24,16 +24,23 @@ class SearchController extends BaseController
                 //Дополнительный поиск по счетам...//
                 /////////////////////////////////////
                 if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
-                    if(Yii::$app->request->isAjax) {
+                    if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search), 'value' => $model->bill_no, 'type' => 'bill']];
-                    }
-                    else
+                        return [
+                            [
+                                'url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search),
+                                'value' => $model->bill_no,
+                                'type' => 'bill'
+                            ]
+                        ];
+                    } else {
                         return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
+                    }
                 }
                 /////////////////////////////////////
-                if (trim($search) == intval($search))
+                if (trim($search) == intval($search)) {
                     $params['id'] = intval($search);
+                }
                 $params['companyName'] = $search;
                 break;
             case 'inn':
@@ -50,43 +57,54 @@ class SearchController extends BaseController
                 break;
             case 'bills':
                 if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
-                    if(Yii::$app->request->isAjax) {
+                    if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search), 'value' => $model->bill_no, 'type' => 'bill']];
-                    }
-                    else
+                        return [
+                            [
+                                'url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search),
+                                'value' => $model->bill_no,
+                                'type' => 'bill'
+                            ]
+                        ];
+                    } else {
                         return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
+                    }
                 } else {
-                    return $this->render('result', ['message' => 'Счет № '.$search.' не найден']);
+                    return $this->render('result', ['message' => 'Счет № ' . $search . ' не найден']);
                 }
             case 'troubles':
                 if (null !== $model = Trouble::findOne($search)) {
-                    if(Yii::$app->request->isAjax) {
+                    if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => 'index.php?module=tt&action=view&id='.$model->id, 'value' => $model->id]];
-                    }
-                    else
+                        return [['url' => 'index.php?module=tt&action=view&id=' . $model->id, 'value' => $model->id]];
+                    } else {
                         return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
-                }
-                else if (
-                    null !== (
+                    }
+                } else {
+                    if (
+                        null !== (
                         $model =
                             GoodsIncomeOrder::find()
-                                ->where(['number'=>$search])
+                                ->where(['number' => $search])
                                 ->orderBy('date desc')
                                 ->limit(1)
                                 ->one()
-                    )
-                ) {
-                    if(Yii::$app->request->isAjax) {
-                        Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => 'index.php?module=incomegoods&action=order_view&id=' . $model->id, 'value' => $model->id]];
+                        )
+                    ) {
+                        if (Yii::$app->request->isAjax) {
+                            Yii::$app->response->format = Response::FORMAT_JSON;
+                            return [
+                                [
+                                    'url' => 'index.php?module=incomegoods&action=order_view&id=' . $model->id,
+                                    'value' => $model->id
+                                ]
+                            ];
+                        } else {
+                            return $this->redirect('/index.php?module=incomegoods&action=order_view&id=' . $model->id);
+                        }
+                    } else {
+                        return $this->render('result', ['message' => 'Заявка № ' . $search . ' не найдена']);
                     }
-                    else
-                        return $this->redirect('/index.php?module=incomegoods&action=order_view&id=' . $model->id);
-                }
-                else {
-                    return $this->render('result', ['message' => 'Заявка № '.$search.' не найдена']);
                 }
             case 'ip':
                 $params['ip'] = trim($search);
@@ -103,25 +121,29 @@ class SearchController extends BaseController
             default:
                 return $this->render('result', ['message' => 'Ничего не найдено']);
         }
-        if(Yii::$app->request->isAjax){
+        if (Yii::$app->request->isAjax) {
             Yii::$app->request->setQueryParams($params);
             return Yii::$app->runAction($controller . '/' . $action);
+        } else {
+            return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + [
+                    'search' => $search,
+                    'searchType' => $searchType
+                ]));
         }
-        else
-            return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + ['search' => $search, 'searchType' => $searchType]));
     }
 
     public function actionBank($search)
     {
         $models = Bank::find()->andWhere(['like', 'CAST(bik as CHAR)', $search])->all();
         $res = [];
-        foreach ($models as $model)
+        foreach ($models as $model) {
             $res[] = [
                 'value' => $model->bik,
                 'bank_name' => $model->bank_name,
                 'bank_city' => $model->bank_city,
                 'corr_acc' => $model->corr_acc,
             ];
+        }
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
     }

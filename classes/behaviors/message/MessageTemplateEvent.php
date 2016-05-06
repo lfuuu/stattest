@@ -41,8 +41,7 @@ class MessageTemplateEvent extends Behavior
             $link->save();
 
             $transaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             return false;
         }
@@ -60,8 +59,7 @@ class MessageTemplateEvent extends Behavior
             TemplateContent::deleteAll(['template_id' => $event->sender->id]);
             TemplateEvents::deleteAll(['template_id' => $event->sender->id]);
             $transaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             return false;
         }

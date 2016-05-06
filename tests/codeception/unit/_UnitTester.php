@@ -5,8 +5,6 @@
 // @codingStandardsIgnoreFile
 
 
-
-
 /**
  * Inherited Methods
  * @method void wantToTest($text)
@@ -21,8 +19,8 @@
  * @method void haveFriend($name, $actorClass = null)
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class _UnitTester extends \Codeception\Actor
 {
-   
+
 }

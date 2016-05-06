@@ -19,8 +19,8 @@ class UserListForm extends UserForm
     public function rules()
     {
         return [
-            [['user', 'usergroup', 'enabled',],'string'],
-            [['depart_id', ], 'integer'],
+            [['user', 'usergroup', 'enabled',], 'string'],
+            [['depart_id',], 'integer'],
         ];
     }
 

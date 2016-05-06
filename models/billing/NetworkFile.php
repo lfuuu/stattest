@@ -6,18 +6,18 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property int    $id
- * @property int    $network_config_id
+ * @property int $id
+ * @property int $network_config_id
  * @property string $date
  * @property string $format
  * @property string $filename
- * @property bool   $active
- * @property int    $rows
+ * @property bool $active
+ * @property int $rows
  * @property string $startdate
  * @property string $created_at
  * @property string $date_to
  * @property string $store_filename
- * @property bool   $parsed
+ * @property bool $parsed
  *
  * @property NetworkConfig $config
  * @property

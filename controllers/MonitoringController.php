@@ -28,14 +28,14 @@ class MonitoringController extends BaseController
     public function actionTransferedUsages()
     {
         $usages = [
-            (new UsageVoip)->helper->title      => MonitoringDao::transferedUsages(UsageVoip::className()),
-            (new UsageVirtpbx)->helper->title   => MonitoringDao::transferedUsages(UsageVirtpbx::className()),
-            (new UsageWelltime)->helper->title  => MonitoringDao::transferedUsages(UsageWelltime::className()),
-            (new UsageSms)->helper->title       => MonitoringDao::transferedUsages(UsageSms::className()),
-            (new UsageTechCpe)->helper->title   => MonitoringDao::transferedUsages(UsageTechCpe::className()),
-            (new UsageIpPorts)->helper->title   => MonitoringDao::transferedUsages(UsageIpPorts::className()),
-            (new UsageExtra)->helper->title     => MonitoringDao::transferedUsages(UsageExtra::className()),
-            (new UsageEmails)->helper->title    => MonitoringDao::transferedUsages(UsageEmails::className()),
+            (new UsageVoip)->helper->title => MonitoringDao::transferedUsages(UsageVoip::className()),
+            (new UsageVirtpbx)->helper->title => MonitoringDao::transferedUsages(UsageVirtpbx::className()),
+            (new UsageWelltime)->helper->title => MonitoringDao::transferedUsages(UsageWelltime::className()),
+            (new UsageSms)->helper->title => MonitoringDao::transferedUsages(UsageSms::className()),
+            (new UsageTechCpe)->helper->title => MonitoringDao::transferedUsages(UsageTechCpe::className()),
+            (new UsageIpPorts)->helper->title => MonitoringDao::transferedUsages(UsageIpPorts::className()),
+            (new UsageExtra)->helper->title => MonitoringDao::transferedUsages(UsageExtra::className()),
+            (new UsageEmails)->helper->title => MonitoringDao::transferedUsages(UsageEmails::className()),
         ];
 
         return $this->render('transfer', [

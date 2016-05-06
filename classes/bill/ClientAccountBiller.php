@@ -39,18 +39,31 @@ class ClientAccountBiller
     protected $connecting;
     protected $periodical;
     protected $resource;
+
     /**
      * @param ClientAccount $clientAccount
      * @param DateTime $date
      * @return ClientAccountBiller
      */
-    public static function create(ClientAccount $clientAccount, DateTime $date, $onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
-    {
+    public static function create(
+        ClientAccount $clientAccount,
+        DateTime $date,
+        $onlyConnecting = false,
+        $connecting = true,
+        $periodical = true,
+        $resource = true
+    ) {
         return new static($clientAccount, $date, $onlyConnecting, $connecting, $periodical, $resource);
     }
 
-    protected function __construct(ClientAccount $clientAccount, DateTime $date, $onlyConnecting, $connecting, $periodical, $resource)
-    {
+    protected function __construct(
+        ClientAccount $clientAccount,
+        DateTime $date,
+        $onlyConnecting,
+        $connecting,
+        $periodical,
+        $resource
+    ) {
         $this->billerDate = $date;
         $this->clientAccount = $clientAccount;
         $this->onlyConnecting = $onlyConnecting;
@@ -181,9 +194,15 @@ class ClientAccountBiller
         try {
             $transactionTypes = [];
 
-            if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTING;
-            if ($this->periodical) $transactionTypes[] = Transaction::TYPE_PERIODICAL;
-            if ($this->resource) $transactionTypes[] = Transaction::TYPE_RESOURCE;
+            if ($this->connecting) {
+                $transactionTypes[] = Transaction::TYPE_CONNECTING;
+            }
+            if ($this->periodical) {
+                $transactionTypes[] = Transaction::TYPE_PERIODICAL;
+            }
+            if ($this->resource) {
+                $transactionTypes[] = Transaction::TYPE_RESOURCE;
+            }
 
             $query =
                 Transaction::find()

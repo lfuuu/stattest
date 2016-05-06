@@ -41,7 +41,17 @@ class AccountTariffVoip extends AccountTariff
     public function rules()
     {
         return [
-            [['voip_country_id', 'voip_did_group', 'voip_numbers_list_class', 'voip_numbers_list_order_by_type', 'voip_numbers_list_limit', 'city_id'], 'integer'],
+            [
+                [
+                    'voip_country_id',
+                    'voip_did_group',
+                    'voip_numbers_list_class',
+                    'voip_numbers_list_order_by_type',
+                    'voip_numbers_list_limit',
+                    'city_id'
+                ],
+                'integer'
+            ],
             [['voip_number_type', 'voip_numbers_list_order_by_field', 'voip_numbers_list_mask'], 'string'],
             ['voip_numbers', 'each', 'rule' => ['match', 'pattern' => '/^\d{4,15}$/']],
             ['voip_package_tariff_period_ids', 'each', 'rule' => ['integer']],

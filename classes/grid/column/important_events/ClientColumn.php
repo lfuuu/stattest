@@ -23,12 +23,12 @@ class ClientColumn extends DataColumn
     {
         return
             $model->clientAccount !== null
-            ? Html::a(
+                ? Html::a(
                 $model->clientAccount->contragent->name,
                 ['client/view', 'id' => $model->clientAccount->id],
                 ['target' => '_blank']
-              )
-            : '';
+            )
+                : '';
     }
 
 }

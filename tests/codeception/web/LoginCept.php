@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use tests\codeception\_pages\LoginPage;
 

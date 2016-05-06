@@ -27,7 +27,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $rules = parent::rules();
         $rules[] = [['connection_point_id', 'client_account_id', 'trunk_id', 'actual_from'], 'required', 'on' => 'add'];
         $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'add'];
-        $rules[] = [['orig_min_payment', 'term_min_payment','trunk_id',], 'required', 'on' => 'edit'];
+        $rules[] = [['orig_min_payment', 'term_min_payment', 'trunk_id',], 'required', 'on' => 'edit'];
         $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'edit'];
         return $rules;
     }
@@ -101,7 +101,8 @@ class UsageTrunkEditForm extends UsageTrunkForm
     }
 
 
-    public function initModel(ClientAccount $clientAccount, UsageTrunk $usage = null) {
+    public function initModel(ClientAccount $clientAccount, UsageTrunk $usage = null)
+    {
         $this->clientAccount = $clientAccount;
         $this->client_account_id = $clientAccount->id;
         $this->timezone = $clientAccount->timezone;

@@ -29,7 +29,7 @@ class ClientContact extends ActiveRecord
     const TYPE_EMAIL_RATE = 'email_rate';
     const TYPE_EMAIL_SUPPORT = 'email_support';
 
-    public static $types =[
+    public static $types = [
         self::TYPE_PHONE => 'Телефон',
         self::TYPE_FAX => 'Факс',
         self::TYPE_EMAIL => 'Email',
@@ -50,9 +50,13 @@ class ClientContact extends ActiveRecord
             ['type', 'in', 'range' => array_keys(self::$types)],
             ['data', 'required'],
             ['data', 'trim'],
-            ['data', 'email',
-                'when' => function($model){return $model->type == self::TYPE_EMAIL;},
-                'whenClient' => 'function(){return $("#contact-type").val() == "'. self::TYPE_EMAIL .'";}'
+            [
+                'data',
+                'email',
+                'when' => function ($model) {
+                    return $model->type == self::TYPE_EMAIL;
+                },
+                'whenClient' => 'function(){return $("#contact-type").val() == "' . self::TYPE_EMAIL . '";}'
             ],
             [['comment'], 'default', 'value' => ''],
             ['comment', 'string'],

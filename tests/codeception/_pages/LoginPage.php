@@ -22,6 +22,7 @@ class LoginPage extends BasePage
         $this->actor->fillField('input[name="LoginForm[password]"]', $password);
         $this->actor->click('Войти');
     }
+
     public static function loginAsAdmin($I)
     {
         $loginPage = LoginPage::openBy($I);

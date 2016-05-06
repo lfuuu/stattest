@@ -81,7 +81,7 @@ class UsagesLostTariffs extends Component implements MonitoringInterface
 
         $result = [];
         foreach ($usages as $usage) {
-            $result = array_merge($result, (array) $usage::getMissingTariffs());
+            $result = array_merge($result, (array)$usage::getMissingTariffs());
         }
 
         return new ArrayDataProvider([

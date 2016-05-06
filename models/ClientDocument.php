@@ -114,8 +114,12 @@ class ClientDocument extends ActiveRecord
         $d = substr(md5($data), 0, 1);
         if (($d < '0') || ($d > '9')) {
             $di = 10 + ord($d) - ord('a');
-            if ($di >= 16) $di = 0;
-        } else $di = ord($d) - ord('0');
+            if ($di >= 16) {
+                $di = 0;
+            }
+        } else {
+            $di = ord($d) - ord('0');
+        }
         $data2 = "";
         $key = self::KEY;
         $l2 = strlen($key);
@@ -132,8 +136,12 @@ class ClientDocument extends ActiveRecord
         $data = substr($data, 0, strlen($data) - 1);
         if (($di < '0') || ($di > '9')) {
             $di = 10 + ord($di) - ord('a');
-            if ($di >= 16) $di = 0;
-        } else $di = ord($di) - ord('0');
+            if ($di >= 16) {
+                $di = 0;
+            }
+        } else {
+            $di = ord($di) - ord('0');
+        }
 
         $data = base64_decode($data); //urldecode($data));
         $data2 = "";
@@ -169,16 +177,19 @@ class ClientDocument extends ActiveRecord
                 $lastContract = BillContract::getLastContract($this->contract_id, $utime);
 
                 $this->contract_no = $this->contract_no ? $this->contract_no : ($lastContract ? $lastContract['no'] : 1);
-                $this->contract_date = $this->contract_date ? $this->contract_date : date('Y-m-d', $lastContract ? $lastContract['date'] : time());
+                $this->contract_date = $this->contract_date ? $this->contract_date : date('Y-m-d',
+                    $lastContract ? $lastContract['date'] : time());
                 $this->contract_dop_no = $this->contract_no;
                 $this->contract_dop_date = ($this->type == self::DOCUMENT_AGREEMENT_TYPE) ? $this->contract_date : date('Y-m-d');
             }
 
             if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {
                 $oldContracts = self::findAll(['contract_id' => $this->contract_id]);
-                if ($oldContracts)
-                    foreach ($oldContracts as $oldContract)
+                if ($oldContracts) {
+                    foreach ($oldContracts as $oldContract) {
                         $oldContract->erase();
+                    }
+                }
             }
         }
 
@@ -200,7 +211,7 @@ class ClientDocument extends ActiveRecord
             }
 
             $contract = $this->getContract();
-            if($contract->is_external != $this->is_external) {
+            if ($contract->is_external != $this->is_external) {
                 $contract->is_external = $this->is_external;
                 $contract->save();
             }

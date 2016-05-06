@@ -8,8 +8,8 @@ return [
     'date_once' => ', {0, date, dd}',
 
     'date_range_month' => ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
-    'date_range_year' =>  ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
-    'date_range_full' =>  ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
+    'date_range_year' => ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
+    'date_range_full' => ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
 
 
     'by_agreement' => ',{contract_date,date,dd MMM yyyy} dátumú {contract_no} számú szerződés szerint',
