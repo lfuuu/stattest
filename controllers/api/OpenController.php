@@ -447,7 +447,8 @@ final class OpenController extends Controller
                         ->result(self::FREE_NUMBERS_PREVIEW_MODE);
 
                     $cityRow['numbers'][] = [
-                        'beauty_level' => $beautyTitle,
+                        'beauty_level' => $beautyLvl,
+                        'beauty_level_title' => $beautyTitle,
                         'numbers' => $numbers,
 
                     ];
