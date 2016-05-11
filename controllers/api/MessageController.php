@@ -8,6 +8,8 @@ use app\classes\validators\AccountIdValidator;
 use app\classes\DynamicModel;
 use app\classes\ApiController;
 use app\helpers\RenderParams;
+use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
 use app\models\Message;
 use app\models\message\Template;
 use app\models\message\TemplateContent;
@@ -209,6 +211,10 @@ class MessageController extends ApiController
         $type = Template::TYPE_EMAIL,
         $eventId = null
     ) {
+        if (($clientAccount = ClientAccount::findOne($clientAccountId)) === true) {
+            $langCode = $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE);
+        }
+
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
             'template_id' => $templateId,

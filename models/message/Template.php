@@ -33,12 +33,6 @@ class Template extends ActiveRecord
         ],
     ];
 
-    public static $languages = [
-        'ru-RU' => 'Русский',
-        'en-EN' => 'Английский',
-        'hu-HU' => 'Венгерский',
-    ];
-
     public $event;
 
     /**
@@ -52,8 +46,7 @@ class Template extends ActiveRecord
             [
                 'event',
                 'in',
-                'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(),
-                    'code')
+                'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')
             ]
         ];
     }

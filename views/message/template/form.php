@@ -10,6 +10,7 @@ use app\classes\Html;
 use app\assets\AppAsset;
 use app\models\message\Template;
 use app\models\important_events\ImportantEventsNames;
+use app\models\Language;
 
 /** @var app\classes\BaseView $this */
 /** @var Template $model */
@@ -78,7 +79,7 @@ echo Breadcrumbs::widget([
 
     if ($model->id) {
         $tabs = [];
-        foreach (Template::$languages as $languageCode => $languageTitle) {
+        foreach (Language::getList() as $languageCode => $languageTitle) {
             foreach (Template::$types as $type => $descr) {
                 $templateContentModel = $model->getTemplateContent($languageCode, $type);
 

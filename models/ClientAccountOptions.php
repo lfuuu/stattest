@@ -7,8 +7,8 @@ class ClientAccountOptions extends ActiveRecord
 {
 
     const OPTION_MAIL_DELIVERY = 'mail_delivery_variant';
-
     const OPTION_MAIL_DELIVERY_DEFAULT_VALUE = 'undefined';
+    const OPTION_MAIL_DELIVERY_LANGUAGE = 'mail_delivery_language';
 
     public static function tableName()
     {

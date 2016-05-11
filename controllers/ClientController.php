@@ -28,8 +28,8 @@ use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
 use app\models\Saldo;
-use app\models\important_events\ImportantEventsNames;
 use app\forms\important_events\ImportantEventsNoticesForm;
+use app\models\ClientAccountOptions;
 
 class ClientController extends BaseController
 {
@@ -294,6 +294,7 @@ class ClientController extends BaseController
 
         return $this->render('notices', [
             'dataProvider' => $dataProvider,
+            'mailDeliveryLanguageOption' => $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE),
             'form' => $form,
         ]);
     }

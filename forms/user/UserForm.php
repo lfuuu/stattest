@@ -5,10 +5,10 @@ namespace app\forms\user;
 use app\models\UserGrantUsers;
 use Yii;
 use app\classes\Form;
-use app\classes\Language;
 use app\classes\validators\ArrayValidator;
 use app\models\User;
 use app\models\City;
+use app\models\Language;
 use yii\web\UploadedFile;
 use app\helpers\MediaFileHelper;
 
@@ -23,7 +23,7 @@ class UserForm extends Form
         $phone_work,
         $phone_mobile,
         $icq,
-        $language = Language::DEFAULT_LANGUAGE,
+        $language = Language::LANGUAGE_DEFAULT,
         $city_id,
         $photo,
         $show_troubles_on_every_page = 0,
@@ -60,7 +60,7 @@ class UserForm extends Form
             ['photo', 'file'],
             ['rights', ArrayValidator::className()],
             ['city_id', 'default', 'value' => City::DEFAULT_USER_CITY_ID],
-            ['language', 'default', 'value' => Language::DEFAULT_LANGUAGE],
+            ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
         ];
     }
 

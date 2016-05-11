@@ -75,7 +75,16 @@ echo GridView::widget([
     'hover' => true,
     'panel' => [
         'type' => GridView::TYPE_DEFAULT,
-        'before' => Html::submitButton(
+        'before' =>
+            Html::tag('div', 'Язык уведомлений', ['class' => 'col-sm-1 text-bold text-nowrap', 'style' => 'font-weight: bold; margin-right: 20px; margin-top: 7px;']) .
+            Html::beginTag('div', ['class' => 'col-sm-2']) .
+                \kartik\widgets\Select2::widget([
+                    'name' => 'FormData[language]',
+                    'data' => \app\models\Language::getList(),
+                    'value' => $mailDeliveryLanguageOption,
+                ]) .
+            Html::endTag('div') .
+            Html::submitButton(
             '<i class="glyphicon glyphicon-plus"></i> Сохранить',
             [
                 'class' => 'btn btn-primary btn-sm pull-right',

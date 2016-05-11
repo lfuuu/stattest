@@ -111,7 +111,7 @@ function do_func($function)
                 get_param_integer('client_id'),
                 get_param_raw('type'),
                 get_param_raw('data'),
-                get_param_raw('lang', \app\classes\Language::DEFAULT_LANGUAGE)
+                get_param_raw('lang', \app\models\Language::LANGUAGE_DEFAULT)
             );
             break;
         }

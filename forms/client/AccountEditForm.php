@@ -309,14 +309,15 @@ class AccountEditForm extends Form
                             ->setClientAccountId($client->id)
                             ->setOption($option)
                             ->setValue($record)
-                            ->save();
+                            ->save($deleteExisting = false);
                     }
-                } else {
+                }
+                else {
                     (new ClientAccountOptionsForm)
                         ->setClientAccountId($client->id)
                         ->setOption($option)
                         ->setValue($value)
-                        ->save();
+                        ->save($deleteExisting = false);
                 }
             }
         }

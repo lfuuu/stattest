@@ -2,7 +2,7 @@
 namespace app\models\message;
 
 use yii\db\ActiveRecord;
-use app\classes\Language;
+use app\models\Language;
 use app\classes\media\TemplateContentMedia;
 
 class TemplateContent extends ActiveRecord
@@ -14,8 +14,8 @@ class TemplateContent extends ActiveRecord
     public function rules()
     {
         return [
-            ['lang_code', 'default', 'value' => Language::DEFAULT_LANGUAGE],
-            ['lang_code', 'in', 'range' => array_keys(Template::$languages)],
+            ['lang_code', 'default', 'value' => Language::LANGUAGE_DEFAULT],
+            ['lang_code', 'in', 'range' => array_keys(Language::getList())],
             ['type', 'in', 'range' => array_keys(Template::$types)],
             [['template_id', 'lang_code', 'type'], 'required'],
             [['title', 'content'], 'string'],

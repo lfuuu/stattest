@@ -4,10 +4,10 @@ namespace app\classes;
 
 use Yii;
 use app\models\Country;
+use app\models\Language as LanguageModel;
 
 class Language
 {
-    const DEFAULT_LANGUAGE = 'ru-RU'; //RUSSIAN
 
     public static function setCurrentLanguage($lang = null)
     {
@@ -15,7 +15,7 @@ class Language
             if (Yii::$app->session->has('language') && self::languageExists(Yii::$app->session->get('language'))) {
                 $lang = Yii::$app->session->get('language');
             } else {
-                $lang = static::DEFAULT_LANGUAGE;
+                $lang = LanguageModel::LANGUAGE_DEFAULT;
             }
         }
 
@@ -52,7 +52,7 @@ class Language
             return $lang;
         }
 
-        return self::DEFAULT_LANGUAGE;
+        return LanguageModel::LANGUAGE_DEFAULT;
     }
 
 }

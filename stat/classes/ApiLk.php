@@ -11,6 +11,7 @@ use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
 use app\models\important_events\ImportantEventsNames;
+use app\models\Language as LanguageModel;
 
 class ApiLk
 {
@@ -1742,7 +1743,7 @@ class ApiLk
      *@param string $type тип (телефон или Email)
      *@param string $data значение
      */
-    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = Language::DEFAULT_LANGUAGE)
+    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
     {
         global $db;
         if (!self::validateClient($client_id))
@@ -2062,7 +2063,7 @@ class ApiLk
         return $ret;
     }
 
-    public static function sendApproveMessage($client_id, $type, $data, $contact_id, $lang = Language::DEFAULT_LANGUAGE)
+    public static function sendApproveMessage($client_id, $type, $data, $contact_id, $lang = LanguageModel::LANGUAGE_DEFAULT)
     {
         global $design, $db;
 

@@ -7,6 +7,9 @@ use app\classes\Form;
 use app\classes\HttpClient;
 use yii\helpers\ArrayHelper;
 use app\models\important_events\ImportantEventsNames;
+use app\models\Language;
+use app\models\ClientAccountOptions;
+use app\forms\client\ClientAccountOptionsForm;
 
 class ImportantEventsNoticesForm extends Form
 {
@@ -17,17 +20,26 @@ class ImportantEventsNoticesForm extends Form
     public
         $clientAccountId,
         $clientData,
-        $events;
+        $events,
+        $language;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             ['clientAccountId', 'integer'],
             ['clientAccountId', 'required'],
             ['events', ArrayValidator::className()],
+            ['language', 'in', 'range' => array_keys(Language::getList())],
+            ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [];
@@ -113,6 +125,12 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($this->clientAccountId)
+            ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
+            ->setValue($this->language)
+            ->save($deleteExisting = true);
+
         $result = [];
 
         foreach ($this->events as $eventName => $eventData) {
@@ -154,13 +172,11 @@ class ImportantEventsNoticesForm extends Form
         if (!$response->isOk) {
             Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Ошибка:' . $response->statusCode);
             return false;
-
         }
 
         if (!count($response->data) || !$response->data['count']) {
             Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
             return false;
-
         }
 
         Yii::$app->session->addFlash('success', 'Данные успешно обновлены ( ' . $response->data['count'] . ' позиций)');
