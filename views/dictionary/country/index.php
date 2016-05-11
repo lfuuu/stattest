@@ -53,6 +53,10 @@ $columns = [
         }
     ],
     [
+        'attribute' => 'site',
+        'class' => StringColumn::className(),
+    ],
+    [
         'attribute' => 'in_use',
         'class' => YesNoColumn::className(),
     ],

@@ -11,6 +11,7 @@ use app\classes\Html;
 use app\classes\traits\YesNoTraits;
 use app\models\Currency;
 use kartik\select2\Select2;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -55,6 +56,11 @@ if (!$country->isNewRecord) {
                 <?= $form->field($country, 'code')->textInput(['type' => 'number']) ?>
             </div>
 
+            <?php // название ?>
+            <div class="col-sm-8">
+                <?= $form->field($country, 'name')->textInput() ?>
+            </div>
+
         </div>
 
     <?php endif ?>
@@ -66,14 +72,14 @@ if (!$country->isNewRecord) {
             <?= $form->field($country, 'alpha_3')->textInput() ?>
         </div>
 
-        <?php // название ?>
-        <div class="col-sm-4">
-            <?= $form->field($country, 'name')->textInput() ?>
-        </div>
-
         <?php // префикс ?>
         <div class="col-sm-4">
             <?= $form->field($country, 'prefix')->textInput(['type' => 'number']) ?>
+        </div>
+
+        <?php // URL сайта ?>
+        <div class="col-sm-4">
+            <?= $form->field($country, 'site')->textInput() ?>
         </div>
 
     </div>
@@ -82,7 +88,7 @@ if (!$country->isNewRecord) {
 
         <?php // язык ?>
         <div class="col-sm-4">
-            <?= $form->field($country, 'lang')->textInput() ?>
+            <?= $form->field($country, 'lang')->dropDownList(\app\models\Language::getList()) ?>
         </div>
 
         <?php // валюта ?>
@@ -107,12 +113,19 @@ if (!$country->isNewRecord) {
 
         <?= Html::submitButton(Yii::t('common', $country->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
 
+        <?= Html::button('Отменить', [
+            'class' => 'btn btn-link glyphicon glyphicon-level-up',
+            'style' => 'margin-left: 15px;',
+            'onClick' => 'self.location = "' . Url::toRoute(['dictionary/country', $country->formName() . 'Filter[in_use]' => 1]) . '"'
+        ]) ?>
+
+
         <?php if (!$country->isNewRecord) : ?>
             <?= Html::submitButton(Yii::t('common', 'Drop'), [
                 'name' => 'dropButton',
                 'value' => 1,
                 'class' => 'btn btn-danger pull-right glyphicon glyphicon-trash',
-                'onclick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
+                'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
             ]) ?>
         <?php endif ?>
 

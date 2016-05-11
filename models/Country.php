@@ -34,6 +34,7 @@ class Country extends ActiveRecord
             'lang' => 'Язык',
             'currency_id' => 'Валюта',
             'prefix' => 'Префикс',
+            'site' => 'URL сайта',
         ];
     }
 
@@ -43,7 +44,7 @@ class Country extends ActiveRecord
     public function rules()
     {
         return [
-            [['alpha_3', 'name', 'currency_id', 'lang'], 'string'],
+            [['alpha_3', 'name', 'currency_id', 'lang', 'site'], 'string'],
             [['code', 'in_use', 'prefix'], 'integer'],
             [['code', 'name', 'in_use', 'lang'], 'required'],
         ];

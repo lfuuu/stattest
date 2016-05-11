@@ -17,6 +17,7 @@ class CountryFilter extends Country
     public $lang = '';
     public $currency_id = '';
     public $prefix = '';
+    public $site = '';
 
     public function rules()
     {
@@ -28,6 +29,7 @@ class CountryFilter extends Country
             [['lang'], 'string'],
             [['currency_id'], 'string'],
             [['prefix'], 'integer'],
+            [['site'], 'string'],
         ];
     }
 
@@ -50,6 +52,7 @@ class CountryFilter extends Country
         $this->lang !== '' && $query->andWhere(['LIKE', 'lang', $this->lang]);
         $this->currency_id !== '' && $query->andWhere(['currency_id' => $this->currency_id]);
         $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
+        $this->site !== '' && $query->andWhere(['LIKE', 'site', $this->site]);
 
         return $dataProvider;
     }
