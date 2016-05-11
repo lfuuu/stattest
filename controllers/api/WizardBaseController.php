@@ -34,7 +34,6 @@ abstract class WizardBaseController extends ApiController
 
     protected $postData = [];
 
-
     /**
      * Загружает из POST'а данные и проверяет, что указанный accountId правильный
      * @param bool $isCheckWizard включить в проверку наличие включенного визарда

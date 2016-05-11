@@ -336,7 +336,7 @@ class WizardMcnController extends WizardBaseController
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
             "passport_serial" => ($c->person ? $c->person->passport_serial : ""),
             "passport_number" => ($c->person ? $c->person->passport_number : ""),
-            "passport_date_issued" => (($c->person ? $c->person->passport_date_issued : "") ?: "2000-01-01"),
+            "passport_date_issued" => ($c->person ? $c->person->passport_date_issued : ""),
             "passport_issued" => ($c->person ? $c->person->passport_issued : ""),
             "address" => ($c->person ? $c->person->registration_address : "")
         ];
