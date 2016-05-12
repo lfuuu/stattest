@@ -14,12 +14,11 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         ['class' => IdColumn::className()],
+        ['class' => CountryColumn::className()],
         ['class' => CityColumn::className()],
         ['class' => NameColumn::className()],
         ['class' => DataColumn::className(), 'attribute' => 'activation_fee', 'label' => 'Подключение'],
-        ['class' => DataColumn::className(), 'attribute' => 'periodical_fee', 'label' => 'Абонетская плата'],
         ['class' => DataColumn::className(), 'attribute' => 'status', 'label' => 'Статус'],
-        ['class' => CountryColumn::className()],
         ['class' => DataColumn::className(), 'attribute' => 'currency_id', 'label' => 'Валюта'],
     ],
     'toolbar' => [

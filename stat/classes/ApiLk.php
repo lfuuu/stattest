@@ -419,7 +419,6 @@ class ApiLk
                 'id' => $tariff->id,
                 'name' => $tariff->name,
                 'activation_fee' => (float)$tariff->activation_fee,
-                'periodical_fee' => (float)$tariff->periodical_fee,
                 'currency_id' => $tariff->currency_id,
             ];
         }

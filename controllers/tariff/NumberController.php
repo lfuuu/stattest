@@ -42,7 +42,6 @@ class NumberController extends BaseController
     {
         $model = new TariffNumberAddForm;
         $model->activation_fee = 0;
-        $model->periodical_fee = 0;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->scenario === 'save' && $model->save()) {

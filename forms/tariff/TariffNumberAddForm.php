@@ -12,14 +12,12 @@ class TariffNumberAddForm extends TariffNumberForm
             [
                 'country_id',
                 'city_id',
-                'connection_point_id',
                 'currency_id',
                 'name',
                 'status',
                 'period',
                 'did_group_id',
                 'activation_fee',
-                'periodical_fee'
             ],
             'required',
             'on' => 'save'
@@ -28,17 +26,21 @@ class TariffNumberAddForm extends TariffNumberForm
         return $rules;
     }
 
+    public function preProcess()
+    {
+        !(int) $this->country_id ? $this->city_id = 0 : false;
+        !(int) $this->city_id ? $this->did_group_id = 0 : false;
+    }
+
     public function save()
     {
         $item = new TariffNumber();
 
         $item->country_id = $this->country_id;
         $item->city_id = $this->city_id;
-        $item->connection_point_id = $this->connection_point_id;
         $item->currency_id = $this->currency_id;
         $item->name = $this->name;
         $item->activation_fee = $this->activation_fee;
-        $item->periodical_fee = $this->periodical_fee;
         $item->status = $this->status;
         $item->period = $this->period;
         $item->did_group_id = $this->did_group_id;

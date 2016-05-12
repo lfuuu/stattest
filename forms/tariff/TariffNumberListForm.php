@@ -29,7 +29,7 @@ class TariffNumberListForm extends TariffNumberForm
             $query->andWhere(['tarifs_number.id' => $this->id]);
         }
         if ($this->name) {
-            $query->andWhere("tarifs_number.name like :name", [':name' => '%' . $this->name . '%']);
+            $query->andWhere(['LIKE', 'tarifs_number.name', $this->name]);
         }
         if ($this->country_id) {
             $query->andWhere(['tarifs_number.country_id' => $this->country_id]);

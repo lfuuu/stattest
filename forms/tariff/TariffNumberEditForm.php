@@ -10,7 +10,7 @@ class TariffNumberEditForm extends TariffNumberForm
     {
         $rules = parent::rules();
         $rules[] = [
-            ['name', 'status', 'period', 'did_group_id', 'activation_fee', 'periodical_fee'],
+            ['name', 'status', 'period', 'did_group_id', 'activation_fee',],
             'required',
             'on' => 'save'
         ];
@@ -25,7 +25,6 @@ class TariffNumberEditForm extends TariffNumberForm
 
         $item->name = $this->name;
         $item->activation_fee = $this->activation_fee;
-        $item->periodical_fee = $this->periodical_fee;
         $item->status = $this->status;
         $item->period = $this->period;
         $item->did_group_id = $this->did_group_id;

@@ -10,6 +10,8 @@ use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
+/** @var \app\models\TariffNumber $model */
+
 $statuses = [
     'public' => 'Публичный',
     'special' => 'Специальный',
@@ -22,7 +24,15 @@ $periods = [
     'month' => 'Месяц',
 ];
 
-$optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
+$optionEditDisabled = $optionCityDisabled = $optionDidGroupDisabled = [];
+
+if (!$creatingMode) {
+    $optionEditDisabled = ['disabled' => 'disabled'];
+}
+else {
+    !(int) $model->country_id ? $optionCityDisabled = ['disabled' => 'disabled'] : false;
+    !(int) $model->city_id ? $optionDidGroupDisabled = ['disabled' => 'disabled'] : false;
+}
 
 echo Html::formLabel($model->name ? 'Редактирование тарифа номера' : 'Добавление тарифа номера');
 echo Breadcrumbs::widget([
@@ -40,26 +50,24 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getListWithCountries(true), 'options' => ['id' => 'city_id', 'class' => 'select2'] + $optionDisabled],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Region::dao()->getList(true), 'options' => ['class' => 'select2'] + $optionDisabled],
-            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::dao()->getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionDisabled],
-            'activation_fee' => ['type' => Form::INPUT_TEXT],
-            'periodical_fee' => ['type' => Form::INPUT_TEXT],
-            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2'] + $optionDisabled],
+            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::dao()->getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionEditDisabled],
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList(true, $model->country_id), 'options' => ['id' => 'city_id', 'class' => 'select2'] + $optionEditDisabled + $optionCityDisabled],
+            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2'] + $optionEditDisabled + $optionDidGroupDisabled],
+            'name' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
 
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 2,
+        'columns' => 4,
         'attributes' => [
-            'name' => ['type' => Form::INPUT_TEXT],
+            'activation_fee' => ['type' => Form::INPUT_TEXT],
+            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2'] + $optionEditDisabled],
             'period' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $periods, 'options' => ['class' => 'select2']],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
-            'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2']],
         ],
     ]);
 
@@ -98,7 +106,7 @@ function submitForm(scenario) {
     $('#scenario').val(scenario);
     $('#<?= $form->getId(); ?>').submit();
 }
-$('#city_id').change(function () {
+$('#city_id, #country_id').change(function () {
     submitForm('default');
 });
 </script>
