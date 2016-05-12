@@ -1,4 +1,5 @@
-<?
+<?php
+
 class Db_map {
 	var $linksF,$linksR;
 	var $keys;

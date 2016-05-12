@@ -122,7 +122,18 @@ class MySQLDatabase_yii {
 
     public function ListFields($table) 
     {
-        throw new Exception("not supported");
+
+        $results = $this->db->createCommand("SHOW COLUMNS FROM " . $table)->queryAll(\PDO::FETCH_BOTH);
+        if (!$results) {
+            throw new Exception("error execute query");
+        }
+
+        $return = [];
+        foreach ($results as $result) {
+            $return[] = $result[0];
+        }
+
+        return $return;
     }
 
     public function F($fieldName) 
