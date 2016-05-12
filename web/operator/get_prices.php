@@ -1,6 +1,24 @@
 <?php
-	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf_yii.php";
+
+/**
+ * Заметки для будующих поколений...
+ *
+ * $p_dest - обозначение для региона
+ *         - $p_dest = 1 => Россия (country == 7)
+ *         - $p_dest = 2 => Остальные регионы
+ *         - $p_dest = 4 => Россия не Мобильные
+ *         - $p_dest = 5 => Остальные регионы Мобильные
+ *
+ * pricelist_id берутся из
+ *  - Телефония / Прайс-листы Клиент Ориг
+ *  - Телефония / Прайс-листы Клиент Терм
+ *
+ * первым берется Базовый МГМН (Междугородний/Международный)
+ * вторым берется МГМН 1 (Междугородний/Международный)
+ */
+
+    define("PATH_TO_ROOT",'../../stat/');
+    include PATH_TO_ROOT."conf_yii.php";
 
     $p_region = intval($_GET['region']);
     $p_dest = intval($_GET['dest']);
@@ -47,7 +65,6 @@
     }elseif ($p_region == 97 && $p_dest == 5){
         $filter .= " and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
-
     }elseif ($p_region == 98 && $p_dest == 1){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>52,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>167,'param'=>'d1', 'date'=>date('Y-m-d'));
@@ -148,10 +165,49 @@
     }elseif ($p_region == 88 && $p_dest == 4){
         $filter .= " and d.mob=false ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 88 && $p_dest == 5){
+    }elseif ($p_region == 88 && $p_dest == 5) {
         $filter .= " and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
-
+    }elseif ($p_region == 83) {
+        switch ($p_dest) {
+            case 1:
+            case 2:
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 349,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 2,
+                    'pricelist_id' => 350,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 4:
+                $filter .= ' and d.mob=false ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 351,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 5:
+                $filter .= ' and d.mob=true ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 351,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+        }
     }else{
         die('error: incorrect parameters');
     }
