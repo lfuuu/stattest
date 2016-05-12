@@ -6,7 +6,7 @@ use app\classes\Html;
 use app\classes\grid\GridView;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\ConnectionPointColumn;
-use app\classes\grid\column\billing\TrunkColumn;
+use app\classes\grid\column\billing\UsageTrunkColumn;
 use app\classes\grid\column\billing\TrunkTypeColumn;
 use app\classes\grid\column\billing\TrunkSuperClientColumn;
 use app\classes\grid\column\billing\TrunkContragentColumn;
@@ -70,7 +70,7 @@ $columns = [
     [
         'attribute' => 'trunk_id',
         'label' => 'Транк',
-        'class' => TrunkColumn::className(),
+        'class' => UsageTrunkColumn::className(),
         'width' => '*',
     ],
     [
