@@ -27,7 +27,7 @@ if (!$country->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Страны', 'url' => '/dictionary/country/'],
+        ['label' => 'Страны', 'url' => $cancelUrl = Url::toRoute(['dictionary/country', $country->formName() . 'Filter[in_use]' => 1])],
         $this->title
     ],
 ]) ?>
@@ -111,22 +111,34 @@ if (!$country->isNewRecord) {
     <?php // кнопки ?>
     <div class="form-group">
 
-        <?= Html::submitButton(Yii::t('common', $country->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
+        <?= Html::submitButton(
+            Html::tag('i', '', ['class' => 'glyphicon glyphicon-save']) . ' ' . Yii::t('common', $country->isNewRecord ? 'Create' : 'Save'),
+            [
+                'class' => 'btn btn-primary',
+                'aria-hidden' => 'true',
+            ]
+        ) ?>
 
-        <?= Html::button('Отменить', [
-            'class' => 'btn btn-link glyphicon glyphicon-level-up',
-            'style' => 'margin-left: 15px;',
-            'onClick' => 'self.location = "' . Url::toRoute(['dictionary/country', $country->formName() . 'Filter[in_use]' => 1]) . '"'
-        ]) ?>
-
+        <?= Html::a(
+            Html::tag('i', '', ['class' => 'glyphicon glyphicon-level-up']) . ' ' . Yii::t('common', 'Cancel'),
+            $cancelUrl,
+            [
+                'class' => 'btn btn-link btn-cancel',
+                'aria-hidden' => 'true',
+            ]
+        ) ?>
 
         <?php if (!$country->isNewRecord) : ?>
-            <?= Html::submitButton(Yii::t('common', 'Drop'), [
-                'name' => 'dropButton',
-                'value' => 1,
-                'class' => 'btn btn-danger pull-right glyphicon glyphicon-trash',
-                'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
-            ]) ?>
+            <?= Html::submitButton(
+                Html::tag('i', '', ['class' => 'glyphicon glyphicon-trash']) . ' ' . Yii::t('common', 'Drop'),
+                [
+                    'name' => 'dropButton',
+                    'value' => 1,
+                    'class' => 'btn btn-danger pull-right',
+                    'aria-hidden' => 'true',
+                    'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
+                ]
+            ) ?>
         <?php endif ?>
 
     </div>

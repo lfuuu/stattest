@@ -25,7 +25,7 @@ if (!$numberType->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         'Телефония',
-        ['label' => 'Тип номера', 'url' => '/voip/number-type/'],
+        ['label' => 'Тип номера', 'url' => $cancelUrl = '/voip/number-type/'],
         $this->title
     ],
 ]) ?>
@@ -70,15 +70,29 @@ if (!$numberType->isNewRecord) {
     <?php // кнопки ?>
     <div class="form-group">
 
-        <?= Html::submitButton(Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
+        <?= Html::submitButton(
+            ' ' . Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'),
+            [
+                'class' => 'btn btn-primary glyphicon glyphicon-save',
+            ]) ?>
+
+        <?= Html::a(
+            Html::tag('i', '', ['class' => 'glyphicon glyphicon-level-up']) . Yii::t('common', 'Cancel'),
+            $cancelUrl,
+            [
+                'class' => 'btn btn-link btn-cancel',
+            ]
+        ) ?>
 
         <?php if (!$tariff->isNewRecord) : ?>
-            <?= Html::submitButton(Yii::t('common', 'Drop'), [
-                'name' => 'dropButton',
-                'value' => 1,
-                'class' => 'btn btn-danger pull-right glyphicon glyphicon-trash',
-                'onclick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
-            ]) ?>
+            <?= Html::submitButton(
+                ' ' . Yii::t('common', 'Drop'),
+                [
+                    'name' => 'dropButton',
+                    'value' => 1,
+                    'class' => 'btn btn-danger pull-right glyphicon glyphicon-trash',
+                    'onclick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
+                ]) ?>
         <?php endif ?>
 
     </div>

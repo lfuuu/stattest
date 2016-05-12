@@ -13,8 +13,8 @@ use Yii;
  * @property string $payment_no     номер платежа по данным внешней системы или банка
  * @property string $bill_no        счет, к которому привязан платеж
  * @property string $bill_vis_no    счет к которому платеж прикреплен
- * @property string $payment_date   счета без НДС для счетов стата и с НДС для счетов 1С. Только для проведенных счетов. Для не проведенных - 0
- * @property string $oper_date      признак оплаченности счета 0 - не оплачен, 1 - ??, 2 - ??, 3 - ??
+ * @property string $payment_date   дата отправки платежа
+ * @property string $oper_date      дата получения платежа
  * @property float $payment_rate   курс конвертации валюты
  * @property int $type           тип платежа: bank - загружен из банк клиента, prov - введен вручную, ecash - оплата электронными деньгами, neprov - ??
  * @property float $ecash_operator значения: cyberplat, yandex. актуально если type = ecash
@@ -23,10 +23,9 @@ use Yii;
  * @property float $original_sum       оригинальная сумма платежа
  * @property string $original_currency  оригинальная валюта платежа
  * @property float $comment        комментарий к платежу
- * @property string $add_date       дата и время внесения записи о платеже.
- * @property float $add_user       пользователь добавивший запись о платеже.
- * @property float $bank           ??
- * @property
+ * @property string $add_date       дата и время внесения записи о платеже
+ * @property float $add_user       пользователь, добавивший запись о платеже
+ * @property float $bank           банк
  */
 class Payment extends ActiveRecord
 {

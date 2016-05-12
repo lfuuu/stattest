@@ -1,11 +1,11 @@
 <?php
 
+use app\classes\Html;
+use app\models\Number;
+use app\models\TariffInternet;
+use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageTechCpe;
-use app\classes\Html;
-use app\models\TariffVoip;
-use app\models\TariffInternet;
-use app\models\Number;
 
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
@@ -385,7 +385,10 @@ if ($has) :
                                             ?>
                                         </div>
                                     </td>
-                                    <td><?= (isset(Number::$statusList[$service->voipNumber->status]) ? Number::$statusList[$service->voipNumber->status] : $service->voipNumber->status); ?></td>
+                                    <td>
+                                        <?php $voipNumberStatus = $service->voipNumber ? $service->voipNumber->status : '' ?>
+                                        <?= (isset(Number::$statusList[$voipNumberStatus]) ? Number::$statusList[$voipNumberStatus] : $voipNumberStatus) ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>

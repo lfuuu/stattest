@@ -6,9 +6,7 @@
  * @var AccountTariffFilter $filterModel
  */
 
-use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -26,14 +24,6 @@ if (!$serviceType) {
         ['label' => $this->title = $serviceType->name, 'url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])],
     ],
 ]) ?>
-
-    <p>
-        <?= Html::a(
-            Yii::t('common', 'Create'),
-            AccountTariff::getUrlNew($serviceType->id),
-            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
-        ) ?>
-    </p>
 
 <?php
 $viewParams = [

@@ -20,7 +20,7 @@ class MonthColumn extends DataColumn
             'model' => $this->grid->filterModel,
             'attribute' => $this->attribute,
             'options' => [
-                'class' => 'form-control input-sm',
+                'class' => 'form-control input-sm month-column',
             ],
         ]);
     }

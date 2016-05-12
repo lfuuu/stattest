@@ -24,14 +24,6 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-    <p>
-        <?= Html::a(
-            Yii::t('common', 'Create'),
-            '/voip/number-type/new/',
-            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
-        ) ?>
-    </p>
-
 <?php
 $columns = [
     [
@@ -57,5 +49,10 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
+    'extraButtons' => Html::a(
+        ' ' . Yii::t('common', 'Create'),
+        '/voip/number-type/new/',
+        ['class' => 'btn btn-success glyphicon glyphicon-plus']
+    ),
     'columns' => $columns,
 ]);

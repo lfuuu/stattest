@@ -26,14 +26,6 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-    <p>
-        <?= Html::a(
-            Yii::t('common', 'Create'),
-            '/dictionary/country/new/',
-            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
-        ) ?>
-    </p>
-
 <?php
 $columns = [
     [
@@ -77,5 +69,13 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
+    'extraButtons' => Html::a(
+        Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']) . ' ' . Yii::t('common', 'Create'),
+        '/dictionary/country/new/',
+        [
+            'class' => 'btn btn-success',
+            'aria-hidden' => 'true',
+        ]
+    ),
     'columns' => $columns,
 ]);

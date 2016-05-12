@@ -3,15 +3,32 @@
  * Бухгалтерский баланс
  *
  * @var \yii\web\View $this
- * @var int $clientAccountId
+ * @var ClientAccount $clientAccount
+ * @var Currency $currency
  * @var AccountEntry[] $accountEntries
+ * @var Payment[] $payments
+ * @var array $accountEntrySummary
+ * @var array $accountLogSetupSummary
+ * @var array $accountLogPeriodSummary
+ * @var array $accountLogResourceSummary
+ * @var array $paymentSummary
  */
 
-use app\classes\grid\GridView;
 use app\classes\uu\model\AccountEntry;
-use yii\data\ArrayDataProvider;
+use app\models\ClientAccount;
 use yii\widgets\Breadcrumbs;
 
+$params = [
+    'clientAccount' => $clientAccount,
+    'currency' => $currency,
+    'accountEntries' => $accountEntries,
+    'payments' => $payments,
+    'accountEntrySummary' => $accountEntrySummary,
+    'accountLogSetupSummary' => $accountLogSetupSummary,
+    'accountLogPeriodSummary' => $accountLogPeriodSummary,
+    'accountLogResourceSummary' => $accountLogResourceSummary,
+    'paymentSummary' => $paymentSummary,
+];
 ?>
 
 <?= Breadcrumbs::widget([
@@ -22,44 +39,22 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
-if (!$clientAccountId) {
+if (!$clientAccount) {
     Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
     return;
 }
-
-$dataProvider = new ArrayDataProvider([
-    'allModels' => $accountEntries,
-]);
 ?>
 
-<?= GridView::widget([
-    'dataProvider' => $dataProvider,
-    'showPageSummary' => true,
-    'columns' => [
-        [
-            'attribute' => 'date',
-            'value' => function (AccountEntry $accountEntry) {
-                return Yii::$app->formatter->asDate($accountEntry->date, 'php:M Y');
-            },
-            'pageSummary' => Yii::t('common', 'Summary'),
-        ],
-        [
-            'attribute' => 'price',
-//            'format' => ['decimal', 'decimals' => 2],
-            'format' => 'html',
-            'value' => function (AccountEntry $accountEntry) {
-                return sprintf('<a href="%s">%.2f</a>',
-                    $accountEntry->getUrl(),
-                    $accountEntry->price);
-            },
-//            'pageSummary' => true,
-//            'pageSummaryFunc' => GridView::F_SUM,
-        ],
-        [
-            'attribute' => 'type_id',
-            'value' => function (AccountEntry $accountEntry) {
-                return $accountEntry->getTypeName();
-            },
-        ],
-    ],
-]) ?>
+<div class="row">
+
+    <div class="col-sm-5">
+        <?= $this->render('_account_balance', $params) ?>
+    </div>
+
+    <div class="col-sm-offset-2 col-sm-5">
+        <?= $this->render('_realtime_balance', $params) ?>
+    </div>
+</div>
+
+
+<?= $this->render('_grid', $params) ?>

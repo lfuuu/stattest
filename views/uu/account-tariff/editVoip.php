@@ -28,10 +28,17 @@ ob_end_clean(); // форма уже есть на странице, а здес
     <?php if ($formModel->accountTariff->isNewRecord) : ?>
         <div class="row">
             <div class="col-sm-4">
-                <?= Html::submitButton('Добавить пакет', [
-                    'class' => 'btn btn-primary glyphicon glyphicon-edit',
-                    'data-old-tariff-period-id' => $formModel->accountTariff->tariff_period_id,
-                ]) ?>
+                <?= Html::submitButton(
+                    Html::tag('i', '', [
+                        'class' => 'glyphicon glyphicon-edit',
+                        'aria-hidden' => 'true',
+                    ]) . ' ' .
+                    'Добавить пакет',
+                    [
+                        'class' => 'btn btn-primary',
+                        'data-old-tariff-period-id' => $formModel->accountTariff->tariff_period_id,
+                    ]
+                ) ?>
             </div>
         </div>
     <?php endif ?>

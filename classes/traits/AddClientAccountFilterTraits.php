@@ -17,8 +17,11 @@ trait AddClientAccountFilterTraits
     {
         $get = Yii::$app->request->get();
 
-        if ($clientAccountId = $this->getCurrentClientAccountId()) {
-            $className = $filterModel->formName();
+        $className = $filterModel->formName();
+        if (
+            ($clientAccountId = $this->getCurrentClientAccountId()) &&
+            !isset($get[$className]['client_account_id'])
+        ) {
             $get[$className]['client_account_id'] = $clientAccountId;
         }
 

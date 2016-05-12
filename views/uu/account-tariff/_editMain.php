@@ -13,6 +13,7 @@ use app\classes\Html;
 use app\classes\uu\model\ServiceType;
 use app\models\Region;
 use kartik\select2\Select2;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 $accountTariff = $formModel->accountTariff;
@@ -148,7 +149,30 @@ if (!$serviceType) {
     ?>
 
     <div class="form-group">
-        <?= Html::submitButton(Yii::t('common', $accountTariff->isNewRecord ? 'Create' : 'Save'), ['class' => 'btn btn-primary glyphicon glyphicon-save']) ?>
+
+        <?= Html::submitButton(
+            Html::tag('i', '', [
+                'class' => 'glyphicon glyphicon-save',
+                'aria-hidden' => 'true',
+            ]) . ' ' .
+            Yii::t('common', $accountTariff->isNewRecord ? 'Create' : 'Save'),
+            [
+                'class' => 'btn btn-primary',
+            ]
+        ) ?>
+
+        <?= Html::a(
+            Html::tag('i', '', [
+                'class' => 'glyphicon glyphicon-level-up',
+                'aria-hidden' => 'true',
+            ]) . ' ' .
+            Yii::t('common', 'Cancel'),
+            Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id]),
+            [
+                'class' => 'btn btn-link btn-cancel',
+            ]
+        ) ?>
+
     </div>
 
     <?php ActiveForm::end(); ?>

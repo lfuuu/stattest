@@ -33,9 +33,14 @@ $accountTariffTableName = AccountTariff::tableName();
     ],
 ]) ?>
 
+
 <?= GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
+    'extraButtons' =>
+        $this->render('//uu/bill/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
+        $this->render('//uu/invoice/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
+        $this->render('//uu/balance/_ico', ['clientAccountId' => $filterModel->client_account_id]),
     'columns' => [
         [
             'attribute' => 'id',
@@ -58,7 +63,7 @@ $accountTariffTableName = AccountTariff::tableName();
             },
         ],
         [
-            'label' => 'Тип услуги',
+            'label' => Yii::t('models/' . $accountTariffTableName, 'service_type_id'),
             'attribute' => 'service_type_id',
             'class' => ServiceTypeColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
@@ -123,10 +128,12 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogSetups;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogSetup $accountLog */
-                            $accountLog = sprintf('%s: <a href="%s">%.2f</a>',
-                                Yii::$app->formatter->asDate($accountLog->date, 'php:j M'),
-                                $accountLog->getUrl(),
-                                $accountLog->price);
+                            $accountLog =
+                                Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
+                                Html::a(
+                                    sprintf('%.2f', $accountLog->price),
+                                    $accountLog->getUrl()
+                                );
                         });
                         break;
 
@@ -134,11 +141,13 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogPeriods;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogPeriod $accountLog */
-                            $accountLog = sprintf('%d-%s: <a href="%s">%.2f</a>',
-                                Yii::$app->formatter->asDate($accountLog->date_from, 'php:j'),
-                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M'),
-                                $accountLog->getUrl(),
-                                $accountLog->price);
+                            $accountLog =
+                                Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
+                                Html::a(
+                                    sprintf('%.2f', $accountLog->price),
+                                    $accountLog->getUrl()
+                                );
                         });
                         break;
 
@@ -146,10 +155,11 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogResources;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogResource $accountLog */
-                            $accountLog = sprintf('%s: <a href="%s">%.2f</a>',
-                                Yii::$app->formatter->asDate($accountLog->date, 'php:j M'),
-                                $accountLog->getUrl(),
-                                $accountLog->price);
+                            $accountLog = Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
+                                Html::a(
+                                    sprintf('%.2f', $accountLog->price),
+                                    $accountLog->getUrl()
+                                );
                         });
                         break;
                 }

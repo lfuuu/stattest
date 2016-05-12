@@ -41,6 +41,7 @@ class GridView extends \kartik\grid\GridView
      */
     public $panelHeadingTemplate = <<< HTML
     <div class="pull-right">
+        {extraButtons}
         {floatThead}
         {export}
     </div>
@@ -52,6 +53,12 @@ class GridView extends \kartik\grid\GridView
     </h3>
     <div class="clearfix"></div>
 HTML;
+
+    /**
+     * Юзерские кнопки
+     * @var string
+     */
+    public $extraButtons = '';
 
     /**
      * @var array|string the toolbar content configuration. Can be setup as a string or an array.
@@ -147,6 +154,7 @@ HTML;
         parent::initLayout();
         $this->layout = strtr($this->layout, [
             '{floatThead}' => $this->renderFloatTheadButton(),
+            '{extraButtons}' => $this->extraButtons,
         ]);
     }
 

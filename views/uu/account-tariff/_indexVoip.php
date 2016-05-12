@@ -25,6 +25,18 @@ $query = $filterModel->search()->query;
 $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
+<p>
+    <?= Html::a(
+        Html::tag('i', '', [
+            'class' => 'glyphicon glyphicon-plus',
+            'aria-hidden' => 'true',
+        ]) . ' ' .
+        Yii::t('common', 'Create'),
+        AccountTariff::getUrlNew($serviceType->id),
+        ['class' => 'btn btn-success']
+    ) ?>
+</p>
+
 <?php foreach ($rows as $row) : ?>
 
     <?php $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']); ?>
@@ -57,7 +69,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                         <?php // номера ?>
                         <div>
                             <?= Html::checkbox('AccountTariff[ids][]', true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
-                            <a href="<?= $accountTariff->getUrl() ?>"><?= $accountTariff->voip_number ?: Yii::t('common', '(not set)') ?></a>
+                            <?= Html::a($accountTariff->voip_number ?: Yii::t('common', '(not set)'), $accountTariff->getUrl()) ?>
                         </div>
 
                     <?php endforeach; ?>
@@ -84,19 +96,27 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                                 <?= $isCancelable ?
                                     Html::a(
-                                        'Отменить',
+                                        Html::tag('i', '', [
+                                            'class' => 'glyphicon glyphicon-erase',
+                                            'aria-hidden' => 'true',
+                                        ]) . ' ' .
+                                        Yii::t('common', 'Cancel'),
                                         Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffFirst->tariff_period_id]),
                                         [
-                                            'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-voip-button account-tariff-button-cancel btn-xs',
+                                            'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                             'title' => 'Отменить смену тарифа',
                                         ]
                                     ) : '' ?>
 
                                 <?= (!$isCancelable && $isEditable) ?
                                     Html::button(
+                                        Html::tag('i', '', [
+                                            'class' => 'glyphicon glyphicon-edit',
+                                            'aria-hidden' => 'true',
+                                        ]) . ' ' .
                                         'Сменить',
                                         [
-                                            'class' => 'btn btn-primary glyphicon glyphicon-edit account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                            'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                             'title' => 'Сменить тариф или отключить услугу',
                                             'data-id' => $accountTariffFirst->id,
                                             'data-city_id' => $accountTariff->city_id,
@@ -135,19 +155,27 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                                     <?= $isPackageCancelable ?
                                         Html::a(
-                                            'Отменить',
+                                            Html::tag('i', '', [
+                                                'class' => 'glyphicon glyphicon-erase',
+                                                'aria-hidden' => 'true',
+                                            ]) . ' ' .
+                                            Yii::t('common', 'Cancel'),
                                             Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffPackage->tariff_period_id]),
                                             [
-                                                'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-voip-button account-tariff-button-cancel btn-xs',
+                                                'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                                 'title' => 'Отменить смену тарифа для пакета',
                                             ]
                                         ) : '' ?>
 
                                     <?= (!$isPackageCancelable && $isPackageEditable) ?
                                         Html::button(
+                                            Html::tag('i', '', [
+                                                'class' => 'glyphicon glyphicon-edit',
+                                                'aria-hidden' => 'true',
+                                            ]) . ' ' .
                                             'Сменить',
                                             [
-                                                'class' => 'btn btn-primary glyphicon glyphicon-edit account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                                'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                                 'title' => 'Сменить тариф или отключить услугу для пакета',
                                                 'data-id' => $accountTariffPackage->id,
                                                 'data-city_id' => $accountTariffPackage->city_id,
@@ -170,9 +198,13 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                     <?= $isEditable ?
                         Html::button(
-                            'Добавить',
+                            Html::tag('i', '', [
+                                'class' => 'glyphicon glyphicon-plus',
+                                'aria-hidden' => 'true',
+                            ]) . ' ' .
+                            'Добавить пакет',
                             [
-                                'class' => 'btn btn-success glyphicon glyphicon-pencil account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                'class' => 'btn btn-success account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                 'title' => 'Добавить пакет',
                                 'data-id' => 0,
                                 'data-city_id' => $accountTariffFirst->city_id,

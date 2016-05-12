@@ -53,17 +53,31 @@ $accountTariffLog = $formModel->accountTariffLog;
             <label class="control-label"></label> <?php // чтобы позиционировать аналогично другим полям ?>
             <div>
 
-                <?= Html::submitButton(Yii::t('tariff', 'Change tariff'), [
-                    'class' => 'btn btn-primary glyphicon glyphicon-edit',
-                    'data-old-tariff-period-id' => $accountTariff->tariff_period_id,
-                    'id' => 'changeTariffButton' . $id,
-                ]) ?>
+                <?= Html::submitButton(
+                    Html::tag('i', '', [
+                        'class' => 'glyphicon glyphicon-edit',
+                        'aria-hidden' => 'true',
+                    ]) . ' ' .
+                    Yii::t('tariff', 'Change tariff'),
+                    [
+                        'class' => 'btn btn-primary',
+                        'data-old-tariff-period-id' => $accountTariff->tariff_period_id,
+                        'id' => 'changeTariffButton' . $id,
+                    ]
+                ) ?>
 
-                <?= Html::submitButton(Yii::t('tariff', 'Close tariff'), [
-                    'class' => 'btn btn-danger glyphicon glyphicon-trash closeTariff',
-                    'name' => 'closeTariff',
-                    'id' => 'closeTariffButton' . $id,
-                ]) ?>
+                <?= Html::submitButton(
+                    Html::tag('i', '', [
+                        'class' => 'glyphicon glyphicon-trash',
+                        'aria-hidden' => 'true',
+                    ]) . ' ' .
+                    Yii::t('tariff', 'Close tariff'),
+                    [
+                        'class' => 'btn btn-danger closeTariff',
+                        'name' => 'closeTariff',
+                        'id' => 'closeTariffButton' . $id,
+                    ]
+                ) ?>
 
             </div>
         </div>

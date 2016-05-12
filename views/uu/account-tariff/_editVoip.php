@@ -16,6 +16,7 @@ use app\models\Country;
 use app\models\Number;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
+use yii\helpers\Url;
 
 $accountTariffVoip = new AccountTariffVoip();
 $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->country_id;
@@ -28,9 +29,9 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 <div class="row">
 
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) // телефония        ?>
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты        ?>
-    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта         ?>
+    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) // телефония              ?>
+    <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты              ?>
+    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта               ?>
 
     <div class="col-sm-2" title="Страна берется от страны клиента">
         <?php // страна ?>
@@ -192,9 +193,29 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
     </div>
 
     <div class="form-group">
-        <?= Html::submitButton(Yii::t('common', 'Create'), [
-            'class' => 'btn btn-primary glyphicon glyphicon-save',
-        ]) ?>
+
+        <?= Html::submitButton(
+            Html::tag('i', '', [
+                'class' => 'glyphicon glyphicon-save',
+                'aria-hidden' => 'true',
+            ]) . ' ' .
+            Yii::t('common', 'Create'),
+            [
+                'class' => 'btn btn-primary',
+            ]
+        ) ?>
+
+        <?= Html::a(
+            Html::tag('i', '', [
+                'class' => 'glyphicon glyphicon-level-up',
+                'aria-hidden' => 'true',
+            ]) . ' ' .
+            Yii::t('common', 'Cancel'),
+            Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id]),
+            [
+                'class' => 'btn btn-link btn-cancel',
+            ]
+        ) ?>
     </div>
 
 </div>

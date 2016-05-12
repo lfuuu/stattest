@@ -37,14 +37,6 @@ if (!$serviceType) {
     ],
 ]) ?>
 
-    <p>
-        <?= Html::a(
-            Yii::t('common', 'Create'),
-            Tariff::getUrlNew($serviceType->id),
-            ['class' => 'btn btn-success glyphicon glyphicon-pencil']
-        ) ?>
-    </p>
-
 <?php
 // базовые столбцы
 $columns = [
@@ -138,5 +130,14 @@ foreach ($resources as $resource) {
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
+    'extraButtons' => Html::a(
+        Html::tag('i', '', [
+            'class' => 'glyphicon glyphicon-plus',
+            'aria-hidden' => 'true',
+        ]) . ' ' .
+        Yii::t('common', 'Create'),
+        Tariff::getUrlNew($serviceType->id),
+        ['class' => 'btn btn-success']
+    ),
     'columns' => $columns,
 ]);

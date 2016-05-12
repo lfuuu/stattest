@@ -2,10 +2,12 @@
 return [
     'Page Summary' => 'Итого (на странице)',
     'Summary' => 'Итого',
+    'Summary by month' => 'Итого за месяц',
     'Create' => 'Создать',
     'Edit' => 'Редактировать',
     'Save' => 'Сохранить',
     'Drop' => 'Удалить',
+    'Cancel' => 'Отменить',
     "Are you sure? It's irreversibly." => 'Вы уверены? Удаление необратимо.',
     'Yes' => 'Да',
     'No' => 'Нет',

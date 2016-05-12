@@ -12,6 +12,7 @@ use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
 use DateTimeZone;
 use yii\base\Exception;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -32,6 +33,8 @@ use yii\helpers\Url;
  * @property int $region
  * @property string $address_post
  * @property string $site_name
+ *
+ * @property Currency $currencyModel
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
  * @property Country $country
@@ -221,6 +224,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getSuperClient()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCurrencyModel()
+    {
+        return $this->hasOne(Currency::className(), ['id' => 'currency']);
     }
 
     public function getType()

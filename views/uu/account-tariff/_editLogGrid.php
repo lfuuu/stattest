@@ -46,10 +46,14 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
                     (
                     strtotime($accountTariffLog->actual_from) >= time() ?
                         Html::a(
-                            'Отменить',
+                            Html::tag('i', '', [
+                                'class' => 'glyphicon glyphicon-erase',
+                                'aria-hidden' => 'true',
+                            ]) . ' ' .
+                            Yii::t('common', 'Cancel'),
                             Url::toRoute(['/uu/account-tariff/cancel', 'id' => $accountTariffLog->account_tariff_id, 'tariffPeriodId' => $accountTariffLog->tariff_period_id]),
                             [
-                                'class' => 'btn btn-danger glyphicon glyphicon-erase account-tariff-button-cancel btn-xs',
+                                'class' => 'btn btn-danger account-tariff-button-cancel btn-xs',
                                 'title' => 'Отменить смену тарифа',
                             ]
                         ) : ''

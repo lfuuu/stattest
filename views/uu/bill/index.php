@@ -28,6 +28,10 @@ use yii\widgets\Breadcrumbs;
 <?= GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
+    'extraButtons' =>
+//        $this->render('//uu/bill/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
+        $this->render('//uu/invoice/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
+        $this->render('//uu/balance/_ico', ['clientAccountId' => $filterModel->client_account_id]),
     'columns' => [
         [
             'attribute' => 'id',
@@ -64,10 +68,11 @@ use yii\widgets\Breadcrumbs;
                 $accountEntries = $bill->accountEntries;
                 array_walk($accountEntries, function (&$accountEntry) {
                     /** @var AccountEntry $accountEntry */
-                    $accountEntry = sprintf('%s <a href="%s">%.2f</a>',
-                        $accountEntry->getTypeName(),
-                        $accountEntry->getUrl(),
-                        $accountEntry->price);
+                    $accountEntry = $accountEntry->getTypeName() . ' ' .
+                        Html::a(
+                            sprintf('%.2f', $accountEntry->price),
+                            $accountEntry->getUrl()
+                        );
                 });
                 return implode('<br />', $accountEntries);
 

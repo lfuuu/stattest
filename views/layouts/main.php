@@ -146,26 +146,26 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
     <?php // скрыть/показать левое меню ?>
     <button type="button" class="btn btn-info btn-xs panel-toggle-button <?= $isHideLeftLayout ? '' : 'active' ?>"><?= $isHideLeftLayout ? '›' : '‹' ?></button>
     <script type="text/javascript">
+        // перерендерить пришпиленную шапка таблицы
+        window.reflowTableHeader = function() {
+            var $table = $('.kv-grid-table');
+            try {
+                $table.floatThead && $table.floatThead('reflow');
+            } catch (err) {
+            }
+        };
+
         $(function () {
             $('.panel-toggle-button').on('click', function() {
                 var $this = $(this);
                 var $layoutLeft = $('.layout_left');
                 var $layoutMain = $('.layout_main');
 
-                // перерендерить пришпиленную шапка таблицы
-                var reflowFunc = function() {
-                    var $table = $('.kv-grid-table');
-                    try {
-                        $table.floatThead && $table.floatThead('reflow');
-                    } catch (err) {
-                    }
-                };
-
                 if ($this.hasClass('active')) {
                     $layoutLeft.animate({left: '-350px'});
                     $layoutMain.animate({left: 0}, function() {
                         $layoutMain.removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
-                        reflowFunc();
+                        window.reflowTableHeader();
                     });
                     $this.text('›');
                     $this.removeClass('active');
@@ -174,7 +174,7 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
                     $layoutLeft.animate({left: 0});
                     $layoutMain.animate({left: '16.667%'}, function() {
                         $layoutMain.removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
-                        reflowFunc();
+                        window.reflowTableHeader();
                     });
                     $this.text('‹');
                     $this.addClass('active');
