@@ -49,10 +49,6 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => Html::a(
-        ' ' . Yii::t('common', 'Create'),
-        '/voip/number-type/new/',
-        ['class' => 'btn btn-success glyphicon glyphicon-plus']
-    ),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/voip/number-type/new/']),
     'columns' => $columns,
 ]);

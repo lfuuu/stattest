@@ -80,14 +80,6 @@ switch ($serviceType->id) {
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => Html::a(
-        Html::tag('i', '', [
-            'class' => 'glyphicon glyphicon-plus',
-            'aria-hidden' => 'true',
-        ]) . ' ' .
-        Yii::t('common', 'Create'),
-        AccountTariff::getUrlNew($serviceType->id),
-        ['class' => 'btn btn-success']
-    ),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,
 ]) ?>

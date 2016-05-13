@@ -149,30 +149,8 @@ if (!$serviceType) {
     ?>
 
     <div class="form-group">
-
-        <?= Html::submitButton(
-            Html::tag('i', '', [
-                'class' => 'glyphicon glyphicon-save',
-                'aria-hidden' => 'true',
-            ]) . ' ' .
-            Yii::t('common', $accountTariff->isNewRecord ? 'Create' : 'Save'),
-            [
-                'class' => 'btn btn-primary',
-            ]
-        ) ?>
-
-        <?= Html::a(
-            Html::tag('i', '', [
-                'class' => 'glyphicon glyphicon-level-up',
-                'aria-hidden' => 'true',
-            ]) . ' ' .
-            Yii::t('common', 'Cancel'),
-            Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id]),
-            [
-                'class' => 'btn btn-link btn-cancel',
-            ]
-        ) ?>
-
+        <?= $this->render('//layouts/_submitButton' . ($accountTariff->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])]) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

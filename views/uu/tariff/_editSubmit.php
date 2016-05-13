@@ -7,33 +7,12 @@
  * @var \yii\widgets\ActiveForm $form
  */
 
-use app\classes\Html;
 use yii\helpers\Url;
 
 $tariff = $formModel->tariff;
 ?>
 
 <div class="form-group">
-
-    <?= Html::submitButton(
-        Html::tag('i', '', [
-            'class' => 'glyphicon glyphicon-save',
-            'aria-hidden' => 'true',
-        ]) . ' ' .
-        Yii::t('common', $tariff->isNewRecord ? 'Create' : 'Save'),
-        [
-            'class' => 'btn btn-primary',
-        ]) ?>
-
-    <?= Html::a(
-        Html::tag('i', '', [
-            'class' => 'glyphicon glyphicon-level-up',
-            'aria-hidden' => 'true',
-        ]) . ' ' .
-        Yii::t('common', 'Cancel'),
-        Url::to(['uu/tariff', 'serviceTypeId' => $formModel->tariff->service_type_id]),
-        [
-            'class' => 'btn btn-link btn-cancel',
-        ]
-    ) ?>
+    <?= $this->render('//layouts/_submitButton' . ($tariff->isNewRecord ? 'Create' : 'Save')) ?>
+    <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/tariff', 'serviceTypeId' => $formModel->tariff->service_type_id])]) ?>
 </div>

@@ -26,15 +26,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
 <p>
-    <?= Html::a(
-        Html::tag('i', '', [
-            'class' => 'glyphicon glyphicon-plus',
-            'aria-hidden' => 'true',
-        ]) . ' ' .
-        Yii::t('common', 'Create'),
-        AccountTariff::getUrlNew($serviceType->id),
-        ['class' => 'btn btn-success']
-    ) ?>
+    <?= $this->render('//layouts/_buttonCancel', ['url' => AccountTariff::getUrlNew($serviceType->id)]) ?>
 </p>
 
 <?php foreach ($rows as $row) : ?>

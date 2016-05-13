@@ -69,13 +69,6 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => Html::a(
-        Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']) . ' ' . Yii::t('common', 'Create'),
-        '/dictionary/country/new/',
-        [
-            'class' => 'btn btn-success',
-            'aria-hidden' => 'true',
-        ]
-    ),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/country/new/']),
     'columns' => $columns,
 ]);
