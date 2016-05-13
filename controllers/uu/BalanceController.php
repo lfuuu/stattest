@@ -12,6 +12,7 @@ use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Payment;
 use Yii;
@@ -142,11 +143,21 @@ class BalanceController extends BaseController
                 ])
                 ->all();
 
+            // Все старые счета клиента для грида
+            $bills = Bill::find()
+                ->where(['client_id' => $clientAccountId])
+                ->orderBy([
+                    'bill_date' => SORT_DESC,
+                    'id' => SORT_DESC,
+                ])
+                ->all();
+
         } else {
             $clientAccount =
             $currency =
             $accountEntries =
             $payments =
+            $bills =
             $accountEntrySummary =
             $accountLogSetupSummary =
             $accountLogPeriodSummary =
@@ -160,6 +171,7 @@ class BalanceController extends BaseController
             'currency' => $currency,
             'accountEntries' => $accountEntries,
             'payments' => $payments,
+            'bills' => $bills,
             'accountEntrySummary' => $accountEntrySummary,
             'accountLogSetupSummary' => $accountLogSetupSummary,
             'accountLogPeriodSummary' => $accountLogPeriodSummary,

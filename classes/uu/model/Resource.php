@@ -40,9 +40,9 @@ class Resource extends \yii\db\ActiveRecord
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
-    const ID_COLLOCATION_TRAFFIC_RUSSIA = 10; // Coolocation. Трафик Russia
-    const ID_COLLOCATION_TRAFFIC_RUSSIA2 = 11; // Coolocation. Трафик Russia2
-    const ID_COLLOCATION_TRAFFIC_FOREINGN = 12; // Coolocation. Трафик Foreign
+    const ID_COLLOCATION_TRAFFIC_RUSSIA = 10; // Collocation. Трафик Russia
+    const ID_COLLOCATION_TRAFFIC_RUSSIA2 = 11; // Collocation. Трафик Russia2
+    const ID_COLLOCATION_TRAFFIC_FOREINGN = 12; // Collocation. Трафик Foreign
 
     const ID_VPN_TRAFFIC = 13; // VPN. Трафик
 

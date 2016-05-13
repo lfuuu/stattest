@@ -7,6 +7,7 @@
  * @var Currency $currency
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
+ * @var Bill[] $bills
  * @var array $accountEntrySummary
  * @var array $accountLogSetupSummary
  * @var array $accountLogPeriodSummary
@@ -15,6 +16,7 @@
  */
 
 use app\classes\uu\model\AccountEntry;
+use app\models\Bill;
 use app\models\ClientAccount;
 use yii\widgets\Breadcrumbs;
 
@@ -23,6 +25,7 @@ $params = [
     'currency' => $currency,
     'accountEntries' => $accountEntries,
     'payments' => $payments,
+    'bills' => $bills,
     'accountEntrySummary' => $accountEntrySummary,
     'accountLogSetupSummary' => $accountLogSetupSummary,
     'accountLogPeriodSummary' => $accountLogPeriodSummary,
