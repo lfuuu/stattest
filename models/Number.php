@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\dao\NumberDao;
+use app\models\light_models\CurrencyLight;
+use app\models\light_models\NumberPriceLight;
 use yii\db\ActiveRecord;
 
 /**
@@ -32,6 +34,8 @@ use yii\db\ActiveRecord;
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
  * @property NumberType $numberType
+ * @property TariffNumber $tariff
+ * @property array $actualPrice
  */
 class Number extends ActiveRecord
 {
@@ -104,6 +108,69 @@ class Number extends ActiveRecord
     public function getNumberType()
     {
         return $this->hasOne(NumberType::className(), ['id' => 'number_type']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTariff()
+    {
+        return $this->hasOne(TariffNumber::className(), ['city_id' => 'city_id', 'did_group_id' => 'did_group_id']);
+    }
+
+    /**
+     * @return float
+     */
+    public function getPrice($currency = Currency::RUB)
+    {
+        $price = $this->originPrice;
+
+        if ($this->tariff->currency != $currency) {
+            if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->tariff->currency)) !== null) {
+                $price *= $tariffCurrencyRate->rate;
+            }
+
+            if (($currencyRate = CurrencyRate::find()->currency($currency)) !== null) {
+                $price /= $currencyRate->rate;
+            }
+        }
+
+        return $price;
+    }
+
+    /**
+     * @param string $currency
+     * @return NumberPriceLight
+     */
+    public function getPriceWithCurrency($currency = Currency::RUB)
+    {
+        $formattedResult = new NumberPriceLight;
+        $formattedResult->setAttributes([
+            'currency' => $currency,
+            'price' => $this->getPrice($currency),
+        ]);
+        return $formattedResult;
+    }
+
+    /**
+     * @return float
+     */
+    public function getOriginPrice()
+    {
+        return $this->tariff->activation_fee;
+    }
+
+    /**
+     * @return NumberPriceLight
+     */
+    public function getOriginPriceWithCurrency()
+    {
+        $formattedResult = new NumberPriceLight;
+        $formattedResult->setAttributes([
+            'currency' => $this->tariff->currency->id,
+            'price' => $this->originPrice,
+        ]);
+        return $formattedResult;
     }
 
 }

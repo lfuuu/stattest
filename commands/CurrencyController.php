@@ -109,6 +109,7 @@ class CurrencyController extends Controller
 
                 $currencyValue = (string)$valute->Value;
                 $currencyValueFloat = (float)str_replace(',', '.', $currencyValue);
+                $currencyValueFloat /= (string)$valute->Nominal;
                 Yii::info('CurrencyImport: ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
                 if ($currencyValueFloat <= 0) {
                     Yii::error('CurrencyImport: wrong rate ' . $dateTime->format('Y-m-d') . ' ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);

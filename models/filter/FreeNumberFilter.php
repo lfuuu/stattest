@@ -3,10 +3,11 @@
 namespace app\models\filter;
 
 use yii\db\Expression;
-use app\exceptions\web\BadRequestHttpException;
+use app\models\Currency;
 use app\models\Number;
 use app\models\NumberType;
 use app\models\DidGroup;
+use app\models\light_models\NumberLight;
 
 /**
  * Фильтрация для свободных номеров
@@ -20,16 +21,14 @@ class FreeNumberFilter extends Number
     private $query;
     private
         $eachMode = false,
-        $arrayMode = false,
-        $minCost = null,
-        $maxCost = null;
+        $arrayMode = false;
 
     /**
      * @return void
      */
     public function init()
     {
-        $this->query = parent::find()->where(['status' => parent::STATUS_INSTOCK]);
+        $this->query = parent::find()->where([parent::tableName() . '.status' => parent::STATUS_INSTOCK]);
     }
 
     /**
@@ -58,21 +57,23 @@ class FreeNumberFilter extends Number
      */
     public function setType($numberType = NumberType::ID_INTERNAL)
     {
-        $this->query->andWhere(['number_type' => $numberType]);
+        $this->query->andWhere([parent::tableName() . '.number_type' => $numberType]);
 
         switch ($numberType) {
             case NumberType::ID_INTERNAL: {
                 $this->query->having(new Expression('
                     IF(
-                        `number` LIKE "7495%",
-                        `number` LIKE "74951059%" OR `number` LIKE "74951090%" OR `beauty_level` IN (1,2),
+                        `' . parent::tableName() . '`.`number` LIKE "7495%",
+                        `' . parent::tableName() . '`.`number` LIKE "74951059%"
+                        OR `' . parent::tableName() . '`.`number` LIKE "74951090%"
+                        OR `' . parent::tableName() . '`.`beauty_level` IN (1,2),
                         true
                     )
                 '));
                 break;
             }
             case NumberType::ID_EXTERNAL: {
-                $this->query->andWhere(['ndc' => 800]);
+                $this->query->andWhere([parent::tableName() . '.ndc' => 800]);
             }
         }
 
@@ -86,7 +87,7 @@ class FreeNumberFilter extends Number
     public function setRegions(array $regions = [])
     {
         if (count($regions)) {
-            $this->query->andWhere(['IN', 'region', $regions]);
+            $this->query->andWhere(['IN', parent::tableName() . '.region', $regions]);
         }
         return $this;
     }
@@ -98,7 +99,7 @@ class FreeNumberFilter extends Number
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->minCost = $minCost;
+            $this->query->andWhere(['>=', 'activation_fee', $minCost])->joinWith('tariff');
         }
         return $this;
     }
@@ -110,7 +111,7 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->maxCost = $maxCost;
+            $this->query->andWhere(['<=', 'activation_fee', $maxCost])->joinWith('tariff');
         }
         return $this;
     }
@@ -124,7 +125,7 @@ class FreeNumberFilter extends Number
         if (count($beautyLvl)) {
             $this->query->andWhere([
                 'IN',
-                'beauty_level',
+                parent::tableName() . '.beauty_level',
                 array_filter($beautyLvl, function ($row) {
                     return isset(DidGroup::$beautyLevelNames[$row]);
                 })
@@ -141,7 +142,7 @@ class FreeNumberFilter extends Number
     public function setNumberMask($mask = null)
     {
         if (!is_null($mask)) {
-            $this->query->andWhere('number LIKE :part', [':part' => $mask]);
+            $this->query->andWhere(parent::tableName() . '.number LIKE :part', [':part' => $mask]);
         }
         return $this;
     }
@@ -153,7 +154,7 @@ class FreeNumberFilter extends Number
     public function setDidGroup($didGroupId)
     {
         if ((int) $didGroupId) {
-            $this->query->andWhere(['did_group_id' => (int) $didGroupId]);
+            $this->query->andWhere([parent::tableName() . '.did_group_id' => (int) $didGroupId]);
         }
         return $this;
     }
@@ -165,7 +166,19 @@ class FreeNumberFilter extends Number
     public function setCity($cityId)
     {
         if ((int) $cityId) {
-            $this->query->andWhere(['city_id' => (int) $cityId]);
+            $this->query->andWhere([parent::tableName() . '.city_id' => (int) $cityId]);
+        }
+        return $this;
+    }
+
+    /**
+     * @param int[] $cityIds
+     * @return $this
+     */
+    public function setCities(array $cityIds = [])
+    {
+        if (count($cityIds)) {
+            $this->query->andWhere(['IN', parent::tableName() . '.city_id', $cityIds]);
         }
         return $this;
     }
@@ -196,7 +209,7 @@ class FreeNumberFilter extends Number
      */
     public function orderByPrice($direction = SORT_ASC)
     {
-        $this->query->addOrderBy(['price' => $direction]);
+        $this->query->addOrderBy([parent::tableName() . '.price' => $direction]);
         return $this;
     }
 
@@ -210,50 +223,14 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @return $this
-     */
-    public function asArray()
-    {
-        $this->arrayMode = true;
-        return $this;
-    }
-
-    /**
      * @param int|null $limit
      * @return null|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public function result($limit = self::FREE_NUMBERS_LIMIT)
     {
-        switch (true) {
-            case !is_null($this->minCost) && !is_null($this->maxCost): {
-                $this->query->andWhere([
-                    'OR',
-                    ['BETWEEN', 'price', $this->minCost, $this->maxCost],
-                    ['IS', 'price', null],
-                ]);
-                break;
-            }
-            case !is_null($this->minCost): {
-                $this->query->andWhere([
-                    'OR',
-                    ['>=', 'price', $this->minCost],
-                    ['IS', 'price', null],
-                ]);
-                break;
-            }
-            case !is_null($this->maxCost): {
-                $this->query->andWhere([
-                    'OR',
-                    ['<=', 'price', $this->maxCost],
-                    ['IS', 'price', null],
-                ]);
-                break;
-            }
-        }
-
         $this->query->addOrderBy([
-            new Expression('IF(beauty_level = 0, 10, beauty_level) DESC'),
-            'number' => SORT_ASC,
+            new Expression('IF(`' . parent::tableName() . '`.`beauty_level` = 0, 10, `' . parent::tableName() . '`.`beauty_level`) DESC'),
+            parent::tableName() . '.number' => SORT_ASC,
         ]);
 
         if ($limit === 1) {
@@ -261,10 +238,6 @@ class FreeNumberFilter extends Number
         }
 
         $this->query->limit($limit);
-
-        if ($this->arrayMode) {
-            $this->query->asArray();
-        }
 
         return $this->eachMode ? $this->query->each() : $this->query->all();
     }
@@ -278,6 +251,14 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @return int|string
+     */
+    public function count()
+    {
+        return $this->query->count();
+    }
+
+    /**
      * @return null|\yii\db\ActiveRecord
      */
     public function randomOne()
@@ -285,10 +266,38 @@ class FreeNumberFilter extends Number
         $union = clone $this->query;
 
         $this->query
-            ->andWhere(['number_cut' => str_pad(mt_rand(0, 99), 2, 0, STR_PAD_LEFT)])
+            ->andWhere([parent::tableName() . '.number_cut' => str_pad(mt_rand(0, 99), 2, 0, STR_PAD_LEFT)])
             ->union($union);
 
         return $this->one();
+    }
+
+    /**
+     * @param Number[] $number
+     * @param string|false $currency
+     * @return array
+     */
+    public function formattedNumbers($numbers = [], $currency = Currency::RUB)
+    {
+        $result = [];
+        foreach ($numbers as $number) {
+            $result[] = $this->formattedNumber($number, $currency);
+        }
+        return $result;
+    }
+
+    /**
+     * @param Number $number
+     * @param string|false $currency
+     * @return array
+     */
+    public function formattedNumber(Number $number, $currency = Currency::RUB)
+    {
+        $formattedResult = new NumberLight;
+        $formattedResult->setAttributes($number->getAttributes());
+        $formattedResult->setPrices($number, $currency);
+
+        return $formattedResult;
     }
 
 }

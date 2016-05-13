@@ -2,14 +2,14 @@
 
 namespace app\controllers\api;
 
-use app\models\City;
-use app\models\Country;
-use app\models\DidGroup;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
+use app\models\City;
+use app\models\Country;
+use app\models\Currency;
+use app\models\DidGroup;
 use app\exceptions\web\BadRequestHttpException;
-use app\models\NumberType;
 use app\models\filter\FreeNumberFilter;
 
 final class OpenController extends Controller
@@ -31,6 +31,7 @@ final class OpenController extends Controller
      *   summary="Выбрать список свободных номеров по одному региону",
      *   operationId="Выбрать список свободных номеров по одному региону",
      *   @SWG\Parameter(name="region",type="integer",description="код региона",in="query"),
+     *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Выбрать список свободных номеров",
@@ -47,7 +48,7 @@ final class OpenController extends Controller
      *   )
      * )
      */
-    public function actionGetFreeNumbers($region = null)
+    public function actionGetFreeNumbers($region = null, $currency = Currency::RUB)
     {
         $numbers =
             (new FreeNumberFilter)
@@ -55,13 +56,8 @@ final class OpenController extends Controller
                 ->setRegions([$region]);
 
         $response = [];
-        foreach ($numbers->each()->result(null) as $r) {
-            $response[] = [
-                'number' => $r->number,
-                'beauty' => $r->beauty_level,
-                'price' => $r->price,
-                'region' => $r->region,
-            ];
+        foreach ($numbers->each()->result(null) as $row) {
+            $response[] = $numbers->formattedNumber($row, $currency);
         }
         return $response;
     }
@@ -81,6 +77,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="like",type="string",description="выражение для поиска вхождения",in="query"),
      *   @SWG\Parameter(name="offset",type="integer",description="смещение результатов поиска",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="кол-во записей (default: 12, 'null' для получения всех)",in="query"),
+     *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Выбрать список свободных номеров",
@@ -105,7 +102,8 @@ final class OpenController extends Controller
         array $beautyLvl = [],
         $like = null,
         $offset = 0,
-        $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT
+        $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
+        $currency = Currency::RUB
     ) {
         $numbers =
             (new FreeNumberFilter)
@@ -129,12 +127,7 @@ final class OpenController extends Controller
         $response = [];
 
         foreach ($numbers->orderByPrice()->each()->result($limit) as $row) {
-            $response[] = [
-                'number' => $row->number,
-                'beauty' => $row->beauty_level,
-                'price' => $row->price,
-                'region' => $row->region,
-            ];
+            $response[] = $numbers->formattedNumber($row, $currency);
         }
 
         return $response;
@@ -150,31 +143,6 @@ final class OpenController extends Controller
      *     description="Номер"
      *   ),
      *   @SWG\Property(
-     *     property="status",
-     *     type="string",
-     *     description="Статус номера (instock:Свободен etc)"
-     *   ),
-     *   @SWG\Property(
-     *     property="reserve_from",
-     *     type="datetime",
-     *     description="Номер в резерве с datetime"
-     *   ),
-     *   @SWG\Property(
-     *     property="reserve_till",
-     *     type="datetime",
-     *     description="Номер в резерве до datetime"
-     *   ),
-     *   @SWG\Property(
-     *     property="hold_from",
-     *     type="datetime",
-     *     description="Номер в отстойнике с datetime"
-     *   ),
-     *   @SWG\Property(
-     *     property="hold_to",
-     *     type="datetime",
-     *     description="Номер в отстойнике до datetime"
-     *   ),
-     *   @SWG\Property(
      *     property="beauty_level",
      *     type="integer",
      *     description="Уровень красоты"
@@ -183,6 +151,21 @@ final class OpenController extends Controller
      *     property="price",
      *     type="integer",
      *     description="Цена"
+     *   ),
+     *   @SWG\Property(
+     *     property="currency",
+     *     type="string",
+     *     description="Код валюты (ISO)"
+     *   ),
+     *   @SWG\Property(
+     *     property="originPrice",
+     *     type="integer",
+     *     description="Цена указанная для Did group"
+     *   ),
+     *   @SWG\Property(
+     *     property="originCurrency",
+     *     type="string",
+     *     description="Код валюты (ISO) указанный для Did group"
      *   ),
      *   @SWG\Property(
      *     property="region",
@@ -195,31 +178,6 @@ final class OpenController extends Controller
      *     description="ID города"
      *   ),
      *   @SWG\Property(
-     *     property="client_id",
-     *     type="integer",
-     *     description="ID Л/С / NULL, если номер принадлежит клиенту"
-     *   ),
-     *   @SWG\Property(
-     *     property="usage_id",
-     *     type="integer",
-     *     description="ID услуги / NULL, если номер принадлежит клиенту"
-     *   ),
-     *   @SWG\Property(
-     *     property="reserved_free_date",
-     *     type="datetime",
-     *     description="Резерв будет снят принудительно datetime"
-     *   ),
-     *   @SWG\Property(
-     *     property="used_until_date",
-     *     type="datetime",
-     *     description="Номер используется до datetime"
-     *   ),
-     *   @SWG\Property(
-     *     property="edit_user_id",
-     *     type="integer",
-     *     description="ID пользователя, редактировавшего номер последним"
-     *   ),
-     *   @SWG\Property(
      *     property="site_publish",
      *     type="boolean",
      *     description="Публиковать на сайте или нет"
@@ -230,49 +188,9 @@ final class OpenController extends Controller
      *     description="ID DID группы"
      *   ),
      *   @SWG\Property(
-     *     property="number_tech",
-     *     type="integer",
-     *     description="-"
-     *   ),
-     *   @SWG\Property(
-     *     property="operator_account_id",
-     *     type="integer",
-     *     description="ID оператора, если номер используется оператором"
-     *   ),
-     *   @SWG\Property(
-     *     property="country_code",
-     *     type="integer",
-     *     description="ID страны"
-     *   ),
-     *   @SWG\Property(
-     *     property="ndc",
-     *     type="integer",
-     *     description="Признак номера 7800"
-     *   ),
-     *   @SWG\Property(
-     *     property="number_subscriber",
-     *     type="string",
-     *     description="-"
-     *   ),
-     *   @SWG\Property(
      *     property="number_type",
      *     type="integer",
      *     description="Тип номера (внутренний, внешний etc) см. models\NumberType"
-     *   ),
-     *   @SWG\Property(
-     *     property="date_start",
-     *     type="date",
-     *     description="Номер используется с date"
-     *   ),
-     *   @SWG\Property(
-     *     property="date_end",
-     *     type="date",
-     *     description="Номер используется до date"
-     *   ),
-     *   @SWG\Property(
-     *     property="number_cut",
-     *     type="string",
-     *     description="Часть номера, используемая для выборки случайного номера"
      *   ),
      * ),
      * @SWG\Definition(
@@ -358,6 +276,7 @@ final class OpenController extends Controller
      * )
      */
     /**
+     * @param string $currency - Currency constants (Currency::RUB, Currency::HUF etc)
      * @return array
      *
      * Структура данных:
@@ -371,38 +290,23 @@ final class OpenController extends Controller
      *          numbers => [
      *              beauty_level,
      *              numbers => [
-     *                 number,
-     *                 status,
-     *                 reserve_from,
-     *                 reserve_till,
-     *                 hold_from,
-     *                 hold_to,
-     *                 beauty_level,
-     *                 price,
-     *                 region,
-     *                 client_id,
-     *                 usage_id,
-     *                 reserved_free_date,
-     *                 used_until_date,
-     *                 edit_user_id,
-     *                 site_publish,
-     *                 city_id,
-     *                 did_group_id,
-     *                 number_tech,
-     *                 operator_account_id,
-     *                 country_code,
-     *                 ndc,
-     *                 number_subscriber,
-     *                 number_type,
-     *                 date_start,
-     *                 date_end,
-     *                 number_cut
+     *                  number,
+     *                  beauty_level,
+     *                  price,
+     *                  currency,
+     *                  originPrice,
+     *                  originCurrency,
+     *                  region,
+     *                  city_id,
+     *                  did_group_id,
+     *                  number_type,
+     *                  site_publish,
      *              ]
      *          ]
      *      ]
      *  ]
      */
-    public function actionGetFreeNumbersPreview()
+    public function actionGetFreeNumbersPreview($currency = Currency::RUB)
     {
         $countries =
             Country::find()
@@ -418,13 +322,23 @@ final class OpenController extends Controller
                 ->asArray()
                 ->all();
 
-        $beautyLvls = DidGroup::$beautyLevelNames;
+        $beautyLvls = [
+            DidGroup::BEAUTY_LEVEL_STANDART,
+            DidGroup::BEAUTY_LEVEL_BRONZE,
+            DidGroup::BEAUTY_LEVEL_SILVER,
+            DidGroup::BEAUTY_LEVEL_GOLD,
+            DidGroup::BEAUTY_LEVEL_PLATINUM,
+        ];
 
         $result = [];
         foreach ($countries as $country) {
             $countryCities = array_filter($cities, function ($row) use ($country) {
                 return $row['country_id'] === $country['code'];
             });
+
+            if (!(new FreeNumberFilter)->getNumbers()->setCities(ArrayHelper::getColumn($countryCities, 'id'))->count()) {
+                continue;
+            }
 
             $countryRow = [
                 'country_id' => $country['code'],
@@ -433,24 +347,27 @@ final class OpenController extends Controller
             ];
 
             foreach ($countryCities as $city) {
+                if (!(new FreeNumberFilter)->getNumbers()->setCity($city['id'])->count()) {
+                    continue;
+                }
+
                 $cityRow = [
                     'city_id' => $city['id'],
                     'city' => $city['name'],
                     'numbers' => [],
                 ];
 
-                foreach ($beautyLvls as $beautyLvl => $beautyTitle) {
-                    $numbers = (new FreeNumberFilter)
-                        ->setCity($city['id'])
-                        ->setBeautyLvl([$beautyLvl])
-                        ->asArray()
-                        ->result(self::FREE_NUMBERS_PREVIEW_MODE);
+                foreach ($beautyLvls as $beautyLvl) {
+                    $numbersFilter = new FreeNumberFilter;
+                    $numbers =
+                        $numbersFilter
+                            ->setCity($city['id'])
+                            ->setBeautyLvl([$beautyLvl])
+                            ->result(self::FREE_NUMBERS_PREVIEW_MODE);
 
                     $cityRow['numbers'][] = [
                         'beauty_level' => $beautyLvl,
-                        'beauty_level_title' => $beautyTitle,
-                        'numbers' => $numbers,
-
+                        'numbers' => $numbersFilter->formattedNumbers($numbers, $currency),
                     ];
                 }
 
