@@ -37,7 +37,6 @@ use app\queries\BillQuery;
  * @property ClientAccount $clientAccount   ??
  * @property BillLine[] $lines   ??
  * @property Transaction[] $transactions   ??
- * @property
  */
 class Bill extends ActiveRecord
 {

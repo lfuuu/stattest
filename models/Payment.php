@@ -4,6 +4,7 @@ namespace app\models;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use Yii;
 
@@ -26,6 +27,8 @@ use Yii;
  * @property string $add_date       дата и время внесения записи о платеже
  * @property float $add_user       пользователь, добавивший запись о платеже
  * @property float $bank           банк
+ *
+ * @property Bill $bill счёт
  */
 class Payment extends ActiveRecord
 {
@@ -75,6 +78,14 @@ class Payment extends ActiveRecord
         return [
             'default' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBill()
+    {
+        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
     }
 
     public function afterSave($insert, $changedAttributes)

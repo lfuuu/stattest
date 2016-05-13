@@ -17,6 +17,7 @@
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\model\AccountEntry;
+use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Payment;
 use yii\data\ArrayDataProvider;
@@ -28,6 +29,7 @@ class AccountEntryPaymentCo
 {
     public static $accountEntryPriceByMonth = [];
     public static $paymentSumByMonth = [];
+    public static $billSumByMonth = [];
 
     public $month = '';
 
@@ -39,6 +41,9 @@ class AccountEntryPaymentCo
     public $paymentBillNo = '';
     public $paymentSum = '';
 
+    public $billItem = '';
+    public $billSum = '';
+
     /**
      * Конвертировать из AccountEntry
      * @param AccountEntry $accountEntry
@@ -48,7 +53,7 @@ class AccountEntryPaymentCo
     {
         $accountEntryPaymentCo = new self;
         $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($accountEntry->date, 'php:M Y');
-        $accountEntryPaymentCo->accountEntryUpdateTime = Yii::$app->formatter->asDatetime($accountEntry->update_time, 'medium');
+        $accountEntryPaymentCo->accountEntryUpdateTime = Yii::$app->formatter->asDate($accountEntry->update_time, 'php: d M');
         $accountEntryPaymentCo->accountEntryPrice = (($accountEntry->date == date('Y-m-01')) ? '0 / ' : '') .
             Html::a(
                 sprintf('%+.2f', $accountEntry->price),
@@ -56,7 +61,7 @@ class AccountEntryPaymentCo
             );
         $accountEntryPaymentCo->accountEntryType = $accountEntry->getTypeName();
 
-        $accountEntryPaymentCo->initialByMonth($accountEntry->price, 0);
+        $accountEntryPaymentCo->initialByMonth($accountEntry->price, 0, 0);
 
         return $accountEntryPaymentCo;
     }
@@ -69,15 +74,40 @@ class AccountEntryPaymentCo
     public static function convertFromPayment(Payment $payment)
     {
         $accountEntryPaymentCo = new self;
-        $accountEntryPaymentCo->month = $month = Yii::$app->formatter->asDate($payment->payment_date, 'php:M Y');
-        $accountEntryPaymentCo->paymentDate = Yii::$app->formatter->asDate($payment->payment_date, 'medium');
+        $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($payment->payment_date, 'php:M Y');
+        $accountEntryPaymentCo->paymentDate = Yii::$app->formatter->asDate($payment->payment_date, 'php: d M');
         $accountEntryPaymentCo->paymentBillNo = Html::a(
             $payment->bill_no,
             sprintf('/?module=newaccounts&action=bill_view&bill=%s', $payment->bill_no)
         );
         $accountEntryPaymentCo->paymentSum = sprintf('%+.2f', -$payment->sum);
 
-        $accountEntryPaymentCo->initialByMonth(0, -$payment->sum);
+        $accountEntryPaymentCo->initialByMonth(0, -$payment->sum, 0);
+
+        return $accountEntryPaymentCo;
+    }
+
+    /**
+     * Конвертировать из BillLine
+     * @param BillLine $billLine
+     * @return AccountEntryPaymentCo
+     */
+    public static function convertFromBillLine(BillLine $billLine)
+    {
+        $accountEntryPaymentCo = new self;
+        $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($billLine->date_from, 'php:M Y');
+
+        $accountEntryPaymentCo->paymentDate =
+            Yii::$app->formatter->asDate($billLine->date_from, 'php:d') . '-' .
+            Yii::$app->formatter->asDate($billLine->date_to, 'php:d M');
+        $accountEntryPaymentCo->paymentBillNo = Html::a(
+            $billLine->bill_no,
+            sprintf('/?module=newaccounts&action=bill_view&bill=%s', $billLine->bill_no)
+        );
+        $accountEntryPaymentCo->billItem = $billLine->item;
+        $accountEntryPaymentCo->billSum = sprintf('%+.2f', -$billLine->sum);
+
+        $accountEntryPaymentCo->initialByMonth(0, 0, -$billLine->sum);
 
         return $accountEntryPaymentCo;
     }
@@ -86,8 +116,9 @@ class AccountEntryPaymentCo
      * помесячные суммы
      * @param float $accountEntryPrice
      * @param float $paymentSum
+     * @param float $billSum
      */
-    public function initialByMonth($accountEntryPrice, $paymentSum)
+    public function initialByMonth($accountEntryPrice, $paymentSum, $billSum)
     {
 
         if (!isset(self::$accountEntryPriceByMonth[$this->month])) {
@@ -95,19 +126,35 @@ class AccountEntryPaymentCo
         }
         self::$accountEntryPriceByMonth[$this->month] += $accountEntryPrice;
 
+
         if (!isset(self::$paymentSumByMonth[$this->month])) {
             self::$paymentSumByMonth[$this->month] = 0;
         }
         self::$paymentSumByMonth[$this->month] += $paymentSum;
+
+
+        if (!isset(self::$billSumByMonth[$this->month])) {
+            self::$billSumByMonth[$this->month] = 0;
+        }
+        self::$billSumByMonth[$this->month] += $billSum;
     }
 }
 
 $accountEntryPaymentCos = [];
 foreach ($accountEntries as $accountEntry) {
+    // проводки
     $accountEntryPaymentCos[$accountEntry->date . ' accountEntry ' . $accountEntry->id] = AccountEntryPaymentCo::convertFromAccountEntry($accountEntry);
 }
 foreach ($payments as $payment) {
+    // платежи
     $accountEntryPaymentCos[$payment->payment_date . ' payment ' . $payment->id] = AccountEntryPaymentCo::convertFromPayment($payment);
+
+    if (($bill = $payment->bill) && ($bilLines = $bill->lines)) {
+        foreach ($bilLines as $bilLine) {
+            // строчки старого счёта
+            $accountEntryPaymentCos[$bilLine->date_from . ' bill ' . $bilLine->pk] = AccountEntryPaymentCo::convertFromBillLine($bilLine);
+        }
+    }
 }
 krsort($accountEntryPaymentCos);
 
@@ -136,7 +183,8 @@ $dataProvider = new ArrayDataProvider([
                     'content' => [
                         1 => Html::tag('h2', $model->month), // месяц
                         2 => Html::tag('h2', sprintf('%+.2f', AccountEntryPaymentCo::$accountEntryPriceByMonth[$model->month])), // сумма проводок
-                        6 => Html::tag('h2', sprintf('%+.2f', AccountEntryPaymentCo::$paymentSumByMonth[$model->month])), // сумма платежей
+                        7 => Html::tag('h2', sprintf('%+.2f', AccountEntryPaymentCo::$billSumByMonth[$model->month])), // сумма счетов
+                        8 => Html::tag('h2', sprintf('%+.2f', AccountEntryPaymentCo::$paymentSumByMonth[$model->month])), // сумма платежей
                     ],
                     'options' => [
                         'class' => 'info',
@@ -155,7 +203,7 @@ $dataProvider = new ArrayDataProvider([
         ],
         [
             'attribute' => 'accountEntryPrice',
-            'label' => 'Сумма, ' . $currency->symbol,
+            'label' => 'Сумма проводки, ' . $currency->symbol,
             'format' => 'html',
             'contentOptions' => [
                 'class' => 'warning  bold',
@@ -186,8 +234,23 @@ $dataProvider = new ArrayDataProvider([
             ],
         ],
         [
+            'attribute' => 'billItem',
+            'label' => 'Позиция счёта',
+            'format' => 'html',
+            'contentOptions' => [
+                'class' => 'success',
+            ],
+        ],
+        [
+            'attribute' => 'billSum',
+            'label' => 'Сумма счёта, ' . $currency->symbol,
+            'contentOptions' => [
+                'class' => 'success bold',
+            ],
+        ],
+        [
             'attribute' => 'paymentSum',
-            'label' => 'Сумма, ' . $currency->symbol,
+            'label' => 'Сумма платежа, ' . $currency->symbol,
             'contentOptions' => [
                 'class' => 'success bold',
             ],

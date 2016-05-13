@@ -23,14 +23,13 @@ use yii\db\ActiveRecord;
  * @property float $discount_auto  автоматическая скидка. актуально для 1с. рассчитывается в 1с, синхронизируется в стат
  * @property string $service        индентификатор типа услуги. Актуально для автогенерируемых счетов за периодические услуги.
  * @property float $id_service     идентификатор услуги. Актуально для автогенерируемых счетов за периодические услуги.
- * @property string $date_from      период за который взымается плата. Актуально для абонентки
- * @property string $date_to        период за который взымается плата. Актуально для абонентки
+ * @property string $date_from      начало периода, за который взимается плата. Актуально для абонентки
+ * @property string $date_to        конец периода, за который взимается плата. Актуально для абонентки
  * @property int $type           тип строки. значения: service, zalog, zadatok, good, all4net
  * @property string $gtd            ??  значения: beznal,nal,prov
  * @property string $contry_maker   Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
  * @property int $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
  * @property int $tax_rate       Значение ставки налога
- * @property
  */
 class BillLine extends ActiveRecord
 {

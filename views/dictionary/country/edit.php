@@ -7,7 +7,6 @@
  */
 
 use app\classes\dictionary\forms\CountryForm;
-use app\classes\Html;
 use app\classes\traits\YesNoTraits;
 use app\models\Currency;
 use kartik\select2\Select2;
@@ -110,37 +109,11 @@ if (!$country->isNewRecord) {
 
     <?php // кнопки ?>
     <div class="form-group">
-
-        <?= Html::submitButton(
-            Html::tag('i', '', ['class' => 'glyphicon glyphicon-save']) . ' ' . Yii::t('common', $country->isNewRecord ? 'Create' : 'Save'),
-            [
-                'class' => 'btn btn-primary',
-                'aria-hidden' => 'true',
-            ]
-        ) ?>
-
-        <?= Html::a(
-            Html::tag('i', '', ['class' => 'glyphicon glyphicon-level-up']) . ' ' . Yii::t('common', 'Cancel'),
-            $cancelUrl,
-            [
-                'class' => 'btn btn-link btn-cancel',
-                'aria-hidden' => 'true',
-            ]
-        ) ?>
-
+        <?= $this->render('//layouts/_submitButton' . ($country->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?php if (!$country->isNewRecord) : ?>
-            <?= Html::submitButton(
-                Html::tag('i', '', ['class' => 'glyphicon glyphicon-trash']) . ' ' . Yii::t('common', 'Drop'),
-                [
-                    'name' => 'dropButton',
-                    'value' => 1,
-                    'class' => 'btn btn-danger pull-right',
-                    'aria-hidden' => 'true',
-                    'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
-                ]
-            ) ?>
+            <?= $this->render('//layouts/_submitButtonDrop') ?>
         <?php endif ?>
-
     </div>
 
     <?php ActiveForm::end(); ?>
