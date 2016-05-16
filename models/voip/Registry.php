@@ -1,0 +1,63 @@
+<?php
+namespace app\models\voip;
+
+use app\classes\behaviors\CreatedAt;
+use app\dao\VoipRegistryDao;
+use yii\db\ActiveRecord;
+
+/**
+ * Class Registry
+ *
+ * @property integer id
+ * @property integer country_id
+ * @property integer city_id
+ * @property string source
+ * @property integer number_type_id
+ * @property string number_from
+ * @property string number_to
+ * @property integer account_id
+ * @property string created_at
+ * @package app\models\voip
+ */
+class Registry extends ActiveRecord
+{
+    public function behaviors()
+    {
+        return [
+            'CreatedAt' => CreatedAt::className()
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => '#',
+            'country_id' => 'Страна',
+            'city_id' => 'Город',
+            'source' => 'Источник',
+            'number_type_id' => 'Тип номера',
+            'number_from' => 'Номер "с"',
+            'number_to' => 'Номер "по"',
+            'account_id' => 'ЛС',
+            'created_at' => 'Создано',
+        ];
+    }
+
+    public static function tableName()
+    {
+        return 'voip_registry';
+    }
+
+    public static function dao()
+    {
+        return VoipRegistryDao::me();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPassMap()
+    {
+        return self::dao()->getPassMap($this);
+    }
+}

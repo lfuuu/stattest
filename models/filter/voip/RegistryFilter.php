@@ -1,0 +1,75 @@
+<?php
+
+namespace app\models\filter\voip;
+
+use app\models\Country;
+use app\models\Number;
+use app\models\voip\Registry;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
+use yii\db\Exception;
+use yii\db\Expression;
+use yii\db\Query;
+
+/**
+ * Фильтрация для Country
+ */
+class RegistryFilter extends Country
+{
+    public $country_id = '';
+    public $city_id = '';
+    public $source = '';
+    public $number_type_id = '';
+    public $number_from = '';
+    public $number_to = '';
+    public $account_id = '';
+
+    public function rules()
+    {
+        return [
+            [['country_id'], 'integer'],
+            [['city_id'], 'integer'],
+            [['source'], 'string'],
+            [['number_type_id'], 'integer'],
+            [['number_from'], 'integer'],
+            [['number_to'], 'integer'],
+            [['account_id'], 'integer'],
+        ];
+    }
+
+    /**
+     * Фильтровать
+     *
+     * @return ActiveDataProvider
+     */
+    public function search()
+    {
+        $countQuery = (new Query())
+            ->select(['count' => 'count(*)'])
+            ->from(Number::tableName())
+            ->where([Number::tableName().'.city_id' => new Expression(Registry::tableName() . '.city_id')])
+        ->andWhere(['between', 'number', new Expression('number_from'), new Expression('number_to')]);
+
+        $query = (new Query())
+            ->select('*')
+            ->from(Registry::tableName())
+            ->addSelect(['count' => $countQuery]);
+
+        //equal filter
+        foreach (['country_id', 'city_id', 'source', 'number_type_id', 'account_id'] as $field) {
+            if ($this->{$field} !== '') {
+                $query->andWhere([$field => $this->{$field}]);
+            }
+        }
+
+        $this->number_from !== '' && $query->andWhere(['LIKE', 'number_from' => $this->number_from]);
+        $this->number_to !== '' && $query->andWhere(['LIKE', 'number_to' => $this->number_to]);
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $query->all(),
+        ]);
+
+
+        return $dataProvider;
+    }
+}
