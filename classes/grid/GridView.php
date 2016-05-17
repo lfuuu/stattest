@@ -42,6 +42,7 @@ class GridView extends \kartik\grid\GridView
     public $panelHeadingTemplate = <<< HTML
     <div class="pull-right">
         {extraButtons}
+        {filterButton}
         {floatThead}
         {export}
     </div>
@@ -59,6 +60,12 @@ HTML;
      * @var string
      */
     public $extraButtons = '';
+
+    /**
+     * Показывать ли кнопки фильтрации
+     * @var bool
+     */
+    public $isFilterButton = true;
 
     /**
      * @var array|string the toolbar content configuration. Can be setup as a string or an array.
@@ -101,6 +108,7 @@ HTML;
                     'model' => $this->filterModel,
                     'attribute' => $filterColumn['attribute'],
                     'data' => $column->filter,
+                    'options' => $column->filterInputOptions
                 ]);
             }
 
@@ -131,7 +139,7 @@ HTML;
             ['class' => 'beforeHeaderFilters']
         );
 
-        // чтобы был валидный html, надо раскомемнтировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
+        // чтобы был валидный html, надо раскомментировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
         /*
         $rows = Html::tag(
             'tr',
@@ -155,7 +163,32 @@ HTML;
         $this->layout = strtr($this->layout, [
             '{floatThead}' => $this->renderFloatTheadButton(),
             '{extraButtons}' => $this->extraButtons,
+            '{filterButton}' => $this->isFilterButton ? $this->render('//layouts/_buttonFilter') : '',
         ]);
+    }
+
+    /**
+     * Returns the options for the grid view JS widget.
+     * @return array the options
+     */
+    protected function getClientOptions()
+    {
+        $clientOptions = parent::getClientOptions();
+
+        if ($this->isFilterButton) {
+            $view = $this->getView();
+            $view->registerJs('setTimeout(function () {
+                // отменить onchange на фильтре
+                $(document).off("change.yiiGridView", "' . $clientOptions['filterSelector'] . '");
+                // эмулировать submit по кнопке фильтрации
+                $("#submitButtonFilter").on("click", function() {
+                    var e = $.Event("keydown");
+                    e.keyCode = 13; // enter
+                    $("' . $clientOptions['filterSelector'] . '").first().trigger(e);
+                });
+        }, 300);');
+        }
+        return $clientOptions;
     }
 
     /**

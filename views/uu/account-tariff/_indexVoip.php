@@ -26,7 +26,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
 <p>
-    <?= $this->render('//layouts/_buttonCancel', ['url' => AccountTariff::getUrlNew($serviceType->id)]) ?>
+    <?= $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) ?>
 </p>
 
 <?php foreach ($rows as $row) : ?>

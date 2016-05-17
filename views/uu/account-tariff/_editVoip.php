@@ -194,7 +194,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
     <div class="form-group">
         <?= $this->render('//layouts/_submitButtonCreate') ?>
-        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])]) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $formModel->serviceTypeId])]) ?>
     </div>
 
 </div>

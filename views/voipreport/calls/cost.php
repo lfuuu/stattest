@@ -121,13 +121,13 @@ $summaryColumns = [
         'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
     ],
     [
-        'content' => $summary->calls_count,
+        'content' => $summary ? $summary->calls_count : '',
     ],
     [
-        'content' => sprintf('%.2f', $summary->billed_time_sum),
+        'content' => $summary ? sprintf('%.2f', $summary->billed_time_sum) : '',
     ],
     [
-        'content' => sprintf('%.2f', $summary->acd),
+        'content' => $summary ? sprintf('%.2f', $summary->acd) : '',
     ],
     [
         'content' => '',
@@ -139,16 +139,16 @@ $summaryColumns = [
         'content' => '',
     ],
     [
-        'content' => sprintf('%.2f', $summary->cost_sum),
+        'content' => $summary ? sprintf('%.2f', $summary->cost_sum) : '',
     ],
 //    [
 //        'content' => sprintf('%.2f', $summary->interconnect_cost_sum),
 //    ],
     [
-        'content' => sprintf('%.2f', $summary->cost_with_interconnect_sum),
+        'content' => $summary ? sprintf('%.2f', $summary->cost_with_interconnect_sum) : '',
     ],
     [
-        'content' => sprintf('%.2f', $summary->asr),
+        'content' => $summary ? sprintf('%.2f', $summary->asr) : '',
     ],
 ];
 ?>
@@ -159,6 +159,9 @@ $filterColumns = [
     [
         'attribute' => 'server_id',
         'class' => ServerColumn::className(),
+//        'filterInputOptions' => [
+//            'onChange' => 'var e = $.Event("keydown"); e.keyCode = 13; $(this).trigger(e);' // чтобы обновить фильтр по транкам и направлениям
+//        ],
     ],
     [
         'attribute' => 'trunk_ids', // псевдо-поле
