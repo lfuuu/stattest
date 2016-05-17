@@ -54,16 +54,67 @@ class AccountTariff extends ActiveRecord
     const DELTA_VOIP = 10000;
     const DELTA_VOIP_PACKAGE = 50000;
 
+    const DELTA_INTERNET = 51000;
+    const DELTA_COLLOCATION = 51000;
+    const DELTA_VPN = 51000;
+
+    const DELTA_IT_PARK = 70000;
+    const DELTA_DOMAIN = 70000;
+    const DELTA_MAILSERVER = 70000;
+    const DELTA_ATS = 70000;
+    const DELTA_SITE = 70000;
+    const DELTA_USPD = 70000;
+    const DELTA_WELLSYSTEM = 70000;
+    const DELTA_WELLTIME = 70000;
+    const DELTA_EXTRA = 70000;
+    const DELTA_SMS_GATE = 70000;
+
+    const DELTA_SMS = 80000;
+
     public $serviceIdToDelta = [
         ServiceType::ID_VPBX => self::DELTA_VPBX,
         ServiceType::ID_VOIP => self::DELTA_VOIP,
         ServiceType::ID_VOIP_PACKAGE => self::DELTA_VOIP_PACKAGE,
+
+        ServiceType::ID_INTERNET => self::DELTA_INTERNET,
+        ServiceType::ID_COLLOCATION => self::DELTA_COLLOCATION,
+        ServiceType::ID_VPN => self::DELTA_VPN,
+
+        ServiceType::ID_IT_PARK => self::DELTA_IT_PARK,
+        ServiceType::ID_DOMAIN => self::DELTA_DOMAIN,
+        ServiceType::ID_MAILSERVER => self::DELTA_MAILSERVER,
+        ServiceType::ID_ATS => self::DELTA_ATS,
+        ServiceType::ID_SITE => self::DELTA_SITE,
+        ServiceType::ID_USPD => self::DELTA_USPD,
+        ServiceType::ID_WELLSYSTEM => self::DELTA_WELLSYSTEM,
+        ServiceType::ID_WELLTIME => self::DELTA_WELLTIME,
+        ServiceType::ID_EXTRA => self::DELTA_EXTRA,
+        ServiceType::ID_SMS_GATE => self::DELTA_SMS_GATE,
+
+        ServiceType::ID_SMS => self::DELTA_SMS,
     ];
 
     public $serviceIdToUrl = [
         ServiceType::ID_VPBX => '/pop_services.php?table=usage_virtpbx&id=%d',
         ServiceType::ID_VOIP => '/usage/voip/edit?id=%d',
         ServiceType::ID_VOIP_PACKAGE => '',
+
+        ServiceType::ID_INTERNET => '',
+        ServiceType::ID_COLLOCATION => '',
+        ServiceType::ID_VPN => '',
+
+        ServiceType::ID_IT_PARK => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_DOMAIN => '/pop_services.php?table=usage_extra&id=%d', // /pop_services.php?id=%d&table=domains
+        ServiceType::ID_MAILSERVER => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_ATS => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_SITE => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_USPD => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_WELLSYSTEM => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_WELLTIME => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_EXTRA => '/pop_services.php?table=usage_extra&id=%d',
+        ServiceType::ID_SMS_GATE => '/pop_services.php?table=usage_extra&id=%d',
+
+        ServiceType::ID_SMS => '/pop_services.php?table=usage_sms&id=%d',
     ];
 
     public static function tableName()

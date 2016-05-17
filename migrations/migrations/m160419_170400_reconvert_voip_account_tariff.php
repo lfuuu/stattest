@@ -25,7 +25,7 @@ class m160419_170400_reconvert_voip_account_tariff extends m160204_180300_conver
     }
 
     /**
-     * Обоновить номере телефонов
+     * Обоновить номера телефонов
      */
     public function updateAccountTariffVoipNumber()
     {

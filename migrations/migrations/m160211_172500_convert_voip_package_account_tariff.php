@@ -55,7 +55,7 @@ class m160211_172500_convert_voip_package_account_tariff extends \app\classes\Mi
     {
         $deltaVoipTariffPackage = Tariff::DELTA_VOIP_PACKAGE;
         $deltaVoipAccountTariffPackage = AccountTariff::DELTA_VOIP_PACKAGE;
-        $serviceTypeIdVoipPackage = ServiceType::ID_VPBX;
+        $serviceTypeIdVoipPackage = ServiceType::ID_VOIP_PACKAGE;
 
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
