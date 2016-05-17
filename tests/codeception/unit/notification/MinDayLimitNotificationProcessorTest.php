@@ -14,7 +14,7 @@ use Yii;
 use yii\db\Expression;
 
 
-class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
+class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
 {
     /** @var \yii\db\Transaction */
     private $transaction = null;
@@ -26,7 +26,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
     private function init($isSet = false)
     {
-        $this->event = ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE;
+        $this->event = ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT;
 
         $this->transaction = Yii::$app->getDb()->beginTransaction();
 
@@ -48,7 +48,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $row = new LkNoticeSetting();
         $row->client_id = $account->id;
         $row->client_contact_id = $c->id;
-        $row->min_balance = 1;
+        $row->min_day_limit = 1;
         $row->status = LkNoticeSetting::STATUS_WORK;
         $row->save();
 
@@ -70,11 +70,11 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->transaction->commit();
     }
 
-    public function testNotSetBalanceGreatLimit()
+    public function testNotSetDaySumLessLimit()
     {
         $this->init(false);
 
-        $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
+        $mockObj = $this->getMock('\app\classes\notification\processors\MinDayLimitNotificationProcessor', [
             'getValue',
             'getLimit',
             'createImportantEventSet',
@@ -83,46 +83,46 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
             'oldAddLogRaw'
         ]);
 
-        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1000));
-        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
+        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(100));
+        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(1000));
         $mockObj->expects($this->never())->method('oldSetupSendAndSaveLog')->willReturn(null);
         $mockObj->expects($this->never())->method('oldUnsetSaveLog')->willReturn(null);
         $mockObj->expects($this->never())->method('oldAddLogRaw')->will($this->returnValue(null));
 
-        /** @var \app\classes\notification\processors\MinBalanceNotificationProcessor $mockObj */
-        //$mockObj = new MinBalanceNotificationProcessor;
+        /** @var \app\classes\notification\processors\MinDayLimitNotificationProcessor $mockObj */
+        //$mockObj = new DayLimitNotificationProcessor;
         $mockObj->compareAndNotificationClient($this->account);
 
         $this->end();
     }
 
 
-    public function testNotSetBalanceLessLimit()
+    public function testNotSetDaySumGreatLimit()
     {
         $this->init(false);
 
         $this->assertNotNull($this->account->lkClientSettings);
-        $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 0);
+        $this->assertEquals($this->account->lkClientSettings->is_day_limit_sent, 0); //not set
 
-        $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
+        $mockObj = $this->getMock('\app\classes\notification\processors\MinDayLimitNotificationProcessor', [
             'getValue',
             'getLimit'
         ]);
-        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(100));
-        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
+        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1200));
+        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(1000));
 
 
-        /** @var \app\classes\notification\processors\MinBalanceNotificationProcessor $mockObj */
-        //$mockObj = new MinBalanceNotificationProcessor;
+        /** @var \app\classes\notification\processors\MinDayLimitNotificationProcessor $mockObj */
+        //$mockObj = new DayLimitNotificationProcessor;
         $mockObj->compareAndNotificationClient($this->account);
 
-        $this->assertEquals($mockObj->getValue(), 100);
-        $this->assertEquals($mockObj->getLimit(), 300);
+        $this->assertEquals($mockObj->getValue(), 1200);
+        $this->assertEquals($mockObj->getLimit(), 1000);
 
         $this->account->refresh();
 
         $this->assertNotNull($this->account->lkClientSettings);
-        $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
+        $this->assertEquals($this->account->lkClientSettings->is_min_day_limit_sent, 1);
 
         $this->assertEquals($mockObj->getEvent(), $this->event);
 
@@ -148,30 +148,33 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->end();
     }
 
-    public function testSetBalanceLessLimit()
+    public function testSetDaySumGreatLimit()
     {
         $this->init(true);
 
-        $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
+        $this->assertNotNull($this->account->lkClientSettings);
+        $this->assertEquals($this->account->lkClientSettings->is_min_day_limit_sent, 1); //set
+
+        $mockObj = $this->getMock('\app\classes\notification\processors\MinDayLimitNotificationProcessor', [
             'getValue',
             'getLimit'
         ]);
-        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(100));
-        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
+        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1300));
+        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(1000));
 
 
-        /** @var \app\classes\notification\processors\MinBalanceNotificationProcessor $mockObj */
-        //$mockObj = new MinBalanceNotificationProcessor;
+        /** @var \app\classes\notification\processors\MinDayLimitNotificationProcessor $mockObj */
+        //$mockObj = new DayLimitNotificationProcessor;
         $mockObj->compareAndNotificationClient($this->account);
 
 
-        $this->assertEquals($mockObj->getValue(), 100);
-        $this->assertEquals($mockObj->getLimit(), 300);
+        $this->assertEquals($mockObj->getValue(), 1300);
+        $this->assertEquals($mockObj->getLimit(), 1000);
 
         $this->account->refresh();
 
         $this->assertNotNull($this->account->lkClientSettings);
-        $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
+        $this->assertEquals($this->account->lkClientSettings->is_min_day_limit_sent, 1);
 
         $this->assertEquals($mockObj->getEvent(), $this->event);
 
@@ -189,32 +192,34 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->end();
     }
 
-    public function testSetBalanceGreatLimit()
+    public function testSetDaySumLessLimit()
     {
         $this->init(true);
 
-        $this->assertNotNull($this->account->lkClientSettings);
-        $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
 
-        $mockObj = $this->getMock('\app\classes\notification\processors\MinBalanceNotificationProcessor', [
+        $this->assertNotNull($this->account->lkClientSettings);
+        $this->assertEquals($this->account->lkClientSettings->is_min_day_limit_sent, 1);
+
+
+        $mockObj = $this->getMock('\app\classes\notification\processors\MinDayLimitNotificationProcessor', [
             'getValue',
             'getLimit'
         ]);
-        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1000));
-        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(300));
+        $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(300));
+        $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(1000));
 
 
-        /** @var \app\classes\notification\processors\MinBalanceNotificationProcessor $mockObj */
-        //$mockObj = new MinBalanceNotificationProcessor;
+        /** @var \app\classes\notification\processors\MinDayLimitNotificationProcessor $mockObj */
+        //$mockObj = new DayLimitNotificationProcessor;
         $mockObj->compareAndNotificationClient($this->account);
 
-        $this->assertEquals($mockObj->getValue(), 1000);
-        $this->assertEquals($mockObj->getLimit(), 300);
+        $this->assertEquals($mockObj->getValue(), 300);
+        $this->assertEquals($mockObj->getLimit(), 1000);
 
         $this->account->refresh();
 
         $this->assertNotNull($this->account->lkClientSettings);
-        $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 0);
+        $this->assertEquals($this->account->lkClientSettings->is_min_day_limit_sent, 0);
 
         $this->assertEquals($mockObj->getEvent(), $this->event);
 
@@ -250,4 +255,5 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
         $this->end();
     }
+
 }

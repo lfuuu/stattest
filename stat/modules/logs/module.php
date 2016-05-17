@@ -82,7 +82,8 @@ class m_logs extends IModule{
 		$events_description = array(
 				ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 'Критический остаток',
 				ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE => 'Финансовая блокировка',
-				ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 'Суточный лимит',
+				ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 'Блокировка по суточному лимиту',
+				ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => 'Минимальный суточный лимит',
 				ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 'Зачисление средств',
 				'prebil_prepayers_notif' => 'Списание абонентской платы авансовым клиентам'
 				

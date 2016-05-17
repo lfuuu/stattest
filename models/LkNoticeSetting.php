@@ -12,7 +12,7 @@ use app\queries\LkNoticeSettingQuery;
  * @property int client_contact_id
  * @property int client_id
  * @property int min_balance
- * @property int day_limit
+ * @property int min_day_limit
  * @property int add_pay_notif
  * @property string status
  * @property string activate_code

@@ -100,7 +100,9 @@ abstract class NotificationProcessor
 
     private function createImportantEventSet(ClientAccount $client, $isSet = true)
     {
-        ImportantEvents::create($this->getEvent(), ImportantEventsSources::SOURCE_STAT, [
+        ImportantEvents::create(
+            ($isSet ? "" : "unset_").$this->getEvent(),
+            ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $client->id,
                 'value' => $this->getValue(),
                 'limit' => $this->getLimit(),
@@ -108,7 +110,6 @@ abstract class NotificationProcessor
                 'is_set' => $isSet ? 1 : 0
             ] + $this->eventFields);
     }
-
 
     public function makeSingleClientNotification()
     {

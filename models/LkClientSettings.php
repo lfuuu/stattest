@@ -15,16 +15,19 @@ use yii\db\Expression;
  * @property float min_balance
  * @property string min_balance_sent
  * @property int is_min_balance_sent
- * @property float day_limit
- * @property string day_limit_sent
- * @property int is_day_limit_sent
+ * @property float min_day_limit
+ * @property string min_day_limit_sent
+ * @property int is_min_day_limit_sent
  * @property string zero_balance_sent
  * @property int is_zero_balance_sent
+ * @property string day_limit_sent
+ * @property int is_day_limit_sent
+
  */
 class LkClientSettings extends ActiveRecord
 {
     const DEFAULT_MIN_BALANCE = 1000;
-    const DEFAULT_DAY_LIMIT = 200;
+    const DEFAULT_MIN_DAY_LIMIT = 200;
 
     public static function tableName()
     {
@@ -39,7 +42,7 @@ class LkClientSettings extends ActiveRecord
                 $row = new LkClientSettings;
                 $row->client_id = $client->id;
                 $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = self::DEFAULT_MIN_BALANCE;
-                $row->{ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT} = self::DEFAULT_DAY_LIMIT;
+                $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = self::DEFAULT_MIN_DAY_LIMIT;
             }
             $row->{$event . '_sent'} = new Expression('NOW()');
             $row->{'is_' . $event . '_sent'} = 1;

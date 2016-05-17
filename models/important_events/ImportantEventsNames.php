@@ -15,10 +15,13 @@ class ImportantEventsNames extends ActiveRecord
     // Custom
     const IMPORTANT_EVENT_ADD_PAY_NOTIF = 'add_pay_notif';
     const IMPORTANT_EVENT_DAY_LIMIT = 'day_limit';
+    const IMPORTANT_EVENT_UNSET_DAY_LIMIT = 'unset_day_limit';
+    const IMPORTANT_EVENT_MIN_DAY_LIMIT = 'min_day_limit';
+    const IMPORTANT_EVENT_UNSET_MIN_DAY_LIMIT = 'unset_min_day_limit';
     const IMPORTANT_EVENT_MIN_BALANCE = 'min_balance';
     const IMPORTANT_EVENT_UNSET_MIN_BALANCE = 'unset_min_balance';
-    const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
     const IMPORTANT_EVENT_ZERO_BALANCE = 'zero_balance';
+    const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
     const IMPORTANT_EVENT_CR_TOKEN = 'cr_token';
 
     //Payment

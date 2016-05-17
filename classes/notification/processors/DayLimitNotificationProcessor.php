@@ -18,17 +18,22 @@ class DayLimitNotificationProcessor extends NotificationProcessor
 
     public function getValue()
     {
-        return -$this->client->billingCounters->daySummary;
+        return $this->client->billingCounters->daySummary;
     }
 
     public function getLimit()
     {
-        return $this->client->lkClientSettings->day_limit;
+
+        return -$this->client->voip_credit_limit_day;
     }
 
-    protected function isPositiveComparison()
+    public function getContactsForSend()
     {
-        return false;
+        return $this->client->getAllContacts()->andWhere([
+            'is_official' => 1,
+            'is_active' => 1,
+            'type' => 'email'
+        ])->all();
     }
 
 }
