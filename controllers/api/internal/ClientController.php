@@ -279,69 +279,84 @@ class ClientController extends ApiInternalController
      * )
      */
 
-    public function actionGetClientStruct($id=null, $name=null, $contragent_id=null, $contragent_name=null, $account_id=null)
-    {
-	$ids = [];
-	if (empty($id)) {
+    public function actionGetClientStruct(
+        $id = null,
+        $name = null,
+        $contragent_id = null,
+        $contragent_name = null,
+        $account_id = null
+    ) {
+        $ids = [];
+        if (empty($id)) {
             if (empty($name)) {
-		if (empty($contragent_id)) {
-		    if (empty($contragent_name)) {
-			if (empty($account_id)) {
-			    return false;
-			} else {
-			    $account = ClientAccount::findOne($account_id);
-			    $ids []= $account->super_id;
-			}
-		    } else {
-		        $ids = array_keys(ClientContragent::find()->andWhere([ 'name' => $contragent_name])->indexBy('super_id')->all());
-		    }
-		} else {
-		    $contragent = ClientContragent::findOne($contragent_id);
-		    $ids []= $contragent->super_id;
-		}
-	    } else {
-		$ids = array_keys(ClientSuper::find()->andWhere([ 'name' => $name])->indexBy('id')->all());
-	    }
-	} else {
-	    $ids []= $id;
-	}
-	
-	$fullResult = [];
-	foreach ($ids as $id) {
-	    $response = Yii::$app->db->createCommand("select * from view_client_struct_ro WHERE id=".$id.";")->queryAll();
-	    $flip_by = [ 'id' => [ 'name', 'timezone', 'contragents_id' => [ 'contragents_name', 'contragents_country_id', 'contragents_accounts_id' => [ 'contragents_accounts_is_partner' ] ] ] ];
-	    $preresult = [];
-	    $result = [];
-	    //map
-	    foreach ($response as $minimal_row) {
-	        $result['id'] = (int)$minimal_row['id'];
-	        $result['timezone'] = $minimal_row['timezone'];
-	        $result['name'] = $minimal_row['name'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['id'] = (int)$minimal_row['contragents_id'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['name'] = $minimal_row['contragents_name'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['country'] = $minimal_row['contragents_country'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_disabled'] = (bool)$minimal_row['is_disabled'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_partner'] = (bool)$minimal_row['contragents_accounts_is_partner'];
-	        $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['id'] = (int)$minimal_row['contragents_accounts_id'];
-		if (empty($result['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'])) {
-		    $clientIdent = $minimal_row['clientIdent'];
-		    $applications = Yii::$app->db->createCommand("select id,name, enabled from view_platforma_services_ro WHERE client='".$clientIdent."';")->queryAll();
-		    $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'] = $applications;
-		}
-	    }
-	    //clean
-	    $result['contragents'] = [];
-	    foreach ($preresult['contragents'] as $precontragent) {
-	        $contragent = $precontragent;
-	        $contragent['accounts'] = [];
-	        foreach ($precontragent['accounts'] as $account) {
-		    $contragent['accounts'] []= $account;
-		}
-		$result['contragents'] []= $contragent;
-	    }
-	    $fullResult []= $result;
-	}
-	return $result;
+                if (empty($contragent_id)) {
+                    if (empty($contragent_name)) {
+                        if (empty($account_id)) {
+                            return false;
+                        } else {
+                            $account = ClientAccount::findOne($account_id);
+                            $ids [] = $account->super_id;
+                        }
+                    } else {
+                        $ids = array_keys(ClientContragent::find()->andWhere(['name' => $contragent_name])->indexBy('super_id')->all());
+                    }
+                } else {
+                    $contragent = ClientContragent::findOne($contragent_id);
+                    $ids [] = $contragent->super_id;
+                }
+            } else {
+                $ids = array_keys(ClientSuper::find()->andWhere(['name' => $name])->indexBy('id')->all());
+            }
+        } else {
+            $ids [] = $id;
+        }
+
+        $fullResult = [];
+        foreach ($ids as $id) {
+            $response = Yii::$app->db->createCommand("select * from view_client_struct_ro WHERE id=" . $id . ";")->queryAll();
+            $flip_by = [
+                'id' => [
+                    'name',
+                    'timezone',
+                    'contragents_id' => [
+                        'contragents_name',
+                        'contragents_country_id',
+                        'contragents_accounts_id' => ['contragents_accounts_is_partner']
+                    ]
+                ]
+            ];
+            $preresult = [];
+            $result = [];
+            //map
+            foreach ($response as $minimal_row) {
+                $result['id'] = (int)$minimal_row['id'];
+                $result['timezone'] = $minimal_row['timezone'];
+                $result['name'] = $minimal_row['name'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['id'] = (int)$minimal_row['contragents_id'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['name'] = $minimal_row['contragents_name'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['country'] = $minimal_row['contragents_country'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_disabled'] = (bool)$minimal_row['is_disabled'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_partner'] = (bool)$minimal_row['contragents_accounts_is_partner'];
+                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['id'] = (int)$minimal_row['contragents_accounts_id'];
+                if (empty($result['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'])) {
+                    $clientIdent = $minimal_row['clientIdent'];
+                    $applications = Yii::$app->db->createCommand("select id,name, enabled from view_platforma_services_ro WHERE client='" . $clientIdent . "';")->queryAll();
+                    $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'] = $applications;
+                }
+            }
+            //clean
+            $result['contragents'] = [];
+            foreach ($preresult['contragents'] as $precontragent) {
+                $contragent = $precontragent;
+                $contragent['accounts'] = [];
+                foreach ($precontragent['accounts'] as $account) {
+                    $contragent['accounts'] [] = $account;
+                }
+                $result['contragents'] [] = $contragent;
+            }
+            $fullResult [] = $result;
+        }
+        return $result;
     }
 
     /**
