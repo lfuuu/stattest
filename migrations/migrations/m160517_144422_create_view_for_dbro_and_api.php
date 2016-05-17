@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m160517_144422_create_view_for_dbro_and_api extends Migration
+class m160517_144422_create_view_for_dbro_and_api extends app\classes\Migration
 {
     public function up()
     {
