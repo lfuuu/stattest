@@ -10,7 +10,11 @@ use kartik\builder\Form;
 
 
 $countryList = \app\models\Country::getList();
-$cityList = \app\models\City::dao()->getList(false, $model->country_id);
+$cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
+
+if ($model->country_id != $model->registry->country_id) {
+    $cityLabelList = \app\models\City::dao()->getList(false, $model->registry->country_id);
+}
 
 
 $title = $model->id ? 'Редактирование записи №' . $model->registry->id . ' ('  . $model->registry->number_from . ' - ' . $model->registry->number_to . ')': 'Новая запись';
@@ -25,7 +29,7 @@ if ($model->id) {
     ];
 
     $links[] = [
-        'label' => $cityList[$model->registry->city_id],
+        'label' => $cityLabelList[$model->registry->city_id],
         'url' => [
             'voip/registry',
             'RegistryFilter' => ['country_id' => $model->registry->country_id, 'city_id' => $model->registry->city_id]
@@ -107,6 +111,9 @@ echo Breadcrumbs::widget([
                     'type' => Form::INPUT_TEXT,
                 ],
                 'number_to' => [
+                    'type' => Form::INPUT_TEXT,
+                ],
+                'comment' => [
                     'type' => Form::INPUT_TEXT,
                 ]
             ],

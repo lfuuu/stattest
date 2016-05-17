@@ -23,7 +23,9 @@ class RegistryForm extends Form
         $number_type_id = NumberType::ID_INTERNAL,
         $number_from,
         $number_to,
-        $account_id;
+        $account_id,
+        $comment = ''
+    ;
 
     /** @var Registry  */
     public $registry = null;
@@ -32,12 +34,12 @@ class RegistryForm extends Form
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'],
+                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id','comment'],
                 'required',
                 'on' => 'save'
             ],
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'],
+                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
                 FormFieldValidator::className()
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
@@ -51,7 +53,7 @@ class RegistryForm extends Form
 
     public function attributeLabels()
     {
-        return Registry::attributeLabels();
+        return Registry::attributeLabels() + ['comment' => 'Комменатрий'];
     }
 
     /**
@@ -99,7 +101,7 @@ class RegistryForm extends Form
             $this->registry = new Registry();
         }
 
-        foreach(['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'] as $field) {
+        foreach(['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id', 'comment'] as $field) {
             $this->registry->{$field} = $this->{$field};
         }
 
