@@ -356,7 +356,7 @@ class ClientController extends ApiInternalController
             }
             $fullResult [] = $result;
         }
-        return $result;
+        return $fullResult;
     }
 
     /**
