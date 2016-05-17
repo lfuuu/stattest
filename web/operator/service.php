@@ -132,13 +132,15 @@ if ($action=='add_client') {
 
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
-    $numbers =
-        (new \app\models\filter\FreeNumberFilter)
-            ->getNumbers()
-            ->setRegions([$region]);
+    $numbersFilter = new \app\models\filter\FreeNumberFilter;
+    $numbersFilter
+        ->getNumbers()
+        ->setRegions([$region]);
 
-    foreach($numbers->each()->result(null) as $r) {
-        echo implode(';', [$r->number, $r->beauty_level, $r->price, $r->region]) . "\n";
+    foreach($numbersFilter->each()->result(null) as $r) {
+        /** @var \app\models\light_models\NumberLight $number */
+        $number = $numbersFilter->formattedNumber($r);
+        echo implode(';', [$number->number, $number->beauty_level, $number->price, $number->region]) . "\n";
     }
 
 }elseif($action == "reserve_number")

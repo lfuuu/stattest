@@ -11,7 +11,7 @@ class Language extends ActiveRecord
     const LANGUAGE_RUSSIAN = 'ru-RU';
     const LANGUAGE_ENGLISH = 'en-EN';
     const LANGUAGE_MAGYAR = 'hu-HU';
-    const LANGUAGE_GERMAN = 'de-DE';
+    const LANGUAGE_GERMANY = 'de-DE';
 
     const LANGUAGE_DEFAULT = self::LANGUAGE_RUSSIAN;
 
