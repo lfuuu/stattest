@@ -70,7 +70,7 @@ abstract class NotifyColumn
     private static function renderDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             $column->client_id

@@ -143,6 +143,7 @@ class RenderParams extends Singleton
      */
     private function eventProperty($clientAccountId, $eventId, $eventProperty = false)
     {
+        /** @var ImportantEvents $event */
         if (($event = ImportantEvents::findOne([
                 'client_id' => $clientAccountId,
                 'id' => $eventId
@@ -151,12 +152,10 @@ class RenderParams extends Singleton
             return false;
         }
 
-        $properties = ArrayHelper::map((array) $event->properties, 'property', 'value');
-
         return
-            $eventProperty !== false && isset($properties[$eventProperty])
-                ? $properties[$eventProperty]
-                : $properties;
+            $eventProperty !== false && isset($event->properties[$eventProperty])
+                ? $event->properties[$eventProperty]
+                : $event->properties;
 
     }
 
