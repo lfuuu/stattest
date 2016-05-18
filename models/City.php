@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\CityDao;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -10,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property int $country_id
  * @property int $connection_point_id
  * @property string $voip_number_format
+ *
  * @property Country $country
  */
 class City extends ActiveRecord
@@ -40,6 +42,18 @@ class City extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['name', 'voip_number_format'], 'string'],
+            [['id', 'country_id', 'connection_point_id'], 'integer'],
+            [['name', 'voip_number_format', 'country_id', 'connection_point_id', 'id'], 'required'],
+        ];
+    }
+
+    /**
      * @return CityDao
      */
     public static function dao()
@@ -63,4 +77,20 @@ class City extends ActiveRecord
         return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
     }
 
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to(['/dictionary/city/edit', 'id' => $this->id]);
+    }
 }

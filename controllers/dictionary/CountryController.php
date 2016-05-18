@@ -28,7 +28,6 @@ class CountryController extends BaseController
         ]);
     }
 
-
     /**
      * Создать
      *
@@ -40,11 +39,7 @@ class CountryController extends BaseController
         $form = new CountryFormNew();
 
         if ($form->isSaved) {
-            // создали
-            return $this->redirect([
-                'edit',
-                'id' => $form->id,
-            ]);
+            return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
                 'formModel' => $form,
@@ -66,19 +61,7 @@ class CountryController extends BaseController
         ]);
 
         if ($form->isSaved) {
-
-            if ($form->id) {
-                // отредактировали
-                return $this->redirect([
-                    'edit',
-                    'id' => $form->id,
-                ]);
-            } else {
-                // удалили
-                return $this->redirect([
-                    'index',
-                ]);
-            }
+            return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
                 'formModel' => $form,

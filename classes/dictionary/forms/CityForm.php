@@ -3,11 +3,11 @@
 namespace app\classes\dictionary\forms;
 
 use app\classes\Form;
-use app\models\Country;
+use app\models\City;
 use InvalidArgumentException;
 use yii;
 
-abstract class CountryForm extends Form
+abstract class CityForm extends Form
 {
     /** @var int ID сохраненный модели */
     public $id;
@@ -15,23 +15,23 @@ abstract class CountryForm extends Form
     /** @var bool */
     public $isSaved = false;
 
-    /** @var Country */
-    public $country;
+    /** @var City */
+    public $city;
 
     /** @var string[] */
     public $validateErrors = [];
 
     /**
-     * @return Country
+     * @return City
      */
-    abstract public function getCountryModel();
+    abstract public function getCityModel();
 
     /**
      * конструктор
      */
     public function init()
     {
-        $this->country = $this->getCountryModel();
+        $this->city = $this->getCityModel();
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -51,19 +51,19 @@ abstract class CountryForm extends Form
             if (isset($post['dropButton'])) {
 
                 // удалить
-                $this->country->delete();
+                $this->city->delete();
                 $this->id = null;
                 $this->isSaved = true;
 
-            } elseif ($this->country->load($post)) {
+            } elseif ($this->city->load($post)) {
 
                 // создать/редактировать
-                if ($this->country->validate() && $this->country->save()) {
-                    $this->id = $this->country->code;
+                if ($this->city->validate() && $this->city->save()) {
+                    $this->id = $this->city->id;
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $this->country->getFirstErrors();
+                    $this->validateErrors += $this->city->getFirstErrors();
                 }
             }
 
