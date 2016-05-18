@@ -76,7 +76,7 @@ echo GridView::widget([
     'panel' => [
         'type' => GridView::TYPE_DEFAULT,
         'before' =>
-            Html::tag('div', 'Язык уведомлений', ['class' => 'col-sm-1 text-bold text-nowrap', 'style' => 'font-weight: bold; margin-right: 20px; margin-top: 7px;']) .
+            Html::tag('div', 'Язык уведомлений', ['class' => 'col-sm-1 text-bold text-nowrap', 'style' => 'font-weight: bold; min-width: 150px; margin-top: 7px;']) .
             Html::beginTag('div', ['class' => 'col-sm-2']) .
                 \kartik\widgets\Select2::widget([
                     'name' => 'FormData[language]',

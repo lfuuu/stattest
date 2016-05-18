@@ -3,12 +3,12 @@ namespace app\helpers;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\Currency;
+use yii\helpers\ArrayHelper;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Country;
 use app\models\important_events\ImportantEvents;
-use yii\helpers\ArrayHelper;
+use app\models\important_events\ImportantEventsNames;
 
 class RenderParams extends Singleton
 {
@@ -122,7 +122,7 @@ class RenderParams extends Singleton
     private function getClientAccountDayLimit($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
-        return $clientAccount->lkSettings->day_limit;
+        return $clientAccount->lkSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT};
     }
 
     /**
@@ -143,6 +143,7 @@ class RenderParams extends Singleton
      */
     private function eventProperty($clientAccountId, $eventId, $eventProperty = false)
     {
+        /** @var ImportantEvents $event */
         if (($event = ImportantEvents::findOne([
                 'client_id' => $clientAccountId,
                 'id' => $eventId
@@ -151,12 +152,10 @@ class RenderParams extends Singleton
             return false;
         }
 
-        $properties = ArrayHelper::map((array)$event->properties, 'property', 'value');
-
         return
-            $eventProperty !== false && isset($properties[$eventProperty])
-                ? $properties[$eventProperty]
-                : $properties;
+            $eventProperty !== false && isset($event->properties[$eventProperty])
+                ? $event->properties[$eventProperty]
+                : $event->properties;
 
     }
 

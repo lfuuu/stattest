@@ -20,7 +20,7 @@ abstract class TroubleColumn
     public static function renderCreatedTroubleDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             isset($properties['trouble_id'])
@@ -61,7 +61,7 @@ abstract class TroubleColumn
     public static function renderNewCommentTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map($column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         $stageId = null;
 
@@ -95,7 +95,7 @@ abstract class TroubleColumn
     public static function renderSetStateTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         $stageId = null;
 
@@ -129,7 +129,7 @@ abstract class TroubleColumn
     public static function renderSetResponsibleTroubleDetails($column)
     {
         $result = self::renderCreatedTroubleDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         $stageId = null;
 

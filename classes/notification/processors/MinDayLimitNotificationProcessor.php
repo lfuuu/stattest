@@ -23,7 +23,7 @@ class MinDayLimitNotificationProcessor extends NotificationProcessor
 
     public function getLimit()
     {
-        return $this->client->lkClientSettings->day_limit;
+        return $this->client->lkClientSettings->{$this->getEvent()};
     }
 
     protected function isPositiveComparison()

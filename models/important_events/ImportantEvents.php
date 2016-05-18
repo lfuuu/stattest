@@ -145,7 +145,7 @@ class ImportantEvents extends ActiveRecord
      */
     public function getProperties()
     {
-        return $this->hasMany(ImportantEventsProperties::className(), ['event_id' => 'id']);
+        return $this->hasMany(ImportantEventsProperties::className(), ['event_id' => 'id'])->indexBy('property');
     }
 
     /**

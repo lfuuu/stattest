@@ -78,7 +78,7 @@ abstract class ClientAccountColumn
     public static function renderExtendAccountContractDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             isset($properties['contract_id'])
@@ -106,7 +106,7 @@ abstract class ClientAccountColumn
     public static function renderContractTransferDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             isset($properties['contract_id'])
@@ -196,7 +196,7 @@ abstract class ClientAccountColumn
     public static function renderTransferContragentDetails($column)
     {
         $result = self::renderDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             isset($properties['contragent_id'])
@@ -234,7 +234,7 @@ abstract class ClientAccountColumn
     private static function renderDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             $column->client_id

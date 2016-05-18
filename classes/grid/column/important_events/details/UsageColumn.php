@@ -19,7 +19,7 @@ abstract class UsageColumn
     public static function renderCreatedUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
             isset($properties['usage'], $properties['usage_id'])
@@ -55,7 +55,7 @@ abstract class UsageColumn
     public static function renderUpdatedUsageDetails($column)
     {
         $result = self::renderCreatedUsageDetails($column);
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         $fields = LogUsageHistory::findOne(['service_id' => $properties['usage_id']])->fields;
 
@@ -120,7 +120,7 @@ abstract class UsageColumn
     public static function renderTransferUsageDetails($column)
     {
         $result = [];
-        $properties = ArrayHelper::map((array)$column->properties, 'property', 'value');
+        $properties = $column->properties;
 
         if (
         isset($properties['usage'], $properties['usage_id'])
