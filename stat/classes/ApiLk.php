@@ -1717,7 +1717,7 @@ class ApiLk
 
         $ret = array();
         foreach(ClientContact::find_by_sql("
-                select c.id, c.type, c.data as info, n.min_balance, n.day_limit, n.add_pay_notif, n.status
+                select c.id, c.type, c.data as info, n.min_balance, n.min_day_limit as day_limit, n.add_pay_notif, n.status
                 from client_contacts c
                 left join lk_notice_settings n on n.client_contact_id=c.id
                 left join user_users u on u.id=c.user_id
@@ -1726,9 +1726,9 @@ class ApiLk
                 ") as $v) {
                     $ret[] = self::_exportModelRow([
                         'id', 'type', 'info',
-                        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
-                        ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT,
-                        ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+                        'min_balance',
+                        'day_limit',
+                        'add_pay_notif',
                         'status'
                     ], $v);
         }
@@ -1939,7 +1939,7 @@ class ApiLk
      *@param int $client_id id клиента
      *@param array $data данные
      */
-    public static function saveAccountNotification($client_id = '', $data = array(), $min_balance = '0', $day_limit = '0')
+    public static function saveAccountNotification($client_id = '', $data = array(), $min_balance = '0', $min_day_limit = '0')
     {
         global $db;
         if (!self::validateClient($client_id))
@@ -1953,9 +1953,9 @@ class ApiLk
             if(!isset($res[$tmp[1]]))
                 $res[$tmp[1]] = [
                     'client_contact_id' => $tmp[1],
-                    ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
-                    ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 0,
-                    ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0
+                    'min_balance' => 0,
+                    'min_day_limit' => 0,
+                    'add_pay_notif' => 0
                 ];
 
             $res[$tmp[1]][$tmp[0]] = 1;
@@ -1980,9 +1980,9 @@ class ApiLk
             $data = [
                 'client_contact_id' => $d['client_contact_id'],
                 'client_id' => $client_id,
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $d[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE],
-                ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => $d[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT],
-                ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => $d[ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF]
+                'min_balance' => $d['min_balance'],
+                'min_day_limit' => $d['day_limit'],
+                'add_pay_notif' => $d['add_pay_notif']
             ];
             if ($cc_id) {
                 $db->QueryUpdate('lk_notice_settings',array('client_contact_id','client_id'),$data);
@@ -2000,9 +2000,9 @@ class ApiLk
                     "client_contact_id",
                     [
                         "client_contact_id" => $contact_id,
-                        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
-                        ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 0,
-                        ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0
+                        'min_balance' => 0,
+                        'min_day_limit' => 0,
+                        'add_pay_notif' => 0
                     ]
                 );
             }
@@ -2012,25 +2012,25 @@ class ApiLk
 
         $data = [
             'client_id' => $client_id,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $min_balance,
-            ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => $day_limit
+            'min_balance' => $min_balance,
+            'min_day_limit' => $min_day_limit
         ];
         if ($clientSettings)
         {
             if (
-                $clientSettings['is_' . ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE . '_sent']
+                $clientSettings['is_min_balance_sent']
                     &&
-                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE]
+                $clientSettings['min_balance'] < $data['min_balance']
             ) {
-                $data['is_' . ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE . '_sent'] = 0;
+                $data['is_min_balance_sent'] = 0;
             }
 
             if (
-                $clientSettings['is_' . ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT . '_sent']
+                $clientSettings['is_min_day_limit_sent']
                     &&
-                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT] < $data[ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT]
+                $clientSettings['min_day_limit'] < $data['min_day_limit']
             ) {
-                $data['is_' . ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT . '_sent'] = 0;
+                $data['is_min_day_limit_sent'] = 0;
             }
 
             $db->QueryUpdate('lk_client_settings',array('client_id'),$data);
@@ -2053,11 +2053,11 @@ class ApiLk
 
         $ret = array();
         foreach(ClientContact::find_by_sql("
-                select *
+                select *, min_day_limit as day_limit
                 from lk_client_settings
                 where client_id='".$client_id."'
                 ") as $v) {
-                    $ret = self::_exportModelRow(['client_id', ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE, ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT], $v);
+                    $ret = self::_exportModelRow(['client_id', 'min_balance', 'day_limit'], $v);
         }
         return $ret;
     }

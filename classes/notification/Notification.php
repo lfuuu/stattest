@@ -7,6 +7,7 @@ use app\classes\notification\processors\NotificationProcessor;
 use app\classes\notification\processors\ZeroBalanceNotificationProcessor;
 use app\classes\notification\processors\MinBalanceNotificationProcessor;
 use app\classes\notification\processors\DayLimitNotificationProcessor;
+use app\classes\notification\processors\MinDayLimitNotificationProcessor;
 
 
 class Notification extends Object
@@ -26,6 +27,7 @@ class Notification extends Object
         return [
             new ZeroBalanceNotificationProcessor(),
             new MinBalanceNotificationProcessor(),
+            new MinDayLimitNotificationProcessor(),
             new DayLimitNotificationProcessor(),
         ];
     }
