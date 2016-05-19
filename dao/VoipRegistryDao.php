@@ -124,7 +124,6 @@ class VoipRegistryDao extends Singleton
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
-        $number->price = NumberBeautyDao::$beautyLvlPrices[$beautyLevel];
         $number->did_group_id = $this->didGroups[$beautyLevel];
         $number->region = $registry->city->connection_point_id;
         $number->number_type = $registry->number_type_id;
