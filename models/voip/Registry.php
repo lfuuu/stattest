@@ -94,6 +94,14 @@ class Registry extends ActiveRecord
     /**
      * @inheritdoc
      */
+    public function fillNumbers()
+    {
+        return self::dao()->fillNumbers($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getStatusInfo()
     {
         return self::dao()->getStatusInfo($this);
