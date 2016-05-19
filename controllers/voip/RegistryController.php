@@ -83,8 +83,24 @@ class RegistryController extends BaseController
         }
 
         $checkList = null;
-        if (Yii::$app->request->post('check-numbers')) {
+        if (Yii::$app->request->post('fill-numbers')) {
+            $registry->fillNumbers();
+            $isShowCheckList = true;
+        }
+
+        if (Yii::$app->request->post('to-sale')) {
+            $registry->toSale();
+            $isShowCheckList = true;
+        }
+
+        if ($isShowCheckList || Yii::$app->request->post('check-numbers')) {
             $checkList = $registry->getPassMap();
+            $isShowCheckList = true;
+        }
+
+        $statusInfo = [];
+        if ($isShowCheckList) {
+            $statusInfo = $registry->getStatusInfo();
         }
 
         $model->initForm();
@@ -92,7 +108,8 @@ class RegistryController extends BaseController
         return $this->render('edit', [
             'model' => $model,
             'creatingMode' => false,
-            'checkList' => $checkList
+            'checkList' => $checkList,
+            'statusInfo' => $statusInfo
         ]);
     }
 

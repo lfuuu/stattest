@@ -23,18 +23,29 @@ class DidGroupDao extends Singleton
             $query->andWhere(['city_id' => $cityId]);
         }
 
-        $list =
-            ArrayHelper::map(
-                $query
-                    ->orderBy('id')
-                    ->asArray()
-                    ->all(),
-                'id',
-                'name'
-            );
+        $list = self::getDidGroupMapByCityId($cityId, 'id', 'name');
+
         if ($withEmpty) {
             $list = ['' => '-- DID группа --'] + $list;
         }
         return $list;
+    }
+
+    public function getDidGroupMapByCityId($cityId, $keyField = 'beauty_level', $valueField = 'id')
+    {
+        return
+            ArrayHelper::map(
+                (array)DidGroup::find()
+                    ->select([
+                        $keyField,
+                        $valueField
+                    ])
+                    ->where(['city_id' => $cityId])
+                    ->orderBy([
+                        $valueField => SORT_ASC,
+                    ])->asArray()->all(),
+                $keyField,
+                $valueField
+            );
     }
 }

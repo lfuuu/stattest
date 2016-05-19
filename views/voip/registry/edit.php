@@ -1,6 +1,8 @@
 <?php
 
 /** @var \app\forms\voip\RegistryForm $model */
+use app\models\Number;
+use app\models\voip\Registry;
 use yii\helpers\Url;
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
@@ -144,7 +146,24 @@ echo Breadcrumbs::widget([
                         'class' => 'btn btn-info',
                         'name' => 'check-numbers',
                         'value' => 'Проверить номера'
-                    ]) : '')
+                    ])
+                        . (in_array($model->registry->status, [Registry::STATUS_PARTLY, Registry::STATUS_EMPTY]) ?
+                            ' ' . Html::submitButton('Залить номера', [
+                                'class' => 'btn btn-success',
+                                'name' => 'fill-numbers',
+                                'value' => 'Залить номера'
+                            ])
+                            : '')
+                        . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSELL]) && $statusInfo[Number::STATUS_NOTSELL]?
+                            ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSELL] . ' шт.)', [
+                                'class' => 'btn btn-warning',
+                                'name' => 'to-sale',
+                                'value' => 'Передать в продажу номера'
+                            ])
+                            : '')
+
+
+                        : '')
                 ],
                 'id' => [
                     'type' => Form::INPUT_RAW,

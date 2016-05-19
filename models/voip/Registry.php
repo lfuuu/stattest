@@ -3,6 +3,7 @@ namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
 use app\dao\VoipRegistryDao;
+use app\models\City;
 use yii\db\ActiveRecord;
 
 /**
@@ -17,6 +18,9 @@ use yii\db\ActiveRecord;
  * @property string number_to
  * @property integer account_id
  * @property string created_at
+ * @property string status
+ * @property City city
+ *
  * @package app\models\voip
  */
 class Registry extends ActiveRecord
@@ -63,6 +67,17 @@ class Registry extends ActiveRecord
         return VoipRegistryDao::me();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCity()
+    {
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getStatus()
     {
         return self::dao()->getStatus($this);
@@ -74,5 +89,21 @@ class Registry extends ActiveRecord
     public function getPassMap()
     {
         return self::dao()->getPassMap($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatusInfo()
+    {
+        return self::dao()->getStatusInfo($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toSale()
+    {
+        return self::dao()->toSale($this);
     }
 }

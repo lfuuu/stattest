@@ -422,6 +422,8 @@ class NumberBeautyDao extends Singleton
      */
     public static function getNumberBeautyLvl($number)
     {
+        $number = substr($number, -7);
+
         /**
          * Платиновые номера
          */

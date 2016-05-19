@@ -1,6 +1,7 @@
 <?php
 namespace app\commands\stat;
 
+use app\models\NumberType;
 use Yii;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
@@ -155,7 +156,7 @@ class VoipNumbersController extends Controller
 
             $this->stdout('Номер: ' . $number . PHP_EOL, Console::FG_GREEN);
 
-            $insert[] = [$number, $regionId, $cityId];
+            $insert[] = [$number, $regionId, $cityId, NumberType::ID_INTERNAL];
         }
 
         $inserted = 0;
@@ -166,14 +167,14 @@ class VoipNumbersController extends Controller
             foreach ($chunks as $chunk) {
                 $inserted += Yii::$app->db->createCommand()->batchInsert(
                     Number::tableName(),
-                    ['number', 'region', 'city_id'],
+                    ['number', 'region', 'city_id', 'number_type_id'],
                     $chunk
                 )->execute();
             }
         } else {
             $inserted += Yii::$app->db->createCommand()->batchInsert(
                 Number::tableName(),
-                ['number', 'region', 'city_id'],
+                ['number', 'region', 'city_id', 'number_type_id'],
                 $insert
             )->execute();
         }
@@ -208,22 +209,7 @@ class VoipNumbersController extends Controller
 
         list ($rangeStart, $rangeEnd) = explode('-', $numbersRange);
 
-        $groups =
-            ArrayHelper::map(
-                (array)DidGroup::find()
-                    ->select([
-                        'id',
-                        'beauty_level'
-                    ])
-                    ->where(['city_id' => $cityId])
-                    ->orderBy([
-                        'city_id' => SORT_ASC,
-                        'beauty_level' => SORT_ASC,
-                        'id' => SORT_ASC,
-                    ])->asArray()->all(),
-                'beauty_level',
-                'id'
-            );
+        $groups = DidGroup::dao()->getDidGroupMapByCityId($cityId);
 
         if (!count($groups)) {
             $this->stderr('Не найдены Did группы для города ID ' . $cityId . PHP_EOL, Console::FG_RED);
@@ -247,7 +233,7 @@ class VoipNumbersController extends Controller
                 ->andWhere(['between', 'number', $cityId . $rangeStart, $cityId . $rangeEnd]);
 
         foreach ($numbers->all() as $number) {
-            $beautyLevel = NumberBeautyDao::getNumberBeautyLvl(substr($number->number, -7));
+            $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($number->number);
             $didGroupId = null;
 
             if (isset($groups[$beautyLevel])) {

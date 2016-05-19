@@ -29,6 +29,8 @@ use yii\db\ActiveRecord;
  * @property int number_type
  * @property string date_start
  * @property string date_end
+ * @property int operator_account_id
+ * @property int country_code
  *
  * @property City $city
  * @property DidGroup $didGroup

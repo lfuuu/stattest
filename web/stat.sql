@@ -1,1 +1,0 @@
-/vagrant/install/db/dump/stat.sql
