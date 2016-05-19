@@ -46,7 +46,7 @@ class Template extends ActiveRecord
             [
                 'event',
                 'in',
-                'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->each(), 'code')
+                'range' => ArrayHelper::getColumn(ImportantEventsNames::find()->select('code')->asArray()->all(), 'code')
             ]
         ];
     }
@@ -72,6 +72,9 @@ class Template extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'message_template';
@@ -94,17 +97,19 @@ class Template extends ActiveRecord
     }
 
     /**
-     * @param $languageCode
-     * @param $type
+     * @param int $countryId
+     * @param string $languageCode
+     * @param string $contentType
      * @return TemplateContent|null
      */
-    public function getTemplateContent($languageCode, $type)
+    public function getTemplateContent($countryId, $languageCode, $contentType)
     {
         if ($templateContent =
             TemplateContent::findOne([
+                'country_id' => $countryId,
                 'template_id' => $this->id,
                 'lang_code' => $languageCode,
-                'type' => $type,
+                'type' => $contentType,
             ])
         ) {
             return $templateContent;
@@ -112,6 +117,9 @@ class Template extends ActiveRecord
 
         $templateContent = new TemplateContent;
         $templateContent->template_id = $this->id;
+        $templateContent->country_id = $countryId;
+        $templateContent->lang_code = $languageCode;
+        $templateContent->type = $contentType;
 
         return $templateContent;
     }

@@ -3,12 +3,12 @@
 namespace app\controllers\message;
 
 use Yii;
-use yii\web\UploadedFile;
 use yii\data\ActiveDataProvider;
 use app\classes\BaseController;
 use app\classes\Assert;
 use app\models\message\Template;
 use app\models\message\TemplateContent;
+use app\forms\message\TemplateContentForm;
 
 class TemplateController extends BaseController
 {
@@ -43,6 +43,17 @@ class TemplateController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $templateContentData = Yii::$app->request->post('TemplateContent');
+
+            foreach ($templateContentData as $templateContentKey => $templateContentInput) {
+                list($countryId,, $languageCode, $contentType) = explode('_', $templateContentKey);
+                $templateContent = $model->getTemplateContent($countryId, $languageCode, $contentType);
+
+                if ($templateContent->load($templateContentData, $templateContent->formNameKey()) && $templateContent->validate()) {
+                    $templateContent->save();
+                }
+            }
+
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             return $this->redirect(['message/template/edit', 'id' => $model->id]);
         }
@@ -68,47 +79,15 @@ class TemplateController extends BaseController
     }
 
     /**
-     * @param int $templateId
-     * @param string $type
-     * @param string $langCode
-     * @return \yii\web\Response
-     */
-    public function actionEditTemplateContent($templateId, $type, $langCode)
-    {
-        /** @var TemplateContent $content */
-        $content = TemplateContent::findOne([
-            'template_id' => $templateId,
-            'type' => $type,
-            'lang_code' => $langCode,
-        ]);
-
-        if (is_null($content)) {
-            $content = new TemplateContent;
-            $content->setAttribute('template_id', $templateId);
-            $content->setAttribute('type', $type);
-            $content->setAttribute('lang_code', $langCode);
-        }
-
-        if (($file = UploadedFile::getInstance($content, 'filename')) !== null) {
-            $content->mediaManager->addFile($file);
-        }
-
-        if ($content->load(Yii::$app->request->post()) && $content->validate() && $content->save()) {
-            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-            return $this->redirect(['message/template/edit', 'id' => $content->template_id]);
-        }
-
-        return $this->redirect(['message/template']);
-    }
-
-    /**
+     * @param int $countryId
      * @param int $templateId
      * @param string $langCode
      */
-    public function actionEmailTemplateContent($templateId, $langCode)
+    public function actionEmailTemplateContent($countryId, $templateId, $langCode)
     {
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
+            'country_id' => $countryId,
             'template_id' => $templateId,
             'lang_code' => $langCode,
             'type' => 'email'

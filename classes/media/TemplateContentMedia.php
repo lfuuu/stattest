@@ -28,22 +28,6 @@ class TemplateContentMedia extends MediaManager
     }
 
     /**
-     * @param \yii\web\UploadedFile $file
-     * @return bool
-     */
-    public function addFile(\yii\web\UploadedFile $file)
-    {
-        if ($file->error) {
-            return false;
-        }
-
-        return parent::addFile([
-            'tmp_name' => $file->tempName,
-            'name' => $file->name,
-        ]);
-    }
-
-    /**
      * @param int $withContent
      * @return array
      */

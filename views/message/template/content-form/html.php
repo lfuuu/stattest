@@ -1,34 +1,20 @@
 <?php
 
-use yii\helpers\Url;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use app\classes\Html;
-
-/** @var \app\models\message\TemplateContent $model */
-$form = ActiveForm::begin([
-    'type' => ActiveForm::TYPE_VERTICAL,
-    'action' => Url::toRoute([
-        '/message/template/edit-template-content',
-        'templateId' => $templateId,
-        'type' => $templateType,
-        'langCode' => $templateLanguageCode,
-    ]),
-]);
+/**
+ * @var \app\models\message\TemplateContent $model
+ */
 ?>
 
 <div class="container col-xs-12" style="float: none;">
 
-    <?= $form->field($model, 'title')->textInput(); ?>
-    <?= $form->field($model, 'content')->textarea(['rows' => 20, 'class' => 'form-control editor']); ?>
+    <div class="form-group">
+        <label><?= $model->getAttributeLabel('title') ?></label>
+        <input type="text" name="<?= $model->formName(); ?>[title]" class="form-control" value="<?= $model->title; ?>" />
+    </div>
 
     <div class="form-group">
-        <div style="text-align: right; padding-right: 0;">
-            <input type="submit" value="Сохранить" class="btn btn-success" />
-        </div>
+        <label><?= $model->getAttributeLabel('content'); ?></label>
+        <textarea name="<?= $model->formName(); ?>[content]" rows="20" class="form-control editor"><?= $model->content; ?></textarea>
     </div>
 
 </div>
-
-<?php
-ActiveForm::end();

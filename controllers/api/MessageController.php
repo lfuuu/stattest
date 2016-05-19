@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use Yii;
+use yii\web\BadRequestHttpException;
 use app\exceptions\FormValidationException;
 use app\classes\validators\AccountIdValidator;
 use app\classes\DynamicModel;
@@ -13,6 +14,7 @@ use app\models\ClientAccountOptions;
 use app\models\Message;
 use app\models\message\Template;
 use app\models\message\TemplateContent;
+use app\models\Language;
 
 class MessageController extends ApiController
 {
@@ -205,27 +207,33 @@ class MessageController extends ApiController
      */
     public function actionEmailTemplateContent(
         $templateId,
-        $langCode,
+        $langCode = Language::LANGUAGE_RUSSIAN, // Остается пока не изменится вызывающая сторона
         $clientAccountId,
         $contactId,
         $type = Template::TYPE_EMAIL,
         $eventId = null
     ) {
-        if (($clientAccount = ClientAccount::findOne($clientAccountId)) === true) {
-            $langCode = $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE);
+        if (is_null($clientAccount = ClientAccount::findOne($clientAccountId))) {
+            throw new BadRequestHttpException;
+        }
+
+        $languageCode = Language::LANGUAGE_RUSSIAN;
+        if (count($clientLanguageOption = $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE))) {
+            $languageCode = array_shift($clientLanguageOption);
         }
 
         /** @var TemplateContent $templateContent */
         $templateContent = TemplateContent::findOne([
+            'country_id' => $clientAccount->country->code,
             'template_id' => $templateId,
-            'lang_code' => $langCode,
+            'lang_code' => $languageCode,
             'type' => $type
         ]);
 
         if (!is_null($templateContent)) {
             switch ($type) {
                 case Template::TYPE_EMAIL: {
-                    $content = $templateContent->getMediaManager()->getFile($templateContent, true);
+                    $content = $templateContent->mediaManager->getFile($templateContent, true);
                     echo RenderParams::me()->apply($content['content'], $clientAccountId, $contactId, $eventId);
                     break;
                 }

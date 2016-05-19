@@ -11,6 +11,7 @@ use app\assets\AppAsset;
 use app\models\message\Template;
 use app\models\important_events\ImportantEventsNames;
 use app\models\Language;
+use app\models\Country;
 
 /** @var app\classes\BaseView $this */
 /** @var Template $model */
@@ -34,6 +35,9 @@ echo Breadcrumbs::widget([
     <?php
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,
+        'options' => [
+            'enctype' => 'multipart/form-data',
+        ],
     ]);
 
     $model->event = $model->getEvent()->event->code;
@@ -75,16 +79,19 @@ echo Breadcrumbs::widget([
             ],
         ],
     ]);
-    ActiveForm::end();
 
     if ($model->id) {
         $tabs = [];
-        foreach (Language::getList() as $languageCode => $languageTitle) {
-            foreach (Template::$types as $type => $descr) {
-                $templateContentModel = $model->getTemplateContent($languageCode, $type);
 
-                $tabs[] = [
-                    'label' =>
+        $mainTabs = [];
+        foreach (Country::getList() as $country) {
+            $tabs = [];
+            foreach (Language::getList() as $languageCode => $languageTitle) {
+                foreach (Template::$types as $type => $descr) {
+                    $templateContentModel = $model->getTemplateContent($country->code, $languageCode, $type);
+
+                    $tabs[] = [
+                        'label' =>
                             Html::tag(
                                 'div', '',
                                 ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
@@ -96,34 +103,52 @@ echo Breadcrumbs::widget([
                             $descr['title'] .
                             (
                                 $templateContentModel->isEmpty()
-                                ?
-                                    Html::tag('br') .
-                                    Html::tag('span', 'Не заполненно', ['class' => 'label label-danger'])
-                                : ''
+                                    ?
+                                        Html::tag('br') .
+                                        Html::tag('span', 'Не заполненно', ['class' => 'label label-danger'])
+                                    : ''
                             )
-                            ,
-                    'content' => $this->render('content-form/' . $descr['format'], [
-                        'templateId' => $model->id,
-                        'templateType' => $type,
-                        'templateLanguageCode' => $languageCode,
-                        'model' => $templateContentModel,
-                    ]),
-                    'headerOptions' => [],
-                    'options' => ['style' => 'white-space: nowrap;'],
-                ];
+                        ,
+                        'content' => $this->render('content-form/' . $descr['format'], [
+                            'model' => $templateContentModel,
+                        ]),
+                        'headerOptions' => [],
+                        'options' => ['style' => 'white-space: nowrap;'],
+                    ];
+                }
             }
+
+            $mainTabs[] = [
+                'label' =>
+                    Html::tag(
+                        'div', '',
+                        ['title' => $country->name, 'class' => 'flag flag-' . explode('-', $country->lang)[0]]
+                    ) .
+                    $country->name,
+                'content' => TabsX::widget([
+                    'id' => 'tabs-message-template-content-' . $country->code,
+                    'items' => $tabs,
+                    'position' => TabsX::POS_LEFT,
+                    'bordered' => true,
+                    'encodeLabels' => false,
+                ]),
+                'headerOptions' => [],
+                'options' => ['style' => 'white-space: nowrap;'],
+            ];
         }
 
         echo Html::tag('br');
 
         echo TabsX::widget([
             'id' => 'tabs-message-template',
-            'items' => $tabs,
-            'position' => TabsX::POS_LEFT,
+            'items' => $mainTabs,
+            'position' => TabsX::POS_ABOVE,
             'bordered' => true,
             'encodeLabels' => false,
         ]);
     }
+
+    ActiveForm::end();
     ?>
 </div>
 

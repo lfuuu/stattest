@@ -92,7 +92,7 @@ abstract class MediaManager
      * @param array $file - as $_FILES format
      * @param string $comment
      * @param string $name
-     * @return bool
+     * @return string
      */
     public function addFile(array $file, $comment = '', $name = '')
     {
@@ -111,7 +111,7 @@ abstract class MediaManager
         $model = $this->createFileModel($name, $comment);
         move_uploaded_file($file['tmp_name'], $this->getFilePath($model));
 
-        return true;
+        return $name;
     }
 
     /**
