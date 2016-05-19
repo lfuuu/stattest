@@ -8,7 +8,6 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 
 
-
 $countryList = \app\models\Country::getList();
 $cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
 
@@ -17,7 +16,7 @@ if ($model->country_id != $model->registry->country_id) {
 }
 
 
-$title = $model->id ? 'Редактирование записи №' . $model->registry->id . ' ('  . $model->registry->number_from . ' - ' . $model->registry->number_to . ')': 'Новая запись';
+$title = $model->id ? 'Редактирование записи №' . $model->registry->id . ' (' . $model->registry->number_from . ' - ' . $model->registry->number_to . ')' : 'Новая запись';
 
 echo Html::formLabel($title);
 
@@ -107,16 +106,30 @@ echo Breadcrumbs::widget([
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\models\NumberType::getList(),
                 ],
+                'city_number_format' => [
+                    'type' => Form::INPUT_TEXT,
+                    'options' => [
+                        'disabled' => true
+                    ]
+                ],
                 'number_from' => [
                     'type' => Form::INPUT_TEXT,
                 ],
                 'number_to' => [
                     'type' => Form::INPUT_TEXT,
                 ],
-                'comment' => [
-                    'type' => Form::INPUT_TEXT,
-                ]
             ],
+        ]);
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 1,
+            'attributes' => [
+                'comment' => [
+                    'type' => Form::INPUT_TEXT
+                ]
+            ]
         ]);
 
 

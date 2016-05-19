@@ -12,6 +12,22 @@ use app\models\voip\Registry;
 class VoipRegistryDao extends Singleton
 {
     /**
+     * Вычисляем статус записи
+     *
+     * @param Registry $registry
+     * @return string
+     */
+    public function getStatus(Registry $registry)
+    {
+        $count = Number::find()
+            ->where(['city_id' => $registry->city_id])
+            ->andWhere(['between', 'number', $registry->number_from, $registry->number_to])
+            ->count();
+
+        return ($count == 0 ? Registry::STATUS_EMPTY : (($registry->number_to - $registry->number_from + 1) == $count ? Registry::STATUS_FULL : Registry::STATUS_PARTLY));
+    }
+
+    /**
      * Функция возвращает массив пропущенных и залитых номеров
      *
      * @param Registry $registry
@@ -33,12 +49,12 @@ class VoipRegistryDao extends Singleton
         $data = [];
         $lastValue = null;
         $startValue = null;
-        foreach($numbers->query() as $numberArr) {
+        foreach ($numbers->query() as $numberArr) {
             $number = $numberArr['number'];
 
             if (!$startValue) {
                 if ($registry->number_from < $number) {
-                    $data[] = ['filling' => 'pass', 'start' => $registry->number_from, 'end' => $number-1];
+                    $data[] = ['filling' => 'pass', 'start' => $registry->number_from, 'end' => $number - 1];
                 }
                 $startValue = $number;
                 $lastValue = $number;
@@ -47,7 +63,7 @@ class VoipRegistryDao extends Singleton
 
             if (($number - $lastValue - 1) > 0) {
                 $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue];
-                $data[] = ['filling' => 'pass', 'start' => $lastValue+1, 'end' => $number-1];
+                $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $number - 1];
                 $startValue = $number;
             }
 
@@ -57,7 +73,7 @@ class VoipRegistryDao extends Singleton
         if ($startValue) {
             $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue];
             if ($lastValue < $registry->number_to) {
-                $data[] = ['filling' => 'pass', 'start'=> $lastValue+1, 'end' => $registry->number_to];
+                $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $registry->number_to];
             }
         } else {
             $data[] = ['filling' => 'pass', 'start' => $registry->number_from, 'end' => $registry->number_to];
@@ -65,6 +81,5 @@ class VoipRegistryDao extends Singleton
 
         return $data;
     }
-
 
 }

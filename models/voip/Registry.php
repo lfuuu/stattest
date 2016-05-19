@@ -21,6 +21,16 @@ use yii\db\ActiveRecord;
  */
 class Registry extends ActiveRecord
 {
+    const STATUS_EMPTY = 'empty';
+    const STATUS_PARTLY = 'partly';
+    const STATUS_FULL = 'full';
+
+    public static $names = [
+        self::STATUS_EMPTY => 'Пусто',
+        self::STATUS_PARTLY => 'Частично',
+        self::STATUS_FULL => 'Заполнено',
+    ];
+
     public function behaviors()
     {
         return [
@@ -51,6 +61,11 @@ class Registry extends ActiveRecord
     public static function dao()
     {
         return VoipRegistryDao::me();
+    }
+
+    public function getStatus()
+    {
+        return self::dao()->getStatus($this);
     }
 
     /**

@@ -44,16 +44,8 @@ class RegistryFilter extends Country
      */
     public function search()
     {
-        $countQuery = (new Query())
-            ->select(['count' => 'count(*)'])
-            ->from(Number::tableName())
-            ->where([Number::tableName().'.city_id' => new Expression(Registry::tableName() . '.city_id')])
-        ->andWhere(['between', 'number', new Expression('number_from'), new Expression('number_to')]);
 
-        $query = (new Query())
-            ->select('*')
-            ->from(Registry::tableName())
-            ->addSelect(['count' => $countQuery]);
+        $query = Registry::find();
 
         //equal filter
         foreach (['country_id', 'city_id', 'source', 'number_type_id', 'account_id'] as $field) {
@@ -65,8 +57,8 @@ class RegistryFilter extends Country
         $this->number_from !== '' && $query->andWhere(['LIKE', 'number_from' => $this->number_from]);
         $this->number_to !== '' && $query->andWhere(['LIKE', 'number_to' => $this->number_to]);
 
-        $dataProvider = new ArrayDataProvider([
-            'allModels' => $query->all(),
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
         ]);
 
 

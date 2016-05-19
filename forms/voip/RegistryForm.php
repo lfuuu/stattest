@@ -34,7 +34,7 @@ class RegistryForm extends Form
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id','comment'],
+                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'],
                 'required',
                 'on' => 'save'
             ],
@@ -43,17 +43,41 @@ class RegistryForm extends Form
                 FormFieldValidator::className()
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
-            ['city_id', 'in', 'range' => array_keys(City::dao()->getList(false, $this->country_id)), 'on' => 'save'],
+            ['city_id', 'validateCity', 'on' => 'save'],
             ['source', 'in', 'range' => array_keys(VoipRegistrySourceEnum::$names), 'on' => 'save'],
             ['number_type_id', 'in', 'range' => array_keys(NumberType::getList()), 'on' => 'save'],
             ['account_id', AccountIdValidator::className(), 'on' => 'save'],
-            [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save']
+            [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
+            ['account_id', 'integer', 'on' => 'save'],
+            [['number_from', 'number_to'], 'integer', 'min' => 10000000, 'on' => 'save'],
+            ['number_from', 'validateNumbersRange']
         ];
     }
 
     public function attributeLabels()
     {
-        return Registry::attributeLabels() + ['comment' => 'Комменатрий'];
+        return Registry::attributeLabels() + [
+            'comment' => 'Комментарий',
+            'city_number_format' => 'Формат номера'
+        ];
+    }
+
+    public function validateCity()
+    {
+        if (!array_key_exists($this->city_id, City::dao()->getList(false, $this->country_id))){
+            $this->addError('city_id', 'Значение "Город" неверно');
+        }
+    }
+
+    public function validateNumbersRange()
+    {
+        if ($this->number_from > $this->number_to) {
+            $this->addError('number_from', 'Номер "c" меньше номера "по"');
+        }else
+            if(($this->number_to - $this->number_from) > 100000){
+                $this->addError('number_from', 'Слишком большой диапазон номеров.');
+            }
+
     }
 
     /**
