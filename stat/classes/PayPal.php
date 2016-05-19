@@ -165,7 +165,7 @@ class PayPal {
                    $b = NewBill::createBillOnPay($pay->client_id, $pay->sum, $response["PAYMENTINFO_0_CURRENCYCODE"]);
                }
 
-               if (\app\models\Payment()::find()->where(['payment_no' => $paymentId])->one()) {
+               if (\app\models\Payment::find()->where(['payment_no' => $paymentId])->one()) {
                    return 'ok';
                }
 
