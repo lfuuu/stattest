@@ -1059,9 +1059,9 @@ class DbFormUsageExtra extends DbForm{
                     'site'=>'Сайт',
                     'sms_gate'=>'SMS Gate',
                     'uspd' => "УСПД",
-                    //'welltime'=>'WellTime',
-                    //'wellsystems'=>'WellSystems'
-                    );//$groups;
+                    'itos' => 'ИТ-аутсорсинг',
+                    'datacenter' => 'Датацентр'
+                    );
             $this->fields['code']['type']='no';
         }
         DbForm::Display($form_params,$h2,$h3);

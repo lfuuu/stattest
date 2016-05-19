@@ -152,13 +152,9 @@ class DbViewCommonTarif extends DbView {
 		$this->SQLFilters['p']='status="public"';
 		$this->SQLFilters['a']='status="archive"';
 		$this->SQLFilters['s']='status="special"';
-		$this->SQLFilters['su']='status="adsl_su"';
-		$this->SQLFilters['itos']='status="itos"';
 		$this->SQLFilterNames['p']='публичный';
 		$this->SQLFilterNames['a']='архивный';
 		$this->SQLFilterNames['s']='специальный';
-		$this->SQLFilterNames['su']='adsl.su';
-		$this->SQLFilterNames['itos']='ИТ-аутсорсинг';
 
 		$currencies = Currency::enum();
 
@@ -168,10 +164,10 @@ class DbViewCommonTarif extends DbView {
 		}
 
 		$this->SQLFilterGroups = [
-			'Тип тарифа' => ['p','a','s','su'],
+			'Тип тарифа' => ['p','a','s'],
 			'Валюта тарифа' => $currencies,
 		];
-		$this->filters=array('p', Currency::USD);
+		$this->filters=array('p', Currency::RUB);
 		$this->constructChild();
 		parent::__construct();
 	}
@@ -257,7 +253,7 @@ class DbFormTarifsInternet extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_internet');
 		$this->fields['currency']=array('enum'=>Currency::enum(),'default'=>Currency::RUB);
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный','adsl_su'=>'adsl.su'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['type']=array('assoc_enum'=>array('I'=>'Интернет (I)','V'=>'VPN (V)','C'=>'Collocation (C)'));
 		$this->fields['type_internet']=array('assoc_enum'=>array('standard'=>'Обычный','wimax'=>'WiMAX','collective'=>'Коллективный'));
         global $db;
@@ -312,13 +308,6 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
         ];
 		$this->fieldset='z';
 
-		$currencies = Currency::enum();
-
-		$this->SQLFilterGroups = [
-			'Тип тарифа' => ['p','a','s','su','itos'],
-			'Валюта тарифа' => $currencies,
-		];
-
 		$this->SQLFilters['pa']='1 and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['pm']='period="month" and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['py']='period="year" and code not in ("welltime","wellsystem")';
@@ -331,30 +320,57 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
 		$this->SQLFilterNames['po']='разовый';
 		$this->SQLFilterNames['p3']='3 месяца';
 		$this->SQLFilterNames['p6']='6 месяцев';
+
+		$this->SQLFilterNames['allcode']='Все';
+		$this->SQLFilterNames['nocode']='Без группы';
+		$this->SQLFilterNames['domain']='Домен';
+		$this->SQLFilterNames['ip']='IP';
+		$this->SQLFilterNames['mailserver']='Почтовый сервер';
+		$this->SQLFilterNames['phone_ats']='АТС';
+		$this->SQLFilterNames['site']='Сайт';
+		$this->SQLFilterNames['sms_gate']='SMS Gate';
+		$this->SQLFilterNames['uspd'] = 'УСПД';
+		$this->SQLFilterNames['itos'] = 'ИТ-аутсорсинг';
+		$this->SQLFilterNames['datacenter'] = 'Датацентр';
+
+		$this->SQLFilters['allcode']="1";
+		$this->SQLFilters['nocode']="code = ''";
+		$this->SQLFilters['domain']="code = 'domain'";
+		$this->SQLFilters['ip']="code = 'ip'";
+		$this->SQLFilters['mailserver']="code = 'mailserver'";
+		$this->SQLFilters['phone_ats']="code = 'phone_ats'";
+		$this->SQLFilters['site']="code = 'site'";
+		$this->SQLFilters['sms_gate']="code = 'sms_gate'";
+		$this->SQLFilters['uspd'] = "code = 'uspd'";
+		$this->SQLFilters['itos'] = "code = 'itos'";
+		$this->SQLFilters['datacenter'] = "code = 'datacenter'";
+
+		$this->SQLFilterGroups['Группа тарифов']= ['allcode', 'nocode', 'domain', 'ip', 'mailserver', 'phone_ats', 'site', 'sms_gate', 'uspd', 'itos','datacenter'];
 		$this->SQLFilterGroups['Период тарифа']=array('pa','pm','py','po','p3','p6');
 		$this->filters[]='pa';
+		$this->filters[]='allcode';
 	}
 }
 class DbFormTarifsExtra extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
 		$this->fields['currency']=array('enum'=>Currency::enum(),'default'=>Currency::RUB);
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный', 'itos' => 'ИТ-аутсорсинг'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['description']=array();
-		$this->fields['code']=array('assoc_enum'=>array(
-                    ''=>'',
-
-                    //'confroom' => 'Конференц-зал',
-                    'domain'=>'Домен',
-                    'ip'=>'IP',
-                    'mailserver'=>'Почтовый сервер',
-                    'phone_ats'=>'АТС',
-                    'site'=>'Сайт',
-                    'sms_gate'=>'SMS Gate', 
-                    'uspd' => "УСПД",
-                    //'welltime'=>'WellTime',
-                    //'wellsystems'=>'WellSystems'
-                    ));
+		$this->fields['code'] = array(
+			'assoc_enum' => array(
+				'' => '',
+				'domain' => 'Домен',
+				'ip' => 'IP',
+				'mailserver' => 'Почтовый сервер',
+				'phone_ats' => 'АТС',
+				'site' => 'Сайт',
+				'sms_gate' => 'SMS Gate',
+				'uspd' => "УСПД",
+				'itos' => 'ИТ-аутсорсинг',
+				'datacenter' => 'Датацентр'
+			)
+		);
 		$this->fields['param_name']=array();
 		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'любое', 0=>'всегда 1'));
 		$this->fields['price']=array();
