@@ -7,6 +7,7 @@ use app\models\Currency;
 use app\models\Number;
 use app\models\NumberType;
 use app\models\DidGroup;
+use app\models\TariffNumber;
 use app\models\light_models\NumberLight;
 
 /**
@@ -20,8 +21,7 @@ class FreeNumberFilter extends Number
     /** @var \yii\db\ActiveQuery */
     private $query;
     private
-        $eachMode = false,
-        $arrayMode = false;
+        $eachMode = false;
 
     /**
      * @return void
@@ -93,13 +93,24 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param string[] $numbers
+     * @return $this
+     */
+    public function setNumbers(array $numbers)
+    {
+        $this->query->andWhere(['IN', parent::tableName() . '.number', $numbers]);
+
+        return $this;
+    }
+
+    /**
      * @param null|float $minCost
      * @return $this
      */
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->query->andWhere(['>=', 'activation_fee', $minCost])->joinWith('tariff');
+            $this->query->andWhere(['>=', TariffNumber::tableName() . '.activation_fee', $minCost])->joinWith('tariff');
         }
         return $this;
     }
@@ -111,7 +122,7 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->query->andWhere(['<=', 'activation_fee', $maxCost])->joinWith('tariff');
+            $this->query->andWhere(['<=', TariffNumber::tableName() . '.activation_fee', $maxCost])->joinWith('tariff');
         }
         return $this;
     }
@@ -209,7 +220,7 @@ class FreeNumberFilter extends Number
      */
     public function orderByPrice($direction = SORT_ASC)
     {
-        $this->query->addOrderBy([parent::tableName() . '.price' => $direction]);
+        $this->query->addOrderBy([TariffNumber::tableName() . '.activation_fee' => $direction])->joinWith('tariff');
         return $this;
     }
 
@@ -273,7 +284,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param Number[] $number
+     * @param \app\models\light_models\NumberLight[] $number
      * @param string|false $currency
      * @return array
      */
@@ -287,11 +298,11 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param Number $number
+     * @param \app\models\Number $number
      * @param string|false $currency
      * @return array
      */
-    public function formattedNumber(Number $number, $currency = Currency::RUB)
+    public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB)
     {
         $formattedResult = new NumberLight;
         $formattedResult->setAttributes($number->getAttributes());

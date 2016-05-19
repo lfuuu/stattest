@@ -1,6 +1,6 @@
 <?php
 
-use app\models\Number;
+use app\models\filter\FreeNumberFilter;
 use app\models\Trouble;
 use app\models\ClientAccount;
 use app\models\TariffVoip;
@@ -132,14 +132,12 @@ if ($action=='add_client') {
 
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
-    $numbersFilter = new \app\models\filter\FreeNumberFilter;
+    $numbersFilter = new FreeNumberFilter;
     $numbersFilter
         ->getNumbers()
         ->setRegions([$region]);
 
-    foreach($numbersFilter->each()->result(null) as $r) {
-        /** @var \app\models\light_models\NumberLight $number */
-        $number = $numbersFilter->formattedNumber($r);
+    foreach($numbersFilter->each()->result(null) as $number) {
         echo implode(';', [$number->number, $number->beauty_level, $number->price, $number->region]) . "\n";
     }
 
@@ -147,20 +145,24 @@ if ($action=='add_client') {
 {
     $client_id = get_param_integer("client_id", 0);
     $numbers = get_param_protected("number","");
-    $numbers = $_numbers = explode(',', $numbers);
-    $numbers = "'".implode("','", $numbers)."'";
+    $_numbers = explode(',', $numbers);
 
-    $comment = "Reserve numbers: <br/>\n";
-    $res = $db->AllRecords("select number,price from voip_numbers where number in (".$numbers.")");
-    foreach($res as $r)
-    {
-        $comment .= $r['number'].' - '.$r['price']."<br/>\n";
+    $comment = 'Reserve numbers: <br />'. PHP_EOL;
+
+    $numbersFilter = new FreeNumberFilter;
+    $numbersFilter
+        ->getNumbers()
+        ->setNumbers((array) $_numbers);
+
+    foreach ($numbersFilter->each()->result(null) as $number) {
+        $comment .= $number->number . ' - ' . $number->price . '<br />' . PHP_EOL;
     }
 
     $account = ClientAccount::findOne($client_id);
-    if (!$account)
-        return 0;
-
+    if (!$account) {
+        echo '0';
+        return false;
+    }
 
     $c = new ClientContractCommentForm;
     $c->contract_id = $account->contract_id;

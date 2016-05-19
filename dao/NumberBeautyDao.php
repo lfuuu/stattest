@@ -12,14 +12,6 @@ use app\models\DidGroup;
 class NumberBeautyDao extends Singleton
 {
 
-    public static $beautyLvlPrices = [
-        DidGroup::BEAUTY_LEVEL_STANDART => 0,
-        DidGroup::BEAUTY_LEVEL_PLATINUM => null,
-        DidGroup::BEAUTY_LEVEL_GOLD => 9999,
-        DidGroup::BEAUTY_LEVEL_SILVER => 5999,
-        DidGroup::BEAUTY_LEVEL_BRONZE => 1999,
-    ];
-
     public static $beautyLvlPlatinum = [
         /**
          * 7 цифр подряд

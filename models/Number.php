@@ -14,7 +14,7 @@ use yii\db\ActiveRecord;
  * @property string hold_from
  * @property string hold_to
  * @property int beauty_level
- * @property int price
+ * @property float price
  * @property int region
  * @property int client_id
  * @property int usage_id
@@ -121,13 +121,14 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @param null|string $currency
      * @return float
      */
-    public function getPrice($currency = Currency::RUB)
+    public function getPrice($currency = null)
     {
         $price = $this->originPrice;
 
-        if ($this->tariff->currency != $currency) {
+        if (!is_null($currency) && $this->tariff->currency != $currency) {
             if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->tariff->currency)) !== null) {
                 $price *= $tariffCurrencyRate->rate;
             }

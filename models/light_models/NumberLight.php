@@ -35,10 +35,10 @@ class NumberLight extends Model
     }
 
     /**
-     * @param Number $number
+     * @param \app\models\Number $number
      * @param string $currency
      */
-    public function setPrices(Number $number, $currency = Currency::RUB)
+    public function setPrices(\app\models\Number $number, $currency = Currency::RUB)
     {
         $actualPrice = $number->getPriceWithCurrency($currency);
         $originPrice = $number->getOriginPriceWithCurrency();

@@ -29,29 +29,6 @@ class VoipNumbersController extends Controller
         $city = null;
 
     /**
-     * Список доступных опций
-     *
-     * @param string $actionID
-     *
-     * @return array
-     */
-    public function options($actionID)
-    {
-        switch ($actionID) {
-            case 'set-prices':
-                return [
-                    'BeautyLvl0',
-                    'BeautyLvl1',
-                    'BeautyLvl2',
-                    'BeautyLvl3',
-                    'BeautyLvl4',
-                ];
-        }
-
-        return [];
-    }
-
-    /**
      * Вывод помощи
      *
      * @return int
@@ -93,33 +70,6 @@ class VoipNumbersController extends Controller
             "\t\t" . $this->ansiFormat(' <cityId>', Console::FG_YELLOW) . ': int city.id' . PHP_EOL .
             "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>',
                 Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL
-        );
-
-        $this->stdout(PHP_EOL . PHP_EOL);
-
-        $this->stdout('Установка стоимости в зависимости от красоты:', Console::FG_CYAN);
-        $this->stdout(PHP_EOL . "\t");
-        $this->stdout(
-            './' . $scriptName . ' stat/voip-numbers/set-prices ' .
-            $this->ansiFormat(' <regionId>', Console::FG_YELLOW) .
-            $this->ansiFormat(' <cityId>', Console::FG_YELLOW) .
-            $this->ansiFormat(' <rangeStart-rangeEnd>', Console::FG_YELLOW) . PHP_EOL .
-            $this->ansiFormat(' [-- BeautyLvl0=numberPrice]', Console::FG_YELLOW) .
-            $this->ansiFormat(' [-- BeautyLvl1=numberPrice]', Console::FG_YELLOW) .
-            $this->ansiFormat(' [-- BeautyLvl2=numberPrice]', Console::FG_YELLOW) .
-            $this->ansiFormat(' [-- BeautyLvl3=numberPrice]', Console::FG_YELLOW) .
-            $this->ansiFormat(' [-- BeautyLvl4=numberPrice]', Console::FG_YELLOW) . PHP_EOL
-        );
-        $this->stdout(
-            "\t\t" . $this->ansiFormat(' <regionId>', Console::FG_YELLOW) . ': int regions.id' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' <cityId>', Console::FG_YELLOW) . ': int city.id' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' <rangeStart-rangeEnd>',
-                Console::FG_YELLOW) . ': string pattern "\d+-\d+"' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' -- BeautyLvl0=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' -- BeautyLvl1=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' -- BeautyLvl2=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' -- BeautyLvl3=numberPrice', Console::FG_YELLOW) . ': float' . PHP_EOL .
-            "\t\t" . $this->ansiFormat(' -- BeautyLvl4=numberPrice', Console::FG_YELLOW) . ': float'
         );
 
         $this->stdout(PHP_EOL);
@@ -267,65 +217,6 @@ class VoipNumbersController extends Controller
         $this->stdout('Пропущено: ' . $skippedCount . PHP_EOL, Console::FG_PURPLE);
         $this->stdout('Обновлено: ' . $changedCount . PHP_EOL, Console::FG_PURPLE);
         $this->stdout('Ошибок: ' . $errorsCount . PHP_EOL, Console::FG_PURPLE);
-
-        if ($this->confirm('Продолжить с установкой цен: ')) {
-            $this->runAction('set-prices', [
-                $regionId,
-                $cityId,
-                $numbersRange
-            ]);
-        }
-
-        return Controller::EXIT_CODE_NORMAL;
-    }
-
-    /**
-     * Установка стоимости номера в зависимости от красоты
-     *
-     * @param int $regionId
-     * @param int $cityId
-     * @param string $numbersRange - Pattern: \d+\-\d+
-     *
-     * @return int
-     */
-    public function actionSetPrices($regionId, $cityId, $numbersRange)
-    {
-        list ($rangeStart, $rangeEnd) = explode('-', $numbersRange);
-
-        foreach (DidGroup::$beautyLevelNames as $level => $title) {
-            if (!is_numeric($this->{'BeautyLvl' . $level}) && $this->{'BeautyLvl' . $level} !== 'null') {
-                $this->{'BeautyLvl' . $level} =
-                    $this->prompt(
-                        'Укажите цену для уровня "' . $title .
-                        '" (по-умолчанию - ' . NumberBeautyDao::$beautyLvlPrices[$level] . '):'
-                    );
-            }
-
-            $this->{'BeautyLvl' . $level} = (
-            $this->{'BeautyLvl' . $level} === 'null'
-                ? null
-                : (
-            is_numeric($this->{'BeautyLvl' . $level})
-                ? $this->{'BeautyLvl' . $level}
-                : NumberBeautyDao::$beautyLvlPrices[$level]
-            )
-            );
-
-            $this->stdout(
-                'Цена установлена для уровня "' . $title . '" - ' .
-                Number::updateAll(
-                    ['price' => $this->{'BeautyLvl' . $level}],
-                    [
-                        'and',
-                        ['region' => $regionId],
-                        ['city_id' => $cityId],
-                        ['beauty_level' => $level],
-                        ['between', 'number', $cityId . $rangeStart, $cityId . $rangeEnd]
-                    ]
-                ) . PHP_EOL,
-                Console::FG_PURPLE
-            );
-        }
 
         return Controller::EXIT_CODE_NORMAL;
     }
