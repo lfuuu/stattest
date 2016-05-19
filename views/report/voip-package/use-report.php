@@ -39,113 +39,88 @@ foreach ($packages as $package) {
     <div class="well" style="overflow-x: auto;">
         <form method="GET">
             <div class="col-xs-12">
-                <table border="0" width="100%" cellpadding="5" cellspacing="5">
-                    <colgroup>
-                        <col width="20%" />
-                        <col width="20%" />
-                        <col width="20%" />
-                        <col width="20%" />
-                        <col width="20%" />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th><div style="margin-left: 15px; font-size: 12px;">Период</div></th>
-                            <th><div style="margin-left: 15px; font-size: 12px;">Номер</div></th>
-                            <th><div style="margin-left: 15px; font-size: 12px;">Пакет</div></th>
-                            <th><div style="margin-left: 15px; font-size: 12px;">Вывод</div></th>
-                            <th><div style="margin-left: 15px; font-size: 12px;">Часовой пояс</div></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="col-xs-12">
-                                    <?php
-                                    echo DateRangePicker::widget([
-                                        'name' => 'filter[range]',
-                                        'hideInput' => true,
-                                        'value' =>
-                                            $filter->range
-                                                ?:
-                                                (new DateTime('first day of this month'))->format('Y-m-d') .
-                                                ' : ' .
-                                                (new DateTime('last day of this month'))->format('Y-m-d'),
-                                        'pluginOptions' => [
-                                            'locale' => [
-                                                'format' => 'YYYY-MM-DD',
-                                                'separator'=>' : ',
-                                            ],
-                                        ],
-                                        'containerOptions' => [
-                                            'style' => 'overflow: hidden;',
-                                            'class' => 'drp-container input-group',
-                                        ],
-                                    ]);
-                                    ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="col-xs-12">
-                                    <?php
-                                    echo Select2::widget([
-                                        'name' => 'filter[number]',
-                                        'data' => ArrayHelper::map($numbers, 'id', 'E164'),
-                                        'value' => $filter->number,
-                                        'options' => [
-                                            'placeholder' => '-- Выбрать номер --',
-                                        ],
-                                        'pluginOptions' => [
-                                            'allowClear' => true,
-                                        ],
-                                    ]);
-                                    ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="col-xs-12">
-                                    <?php
-                                    echo Html::dropDownList(
-                                        'filter[packages]',
-                                        $filter->packages,
-                                        ['0' => 'Все пакеты'],
-                                        ['class' => 'form-control']
-                                    );
-                                    ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="col-xs-12">
-                                    <?php
-                                    echo Html::dropDownList(
-                                        'filter[mode]',
-                                        $filter['mode'],
-                                        [
-                                            'by_package' => 'По пакетам',
-                                            'by_package_calls' => 'По звонкам в пакете',
-                                        ],
-                                        ['class' => 'form-control']
-                                    );
-                                    ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="col-xs-12">
-                                    <b><?= $clientAccount->timezone->getName(); ?></b>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="5" align="center">
-                                <br />
-                                <?php
-                                echo Html::submitButton('Сформировать', ['class' => 'btn btn-primary',]);
-                                ?>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="form-group col-xs-3">
+                    <label>Период</label>
+                    <?php
+                    $dateRangeValue =
+                        $filter->range
+                            ?:
+                                (new DateTime('first day of this month'))->format('Y-m-d') .
+                                ' : ' .
+                                (new DateTime('last day of this month'))->format('Y-m-d');
+
+                    echo DateRangePicker::widget([
+                        'name' => 'filter[range]',
+                        'hideInput' => true,
+                        'value' => $dateRangeValue,
+                        'pluginOptions' => [
+                            'locale' => [
+                                'format' => 'YYYY-MM-DD',
+                                'separator'=> ' : ',
+                            ],
+                        ],
+                        'containerOptions' => [
+                            'style' => 'overflow: hidden; min-width: 180px;',
+                            'class' => 'drp-container input-group',
+                            'title' => $dateRangeValue,
+                        ],
+                    ]);
+                    ?>
+                </div>
+
+                <div class="form-group col-xs-2">
+                    <label>Номер</label>
+                    <?php
+                    echo Select2::widget([
+                        'name' => 'filter[number]',
+                        'data' => ArrayHelper::map($numbers, 'id', 'E164'),
+                        'value' => $filter->number,
+                        'options' => [
+                            'placeholder' => '-- Выбрать номер --',
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true,
+                        ],
+                    ]);
+                    ?>
+                </div>
+
+                <div class="form-group col-xs-2">
+                    <label>Пакет</label>
+                    <?php
+                    echo Html::dropDownList(
+                        'filter[packages]',
+                        $filter->packages,
+                        ['0' => 'Все пакеты'],
+                        ['class' => 'form-control']
+                    );
+                    ?>
+                </div>
+
+                <div class="form-group col-xs-2">
+                    <label>Вывод</label>
+                    <?php
+                    echo Html::dropDownList(
+                        'filter[mode]',
+                        $filter['mode'],
+                        [
+                            'by_package' => 'По пакетам',
+                            'by_package_calls' => 'По звонкам в пакете',
+                        ],
+                        ['class' => 'form-control']
+                    );
+                    ?>
+                </div>
+
+                <div class="form-group col-xs-2">
+                    <label>Часовой пояс</label><br />
+                    <b><?= $clientAccount->timezone->getName(); ?></b>
+                </div>
+            </div>
+            <div class="col-xs-12 text-center">
+                <?php
+                echo Html::submitButton('Сформировать', ['class' => 'btn btn-primary',]);
+                ?>
             </div>
         </form>
 
