@@ -35,10 +35,6 @@ jQuery(document).ready(function () {
                             currentValue = element.data('current-value');
 
                         element.find('option:gt(0)').detach();
-                        element.select2({
-                            'val': null,
-                            'allowClear': true
-                        });
 
                         $.each(result, function () {
                             element.append(
