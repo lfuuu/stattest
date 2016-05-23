@@ -36,15 +36,19 @@ class m160520_101110_client_account_mailer_options extends \app\classes\Migratio
         }
 
         if (count($insertData)) {
-            $this->batchInsert(
-                ClientAccountOptions::tableName(),
-                [
-                    'client_account_id',
-                    'option',
-                    'value',
-                ],
-                $insertData
-            );
+            $chunks = array_chunk($insertData, 1000);
+
+            foreach ($chunks as $chunk) {
+                $this->batchInsert(
+                    ClientAccountOptions::tableName(),
+                    [
+                        'client_account_id',
+                        'option',
+                        'value',
+                    ],
+                    $chunk
+                );
+            }
         }
     }
 
