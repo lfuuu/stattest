@@ -1,13 +1,12 @@
 <?php
 namespace app\dao;
 
-use ActiveRecord\ConfigException;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\DidGroup;
 use app\models\Number;
-use app\models\NumberType;
 use app\models\voip\Registry;
+use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -100,7 +99,7 @@ class VoipRegistryDao extends Singleton
         $this->didGroups =  DidGroup::dao()->getDidGroupMapByCityId($registry->city_id);
 
         if (!$this->didGroups) {
-            throw new ConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
+            throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
         }
 
         $filledCount = 0;
@@ -118,7 +117,7 @@ class VoipRegistryDao extends Singleton
         $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
 
         if (!isset($this->didGroups[$beautyLevel])) {
-            throw new ConfigException('Для номера ' .$addNumber . ' с красотой: ' . $beautyLevel . ' не найдена DID-группа');
+            throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
         }
 
         $number = new Number;

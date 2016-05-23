@@ -82,25 +82,29 @@ class RegistryController extends BaseController
             }
         }
 
-        $checkList = null;
-        if (Yii::$app->request->post('fill-numbers')) {
-            $registry->fillNumbers();
-            $isShowCheckList = true;
-        }
+        try {
+            $checkList = null;
+            if (Yii::$app->request->post('fill-numbers')) {
+                $registry->fillNumbers();
+                $isShowCheckList = true;
+            }
 
-        if (Yii::$app->request->post('to-sale')) {
-            $registry->toSale();
-            $isShowCheckList = true;
-        }
+            if (Yii::$app->request->post('to-sale')) {
+                $registry->toSale();
+                $isShowCheckList = true;
+            }
 
-        if ($isShowCheckList || Yii::$app->request->post('check-numbers')) {
-            $checkList = $registry->getPassMap();
-            $isShowCheckList = true;
-        }
+            if ($isShowCheckList || Yii::$app->request->post('check-numbers')) {
+                $checkList = $registry->getPassMap();
+                $isShowCheckList = true;
+            }
 
-        $statusInfo = [];
-        if ($isShowCheckList) {
-            $statusInfo = $registry->getStatusInfo();
+            $statusInfo = [];
+            if ($isShowCheckList) {
+                $statusInfo = $registry->getStatusInfo();
+            }
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
         }
 
         $model->initForm();
