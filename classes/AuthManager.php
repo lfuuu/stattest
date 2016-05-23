@@ -328,18 +328,4 @@ class AuthManager extends BaseManager
     {
         return [];
     }
-
-    /**
-     * Checks the possibility of adding a child to parent
-     * @param Item $parent the parent item
-     * @param Item $child the child item to be added to the hierarchy
-     * @return boolean possibility of adding
-     *
-     * @since 2.0.8
-     */
-    public function canAddChild($parent, $child)
-    {
-        // TODO: Implement canAddChild() method.
-        return false;
-    }
 }
