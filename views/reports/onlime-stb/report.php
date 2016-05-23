@@ -15,7 +15,7 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
 
 <div class="well" style="overflow-x: auto;">
     <form method="GET">
-        <div class="col-xs-8">
+        <div class="col-sm-8">
             <legend style="font-size: 16px;">Фильтр</legend>
             <table border="0" width="100%">
                 <colgroup>
@@ -51,7 +51,7 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
                             ?>
                         </td>
                         <td>
-                            <div class="col-xs-12">
+                            <div class="col-sm-12">
                                 <?php
                                 echo Select2::widget([
                                     'name' => 'filter[mode]',
@@ -65,7 +65,7 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
                             </div>
                         </td>
                         <td>
-                            <div class="col-xs-12">
+                            <div class="col-sm-12">
                                 <?php
                                 echo Select2::widget([
                                     'name' => 'filter[promo]',
@@ -89,7 +89,7 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
             </table>
         </div>
 
-        <div class="col-xs-4">
+        <div class="col-sm-4">
             <legend style="font-size: 16px;">Проверка заказа</legend>
             <table border="0" width="100%" style="margin-top: 32px;">
                 <tbody>
@@ -103,7 +103,7 @@ echo Html::formLabel('Статистика - Отчет по ' . ucfirst($operat
                             ?>
                         </td>
                         <td>
-                            <div class="col-xs-10">
+                            <div class="col-sm-10">
                                 <?php
                                 echo Html::button('Ок', [
                                     'class' => 'btn btn-primary check-order',

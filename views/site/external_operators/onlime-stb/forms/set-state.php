@@ -23,32 +23,32 @@ list(, $operator_name, $partner) = preg_split('#:\s*#', $billExtendsInfo->commen
     <legend>Просмотр счета №<?= $bill->bill_no; ?></legend>
 
     <legend style="font-size: 16px;">Данные счета</legend>
-    <div class="col-xs-12">
-        <div class="col-xs-3">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
             <b>Ф.И.О.</b><br />
             <?= $billExtendsInfo->fio; ?>
         </div>
-        <div class="col-xs-3">
+        <div class="col-sm-3">
             <b>Адрес доставки</b><br />
             <?= $billExtendsInfo->address; ?>
         </div>
-        <div class="col-xs-2">
+        <div class="col-sm-2">
             <b>Контактный телефон</b><br />
             <?= $billExtendsInfo->phone; ?>
         </div>
-        <div class="col-xs-2">
+        <div class="col-sm-2">
             <b>Ф.И.О. оператора</b><br />
             <?= $operator_name; ?>
         </div>
-        <div class="col-xs-2">
+        <div class="col-sm-2">
             <b>Партнер</b><br />
             <?= $partner; ?>
         </div>
-        <div class="col-xs-2">
+        <div class="col-sm-2">
             <b>Временной интервал</b><br />
             <?= $billExtendsInfo->comment1; ?>
         </div>
-        <div class="col-xs-12" style="margin-top: 15px;">
+        <div class="col-sm-12" style="margin-top: 15px;">
             <label style="float: left;"><b>Комментарий</b></label>
             <div style="float: left; margin-left: 10px; margin-top: 2px; background: url('/images/icons/edit.gif') no-repeat 0 0; width: 16px; height: 16px;">
                 <a href="#" data-edit="#bill-comment" class="switchEditable" style="margin-left: 22px;">Редактировать</a>

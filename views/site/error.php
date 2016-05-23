@@ -10,7 +10,7 @@ use app\classes\Html;
 $this->title = $name;
 ?>
 
-<div class="col-xs-12" style="text-align: center; padding: 20px;">
+<div class="col-sm-12" style="text-align: center; padding: 20px;">
     <div class="well">
         <div class="site-error">
 

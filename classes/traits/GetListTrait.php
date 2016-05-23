@@ -25,7 +25,7 @@ trait GetListTrait
             ->all();
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

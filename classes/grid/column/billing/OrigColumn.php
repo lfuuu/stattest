@@ -16,7 +16,7 @@ class OrigColumn extends DataColumn
     public function __construct($config = [])
     {
         $this->filter = [
-            '' => ' ---- ',
+            '' => '----',
             0 => 'Терминация',
             1 => 'Оригинация',
         ];

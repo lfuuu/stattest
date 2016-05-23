@@ -11,7 +11,7 @@ use yii\helpers\Url;
  */
 ?>
 
-<div class="container col-xs-12" style="float: none;">
+<div class="container col-sm-12" style="float: none;">
 
     <div class="form-group">
         <label><?= $model->getAttributeLabel('title') ?></label>

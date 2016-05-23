@@ -24,10 +24,26 @@ class Language extends ActiveRecord
     }
 
     /**
+     * @param bool|false $withEmpty
      * @return array
      */
-    public static function getList()
+    public static function getList($withEmpty = false)
     {
-        return ArrayHelper::map(self::find()->orderBy(['code' => SORT_DESC])->all(), 'code', 'name');
+        $list = self::find()->orderBy(['code' => SORT_DESC])->indexBy('code')->all();
+
+        if ($withEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->name;
+    }
+
 }

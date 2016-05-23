@@ -14,7 +14,7 @@ class TrunkContragentColumn extends DataColumn
 {
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- '];
+    public $filter = ['' => '----'];
     public $trunkId = '';
 
     private $contragents = [];

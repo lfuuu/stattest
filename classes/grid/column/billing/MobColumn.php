@@ -16,7 +16,7 @@ class MobColumn extends DataColumn
     public function __construct($config = [])
     {
         $this->filter = [
-            '' => ' ---- ',
+            '' => '----',
             0 => 'Стационарные',
             1 => 'Мобильные',
         ];

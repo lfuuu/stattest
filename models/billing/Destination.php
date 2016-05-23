@@ -63,7 +63,7 @@ class Destination extends ActiveRecord
             ->all();
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

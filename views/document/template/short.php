@@ -26,15 +26,15 @@ use app\classes\Html;
         <?php $form = ActiveForm::begin([]); ?>
         <div id="dialog-form" title="Параметры">
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <?= $form->field($model, 'type')->dropDownList(\app\models\ClientDocument::$types) ?>
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-9">
+                <div class="col-sm-9">
                     <?= $form->field($model, 'folder_id')->dropDownList(\app\models\document\DocumentFolder::getList()) ?>
                 </div>
-                <div class="col-xs-3" style="padding-top: 20px;">
+                <div class="col-sm-3" style="padding-top: 20px;">
                     <?= \app\classes\Html::button('<i class="glyphicon glyphicon-plus"></i> Добавить', [
                         'class' => 'btn btn-success',
                         'onclick' => '$(this).closest(".row").hide().next().show(); return false;',
@@ -42,7 +42,7 @@ use app\classes\Html;
                 </div>
             </div>
             <div class="row" style="display: none;">
-                <div class="col-xs-9">
+                <div class="col-sm-9">
                     <div class="form-group field-documenttemplate-folder-name has-success">
                         <label class="control-label" for="documenttemplate-name">Папка</label>
                         <input type="text" id="documenttemplate-folder-name" class="form-control"
@@ -50,7 +50,7 @@ use app\classes\Html;
                         <div class="help-block"></div>
                     </div>
                 </div>
-                <div class="col-xs-3" style="padding-top: 20px;">
+                <div class="col-sm-3" style="padding-top: 20px;">
                     <?= \app\classes\Html::button('<i class="glyphicon glyphicon-remove"></i> Отмена', [
                         'class' => 'btn btn-danger',
                         'onclick' => '$(this).closest(".row").hide().prev().show(); return false;',
@@ -58,7 +58,7 @@ use app\classes\Html;
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <?= $form->field($model, 'name')->textInput() ?>
                 </div>
             </div>

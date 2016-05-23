@@ -11,7 +11,7 @@ class TrunkTypeColumn extends DataColumn
 {
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- ',];
+    public $filter = ['' => '----',];
 
     /**
      * @param array $config

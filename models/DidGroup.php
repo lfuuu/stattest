@@ -72,7 +72,7 @@ class DidGroup extends ActiveRecord
         $list = self::$beautyLevelNames;
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

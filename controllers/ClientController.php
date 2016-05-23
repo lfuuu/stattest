@@ -3,7 +3,6 @@ namespace app\controllers;
 
 use Yii;
 use yii\base\Exception;
-use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Response;
@@ -29,6 +28,7 @@ use app\models\UsageVoip;
 use app\models\UsageWelltime;
 use app\models\Saldo;
 use app\forms\important_events\ImportantEventsNoticesForm;
+use app\forms\important_events\filter\ImportantEventsNoticesFilter;
 use app\models\ClientAccountOptions;
 
 class ClientController extends BaseController
@@ -282,18 +282,16 @@ class ClientController extends BaseController
         $form = new ImportantEventsNoticesForm;
         $form->clientAccountId = $clientAccount->id;
 
+        $formFilter = new ImportantEventsNoticesFilter;
+        $formFilter->load(Yii::$app->request->get());
+
         if ($form->load(Yii::$app->request->post(), 'FormData') && $form->validate()) {
             $form->saveData();
         }
 
-        $dataProvider = new ArrayDataProvider([
-            'allModels' => $form->loadData(),
-            'sort' => false,
-            'pagination' => false,
-        ]);
-
         return $this->render('notices', [
-            'dataProvider' => $dataProvider,
+            'formData' => $form->loadData(),
+            'formFilterModel' => $formFilter,
             'mailDeliveryLanguageOption' => $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE),
             'form' => $form,
         ]);

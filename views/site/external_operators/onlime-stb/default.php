@@ -16,7 +16,7 @@ foreach ($operator->requestModes as $mode => $params) {
 
 
     <form method="GET">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             <table border="0" width="100%">
                 <colgroup>
                     <col width="30%" />
@@ -47,7 +47,7 @@ foreach ($operator->requestModes as $mode => $params) {
                         ?>
                     </td>
                     <td align="right">
-                        <div class="col-xs-12">
+                        <div class="col-sm-12">
                             <?php foreach ($operator->requestModes as $mode => $params) :?>
                                 <?php
                                 echo Html::submitButton($params['title'], [

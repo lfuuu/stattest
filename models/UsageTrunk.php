@@ -139,7 +139,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         }, $list);
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
 
         return $list;
@@ -160,7 +160,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
             ->all();
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

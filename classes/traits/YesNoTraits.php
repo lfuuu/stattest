@@ -17,7 +17,7 @@ trait YesNoTraits
         ];
 
         if ($isWithEmpty) {
-            $list = ['' => ' ---- '] + $list;
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

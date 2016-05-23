@@ -10,7 +10,7 @@ use yii\db\ActiveRecord;
 class GeoColumn extends DataColumn
 {
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- '];
+    public $filter = ['' => '----'];
     protected $idToName = [];
 
     public function __construct($config = [])

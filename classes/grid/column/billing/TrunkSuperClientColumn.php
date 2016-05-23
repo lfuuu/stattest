@@ -11,7 +11,7 @@ class TrunkSuperClientColumn extends DataColumn
 {
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- '];
+    public $filter = ['' => '----'];
     protected $trunkIdToSuperClientName = [];
 
     public function __construct($config = [])

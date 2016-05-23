@@ -13,7 +13,7 @@ class TrunkContractTypeColumn extends DataColumn
 {
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- '];
+    public $filter = ['' => '----'];
     public $filterByBusinessProcessId = 0;
 
     private $contractTypes = [];

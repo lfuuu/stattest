@@ -50,7 +50,7 @@ class Prefix extends ActiveRecord
 
         $list = [];
         if ($isWithEmpty) {
-            $list[''] = ' ---- ';
+            $list[''] = '----';
         }
         foreach ($query->all(self::getDb()) as $row) {
             $list[$row['prefix']] = $row['name'];

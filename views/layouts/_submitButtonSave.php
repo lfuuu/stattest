@@ -4,6 +4,7 @@
  */
 use app\classes\Html;
 
+/** @var boolean $pullRight */
 ?>
 
 <?= Html::submitButton(
@@ -13,6 +14,6 @@ use app\classes\Html;
     ]) . ' ' .
     Yii::t('common', 'Save'),
     [
-        'class' => 'btn btn-primary',
+        'class' => 'btn btn-primary' . ($pullRight === true ? ' pull-right' : ''),
     ]
 ) ?>

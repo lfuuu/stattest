@@ -34,8 +34,8 @@ use app\models\Region;
     <fieldset>
         <label>Публикация счетов в регионе</label>
         <form action="/bill/publish/region">
-            <div class="col-xs-12">
-                <div class="col-xs-6">
+            <div class="col-sm-12">
+                <div class="col-sm-6">
                     <?php
                     echo Html::dropDownList(
                         'region',
@@ -45,7 +45,7 @@ use app\models\Region;
                     );
                     ?>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-sm-6">
                     <input type="submit" value="Опубликовать" class="btn btn-primary" />
                 </div>
             </div>

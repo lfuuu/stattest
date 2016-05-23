@@ -16,7 +16,7 @@ class TrunkBusinessColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filter = ['' => ' ---- '];
+    public $filter = ['' => '----'];
 
     /**
      * @param array $config

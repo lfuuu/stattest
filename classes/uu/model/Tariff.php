@@ -315,7 +315,7 @@ class Tariff extends \yii\db\ActiveRecord
         ];
 
         if ($isWithEmpty) {
-            $types = ['' => ' ---- '] + $types;
+            $types = ['' => '----'] + $types;
         }
 
         if ($countryId && $countryId != Country::RUSSIA) {

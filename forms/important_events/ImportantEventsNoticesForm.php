@@ -5,8 +5,6 @@ use Yii;
 use app\classes\validators\ArrayValidator;
 use app\classes\Form;
 use app\classes\HttpClient;
-use yii\helpers\ArrayHelper;
-use app\models\important_events\ImportantEventsNames;
 use app\models\Language;
 use app\models\ClientAccountOptions;
 use app\forms\client\ClientAccountOptionsForm;
@@ -89,10 +87,8 @@ class ImportantEventsNoticesForm extends Form
 
         $result = [];
 
-        $eventNames = ArrayHelper::map(ImportantEventsNames::find()->select(['code', 'value'])->all(), 'code', 'value');
-
         if (!$response->isOk) {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Ошибка:' . $response->statusCode);
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->statusCode);
             return false;
         }
 
@@ -103,8 +99,8 @@ class ImportantEventsNoticesForm extends Form
 
         foreach ($response->data as $record) {
             $result[] = [
-                'event_code' => $record['event_code'],
-                'event_name' => isset($eventNames[$record['event_code']]) ? $eventNames[$record['event_code']] : $record['event_code'],
+                'event' => $record['event_code'],
+                'group_id' => $record['group_id'],
                 'do_email' => $record['do_email'],
                 'do_sms' => $record['do_sms'],
                 'do_lk' => $record['do_lk'],
@@ -170,7 +166,7 @@ class ImportantEventsNoticesForm extends Form
         }
 
         if (!$response->isOk) {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Ошибка:' . $response->statusCode);
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->statusCode);
             return false;
         }
 

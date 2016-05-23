@@ -15,7 +15,7 @@ class CurrencyColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = ['' => ' ---- '] + Currency::dao()->getList($columnName = 'id', false);
+        $this->filter = ['' => '----'] + Currency::dao()->getList($columnName = 'id', false);
         parent::__construct($config);
     }
 

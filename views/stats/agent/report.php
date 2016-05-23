@@ -22,7 +22,7 @@ echo Breadcrumbs::widget([
 ?>
 
 <div class="well" style="overflow-x: auto;">
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <form method="GET">
             <table border="0" align="center" width="50%" cellpadding="5" cellspacing="5">
                 <colgroup>
@@ -38,7 +38,7 @@ echo Breadcrumbs::widget([
                 <tbody>
                     <tr>
                         <td>
-                            <div class="col-xs-12">
+                            <div class="col-sm-12">
                                 <?= DateRangePicker::widget([
                                     'name' => 'filter[date]',
                                     'value' =>
@@ -62,7 +62,7 @@ echo Breadcrumbs::widget([
                             </div>
                         </td>
                         <td>
-                            <div class="col-xs-12">
+                            <div class="col-sm-12">
                                 <?= Select2::widget([
                                     'name' => 'filter[partner_contract_id]',
                                     'data' => $partnerList,
@@ -94,9 +94,9 @@ echo Breadcrumbs::widget([
     </div>
 </div>
 
-<div class="col-xs-12" style="padding-bottom: 20px;">
+<div class="col-sm-12" style="padding-bottom: 20px;">
     <?php if (count($filterModel->contractsWithoutReward)) { ?>
-        <div class="col-xs-6 bg-danger">
+        <div class="col-sm-6 bg-danger">
             <fieldset style="padding: 5px;">
                 <label>Отсутствуют настройки вознаграждений для договоров:</label>
                 <ul>
@@ -113,7 +113,7 @@ echo Breadcrumbs::widget([
     <?php } ?>
 
     <?php if (count($filterModel->contractsWithIncorrectBP)) { ?>
-        <div class="col-xs-6 bg-danger">
+        <div class="col-sm-6 bg-danger">
             <fieldset style="padding: 5px;">
                 <label>Договора с неправильным бизнес-процессом:</label>
                 <ul>
