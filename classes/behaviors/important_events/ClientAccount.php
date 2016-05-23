@@ -9,6 +9,8 @@ use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\models\ClientAccountOptions;
+use app\forms\client\ClientAccountOptionsForm;
 
 class ClientAccount extends Behavior
 {
@@ -32,6 +34,13 @@ class ClientAccount extends Behavior
                 'client_id' => $event->sender->id,
                 'user_id' => Yii::$app->user->id,
             ]);
+
+        // Сохранение настройки "Язык уведомлений" для Mailer
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($event->sender->id)
+            ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
+            ->setValue($event->sender->country->lang)
+            ->save($deleteExisting = false);
     }
 
     /**

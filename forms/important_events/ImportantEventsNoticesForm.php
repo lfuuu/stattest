@@ -92,7 +92,7 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
-        if (!count($response->data)) {
+        if (!is_array($response->data)) {
             Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
             return false;
         }
@@ -170,7 +170,7 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
-        if (!count($response->data) || !$response->data['count']) {
+        if (!is_array($response->data) || empty($response->data['count'])) {
             Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
             return false;
         }
