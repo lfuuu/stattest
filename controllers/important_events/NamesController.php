@@ -22,9 +22,14 @@ class NamesController extends BaseController
 
     public function actionEdit($id = '')
     {
+        $eventCode = Yii::$app->request->get('code');
+
         $model = ImportantEventsNames::findOne($id);
         if (!($model instanceof ImportantEventsNames)) {
             $model = new ImportantEventsNames;
+            if (!empty($eventCode)) {
+                $model->code = $eventCode;
+            }
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {

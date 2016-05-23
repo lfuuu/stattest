@@ -18,6 +18,7 @@ class MonitorFactory extends Singleton
             $this->getVoipNumbersIntegrity(),
             $this->getClientAccountWODayLimit(),
             $this->getUsageVoipNotFilledTariffs(),
+            $this->getImportantEventsWithoutNames(),
         ];
     }
 
@@ -104,6 +105,11 @@ class MonitorFactory extends Singleton
     public function getUsageVoipNotFilledTariffs()
     {
         return new UsageVoipNotFilledTariffs;
+    }
+
+    public function getImportantEventsWithoutNames()
+    {
+        return new ImportantEventsWithoutNames();
     }
 
 }
