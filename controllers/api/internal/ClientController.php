@@ -252,7 +252,7 @@ class ClientController extends ApiInternalController
      *     )
      *   )
      * ),
-     * @SWG\Get(
+     * @SWG\Post(
      *   tags={"Работа с клиентами"},
      *   path="/internal/client/get-client-struct/",
      *   summary="Получение цельной структуры клиента",
