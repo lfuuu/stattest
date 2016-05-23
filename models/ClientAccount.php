@@ -49,6 +49,7 @@ use yii\helpers\Url;
  * @property User userAccountManager
  * @property LkWizardState lkWizardState
  * @property ClientCounter billingCounters
+ * @property ClientCounter billingCountersFastMass
  * @method static ClientAccount findOne($condition)
  */
 class ClientAccount extends HistoryActiveRecord
@@ -624,6 +625,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getBillingCounters()
     {
         return ClientCounter::getCounters($this->id);
+    }
+
+    /**
+     * @return ClientCounter
+     */
+    public function getBillingCountersFastMass()
+    {
+        return ClientCounter::getCountersFastMass($this->id);
     }
 
     /**

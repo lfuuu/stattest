@@ -28,6 +28,9 @@ class ClientCounter extends ActiveRecord
     // Локальный кеш
     private static $localCache = [];
 
+    // Локальный кеш, для ускорения массовых запросов
+    private static $localCacheFastMass = [];
+
     /**
      * @return string
      */
@@ -110,6 +113,38 @@ class ClientCounter extends ActiveRecord
         static::$localCache[$clientAccountId] = $localCounter;
 
         return static::$localCache[$clientAccountId];
+    }
+
+    /**
+     * @param int $clientAccountId
+     * @return ClientCounter
+     */
+    public static function getCountersFastMass($clientAccountId)
+    {
+        if (!static::$localCacheFastMass) {
+            static::$localCacheFastMass = BillingCounter::find()->addSelect(['client_id'])->indexBy('client_id')->all();
+        }
+
+        if (isset(static::$localCacheFastMass[$clientAccountId])) {
+            $billingCounter = static::$localCacheFastMass[$clientAccountId];
+
+            $counter = new self;
+            $counter->client_id = $clientAccountId;
+            $counter->amount_sum = $billingCounter->amount_sum;
+            $counter->amount_day_sum = $billingCounter->amount_day_sum;
+            $counter->amount_month_sum = $billingCounter->amount_month_sum;
+            //$counter->save();
+
+            return $counter;
+        }
+
+        $counter = new self;
+        $counter->client_id = $clientAccountId;
+        $counter->amount_sum = 0;
+        $counter->amount_day_sum = 0;
+        $counter->amount_month_sum = 0;
+
+        return $counter;
     }
 
     /**

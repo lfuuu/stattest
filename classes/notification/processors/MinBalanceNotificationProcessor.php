@@ -19,7 +19,7 @@ class MinBalanceNotificationProcessor extends NotificationProcessor
 
     public function getValue()
     {
-        return $this->client->billingCounters->realtimeBalance;
+        return $this->client->billingCountersFastMass->realtimeBalance;
     }
 
     public function getLimit()

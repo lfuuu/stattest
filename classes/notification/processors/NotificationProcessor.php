@@ -13,6 +13,8 @@ use app\models\LkNotificationLog;
 
 abstract class NotificationProcessor
 {
+    const COMPARISON_LEVEL_NO_EQUAL = 1;
+    const COMPARISON_LEVEL_WITH_EQUAL = 2;
 
     /**
      * @var \app\queries\ClientAccountQuery $clients
@@ -28,7 +30,7 @@ abstract class NotificationProcessor
 
     public function __construct()
     {
-        $this->clients = ClientAccount::find()->active();
+        $this->clients = ClientAccount::find()->select(['id', 'credit', 'voip_credit_limit_day'])->active();
     }
 
     abstract function getEvent();
@@ -42,15 +44,37 @@ abstract class NotificationProcessor
         return true;
     }
 
+    /**
+     * Тип сравнения
+     * Больше/меньше или больше/меньше-и-равно
+     *
+     * @return int
+     */
+    protected function comparisonLevel()
+    {
+        return self::COMPARISON_LEVEL_WITH_EQUAL;
+    }
+
+    /**
+     * Пропустить обработку, если лимит не задан.
+     * "Заданость" лимита определяет обработчик
+     *
+     * @return bool
+     */
+    protected function checkLimitToSkip()
+    {
+        return false;
+    }
+
     public function filterClients()
     {
         $dayLimitClients = LkNoticeSetting::find()
             ->distinct()
-            ->active()
             ->select('client_id')
             ->where([
                 $this->getEvent() => 1
-            ]);
+            ])
+            ->andWhere(['status' => LkNoticeSetting::STATUS_WORK]);
 
         $this->clients->innerJoin(['dl' => $dayLimitClients], 'dl.client_id = ' . ClientAccount::tableName() . '.id');
 
@@ -174,10 +198,23 @@ abstract class NotificationProcessor
         $value = $this->getValue();
         $limit = $this->getLimit();
 
+        if ($this->checkLimitToSkip($limit)){
+            return false;
+        }
+
+
         if ($this->isPositiveComparison()) {
-            $isCompareSet = $value <= $limit;
+            if ($this->comparisonLevel() == self::COMPARISON_LEVEL_WITH_EQUAL) {
+                $isCompareSet = $value <= $limit;
+            } else { //self::COMPARISON_LEVEL_NO_EQUAL
+                $isCompareSet = $value < $limit;
+            }
         } else {
-            $isCompareSet = $value >= $limit;
+            if ($this->comparisonLevel() == self::COMPARISON_LEVEL_WITH_EQUAL) {
+                $isCompareSet = $value >= $limit;
+            } else {
+                $isCompareSet = $value > $limit;
+            }
         }
 
         if ($isCompareSet) {
@@ -195,10 +232,22 @@ abstract class NotificationProcessor
         $value = $this->getValue();
         $limit = $this->getLimit();
 
+        if ($this->checkLimitToSkip($limit)){
+            return false;
+        }
+
         if ($this->isPositiveComparison()) {
-            $isCompareUnset = $value > $limit;
+            if ($this->comparisonLevel() == self::COMPARISON_LEVEL_WITH_EQUAL) {
+                $isCompareUnset = $value > $limit;
+            } else {
+                $isCompareUnset = $value >= $limit;
+            }
         } else {
-            $isCompareUnset = $value < $limit;
+            if ($this->comparisonLevel() == self::COMPARISON_LEVEL_WITH_EQUAL) {
+                $isCompareUnset = $value < $limit;
+            } else {
+                $isCompareUnset = $value <= $limit;
+            }
         }
 
         if ($isCompareUnset) {

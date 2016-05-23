@@ -11,6 +11,11 @@ use app\models\important_events\ImportantEventsNames;
  */
 class DayLimitNotificationProcessor extends NotificationProcessor
 {
+    public function filterClients()
+    {
+        return $this; //no additional filter, no default filter
+    }
+    
     public function getEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT;
@@ -18,13 +23,17 @@ class DayLimitNotificationProcessor extends NotificationProcessor
 
     public function getValue()
     {
-        return $this->client->billingCounters->daySummary;
+        return $this->client->billingCountersFastMass->daySummary;
     }
 
     public function getLimit()
     {
+        return -$this->client->voip_credit_limit_day;;
+    }
 
-        return -$this->client->voip_credit_limit_day;
+    protected function checkLimitToSkip($limit)
+    {
+        return $limit == 0;
     }
 
     public function getContactsForSend()
