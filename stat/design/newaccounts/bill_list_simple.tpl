@@ -129,7 +129,7 @@
         {else}
             {cycle values="even,odd" assign=class}
         {/if}
-        <tr class="{$class}" style="{if $op.isCanceled==1}text-decoration: line-through;{/if}">
+        <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}"{if $op.bill.postreg!="0000-00-00"} style="background-color: #FFFFD0"{/if}>{$op.bill.bill_date}</td>
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}">
@@ -149,10 +149,10 @@
                     {if $smarty.foreach.inner.iteration!=1}
                         </tr><tr class="{$class}">
                     {/if}
-                    <td>
+                    <td{if $op.isCanceled==1 && $pay.sum < 0} style="text-decoration: line-through;"{/if}>
                         {objCurrency op=$op obj='pay' pay=$pay currency=$fixclient_data.currency simple=1}
                     </td>
-                    <td style="font-size: 85%;">
+                    <td style="font-size: 85%;{if $op.isCanceled==1 && $pay.sum < 0}text-decoration: line-through;{/if}">
                         {$pay.payment_date} - &#8470;{$pay.payment_no} /
                         {if $pay.type=='bank'}b({$pay.bank})
                         {elseif $pay.type=='prov'}p

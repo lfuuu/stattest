@@ -148,7 +148,7 @@
         {else}
             {cycle values="even,odd" assign=class}
         {/if}
-        <tr class="{$class}" style="{if $op.isCanceled==1}text-decoration: line-through;{/if}">
+        <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}"{if $op.bill.postreg!="0000-00-00"} style="background-color:#FFFFD0"{/if}>{$op.bill.bill_date}</td>
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}">
@@ -168,9 +168,17 @@
                         </tr><tr class="{$class}">
                     {/if}
                     {if isset($pay.p_bill_no) && isset($op.bill.bill_no) && $pay.p_bill_no==$op.bill.bill_no}
-                        <td>{objCurrency op=$op obj='pay_full' pay=$pay currency=$fixclient_data.currency}</td>
-                        <td style='font-size:85%'>{$pay.payment_date} - &#8470;{$pay.payment_no} /
-                            {if $pay.type=='bank'}b{elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
+                        <td{if $op.isCanceled==1 && $pay.sum < 0} style="text-decoration: line-through;"{/if}>
+                            {objCurrency op=$op obj='pay_full' pay=$pay currency=$fixclient_data.currency}
+                        </td>
+                        <td style="font-size: 85%;{if $op.isCanceled==1 && $pay.sum < 0}text-decoration: line-through;{/if}">
+                            {$pay.payment_date} - &#8470;{$pay.payment_no} /
+                            {if $pay.type=='bank'}b
+                            {elseif $pay.type=='prov'}p
+                            {elseif $pay.type=='neprov'}n
+                            {elseif $pay.type=='webmoney'}wm
+                            {elseif $pay.type=='yandex'}y
+                            {else}{$pay.type}{/if}
                             {if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
                         </td>
                         <td align="right">
