@@ -335,7 +335,7 @@ class ClientController extends ApiInternalController
                 $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['id'] = (int)$minimal_row['contragents_accounts_id'];
                 if (empty($result['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'])) {
                     $clientIdent = $minimal_row['clientIdent'];
-                    $applications = Yii::$app->db->createCommand("select id,name, enabled from view_platforma_services_ro WHERE client=:client", [':client' => $clientIdent])->queryAll();
+                    $applications = $this->getPlatformaServices($clientIdent);
                     $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'] = $applications;
                 }
             }
@@ -352,6 +352,38 @@ class ClientController extends ApiInternalController
             $fullResult [] = $result;
         }
         return $fullResult;
+    }
+
+    private function getPlatformaServices($client)
+    {
+        return Yii::$app->db->createCommand("
+                select 
+                    `usage_voip`.`client` AS `client`,
+                    `usage_voip`.`id` AS `id`,
+                    'phone' AS `name`,
+                    ((`usage_voip`.`actual_from` <= now()) and (`usage_voip`.`actual_to` >= now())) AS `enabled` 
+                from `usage_voip`  
+                where client = :client
+                
+                union all 
+                select 
+                    `usage_virtpbx`.`client` AS `client`,
+                    `usage_virtpbx`.`id` AS `id`,
+                    'vpbx' AS `name`,
+                    ((`usage_virtpbx`.`actual_from` <= now()) and (`usage_virtpbx`.`actual_to` >= now())) AS `enabled` 
+                from `usage_virtpbx`
+                where client = :client
+                  
+                union all 
+                
+                select 
+                    `usage_call_chat`.`client` AS `client`,
+                    `usage_call_chat`.`id` AS `id`,
+                    'feedback' AS `name`,
+                    ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 
+                from `usage_call_chat`
+                where client = :client
+        ", [":client" => $client])->queryAll();
     }
 
     /**
