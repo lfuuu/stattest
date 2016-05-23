@@ -286,6 +286,11 @@ class ClientController extends ApiInternalController
         $contragent_name = null,
         $account_id = null
     ) {
+
+        foreach(['id', 'name', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
+            $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
+        }
+
         $ids = [];
         if (empty($id)) {
             if (empty($name)) {
@@ -294,14 +299,14 @@ class ClientController extends ApiInternalController
                         if (empty($account_id)) {
                             return false;
                         } else {
-                            $account = ClientAccount::findOne($account_id);
+                            $account = ClientAccount::findOne(['id' => $account_id]);
                             $ids [] = $account->super_id;
                         }
                     } else {
                         $ids = array_keys(ClientContragent::find()->andWhere(['name' => $contragent_name])->indexBy('super_id')->all());
                     }
                 } else {
-                    $contragent = ClientContragent::findOne($contragent_id);
+                    $contragent = ClientContragent::findOne(['id' => $contragent_id]);
                     $ids [] = $contragent->super_id;
                 }
             } else {
@@ -313,18 +318,8 @@ class ClientController extends ApiInternalController
 
         $fullResult = [];
         foreach ($ids as $id) {
-            $response = Yii::$app->db->createCommand("select * from view_client_struct_ro WHERE id=" . $id . ";")->queryAll();
-            $flip_by = [
-                'id' => [
-                    'name',
-                    'timezone',
-                    'contragents_id' => [
-                        'contragents_name',
-                        'contragents_country_id',
-                        'contragents_accounts_id' => ['contragents_accounts_is_partner']
-                    ]
-                ]
-            ];
+            $response = Yii::$app->db->createCommand("select * from view_client_struct_ro WHERE id=:id", [':id' => $id])->queryAll();
+
             $preresult = [];
             $result = [];
             //map
@@ -340,7 +335,7 @@ class ClientController extends ApiInternalController
                 $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['id'] = (int)$minimal_row['contragents_accounts_id'];
                 if (empty($result['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'])) {
                     $clientIdent = $minimal_row['clientIdent'];
-                    $applications = Yii::$app->db->createCommand("select id,name, enabled from view_platforma_services_ro WHERE client='" . $clientIdent . "';")->queryAll();
+                    $applications = Yii::$app->db->createCommand("select id,name, enabled from view_platforma_services_ro WHERE client=:client", [':client' => $clientIdent])->queryAll();
                     $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'] = $applications;
                 }
             }
