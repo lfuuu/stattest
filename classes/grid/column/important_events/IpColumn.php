@@ -2,7 +2,7 @@
 
 namespace app\classes\grid\column\important_events;
 
-use app\classes\Utils;
+use app\classes\IpUtils;
 
 class IpColumn extends \kartik\grid\DataColumn
 {
@@ -20,7 +20,7 @@ class IpColumn extends \kartik\grid\DataColumn
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = parent::getDataCellValue($model, $key, $index);
-        return !is_null($value) ? Utils::dtr_ntop($value) : '';
+        return !is_null($value) ? IpUtils::dtr_ntop($value) : '';
     }
 
 }
