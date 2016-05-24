@@ -9,7 +9,7 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-$clientId = 38230;
+$clientId = 36166;
 
 //
 //Краснодар 100 номеров - 97 - 36166++
@@ -22,6 +22,7 @@ $clientId = 38230;
 
 
 $confs = [
+    /*
     [
         "didGroupId" => 17,
         "region" => 96,
@@ -34,19 +35,20 @@ $confs = [
         "id_tarif_intern" => 174
 
     ],
-/*
+    */
+
     [
         "didGroupId" => 32,
         "region" => 93,
-        "count_numbers" => 150,
+        "count_numbers" => 100,
 
-        "id_tarif" => 651,
-        "id_tarif_local_mob" => 654,
-        "id_tarif_russia" => 655,
+        "id_tarif" => 653,
+        "id_tarif_local_mob" => 249,
+        "id_tarif_russia" => 252,
         "id_tarif_russia_mob" =>252,
         "id_tarif_intern" => 255,
     ],
-*/
+
     /*
     [
         "didGroupId" => 12,
@@ -97,7 +99,7 @@ $confs = [
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
-    */
+
     [
         "didGroupId" => 37,
         "region" => 86,
@@ -109,9 +111,10 @@ $confs = [
         "id_tarif_russia_mob" => 316,
         "id_tarif_intern" => 318
     ],
+        */
 ];
 
-$actualFrom = '2016-04-01';
+$actualFrom = date("Y-m-d");
 
 foreach($confs as $conf)
 {
