@@ -25,7 +25,7 @@ abstract class TroubleColumn
         if (
             isset($properties['trouble_id'])
             &&
-            ($value = self::renderTrouble($properties['trouble_id'])) !== false
+            ($value = self::renderTrouble((string)$properties['trouble_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -41,7 +41,7 @@ abstract class TroubleColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser((string)$properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -66,18 +66,18 @@ abstract class TroubleColumn
         $stageId = null;
 
         if (isset($properties['stage_id'])) {
-            $stageId = $properties['stage_id'];
+            $stageId = (string)$properties['stage_id'];
         } else {
             if (isset($properties['trouble_id'])) {
-                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                if (($trouble = Trouble::findOne(['id' => (string)$properties['trouble_id']])) !== null) {
                     /** @var Trouble $trouble */
                     $stageId = $trouble->cur_stage_id;
                 }
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Комментарий: ') .
@@ -100,18 +100,18 @@ abstract class TroubleColumn
         $stageId = null;
 
         if (isset($properties['stage_id'])) {
-            $stageId = $properties['stage_id'];
+            $stageId = (string)$properties['stage_id'];
         } else {
             if (isset($properties['trouble_id'])) {
-                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                if (($trouble = Trouble::findOne(['id' => $properties['trouble_id']])) !== null) {
                     /** @var Trouble $trouble */
                     $stageId = $trouble->cur_stage_id;
                 }
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Статус: ') .
@@ -134,18 +134,18 @@ abstract class TroubleColumn
         $stageId = null;
 
         if (isset($properties['stage_id'])) {
-            $stageId = $properties['stage_id'];
+            $stageId = (string)$properties['stage_id'];
         } else {
             if (isset($properties['trouble_id'])) {
-                if (($trouble = Trouble::findOne($properties['trouble_id'])) !== null) {
+                if (($trouble = Trouble::findOne(['id' => (string)$properties['trouble_id']])) !== null) {
                     /** @var Trouble $trouble */
                     $stageId = $trouble->cur_stage_id;
                 }
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne($stageId)) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var User $user */
                 $user = User::findOne(['user' => $stage->user_main]);
 
@@ -165,7 +165,7 @@ abstract class TroubleColumn
     private static function renderTrouble($troubleId)
     {
         /** @var Trouble $trouble */
-        $trouble = Trouble::findOne($troubleId);
+        $trouble = Trouble::findOne(['id' => $troubleId]);
 
         if ($trouble === null) {
             return false;
