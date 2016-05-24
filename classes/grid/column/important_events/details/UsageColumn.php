@@ -24,7 +24,7 @@ abstract class UsageColumn
         if (
             isset($properties['usage'], $properties['usage_id'])
             &&
-            ($value = self::renderUsage($properties['usage'], $properties['usage_id'])) !== false
+            ($value = self::renderUsage((string)$properties['usage'], (string)$properties['usage_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -40,7 +40,7 @@ abstract class UsageColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser((string)$properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -57,7 +57,7 @@ abstract class UsageColumn
         $result = self::renderCreatedUsageDetails($column);
         $properties = $column->properties;
 
-        $fields = LogUsageHistory::findOne(['service_id' => $properties['usage_id']])->fields;
+        $fields = LogUsageHistory::findOne(['service_id' => (string)$properties['usage_id']])->fields;
 
         $changes = '';
         foreach ($fields as $field) {
@@ -126,8 +126,8 @@ abstract class UsageColumn
         isset($properties['usage'], $properties['usage_id'])
         ) {
 
-            $fromUsage = UsageFactory::getUsage($properties['usage'])->findOne($properties['usage_id']);
-            $toUsage = UsageFactory::getUsage($properties['usage'])->findOne($fromUsage['next_usage_id']);
+            $fromUsage = UsageFactory::getUsage((string)$properties['usage'])->findOne(['id' => (string)$properties['usage_id']]);
+            $toUsage = UsageFactory::getUsage((string)$properties['usage'])->findOne(['id' => (string)$fromUsage['next_usage_id']]);
 
             list($value) = $fromUsage->helper->description;
 
@@ -142,7 +142,7 @@ abstract class UsageColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser((string)$properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
@@ -157,7 +157,7 @@ abstract class UsageColumn
      */
     private static function renderUsage($usage, $usageId)
     {
-        $usage = UsageFactory::getUsage($usage)->findOne($usageId);
+        $usage = UsageFactory::getUsage($usage)->findOne(['id' => $usageId]);
 
         if ($usage === null) {
             return 'ID: ' . $usageId;

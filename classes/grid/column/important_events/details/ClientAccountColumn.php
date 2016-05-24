@@ -83,7 +83,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['contract_id'])
             &&
-            ($clientContract = ClientContract::findOne($properties['contract_id'])) !== false
+            ($clientContract = ClientContract::findOne(['id' => (string)$properties['contract_id']])) !== false
         ) {
             /** @var ClientContract $clientContract */
             $result[] =
@@ -111,7 +111,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['contract_id'])
             &&
-            ($clientContract = ClientContract::findOne($properties['contract_id'])) !== false
+            ($clientContract = ClientContract::findOne(['id' => (string)$properties['contract_id']])) !== false
         ) {
             /** @var ClientContract $clientContract */
             $result[] =
@@ -127,7 +127,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['to_contragent_id'])
             &&
-            ($clientContragent = ClientContragent::findOne($properties['to_contragent_id'])) !== false
+            ($clientContragent = ClientContragent::findOne(['id' => (string)$properties['to_contragent_id']])) !== false
         ) {
             /** @var ClientContragent $clientContragent */
             $result[] =
@@ -201,7 +201,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['contragent_id'])
             &&
-            ($clientContragent = ClientContragent::findOne($properties['contragent_id'])) !== false
+            ($clientContragent = ClientContragent::findOne(['id' => (string)$properties['contragent_id']])) !== false
         ) {
             /** @var $clientContragent ClientContragent */
             $result[] =
@@ -216,7 +216,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['to_super_id'])
             &&
-            ($clientSuper = ClientSuper::findOne($properties['to_super_id'])) !== false
+            ($clientSuper = ClientSuper::findOne(['id' => (string)$properties['to_super_id']])) !== false
         ) {
             /** @var ClientSuper $clientSuper */
             $result[] =
@@ -247,7 +247,7 @@ abstract class ClientAccountColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser((string)$properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }

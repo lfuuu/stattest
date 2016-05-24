@@ -18,7 +18,8 @@ class MonitorFactory extends Singleton
             $this->getVoipNumbersIntegrity(),
             $this->getClientAccountWODayLimit(),
             $this->getUsageVoipNotFilledTariffs(),
-            $this->getImportantEventsWithoutNames(),
+            // Приоритеты поменялись, монитор оказался не нужен, но лучше не выкидывать.
+            // $this->getImportantEventsWithoutNames(),
         ];
     }
 

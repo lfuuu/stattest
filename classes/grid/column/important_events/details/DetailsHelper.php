@@ -4,6 +4,7 @@ namespace app\classes\grid\column\important_events\details;
 
 use yii\helpers\Url;
 use app\classes\Html;
+use app\classes\Utils;
 use app\models\ClientAccount;
 use app\models\User;
 
@@ -16,7 +17,7 @@ abstract class DetailsHelper
      */
     public static function renderClientAccount($clientId)
     {
-        $clientAccount = ClientAccount::findOne($clientId);
+        $clientAccount = ClientAccount::findOne(['id' => $clientId]);
 
         if ($clientAccount === null) {
             return false;
@@ -37,7 +38,7 @@ abstract class DetailsHelper
      */
     public static function renderUser($userId)
     {
-        $user = User::findOne($userId);
+        $user = User::findOne(['id' => $userId]);
 
         if ($user === null) {
             return false;

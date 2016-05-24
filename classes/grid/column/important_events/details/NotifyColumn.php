@@ -83,21 +83,21 @@ abstract class NotifyColumn
         if (
             isset($properties['user_id'])
             &&
-            ($value = DetailsHelper::renderUser($properties['user_id'])) !== false
+            ($value = DetailsHelper::renderUser((string)$properties['user_id'])) !== false
         ) {
             $result[] = $value;
         }
 
         if (isset($properties['balance'])) {
-            $result[] = Html::tag('b', 'Баланс: ') . $properties['balance'];
+            $result[] = Html::tag('b', 'Баланс: ') . (string)$properties['balance'];
         }
 
         if (isset($properties['limit'])) {
-            $result[] = Html::tag('b', 'Лимит: ') . $properties['limit'];
+            $result[] = Html::tag('b', 'Лимит: ') . (string)$properties['limit'];
         }
 
         if (isset($properties['value'])) {
-            $result[] = Html::tag('b', 'Значение на момент события: ') . $properties['value'];
+            $result[] = Html::tag('b', 'Значение на момент события: ') . (string)$properties['value'];
         }
 
         return $result;

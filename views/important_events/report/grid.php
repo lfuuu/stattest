@@ -6,6 +6,10 @@ use app\widgets\GridViewCustomFilters;
 use app\models\important_events\ImportantEvents;
 use app\classes\grid\column\important_events\details\DetailColumnFactory;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\grid\column\important_events\ClientColumn;
+use app\classes\grid\column\important_events\EventNameColumn;
+use app\classes\grid\column\important_events\SourceColumn;
+use app\classes\grid\column\important_events\IpColumn;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -34,12 +38,12 @@ echo GridViewCustomFilters::widget([
             'headerOptions' => ['class' => 'kartik-sheet-style'],
         ],
         [
-            'class' => 'app\classes\grid\column\important_events\ClientColumn',
+            'class' => ClientColumn::class,
             'width' => '25%',
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '25%',
+            'width' => '20%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
@@ -68,12 +72,16 @@ echo GridViewCustomFilters::widget([
             },
         ],
         [
-            'class' => 'app\classes\grid\column\important_events\EventNameColumn',
+            'class' => EventNameColumn::class,
             'width' => '25%',
         ],
         [
-            'class' => 'app\classes\grid\column\important_events\SourceColumn',
-            'width' => '25%',
+            'class' => SourceColumn::class,
+            'width' => '20%',
+        ],
+        [
+            'class' => IpColumn::class,
+            'width' => '10%',
         ],
     ],
     'pjax' => false,

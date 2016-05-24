@@ -9,9 +9,9 @@ use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\Utils;
 use app\classes\validators\ArrayValidator;
 use app\models\ClientAccount;
-use app\models\ClientCounter;
 
 /**
  * Class ImportantEvents
@@ -103,6 +103,7 @@ class ImportantEvents extends ActiveRecord
         $event->date = (new DateTime($date,
             new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
         $event->event = $eventType;
+        $event->from_ip = Utils::dtr_pton(Yii::$app->request->userIP);
 
         $source = ImportantEventsSources::findOne(['code' => $eventSource]);
         if (!($source instanceof ImportantEventsSources)) {
