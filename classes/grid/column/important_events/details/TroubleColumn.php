@@ -76,8 +76,8 @@ abstract class TroubleColumn
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne(['id' => $stageId])) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Комментарий: ') .
@@ -110,8 +110,8 @@ abstract class TroubleColumn
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne(['id' => $stageId])) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var TroubleStage $stage */
                 $result[] =
                     Html::tag('b', 'Статус: ') .
@@ -144,8 +144,8 @@ abstract class TroubleColumn
             }
         }
 
-        if (!is_null($stageId)) {
-            if (($stage = TroubleStage::findOne(['id' => $stageId])) !== null) {
+        if (!empty($stageId)) {
+            if (($stage = TroubleStage::findOne(['stage_id' => $stageId])) !== null) {
                 /** @var User $user */
                 $user = User::findOne(['user' => $stage->user_main]);
 

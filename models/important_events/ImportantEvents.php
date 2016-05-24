@@ -201,8 +201,10 @@ class ImportantEvents extends ActiveRecord
 
         $query =
             self::find()
+                ->joinWith('name')
                 ->joinWith('clientAccount')
-                ->orderBy(['date' => SORT_DESC]);
+                ->where(['IS NOT', ImportantEventsNames::tableName() . '.id', null])
+                ->orderBy([self::tableName() . '.date' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
