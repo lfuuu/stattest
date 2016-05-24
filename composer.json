@@ -20,13 +20,10 @@
         "unclead/yii2-multiple-input": "@stable",
         "bower-asset/bootstrap-multiselect": "@stable",
         "zircote/swagger-php": "^2.0",
-        "bower-asset/swagger-ui": "dev-master",
+        "bower-asset/swagger-ui": "1.0.0",
         "KidSysco/jquery-ui-month-picker": "dev-master",
         "yiisoft/yii2-httpclient": "^2.0@dev",
-        "kartik-v/yii2-tabs-x": "^1.2",
-        "bower/typeahead.js": "dev-master as 0.10.99",
-        "bower-asset/typeahead.js": "dev-master as 0.10.99",
-        "yiisoft/yii2-gii": "dev-master"
+        "kartik-v/yii2-tabs-x": "^1.2"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "@stable",
@@ -57,42 +54,6 @@
                 "source":{
                     "type":"git",
                     "url":"https://github.com/KidSysco/jquery-ui-month-picker",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower-asset/swagger-ui",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/swagger-api/swagger-ui.git",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower/typeahead.js",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/twitter/typeahead.js",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower-asset/typeahead.js",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/twitter/typeahead.js",
                     "reference":"master"
                 }
             }
