@@ -35,12 +35,17 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
 
     public function getServiceType()
     {
-        return 'voip';
+        return 'phone';
     }
 
     public function getServiceClass()
     {
         return UsageVoip::className();
+    }
+
+    public function getServiceIdField()
+    {
+        return 'E164';
     }
 
     /**
@@ -53,16 +58,13 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
                 'label' => 'Id услуги',
                 'format' => 'html',
                 'value' => function($model) {
-                    $usage = UsageVoip::findOne(['id' => $model['usage_id']]);
-                    return ($usage ? Html::a(' ' . $model['usage_id'] . ' ', $usage->helper->editLink) : $model['usage_id']);
+                    $usage = UsageVoip::find()->where(['E164' => $model['usage_id']])->orderBy(['id' => SORT_DESC])->one();
+                    return ($usage ? Html::a(' ' . $usage->id . ' ', $usage->helper->editLink) : '');
                 }
             ],
             [
                 'label' => 'Номер',
-                'value' => function($model) {
-                    $usage = UsageVoip::findOne(['id' => $model['usage_id']]);
-                    return ($usage ? $usage->E164 : '');
-                }
+                'attribute' => 'usage_id',
             ],
 
             [

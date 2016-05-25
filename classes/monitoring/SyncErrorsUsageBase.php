@@ -3,6 +3,7 @@
 namespace app\classes\monitoring;
 
 use app\classes\DBROQuery;
+use app\models\ClientAccount;
 use Yii;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
@@ -11,7 +12,7 @@ use yii\helpers\ArrayHelper;
 abstract class SyncErrorsUsageBase extends Component implements MonitoringInterface
 {
 
-    const LIMIT_DEFAULT = 1000;
+    const LIMIT_DEFAULT = 100000;
 
     const STATUS_IN_STAT = 'in_stat_only';
     const STATUS_ACCOUNT_DIFF = 'account_different';
@@ -30,6 +31,11 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
     ];
 
     abstract public function getServiceType();
+
+    public function getServiceIdField()
+    {
+        return "id";
+    }
 
 
     /**
@@ -59,18 +65,18 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
                 "account_id"
             );
 
-
             $serviceClass = $this->getServiceClass();
 
             $statResult = ArrayHelper::map(
                 $serviceClass::find()
-                    ->select(['id', 'client'])
+                    ->select(['id' => 'u.' . $this->getServiceIdField(), 'client_id' => 'c.id'])
+                    ->from(['u' => $serviceClass::tableName()])
                     ->actual()
-                    ->with('clientAccount')
+                    ->innerJoin(['c' => ClientAccount::tableName()], 'c.client = u.client')
                     ->limit(self::LIMIT_DEFAULT)
-                    ->all(),
+                    ->createCommand()->queryAll(),
                 'id',
-                'clientAccount.id'
+                'client_id'
             );
 
             $dbroKeys = array_keys($dbroResult);
@@ -93,11 +99,11 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
             }
 
             foreach (array_intersect($dbroKeys, $statKeys) as $usageId) {
-                if ($dbroKeys[$usageId] != $statKeys[$usageId]) {
+                if ($dbroResult[$usageId] != $statResult[$usageId]) {
                     $result[$usageId] = [
                         'usage_id' => $usageId,
-                        'account_id' => $statResult[$statUsageId],
-                        'account_id2' => $dbroResult[$statUsageId],
+                        'account_id' => $statResult[$usageId],
+                        'account_id2' => $dbroResult[$usageId],
                         'status' => self::STATUS_ACCOUNT_DIFF
                     ];
                 }

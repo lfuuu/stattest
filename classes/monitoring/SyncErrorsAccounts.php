@@ -73,7 +73,6 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
                     Html::endTag('span');
                 }
             ],
-
         ];
     }
 
@@ -105,7 +104,7 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
 
             $statResult = ArrayHelper::map(
                 Yii::$app->db->createCommand(
-                    "select distinct c.id from view_platforma_services_ro v, clients c where c.client = v.client"
+                    "select distinct c.id from view_platforma_services_ro v, clients c where c.client = v.client and v.enabled = 1"
                 )->queryAll(),
                 'id',
                 'id'
