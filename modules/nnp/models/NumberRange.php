@@ -38,7 +38,7 @@ class NumberRange extends ActiveRecord
         return [
             'id' => 'ID',
             'country_code' => 'Страна', // country.code. Не путайте с префиксом!
-            'ndc' => 'ABC/DEF код',
+            'ndc' => 'NDC',
             'number_from' => 'Номер от',
             'number_to' => 'Номер до',
             'operator_source' => 'Исходный оператор',

@@ -24,7 +24,7 @@ class OperatorColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Operator::getList(true);
+        $this->filter = Operator::getList(true, true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' operator-column';
     }
@@ -41,7 +41,7 @@ class OperatorColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if ($this->isAddLink) {
+        if ($this->isAddLink && $value) {
             return Html::a($strValue, Operator::getUrlById($value));
         } else {
             return $strValue;

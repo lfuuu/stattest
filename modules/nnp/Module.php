@@ -9,13 +9,19 @@ use Yii;
  * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=10977965
  *
  * Installation:
- * если используется не стандартный pg-юзер, то надо 
+ *
+ *      в postresql
+ *          CREATE SCHEMA nnp
  *      cp config/db_pg_nnp.local.tpl.php config/db_pg_nnp.local.php
- *      и указать нужный хост, порт, БД, юзера, пароль
- * миграции
+ *          указать нужный хост, порт, БД, юзера, пароль
+ *
+ * Миграции
  *      ./yii migrate --migrationPath='@app/modules/nnp/migrations'
- * импорт
+ *
+ * Импорт
  *      ./yii nnp/import
+ *      ./yii nnp/operator
+ *      ./yii nnp/region
  *
  * Чтобы вынести модуль в другой репозиторий:
  *      из config/web.php и config/console.php скопировать код про "dbPgNnp"

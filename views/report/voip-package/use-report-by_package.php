@@ -55,7 +55,7 @@ echo GridView::widget([
             'value' => function ($package) {
                 return $package->tariff->periodical_fee;
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => 'Всего',
@@ -63,7 +63,7 @@ echo GridView::widget([
             'value' => function ($package) {
                 return sprintf('%.2f', $package->tariff->minutes_count);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => 'Осталось',
@@ -74,7 +74,7 @@ echo GridView::widget([
                 $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
                 return sprintf('%.2f', $package->tariff->minutes_count - array_sum(ArrayHelper::getColumn($stat, 'used_seconds')) / 60);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
@@ -82,7 +82,7 @@ echo GridView::widget([
             'value' => function ($package) {
                 return ceil($package->tariff->periodical_fee / $package->tariff->minutes_count);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
@@ -90,7 +90,7 @@ echo GridView::widget([
             'value' => function ($package) {
                 return $package->tariff->min_payment;
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
@@ -106,7 +106,7 @@ echo GridView::widget([
                 }
                 return '--';
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
     ],
     'toolbar' => [],

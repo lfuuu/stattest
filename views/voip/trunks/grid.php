@@ -78,7 +78,7 @@ $columns = [
         'label' => 'Ориг / Терм',
         'class' => TrunkTypeColumn::className(),
         'width' => '8%',
-        'options' => ['class' => 'text-center',],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

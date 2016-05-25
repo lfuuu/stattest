@@ -26,7 +26,7 @@ if (!$country->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Страны', 'url' => $cancelUrl = Url::toRoute(['dictionary/country', $country->formName() . 'Filter[in_use]' => 1])],
+        ['label' => 'Страны', 'url' => $cancelUrl = '/dictionary/country/'],
         $this->title
     ],
 ]) ?>

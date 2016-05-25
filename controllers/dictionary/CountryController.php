@@ -21,7 +21,12 @@ class CountryController extends BaseController
     public function actionIndex()
     {
         $filterModel = new CountryFilter();
-        $filterModel->load(Yii::$app->request->get());
+
+        $get = Yii::$app->request->get();
+        if (!isset($get['CountryFilter'])) {
+            $get['CountryFilter']['in_use'] = 1; // по-умолчанию только "вкл."
+        }
+        $filterModel->load($get);
 
         return $this->render('index', [
             'filterModel' => $filterModel,

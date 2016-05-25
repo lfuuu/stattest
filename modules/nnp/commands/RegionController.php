@@ -16,7 +16,7 @@ class RegionController extends Controller
     const FUNC_STR_REPLACE = 'str_replace'; // строчная замена
     const FUNC_STRPOS = 'strpos'; // замена, если есть вхождение
 
-    protected $preTreatment = [
+    protected $preProcessing = [
         [self::FUNC_PREG_REPLACE, '/.*\|/', ''],
         [self::FUNC_STR_REPLACE, 'область', 'обл.'],
         [self::FUNC_STR_REPLACE, 'г.о. ', '',],
@@ -97,7 +97,7 @@ class RegionController extends Controller
                 echo '. ';
             }
 
-            $regionSource = $this->preTreatment($numberRange->region_source);
+            $regionSource = $this->preProcessing($numberRange->region_source);
             if (!$regionSource) {
                 continue;
             }
@@ -131,22 +131,22 @@ class RegionController extends Controller
      * @param string $value
      * @return string
      */
-    protected function preTreatment($value)
+    protected function preProcessing($value)
     {
-        foreach ($this->preTreatment as $preTreatment) {
-            switch ($preTreatment[0]) {
+        foreach ($this->preProcessing as $preProcessing) {
+            switch ($preProcessing[0]) {
 
                 case self::FUNC_PREG_REPLACE:
-                    $value = preg_replace($preTreatment[1], $preTreatment[2], $value);
+                    $value = preg_replace($preProcessing[1], $preProcessing[2], $value);
                     break;
 
                 case self::FUNC_STR_REPLACE:
-                    $value = str_replace($preTreatment[1], $preTreatment[2], $value);
+                    $value = str_replace($preProcessing[1], $preProcessing[2], $value);
                     break;
 
                 case self::FUNC_STRPOS:
-                    if (strpos($value, $preTreatment[1]) !== false) {
-                        $value = $preTreatment[2];
+                    if (strpos($value, $preProcessing[1]) !== false) {
+                        $value = $preProcessing[2];
                     }
                     break;
             }

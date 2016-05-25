@@ -18,6 +18,8 @@ return [
     'Date' => 'Дата',
     'Switched off' => 'Отключено',
     'Switched on' => 'Включено',
+    'Is empty' => 'Пусто',
+    'Is not empty' => 'Не пусто',
     '(not set)' => '(не задано)',
     'Internal error' => 'Внутренняя ошибка',
     'Ascending' => 'По возрастанию',

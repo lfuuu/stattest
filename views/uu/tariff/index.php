@@ -142,9 +142,7 @@ $columns[] = [
             );
         },
     ],
-    'options' => [
-        'class' => 'text-center',
-    ],
+    'hAlign' => GridView::ALIGN_CENTER,
 ];
 
 echo GridView::widget([

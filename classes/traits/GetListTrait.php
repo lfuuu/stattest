@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\traits;
 
+use Yii;
 use yii\db\ActiveQuery;
 
 /**
@@ -12,17 +13,29 @@ use yii\db\ActiveQuery;
  */
 trait GetListTrait
 {
+    // константы в trait нельзя, поэтому приходится использовать static-переменные
+    public static $isNull = -1;
+    public static $isNotNull = -2;
+
     /**
      * Вернуть список всех доступных моделей
      * @param bool $isWithEmpty
+     * @param bool $isWithClosed
      * @return self[]
      */
-    public static function getList($isWithEmpty = false)
+    public static function getList($isWithEmpty = false, $isWithClosed = false)
     {
         $list = self::find()
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')
             ->all();
+
+        if ($isWithClosed) {
+            $list = [
+                    self::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
+                    self::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
+                ] + $list;
+        }
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;

@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\filter;
 
+use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\NumberRange;
 use yii\data\ActiveDataProvider;
 
@@ -19,12 +20,15 @@ class NumberRangeFilter extends NumberRange
     public $region_id = '';
     public $is_mob = '';
     public $is_active = '';
+    public $numbers_count_from = '';
+    public $numbers_count_to = '';
 
     public function rules()
     {
         return [
             [['operator_source', 'region_source'], 'string'],
             [['country_code', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id'], 'integer'],
+            [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
 
@@ -46,7 +50,19 @@ class NumberRangeFilter extends NumberRange
         $this->is_mob !== '' && $query->andWhere(['is_mob' => $this->is_mob]);
         $this->is_active !== '' && $query->andWhere(['is_active' => $this->is_active]);
 
-        $this->operator_id && $query->andWhere(['operator_id' => $this->operator_id]);
+        switch ($this->operator_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere('operator_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere('operator_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere(['operator_id' => $this->operator_id]);
+                break;
+        }
         $this->region_id && $query->andWhere(['region_id' => $this->region_id]);
 
         $this->operator_source && $query->andWhere(['LIKE', 'operator_source', $this->operator_source]);
@@ -56,6 +72,9 @@ class NumberRangeFilter extends NumberRange
             $query->andWhere(['<=', 'number_from', $this->number_from]);
             $query->andWhere(['>=', 'number_to', $this->number_from]);
         }
+
+        $this->numbers_count_from && $query->andWhere('1 + number_to - number_from >= :numbers_count_from', [':numbers_count_from' => $this->numbers_count_from]);
+        $this->numbers_count_to && $query->andWhere('1 + number_to - number_from <= :numbers_count_to', [':numbers_count_to' => $this->numbers_count_to]);
 
         return $dataProvider;
     }

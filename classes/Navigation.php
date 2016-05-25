@@ -22,7 +22,7 @@ class Navigation
                 ->setTitle('Клиенты')
                 ->addItem('Новый клиент', Url::toRoute(['/client/create']), 'clients.read')
                 ->addItem('Мои клиенты', Url::toRoute([
-                    'client/search',
+                    '/client/search',
                     'manager' => Yii::$app->user->identity->user,
                     'account_manager' => Yii::$app->user->identity->user
                 ]), 'clients.read')
@@ -54,7 +54,7 @@ class Navigation
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
                 ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
-                ->addItem('Отчет по OnLime', ['r/eports/onlime-report'], ['stats.report'])
+                ->addItem('Отчет по OnLime', ['/reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])
                 ->addItem('Состояние номеров', ['/usage/number/detail-report'], ['stats.report'])
                 ->addItem('Себестоимость звонков', ['/report/voip/cost-report'], ['stats.report'])
@@ -125,7 +125,7 @@ class Navigation
                 ->addItem('Группы событий', ['/important_events/groups'])
                 ->addItem('Источники событий', ['/important_events/sources'])
                 ->addItem('Правила на события', ['/important_events/rules'])
-                ->addItem('Страны', ['/dictionary/country/?CountryFilter[in_use]=1'])
+                ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
         );
 

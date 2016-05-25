@@ -44,6 +44,7 @@ class GridView extends \kartik\grid\GridView
         {extraButtons}
         {filterButton}
         {floatThead}
+        {toggleData}
         {export}
     </div>
     <div class="pull-left">
@@ -73,6 +74,11 @@ HTML;
     public $toolbar = [];
 
     public $filterSelector = '.beforeHeaderFilters input, .beforeHeaderFilters select';
+
+    public $export = [
+        'showConfirmAlert' => false, // boolean, whether to show a confirmation alert dialog before download. This confirmation dialog will notify user about the type of exported file for download and to disable popup blockers.
+        'target' => GridView::TARGET_SELF, // no window is popped up in this case, but download is submitted on same page.
+    ];
 
     /**
      * Сгенерировать HTML до/после header/footer

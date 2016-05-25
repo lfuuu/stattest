@@ -8,6 +8,7 @@
 
 use app\modules\nnp\forms\NumberRangeForm;
 use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -15,7 +16,7 @@ use yii\widgets\Breadcrumbs;
 $numberRange = $formModel->numberRange;
 
 if (!$numberRange->isNewRecord) {
-    $this->title = $numberRange->number_from . ' - ' . $numberRange->number_to;
+    $this->title = $numberRange->ndc . ' ' . $numberRange->number_from . ' - ' . $numberRange->number_to;
 } else {
     $this->title = Yii::t('common', 'Create');
 }
@@ -104,7 +105,7 @@ if (!$numberRange->isNewRecord) {
         <?php // Оператор ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
-                'data' => Operator::getList(true),
+                'data' => Region::getList(true),
             ]) ?>
         </div>
 

@@ -8,6 +8,7 @@
 
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -54,6 +55,14 @@ $columns = [
         ],
     ],
     [
+        'label' => 'Кол-во номеров',
+        'attribute' => 'numbers_count',
+        'class' => IntegerRangeColumn::className(),
+        'value' => function (NumberRange $numberRange) {
+            return 1 + $numberRange->number_to - $numberRange->number_from;
+        }
+    ],
+    [
         'attribute' => 'operator_source',
         'class' => StringColumn::className(),
     ],
@@ -90,9 +99,7 @@ $columns = [
                 );
             },
         ],
-        'options' => [
-            'class' => 'text-center',
-        ],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

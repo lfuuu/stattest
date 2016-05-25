@@ -137,7 +137,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
         $selectboxItems = [];
 
         if ($isWithEmpty) {
-            $selectboxItems[''] = '';
+            $selectboxItems[''] = '----';
         }
 
         if ($isWithClosed) {

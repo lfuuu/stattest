@@ -249,7 +249,7 @@ echo Breadcrumbs::widget([
             'value' => function ($row) {
                 return number_format($row['once'], 2);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от абонентской платы',
@@ -257,7 +257,7 @@ echo Breadcrumbs::widget([
             'value' => function ($row) {
                 return number_format($row['fee'], 2);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от превышения',
@@ -265,7 +265,7 @@ echo Breadcrumbs::widget([
             'value' => function ($row) {
                 return number_format($row['excess'], 2);
             },
-            'contentOptions' => ['class' => 'text-center',],
+            'hAlign' => GridView::ALIGN_CENTER,
         ],
     ],
     'afterHeader' => [

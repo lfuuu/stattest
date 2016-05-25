@@ -201,7 +201,8 @@ SQL;
         AND number_range.number_from = number_range_tmp.number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRows = $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        printf("Updated: %d\n", $affectedRows);
 
         // удалить из временной таблицы уже обработанное
         $sql = <<<SQL
@@ -241,7 +242,8 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRows = $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        printf("Added: %d\n", $affectedRows);
 
         $sql = <<<SQL
 DROP TABLE number_range_tmp

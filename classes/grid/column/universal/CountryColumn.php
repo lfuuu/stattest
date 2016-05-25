@@ -42,7 +42,7 @@ class CountryColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if ($this->isAddLink) {
+        if ($this->isAddLink && $value) {
             return Html::a($strValue, Country::getUrlById($value));
         } else {
             return $strValue;
