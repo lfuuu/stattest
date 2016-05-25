@@ -134,7 +134,7 @@ class ClientDocumentDao extends Singleton
 
             $row = [
                 'from' => strtotime($usage->actual_from),
-                'address' => $usage->address ?: $usage->datacenter->address,
+                'address' => $usage->datacenter ? $usage->datacenter->address : '',
                 'description' => 'Телефонный номер: ' . $usage->E164,
                 'number' => $usage->E164 . ' x ' . $usage->no_of_lines,
                 'lines' => $usage->no_of_lines,
