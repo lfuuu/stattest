@@ -44,14 +44,13 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
         $item->dst_number_id = $this->dst_number_id;
         $item->pricelist_id = $this->pricelist_id;
         if ($item->type == UsageTrunkSettings::TYPE_DESTINATION) {
-            $item->minimum_minutes = $this->minimum_minutes;
-            $item->minimum_cost = $this->minimum_cost;
-
+            $item->minimum_minutes = 0;
+            $item->minimum_cost = 0;
             $item->minimum_margin_type = UsageTrunkSettings::MIN_MARGIN_ABSENT;
             $item->minimum_margin = 0;
         } else {
-            $item->minimum_minutes = 0;
-            $item->minimum_cost = 0;
+            $item->minimum_minutes = $this->minimum_minutes;
+            $item->minimum_cost = $this->minimum_cost;
 
             $item->minimum_margin_type = $this->minimum_margin_type;
 
