@@ -1,5 +1,8 @@
 <?php
 
+use app\forms\client\ClientAccountOptionsForm;
+use app\models\ClientAccountOptions;
+
 define('NO_WEB',1);
 define('NUM',20);
 define('PATH_TO_ROOT','./');
@@ -63,17 +66,39 @@ foreach($clients as $k=>$c)
 }
 
 $updated = 0;
-foreach($clients as $c)
-{
-  if ($c['new_limit'] > $c['voip_credit_limit_day'])
-  {
-    echo "{$c['id']} {$c['voip_credit_limit_day']} - {$c['new_limit']} \n";
-    $db->Query('  update clients set voip_credit_limit_day='.$c['new_limit'].' where id='.$c['id']);
-    $updated++;
-  }
+foreach($clients as $client) {
+    if ($client['new_limit'] > $client['voip_credit_limit_day']) {
+        echo $client['id'] . ': ' . $client['voip_credit_limit_day'] . ' - ' . $client['new_limit'] . PHP_EOL;
+
+        $db->Query('UPDATE clients SET voip_credit_limit_day = ' . $client['new_limit'] . ' WHERE id = ' . $client['id']);
+        $updated++;
+
+        // Сохранение настройки "Пересчет дневного лимита" - когда произошел пересчет
+        $option =
+            (new ClientAccountOptionsForm)
+                ->setClientAccountId($client['id'])
+                ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
+                ->setValue(date('Y-m-d H:i:s'));
+
+        if (!$option->save($deleteExisting = true)) {
+            echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
+        }
+
+        // Сохранение настройки "Пересчет дневного лимита" - значение после пересчета
+        $option =
+            (new ClientAccountOptionsForm)
+                ->setClientAccountId($client['id'])
+                ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE)
+                ->setValue((string)$client['new_limit']);
+
+        if (!$option->save($deleteExisting = true)) {
+            echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
+        }
+    }
 }
+
 //echo "<pre>";
-echo date('Y-m-d H:i:s', time())." updated: $updated\n";
+echo date('Y-m-d H:i:s', time()) . ' updated: ' . $updated . PHP_EOL;
 //print_r($clients);
 
 

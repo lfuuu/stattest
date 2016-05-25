@@ -97,7 +97,7 @@ abstract class Form extends Model
      */
     public function afterValidate()
     {
-        if (count($this->getErrors())) {
+        if (count($this->getErrors()) && is_a(Yii::$app, 'yii\web\Application')) {
             Yii::$app->session->setFlash('error', Html::errorSummary($this, [
                 'class' => 'alert-danger fade in text-left',
             ]));

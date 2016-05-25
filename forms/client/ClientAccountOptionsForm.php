@@ -4,6 +4,7 @@ namespace app\forms\client;
 use Yii;
 use app\classes\Form;
 use app\models\ClientAccountOptions;
+use yii\base\Exception;
 
 class ClientAccountOptionsForm extends Form
 {
@@ -21,7 +22,7 @@ class ClientAccountOptionsForm extends Form
         return [
             [['client_account_id',], 'integer'],
             [['client_account_id',], 'required'],
-            [['option',], 'string'],
+            [['option', 'value',], 'string'],
         ];
     }
 
@@ -61,29 +62,33 @@ class ClientAccountOptionsForm extends Form
      */
     public function save($deleteExisting = true)
     {
-        if ($this->validate()) {
-            $transaction = Yii::$app->getDb()->beginTransaction();
-            try {
-                if ($deleteExisting === true) {
-                    ClientAccountOptions::deleteAll([
-                        'and',
-                        ['client_account_id' => $this->client_account_id],
-                        ['option' => $this->option]
-                    ]);
-                }
+        if (!$this->validate()) {
+            return false;
+        }
 
-                $record = new ClientAccountOptions;
-                $record->setAttributes($this->getAttributes());
-
-                if ($record->save()) {
-                    $transaction->commit();
-                }
+        $transaction = Yii::$app->getDb()->beginTransaction();
+        try {
+            if ($deleteExisting === true) {
+                ClientAccountOptions::deleteAll([
+                    'and',
+                    ['client_account_id' => $this->client_account_id],
+                    ['option' => $this->option]
+                ]);
             }
-            catch (\Exception $e) {
-                Yii::$app->session->addFlash('error', 'Настройка клиента не сохранена.');
-                $transaction->rollBack();
+
+            $record = new ClientAccountOptions;
+            $record->setAttributes($this->getAttributes());
+
+            if ($record->save()) {
+                $transaction->commit();
             }
         }
+        catch (\Exception $e) {
+            $transaction->rollBack();
+            return false;
+        }
+
+        return true;
     }
 
 }

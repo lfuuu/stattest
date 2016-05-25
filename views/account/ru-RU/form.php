@@ -1,12 +1,13 @@
 <?php
 
+use app\classes\Html;
+use app\models\ClientAccountOptions;
 use app\models\Region;
 use app\models\PriceType;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
 use app\models\ClientAccount;
 use app\models\Currency;
-
 ?>
 
 <div class="row" style="width: 1100px;">
@@ -49,7 +50,29 @@ use app\models\Currency;
             ['type' => Form::INPUT_RAW,],
 
             'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
-            'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 1, 'style' => 'margin-top: 35px;'],],
+            [
+                'type' => Form::INPUT_RAW,
+                'value' => function ($data) use ($f, $model) {
+                    $voipCreditLimitDayWhen = (array)$data->model->getOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN);
+                    $voipCreditLimitDayValue = (array)$data->model->getOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE);
+
+                    $result = [];
+
+                    if (count($voipCreditLimitDayWhen)) {
+                        $result[] = 'Дата пересчета: ' . array_shift($voipCreditLimitDayWhen);
+                    }
+
+                    if (count($voipCreditLimitDayValue)) {
+                        $result[] = 'Пересчитанное значение: ' . array_shift($voipCreditLimitDayValue);
+                    }
+
+                    return $f->field($data, 'voip_is_day_calc')->checkbox() . implode(Html::tag('br'), $result);
+                },
+                'columnOptions' => [
+                    'colspan' => 1,
+                    'style' => 'margin-top: 35px;'
+                ],
+            ],
             'voip_credit_limit' => ['columnOptions' => ['colspan' => 1]],
             'anti_fraud_disabled' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions' => ['colspan' => 1, 'style' => 'margin-top: 35px;'],],
             ['type' => Form::INPUT_RAW,],

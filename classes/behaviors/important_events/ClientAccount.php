@@ -36,11 +36,14 @@ class ClientAccount extends Behavior
             ]);
 
         // Сохранение настройки "Язык уведомлений" для Mailer
-        (new ClientAccountOptionsForm)
-            ->setClientAccountId($event->sender->id)
-            ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
-            ->setValue($event->sender->country->lang)
-            ->save($deleteExisting = false);
+        $option =
+            (new ClientAccountOptionsForm)
+                ->setClientAccountId($event->sender->id)
+                ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
+                ->setValue($event->sender->country->lang);
+        if (!$option->save($deleteExisting = false)) {
+            Yii::error('Option "' . ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE . '" not saved for client #' . $event->sender->id . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL);
+        }
     }
 
     /**
