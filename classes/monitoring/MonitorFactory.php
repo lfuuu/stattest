@@ -19,6 +19,9 @@ class MonitorFactory extends Singleton
             $this->getClientAccountWODayLimit(),
             $this->getUsageVoipNotFilledTariffs(),
             $this->getImportantEventsWithoutNames(),
+            $this->getSyncErrorsAccounts(),
+            $this->getSyncErrorsUsageVoip(),
+            $this->getSyncErrorsUsageVpbx(),
         ];
     }
 
@@ -110,6 +113,21 @@ class MonitorFactory extends Singleton
     public function getImportantEventsWithoutNames()
     {
         return new ImportantEventsWithoutNames();
+    }
+
+    public function getSyncErrorsAccounts()
+    {
+        return new SyncErrorsAccounts();
+    }
+
+    public function getSyncErrorsUsageVoip()
+    {
+        return new SyncErrorsUsageVoip();
+    }
+
+    public function getSyncErrorsUsageVpbx()
+    {
+        return new SyncErrorsUsageVpbx();
     }
 
 }

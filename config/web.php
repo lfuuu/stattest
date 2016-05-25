@@ -103,6 +103,10 @@ $config = [
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
+        'dbroPlatforma' => [
+            'class' => 'app\classes\DBROConnection',
+            'url' => 'http://dbro.mcn.ru/dbro'
+        ],
         'dbPgNnp' => $dbPgNnp,
         'urlManager' => [
             'enablePrettyUrl' => true,
