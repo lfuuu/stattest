@@ -38,8 +38,8 @@ foreach ($packages as $package) {
 <?php if($clientAccount): ?>
     <div class="well" style="overflow-x: auto;">
         <form method="GET">
-            <div class="col-xs-12">
-                <div class="form-group col-xs-3">
+            <div class="col-sm-12">
+                <div class="form-group col-sm-8">
                     <label>Период</label>
                     <?php
                     $dateRangeValue =
@@ -68,7 +68,14 @@ foreach ($packages as $package) {
                     ?>
                 </div>
 
-                <div class="form-group col-xs-2">
+                <div class="form-group col-sm-4">
+                    <label>Часовой пояс</label><br />
+                    <b><?= $clientAccount->timezone->getName(); ?></b>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group col-sm-4">
                     <label>Номер</label>
                     <?php
                     echo Select2::widget([
@@ -85,7 +92,7 @@ foreach ($packages as $package) {
                     ?>
                 </div>
 
-                <div class="form-group col-xs-2">
+                <div class="form-group col-sm-4">
                     <label>Пакет</label>
                     <?php
                     echo Html::dropDownList(
@@ -97,7 +104,7 @@ foreach ($packages as $package) {
                     ?>
                 </div>
 
-                <div class="form-group col-xs-2">
+                <div class="form-group col-sm-4">
                     <label>Вывод</label>
                     <?php
                     echo Html::dropDownList(
@@ -112,14 +119,12 @@ foreach ($packages as $package) {
                     ?>
                 </div>
 
-                <div class="form-group col-xs-2">
-                    <label>Часовой пояс</label><br />
-                    <b><?= $clientAccount->timezone->getName(); ?></b>
-                </div>
+
             </div>
-            <div class="col-xs-12 text-center">
+            <div class="col-sm-12 text-center">
+                <div class="alert alert-danger" style="display:none;">На номере отсутствуют пакеты</div>
                 <?php
-                echo Html::submitButton('Сформировать', ['class' => 'btn btn-primary',]);
+                echo Html::submitButton('Сформировать', ['class' => 'btn btn-primary build-report', 'disabled' => true]);
                 ?>
             </div>
         </form>
@@ -147,29 +152,48 @@ jQuery(document).ready(function() {
             var
                 current = $(this).find('option:selected').val(),
                 packages = $('select[name="filter[packages]"]'),
-                mode = $('select[name="filter[mode]"]').val();
+                mode = $('select[name="filter[mode]"]').val(),
+                $buildBtn = $('button.build-report');
 
             packages.find('option:gt(0)').remove();
 
-            if (current && packageList[current]) {
-                $.each(packageList[current], function () {
-                    $('<option />')
-                        .text(this.packageTitle)
-                        .val(this.packageId)
-                        .prop('selected', this.packageId == packageSelected)
-                        .appendTo(packages);
-                });
+            if (current) {
+                if (packageList[current]) {
+                    $.each(packageList[current], function () {
+                        $('<option />')
+                            .text(this.packageTitle)
+                            .val(this.packageId)
+                            .prop('selected', this.packageId == packageSelected)
+                            .appendTo(packages);
+                    });
+                }
+
+                if (packages.find('option').length > 1) {
+                    $buildBtn
+                        .prop('disabled', false)
+                        .prev('div')
+                        .hide();
+                }
+                else {
+                    $buildBtn
+                        .prop('disabled', true)
+                        .prev('div')
+                        .show();
+                }
             }
         })
         .trigger('change');
 
     $('select[name="filter[mode]"]')
         .on('change', function() {
-            var current = $(this).find('option:selected').val()
+            var current = $(this).find('option:selected').val(),
                 packages = $('select[name="filter[packages]"]');
             if (current == 'by_package_calls') {
-                packages.find('option:eq(0)').prop('disabled', true);
-                packages.find('option:eq(1)').prop('selected', true);
+                packages
+                    .find('option:eq(0)')
+                        .prop('disabled', true)
+                    .next('option')
+                        .prop('selected', true);
             }
             else {
                 packages
