@@ -168,7 +168,7 @@
     }elseif ($p_region == 88 && $p_dest == 5) {
         $filter .= " and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 83) {
+    }elseif ($p_region == 83) { // Хабаровск
         switch ($p_dest) {
             case 1:
             case 2:
@@ -203,6 +203,86 @@
                     'report_id' => $report_id,
                     'position' => 1,
                     'pricelist_id' => 351,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+        }
+    }elseif ($p_region == 78) { // Тюмень
+        switch ($p_dest) {
+            case 1:
+            case 2:
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 362,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 2,
+                    'pricelist_id' => 363,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 4:
+                $filter .= ' and d.mob=false ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 360,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 5:
+                $filter .= ' and d.mob=true ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 360,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+        }
+    }elseif ($p_region == 79) { // Тула
+        switch ($p_dest) {
+            case 1:
+            case 2:
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 368,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 2,
+                    'pricelist_id' => 369,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 4:
+                $filter .= ' and d.mob=false ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 373,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 5:
+                $filter .= ' and d.mob=true ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 373,
                     'param' => 'd1',
                     'date' => date('Y-m-d')
                 ];
