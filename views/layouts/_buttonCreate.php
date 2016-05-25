@@ -2,18 +2,16 @@
 /**
  * Вывести ссылку-кнопку "Создать"
  *
+ * @var app\classes\BaseView $this
  * @var string $url
  */
-use app\classes\Html;
-
 ?>
 
-<?= Html::a(
-    Html::tag('i', '', [
-        'class' => 'glyphicon glyphicon-plus',
-        'aria-hidden' => 'true',
-    ]) . ' ' .
-    Yii::t('common', 'Create'),
-    $url,
-    ['class' => 'btn btn-success']
-) ?>
+<?= $this->render('//layouts/_link', [
+    'url' => $url,
+    'text' => Yii::t('common', 'Create'),
+    'glyphicon' => 'glyphicon-plus',
+    'params' => [
+        'class' => 'btn btn-success',
+    ],
+]) ?>

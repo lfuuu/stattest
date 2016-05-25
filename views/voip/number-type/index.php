@@ -9,9 +9,9 @@
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
-use app\classes\Html;
 use app\models\filter\NumberTypeFilter;
 use app\models\NumberType;
+use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -25,14 +25,11 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
+$baseView = $this;
 $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
-        'format' => 'html',
-        'value' => function (NumberType $numberType) {
-            return Html::a($numberType->name ?: '-', $numberType->getUrl());
-        }
     ],
     [
         'label' => 'Страны',
@@ -43,6 +40,27 @@ $columns = [
         'value' => function (NumberType $numberType) {
             return implode('<br />', $numberType->numberTypeCountries);
         },
+    ],
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, NumberType $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, NumberType $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'options' => [
+            'class' => 'text-center',
+        ],
     ],
 ];
 

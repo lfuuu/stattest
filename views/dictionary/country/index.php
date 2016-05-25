@@ -14,6 +14,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\Country;
 use app\models\filter\CountryFilter;
+use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -27,6 +28,7 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
+$baseView = $this;
 $columns = [
     [
         'attribute' => 'code',
@@ -39,14 +41,16 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
-        'format' => 'html',
-        'value' => function (Country $country) {
-            return Html::a($country->name ?: '-', $country->getUrl());
-        }
     ],
     [
         'attribute' => 'site',
         'class' => StringColumn::className(),
+        'format' => 'html',
+        'value' => function (Country $country) {
+            return $country->site ?
+                Html::a($country->site, $country->site) :
+                '';
+        }
     ],
     [
         'attribute' => 'in_use',
@@ -63,6 +67,27 @@ $columns = [
     [
         'attribute' => 'prefix',
         'class' => IntegerColumn::className(),
+    ],
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, Country $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, Country $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'options' => [
+            'class' => 'text-center',
+        ],
     ],
 ];
 

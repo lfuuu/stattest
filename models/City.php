@@ -91,6 +91,14 @@ class City extends ActiveRecord
      */
     public function getUrl()
     {
-        return Url::to(['/dictionary/city/edit', 'id' => $this->id]);
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/dictionary/city/edit', 'id' => $id]);
     }
 }

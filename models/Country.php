@@ -106,6 +106,14 @@ class Country extends ActiveRecord
      */
     public function getUrl()
     {
-        return Url::to(['/dictionary/country/edit', 'id' => $this->code]);
+        return self::getUrlById($this->code);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/dictionary/country/edit', 'id' => $id]);
     }
 }

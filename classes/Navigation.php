@@ -20,7 +20,7 @@ class Navigation
             NavigationBlock::create()
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
-                ->addItem('Новый клиент', Url::toRoute(['client/create']), 'clients.read')
+                ->addItem('Новый клиент', Url::toRoute(['/client/create']), 'clients.read')
                 ->addItem('Мои клиенты', Url::toRoute([
                     'client/search',
                     'manager' => Yii::$app->user->identity->user,
@@ -40,13 +40,13 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Тарифы')
-                ->addItem('Телефония', ['tariff/voip'], ['tarifs.read'])
-                ->addItem('Телефония Пакеты', ['tariff/voip-package'], ['tarifs.read'])
-                ->addItem('Звонок_чат', ['tariff/call-chat'], ['tarifs.read'])
+                ->addItem('Телефония', ['/tariff/voip'], ['tarifs.read'])
+                ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
+                ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
-                ->addItem('Договора (шаблоны)', ['document/template/edit'], ['tarifs.read'])
-                ->addItem('Телефония DID группы', ['tariff/did-group/'], ['tarifs.read'])
-                ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+                ->addItem('Договора (шаблоны)', ['/document/template/edit'], ['tarifs.read'])
+                ->addItem('Телефония DID группы', ['/tariff/did-group/'], ['tarifs.read'])
+                ->addItem('Телефония Номера', ['/tariff/number/index'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(
@@ -54,10 +54,10 @@ class Navigation
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
                 ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
-                ->addItem('Отчет по OnLime', ['reports/onlime-report'], ['stats.report'])
-                ->addItem('Отчет по OnLime оборудование', ['reports/onlime-devices-report'], ['stats.report'])
-                ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
-                ->addItem('Себестоимость звонков', ['report/voip/cost-report'], ['stats.report'])
+                ->addItem('Отчет по OnLime', ['r/eports/onlime-report'], ['stats.report'])
+                ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])
+                ->addItem('Состояние номеров', ['/usage/number/detail-report'], ['stats.report'])
+                ->addItem('Себестоимость звонков', ['/report/voip/cost-report'], ['stats.report'])
         );
         $this->addBlockForStatModule('routers');
 
@@ -72,10 +72,10 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Управление доступом')
-                ->addItem('Операторы', ['user/control'], ['users.r'])
-                ->addItem('Группы', ['user/group'], ['users.r'])
-                ->addItem('Отделы', ['user/department'], ['users.r'])
-                ->addItem('Обновить права в БД', ['user/control/update-rights'], ['users.r'])
+                ->addItem('Операторы', ['/user/control'], ['users.r'])
+                ->addItem('Группы', ['/user/group'], ['users.r'])
+                ->addItem('Отделы', ['/user/department'], ['users.r'])
+                ->addItem('Обновить права в БД', ['/user/control/update-rights'], ['users.r'])
         );
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
@@ -84,28 +84,23 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Письма клиентам')
                 ->addStatModuleItems('mail')
-                ->addItem('Шаблоны сообщений', ['message/template'], ['mail.w'])
+                ->addItem('Шаблоны сообщений', ['/message/template'], ['mail.w'])
         );
 
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Телефония')
                 ->addStatModuleItems('voipnew')
-                ->addItem('Прайс-листы Клиент Ориг',
-                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1], ['voip.access'])
-                ->addItem('Прайс-листы Клиент Терм',
-                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0], ['voip.access'])
-                ->addItem('Прайс-листы Опер Ориг',
-                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1], ['voip.access'])
-                ->addItem('Прайс-листы Опер Терм',
-                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0], ['voip.access'])
-                ->addItem('Прайс-листы Местные Терм',
-                    ['voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0], ['voip.access'])
-                ->addItem('Местные Префиксы', ['voip/network-config/list'], ['voip.access'])
-                ->addItem('Списки префиксов', ['voip/prefixlist'], ['voip.access'])
-                ->addItem('Направления', ['voip/destination'], ['voip.access'])
-                ->addItem('Тип номера', ['voip/number-type'], ['voip.access'])
-                ->addItem('Реестр номеров', ['voip/registry'], ['voip.access'])
+                ->addItem('Прайс-листы Клиент Ориг', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1], ['voip.access'])
+                ->addItem('Прайс-листы Клиент Терм', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0], ['voip.access'])
+                ->addItem('Прайс-листы Опер Ориг', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 1], ['voip.access'])
+                ->addItem('Прайс-листы Опер Терм', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_OPERATOR, 'orig' => 0], ['voip.access'])
+                ->addItem('Прайс-листы Местные Терм', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0], ['voip.access'])
+                ->addItem('Местные Префиксы', ['/voip/network-config/list'], ['voip.access'])
+                ->addItem('Списки префиксов', ['/voip/prefixlist'], ['voip.access'])
+                ->addItem('Направления', ['/voip/destination'], ['voip.access'])
+                ->addItem('Тип номера', ['/voip/number-type'], ['voip.access'])
+                ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
         );
 
         $this->addBlockForStatModule('voipreports');
@@ -126,15 +121,24 @@ class Navigation
                 ->setTitle('Словари')
                 ->addItem('Организации', ['/organization'], ['organization.read'])
                 ->addItem('Ответственные лица', ['/person'], ['person.read'])
-                ->addItem('Названия событий', ['important_events/names'])
-                ->addItem('Группы событий', ['important_events/groups'])
-                ->addItem('Источники событий', ['important_events/sources'])
-                ->addItem('Правила на события', ['important_events/rules'])
-                ->addItem('Страны', ['dictionary/country/?CountryFilter[in_use]=1'])
-                ->addItem('Города', ['dictionary/city/'])
+                ->addItem('Названия событий', ['/important_events/names'])
+                ->addItem('Группы событий', ['/important_events/groups'])
+                ->addItem('Источники событий', ['/important_events/sources'])
+                ->addItem('Правила на события', ['/important_events/rules'])
+                ->addItem('Страны', ['/dictionary/country/?CountryFilter[in_use]=1'])
+                ->addItem('Города', ['/dictionary/city/'])
         );
 
         $this->addBlockUniversalUsage();
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('nnp')
+                ->setTitle('Национальный номерной план')
+                ->addItem('Диапазон номеров', ['/nnp/number-range/'])
+                ->addItem('Операторы', ['/nnp/operator/'])
+                ->addItem('Регионы', ['/nnp/region/'])
+        );
     }
 
     /**
@@ -257,10 +261,9 @@ class Navigation
         // типы услуг в тарифах и услугах
         $serviceTypes = ServiceType::find()->all();
         foreach ($serviceTypes as $serviceType) {
-            $block->addItem($serviceType->name, Url::to(['uu/tariff', 'serviceTypeId' => $serviceType->id]),
-                ['tarifs.read']);
+            $block->addItem($serviceType->name, Url::to(['/uu/tariff', 'serviceTypeId' => $serviceType->id]), ['tarifs.read']);
             $block2->addItem($serviceType->name, Url::to([
-                'uu/account-tariff',
+                '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
                 //'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
             ]), ['tarifs.read']);
@@ -273,22 +276,19 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
-                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['uu/account-log/setup'],
-                    ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Period tariffication'), ['uu/account-log/period'],
-                    ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['uu/account-log/resource'],
-                    ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['/uu/account-log/resource'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     'uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],
                     ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Account entries'), ['uu/account-entry'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Bills'), ['uu/bill'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Invoice'), ['uu/invoice/view'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Balance'), ['uu/balance/view'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Account entries'), ['/uu/account-entry'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Bills'), ['/uu/bill'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Invoice'), ['/uu/invoice/view'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Balance'), ['/uu/balance/view'], ['newaccounts_balance.read'])
         );
     }
 

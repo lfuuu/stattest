@@ -7,6 +7,7 @@ use app\classes\grid\column\ListTrait;
 use app\models\City;
 use kartik\grid\GridView;
 use Yii;
+use yii\db\ActiveRecord;
 use yii\helpers\Html;
 
 
@@ -42,7 +43,7 @@ class CityColumn extends DataColumn
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
         if ($this->isAddLink) {
-            return Html::a($strValue, '/dictionary/city/?CityFilter[id]=' . $value);
+            return Html::a($strValue, City::getUrlById($value));
         } else {
             return $strValue;
         }

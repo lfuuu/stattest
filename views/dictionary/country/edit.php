@@ -102,7 +102,6 @@ if (!$country->isNewRecord) {
             <?= $form->field($country, 'in_use')->widget(Select2::className(), [
                 'data' => YesNoTraits::getYesNoList(false),
             ]) ?>
-
         </div>
 
     </div>

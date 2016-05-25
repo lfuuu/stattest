@@ -5,3 +5,5 @@ db_pg_ats.local.php
 db_pgsql.local.php
 log.local.php
 params.local.php
+/web.local.php
+/db_pg_nnp.local.php

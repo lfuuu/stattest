@@ -563,12 +563,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bzikarsky/gelf-php.git",
-                "reference": "e211dda75906e72d4b943bcaa700688116bd9a46"
+                "reference": "66348cbfa4c8708282d9bf983fed997eeba8268c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/e211dda75906e72d4b943bcaa700688116bd9a46",
-                "reference": "e211dda75906e72d4b943bcaa700688116bd9a46",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/66348cbfa4c8708282d9bf983fed997eeba8268c",
+                "reference": "66348cbfa4c8708282d9bf983fed997eeba8268c",
                 "shasum": ""
             },
             "require": {
@@ -608,7 +608,7 @@
                 }
             ],
             "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
-            "time": "2016-03-21 14:00:04"
+            "time": "2016-05-24 17:43:20"
         },
         {
             "name": "kartik-v/bootstrap-fileinput",
@@ -616,12 +616,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/bootstrap-fileinput.git",
-                "reference": "331c0c7dbbfab512b95c3c1898602c93255f4498"
+                "reference": "6ce9ce6472866fb6b5c891d99461ee59024cc363"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/bootstrap-fileinput/zipball/331c0c7dbbfab512b95c3c1898602c93255f4498",
-                "reference": "331c0c7dbbfab512b95c3c1898602c93255f4498",
+                "url": "https://api.github.com/repos/kartik-v/bootstrap-fileinput/zipball/6ce9ce6472866fb6b5c891d99461ee59024cc363",
+                "reference": "6ce9ce6472866fb6b5c891d99461ee59024cc363",
                 "shasum": ""
             },
             "type": "library",
@@ -661,7 +661,7 @@
                 "progress",
                 "upload"
             ],
-            "time": "2016-05-23 07:15:28"
+            "time": "2016-05-24 12:33:02"
         },
         {
             "name": "kartik-v/bootstrap-popover-x",

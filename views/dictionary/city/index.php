@@ -11,9 +11,9 @@ use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
-use app\classes\Html;
 use app\models\City;
 use app\models\filter\CityFilter;
+use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -27,6 +27,7 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
+$baseView = $this;
 $columns = [
     [
         'attribute' => 'id',
@@ -35,10 +36,6 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
-        'format' => 'html',
-        'value' => function (City $city) {
-            return Html::a($city->name ?: '-', $city->getUrl());
-        }
     ],
     [
         'attribute' => 'country_id',
@@ -51,6 +48,27 @@ $columns = [
     [
         'attribute' => 'voip_number_format',
         'class' => StringColumn::className(),
+    ],
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, City $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, City $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'options' => [
+            'class' => 'text-center',
+        ],
     ],
 ];
 

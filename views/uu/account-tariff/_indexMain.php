@@ -16,6 +16,7 @@ use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use kartik\grid\ActionColumn;
 
 $serviceType = $filterModel->getServiceType();
 
@@ -76,6 +77,33 @@ switch ($serviceType->id) {
         break;
 }
 
+
+// "действия"
+$baseView = $this;
+$columns[] = [
+    'class' => ActionColumn::className(),
+    'template' => '{update} {delete}',
+    'buttons' => [
+        'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
+            return $baseView->render('//layouts/_actionEdit', [
+                    'url' => $model->getUrl(),
+                ]
+            );
+        },
+        'delete' => function ($url, AccountTariff $model, $key) use ($baseView) {
+            if (!$model->tariff_period_id) {
+                return '';
+            }
+            return $baseView->render('//layouts/_actionDrop', [
+                    'url' => $model->getUrl(),
+                ]
+            );
+        },
+    ],
+    'options' => [
+        'class' => 'text-center',
+    ],
+];
 
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),

@@ -20,6 +20,7 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
+use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -43,11 +44,6 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
-        'format' => 'html',
-        'value' => function (Tariff $tariff) {
-            return Html::a($tariff->name, $tariff->getUrl());
-        }
-
     ],
     [
         'label' => Yii::t('common', 'Price'),
@@ -126,6 +122,30 @@ foreach ($resources as $resource) {
         }
     ];
 }
+
+// "действия"
+$baseView = $this;
+$columns[] = [
+    'class' => ActionColumn::className(),
+    'template' => '{update} {delete}',
+    'buttons' => [
+        'update' => function ($url, Tariff $model, $key) use ($baseView) {
+            return $baseView->render('//layouts/_actionEdit', [
+                    'url' => $model->getUrl(),
+                ]
+            );
+        },
+        'delete' => function ($url, Tariff $model, $key) use ($baseView) {
+            return $baseView->render('//layouts/_actionDrop', [
+                    'url' => $model->getUrl(),
+                ]
+            );
+        },
+    ],
+    'options' => [
+        'class' => 'text-center',
+    ],
+];
 
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),

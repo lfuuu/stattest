@@ -1,18 +1,21 @@
 <?php
 /**
  * Вывести submit-кнопку "Удалить"
+ *
+ * @var app\classes\BaseView $this
  */
 use app\classes\Html;
 
 ?>
 
-<?= Html::submitButton(
-    Html::tag('i', '', ['class' => 'glyphicon glyphicon-trash']) . ' ' . Yii::t('common', 'Drop'),
-    [
+<?= $this->render('//layouts/_submitButton', [
+    'text' => Yii::t('common', 'Drop'),
+    'glyphicon' => 'glyphicon-trash',
+    'params' => [
         'name' => 'dropButton',
         'value' => 1,
         'class' => 'btn btn-danger pull-right',
         'aria-hidden' => 'true',
         'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
-    ]
-) ?>
+    ],
+]) ?>

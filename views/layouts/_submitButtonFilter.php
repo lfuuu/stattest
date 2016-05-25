@@ -1,19 +1,17 @@
 <?php
 /**
  * Вывести кнопку "Фильтровать"
+ *
+ * @var app\classes\BaseView $this
  */
-use app\classes\Html;
 
 ?>
 
-<?= Html::submitButton(
-    Html::tag('i', '', [
-        'class' => 'glyphicon glyphicon-filter',
-        'aria-hidden' => 'true',
-    ]) . ' ' .
-    Yii::t('common', 'Filter'),
-    [
+<?= $this->render('//layouts/_submitButton', [
+    'text' => Yii::t('common', 'Filter'),
+    'glyphicon' => 'glyphicon-filter',
+    'params' => [
         'id' => 'submitButtonFilter',
         'class' => 'btn btn-primary',
-    ]
-) ?>
+    ],
+]) ?>

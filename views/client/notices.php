@@ -137,9 +137,9 @@ echo GridView::widget([
                     'value' => $mailDeliveryLanguageOption,
                 ]) .
             Html::endTag('div') .
-            $this->render('//layouts/_submitButtonSave', ['pullRight' => true]),
+            $this->render('//layouts/_submitButtonSave', ['class' => 'pull-right']),
         'after' =>
-            $this->render('//layouts/_submitButtonSave', ['pullRight' => true]) .
+            $this->render('//layouts/_submitButtonSave', ['class' => 'pull-right']) .
             Html::tag('div', '', ['class' => 'clearfix']),
     ],
     'export' => false,

@@ -1,6 +1,6 @@
 <?php
 
-use \yii\helpers\ArrayHelper;
+use yii\helpers\ArrayHelper;
 use yii\web\Response;
 
 Yii::setAlias('@app', dirname(__DIR__));
@@ -28,6 +28,11 @@ if (file_exists($file = __DIR__ . '/db_ats2.local.php')) {
 $dbPgAts = require(__DIR__ . '/db_pg_ats.php');
 if (file_exists($file = __DIR__ . '/db_pg_ats.local.php')) {
     $dbPgAts = ArrayHelper::merge($dbPgAts, require($file));
+}
+
+$dbPgNnp = require(__DIR__ . '/db_pg_nnp.php');
+if (file_exists($file = __DIR__ . '/db_pg_nnp.local.php')) {
+    $dbPgNnp = ArrayHelper::merge($dbPgNnp, require($file));
 }
 
 $log = require(__DIR__ . '/log.php');
@@ -98,14 +103,15 @@ $config = [
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
+        'dbPgNnp' => $dbPgNnp,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             //'enableStrictParsing' => true,
-            'rules' => array(
+            'rules' => [
                 //'<controller:\w+>' => '<controller>/index',
                 //'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
-            )
+            ]
         ],
         'i18n' => [
             'translations' => [
@@ -140,6 +146,9 @@ $config = [
                 'datetime' => [], // setup if needed
                 'time' => [], // setup if needed
             ],
+        ],
+        'nnp' => [
+            'class' => 'app\modules\nnp\Module',
         ],
     ],
     'params' => $params,

@@ -1,19 +1,18 @@
 <?php
 /**
  * Вывести submit-кнопку "Сохранить"
+ *
+ * @var app\classes\BaseView $this
+ * @var string $class
  */
-use app\classes\Html;
 
-/** @var boolean $pullRight */
+!isset($class) && $class = '';
 ?>
 
-<?= Html::submitButton(
-    Html::tag('i', '', [
-        'class' => 'glyphicon glyphicon-save',
-        'aria-hidden' => 'true',
-    ]) . ' ' .
-    Yii::t('common', 'Save'),
-    [
-        'class' => 'btn btn-primary' . ($pullRight === true ? ' pull-right' : ''),
-    ]
-) ?>
+<?= $this->render('//layouts/_submitButton', [
+    'text' => Yii::t('common', 'Create'),
+    'glyphicon' => 'glyphicon-save',
+    'params' => [
+        'class' => 'btn btn-primary ' . $class,
+    ],
+]) ?>

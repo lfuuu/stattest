@@ -17,8 +17,6 @@ class NumberTypeColumn extends DataColumn
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
 
-    public $isAddLink = true;
-
     public $filterType = GridView::FILTER_SELECT2;
 
     public function __construct($config = [])

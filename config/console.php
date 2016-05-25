@@ -1,5 +1,5 @@
 <?php
-use \yii\helpers\ArrayHelper;
+use yii\helpers\ArrayHelper;
 
 Yii::setAlias('@app', dirname(__DIR__));
 Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
@@ -27,6 +27,11 @@ if (file_exists($file = __DIR__ . '/db_ats2.local.php')) {
 $dbPgAts = require(__DIR__ . '/db_pg_ats.php');
 if (file_exists($file = __DIR__ . '/db_pg_ats.local.php')) {
     $dbPgAts = ArrayHelper::merge($dbPgAts, require($file));
+}
+
+$dbPgNnp = require(__DIR__ . '/db_pg_nnp.php');
+if (file_exists($file = __DIR__ . '/db_pg_nnp.local.php')) {
+    $dbPgNnp = ArrayHelper::merge($dbPgNnp, require($file));
 }
 
 $log = require(__DIR__ . '/log.php');
@@ -61,6 +66,7 @@ return [
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
+        'dbPgNnp' => $dbPgNnp,
         'dbPg' => $dbPg,
         'i18n' => [
             'translations' => [
@@ -69,6 +75,11 @@ return [
                     //, 'sourceLanguage' => 'ru'
                 ],
             ],
+        ],
+    ],
+    'modules' => [
+        'nnp' => [
+            'class' => 'app\modules\nnp\Module',
         ],
     ],
     'params' => $params,
