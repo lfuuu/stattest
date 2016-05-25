@@ -9,7 +9,7 @@ abstract class IpUtils
      *
      * @author Mike Mackintosh - mike@bakeryphp.com
      * @param string $ip
-     * @return string $bin
+     * @return string|null
      */
     public static function dtr_pton($ip)
     {
@@ -19,8 +19,7 @@ abstract class IpUtils
         else if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             return current(unpack('A16', inet_pton($ip)));
         }
-
-        throw new \Exception('Supply a valid IPv4 or IPv6 address');
+        return null;
     }
 
     /**
@@ -28,15 +27,14 @@ abstract class IpUtils
      *
      * @author Mike Mackintosh - mike@bakeryphp.com
      * @param string $str
-     * @return string $ip
+     * @return string
      */
     public static function dtr_ntop($str) {
         $length = strlen($str);
         if ($length == 16 || $length == 4) {
             return inet_ntop(pack('A' . strlen($str), $str));
         }
-
-        throw new \Exception('Provide a 4 or 16 byte string');
+        return $str;
     }
 
 }

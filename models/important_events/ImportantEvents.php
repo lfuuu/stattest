@@ -103,7 +103,7 @@ class ImportantEvents extends ActiveRecord
         $event->date = (new DateTime($date,
             new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
         $event->event = $eventType;
-        //$event->from_ip = (Yii::$app->id !== 'basic-console' ? IpUtils::dtr_pton(Yii::$app->request->userIP) : null);
+        $event->from_ip = (is_a(Yii::$app, 'yii\web\Application') ? IpUtils::dtr_pton(Yii::$app->request->userIP) : null);
 
         $source = ImportantEventsSources::findOne(['code' => $eventSource]);
         if (!($source instanceof ImportantEventsSources)) {
