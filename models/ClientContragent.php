@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use Yii;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
 
@@ -103,7 +104,16 @@ class ClientContragent extends HistoryActiveRecord
         }
 
         if (!$this->name && !$this->name_full) {
-            $this->name = $this->name_full = 'Новый контрагент ';
+
+            $lang = Yii::$app->language;
+            if ($this->country_id) {
+                $country = Country::findOne(['code' => $this->country_id]);
+                if ($country) {
+                    $lang = $country->lang;
+                }
+            }
+
+            $this->name = $this->name_full = Yii::t('contragent', 'New contragent', [], $lang);
         }
         return true;
     }

@@ -21,6 +21,7 @@ return [
     'other_document' => 'Más dokumentum',
     'comment' => 'Megjegyzés',
     'signer_passport' => 'Szig. szám',
+    'New contragent' => 'Új ügyfél',
 
 
     'legalTypeLegal' => 'Jogi személy',

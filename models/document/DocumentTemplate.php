@@ -11,8 +11,10 @@ class DocumentTemplate extends ActiveRecord
 {
     const ZAKAZ_USLUG = 13;
     const DC_telefonia = 41;
+
     const DEFAULT_WIZARD_MCN = 102;
-    const DEFAULT_WIZARD_EURO = 133;
+    const DEFAULT_WIZARD_EURO_LEGAL = 133;
+    const DEFAULT_WIZARD_EURO_PERSON = 148;
 
     public static function tableName()
     {

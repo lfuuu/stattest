@@ -32,6 +32,7 @@ return [
     'birthday' => 'Дата рождения',
     'other_document' => 'Другой документ',
     'signer_passport' => 'Номер внутреннего паспорта',
+    'New contragent' => 'Новый контрагент',
 
 
     'legalTypeIp' => 'ИП',

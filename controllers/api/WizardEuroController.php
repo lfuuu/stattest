@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use app\forms\lk_wizard\AcceptsForm;
+use app\models\ClientContragent;
 use yii;
 use app\models\document\DocumentTemplate;
 use app\models\LkWizardState;
@@ -139,7 +140,7 @@ class WizardEuroController extends WizardBaseController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_EURO;
+            $clientDocument->template_id = ($this->postData['step1']['legal_type'] == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
             $clientDocument->save();
 
             $contract = ClientDocument::find()

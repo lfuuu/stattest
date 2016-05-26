@@ -93,7 +93,7 @@ class WizardContragentEuroForm extends Form
         }
 
         if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
-            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
+            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name;
 
             $person->first_name = $this->first_name;
             $person->last_name = $this->last_name;
