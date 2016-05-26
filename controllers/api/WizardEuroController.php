@@ -246,7 +246,10 @@ class WizardEuroController extends WizardBaseController
 
         $contactForm->setScenario('euro');
 
-        $stepData['contact_fio'] = (isset($stepData['fio']) ? $stepData['fio'] : '');
+        $stepData['fio'] = ($stepData['legal_type'] == 'legal' ?
+            (isset($stepData['fio']) ? $stepData['fio'] : '') :
+            ($stepData['last_name'] . ' ' . $stepData['first_name'])
+        );
 
         if (!$form->load($stepData, "") || !$contactForm->load($stepData, "") || !$acceptForm->load($stepData, "")) {
             return ['errors' => ['' => 'load error']];
