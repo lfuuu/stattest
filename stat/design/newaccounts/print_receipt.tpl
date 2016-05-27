@@ -48,7 +48,7 @@
     <div class="text14">
         <table width="720" style="border:#000000 1px solid;" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="220" valign="top" height="250" align="center" style="border-bottom:#000000 1px solid; border-right:#000000 1px solid;">&nbsp;<strong>Извещение</strong></td>
+                <td width="220" valign="top" height="250" align="center" style="border-bottom:#000000 1px solid; border-right:#000000 1px solid;">&nbsp;<strong>Извещение</strong><br /><br /><br /><img src="/utils/qr-code/receipt?data={$qrdata}"></td>
                 <td valign="top" style="border-bottom:#000000 1px solid; border-right:#000000 1px solid;">
                     {$smarty.capture.receipt}
                 </td>

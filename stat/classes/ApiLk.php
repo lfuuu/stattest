@@ -1,4 +1,5 @@
 <?php
+use app\classes\Encrypt;
 use app\models\ClientAccount;
 use app\models\BillDocument;
 use app\models\Country;
@@ -137,7 +138,7 @@ class ApiLk
 			throw new Exception("Не установлена ссылка на печать документов");
 
 		$R = array('bill'=>$billNo,'object'=>"bill-2-RUB",'client'=>$bill->client_id);
-		return API__print_bill_url.udata_encode_arr($R);
+		return API__print_bill_url . Encrypt::encodeArray($R);
 	}
 
     public static function getReceiptURL($clientId, $sum)
@@ -156,7 +157,7 @@ class ApiLk
             throw new Exception("account_not_found");
 
         $R = array("sum" => $sum, 'object'=>"receipt-2-RUB",'client'=>$account->id);
-        return API__print_bill_url.udata_encode_arr($R);
+        return API__print_bill_url . Encrypt::encodeArray($R);
     }
 
     public static function getPropertyPaymentOnCard($clientId, $sum)
@@ -275,30 +276,69 @@ class ApiLk
                 "dtypes" => $types
             ],
             "link" => [
-                "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUB", "client" => $clientId)),
+                "bill" => API__print_bill_url . Encrypt::encodeArray([
+                        'bill' => $billNo,
+                        'object' => "bill-2-RUB",
+                        "client" => $clientId
+                    ]),
                 ],
             ];
 
-        if (isset($types["i1"]) && $types["i1"])
-            $ret["link"]["invoice1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-1", "client" => $clientId));
+        if (isset($types["i1"]) && $types["i1"]) {
+            $ret["link"]["invoice1"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "invoice-1",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["i2"]) && $types["i2"])
-            $ret["link"]["invoice2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId));
+        if (isset($types["i2"]) && $types["i2"]) {
+            $ret["link"]["invoice2"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "invoice-2",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["a1"]) && $types["a1"])
-            $ret["link"]["akt1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId));
+        if (isset($types["a1"]) && $types["a1"]) {
+            $ret["link"]["akt1"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "akt-1",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["a2"]) && $types["a2"])
-            $ret["link"]["akt2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId));
+        if (isset($types["a2"]) && $types["a2"]) {
+            $ret["link"]["akt2"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "akt-2",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["u1"]) && $types["u1"])
-            $ret["link"]["upd1"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-1", "client" => $clientId));
+        if (isset($types["u1"]) && $types["u1"]) {
+            $ret["link"]["upd1"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "upd-1",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["u2"]) && $types["u2"])
-            $ret["link"]["upd2"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-2", "client" => $clientId));
+        if (isset($types["u2"]) && $types["u2"]) {
+            $ret["link"]["upd2"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "upd-2",
+                    "client" => $clientId
+                ]);
+        }
 
-        if (isset($types["ut"]) && $types["ut"])
-            $ret["link"]["updt"] = API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-3", "client" => $clientId));
+        if (isset($types["ut"]) && $types["ut"]) {
+            $ret["link"]["updt"] = API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $billNo,
+                    'object' => "upd-3",
+                    "client" => $clientId
+                ]);
+        }
 
 
 

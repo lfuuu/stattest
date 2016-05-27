@@ -15,6 +15,9 @@ return [
     'USER_PHOTO_DIR' => '/images/users/',
     'PROTOCOL_STRING' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://',
     'currencyDownloadUrl' => 'http://www.cbr.ru/scripts/XML_daily.asp?date_req=%s',
-
+    'encrypt' => [
+        'CLIENTS' => 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.',
+        'UDATA' => '}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu'
+    ],
     'mail_map_names' => require(__DIR__ . '/mail_params_names.php'),
 ];

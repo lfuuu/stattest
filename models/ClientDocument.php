@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\BillContract;
+use app\classes\Encrypt;
 use Yii;
 use yii\db\ActiveRecord;
 use app\queries\ClientDocumentQuery;
@@ -28,8 +29,6 @@ use app\dao\ClientDocumentDao;
  */
 class ClientDocument extends ActiveRecord
 {
-    const KEY = 'ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.';
-
     const DOCUMENT_BLANK_TYPE = 'blank';
     const DOCUMENT_CONTRACT_TYPE = 'contract';
     const DOCUMENT_AGREEMENT_TYPE = 'agreement';
@@ -110,47 +109,12 @@ class ClientDocument extends ActiveRecord
 
     public function getLink()
     {
-        $data = $this->id . '-' . $this->contract_id;
-        $d = substr(md5($data), 0, 1);
-        if (($d < '0') || ($d > '9')) {
-            $di = 10 + ord($d) - ord('a');
-            if ($di >= 16) {
-                $di = 0;
-            }
-        } else {
-            $di = ord($d) - ord('0');
-        }
-        $data2 = "";
-        $key = self::KEY;
-        $l2 = strlen($key);
-        for ($i = 0; $i < strlen($data); $i++) {
-            $v = (ord($data[$i]) + ord($key[($i + $di) % $l2])) % 256;
-            $data2 .= chr($v);
-        }
-        return urlencode(base64_encode($data2) . $d);
+        return Encrypt::encodeString($this->id . '-' . $this->contract_id, 'CLIENTS');
     }
 
     public static function linkDecode($data)
     {
-        $di = substr($data, strlen($data) - 1, 1);
-        $data = substr($data, 0, strlen($data) - 1);
-        if (($di < '0') || ($di > '9')) {
-            $di = 10 + ord($di) - ord('a');
-            if ($di >= 16) {
-                $di = 0;
-            }
-        } else {
-            $di = ord($di) - ord('0');
-        }
-
-        $data = base64_decode($data); //urldecode($data));
-        $data2 = "";
-        $key = self::KEY;
-        $l2 = strlen($key);
-        for ($i = 0; $i < strlen($data); $i++) {
-            $data2 .= chr((ord($data[$i]) + 256 - ord($key[($i + $di) % $l2])) % 256);
-        }
-        return $data2;
+        return Encrypt::decodeString($data, 'CLIENTS');
     }
 
     public function getAccount()

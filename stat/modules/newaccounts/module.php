@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Encrypt;
 use app\classes\StatModule;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
@@ -1338,9 +1339,9 @@ class m_newaccounts extends IModule
 
 
                     $R['emailed'] = '1';
-                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R);
                     $R['emailed'] = '0';
-                    $link[] = Yii::$app->params['LK_PATH'].'docs/?bill='.udata_encode_arr($R);
+                    $link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R);
                     foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
                 }
             }
@@ -1356,8 +1357,8 @@ class m_newaccounts extends IModule
                 'is_pdf'    => $is_pdf,
             ];
 
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 1]);
+            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 0]);
 
             foreach ($template as $pos => &$item) {
                 switch ($documentReports[$i]) {
@@ -2065,6 +2066,7 @@ class m_newaccounts extends IModule
             $design->assign('sum', $summary);
             $design->assign('client', $clientAccount);
             $design->assign('organization', $organization);
+            $design->assign('qrdata',Encrypt::encodeArray(['accountId' => $clientId, 'sum' => $sum]));
 
             echo $design->fetch('newaccounts/print_receipt.tpl');
         }

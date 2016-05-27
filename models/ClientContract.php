@@ -24,6 +24,7 @@ use app\models\media\ClientFiles;
  * @property string federal_district
  * @property string is_external
  * @property string lk_access
+ * @property ClientContragent contragent
  * @property Organization $organization
  * @property ClientMedia mediaManager
  */

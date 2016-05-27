@@ -3,9 +3,6 @@
 use app\classes\Utils;
 use app\models\Region;
 
-define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
-define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
-
 function printdbg($param,$s=''){
         echo "<br><pre>$s=";print_r($param);echo "</pre><br>";
 };
@@ -354,51 +351,6 @@ function data_encode($data){
   return urlencode(base64_encode($data2).$d);
 }
 
-function udata_decode($data){
-    $di=substr($data,strlen($data)-1,1);
-    $data=substr($data,0,strlen($data)-1);
-    if (($di<'0') || ($di>'9')){
-        $di=10+ord($di)-ord('a');
-        if ($di>=16) $di=0;
-    } else $di=ord($di)-ord('0');
-
-    $data=base64_decode($data);
-    $data2=""; $key=UDATA_SECRET; $l2=strlen($key);
-    for ($i=0;$i<strlen($data);$i++){
-        $data2.= chr((ord($data[$i])+256-ord($key[($i+$di)%$l2]))%256);
-    }
-    return $data2;
-}
-function udata_encode($data){
-    $d=substr(md5($data),0,1);
-    if (($d<'0') || ($d>'9')){
-        $di=10+ord($d)-ord('a');
-        if ($di>=16) $di=0;
-    } else $di=ord($d)-ord('0');
-    $data2=""; $key=UDATA_SECRET; $l2=strlen($key);
-    for ($i=0;$i<strlen($data);$i++){
-        $v=(ord($data[$i])+ord($key[($i+$di)%$l2]))%256;
-        $data2.=chr($v);
-    }
-    return urlencode(base64_encode($data2).$d);
-}
-function udata_encode_arr($arr) {
-    $s='';
-    foreach ($arr as $k=>$v) {
-        if ($s) $s.='|';
-        $s.=$k.'='.$v;
-    }
-    return udata_encode($s);
-}
-function udata_decode_arr($data) {
-    $v=explode('|',udata_decode($data));
-    if (!count($v)) return null;
-    $R=array(); foreach ($v as $vi) {
-        $vi=explode('=',$vi);
-        if (count($vi)==2) $R[$vi[0]]=$vi[1];
-    }
-    return $R;
-}
 function mask_match($ip,$mask){
     if (!(preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)(\/(\d+))?/",$mask,$m))) return 0;
     if (!(preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)(\/(\d+))?/",$ip,$m2))) return 0;
