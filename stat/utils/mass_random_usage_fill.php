@@ -11,6 +11,7 @@ $userId = 10; // ava
 
 $clientId = 36166;
 
+$address = '142800, Российская Федерация, Московская область, г. Ступино, ул. Пристанционная, вл. 6';
 //
 //Краснодар 100 номеров - 97 - 36166++
 //Ростов-на-Дону 50 номеров - 87 - 36254++
@@ -36,7 +37,7 @@ $confs = [
 
     ],
     */
-
+/*
     [
         "didGroupId" => 32,
         "region" => 93,
@@ -48,7 +49,7 @@ $confs = [
         "id_tarif_russia_mob" =>252,
         "id_tarif_intern" => 255,
     ],
-
+*/
     /*
     [
         "didGroupId" => 12,
@@ -62,25 +63,23 @@ $confs = [
         "id_tarif_intern" => 69
     ],
     */
-    /*
     [
         "didGroupId" => 22,
         "region" => 95,
-        "count_numbers" => 50,
+        "count_numbers" => 30,
 
-        "id_tarif" => 645,
-        "id_tarif_local_mob" => 647,
-        "id_tarif_russia" => 648,
+        "id_tarif" => 646,
+        "id_tarif_local_mob" => 159,
+        "id_tarif_russia" => 160,
         "id_tarif_russia_mob" => 160,
         "id_tarif_intern" => 162
 
     ],
-*/
-    /*
+
     [
         "didGroupId" => 42,
         "region" => 88,
-        "count_numbers" => 50,
+        "count_numbers" => 30,
 
         "id_tarif" => 681,
         "id_tarif_local_mob" => 207,
@@ -88,6 +87,7 @@ $confs = [
         "id_tarif_russia_mob" => 208,
         "id_tarif_intern" => 210,
     ],
+        /*
     [
         "didGroupId" => 47,
         "region" => 87,
@@ -144,6 +144,7 @@ foreach($confs as $conf)
             $u->actual_from = $actualFrom;
             $u->actual_to = "4000-01-01";
             $u->client = $client->client;
+            $u->address = $address;
             $u->E164 = $number;
             $u->no_of_lines = 1;
             $u->edit_user_id = $userId;
