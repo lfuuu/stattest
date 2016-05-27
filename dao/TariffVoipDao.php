@@ -11,7 +11,7 @@ use yii\helpers\ArrayHelper;
  */
 class TariffVoipDao extends Singleton
 {
-    public function getMainList($withEmpty = false, $connectingPointId = false, $currencyId = false, $status = false)
+    public function getMainList($isWithEmpty = false, $connectingPointId = false, $currencyId = false, $status = false)
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 4]);
@@ -43,14 +43,14 @@ class TariffVoipDao extends Singleton
             $result[$tariff['id']] = $tariff['name'] . ' (' . $tariff['month_number'] . '-' . $tariff['month_line'] . ')';
         }
 
-        if ($withEmpty) {
-            $result = ['' => '-- Тариф --'] + $result;
+        if ($isWithEmpty) {
+            $result = ['' => '----'] + $result;
         }
 
         return $result;
     }
 
-    public function getLocalMobList($withEmpty = false, $connectingPointId = false, $currencyId = false)
+    public function getLocalMobList($isWithEmpty = false, $connectingPointId = false, $currencyId = false)
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 5]);
@@ -72,13 +72,13 @@ class TariffVoipDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }
 
-    public function getRussiaList($withEmpty = false, $connectingPointId = false, $currencyId = false)
+    public function getRussiaList($isWithEmpty = false, $connectingPointId = false, $currencyId = false)
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 1]);
@@ -100,13 +100,13 @@ class TariffVoipDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }
 
-    public function getInternList($withEmpty = false, $connectingPointId = false, $currencyId = false)
+    public function getInternList($isWithEmpty = false, $connectingPointId = false, $currencyId = false)
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 2]);
@@ -128,13 +128,13 @@ class TariffVoipDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }
 
-    public function getSngList($withEmpty = false, $connectingPointId = false, $currencyId = false)
+    public function getSngList($isWithEmpty = false, $connectingPointId = false, $currencyId = false)
     {
         $query = TariffVoip::find();
         $query->andWhere(['dest' => 3]);
@@ -156,8 +156,8 @@ class TariffVoipDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

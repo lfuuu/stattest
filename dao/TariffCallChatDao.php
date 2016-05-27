@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class TariffCallChatDao extends Singleton
 {
 
-    public function getList($currencyId, $withEmpty = false)
+    public function getList($currencyId, $isWithEmpty = false)
     {
         $list =
             ArrayHelper::map(
@@ -24,8 +24,8 @@ class TariffCallChatDao extends Singleton
                 'id',
                 'description'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

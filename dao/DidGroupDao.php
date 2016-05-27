@@ -15,7 +15,7 @@ class DidGroupDao extends Singleton
      * @param bool $isWithEmpty
      * @return string[]
      */
-    public function getList($withEmpty = false, $cityId = false)
+    public function getList($isWithEmpty = false, $cityId = false)
     {
         $query = DidGroup::find();
 
@@ -25,8 +25,8 @@ class DidGroupDao extends Singleton
 
         $list = self::getDidGroupMapByCityId($cityId, 'id', 'name');
 
-        if ($withEmpty) {
-            $list = ['' => '-- DID группа --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

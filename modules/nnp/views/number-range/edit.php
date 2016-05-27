@@ -6,6 +6,7 @@
  * @var NumberRangeForm $formModel
  */
 
+use app\models\City;
 use app\modules\nnp\forms\NumberRangeForm;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
@@ -83,29 +84,41 @@ if (!$numberRange->isNewRecord) {
 
     <div class="row">
 
+        <?php // Исходный регион ?>
+        <div class="col-sm-6">
+            <label><?= $numberRange->getAttributeLabel('region_source') ?></label>
+            <div><?= htmlspecialchars(str_replace('|', ', ', $numberRange->region_source)) ?></div>
+        </div>
+
         <?php // Исходный оператор ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <label><?= $numberRange->getAttributeLabel('operator_source') ?></label>
             <div><?= htmlspecialchars($numberRange->operator_source) ?></div>
         </div>
 
-        <?php // Оператор ?>
+    </div>
+    <br/>
+
+    <div class="row">
+
+        <?php // Регион ?>
         <div class="col-sm-3">
-            <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
-                'data' => Operator::getList(true),
+            <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
+                'data' => Region::getList($isWithEmpty = true, $isWithClosed = false),
             ]) ?>
         </div>
 
-        <?php // Исходный регион ?>
+        <?php // Город ?>
         <div class="col-sm-3">
-            <label><?= $numberRange->getAttributeLabel('region_source') ?></label>
-            <div><?= htmlspecialchars($numberRange->region_source) ?></div>
+            <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
+                'data' => City::dao()->getList($isWithEmpty = true, $isWithClosed = false),
+            ]) ?>
         </div>
 
         <?php // Оператор ?>
-        <div class="col-sm-3">
-            <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
-                'data' => Region::getList(true),
+        <div class="col-sm-4">
+            <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
+                'data' => Operator::getList($isWithEmpty = true, $isWithClosed = false),
             ]) ?>
         </div>
 

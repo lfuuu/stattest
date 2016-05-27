@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class CourierDao extends Singleton
 {
 
-    public function getList($withEmpty = false, $depart = false)
+    public function getList($isWithEmpty = false, $depart = false)
     {
         $models = Courier::find()
             ->andWhere(['enabled' => 'yes'])
@@ -28,8 +28,8 @@ class CourierDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Курьер --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

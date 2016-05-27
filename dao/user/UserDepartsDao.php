@@ -13,7 +13,7 @@ use app\models\UserDeparts;
 class UserDepartsDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $query = UserDeparts::find();
 
@@ -26,8 +26,8 @@ class UserDepartsDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Отдел --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

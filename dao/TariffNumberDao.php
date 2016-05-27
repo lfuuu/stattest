@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
  */
 class TariffNumberDao extends Singleton
 {
-    public function getList($withEmpty = false, $countryId = false, $currencyId = false, $cityId = false)
+    public function getList($isWithEmpty = false, $countryId = false, $currencyId = false, $cityId = false)
     {
         $query = TariffNumber::find();
         if ($countryId !== false) {
@@ -34,8 +34,8 @@ class TariffNumberDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- DID группа --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

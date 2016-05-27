@@ -2,8 +2,10 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\classes\traits\GetListTrait;
 use app\models\City;
 use app\models\UsageVoip;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -12,7 +14,15 @@ use yii\helpers\ArrayHelper;
  */
 class CityDao extends Singleton
 {
-    public function getList($withEmpty = false, $countryId = null)
+    /**
+     * Вернуть список городов
+     *
+     * @param bool $isWithEmpty
+     * @param null $countryId
+     * @param bool $isWithClosed
+     * @return array
+     */
+    public function getList($isWithEmpty = false, $countryId = null, $isWithClosed = false)
     {
         $query = City::find();
         if ($countryId) {
@@ -28,17 +38,41 @@ class CityDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Город --'] + $list;
+
+        if ($isWithClosed) {
+            $list = [
+                    GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
+                    GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
+                ] + $list;
         }
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
         return $list;
     }
 
-    public function getListWithCountries($withEmpty = false)
+    /**
+     * Вернуть список городов с добавлением страны
+     *
+     * @param bool $isWithEmpty
+     * @param bool $isWithClosed
+     * @return array
+     */
+    public function getListWithCountries($isWithEmpty = false, $isWithClosed = false)
     {
         $list = [];
-        if ($withEmpty) {
-            $list = ['' => '-- Город --'] + $list;
+
+        if ($isWithClosed) {
+            $list = [
+                    GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
+                    GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
+                ] + $list;
+        }
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         $cities =

@@ -21,7 +21,7 @@ class CountryDao extends Singleton
         return $country ? $country->name : '';
     }
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $list =
             ArrayHelper::map(
@@ -33,8 +33,8 @@ class CountryDao extends Singleton
                 'code',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Страна --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

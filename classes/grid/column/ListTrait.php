@@ -12,6 +12,9 @@ use yii\db\ActiveRecord;
  */
 trait ListTrait
 {
+    /** @var array . Список значений в том случае, когда filter не список значений, а html */
+    protected $filterData = [];
+
     /**
      * Вернуть отображаемое значение ячейки
      *
@@ -23,6 +26,15 @@ trait ListTrait
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = $this->getDataCellValue($model, $key, $index);
-        return isset($this->filter[$value]) ? (string)$this->filter[$value] : $value;
+        
+        if (is_array($this->filterData) && isset($this->filterData[$value])) {
+            return (string)$this->filterData[$value];
+        }
+
+        if (is_array($this->filter) && isset($this->filter[$value])) {
+            return (string)$this->filter[$value];
+        }
+
+        return $value;
     }
 }

@@ -11,7 +11,7 @@ use app\models\TariffVoipPackage;
  */
 class TariffVoipPackageDao extends Singleton
 {
-    public function getMainList($withEmpty = false, $countryId = false, $connectingPointId = false, $currencyId = false)
+    public function getMainList($isWithEmpty = false, $countryId = false, $connectingPointId = false, $currencyId = false)
     {
         $query = TariffVoipPackage::find();
 
@@ -38,8 +38,8 @@ class TariffVoipPackageDao extends Singleton
                 ")";
         }
 
-        if ($withEmpty) {
-            $list = ['' => '-- Тариф --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

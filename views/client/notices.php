@@ -133,7 +133,7 @@ echo GridView::widget([
             Html::beginTag('div', ['class' => 'col-sm-2']) .
                 \kartik\widgets\Select2::widget([
                     'name' => 'FormData[language]',
-                    'data' => \app\models\Language::getList($withEmpty = true),
+                    'data' => \app\models\Language::getList($isWithEmpty = true),
                     'value' => $mailDeliveryLanguageOption,
                 ]) .
             Html::endTag('div') .

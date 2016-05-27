@@ -13,7 +13,7 @@ use app\models\UserGroups;
 class UserGroupsDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $query = UserGroups::find();
 
@@ -26,8 +26,8 @@ class UserGroupsDao extends Singleton
                 'usergroup',
                 'comment'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Группа --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

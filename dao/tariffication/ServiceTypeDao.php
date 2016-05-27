@@ -13,7 +13,7 @@ use yii\helpers\ArrayHelper;
 class ServiceTypeDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $list =
             ArrayHelper::map(
@@ -24,8 +24,8 @@ class ServiceTypeDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Тип услуги --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

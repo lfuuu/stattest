@@ -24,7 +24,7 @@ class OperatorColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Operator::getList(true, true);
+        $this->filter = Operator::getList($isWithEmpty = true, $isWithClosed = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' operator-column';
     }
@@ -41,7 +41,9 @@ class OperatorColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if ($this->isAddLink && $value) {
+        if (is_null($value)) {
+            return Yii::t('common', '(not set)');
+        } elseif ($this->isAddLink) {
             return Html::a($strValue, Operator::getUrlById($value));
         } else {
             return $strValue;

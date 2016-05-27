@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class CurrencyDao extends Singleton
 {
 
-    public function getList($columnName = 'name', $withEmpty = false, $currencyId = false)
+    public function getList($columnName = 'name', $isWithEmpty = false, $currencyId = false)
     {
         $query = Currency::find();
 
@@ -30,8 +30,8 @@ class CurrencyDao extends Singleton
                 $columnName
             );
 
-        if ($withEmpty) {
-            $list = ['' => '-- Валюта --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class VoipDestinationDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $list =
             ArrayHelper::map(
@@ -24,8 +24,8 @@ class VoipDestinationDao extends Singleton
                 'name'
             );
 
-        if ($withEmpty) {
-            $list = ['' => '-- Направление --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
 
         return $list;

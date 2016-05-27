@@ -42,7 +42,9 @@ class CountryColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if ($this->isAddLink && $value) {
+        if (is_null($value)) {
+            return Yii::t('common', '(not set)');
+        } elseif ($this->isAddLink) {
             return Html::a($strValue, Country::getUrlById($value));
         } else {
             return $strValue;

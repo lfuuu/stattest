@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 class RegionDao extends Singleton
 {
 
-    public function getList($withEmpty = false, $countryId = false)
+    public function getList($isWithEmpty = false, $countryId = false)
     {
         $query = Region::find();
         if ($countryId !== false) {
@@ -28,8 +28,8 @@ class RegionDao extends Singleton
                 'id',
                 'name'
             );
-        if ($withEmpty) {
-            $list = ['' => '-- Точка подключения --'] + $list;
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
         }
         return $list;
     }

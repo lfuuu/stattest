@@ -14,7 +14,7 @@ use app\models\User;
 class UserDao extends Singleton
 {
 
-    public function getList($withEmpty = false)
+    public function getList($isWithEmpty = false)
     {
         $query = User::find()->where(['enabled' => 'yes']);
         $list = $query->orderBy('name')->all();
@@ -24,8 +24,8 @@ class UserDao extends Singleton
             $result[$user->user] = $user->name . ' (' . $user->user . ')';
         }
 
-        if ($withEmpty) {
-            $result = ['' => '-- Пользователь --'] + $result;
+        if ($isWithEmpty) {
+            $result = ['' => '----'] + $result;
         }
 
         return $result;

@@ -32,8 +32,8 @@ trait GetListTrait
 
         if ($isWithClosed) {
             $list = [
-                    self::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
-                    self::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
+                    GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
+                    GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
                 ] + $list;
         }
 

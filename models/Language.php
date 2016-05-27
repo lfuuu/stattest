@@ -24,14 +24,14 @@ class Language extends ActiveRecord
     }
 
     /**
-     * @param bool|false $withEmpty
+     * @param bool|false $isWithEmpty
      * @return array
      */
-    public static function getList($withEmpty = false)
+    public static function getList($isWithEmpty = false)
     {
         $list = self::find()->orderBy(['code' => SORT_DESC])->indexBy('code')->all();
 
-        if ($withEmpty) {
+        if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
         }
 

@@ -6,6 +6,7 @@
  * @var NumberRangeFilter $filterModel
  */
 
+use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
@@ -73,10 +74,19 @@ $columns = [
     [
         'attribute' => 'region_source',
         'class' => StringColumn::className(),
+        'value' => function (NumberRange $numberRange) {
+            return str_replace('|', ', ', $numberRange->region_source);
+        }
     ],
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
+    ],
+    [
+        'attribute' => 'city_id',
+        'reverseCheckboxAttribute' => 'is_reverse_city_id',
+        'class' => CityColumn::className(),
+        'isWithClosed' => true,
     ],
     [
         'attribute' => 'is_mob',

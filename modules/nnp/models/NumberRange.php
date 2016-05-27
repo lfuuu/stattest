@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property int operator_id
  * @property string region_source
  * @property int region_id
+ * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
  * @property bool is_mob true - DEF, false - ABC
  * @property bool is_active
  */
@@ -45,6 +46,7 @@ class NumberRange extends ActiveRecord
             'operator_id' => 'Оператор',
             'region_source' => 'Исходный регион',
             'region_id' => 'Регион',
+            'city_id' => 'Город',
             'is_mob' => 'ABC / DEF',
             'is_active' => 'Вкл.',
 
@@ -70,7 +72,7 @@ class NumberRange extends ActiveRecord
     public function rules()
     {
         return [
-            [['operator_id', 'region_id'], 'integer'],
+            [['operator_id', 'region_id', 'city_id'], 'integer'],
         ];
     }
 

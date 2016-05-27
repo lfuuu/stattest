@@ -22,13 +22,26 @@ class NumberRangeFilter extends NumberRange
     public $is_active = '';
     public $numbers_count_from = '';
     public $numbers_count_to = '';
+    public $city_id = '';
+    public $is_reverse_city_id = '';
 
     public function rules()
     {
         return [
             [['operator_source', 'region_source'], 'string'],
-            [['country_code', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id'], 'integer'],
+            [['country_code', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
+        ];
+    }
+
+    /**
+     * имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return parent::attributeLabels() + [
+            'is_reverse_city_id' => 'Кроме',
         ];
     }
 
@@ -63,7 +76,42 @@ class NumberRangeFilter extends NumberRange
                 $query->andWhere(['operator_id' => $this->operator_id]);
                 break;
         }
-        $this->region_id && $query->andWhere(['region_id' => $this->region_id]);
+
+        switch ($this->region_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere('region_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere('region_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere(['region_id' => $this->region_id]);
+                break;
+        }
+
+        switch ($this->city_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere('city_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere('city_id IS NOT NULL');
+                break;
+            default:
+                if ($this->is_reverse_city_id) {
+                    $query->andWhere([
+                        'OR',
+                        'city_id IS NULL',
+                        ['!=', 'city_id', $this->city_id]
+                    ]);
+                } else {
+                    $query->andWhere(['city_id' => $this->city_id]);
+                }
+                break;
+        }
 
         $this->operator_source && $query->andWhere(['LIKE', 'operator_source', $this->operator_source]);
         $this->region_source && $query->andWhere(['LIKE', 'region_source', $this->region_source]);

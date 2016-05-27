@@ -22,6 +22,7 @@ use Yii;
  *      ./yii nnp/import
  *      ./yii nnp/operator
  *      ./yii nnp/region
+ *      ./yii nnp/city
  *
  * Чтобы вынести модуль в другой репозиторий:
  *      из config/web.php и config/console.php скопировать код про "dbPgNnp"

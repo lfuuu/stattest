@@ -24,7 +24,7 @@ class RegionColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Region::getList(true, true);
+        $this->filter = Region::getList($isWithEmpty = true, $isWithClosed = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' region-column';
     }
@@ -41,7 +41,9 @@ class RegionColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if ($this->isAddLink && $value) {
+        if (is_null($value)) {
+            return Yii::t('common', '(not set)');
+        } elseif ($this->isAddLink) {
             return Html::a($strValue, Region::getUrlById($value));
         } else {
             return $strValue;
