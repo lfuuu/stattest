@@ -48,7 +48,11 @@ class DocumentTemplate extends ActiveRecord
 
     public static function getList()
     {
-        return ArrayHelper::map(self::find()->select("id", "name")->orderBy("name")->all(), 'id', 'name');
+        return ArrayHelper::map(
+            self::find()->select(["id", "name"])->orderBy("name")->asArray()->all(),
+            'id',
+            'name'
+        );
     }
 
     public function save($runValidation = true, $attributeNames = null)

@@ -302,6 +302,8 @@ $f["name"] . "<br/> Юридический адрес: " . $f["address"] .
     </table>
 <?php endif; ?>
 
+<?php ActiveForm::end(); ?>
+
 
 <script type="text/javascript">
     $(document).ready(function () {
