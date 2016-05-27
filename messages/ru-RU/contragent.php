@@ -34,11 +34,12 @@ return [
     'signer_passport' => 'Номер внутреннего паспорта',
     'New contragent' => 'Новый контрагент',
 
-
     'legalTypeIp' => 'ИП',
     'legalTypeLegal' => 'Юр. лицо',
     'legalTypePerson' => 'Физ. лицо',
 
     'sale_channel_id' => 'Откуда узнали о нас',
     'partner_contract_id' => 'Партнер',
+
+    'Mother name' => 'Девичье имя матери',
 ];

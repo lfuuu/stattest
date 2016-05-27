@@ -4,6 +4,7 @@ namespace app\dao;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\ClientDocument;
 use app\models\document\DocumentTemplate;
 use Yii;
@@ -444,6 +445,11 @@ class ClientDocumentDao extends Singleton
         $organization = $document->getContract()->getOrganization($contractDate);
         $firm = $organization->getOldModeInfo();
 
+        $person = [];
+        if ($document->getContract()->getContragent()->legal_type == ClientContragent::PERSON_TYPE) {
+            $person = $document->getContract()->getContragent()->person;
+        }
+
         return [
             'position' => $document->getContract()->getContragent()->legal_type == 'legal'
                 ? $document->getContract()->getContragent()->position
@@ -453,6 +459,11 @@ class ClientDocumentDao extends Singleton
                 : $document->getContract()->getContragent()->name_full,
             'name' => $document->getContract()->getContragent()->name,
             'name_full' => $document->getContract()->getContragent()->name_full,
+
+            'first_name' => $person ? $person->first_name : '',
+            'last_name' => $person ? $person->last_name : '',
+            'middle_name' => $person ? $person->middle_name : '',
+
             'address_jur' => $document->getContract()->getContragent()->address_jur,
             'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
             'bik' => $account->bik,

@@ -41,6 +41,7 @@ class WizardContragentMcnForm extends Form
         $rules = [];
 
         $rules[] = [['legal_type'], 'required'];
+        $rules[] = [['middle_name'], 'safe'];
 
         $rules[] = [
             ["name", "inn", "address_jur", "position", "fio"],
@@ -51,7 +52,7 @@ class WizardContragentMcnForm extends Form
         ];
 
         $rules[] = [
-            ['first_name', 'last_name', 'middle_name', "address"],
+            ['first_name', 'last_name', "address"],
             "required",
             'when' => function ($model) {
                 return $model->legal_type == 'person';

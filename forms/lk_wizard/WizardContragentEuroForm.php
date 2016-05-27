@@ -29,6 +29,7 @@ class WizardContragentEuroForm extends Form
         $rules = [];
 
         $rules[] = [['legal_type'], 'required'];
+        $rules[] = [['middle_name'], 'safe'];
         $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE]];
 
         $rules[] = [['address_post'], FormFieldValidator::className()];
@@ -55,7 +56,7 @@ class WizardContragentEuroForm extends Form
             ];
 
             $rules[] = [
-                ['last_name', 'first_name', 'middle_name', 'address_birth', 'birthday', 'address'],
+                ['last_name', 'first_name', 'address_birth', 'birthday', 'address'],
                 $validator,
                 "when" => function ($model) {
                     return $model->legal_type == ClientContragent::PERSON_TYPE;

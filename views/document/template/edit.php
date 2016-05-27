@@ -72,9 +72,22 @@ use \kartik\builder\Form;
             <td>Полное наименование контрагента</td>
         </tr>
         <tr>
+            <td>{$first_name}</td>
+            <td>Имя</td>
+        </tr>
+        <tr>
+            <td>{$last_name}</td>
+            <td>Фамилия</td>
+        </tr>
+        <tr>
+            <td>{$middle_name}</td>
+            <td>Отчество / <?=Yii::t('contragent', 'Mother name')?></td>
+        </tr>
+        <tr>
             <td>{$address_jur}</td>
             <td>Адрес юридический</td>
         </tr>
+
         <tr>
             <td>{$bank_properties}</td>
             <td>Банковские реквизиты</td>

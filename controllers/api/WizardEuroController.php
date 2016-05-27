@@ -140,7 +140,7 @@ class WizardEuroController extends WizardBaseController
             $clientDocument->contract_date = date("Y-m-d");
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = ($this->postData['step1']['legal_type'] == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
+            $clientDocument->template_id = ($this->account->contract->contragent->legal_type == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
             $clientDocument->save();
 
             $contract = ClientDocument::find()
@@ -207,8 +207,8 @@ class WizardEuroController extends WizardBaseController
             "first_name" => ($c->person ? $c->person->first_name : ""),
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
 
-            "address_birth" => ($c->person ? $c->person->birthplace : ""),
-            "birthday" => ($c->person ? $c->person->birthday : ""),
+            "address_birth" => ($c->person ? $c->person->birthplace : ''),
+            "birthday" => (($c->person ? ($c->person->birthday && $c->person->birthday != '0000-00-00' ? $c->person->birthday : ''): '') ?: ''),
 
             "contact_phone" => $contact->data,
             "is_rules_accept_person" => (bool)$this->wizard->is_rules_accept_person,

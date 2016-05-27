@@ -23,10 +23,11 @@ return [
     'signer_passport' => 'Szig. szám',
     'New contragent' => 'Új ügyfél',
 
-
     'legalTypeLegal' => 'Jogi személy',
     'legalTypePerson' => 'Természetes személy',
 
     'sale_channel_id' => 'Sale Channel',
     'partner_contract_id' => 'Partner',
+
+    'Mother name' => 'Anyja neve',
 ];
