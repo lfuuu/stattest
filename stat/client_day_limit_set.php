@@ -72,28 +72,28 @@ foreach($clients as $client) {
 
         $db->Query('UPDATE clients SET voip_credit_limit_day = ' . $client['new_limit'] . ' WHERE id = ' . $client['id']);
         $updated++;
+    }
 
-        // Сохранение настройки "Пересчет дневного лимита" - когда произошел пересчет
-        $option =
-            (new ClientAccountOptionsForm)
-                ->setClientAccountId($client['id'])
-                ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
-                ->setValue(date('Y-m-d H:i:s'));
+    // Сохранение настройки "Пересчет дневного лимита" - когда произошел пересчет
+    $option =
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($client['id'])
+            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
+            ->setValue(date('Y-m-d H:i:s'));
 
-        if (!$option->save($deleteExisting = true)) {
-            echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
-        }
+    if (!$option->save($deleteExisting = true)) {
+        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
+    }
 
-        // Сохранение настройки "Пересчет дневного лимита" - значение после пересчета
-        $option =
-            (new ClientAccountOptionsForm)
-                ->setClientAccountId($client['id'])
-                ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE)
-                ->setValue((string)$client['new_limit']);
+    // Сохранение настройки "Пересчет дневного лимита" - значение после пересчета
+    $option =
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($client['id'])
+            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE)
+            ->setValue((string)$client['new_limit']);
 
-        if (!$option->save($deleteExisting = true)) {
-            echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
-        }
+    if (!$option->save($deleteExisting = true)) {
+        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
     }
 }
 
