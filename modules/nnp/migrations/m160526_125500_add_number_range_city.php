@@ -1,6 +1,5 @@
 <?php
 
-
 use app\modules\nnp\models\NumberRange;
 
 class m160526_125500_add_number_range_city extends \app\classes\Migration
@@ -13,7 +12,7 @@ class m160526_125500_add_number_range_city extends \app\classes\Migration
         // работать с PostgreSql NNP
         $db = $this->db;
         $this->db = Yii::$app->dbPgNnp;
-//
+
         $this->addNumberRangeCity();
 
         // работать с исходной БД

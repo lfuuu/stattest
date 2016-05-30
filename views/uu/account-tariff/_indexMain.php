@@ -29,10 +29,7 @@ $columns = [
         'serviceTypeId' => $serviceType->id,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
-            return Html::a(
-                Html::encode($accountTariff->getName(false)),
-                $accountTariff->getUrl()
-            );
+            return Html::encode($accountTariff->getName(false));
         }
     ],
     [

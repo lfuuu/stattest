@@ -13,7 +13,9 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\column\OperatorColumn;
+use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\RegionColumn;
 use app\modules\nnp\filter\NumberRangeFilter;
 use app\modules\nnp\models\NumberRange;
@@ -30,30 +32,15 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
+<?= $this->render('_indexPrefix') ?>
+
 <?php
 $baseView = $this;
-$columns = [
+
+$filterColumns = [
     [
         'attribute' => 'country_code',
         'class' => CountryColumn::className(),
-    ],
-    [
-        'attribute' => 'ndc',
-        'class' => IntegerColumn::className(),
-    ],
-    [
-        'attribute' => 'number_from',
-        'class' => IntegerColumn::className(),
-        'filterOptions' => [
-            'colspan' => 2,
-        ],
-    ],
-    [
-        'attribute' => 'number_to',
-        'class' => IntegerColumn::className(),
-        'filterOptions' => [
-            'class' => 'hidden',
-        ],
     ],
     [
         'label' => 'Кол-во номеров',
@@ -61,6 +48,22 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
         'value' => function (NumberRange $numberRange) {
             return 1 + $numberRange->number_to - $numberRange->number_from;
+        }
+    ],
+];
+
+$columns = [
+    [
+        'attribute' => 'ndc',
+        'class' => IntegerColumn::className(),
+    ],
+    [
+        'label' => 'Диапазон номеров',
+        'attribute' => 'number_from',
+        'class' => IntegerColumn::className(),
+        'format' => 'html',
+        'value' => function (NumberRange $numberRange) {
+            return sprintf('%06d<br>%06d', $numberRange->number_from, $numberRange->number_to);
         }
     ],
     [
@@ -84,7 +87,7 @@ $columns = [
     ],
     [
         'attribute' => 'city_id',
-        'reverseCheckboxAttribute' => 'is_reverse_city_id',
+//        'reverseCheckboxAttribute' => 'is_reverse_city_id', // выключен для упрощения интерфейса
         'class' => CityColumn::className(),
         'isWithClosed' => true,
     ],
@@ -97,6 +100,20 @@ $columns = [
     [
         'attribute' => 'is_active',
         'class' => YesNoColumn::className(),
+    ],
+    [
+        'label' => 'Префиксы',
+        'attribute' => 'prefix_id',
+        'class' => PrefixColumn::className(),
+        'format' => 'html',
+        'value' => function (NumberRange $numberRange) {
+            $htmlArray = [];
+            foreach ($numberRange->numberRangePrefixes as $numberRangePrefixes) {
+                $prefix = $numberRangePrefixes->prefix;
+                $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
+            }
+            return implode('<br/>', $htmlArray);
+        }
     ],
     [
         'class' => ActionColumn::className(),
@@ -117,4 +134,7 @@ echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'beforeHeader' => [ // фильтры вне грида
+        'columns' => $filterColumns,
+    ],
 ]);

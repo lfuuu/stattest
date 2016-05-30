@@ -39,6 +39,7 @@ class CityController extends BaseController
         $form = new CityFormNew();
 
         if ($form->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
@@ -61,6 +62,7 @@ class CityController extends BaseController
         ]);
 
         if ($form->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [

@@ -138,6 +138,7 @@ class Navigation
                 ->addItem('Диапазон номеров', ['/nnp/number-range/'])
                 ->addItem('Операторы', ['/nnp/operator/'])
                 ->addItem('Регионы', ['/nnp/region/'])
+                ->addItem('Префиксы', ['/nnp/prefix/'])
         );
     }
 

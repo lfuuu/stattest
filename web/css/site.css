@@ -361,3 +361,7 @@ a.nohover:hover {
 .inline {
     display: inline;
 }
+
+.nowrap {
+    white-space: nowrap;
+}

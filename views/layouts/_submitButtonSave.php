@@ -10,7 +10,7 @@
 ?>
 
 <?= $this->render('//layouts/_submitButton', [
-    'text' => Yii::t('common', 'Create'),
+    'text' => Yii::t('common', 'Save'),
     'glyphicon' => 'glyphicon-save',
     'params' => [
         'class' => 'btn btn-primary ' . $class,

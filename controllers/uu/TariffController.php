@@ -71,6 +71,7 @@ class TariffController extends BaseController
         ]);
 
         if ($formModel->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
             return $this->redirect([
                 'edit',
                 'id' => $formModel->id,
@@ -104,6 +105,7 @@ class TariffController extends BaseController
         }
 
         if ($formModel->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
             return $this->redirect([
                 'edit',
                 'id' => $formModel->id,

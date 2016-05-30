@@ -3,6 +3,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\Connection;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
@@ -19,6 +20,10 @@ use yii\helpers\Url;
  * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
  * @property bool is_mob true - DEF, false - ABC
  * @property bool is_active
+ *
+ * @property Operator operator
+ * @property Region region
+ * @property NumberRangePrefix[] numberRangePrefixes
  */
 class NumberRange extends ActiveRecord
 {
@@ -100,4 +105,29 @@ class NumberRange extends ActiveRecord
     {
         return Url::to(['/nnp/number-range/edit', 'id' => $id]);
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getRegion()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getNumberRangePrefixes()
+    {
+        return $this->hasMany(NumberRangePrefix::className(), ['number_range_id' => 'id']);
+    }
+
 }

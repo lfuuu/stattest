@@ -1,6 +1,5 @@
 <?php
 
-
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;

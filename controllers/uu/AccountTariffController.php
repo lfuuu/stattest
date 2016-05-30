@@ -80,6 +80,8 @@ class AccountTariffController extends BaseController
 
         if ($formModel->isSaved) {
 
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+
             if ($formModel->id) {
                 // добавили одного - на его карточку
                 return $this->redirect([
@@ -123,6 +125,7 @@ class AccountTariffController extends BaseController
         }
 
         if ($formModel->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
             return $this->redirect([
                 'edit',
                 'id' => $formModel->id,
@@ -255,7 +258,7 @@ class AccountTariffController extends BaseController
             }
 
             $transaction->commit();
-            Yii::$app->session->setFlash('success', Yii::t('common', 'Successfully saved'));
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();

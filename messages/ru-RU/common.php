@@ -3,6 +3,7 @@ return [
     'Page Summary' => 'Итого (на странице)',
     'Summary' => 'Итого',
     'Summary by month' => 'Итого за месяц',
+    'Append' => 'Добавить',
     'Create' => 'Создать',
     'Edit' => 'Редактировать',
     'Save' => 'Сохранить',
@@ -18,8 +19,8 @@ return [
     'Date' => 'Дата',
     'Switched off' => 'Отключено',
     'Switched on' => 'Включено',
-    'Is empty' => 'Не задано',
-    'Is not empty' => 'Задано',
+    'Is empty' => 'Пустое',
+    'Is not empty' => 'Любое',
     '(not set)' => '(не задано)',
     'Internal error' => 'Внутренняя ошибка',
     'Ascending' => 'По возрастанию',
@@ -28,5 +29,9 @@ return [
     'You can not delete the object which used in another place' => 'Вы не можете удалить объект, который уже используется в другом месте',
     'Pushpin table header' => 'Плавающий заголовок таблицы',
     'Wrong ID' => 'Объект не найден',
-    'Successfully saved' => 'Успешно сохранено',
+    'The object was created successfully' => 'Объект успешно создан',
+    'The object was saved successfully' => 'Объект успешно сохранён',
+
+    '{n, plural, one{# entry} other{# entries}}' => '{n, plural, one{# запись} many{# записей} other{# записи}}',
+
 ];
