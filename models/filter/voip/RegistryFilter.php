@@ -54,8 +54,8 @@ class RegistryFilter extends Country
             }
         }
 
-        $this->number_from !== '' && $query->andWhere(['LIKE', 'number_from' => $this->number_from]);
-        $this->number_to !== '' && $query->andWhere(['LIKE', 'number_to' => $this->number_to]);
+        $this->number_from !== '' && $query->andWhere(['LIKE', 'number_from', $this->number_from]);
+        $this->number_to !== '' && $query->andWhere(['LIKE', 'number_to', $this->number_to]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
