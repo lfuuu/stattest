@@ -73,11 +73,11 @@ use \kartik\builder\Form;
         </tr>
         <tr>
             <td>{$first_name}</td>
-            <td>Имя</td>
+            <td><?=Yii::t('contragent', 'First name')?></td>
         </tr>
         <tr>
             <td>{$last_name}</td>
-            <td>Фамилия</td>
+            <td><?=Yii::t('contragent', 'Last family')?></td>
         </tr>
         <tr>
             <td>{$middle_name}</td>

@@ -29,5 +29,7 @@ return [
     'sale_channel_id' => 'Sale Channel',
     'partner_contract_id' => 'Partner',
 
+    'Last name' => 'Vezetéknév',
+    'First name' => 'Név',
     'Mother name' => 'Anyja neve',
 ];

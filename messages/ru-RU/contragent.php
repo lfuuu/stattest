@@ -41,5 +41,7 @@ return [
     'sale_channel_id' => 'Откуда узнали о нас',
     'partner_contract_id' => 'Партнер',
 
+    'Last name' => 'Фамилия',
+    'First name' => 'Имя',
     'Mother name' => 'Девичье имя матери',
 ];

@@ -2,6 +2,8 @@
 namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
+use app\classes\behaviors\HistoryChanges;
+use app\classes\model\HistoryActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
 use yii\db\ActiveRecord;
@@ -23,7 +25,7 @@ use yii\db\ActiveRecord;
  *
  * @package app\models\voip
  */
-class Registry extends ActiveRecord
+class Registry extends HistoryActiveRecord
 {
     const STATUS_EMPTY = 'empty';
     const STATUS_PARTLY = 'partly';
@@ -38,8 +40,10 @@ class Registry extends ActiveRecord
     public function behaviors()
     {
         return [
-            'CreatedAt' => CreatedAt::className()
+            'CreatedAt' => CreatedAt::className(),
+            'HistoryChanges' => HistoryChanges::className(),
         ];
+
     }
 
     public function attributeLabels()

@@ -38,6 +38,7 @@ class VersionController extends BaseController
         $models = [];
 
         foreach ($getRequest as $model => $id) {
+            $model = str_replace('_', '\\', $model);
             $className = 'app\\models\\' . $model;
             if (!class_exists($className)) {
                 throw new Exception('Bad model type');

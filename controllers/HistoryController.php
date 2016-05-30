@@ -37,6 +37,8 @@ class HistoryController extends BaseController
             if ($modelName == 'options') {
                 continue;
             }
+            $modelName = str_replace('_', '\\', $modelName);
+
             $className = 'app\\models\\' . $modelName;
             if (!class_exists($className)) {
                 throw new Exception('Bad model type');
