@@ -22,7 +22,7 @@ if (!$prefix->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => 'Операторы', 'url' => $cancelUrl = '/nnp/prefix/'],
+        ['label' => 'Префиксы', 'url' => $cancelUrl = '/nnp/prefix/'],
         $this->title
     ],
 ]) ?>

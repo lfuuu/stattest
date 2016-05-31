@@ -27,11 +27,12 @@ class RegionFilter extends Region
     public function search()
     {
         $query = Region::find();
+        $regionTableName = Region::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
-        $this->name && $query->andWhere(['LIKE', 'name', $this->name]);
+        $this->name && $query->andWhere(['LIKE', $regionTableName . '.name', $this->name]);
 
         return $dataProvider;
     }

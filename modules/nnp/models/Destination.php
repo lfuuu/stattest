@@ -8,19 +8,17 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * Префикс
- * Группировка диапазонов номеров
+ * Направление
+ * Группировка префиксов
  *
  * @property int id
  * @property string name
  *
- * @property NumberRangePrefix[] numberRangePrefixes
- * 
  * @property PrefixDestination[] prefixDestinations
  * @property PrefixDestination[] additionPrefixDestinations
  * @property PrefixDestination[] subtractionPrefixDestinations
  */
-class Prefix extends ActiveRecord
+class Destination extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
@@ -43,7 +41,7 @@ class Prefix extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.prefix';
+        return 'nnp.destination';
     }
 
     /**
@@ -86,15 +84,7 @@ class Prefix extends ActiveRecord
      */
     public static function getUrlById($id)
     {
-        return Url::to(['/nnp/prefix/edit', 'id' => $id]);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getNumberRangePrefixes()
-    {
-        return $this->hasMany(NumberRangePrefix::className(), ['prefix_id' => 'id']);
+        return Url::to(['/nnp/destination/edit', 'id' => $id]);
     }
 
     /**
@@ -102,7 +92,8 @@ class Prefix extends ActiveRecord
      */
     public function getPrefixDestinations()
     {
-        return $this->hasMany(PrefixDestination::className(), ['prefix_id' => 'id']);
+        return $this->hasMany(PrefixDestination::className(), ['destination_id' => 'id'])
+            ->indexBy('prefix_id');
     }
 
     /**

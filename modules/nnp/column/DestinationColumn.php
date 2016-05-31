@@ -5,12 +5,12 @@ namespace app\modules\nnp\column;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
-use app\modules\nnp\models\Prefix;
+use app\modules\nnp\models\Destination;
 use kartik\grid\GridView;
 use Yii;
 use yii\db\ActiveRecord;
 
-class PrefixColumn extends DataColumn
+class DestinationColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait {
@@ -22,10 +22,10 @@ class PrefixColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = Prefix::getList(true);
+        $this->filter = Destination::getList(true);
         parent::__construct($config);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' prefix-column';
+        $this->filterOptions['class'] .= ' destination-column';
     }
 
     /**
@@ -43,7 +43,7 @@ class PrefixColumn extends DataColumn
         if (is_null($value)) {
             return Yii::t('common', '(not set)');
         } elseif ($this->isAddLink) {
-            return Html::a($strValue, Prefix::getUrlById($value));
+            return Html::a($strValue, Destination::getUrlById($value));
         } else {
             return $strValue;
         }

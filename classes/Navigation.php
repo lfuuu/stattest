@@ -139,6 +139,7 @@ class Navigation
                 ->addItem('Операторы', ['/nnp/operator/'])
                 ->addItem('Регионы', ['/nnp/region/'])
                 ->addItem('Префиксы', ['/nnp/prefix/'])
+                ->addItem('Направления', ['/nnp/destination/'])
         );
     }
 

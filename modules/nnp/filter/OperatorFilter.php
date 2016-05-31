@@ -27,11 +27,12 @@ class OperatorFilter extends Operator
     public function search()
     {
         $query = Operator::find();
+        $operatorTableName = Operator::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
-        $this->name && $query->andWhere(['LIKE', 'name', $this->name]);
+        $this->name && $query->andWhere(['LIKE', $operatorTableName . '.name', $this->name]);
 
         return $dataProvider;
     }
