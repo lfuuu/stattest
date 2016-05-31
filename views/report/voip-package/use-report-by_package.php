@@ -113,4 +113,16 @@ echo GridView::widget([
     'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
+    'panelHeadingTemplate' => '
+        <div class="pull-right">
+            {extraButtons}
+        </div>
+        <div class="pull-left">
+            {summary}
+        </div>
+        <h3 class="panel-title">
+            {heading}
+        </h3>
+        <div class="clearfix"></div>
+    ',
 ]);
