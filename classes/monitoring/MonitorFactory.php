@@ -15,6 +15,7 @@ class MonitorFactory extends Singleton
             $this->getMissingManagerMonitor(),
             $this->getUsagesIncorrectBusinessProcessStatus(),
             $this->getUsagesActiveConnecting(),
+            $this->getUsagesOldReserve(),
             $this->getVoipNumbersIntegrity(),
             $this->getClientAccountWODayLimit(),
             $this->getUsageVoipNotFilledTariffs(),
@@ -38,6 +39,8 @@ class MonitorFactory extends Singleton
             }
         }
         Assert::isUnreachable('Monitor not found');
+
+        return null;
     }
 
     /**
@@ -84,6 +87,14 @@ class MonitorFactory extends Singleton
     public function getUsagesActiveConnecting()
     {
         return new UsagesActiveConnecting;
+    }
+
+    /**
+     * @return UsagesOldReserve
+     */
+    public function getUsagesOldReserve()
+    {
+        return new UsagesOldReserve();
     }
 
     /**
