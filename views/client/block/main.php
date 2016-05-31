@@ -93,6 +93,12 @@ use app\models\ClientContract;
                                     <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                         <?php
                                         $warnings = $contractAccount->voipWarnings;
+                                        $warningsKeys = array_keys($warnings);
+                                        $contractBlockers = [];
+
+                                        $lockByCredit = in_array('lock.credit', $warningsKeys, true);
+                                        $lockByDayLimit = in_array('lock.limit_day', $warningsKeys, true);
+
                                         ?>
                                         <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
@@ -106,9 +112,6 @@ use app\models\ClientContract;
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
                                                 <?php
-                                                $warningsKeys = array_keys($warnings);
-                                                $contractBlockers = [];
-
                                                 if ($contractAccount->is_blocked || in_array('voip.auto_disabled', $warningsKeys, true)) {
                                                     $contractBlockers[] = 'Заблокирован';
                                                 }
@@ -117,11 +120,11 @@ use app\models\ClientContract;
                                                     $contractBlockers[] = 'Блок лок.';
                                                 }
 
-                                                if (in_array('lock.limit_day', $warningsKeys, true)) {
+                                                if ($lockByDayLimit) {
                                                     $contractBlockers[] = 'Блок сут.';
                                                 }
 
-                                                if (in_array('lock.credit', $warningsKeys, true)) {
+                                                if ($lockByCredit) {
                                                     $contractBlockers[] = 'Блок фин.';
                                                 }
 
@@ -135,7 +138,7 @@ use app\models\ClientContract;
                                                 <abbr
                                                     title="Текущий баланс лицевого счета"
                                                     class="text-nowrap"
-                                                    style="color:<?= ($contractAccount->billingCounters->realtimeBalance < 0) ? 'red' : 'green'; ?>;"
+                                                    style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
                                                 >
                                                     <?= $contractAccount->billingCounters->realtimeBalance ?>
                                                     <?= $contractAccount->currency ?>
@@ -147,11 +150,10 @@ use app\models\ClientContract;
                                             </span>
                                             <span class="col-sm-2 text-right" style="text-align: right;">
                                                 <abbr
-                                                    title="Остаток за текущий день (Истрачено: <?= $contractAccount->billingCounters->daySummary; ?>)"
-                                                    class="text-nowrap"
-                                                    style="color:<?= ($contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary < 0) ? 'red' : 'green'; ?>;"
+                                                    title="Суточный расход" class="text-nowrap"
+                                                    style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                 >
-                                                    <?= $contractAccount->voip_credit_limit_day + $contractAccount->billingCounters->daySummary; ?>
+                                                    <?= abs($contractAccount->billingCounters->daySummary); ?>
                                                     <?= $contractAccount->currency; ?>
                                                 </abbr>
                                                 <br />
