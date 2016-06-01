@@ -163,7 +163,7 @@ abstract class NotificationProcessor
 
     private function oldUnsetSaveLog()
     {
-        $this->oldAddLogRaw($this->client->id, 0, $this->getEvent(), false, $this->client->balance, $this->getLimit(),
+        $this->oldAddLogRaw($this->client->id, 0, $this->getEvent(), false, $this->client->billingCounters->realtimeBalance, $this->getLimit(),
             $this->getValue());
     }
 
