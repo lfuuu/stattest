@@ -1,19 +1,18 @@
 <?php
 namespace app\dao;
 
+use Yii;
+use yii\db\Expression;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
+use app\classes\Singleton;
 use app\models\ClientAccount;
-use app\models\ClientContact;
-use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
 use app\models\document\DocumentFolder;
 use app\models\document\DocumentTemplate;
-use Yii;
-use app\classes\Singleton;
 use app\models\TariffVoip;
-use yii\db\Expression;
-use yii\db\Query;
-use yii\helpers\ArrayHelper;
+
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -21,6 +20,9 @@ use yii\helpers\ArrayHelper;
  */
 class ClientDocumentDao extends Singleton
 {
+
+    /** @todo Изменится, когда появится логика назначения значений по-умолчанию от бизнес процесса */
+    const DEFAULT_FOLDER_MCN = 3;
 
     /**
      * Получение списка разделов верхнего уровня с указанным типом документов
@@ -582,6 +584,8 @@ class ClientDocumentDao extends Singleton
                 ->groupBy('folders.id')
                 ->having('documents > 0')
                 ->orderBy([
+                    /** @todo Изменится, когда появится логика назначения значений по-умолчанию от бизнес процесса */
+                    new Expression('IF(folders.id=' . self::DEFAULT_FOLDER_MCN . ', 100, 0) DESC'),
                     'folders.name' => SORT_ASC,
                     'folders.sort' => SORT_DESC,
                 ]);

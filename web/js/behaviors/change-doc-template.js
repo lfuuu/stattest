@@ -37,7 +37,6 @@ $(function () {
         if ($(this).has('data-folders')) {
             setFolders($('.document-template[data-folder-type="' + $(this).data('folders') + '"]'), selectedValue);
         }
-
     }).trigger('change');
 
 });
