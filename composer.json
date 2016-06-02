@@ -1,101 +1,88 @@
 {
-    "type": "project",
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=5.4.0",
-        "yiisoft/yii2": "@stable",
-        "welltime/graylog-target": "dev-master",
-        "aferrandini/phpqrcode": "@stable",
-        "phpoffice/phpexcel": "@stable",
-        "kartik-v/yii2-grid": "@stable",
-        "kartik-v/yii2-editable": "@stable",
-        "kartik-v/yii2-widgets": "@stable",
-        "kartik-v/yii2-mpdf": "@stable",
-        "kartik-v/yii2-builder": "@stable",
-        "kartik-v/yii2-datecontrol": "@stable",
-        "kartik-v/yii2-date-range": "@stable",
-        "tinymce/tinymce": "@stable",
-        "smarty/smarty": "@stable",
-        "yiisoft/yii2-swiftmailer": "@stable",
-        "unclead/yii2-multiple-input": "@stable",
-        "bower-asset/bootstrap-multiselect": "@stable",
-        "zircote/swagger-php": "^2.0",
-        "bower-asset/swagger-ui": "dev-master",
-        "KidSysco/jquery-ui-month-picker": "dev-master",
-        "yiisoft/yii2-httpclient": "^2.0@dev",
-        "kartik-v/yii2-tabs-x": "^1.2",
-        "bower/typeahead.js": "dev-master as 0.10.99",
-        "bower-asset/typeahead.js": "dev-master as 0.10.99",
-        "yiisoft/yii2-gii": "dev-master"
-    },
-    "require-dev": {
-        "yiisoft/yii2-codeception": "@stable",
-        "yiisoft/yii2-faker": "@stable"
-    },
-    "config": {
-        "process-timeout": 1800
-    },
-    "extra": {
-        "writable": [
-            "runtime",
-            "web/assets"
-        ],
-        "executable": [
-            "yii"
-        ],
-        "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
+  "type": "project",
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.0",
+    "yiisoft/yii2": "@stable",
+    "welltime/graylog-target": "dev-master",
+    "aferrandini/phpqrcode": "@stable",
+    "phpoffice/phpexcel": "@stable",
+    "kartik-v/yii2-grid": "@stable",
+    "kartik-v/yii2-editable": "@stable",
+    "kartik-v/yii2-widgets": "@stable",
+    "kartik-v/yii2-mpdf": "@stable",
+    "kartik-v/yii2-builder": "@stable",
+    "kartik-v/yii2-datecontrol": "@stable",
+    "kartik-v/yii2-date-range": "@stable",
+    "tinymce/tinymce": "@stable",
+    "smarty/smarty": "@stable",
+    "yiisoft/yii2-swiftmailer": "@stable",
+    "unclead/yii2-multiple-input": "@stable",
+    "bower-asset/bootstrap-multiselect": "@stable",
+    "zircote/swagger-php": "^2.0",
+    "bower/swagger-ui": "dev-master",
+    "KidSysco/jquery-ui-month-picker": "dev-master",
+    "yiisoft/yii2-httpclient": "^2.0@dev",
+    "kartik-v/yii2-tabs-x": "^1.2",
+    "bower/typeahead.js": "dev-master as 0.10.99",
+    "yiisoft/yii2-gii": "dev-master"
+  },
+  "require-dev": {
+    "yiisoft/yii2-codeception": "@stable",
+    "yiisoft/yii2-faker": "@stable"
+  },
+  "config": {
+    "process-timeout": 1800
+  },
+  "extra": {
+    "writable": [
+      "runtime",
+      "web/assets"
+    ],
+    "executable": [
+      "yii"
+    ],
+    "asset-installer-paths": {
+      "npm-asset-library": "vendor/npm",
+      "bower-asset-library": "vendor/bower"
+    }
+  },
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "KidSysco/jquery-ui-month-picker",
+        "version": "dev-master",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/KidSysco/jquery-ui-month-picker",
+          "reference": "master"
         }
+      }
     },
-    "repositories": [
-        {
-            "type":"package",
-            "package":{
-                "name":"KidSysco/jquery-ui-month-picker",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/KidSysco/jquery-ui-month-picker",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower-asset/swagger-ui",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/swagger-api/swagger-ui.git",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower/typeahead.js",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/twitter/typeahead.js",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package":{
-                "name":"bower-asset/typeahead.js",
-                "version":"dev-master",
-                "source":{
-                    "type":"git",
-                    "url":"https://github.com/twitter/typeahead.js",
-                    "reference":"master"
-                }
-            }
+    {
+      "type": "package",
+      "package": {
+        "name": "bower/swagger-ui",
+        "version": "dev-master",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/swagger-api/swagger-ui.git",
+          "reference": "master"
         }
-    ]
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "bower/typeahead.js",
+        "version": "dev-master",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/twitter/typeahead.js",
+          "reference": "master"
+        }
+      }
+    }
+  ]
 }

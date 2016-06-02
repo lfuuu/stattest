@@ -129,6 +129,9 @@ $config = [
     'modules' => [
         'gridview' => [
             'class' => '\kartik\grid\Module',
+            'i18n' => [
+                'basePath' => '@app/messagesKvgrid',
+            ],
         ],
         'datecontrol' => [
             'class' => 'kartik\datecontrol\Module',

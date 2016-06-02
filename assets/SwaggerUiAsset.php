@@ -7,7 +7,7 @@ use app\classes\BaseView;
 
 class SwaggerUiAsset extends AssetBundle
 {
-    public $sourcePath = '@bower/bower-asset/swagger-ui/dist';
+    public $sourcePath = '@bower/swagger-ui/dist';
     public $basePath = '@webroot';
 
     public $js = [

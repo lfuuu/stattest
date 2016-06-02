@@ -365,3 +365,9 @@ a.nohover:hover {
 .nowrap {
     white-space: nowrap;
 }
+
+.dropdown-item {
+    display: block;
+    padding-left: 20px;
+    padding-top: 5px;
+}
