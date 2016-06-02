@@ -12,7 +12,7 @@ class TariffVoipForm extends Form
         $id,
         $country_id = 0,
         $connection_point_id = 0,
-        $currency_id = 0,
+        $currency_id = '',
         $pricelist_id = 0,
         $name = '',
         $name_short = '',
