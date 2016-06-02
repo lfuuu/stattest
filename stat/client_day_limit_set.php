@@ -57,12 +57,34 @@ foreach($res as $r)
 
   $clients[$r['client_id']]['sum'] += $counters[$r['usage_id']]['amount'];
 }
-foreach($clients as $k=>$c)
-{
-  $clients[$k]['new_limit'] = intval($clients[$k]['sum']/$work_days*3);
 
-  //TODO: 1000 это сумма в рублях. Для не рублевых клиентов сделать конвертацию по курсу
-  $clients[$k]['new_limit'] = ($clients[$k]['new_limit'] > 1000 ? $clients[$k]['new_limit'] : 1000);
+foreach($clients as $k => $c) {
+    $clients[$k]['new_limit'] = (int) ($clients[$k]['sum'] / $work_days * 3);
+
+    // Сохранение настройки "Пересчет дневного лимита" - когда произошел пересчет
+    $option =
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($clients[$k]['id'])
+            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
+            ->setValue(date('с'));
+
+    if (!$option->save($deleteExisting = true)) {
+        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $clients[$k]['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
+    }
+
+    // Сохранение настройки "Пересчет дневного лимита" - значение после пересчета
+    $option =
+        (new ClientAccountOptionsForm)
+            ->setClientAccountId($clients[$k]['id'])
+            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE)
+            ->setValue((string)$clients[$k]['new_limit']);
+
+    if (!$option->save($deleteExisting = true)) {
+        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE . '" not saved for client #' . $clients[$k]['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
+    }
+
+    //TODO: 1000 это сумма в рублях. Для не рублевых клиентов сделать конвертацию по курсу
+    $clients[$k]['new_limit'] = ($clients[$k]['new_limit'] > 1000 ? $clients[$k]['new_limit'] : 1000);
 }
 
 $updated = 0;
@@ -72,28 +94,6 @@ foreach($clients as $client) {
 
         $db->Query('UPDATE clients SET voip_credit_limit_day = ' . $client['new_limit'] . ' WHERE id = ' . $client['id']);
         $updated++;
-    }
-
-    // Сохранение настройки "Пересчет дневного лимита" - когда произошел пересчет
-    $option =
-        (new ClientAccountOptionsForm)
-            ->setClientAccountId($client['id'])
-            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
-            ->setValue(date('Y-m-d H:i:s'));
-
-    if (!$option->save($deleteExisting = true)) {
-        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
-    }
-
-    // Сохранение настройки "Пересчет дневного лимита" - значение после пересчета
-    $option =
-        (new ClientAccountOptionsForm)
-            ->setClientAccountId($client['id'])
-            ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE)
-            ->setValue((string)$client['new_limit']);
-
-    if (!$option->save($deleteExisting = true)) {
-        echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE . '" not saved for client #' . $client['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
     }
 }
 
