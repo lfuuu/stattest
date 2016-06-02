@@ -67,6 +67,6 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/operator/new/']),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/region/new/']),
     'columns' => $columns,
 ]);

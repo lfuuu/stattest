@@ -76,11 +76,18 @@ abstract class DestinationForm extends Form
 
                 // префиксы (+)
                 $prefixDestination->is_addition = true;
-                self::crudMultipleSelect2($this->destination->additionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'AdditionPrefixDestination');
+                $additionPrefixDestinations = self::crudMultipleSelect2($this->destination->additionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'AdditionPrefixDestination');
 
                 // префиксы (-)
                 $prefixDestination->is_addition = false;
-                self::crudMultipleSelect2($this->destination->subtractionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'SubtractionPrefixDestination');
+                $subtractionPrefixDestinations = self::crudMultipleSelect2($this->destination->subtractionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'SubtractionPrefixDestination');
+
+                $prefixDestinationsIntersect = array_intersect_key($additionPrefixDestinations, $subtractionPrefixDestinations);
+                if (count($prefixDestinationsIntersect)) {
+                    /** @var PrefixDestination $prefixDestination */
+                    $prefixDestination = reset($prefixDestinationsIntersect);
+                    throw new InvalidArgumentException('Нет смысла один и тот же префикс добавлять одновременно в (+) и (-): ' . $prefixDestination->prefix->name);
+                }
             }
 
             if ($this->validateErrors) {
@@ -92,6 +99,7 @@ abstract class DestinationForm extends Form
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
             $this->isSaved = false;
+            $this->validateErrors[] = $e->getMessage();
 
         } catch (\Exception $e) {
             $transaction->rollBack();
