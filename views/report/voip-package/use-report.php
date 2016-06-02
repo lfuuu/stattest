@@ -189,11 +189,11 @@ jQuery(document).ready(function() {
             var current = $(this).find('option:selected').val(),
                 packages = $('select[name="filter[packages]"]');
             if (current == 'by_package_calls') {
-                packages
-                    .find('option:eq(0)')
-                        .prop('disabled', true)
-                    .next('option')
-                        .prop('selected', true);
+                packages.find('option:eq(0)').prop('disabled', true);
+
+                if (!packageSelected) {
+                    packages.find('option:gt(0)').prop('selected', true);
+                }
             }
             else {
                 packages
