@@ -44,7 +44,7 @@ class Navigation
                 ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
                 ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
-                ->addItem('Договора (шаблоны)', ['/document/template/edit'], ['tarifs.read'])
+                ->addItem('Договора (шаблоны)', ['/document/template/index'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['/tariff/number/index'], ['tarifs.read'])
         );

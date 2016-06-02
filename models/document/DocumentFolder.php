@@ -101,21 +101,24 @@ class DocumentFolder extends ActiveRecord
             $resultRow = [
                 'label' => (string) $row,
                 'id' => $row->id,
+                'children' => [],
             ];
 
             if ($row instanceof DocumentTemplate) {
                 $resultRow['icon'] = DocumentTemplate::DOCUMENT_ICON;
                 $resultRow['href'] = Url::toRoute(['/document/template/edit', 'id' => $row->id]);
             }
-            else if ($row instanceof self) {
+
+            if ($row instanceof self) {
                 $resultRow['icon'] = DocumentTemplate::DOCUMENT_FOLDER;
                 $resultRow['href'] = Url::toRoute(['/document/folder/edit', 'id' => $row->id]);
 
-                if (count($row->childs)) {
-                    $resultRow['children'] = $this->populateTreeForWidget($row->childs, $withDocuments);
+                if ($withDocuments === true && count($row->documents)) {
+                    $resultRow['children'] = array_merge($resultRow['children'], (array) $this->populateTreeForWidget($row->documents, $withDocuments));
                 }
-                else if ($withDocuments === true && count($row->documents)) {
-                    $resultRow['children'] = $this->populateTreeForWidget($row->documents, $withDocuments);
+
+                if (count($row->childs)) {
+                    $resultRow['children'] = array_merge($resultRow['children'], (array) $this->populateTreeForWidget($row->childs, $withDocuments));
                 }
             }
 
