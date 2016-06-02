@@ -1,0 +1,16 @@
+.jqtree-input {
+    position: relative;
+    width: 100%;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    display: none;
+}
+
+.jqtree-input ul {
+    padding: 5px;
+}
+
+.jqtree-input .jqtree-element span.glyphicon {
+    width: 20px;
+}

@@ -16,36 +16,55 @@ class DocumentTemplate extends ActiveRecord
     const DEFAULT_WIZARD_EURO_LEGAL = 133;
     const DEFAULT_WIZARD_EURO_PERSON = 148;
 
+    const DOCUMENT_FOLDER = 'glyphicon glyphicon-folder-close';
+    const DOCUMENT_ICON = 'glyphicon glyphicon-file';
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'document_template';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['name', 'content'], 'string'],
             ['folder_id', 'integer'],
+            [['name', 'folder_id', ], 'required'],
             ['type', 'in', 'range' => array_keys(ClientDocument::$types)],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
             'type' => 'Тип документа',
-            'folder_id' => 'Папка',
+            'folder_id' => 'Раздел',
             'id' => 'Шаблон',
             'name' => 'Название',
-            'content' => 'Контент',
+            'content' => 'Содержание',
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getFolder()
     {
         return $this->hasOne(DocumentFolder::className(), ['id' => 'folder_id']);
     }
 
+    /**
+     * @return array
+     */
     public static function getList()
     {
         return ArrayHelper::map(
@@ -55,6 +74,10 @@ class DocumentTemplate extends ActiveRecord
         );
     }
 
+    /**
+     * @param bool|true $runValidation
+     * @param null $attributeNames
+     */
     public function save($runValidation = true, $attributeNames = null)
     {
         $this->content = preg_replace_callback(
@@ -75,6 +98,14 @@ class DocumentTemplate extends ActiveRecord
         }
 
         parent::save();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->name;
     }
 
 }

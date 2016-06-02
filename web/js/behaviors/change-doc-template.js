@@ -1,36 +1,43 @@
-if(typeof templates == 'undefined')
-    var templates = [];
-var folders = [];
+if (typeof documentFolders == 'undefined') {
+    var documentFolders = [];
+}
 
-function generateTmplList(type, selected) {
-    if (!selected)
-        selected = $('.tmpl-group[data-type="' + type + '"]').first().val();
-    var tmpl = $('.tmpl[data-type="' + type + '"]');
-    if (folders[selected] !== 'undefined') {
-        tmpl.empty();
-        $.each(templates, function (k, v) {
-            if(type == v['type'] && v['folder_id'] == selected)
-                tmpl.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
-        });
-    }
+if (typeof documentTemplates == 'undefined') {
+    var documentTemplates = [];
 }
 
 $(function () {
-    $('.tmpl-group').each(function () {
-        var type = $(this).data('type');
-        var t = $(this);
-        var first = true;
-        $.each(templates, function (k, v) {
-            if(type == v['type'] && typeof folders[v['folder_id']] == 'undefined') {
-                first = false;
-                t.append('<option value="' + v['folder_id'] + '" ' + (first ? 'selected=selected' : '') + ' >' + v['folder'] + '</option>');
-                folders[v['folder_id']] = v['folder'];
-            }
-        });
-        generateTmplList(type, first);
-    });
 
-    $('.tmpl-group').on('change', function () {
-        generateTmplList($(this).data('type'), $(this).val());
-    });
+    var
+        setDocuments = function($target, folderId) {
+            $target.find('option').remove();
+            $.each(documentTemplates, function() {
+                if (this.folder_id == folderId && $target.data('documents-type') == this.type) {
+                    $target.append($('<option />').val(this.id).text(this.name));
+                }
+            });
+        },
+        setFolders = function($target, folderId) {
+            $target.find('option').remove();
+            if (typeof documentFolders[folderId] !== 'undefined') {
+                $.each(documentFolders[folderId], function () {
+                    $target.append($('<option />').val(this.id).text(this.name));
+                });
+            }
+            $target.trigger('change');
+        };
+
+    $('.document-template').on('change', function () {
+        var selectedValue = $(this).find('option:selected').val();
+
+        if ($(this).has('data-documents')) {
+            setDocuments($('.tmpl-documents[data-documents-type="' + $(this).data('documents') + '"]'), selectedValue);
+        }
+
+        if ($(this).has('data-folders')) {
+            setFolders($('.document-template[data-folder-type="' + $(this).data('folders') + '"]'), selectedValue);
+        }
+
+    }).trigger('change');
+
 });

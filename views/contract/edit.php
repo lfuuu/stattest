@@ -1,16 +1,18 @@
 <?php
 
 use app\assets\AppAsset;
-use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 use app\classes\Language;
+use app\classes\Html;
 use app\models\ClientContract;
 use app\models\ClientDocument;
 use app\models\UserGroups;
 use app\models\ClientContragent;
+use app\dao\ClientDocumentDao;
 
 $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
@@ -106,7 +108,6 @@ if (!$model->id) {
                     datepicker.parent().parent().show();
                 }
                 else {
-                    console.log('picker hide');
                     datepicker.parent().parent().hide();
                 }
             });
@@ -204,10 +205,19 @@ if (!$model->id) {
                     </div>
 
                     <div class="col-sm-2">
-                        <select class="form-control input-sm tmpl-group" data-type="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>"></select>
+                        <?= Html::dropDownList('', null, ClientDocumentDao::getFolders(), [
+                            'class' => 'form-control input-sm document-template',
+                            'data-documents' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
+                            'data-folders' => ClientDocument::DOCUMENT_AGREEMENT_TYPE,
+                        ]);
+                        ?>
                     </div>
                     <div class="col-sm-2">
-                        <select class="form-control input-sm tmpl" name="ClientDocument[template_id]" data-type="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>"></select>
+                        <select
+                            class="form-control input-sm tmpl-documents"
+                            name="ClientDocument[template_id]"
+                            data-documents-type="<?= ClientDocument::DOCUMENT_CONTRACT_TYPE ?>">
+                        </select>
                     </div>
                     <div class="col-sm-2">
                         <button type="submit"
@@ -287,12 +297,18 @@ if (!$model->id) {
                 </div>
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl-group"
-                            data-type="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>"></select>
+                    <select
+                        class="form-control input-sm document-template"
+                        data-documents="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>"
+                        data-folder-type="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>">
+                    </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl" name="ClientDocument[template_id]"
-                            data-type="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>"></select>
+                    <select
+                        class="form-control input-sm tmpl-documents"
+                        name="ClientDocument[template_id]"
+                        data-documents-type="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>">
+                    </select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
@@ -492,4 +508,8 @@ if (!$model->id) {
     </script>
 </div>
 
-<script> var templates = <?= json_encode(\app\dao\ClientDocumentDao::templateList()) ?>; </script>
+<script type="text/javascript">
+var
+    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersWithoutContractAndWithParent()) ?>,
+    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
+</script>

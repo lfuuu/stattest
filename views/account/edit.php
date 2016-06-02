@@ -1,18 +1,19 @@
 <?php
 
 use app\assets\AppAsset;
-use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
+use yii\helpers\Json;
 use yii\helpers\Url;
 use app\classes\Language;
+use app\classes\Html;
 use app\models\ClientDocument;
 use app\models\UserGroups;
+use app\dao\ClientDocumentDao;
 
 $this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/client-account-options.js', ['depends' => [AppAsset::className()]]);
 
 $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 ?>
@@ -239,11 +240,18 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
                 </div>
                 <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl-group" data-type="<?=ClientDocument::DOCUMENT_BLANK_TYPE?>"></select>
+                    <?= Html::dropDownList('', null, ClientDocumentDao::getFolders($documentType = ClientDocument::DOCUMENT_BLANK_TYPE), [
+                        'class' => 'form-control input-sm document-template',
+                        'data-documents' => ClientDocument::DOCUMENT_BLANK_TYPE,
+                    ]);
+                    ?>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control input-sm tmpl" name="ClientDocument[template_id]"
-                            data-type="<?=ClientDocument::DOCUMENT_BLANK_TYPE?>"></select>
+                    <select
+                        class="form-control input-sm tmpl-documents"
+                        name="ClientDocument[template_id]"
+                        data-documents-type="<?= ClientDocument::DOCUMENT_BLANK_TYPE ?>">
+                    </select>
                 </div>
                 <div class="col-sm-2">
                     <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
@@ -255,4 +263,8 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
     <?php endif; ?>
 </div>
 
-<script> var templates = <?= json_encode(\app\dao\ClientDocumentDao::templateList()) ?>; </script>
+<script type="text/javascript">
+var
+    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersWithoutContractAndWithParent()) ?>,
+    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
+</script>

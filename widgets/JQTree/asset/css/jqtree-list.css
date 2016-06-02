@@ -1,0 +1,8 @@
+.jqtree .jqtree-folder {
+    padding: 5px;
+    border: 1px solid #D0D0D0;
+}
+
+.jqtree .jqtree-element span.glyphicon {
+    width: 20px;
+}

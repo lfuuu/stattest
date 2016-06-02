@@ -6,10 +6,14 @@ use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
+use app\models\document\DocumentFolder;
 use app\models\document\DocumentTemplate;
 use Yii;
 use app\classes\Singleton;
 use app\models\TariffVoip;
+use yii\db\Expression;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * @method static ClientDocumentDao me($args = null)
@@ -17,27 +21,77 @@ use app\models\TariffVoip;
  */
 class ClientDocumentDao extends Singleton
 {
-    public static function templateList()
+
+    /**
+     * Получение списка разделов верхнего уровня с указанным типом документов
+     *
+     * @return array
+     */
+    public static function getFolders($documentType = ClientDocument::DOCUMENT_CONTRACT_TYPE)
+    {
+        $query =
+            self::getFoldersWithDocumentsData()
+                ->andWhere(['folders.parent_id' => 0])
+                ->andWhere(['documents.type' => $documentType]);
+
+        return
+            ArrayHelper::map(
+                $query->all(),
+                'id',
+                'name'
+            );
+    }
+
+    /**
+     * Получение списка вложенных разделов с документами с типом отличным от "Контракт"
+     *
+     * @return array
+     */
+    public static function getFoldersWithoutContractAndWithParent()
+    {
+        $query =
+            self::getFoldersWithDocumentsData()
+                ->andWhere(['!=', 'folders.parent_id', 0])
+                ->andWhere(['!=', 'documents.type', ClientDocument::DOCUMENT_CONTRACT_TYPE]);
+
+        $result = [];
+
+        foreach ($query->all() as $row) {
+            $result[$row['parent_id']][] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получение списка документов, находящихся в разделах
+     *
+     * @return array
+     */
+    public static function getTemplates()
     {
         $templates = DocumentTemplate::find()
             ->joinWith(['folder'])
             ->orderBy([
-                'document_folder.is_default' => SORT_DESC,
                 'document_template.name' => SORT_ASC
             ])
             ->asArray()
             ->all();
 
         $res = [];
+
         foreach ($templates as $template) {
             $res[] = [
                 'id' => $template['id'],
                 'name' => $template['name'],
                 'type' => $template['type'],
-                'folder' => $template['folder']['name'],
                 'folder_id' => $template['folder_id'],
             ];
         }
+
         return $res;
     }
 
@@ -508,4 +562,31 @@ class ClientDocumentDao extends Singleton
             'payment_info' => $this->prepareContragentPaymentInfo($account),
         ];
     }
+
+    /**
+     * @return Query
+     */
+    private static function getFoldersWithDocumentsData()
+    {
+        $query =
+            (new Query)
+                ->select([
+                    'folders.*',
+                    'documents' => new Expression('COUNT(documents.id)'),
+                ])
+                ->from(['folders' => DocumentFolder::tableName()])
+                ->leftJoin(
+                    ['documents' => DocumentTemplate::tableName()],
+                    'documents.folder_id = folders.id'
+                )
+                ->groupBy('folders.id')
+                ->having('documents > 0')
+                ->orderBy([
+                    'folders.name' => SORT_ASC,
+                    'folders.sort' => SORT_DESC,
+                ]);
+
+        return $query;
+    }
+
 }
