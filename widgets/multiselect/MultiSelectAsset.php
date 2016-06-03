@@ -8,7 +8,7 @@ class MultiSelectAsset extends AssetBundle
 {
 
     public
-        $sourcePath = '@bower/bower-asset/bootstrap-multiselect/dist',
+        $sourcePath = '@bower/bootstrap-multiselect/dist',
         $js = [
         'js/bootstrap-multiselect.js',
         'js/bootstrap-multiselect-collapsible-groups.js',
