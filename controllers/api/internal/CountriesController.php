@@ -71,9 +71,9 @@ class CountriesController extends ApiInternalController
      */
     public function actionGetCities()
     {
-        $requestDate = $this->requestParams;
-        $countryId = isset($requestDate['country_id']) ? $requestDate['country_id'] : null;
-        $withNumbers = isset($requestDate['with_numbers']) ? (int) $requestDate['with_numbers'] : 0;
+        $requestData = $this->requestParams;
+        $countryId = isset($requestData['country_id']) ? $requestData['country_id'] : null;
+        $withNumbers = isset($requestData['with_numbers']) ? (int) $requestData['with_numbers'] : 0;
 
         if (!$countryId || !($country = Country::findOne($countryId))) {
             throw new BadRequestHttpException;
@@ -96,6 +96,95 @@ class CountriesController extends ApiInternalController
         }
 
         return $result;
+    }
+
+    /**
+     * @SWG\Definition(
+     *   definition="countryRecord",
+     *   type="object",
+     *   @SWG\Property(
+     *     property="country_code",
+     *     type="integer",
+     *     description="Идентификатор страны"
+     *   ),
+     *   @SWG\Property(
+     *     property="country_title",
+     *     type="string",
+     *     description="Название страны"
+     *   ),
+     *   @SWG\Property(
+     *     property="country_lang",
+     *     type="string",
+     *     description="Используемый язык"
+     *   )
+     *   @SWG\Property(
+     *     property="country_currency",
+     *     type="string",
+     *     description="Используемая валюта"
+     *   )
+     * ),
+     * @SWG\Post(
+     *   tags={"Справочники"},
+     *   path="/internal/countries/get-countries-by-domain",
+     *   summary="Получение списка стран по домену",
+     *   operationId="Получение списка стран по домену",
+     *   @SWG\Parameter(name="domain",type="string",description="доменное имя",in="formData"),
+     *
+     *   @SWG\Response(
+     *     response=200,
+     *     description="список стран",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/countryRecord"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetCountriesByDomain()
+    {
+        $requestData = $this->requestParams;
+        $domain = isset($requestData['domain']) ? $requestData['domain'] : null;
+
+        if (!$domain) {
+            throw new BadRequestHttpException;
+        }
+
+        $countries = Country::find()->where(['site' => $domain])->all();
+        $result = [];
+
+        foreach ($countries as $country) {
+            /** @var Country $country */
+            $result[] = $this->countryInfo($country);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Country $country
+     * @return array[]
+     */
+    private function countryInfo(Country $country)
+    {
+        return [
+            'country_code' => $country->code,
+            'country_title' => $country->name,
+            'country_lang' => $country->lang,
+            'country_currency' => $country->currency_id,
+        ];
     }
 
 }
