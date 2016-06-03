@@ -132,7 +132,7 @@ class CountriesController extends ApiInternalController
      *
      *   @SWG\Response(
      *     response=200,
-     *     description="список стран",
+     *     description="Список стран для сайта",
      *     @SWG\Schema(
      *       type="array",
      *       @SWG\Items(
@@ -163,6 +163,49 @@ class CountriesController extends ApiInternalController
         }
 
         $countries = Country::find()->where(['site' => $domain])->all();
+        $result = [];
+
+        foreach ($countries as $country) {
+            /** @var Country $country */
+            $result[] = $this->countryInfo($country);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(
+     *   tags={"Справочники"},
+     *   path="/internal/countries/get-countries",
+     *   summary="Получение списка стран",
+     *   operationId="Получение списка стран",
+     *
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Список стран",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/countryRecord"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetCountries()
+    {
+        $countries = Country::find()->where(['is_use' => 1])->all();
         $result = [];
 
         foreach ($countries as $country) {
