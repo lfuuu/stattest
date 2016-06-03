@@ -510,6 +510,6 @@ if (!$model->id) {
 
 <script type="text/javascript">
 var
-    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersWithoutContractAndWithParent()) ?>,
+    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
     documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
 </script>

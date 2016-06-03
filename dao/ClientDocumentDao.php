@@ -47,14 +47,14 @@ class ClientDocumentDao extends Singleton
     /**
      * Получение списка вложенных разделов с документами с типом отличным от "Контракт"
      *
+     * @param string[] $documentTypes
      * @return array
      */
-    public static function getFoldersWithoutContractAndWithParent()
+    public static function getFoldersByDocumentType($documentTypes = [])
     {
         $query =
             self::getFoldersWithDocumentsData()
-                ->andWhere(['!=', 'folders.parent_id', 0])
-                ->andWhere(['!=', 'documents.type', ClientDocument::DOCUMENT_CONTRACT_TYPE]);
+                ->andWhere(['IN', 'documents.type', $documentTypes]);
 
         $result = [];
 
