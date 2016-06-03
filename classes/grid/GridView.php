@@ -224,4 +224,29 @@ HTML;
             'id' => 'pushpinTableHeader',
         ]);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function renderToggleData()
+    {
+        if (!$this->dataProvider->getTotalCount()) {
+            // не показывать кнопку "все", если нет данных
+            return '';
+        }
+        return parent::renderToggleData();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function renderExport()
+    {
+        if (!$this->dataProvider->getTotalCount()) {
+            // не показывать кнопку, если нет данных
+            return '';
+        }
+        return parent::renderExport();
+    }
+
 }
