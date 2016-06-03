@@ -41,8 +41,8 @@ class CountriesController extends ApiInternalController
      * @SWG\Post(
      *   tags={"Справочники"},
      *   path="/internal/countries/get-cities/",
-     *   summary="Получение списка город в стране",
-     *   operationId="Получение списка город в стране",
+     *   summary="Получение списка городов в стране",
+     *   operationId="Получение списка городов в стране",
      *   @SWG\Parameter(name="country_id",type="integer",description="идентификатор страны",in="formData"),
      *   @SWG\Parameter(name="with_numbers",type="integer",description="признак возврата кол-ва свободных номеров",in="formData"),
      *
