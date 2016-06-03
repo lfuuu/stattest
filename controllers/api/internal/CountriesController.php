@@ -116,7 +116,7 @@ class CountriesController extends ApiInternalController
      *     property="country_lang",
      *     type="string",
      *     description="Используемый язык"
-     *   )
+     *   ),
      *   @SWG\Property(
      *     property="country_currency",
      *     type="string",
