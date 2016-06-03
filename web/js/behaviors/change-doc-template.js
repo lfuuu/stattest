@@ -18,12 +18,24 @@ $(function () {
             });
         },
         setFolders = function($target, folderId) {
-            $target.find('option').remove();
-            if (typeof documentFolders[folderId] !== 'undefined') {
-                $.each(documentFolders[folderId], function () {
-                    $target.append($('<option />').val(this.id).text(this.name));
+            var folders = [];
+
+            if (!folderId) {
+                $.each(documentFolders, function() {
+                    $.each($(this), function() {
+                        folders.push(this);
+                    });
                 });
             }
+            else if (typeof documentFolders[folderId] !== 'undefined') {
+                folders = documentFolders[folderId];
+            }
+
+            $target.find('option').remove();
+            $.each(folders, function () {
+                $target.append($('<option />').val(this.id).text(this.name));
+            });
+
             $target.trigger('change');
         };
 
@@ -35,7 +47,12 @@ $(function () {
         }
 
         if ($(this).has('data-folders')) {
-            setFolders($('.document-template[data-folder-type="' + $(this).data('folders') + '"]'), selectedValue);
+            setFolders(
+                selectedValue
+                    ? $('.document-template[data-folder-type="' + $(this).data('folders') + '"]')
+                    : $(this),
+                selectedValue
+            );
         }
     }).trigger('change');
 
