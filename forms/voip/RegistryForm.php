@@ -56,7 +56,7 @@ class RegistryForm extends Form
 
     public function attributeLabels()
     {
-        return Registry::attributeLabels() + [
+        return (new Registry)->attributeLabels() + [
             'comment' => 'Комментарий',
             'city_number_format' => 'Формат номера'
         ];

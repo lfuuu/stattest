@@ -7,7 +7,6 @@ use app\models\DidGroup;
 
 /**
  * @method static NumberBeautyDao me($args = null)
- * @property
  */
 class NumberBeautyDao extends Singleton
 {
