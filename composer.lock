@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8e9229f3583c67cd21250b85377662bd",
-    "content-hash": "1696d17a6eb854cf71baa96b20cfe8ca",
+    "hash": "34c30b264441d1796d0907cb5c0dbfb1",
+    "content-hash": "845b56d7a82137b77a0a5cf653a4b9ac",
     "packages": [
         {
             "name": "KidSysco/jquery-ui-month-picker",
@@ -389,7 +389,7 @@
                 "reference": "master"
             },
             "type": "library",
-            "time": "2016-06-02 10:56:36"
+            "time": "2016-06-03 15:43:56"
         },
         {
             "name": "cebe/markdown",
@@ -1182,16 +1182,16 @@
         },
         {
             "name": "kartik-v/yii2-grid",
-            "version": "v3.1.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/yii2-grid.git",
-                "reference": "fe29bcf8f46bde42aa3eb067851b38dc07cd4d8a"
+                "reference": "0cd1318536021942dad3fbe21ae5d7338e6db4b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-grid/zipball/fe29bcf8f46bde42aa3eb067851b38dc07cd4d8a",
-                "reference": "fe29bcf8f46bde42aa3eb067851b38dc07cd4d8a",
+                "url": "https://api.github.com/repos/kartik-v/yii2-grid/zipball/0cd1318536021942dad3fbe21ae5d7338e6db4b9",
+                "reference": "0cd1318536021942dad3fbe21ae5d7338e6db4b9",
                 "shasum": ""
             },
             "require": {
@@ -1227,7 +1227,7 @@
                 "widget",
                 "yii2"
             ],
-            "time": "2016-04-09 20:31:20"
+            "time": "2016-06-03 16:56:04"
         },
         {
             "name": "kartik-v/yii2-krajee-base",
@@ -1235,12 +1235,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/yii2-krajee-base.git",
-                "reference": "7f7a45ffe193fe673f72b9effc01b08499f2a454"
+                "reference": "473fb568ff1144dc49bdb74f40a5d7f025fc72e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-krajee-base/zipball/7f7a45ffe193fe673f72b9effc01b08499f2a454",
-                "reference": "7f7a45ffe193fe673f72b9effc01b08499f2a454",
+                "url": "https://api.github.com/repos/kartik-v/yii2-krajee-base/zipball/473fb568ff1144dc49bdb74f40a5d7f025fc72e4",
+                "reference": "473fb568ff1144dc49bdb74f40a5d7f025fc72e4",
                 "shasum": ""
             },
             "require": {
@@ -1278,7 +1278,7 @@
                 "widget",
                 "yii2"
             ],
-            "time": "2016-05-07 19:45:52"
+            "time": "2016-06-02 16:20:24"
         },
         {
             "name": "kartik-v/yii2-mpdf",
@@ -2000,12 +2000,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/yii2-widget-select2.git",
-                "reference": "6919d5096ca83ab4a1b163fcd09fb023814d1003"
+                "reference": "00c29bf2ea42df7be2ae6aa2b2be049807a8134b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-widget-select2/zipball/6919d5096ca83ab4a1b163fcd09fb023814d1003",
-                "reference": "6919d5096ca83ab4a1b163fcd09fb023814d1003",
+                "url": "https://api.github.com/repos/kartik-v/yii2-widget-select2/zipball/00c29bf2ea42df7be2ae6aa2b2be049807a8134b",
+                "reference": "00c29bf2ea42df7be2ae6aa2b2be049807a8134b",
                 "shasum": ""
             },
             "require": {
@@ -2045,7 +2045,7 @@
                 "widget",
                 "yii2"
             ],
-            "time": "2016-04-19 13:22:56"
+            "time": "2016-06-03 10:10:39"
         },
         {
             "name": "kartik-v/yii2-widget-sidenav",
@@ -3392,7 +3392,7 @@
         "welltime/graylog-target": 20,
         "aferrandini/phpqrcode": 0,
         "phpoffice/phpexcel": 0,
-        "kartik-v/yii2-grid": 0,
+        "kartik-v/yii2-grid": 20,
         "kartik-v/yii2-editable": 0,
         "kartik-v/yii2-widgets": 0,
         "kartik-v/yii2-mpdf": 0,
