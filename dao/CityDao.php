@@ -19,10 +19,10 @@ class CityDao extends Singleton
      *
      * @param bool $isWithEmpty
      * @param null $countryId
-     * @param bool $isWithClosed
+     * @param bool $isWithNullAndNotNull
      * @return array
      */
-    public function getList($isWithEmpty = false, $countryId = null, $isWithClosed = false)
+    public function getList($isWithEmpty = false, $countryId = null, $isWithNullAndNotNull = false)
     {
         $query = City::find();
         if ($countryId) {
@@ -39,7 +39,7 @@ class CityDao extends Singleton
                 'name'
             );
 
-        if ($isWithClosed) {
+        if ($isWithNullAndNotNull) {
             $list = [
                     GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
                     GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',
@@ -57,14 +57,14 @@ class CityDao extends Singleton
      * Вернуть список городов с добавлением страны
      *
      * @param bool $isWithEmpty
-     * @param bool $isWithClosed
+     * @param bool $isWithNullAndNotNull
      * @return array
      */
-    public function getListWithCountries($isWithEmpty = false, $isWithClosed = false)
+    public function getListWithCountries($isWithEmpty = false, $isWithNullAndNotNull = false)
     {
         $list = [];
 
-        if ($isWithClosed) {
+        if ($isWithNullAndNotNull) {
             $list = [
                     GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
                     GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',

@@ -20,17 +20,30 @@ trait GetListTrait
     /**
      * Вернуть список всех доступных моделей
      * @param bool $isWithEmpty
-     * @param bool $isWithClosed
+     * @param bool $isWithNullAndNotNull
      * @return self[]
      */
-    public static function getList($isWithEmpty = false, $isWithClosed = false)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false)
     {
         $list = self::find()
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')
             ->all();
 
-        if ($isWithClosed) {
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
+
+    /**
+     * Вернуть пустой список без конкретных моделей
+     * @param bool $isWithEmpty
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
+     */
+    public static function getEmptyList($isWithEmpty = false, $isWithNullAndNotNull = false)
+    {
+        $list = [];
+
+        if ($isWithNullAndNotNull) {
             $list = [
                     GetListTrait::$isNull => '- ' . Yii::t('common', 'Is empty') . ' -',
                     GetListTrait::$isNotNull => '- ' . Yii::t('common', 'Is not empty') . ' -',

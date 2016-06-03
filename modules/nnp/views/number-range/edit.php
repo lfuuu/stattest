@@ -104,21 +104,21 @@ if (!$numberRange->isNewRecord) {
         <?php // Регион ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
-                'data' => Region::getList($isWithEmpty = true, $isWithClosed = false),
+                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 
         <?php // Город ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
-                'data' => City::dao()->getList($isWithEmpty = true, $isWithClosed = false),
+                'data' => City::dao()->getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 
         <?php // Оператор ?>
         <div class="col-sm-4">
             <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
-                'data' => Operator::getList($isWithEmpty = true, $isWithClosed = false),
+                'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 

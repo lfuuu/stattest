@@ -33,7 +33,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
     <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты               ?>
     <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта                ?>
 
-    <div class="col-sm-2" title="Страна берется от страны клиента">
+    <div class="col-sm-2" title="Страна берётся от страны клиента">
         <?php // страна ?>
         <?= $form->field($accountTariffVoip, 'voip_country_id')
             ->widget(Select2::className(), [

@@ -115,7 +115,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
         $currency = null,
         $cityId = null,
         $isWithEmpty = false,
-        $isWithClosed = false
+        $isWithNullAndNotNull = false
     ) {
         $defaultTariffPeriodId = null;
 
@@ -140,7 +140,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
             $selectboxItems[''] = '----';
         }
 
-        if ($isWithClosed) {
+        if ($isWithNullAndNotNull) {
             $selectboxItems[self::IS_NOT_SET] = Yii::t('common', 'Switched off');
             $selectboxItems[self::IS_SET] = Yii::t('common', 'Switched on');
         }

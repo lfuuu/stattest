@@ -1,18 +1,18 @@
 <?php
 namespace app\dao;
 
-use Yii;
-use DateTime;
-use DateTimeZone;
-use yii\db\Expression;
 use app\classes\Assert;
 use app\classes\Singleton;
-use app\models\Number;
-use app\models\UsageVoip;
-use app\models\TariffVoip;
-use app\models\ClientAccount;
-use app\models\NumberLog;
 use app\models\billing\Calls;
+use app\models\ClientAccount;
+use app\models\Number;
+use app\models\NumberLog;
+use app\models\TariffVoip;
+use app\models\UsageVoip;
+use DateTime;
+use DateTimeZone;
+use Yii;
+use yii\db\Expression;
 
 /**
  * @method static NumberDao me($args = null)
@@ -229,6 +229,23 @@ class NumberDao extends Singleton
             ->createCommand()
             ->cache(86400)
             ->queryAll();
+    }
+
+    /**
+     * Вернуть список статусов
+     *
+     * @param bool $isWithEmpty
+     * @return array
+     */
+    public function getStatusList($isWithEmpty = false)
+    {
+        $list = \app\models\Number::$statusList;
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
     }
 
 }

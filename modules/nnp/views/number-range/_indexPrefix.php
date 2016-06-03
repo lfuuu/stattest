@@ -28,7 +28,7 @@ use kartik\select2\Select2;
         <div class="col-sm-3">
             <?= Select2::widget([
                 'name' => 'Prefix[id]',
-                'data' => Prefix::getList($isWithEmpty = true, $isWithClosed = false),
+                'data' => Prefix::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 

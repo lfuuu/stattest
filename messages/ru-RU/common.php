@@ -31,7 +31,10 @@ return [
     'Wrong ID' => 'Объект не найден',
     'The object was created successfully' => 'Объект успешно создан',
     'The object was saved successfully' => 'Объект успешно сохранён',
+    'None of the new value is not specified' => 'Не указано ни одно новое значение',
+    'Set new value to all filtered entries' => 'Всем отфильтрованным установить новое значение',
 
+    '{n, plural, one{# entry was edited} other{# entries were edited}}' => '{n, plural, one{# запись отредактирована} many{# записей отредактированы} other{# записи отредактированы}}',
     '{n, plural, one{# entry} other{# entries}}' => '{n, plural, one{# запись} many{# записей} other{# записи}}',
 
 ];

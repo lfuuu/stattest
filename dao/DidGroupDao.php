@@ -13,16 +13,11 @@ class DidGroupDao extends Singleton
     /**
      * Вернуть список
      * @param bool $isWithEmpty
+     * @param int $cityId
      * @return string[]
      */
-    public function getList($isWithEmpty = false, $cityId = false)
+    public function getList($isWithEmpty = false, $cityId = null)
     {
-        $query = DidGroup::find();
-
-        if ($cityId !== false) {
-            $query->andWhere(['city_id' => $cityId]);
-        }
-
         $list = self::getDidGroupMapByCityId($cityId, 'id', 'name');
 
         if ($isWithEmpty) {
@@ -31,21 +26,43 @@ class DidGroupDao extends Singleton
         return $list;
     }
 
-    public function getDidGroupMapByCityId($cityId, $keyField = 'beauty_level', $valueField = 'id')
+    public function getDidGroupMapByCityId($cityId = null, $keyField = 'beauty_level', $valueField = 'id')
     {
+        $query = DidGroup::find();
+
+        if ($cityId) {
+            $query->andWhere(['city_id' => $cityId]);
+        }
+
         return
             ArrayHelper::map(
-                (array)DidGroup::find()
+                (array)$query
                     ->select([
                         $keyField,
                         $valueField
                     ])
-                    ->where(['city_id' => $cityId])
                     ->orderBy([
                         $valueField => SORT_ASC,
-                    ])->asArray()->all(),
+                    ])
+                    ->asArray()
+                    ->all(),
                 $keyField,
                 $valueField
             );
+    }
+
+    /**
+     * Вернуть список красивостей
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public static function getBeautyLevelList($isWithEmpty = false)
+    {
+        $list = DidGroup::$beautyLevelNames;
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+        return $list;
     }
 }

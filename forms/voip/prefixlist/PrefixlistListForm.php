@@ -10,7 +10,8 @@ class PrefixlistListForm extends PrefixlistForm
     public function rules()
     {
         return [
-            [['name', 'type_id',], 'string']
+            [['name', ], 'string'],
+            [['type_id',], 'integer'],
         ];
     }
 

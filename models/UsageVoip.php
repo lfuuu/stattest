@@ -18,8 +18,10 @@ use app\classes\behaviors\ActualizeVoipNumber;
 use app\classes\behaviors\UsageDateTime;
 use app\classes\behaviors\important_events\UsageAction;
 use app\classes\behaviors\UsageVoipActualToDependencyPackage;
+use yii\helpers\Url;
 
 /**
+ * @property string tarif
  * @property int id
  * @property int region
  * @property string actual_from
@@ -45,7 +47,6 @@ use app\classes\behaviors\UsageVoipActualToDependencyPackage;
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
  * @property UsageVoipPackage $packages
- * @property
  */
 class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
@@ -236,5 +237,20 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
         return $this->tariff->month_number + ($this->tariff->month_line * ($this->no_of_lines - 1));
     }
 
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/usage/voip/edit', 'id' => $id]);
+    }
 }
 

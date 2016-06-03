@@ -89,7 +89,7 @@ $columns = [
         'attribute' => 'city_id',
 //        'reverseCheckboxAttribute' => 'is_reverse_city_id', // выключен для упрощения интерфейса
         'class' => CityColumn::className(),
-        'isWithClosed' => true,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'is_mob',

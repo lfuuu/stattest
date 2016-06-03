@@ -64,16 +64,20 @@ if (!$city->isNewRecord) {
         </div>
 
         <?php // Страна ?>
-        <div class="col-sm-2"><?= $form->field($city, 'country_id')
+        <div class="col-sm-2">
+            <?= $form->field($city, 'country_id')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($city->isNewRecord),
-                ]) ?></div>
+                ]) ?>
+        </div>
 
         <?php // Точка подключения ?>
-        <div class="col-sm-3"><?= $form->field($city, 'connection_point_id')
+        <div class="col-sm-3">
+            <?= $form->field($city, 'connection_point_id')
                 ->widget(Select2::className(), [
                     'data' => Region::dao()->getList($city->isNewRecord),
-                ]) ?></div>
+                ]) ?>
+        </div>
 
     </div>
 

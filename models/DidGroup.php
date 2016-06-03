@@ -61,19 +61,4 @@ class DidGroup extends ActiveRecord
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
-
-    /**
-     * Вернуть список красивостей
-     * @param bool $isWithEmpty
-     * @return string[]
-     */
-    public static function getBeautyLevelList($isWithEmpty = false)
-    {
-        $list = self::$beautyLevelNames;
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-        return $list;
-    }
 }

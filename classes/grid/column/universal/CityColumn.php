@@ -22,14 +22,14 @@ class CityColumn extends DataColumn
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
     public $country_id = null;
-    public $isWithClosed = false;
+    public $isWithNullAndNotNull = false;
     public $reverseCheckboxAttribute = ''; // имя bool/int - поля, из которого брать галочку "кроме". Не забудьте добавить в МодельFilter соответствующее инвертирующее условие
 
     public function __construct($config = [])
     {
         parent::__construct($config);
 
-        $this->filter = $this->filterData = City::dao()->getList($isWithEmpty = true, $this->country_id, $this->isWithClosed);
+        $this->filter = $this->filterData = City::dao()->getList($isWithEmpty = true, $this->country_id, $this->isWithNullAndNotNull);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' city-column';
 

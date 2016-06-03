@@ -5,6 +5,7 @@ use app\dao\NumberDao;
 use app\models\light_models\CurrencyLight;
 use app\models\light_models\NumberPriceLight;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * @property string number
@@ -77,6 +78,16 @@ class Number extends ActiveRecord
             'city_id' => 'Город',
             'did_group_id' => 'DID группа',
             'beauty_level' => 'Степень красивости',
+            'status' => 'Статус',
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            [['status'], 'string'],
+            [['beauty_level', 'did_group_id'], 'integer'],
+            [['status', 'beauty_level', 'did_group_id'], 'required', 'on' => 'save'],
         ];
     }
 
@@ -102,6 +113,14 @@ class Number extends ActiveRecord
     public function getDidGroup()
     {
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
+    }
+
+   /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUsage()
+    {
+        return $this->hasOne(UsageVoip::className(), ['id' => 'usage_id']);
     }
 
     /**
@@ -176,4 +195,19 @@ class Number extends ActiveRecord
         return $formattedResult;
     }
 
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->number);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/voip/number/edit', 'id' => $id]);
+    }
 }

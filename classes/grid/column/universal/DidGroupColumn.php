@@ -9,7 +9,7 @@ use kartik\grid\GridView;
 use Yii;
 
 
-class BeautyLevelColumn extends DataColumn
+class DidGroupColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait;
@@ -19,8 +19,8 @@ class BeautyLevelColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = DidGroup::dao()->getBeautyLevelList(true);
+        $this->filter = DidGroup::dao()->getList(true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' beauty-level-column';
+        $this->filterOptions['class'] .= ' did-group-column';
     }
 }

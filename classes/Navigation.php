@@ -100,6 +100,7 @@ class Navigation
                 ->addItem('Списки префиксов', ['/voip/prefixlist'], ['voip.access'])
                 ->addItem('Направления', ['/voip/destination'], ['voip.access'])
                 ->addItem('Тип номера', ['/voip/number-type'], ['voip.access'])
+                ->addItem('Номера', ['/voip/number'], ['voip.access'])
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
         );
 

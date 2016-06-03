@@ -267,6 +267,8 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.is-null-and-not-null-column,
+.did-group-column,
 .operator-column,
 .account-entry-type-column,
 .service-type-column,
