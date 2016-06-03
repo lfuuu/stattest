@@ -82,8 +82,10 @@ class RegistryController extends BaseController
             }
         }
 
+        $isShowCheckList = false;
+        $checkList = null;
+        $statusInfo = [];
         try {
-            $checkList = null;
             if (Yii::$app->request->post('fill-numbers')) {
                 $registry->fillNumbers();
                 $isShowCheckList = true;
@@ -99,7 +101,6 @@ class RegistryController extends BaseController
                 $isShowCheckList = true;
             }
 
-            $statusInfo = [];
             if ($isShowCheckList) {
                 $statusInfo = $registry->getStatusInfo();
             }

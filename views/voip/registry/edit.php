@@ -13,7 +13,7 @@ use kartik\builder\Form;
 $countryList = \app\models\Country::getList();
 $cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
 
-if ($model->country_id != $model->registry->country_id) {
+if ($model->registry && $model->country_id != $model->registry->country_id) {
     $cityLabelList = \app\models\City::dao()->getList(false, $model->registry->country_id);
 }
 
