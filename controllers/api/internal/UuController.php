@@ -3,9 +3,17 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\uu\model\Period;
+use app\classes\uu\model\Resource;
+use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\classes\uu\model\TariffPerson;
 use app\classes\uu\model\TariffResource;
+use app\classes\uu\model\TariffStatus;
+use app\classes\uu\model\TariffVoipCity;
+use app\classes\uu\model\TariffVoipGroup;
+use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use Yii;
@@ -23,6 +31,188 @@ class UuController extends ApiInternalController
     public function actionIndex()
     {
         throw new NotImplementedHttpException;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-service-types", summary = "Список типов услуг", operationId = "Список типов услуг",
+     *
+     *   @SWG\Response(response = 200, description = "Список типов услуг (ВАТС, телефония, интернет и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetServiceTypes()
+    {
+        $query = ServiceType::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-resources", summary = "Список ресурсов", operationId = "Список ресурсов",
+     *
+     *   @SWG\Response(response = 200, description = "Список ресурсов (дисковое пространство, абоненты, линии и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetResources()
+    {
+        $query = Resource::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-periods", summary = "Список периодов", operationId = "Список периодов",
+     *
+     *   @SWG\Response(response = 200, description = "Список периодов (день, месяц, год и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetPeriods()
+    {
+        $query = Period::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariff-statuses", summary = "Список статусов тарифа", operationId = "Список статусов тарифа",
+     *
+     *   @SWG\Response(response = 200, description = "Список статусов тарифа (публичный, специальный, архивный и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetTariffStatuses()
+    {
+        $query = TariffStatus::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariff-persons", summary = "Список для кого действует тариф", operationId = "Список для кого действует тариф",
+     *
+     *   @SWG\Response(response = 200, description = "Список для кого действует тариф (для всех, физиков, юриков)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetTariffPersons()
+    {
+        $query = TariffPerson::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariff-voip-tarificates", summary = "Список типов тарификации телефонии", operationId = "Список типов тарификации телефонии",
+     *
+     *   @SWG\Response(response = 200, description = "Список типов тарификации телефонии (посекундный, поминутный и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetTariffVoipTarificates()
+    {
+        $query = TariffVoipTarificate::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariff-voip-groups", summary = "Список групп телефонии", operationId = "Список групп телефонии",
+     *
+     *   @SWG\Response(response = 200, description = "Список групп телефонии (местные, междугородние, международные и пр.)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetTariffVoipGroups()
+    {
+        $query = TariffVoipGroup::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->getIdNameRecord($model);
+        }
+
+        return $result;
     }
 
     /**
@@ -52,25 +242,27 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "isChargeAfterPeriod", type = "integer", description = "Списывать в конце периода"),
      *   @SWG\Property(property = "isIncludeVat", type = "integer", description = "Включить НДС"),
      *   @SWG\Property(property = "isDefault", type = "integer", description = "По умолчанию"),
-     *   @SWG\Property(property = "currency", type = "string", description = "Валюта"),
+     *   @SWG\Property(property = "currencyId", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariffStatus", type = "object", description = "Статус (публичный, специальный, архивный и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariffPerson", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariffResources", type = "array", description = "Ресурсы (дисковое пространство, абоненты, линии и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffResourceRecord")),
      *   @SWG\Property(property = "tariffPeriods", type = "array", description = "Периоды (посуточно, помесячно и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
-     *   @SWG\Property(property = "voipTarificate", type = "object", description = "Тип тарификации телефонии (посекундный, поминутный и пр.)", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "voipGroup", type = "object", description = "Группа телефонии (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "voipCities", type = "array", description = "Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
+     *   @SWG\Property(property = "voipTarificate", type = "object", description = "Телефония. Тип тарификации (посекундный, поминутный и пр.)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "voipGroup", type = "object", description = "Телефония. Группа (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "voipCities", type = "array", description = "Телефония. Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
      * ),
      *
      * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "Список тарифов",
      *   @SWG\Parameter(name = "id", type = "integer", description = "Идентификатор", in = "formData"),
-     *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги", in = "formData"),
+     *   @SWG\Parameter(name = "parentId", type = "integer", description = "Идентификатор родителя. Нужен для поиска совместимых пакетов", in = "formData"),
+     *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData"),
      *   @SWG\Parameter(name = "countryId", type = "integer", description = "Идентификатор страны", in = "formData"),
-     *   @SWG\Parameter(name = "currency", type = "string", description = "Код валюты", in = "formData"),
+     *   @SWG\Parameter(name = "currencyId", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "voipCityId", type = "integer", description = "Идентификатор города телефонии", in = "formData"),
      *
-     *   @SWG\Response(response = 200, description = "Список универсальных тарифов",
+     *   @SWG\Response(response = 200, description = "Список тарифов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
@@ -86,11 +278,32 @@ class UuController extends ApiInternalController
     {
         $requestData = $this->requestParams;
 
+        if (isset($requestData['parentId'])) {
+            // передан родительский тариф (предполагается, что телефонии), надо найти пакеты
+            /** @var Tariff $tariff */
+            $tariff = Tariff::find()->where(['id' => (int)$requestData['parentId']])->one();
+            if (!$tariff) {
+                return [];
+            }
+            $requestData['serviceTypeId'] = ServiceType::ID_VOIP_PACKAGE; // других пакетов пока все равно нет
+            !isset($requestData['countryId']) && $requestData['countryId'] = $tariff->country_id;
+            !isset($requestData['currencyId']) && $requestData['currencyId'] = $tariff->currency_id;
+            !isset($requestData['voipCityId']) && $requestData['voipCityId'] = array_keys($tariff->voipCities);
+            unset($tariff);
+        }
+
         $tariffQuery = Tariff::find();
-        isset($requestData['id']) && $tariffQuery->andWhere(['id' => (int)$requestData['id']]);
-        isset($requestData['serviceTypeId']) && $tariffQuery->andWhere(['service_type_id' => (int)$requestData['serviceTypeId']]);
-        isset($requestData['countryId']) && $tariffQuery->andWhere(['country_id' => (int)$requestData['countryId']]);
-        isset($requestData['currency']) && $tariffQuery->andWhere(['currency_id' => $requestData['currency']]);
+        $tariffTableName = Tariff::tableName();
+        isset($requestData['id']) && $tariffQuery->andWhere([$tariffTableName . '.id' => (int)$requestData['id']]);
+        isset($requestData['serviceTypeId']) && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$requestData['serviceTypeId']]);
+        isset($requestData['countryId']) && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$requestData['countryId']]);
+        isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $requestData['currencyId']]);
+
+        if (isset($requestData['voipCityId'])) {
+            $tariffQuery->joinWith('voipCities');
+            $tariffVoipCityTableName = TariffVoipCity::tableName();
+            $tariffQuery->andWhere([$tariffVoipCityTableName . '.city_id' => $requestData['voipCityId']]);
+        }
 
         $result = [];
         foreach ($tariffQuery->each() as $tariff) {
@@ -125,7 +338,7 @@ class UuController extends ApiInternalController
             'tariffPeriods' => $this->getTariffPeriodRecord($tariff->tariffPeriods),
             'voipTarificate' => $this->getIdNameRecord($tariff->voipTarificate),
             'voipGroup' => $this->getIdNameRecord($tariff->voipGroup),
-            'voipCities' => $this->getIdNameRecord($tariff->voipCities),
+            'voipCities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
         ];
     }
 
@@ -147,7 +360,7 @@ class UuController extends ApiInternalController
 
             return [
                 'id' => $model->{$idFieldName},
-                'name' => $model->name,
+                'name' => (string)$model,
             ];
 
         } else {
