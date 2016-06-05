@@ -258,8 +258,13 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "id", type = "integer", description = "Идентификатор", in = "formData"),
      *   @SWG\Parameter(name = "parentId", type = "integer", description = "Идентификатор родителя. Нужен для поиска совместимых пакетов", in = "formData"),
      *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData"),
-     *   @SWG\Parameter(name = "countryId", type = "integer", description = "Идентификатор страны", in = "formData"),
+     *   @SWG\Parameter(name = "isDefault", type = "integer", description = "По умолчанию (0 / 1)", in = "formData"),
      *   @SWG\Parameter(name = "currencyId", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "countryId", type = "integer", description = "Идентификатор страны", in = "formData"),
+     *   @SWG\Parameter(name = "tariffStatusId", type = "integer", description = "Идентификатор статуса (публичный, специальный, архивный и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "tariffPersonId", type = "integer", description = "Идентификатор для кого действует тариф (для всех, физиков, юриков)", in = "formData"),
+     *   @SWG\Parameter(name = "voipTarificateId", type = "integer", description = "Идентификатор типа тарификации телефонии (посекундный, поминутный и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "voipGroupId", type = "integer", description = "Идентификатор группы телефонии (местные, междугородние, международные и пр.)", in = "formData"),
      *   @SWG\Parameter(name = "voipCityId", type = "integer", description = "Идентификатор города телефонии", in = "formData"),
      *
      *   @SWG\Response(response = 200, description = "Список тарифов",
@@ -298,6 +303,11 @@ class UuController extends ApiInternalController
         isset($requestData['serviceTypeId']) && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$requestData['serviceTypeId']]);
         isset($requestData['countryId']) && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$requestData['countryId']]);
         isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $requestData['currencyId']]);
+        isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int) $requestData['currencyId']]);
+        isset($requestData['tariffStatusId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int) $requestData['tariffStatusId']]);
+        isset($requestData['tariffPersonId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int) $requestData['tariffPersonId']]);
+        isset($requestData['voipTarificateId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int) $requestData['voipTarificateId']]);
+        isset($requestData['voipGroupId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int) $requestData['voipGroupId']]);
 
         if (isset($requestData['voipCityId'])) {
             $tariffQuery->joinWith('voipCities');
