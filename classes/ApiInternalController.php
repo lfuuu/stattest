@@ -2,13 +2,6 @@
 namespace app\classes;
 
 use Yii;
-use yii\web\Response;
-use yii\filters\AccessControl;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\ContentNegotiator;
-use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
-use yii\web\UnauthorizedHttpException;
 use yii\web\HttpException;
 
 class ApiInternalController extends ApiController

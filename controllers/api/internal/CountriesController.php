@@ -218,7 +218,7 @@ class CountriesController extends ApiInternalController
 
     /**
      * @param Country $country
-     * @return array[]
+     * @return string[]
      */
     private function countryInfo(Country $country)
     {

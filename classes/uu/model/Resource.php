@@ -12,7 +12,7 @@ use Yii;
 use yii\db\ActiveQuery;
 
 /**
- * Ресурс (дисковое пространство, абоненты и т.д.)
+ * Ресурс (дисковое пространство, абоненты, линии и пр.)
  *
  * @property integer $id
  * @property string $name
