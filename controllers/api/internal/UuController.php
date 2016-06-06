@@ -3,6 +3,11 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\uu\model\AccountLogPeriod;
+use app\classes\uu\model\AccountLogResource;
+use app\classes\uu\model\AccountLogSetup;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Period;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
@@ -16,6 +21,7 @@ use app\classes\uu\model\TariffVoipGroup;
 use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
+use InvalidArgumentException;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -257,7 +263,7 @@ class UuController extends ApiInternalController
      * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "Список тарифов",
      *   @SWG\Parameter(name = "id", type = "integer", description = "Идентификатор", in = "formData"),
      *   @SWG\Parameter(name = "parentId", type = "integer", description = "Идентификатор родителя. Нужен для поиска совместимых пакетов", in = "formData"),
-     *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true),
      *   @SWG\Parameter(name = "isDefault", type = "integer", description = "По умолчанию (0 / 1)", in = "formData"),
      *   @SWG\Parameter(name = "currencyId", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "formData"),
      *   @SWG\Parameter(name = "countryId", type = "integer", description = "Идентификатор страны", in = "formData"),
@@ -303,11 +309,11 @@ class UuController extends ApiInternalController
         isset($requestData['serviceTypeId']) && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$requestData['serviceTypeId']]);
         isset($requestData['countryId']) && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$requestData['countryId']]);
         isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $requestData['currencyId']]);
-        isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int) $requestData['currencyId']]);
-        isset($requestData['tariffStatusId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int) $requestData['tariffStatusId']]);
-        isset($requestData['tariffPersonId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int) $requestData['tariffPersonId']]);
-        isset($requestData['voipTarificateId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int) $requestData['voipTarificateId']]);
-        isset($requestData['voipGroupId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int) $requestData['voipGroupId']]);
+        isset($requestData['currencyId']) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$requestData['currencyId']]);
+        isset($requestData['tariffStatusId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$requestData['tariffStatusId']]);
+        isset($requestData['tariffPersonId']) && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$requestData['tariffPersonId']]);
+        isset($requestData['voipTarificateId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int)$requestData['voipTarificateId']]);
+        isset($requestData['voipGroupId']) && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$requestData['voipGroupId']]);
 
         if (isset($requestData['voipCityId'])) {
             $tariffQuery->joinWith('voipCities');
@@ -319,6 +325,104 @@ class UuController extends ApiInternalController
         foreach ($tariffQuery->each() as $tariff) {
             /** @var Tariff $tariff */
             $result[] = $this->getTariffRecord($tariff);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Definition(definition = "accountTariffLogRecord", type = "object",
+     *   @SWG\Property(property = "tariffId", type = "integer", description = "Идентификатор тарифа. Если закрыто, то null"),
+     *   @SWG\Property(property = "tariffPeriodId", type = "integer", description = "Идентификатор периода тарифа. Если закрыто, то null"),
+     *   @SWG\Property(property = "actualFrom", type = "string", description = "Дата, с которой этот тариф действует"),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountLogSetupRecord", type = "object",
+     *   @SWG\Property(property = "date", type = "string", description = "Дата списания"),
+     *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
+     *   @SWG\Property(property = "tariffId", type = "integer", description = "Идентификатор тарифа"),
+     *   @SWG\Property(property = "tariffPeriodId", type = "integer", description = "Идентификатор периода тарифа"),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountLogPeriodRecord", type = "object",
+     *   @SWG\Property(property = "dateFrom", type = "string", description = "Дата начала диапазона списания"),
+     *   @SWG\Property(property = "dateTo", type = "string", description = "Дата окончания диапазона списания"),
+     *   @SWG\Property(property = "pricePerPeriod", type = "number", description = "Цена за полный период"),
+     *   @SWG\Property(property = "coefficient", type = "number", description = "Коэффициент неполного периода"),
+     *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
+     *   @SWG\Property(property = "tariffId", type = "integer", description = "Идентификатор тарифа"),
+     *   @SWG\Property(property = "tariffPeriodId", type = "integer", description = "Идентификатор периода тарифа"),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountLogResourcesRecord", type = "object",
+     *   @SWG\Property(property = "date", type = "string", description = "Дата списания"),
+     *   @SWG\Property(property = "amountUse", type = "number", description = "Потрачено ресурса"),
+     *   @SWG\Property(property = "amountFree", type = "number", description = "Доступно ресурса бесплатно"),
+     *   @SWG\Property(property = "amountOverhead", type = "number", description = "Платное превышение ресурса"),
+     *   @SWG\Property(property = "pricePerUnit", type = "number", description = "Цена единицы ресурса"),
+     *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
+     *   @SWG\Property(property = "tariffId", type = "integer", description = "Идентификатор тарифа"),
+     *   @SWG\Property(property = "tariffPeriodId", type = "integer", description = "Идентификатор периода тарифа"),
+     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс (дисковое пространство, абоненты, линии и пр.)", ref = "#/definitions/idNameRecord"),
+     * ),
+     *
+     * @SWG\Definition(definition = "tariffAccountRecord", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "Идентификатор"),
+     *   @SWG\Property(property = "clientAccountId", type = "integer", description = "Идентификатор аккаунта клиента"),
+     *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "region", type = "object", description = "Регион (кроме телефонии)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "city", type = "object", description = "Город (только для телефонии)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "prevAccountTariffId", type = "integer", description = "Идентификатор основной услуги телефонии (если это пакет телефонии)"),
+     *   @SWG\Property(property = "nextAccountTariffId", type = "array", description = "Идентификаторы услуги пакета телефонии (если это телефония)", @SWG\Items(type = "integer")),
+     *   @SWG\Property(property = "comment", type = "string", description = "Комментарий"),
+     *   @SWG\Property(property = "voipNumber", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
+     *   @SWG\Property(property = "accountTariffLogs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
+     *   @SWG\Property(property = "accountLogSetups", type = "array", description = "Транзакции за подключение", @SWG\Items(ref = "#/definitions/accountLogSetupRecord")),
+     *   @SWG\Property(property = "accountLogPeriods", type = "array", description = "Транзакции за абонентскую плату", @SWG\Items(ref = "#/definitions/accountLogPeriodRecord")),
+     *   @SWG\Property(property = "accountLogResources", type = "array", description = "Транзакции за ресурсы", @SWG\Items(ref = "#/definitions/accountLogResourcesRecord")),
+     * ),
+     *
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-account-tariffs", summary = "Список услуг у клиента", operationId = "Список услуг у клиента",
+     *   @SWG\Parameter(name = "id", type = "integer", description = "Идентификатор", in = "formData"),
+     *   @SWG\Parameter(name = "clientAccountId", type = "integer", description = "Идентификатор аккаунта клиента", in = "formData"),
+     *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "Идентификатор типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData"),
+     *   @SWG\Parameter(name = "regionId", type = "integer", description = "Идентификатор региона (кроме телефонии)", in = "formData"),
+     *   @SWG\Parameter(name = "cityId", type = "integer", description = "Идентификатор города (только для телефонии)", in = "formData"),
+     *   @SWG\Parameter(name = "voipNumber", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData"),
+     *
+     *   @SWG\Response(response = 200, description = "Список услуг у клиента",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffAccountRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetAccountTariffs()
+    {
+        $requestData = $this->requestParams;
+
+        $accountTariffQuery = AccountTariff::find();
+        $accountTariffTableName = AccountTariff::tableName();
+        isset($requestData['id']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$requestData['id']]);
+        isset($requestData['serviceTypeId']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$requestData['serviceTypeId']]);
+        isset($requestData['clientAccountId']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$requestData['clientAccountId']]);
+        isset($requestData['regionId']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$requestData['regionId']]);
+        isset($requestData['cityId']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$requestData['cityId']]);
+        isset($requestData['voipNumber']) && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => (int)$requestData['voipNumber']]);
+
+        if (!isset($requestData['id']) && !isset($requestData['serviceTypeId']) && !isset($requestData['clientAccountId'])) {
+            throw new InvalidArgumentException('Необходимо указать фильтр id, serviceTypeId или clientAccountId');
+        }
+
+        $result = [];
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
+            $result[] = $this->getAccountTariffRecord($accountTariff);
         }
 
         return $result;
@@ -349,6 +453,29 @@ class UuController extends ApiInternalController
             'voipTarificate' => $this->getIdNameRecord($tariff->voipTarificate),
             'voipGroup' => $this->getIdNameRecord($tariff->voipGroup),
             'voipCities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
+        ];
+    }
+
+    /**
+     * @param AccountTariff $accountTariff
+     * @return array
+     */
+    private function getAccountTariffRecord(AccountTariff $accountTariff)
+    {
+        return [
+            'id' => $accountTariff->id,
+            'clientAccountId' => $accountTariff->client_account_id,
+            'serviceType' => $this->getIdNameRecord($accountTariff->serviceType),
+            'region' => $this->getIdNameRecord($accountTariff->region),
+            'city' => $this->getIdNameRecord($accountTariff->city),
+            'prevAccountTariffId' => $accountTariff->prev_account_tariff_id,
+            'nextAccountTariffId' => array_keys($accountTariff->nextAccountTariffs),
+            'comment' => $accountTariff->comment,
+            'voipNumber' => $accountTariff->voip_number,
+            'accountTariffLogs' => $this->getAccountTariffLogRecord($accountTariff->accountTariffLogs),
+            'accountLogSetups' => $this->getAccountLogSetupRecord($accountTariff->accountLogSetups),
+            'accountLogPeriods' => $this->getAccountLogPeriodRecord($accountTariff->accountLogPeriods),
+            'accountLogResources' => $this->getAccountLogResourceRecord($accountTariff->accountLogResources),
         ];
     }
 
@@ -434,6 +561,133 @@ class UuController extends ApiInternalController
                 'priceMin' => $model->price_min,
                 'period' => $this->getIdNameRecord($model->period),
                 'chargePeriod' => $this->getIdNameRecord($model->chargePeriod),
+            ];
+
+        } else {
+
+            return [];
+
+        }
+    }
+
+    /**
+     * @param AccountTariffLog|AccountTariffLog[] $model
+     * @return array
+     */
+    private function getAccountTariffLogRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->getAccountTariffLogRecord($subModel);
+            }
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'tariffId' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
+                'tariffPeriodId' => $model->tariff_period_id,
+                'actualFrom' => $model->actual_from,
+            ];
+
+        } else {
+
+            return [];
+
+        }
+    }
+
+    /**
+     * @param AccountLogSetup|AccountLogSetup[] $model
+     * @return array
+     */
+    private function getAccountLogSetupRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->getAccountLogSetupRecord($subModel);
+            }
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'date' => $model->date,
+                'price' => $model->price,
+                'tariffId' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
+                'tariffPeriodId' => $model->tariff_period_id,
+            ];
+
+        } else {
+
+            return [];
+
+        }
+    }
+
+    /**
+     * @param AccountLogPeriod|AccountLogPeriod[] $model
+     * @return array
+     */
+    private function getAccountLogPeriodRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->getAccountLogPeriodRecord($subModel);
+            }
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'dateFrom' => $model->date_from,
+                'dateTo' => $model->date_to,
+                'pricePerPeriod' => $model->period_price,
+                'coefficient' => $model->coefficient,
+                'price' => $model->price,
+                'tariffId' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
+                'tariffPeriodId' => $model->tariff_period_id,
+            ];
+
+        } else {
+
+            return [];
+
+        }
+    }
+
+    /**
+     * @param AccountLogResource|AccountLogResource[] $model
+     * @return array
+     */
+    private function getAccountLogResourceRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->getAccountLogResourceRecord($subModel);
+            }
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'date' => $model->date,
+                'amountUse' => $model->amount_use,
+                'amountFree' => $model->amount_free,
+                'amountOverhead' => $model->amount_overhead,
+                'pricePerUnit' => $model->price_per_unit,
+                'price' => $model->price,
+                'tariffId' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
+                'tariffPeriodId' => $model->tariff_period_id,
+                'resource' => $this->getIdNameRecord($model->tariffResource->resource),
             ];
 
         } else {
