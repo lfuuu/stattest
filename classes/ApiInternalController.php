@@ -8,6 +8,11 @@ class ApiInternalController extends ApiController
 {
     protected $requestData = null;
 
+    public function init()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    }
+
     /**
      * @return null|array
      */
