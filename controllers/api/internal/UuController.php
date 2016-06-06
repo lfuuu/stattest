@@ -22,6 +22,7 @@ use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\exceptions\web\NotImplementedHttpException;
 use InvalidArgumentException;
+use LogicException;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -540,6 +541,76 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги клиента", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги клиента",
+     *   @SWG\Parameter(name = "accountTariffId", type = "integer", description = "Идентификатор услуги", in = "query", required = true),
+     *
+     *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
+     *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return int
+     * @throws \InvalidArgumentException
+     * @throws ExceptionValidationForm
+     */
+    public function actionCancelEditAccountTariff($accountTariffId = null)
+    {
+        if (!$accountTariffId) {
+            throw new InvalidArgumentException('Не указан обязательный параметр');
+        }
+        $accountTariff = AccountTariff::findOne(['id' => (int)$accountTariffId]);
+        if (!$accountTariff) {
+            throw new InvalidArgumentException('Услуга с таким идентификатором не найдена');
+        }
+        if (!$accountTariff->isCancelable()) {
+            throw new LogicException('Нельзя отменить уже примененный тариф');
+        }
+
+        // лог тарифов
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+
+        // отменяемый тариф
+        /** @var AccountTariffLog $accountTariffLogCancelled */
+        $accountTariffLogCancelled = array_shift($accountTariffLogs);
+        if (strtotime($accountTariffLogCancelled->actual_from) < time()) {
+            throw new LogicException('Нельзя отменить уже примененный тариф');
+        }
+
+        if (!count($accountTariffLogs)) {
+
+            // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью. Лог тарифов должен удалиться каскадно
+            if (!$accountTariff->delete()) {
+                throw new ExceptionValidationForm($accountTariff);
+            }
+
+            return 0;
+
+        } else {
+
+            // отменить (удалить) последний тариф
+            if (!$accountTariffLogCancelled->delete()) {
+                throw new ExceptionValidationForm($accountTariffLogCancelled);
+            }
+
+            // предпоследний тариф становится текущим
+            /** @var AccountTariffLog $accountTariffLogActual */
+            $accountTariffLogActual = array_shift($accountTariffLogs);
+
+            // у услуги сменить кэш тарифа
+            $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
+            if (!$accountTariff->save()) {
+                throw new ExceptionValidationForm($accountTariff);
+            }
+
+            return $accountTariff->tariff_period_id;
+        }
+    }
+
+    /**
      * @param $accountTariffId
      * @param $tariffPeriodId
      * @param $actualFrom
@@ -554,6 +625,12 @@ class UuController extends ApiInternalController
         $accountTariff = AccountTariff::findOne(['id' => (int)$accountTariffId]);
         if (!$accountTariff) {
             throw new InvalidArgumentException('Услуга с таким идентификатором не найдена');
+        }
+
+        // у услуги сменить кэш тарифа
+        $accountTariff->tariff_period_id = $tariffPeriodId;
+        if (!$accountTariff->save()) {
+            throw new ExceptionValidationForm($accountTariff);
         }
 
         // записать в лог тарифа
