@@ -20,7 +20,6 @@ use app\classes\uu\model\TariffVoipCity;
 use app\classes\uu\model\TariffVoipGroup;
 use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
-use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use InvalidArgumentException;
 use Yii;
@@ -52,7 +51,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetServiceTypes()
     {
@@ -78,7 +76,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetResources()
     {
@@ -104,7 +101,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetPeriods()
     {
@@ -130,7 +126,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetTariffStatuses()
     {
@@ -156,7 +151,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetTariffPersons()
     {
@@ -182,7 +176,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetTariffVoipTarificates()
     {
@@ -208,7 +201,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetTariffVoipGroups()
     {
@@ -283,7 +275,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
      */
     public function actionGetTariffs(
         $id = null,
@@ -409,7 +400,7 @@ class UuController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws BadRequestHttpException
+     * @throws \InvalidArgumentException
      */
     public function actionGetAccountTariffs(
         $id = null,
@@ -462,7 +453,7 @@ class UuController extends ApiInternalController
      */
     /**
      * @return int
-     * @throws BadRequestHttpException
+     * @throws \app\exceptions\api\internal\ExceptionValidationForm
      */
     public function actionAddAccountTariff()
     {
@@ -488,6 +479,90 @@ class UuController extends ApiInternalController
         isset($postData['actualFrom']) && $accountTariffLog->actual_from = $postData['actualFrom'];
         if ($accountTariffLog->save()) {
             return $accountTariff->id;
+        } else {
+            throw new ExceptionValidationForm($accountTariffLog);
+        }
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге клиента", operationId = "Сменить тариф услуге клиента",
+     *   @SWG\Parameter(name = "accountTariffId", type = "integer", description = "Идентификатор услуги", in = "query", required = true),
+     *   @SWG\Parameter(name = "tariffPeriodId", type = "integer", description = "Идентификатор периода тарифа (не сам тариф!)", in = "formData", required = true),
+     *   @SWG\Parameter(name = "actualFrom", type = "string", description = "Дата, с которой этот тариф действует. Если не указано - с завтра", in = "formData"),
+     *
+     *   @SWG\Response(response = 200, description = "Тариф изменен",
+     *     @SWG\Schema(type = "integer", description = "Идентификатор записи в логе тарифов")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return int
+     * @throws ExceptionValidationForm
+     */
+    public function actionEditAccountTariff($accountTariffId = null)
+    {
+        $postData = Yii::$app->request->post();
+        return $this->editAccountTariff(
+            $accountTariffId,
+            $postData['tariffPeriodId'],
+            isset($postData['actualFrom']) ? $postData['actualFrom'] : null
+        );
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу клиента", operationId = "Закрыть услугу клиента",
+     *   @SWG\Parameter(name = "accountTariffId", type = "integer", description = "Идентификатор услуги", in = "query", required = true),
+     *   @SWG\Parameter(name = "actualFrom", type = "string", description = "Дата, с которой услуга закрывается. Если не указано - с завтра", in = "formData"),
+     *
+     *   @SWG\Response(response = 200, description = "Услуга закрыта",
+     *     @SWG\Schema(type = "integer", description = "Идентификатор записи в логе тарифов")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return int
+     * @throws ExceptionValidationForm
+     */
+    public function actionCloseAccountTariff($accountTariffId = null)
+    {
+        $postData = Yii::$app->request->post();
+        return $this->editAccountTariff(
+            $accountTariffId,
+            null,
+            isset($postData['actualFrom']) ? $postData['actualFrom'] : null
+        );
+    }
+
+    /**
+     * @param $accountTariffId
+     * @param $tariffPeriodId
+     * @param $actualFrom
+     * @return int
+     * @throws ExceptionValidationForm
+     */
+    public function editAccountTariff($accountTariffId, $tariffPeriodId, $actualFrom)
+    {
+        if (!$accountTariffId) {
+            throw new InvalidArgumentException('Не указан обязательный параметр');
+        }
+        $accountTariff = AccountTariff::findOne(['id' => (int)$accountTariffId]);
+        if (!$accountTariff) {
+            throw new InvalidArgumentException('Услуга с таким идентификатором не найдена');
+        }
+
+        // записать в лог тарифа
+        $accountTariffLog = new AccountTariffLog;
+        $accountTariffLog->account_tariff_id = $accountTariff->id;
+        $accountTariffLog->tariff_period_id = $tariffPeriodId;
+        $accountTariffLog->actual_from = $actualFrom ?: (new \DateTimeImmutable())->modify('tomorrow')->format('Y-m-d');
+        if ($accountTariffLog->save()) {
+            return $accountTariffLog->id;
         } else {
             throw new ExceptionValidationForm($accountTariffLog);
         }
