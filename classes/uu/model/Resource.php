@@ -112,6 +112,8 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo
             self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
 
+            self::ID_INTERNET_TRAFFIC => DummyResourceReader::className(), // @todo
+            
             self::ID_COLLOCATION_TRAFFIC_RUSSIA => DummyResourceReader::className(), // @todo
             self::ID_COLLOCATION_TRAFFIC_RUSSIA2 => DummyResourceReader::className(), // @todo
             self::ID_COLLOCATION_TRAFFIC_FOREINGN => DummyResourceReader::className(), // @todo
