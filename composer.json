@@ -7,7 +7,7 @@
     "welltime/graylog-target": "dev-master",
     "aferrandini/phpqrcode": "@stable",
     "phpoffice/phpexcel": "@stable",
-    "kartik-v/yii2-grid": "@stable",
+    "kartik-v/yii2-grid": "dev-master",
     "kartik-v/yii2-editable": "@stable",
     "kartik-v/yii2-widgets": "@stable",
     "kartik-v/yii2-mpdf": "@stable",
