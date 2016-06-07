@@ -35,10 +35,10 @@ class AutoBlockFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
+        $query->addSelect('ab.block_date');
+
         array_unshift($query->join, ['INNER JOIN', 'client_counters counters', 'counters.client_id = c.id']);
 
-        $query->addSelect(['realtime_balance' => new Expression('(c.balance + counters.amount_sum + c.credit)')]);
-        $query->addSelect('ab.block_date');
         $query->leftJoin(
             '(
                 SELECT `client_id`, MAX(`date`) AS block_date
@@ -54,19 +54,29 @@ class AutoBlockFolder extends AccountGridFolder
             'cr.business_process_status_id',
             [
                 BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED,
                 BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
             ],
         ]);
         $query->andWhere(['c.is_blocked' => 0]);
-        $query->andWhere(['>', 'c.credit', 0]);
-
-        $query->having('realtime_balance < 0');
 
         $pg_query = new Query();
         $pg_query->select('client_id')->from('billing.locks')->where('true IN (voip_auto_disabled, voip_auto_disabled_local)');
         $ids = $pg_query->column(\Yii::$app->dbPg);
         if (!empty($ids)) {
-            $query->orWhere(['in', 'c.id', $ids]);
+            $query->andWhere([
+                'OR',
+                ['IN', 'c.id', $ids],
+                [
+                    'AND',
+                    ['>', 'c.credit', 0],
+                    new Expression('(c.balance + counters.amount_sum + c.credit) < 0'),
+                ],
+            ]);
+        }
+        else {
+            $query->andWhere(['>', 'c.credit', 0]);
+            $query->andWhere(new Expression('(c.balance + counters.amount_sum + c.credit) < 0'));
         }
     }
 }
