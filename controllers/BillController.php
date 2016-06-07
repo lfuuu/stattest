@@ -1,37 +1,43 @@
 <?php
 namespace app\controllers;
 
+use Yii;
+use app\classes\BaseController;
 use app\classes\Assert;
 use app\classes\documents\DocumentReportFactory;
 use app\models\Bill;
-use Yii;
-use app\classes\BaseController;
 
 class BillController extends BaseController
 {
-    public function actionPrint($bill_no, $doc_type = 'bill', $is_pdf = 0)
+
+    /**
+     * @param string $billNo
+     * @param string $docType
+     * @param int $isPdf
+     * @throws \yii\base\Exception
+     */
+    public function actionPrint($billNo, $docType = 'bill', $isPdf = 0)
     {
-        $bill = Bill::findOne(['bill_no' => $bill_no]);
+        /** @var Bill $bill */
+        $bill = Bill::findOne(['bill_no' => $billNo]);
 
         Assert::isObject($bill);
 
         $sendEmail = Yii::$app->request->get('emailed') == 1;
-        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail);
+        $report = DocumentReportFactory::me()->getReport($bill, $docType, $sendEmail);
 
-        if ($is_pdf == 1) {
-            $report->renderAsPDF();
-        } else {
-            echo $report->render($inline_img = false);
+        if ($isPdf == 1) {
+            return $this->renderAsPDF($report->getTemplateFile() . '.php', [
+                'document' => $report,
+                'inline_img' => true,
+            ]);
         }
+
+        $this->layout = 'empty';
+        return $this->render($report->getTemplateFile() . '.php', [
+            'document' => $report,
+            'inline_img' => false,
+        ]);
     }
 
-    public function actionGetMhtml($bill_no, $doc_type = 'bill')
-    {
-        $bill = Bill::findOne(['bill_no' => $bill_no]);
-
-        Assert::isObject($bill);
-
-        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail = 0);
-        $report->renderAsMhtml();
-    }
 }

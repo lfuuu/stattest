@@ -5,6 +5,12 @@ namespace app\classes;
 use Yii;
 use Exception;
 
+/**
+ * Генерация документа в формате MHTML (Word2003)
+ *
+ * Class Html2Mhtml
+ * @package app\classes
+ */
 class Html2Mhtml
 {
 
@@ -14,6 +20,10 @@ class Html2Mhtml
         $files = [],
         $boundary;
 
+    /**
+     * @param string $header
+     * @return $this
+     */
     public function setHeader($header)
     {
         $this->headers[] = $header;
@@ -22,18 +32,30 @@ class Html2Mhtml
         return $this;
     }
 
+    /**
+     * @param string $from
+     * @return $this
+     */
     public function setFrom($from)
     {
         $this->setHeader('From: ' . $from);
         return $this;
     }
 
+    /**
+     * @param string $subject
+     * @return $this
+     */
     public function setSubject($subject)
     {
         $this->setHeader('Subject: ' . $subject);
         return $this;
     }
 
+    /**
+     * @param string|null $boundary
+     * @return $this
+     */
     public function setBoundary($boundary = null)
     {
         if (is_null($boundary)) {
@@ -44,30 +66,39 @@ class Html2Mhtml
         return $this;
     }
 
-    public function addFile($file_name, $file_path = null)
+    /**
+     * @param string $fileName
+     * @param string|null $filePath
+     * @return $this
+     */
+    public function addFile($fileName, $filePath = null)
     {
-        if (is_null($file_path)) {
-            $file_path = $file_name;
+        if (is_null($filePath)) {
+            $filePath = $fileName;
         }
-        $this->addContents($file_name, file_get_contents($file_path));
+        $this->addContents($fileName, file_get_contents($filePath));
 
         return $this;
     }
 
+    /**
+     * @param \Closure|false $callback
+     * @return $this
+     */
     public function addImages($callback = false)
     {
         foreach ($this->files as &$file) {
             if (preg_match_all('#<img[^>]*src=[\'"]*([^\'"]+)[\'"]*#ui', $file['content'], $matches)) {
-                foreach ($matches[1] as $image_src) {
-                    $file_name = basename($image_src);
-                    $file_path = $image_src;
+                foreach ($matches[1] as $imageSrc) {
+                    $fileName = basename($imageSrc);
+                    $filePath = $imageSrc;
 
                     if (is_callable($callback)) {
-                        list($file_name, $file_path) = $callback($image_src);
+                        list($fileName, $filePath) = $callback($imageSrc);
                     }
 
-                    $file['content'] = str_replace($image_src, $file_name, $file['content']);
-                    $this->addFile($file_name, $file_path);
+                    $file['content'] = str_replace($imageSrc, $fileName, $file['content']);
+                    $this->addFile($fileName, $filePath);
                 }
             }
         }
@@ -75,20 +106,24 @@ class Html2Mhtml
         return $this;
     }
 
+    /**
+     * @param \Closure|false $callback
+     * @return $this
+     */
     public function addMediaFiles($callback = false)
     {
         foreach ($this->files as &$file) {
             if (preg_match_all('#<link[^>]*href=[\'"]*([^\'"]+)[\'"]*#ui', $file['content'], $matches)) {
                 foreach ($matches[1] as $src) {
-                    $file_name = basename($src);
-                    $file_path = $src;
+                    $fileName = basename($src);
+                    $filePath = $src;
 
                     if (is_callable($callback)) {
-                        list($file_name, $file_path) = $callback($src);
+                        list($fileName, $filePath) = $callback($src);
                     }
 
-                    $file['content'] = str_replace($src, $file_name, $file['content']);
-                    $this->addFile($file_name, $file_path);
+                    $file['content'] = str_replace($src, $fileName, $file['content']);
+                    $this->addFile($fileName, $filePath);
 
                 }
             }
@@ -97,20 +132,30 @@ class Html2Mhtml
         return $this;
     }
 
-    public function addContents($file_path, $content, $callback = false)
+    /**
+     * @param string $file_path
+     * @param string $content
+     * @param \Closure|false $callback
+     * @return $this
+     */
+    public function addContents($filePath, $content, $callback = false)
     {
         if (is_callable($callback)) {
             $content = $callback($content);
         }
 
         $this->files[] = [
-            'file_path' => $file_path,
+            'file_path' => $filePath,
             'content' => $content,
         ];
 
         return $this;
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     public function getFile()
     {
         $this->checkHeaders();
@@ -118,27 +163,27 @@ class Html2Mhtml
             throw new Exception('No file was added');
         }
 
-        $contents = implode("\r\n", $this->headers);
-        $contents .= "\r\n";
-        $contents .= "MIME-Version: 1.0\r\n";
-        $contents .= "Content-Type: multipart/related;\r\n";
-        $contents .= "\tboundary=\"" . $this->boundary . "\";\r\n";
-        $contents .= "\ttype=\"text/html\"\r\n";
-        $contents .= "\r\n";
-        $contents .= "This is a multi-part message in MIME format.\r\n";
-        $contents .= "\r\n";
+        $contents = implode(PHP_EOL, $this->headers);
+        $contents .= PHP_EOL;
+        $contents .= 'MIME-Version: 1.0' . PHP_EOL;
+        $contents .= 'Content-Type: multipart/related;' . PHP_EOL;
+        $contents .= "\tboundary=\"" . $this->boundary . "\";" . PHP_EOL;
+        $contents .= "\ttype=\"text/html\"" . PHP_EOL;
+        $contents .= PHP_EOL;
+        $contents .= 'This is a multi-part message in MIME format.' . PHP_EOL;
+        $contents .= PHP_EOL;
 
         foreach ($this->files as $file) {
-            $contents .= "--" . $this->boundary . "\r\n";
-            $contents .= "Content-Type: " . (mime_content_type($file['file_path']) ?: 'text/html') . "\r\n";
-            $contents .= "Content-Transfer-Encoding: base64\r\n";
-            $contents .= "Content-Location: " . $file['file_path'] . "\r\n";
-            $contents .= "\r\n";
+            $contents .= '--' . $this->boundary . PHP_EOL;
+            $contents .= 'Content-Type: ' . (mime_content_type($file['file_path']) ?: 'text/html') . PHP_EOL;
+            $contents .= 'Content-Transfer-Encoding: base64' . PHP_EOL;
+            $contents .= 'Content-Location: ' . $file['file_path'] . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= chunk_split(base64_encode($file['content']), 76);
-            $contents .= "\r\n";
+            $contents .= PHP_EOL;
         }
 
-        $contents .= "--" . $this->boundary . "--\r\n";
+        $contents .= '--' . $this->boundary . '--' . PHP_EOL;
 
         return $contents;
     }
@@ -146,18 +191,19 @@ class Html2Mhtml
     private function checkHeaders()
     {
         if (!array_key_exists('date', $this->headers_exists)) {
-            $this->setHeader('Date: ', date('D, d M Y H:i:s O', time()));
+            $this->setHeader('Date: ' . date('D, d M Y H:i:s O' . time()));
         }
         if (is_null($this->boundary)) {
             $this->setBoundary();
         }
     }
 
+    /**
+     * @return bool
+     */
     private function checkFiles()
     {
-        return (count($this->files) == 0) ? false : true;
+        return !(count($this->files) == 0);
     }
 
 }
-
-?>

@@ -1,16 +1,17 @@
 <?php
 namespace app\classes;
 
-use app\controllers\CompatibilityController;
-use app\models\Bill;
-use app\models\ClientAccount;
-use app\models\Trouble;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
-use app\models\Region;
 use yii\web\NotFoundHttpException;
+use app\controllers\CompatibilityController;
+use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\Trouble;
+use app\models\Region;
+use kartik\mpdf\Pdf;
 
 class BaseController extends Controller
 {
@@ -155,4 +156,83 @@ class BaseController extends Controller
         }
         return null;
     }
+
+    /**
+     * Формирует результат в формате PDF, по-умолчанию отдает на отображение в браузер
+     *
+     * @param string $view
+     * @param [] $pdfParams
+     * @param [] $pdfParams
+     */
+    public function renderAsPDF($view, $params = [], $pdfParams = [])
+    {
+        $this->layout = 'empty';
+        $content = parent::render($view, $params);
+
+        $pdfDefault = [
+            // set to use core fonts only
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // call mPDF methods on the fly
+            'methods' => [
+                //'SetHeader'=>[''],
+                'SetFooter'=>['{PAGENO}'],
+            ]
+        ];
+
+        $pdf = new \kartik\mpdf\Pdf(array_merge($pdfDefault, $pdfParams));
+
+        return $pdf->render();
+    }
+
+    /**
+     * Формирует результат в формате MHTML (Word2003) и отдает на скачивание
+     *
+     * @param string $view
+     * @param [] $params
+     */
+    public function renderAsMHTML($view, $params = [])
+    {
+        $this->layout = 'empty';
+        $content = parent::render($view, $params);
+
+        $result = (new Html2Mhtml)
+            ->addContents(
+                'index.html',
+                $content,
+                function ($content) {
+                    return preg_replace('#font\-size:\s?[0-7]{1,2}\%#', 'font-size:8pt', $content);
+                }
+            )
+            ->addImages(function ($imageSrc) {
+                $filePath =
+                $fileName = '';
+
+                if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $imageSrc)) {
+                    $fileName = 'host_img_' . mt_rand(0, 50);
+                    $filePath = Yii::$app->request->hostInfo . $imageSrc;
+                } else {
+                    if (strpos($imageSrc, 'http:\/\/') === false) {
+                        $filePath = Yii::$app->basePath . '/web' . $imageSrc;
+                        $fileName = basename($imageSrc);
+                    }
+                }
+
+                return [$fileName, $filePath];
+            })
+            ->getFile();
+
+        Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+        Yii::$app->end();
+
+        return false;
+    }
+
 }

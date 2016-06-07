@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\AppAsset;
 use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
@@ -9,14 +10,14 @@ use app\helpers\MediaFileHelper;
 
 $hasDiscount = $document->sum_discount > 0;
 
-$currency_w_o_value = Utils::money('', $document->getCurrency());
+$currencyWithoutValue = Utils::money('', $document->getCurrency());
 
 $organization = $document->organization;
 
 $director = $organization->director;
 $accountant = $organization->accountant;
 
-$payer_company = $document->getPayer();
+$payerCompany = $document->getPayer();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -24,9 +25,7 @@ $payer_company = $document->getPayer();
     <head>
         <title>Счёт &#8470;<?= $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <style type="text/css">
-            <?php readfile(Yii::$app->basePath . '/web/bill.css'); ?>
-        </style>
+        <link href="/bill.css" rel="stylesheet" />
     </head>
 
     <body bgcolor="#FFFFFF" style="background:#FFFFFF">
@@ -36,7 +35,7 @@ $payer_company = $document->getPayer();
                     <?php
                     echo Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
                         'organization' => $organization,
-                        'payer_company' => $payer_company,
+                        'payer_company' => $payerCompany,
                     ]);
                     ?>
                 </td>
@@ -97,7 +96,7 @@ $payer_company = $document->getPayer();
         <hr />
         <br />
         <p>
-            <b>Плательщик: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
+            <b>Плательщик: <?= ($payerCompany['head_company'] ? $payerCompany['head_company'] . ', ' : '') . $payerCompany['company_full']; ?></b>
         </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
@@ -107,22 +106,22 @@ $payer_company = $document->getPayer();
                 <td align="center"><b>Предмет счета</b></td>
                 <td align="center"><b>Количество</b></td>
                 <td align="center"><b>Единица измерения</b></td>
-                <td align="center"><b>Стоимость,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                <td align="center"><b>Стоимость,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                 <?php if ($hasDiscount): ?>
                     <td align="center"><b>Скидка</b></td>
                 <?php endif; ?>
 
                 <?php if ($organization->isNotSimpleTaxSystem()): ?>
                     <?php if ($document->bill->price_include_vat): ?>
-                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
-                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
+                        <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                     <?php else: ?>
-                        <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                        <td align="center"><b>Сумма налога, &nbsp;<?= $currency_w_o_value; ?></b></td>
-                        <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                        <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+                        <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
+                        <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                     <?php endif; ?>
                 <?php else: ?>
-                    <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                 <?php endif; ?>
             </tr>
 

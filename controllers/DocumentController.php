@@ -97,38 +97,63 @@ class DocumentController extends BaseController
         die;
     }
 
+    /**
+     * @param int $id
+     * @throws Exception
+     */
     public function actionPrint($id)
     {
+        /** @var ClientDocument $document */
         $document = ClientDocument::findOne($id);
         if (null === $document) {
             throw new Exception('Документ не найден');
         }
 
         echo $document->getFileContent();
-        die;
+        Yii::$app->end();
     }
 
-    public function actionGetMhtml($bill_no, $doc_type = 'bill')
+    /**
+     * @param string $billNo
+     * @param string $docType
+     * @throws Exception
+     */
+    public function actionGetMhtml($billNo, $docType = 'bill')
     {
-        $bill = Bill::findOne(['bill_no' => $bill_no]);
+        /** @var Bill $bill */
+        $bill = Bill::findOne(['bill_no' => $billNo]);
         Assert::isObject($bill);
-        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail = 0);
-        $report->renderAsMhtml();
+
+        $report = DocumentReportFactory::me()->getReport($bill, $docType, $sendEmail = 0);
+
+        return $this->renderAsMHTML($report->getTemplateFile() . '.php', [
+            'document' => $report,
+            'inline_img' => false,
+        ]);
     }
 
+    /**
+     * @param $code
+     * @throws Exception
+     */
     public function actionPrintByCode($code)
     {
-        $p = ClientDocument::linkDecode($code);
-        $p = explode('-', $p);
-        $p = array(isset($p[0]) ? intval($p[0]) : 0, isset($p[1]) ? intval($p[1]) : 0);
-        $id = $p[0];
+        $link = ClientDocument::linkDecode($code);
+        $link = explode('-', $link);
+        $link = [(isset($link[0]) ? (int)$link[0] : 0), (isset($link[1]) ? (int)$link[1] : 0)];
+        $id = $link[0];
         if (!$id) {
-            die();
+            throw new Exception('Отсутствует ID');
         }
 
         return $this->actionPrint($id);
     }
 
+    /**
+     * @param int $clientId
+     * @return string
+     * @throws Exception
+     */
     public function actionPrintEnvelope($clientId)
     {
         $model = ClientAccount::findOne($clientId);

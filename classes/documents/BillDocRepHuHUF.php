@@ -19,7 +19,7 @@ class BillDocRepHuHUF extends DocumentReport
 
     public function getDocType()
     {
-        return self::BILL_DOC_TYPE;
+        return self::DOC_TYPE_BILL;
     }
 
     public function getName()
