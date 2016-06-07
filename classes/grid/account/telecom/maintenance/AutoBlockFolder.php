@@ -4,6 +4,7 @@ namespace app\classes\grid\account\telecom\maintenance;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
 use Yii;
+use yii\db\Expression;
 use yii\db\Query;
 
 
@@ -34,6 +35,9 @@ class AutoBlockFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
+        array_unshift($query->join, ['INNER JOIN', 'client_counters counters', 'counters.client_id = c.id']);
+
+        $query->addSelect(['realtime_balance' => new Expression('(c.balance + counters.amount_sum + c.credit)')]);
         $query->addSelect('ab.block_date');
         $query->leftJoin(
             '(
@@ -43,6 +47,7 @@ class AutoBlockFolder extends AccountGridFolder
                 GROUP BY `client_id`
             ) AS ab',
             'ab.`client_id` = c.`id`');
+
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere([
             'not in',
@@ -53,12 +58,15 @@ class AutoBlockFolder extends AccountGridFolder
             ],
         ]);
         $query->andWhere(['c.is_blocked' => 0]);
+        $query->andWhere(['>', 'c.credit', 0]);
+
+        $query->having('realtime_balance < 0');
 
         $pg_query = new Query();
         $pg_query->select('client_id')->from('billing.locks')->where('true IN (voip_auto_disabled, voip_auto_disabled_local)');
         $ids = $pg_query->column(\Yii::$app->dbPg);
         if (!empty($ids)) {
-            $query->andWhere(['in', 'c.id', $ids]);
+            $query->orWhere(['in', 'c.id', $ids]);
         }
     }
 }
