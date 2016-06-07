@@ -43,7 +43,8 @@ abstract class PrefixForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = Prefix::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 

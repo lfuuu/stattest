@@ -43,7 +43,8 @@ abstract class NumberRangeForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = NumberRange::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 
