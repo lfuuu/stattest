@@ -161,7 +161,7 @@ class BaseController extends Controller
      * Формирует результат в формате PDF, по-умолчанию отдает на отображение в браузер
      *
      * @param string $view
-     * @param [] $pdfParams
+     * @param [] $params
      * @param [] $pdfParams
      */
     public function renderAsPDF($view, $params = [], $pdfParams = [])
