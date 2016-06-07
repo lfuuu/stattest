@@ -2,12 +2,12 @@
 
 namespace app\classes\documents;
 
-use app\models\Organization;
 use Yii;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
-use app\classes\Html2Mhtml;
+use app\controllers\SiteController;
+use app\models\Organization;
 use app\models\Bill;
 
 /**
@@ -19,7 +19,8 @@ abstract class DocumentReport extends Object
 
     const TEMPLATE_PATH = '@app/views/documents/';
 
-    const BILL_DOC_TYPE = 'bill';
+    const DOC_TYPE_BILL = 'bill';
+    const DOC_TYPE_INVOICE = 'invoice';
 
     /**
      * @var Bill
@@ -109,78 +110,35 @@ abstract class DocumentReport extends Object
             ->calculateSummary();
     }
 
+    /**
+     * @param bool|true $inline_img
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
     public function render($inline_img = true)
     {
-        return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
+        /** @var SiteController $siteController */
+        $siteController = Yii::$app->createControllerByID('site');
+        $siteController->layout = 'empty';
+        return $siteController->render($this->getTemplateFile() . '.php', [
             'document' => $this,
-            'inline_img' => $inline_img
+            'inline_img' => $inline_img,
         ]);
     }
 
-    /*wkhtmltopdf*/
+    /**
+     * @return mixed
+     * @throws \yii\base\InvalidConfigException
+     */
     public function renderAsPDF()
     {
-        $options = $this->optionsPDF;
-        // Может быть когда-нибудь доп. параметры уйдут в свой класс
-        /*
-        switch ($this->getDocType()) {
-            case 'upd':
-                $options .= ' --orientation Landscape ';
-                break;
-            case 'invoice':
-                $options .= ' --orientation Landscape ';
-                break;
-        }
-        */
-
-        $file_name = '/tmp/' . time() . Yii::$app->user->id;
-        $file_html = $file_name . '.html';
-        $file_pdf = $file_name . '.pdf';
-
-        file_put_contents($file_name . '.html', $this->render());
-
-        passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
-
-        Yii::$app->response->sendFile($file_pdf, basename($file_pdf), [
-            'mimeType' => 'application/pdf'
+        /** @var SiteController $siteController */
+        $siteController = Yii::$app->createControllerByID('site');
+        $siteController->layout = 'empty';
+        return $siteController->renderAsPDF($this->getTemplateFile() . '.php', [
+            'document' => $this,
+            'inline_img' => true,
         ]);
-
-        unlink($file_html);
-        unlink($file_pdf);
-
-        Yii::$app->end();
-    }
-
-    public function renderAsMhtml()
-    {
-        $result = (new Html2Mhtml)
-            ->addContents(
-                'index.html',
-                $this->render($inline_img = false),
-                function ($content) {
-                    return preg_replace('#font\-size:\s?[0-7]{1,2}\%#', 'font-size:8pt', $content);
-                }
-            )
-            ->addImages(function ($image_src) {
-                $file_path = '';
-                $file_name = '';
-
-                if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src)) {
-                    $file_name = 'host_img_' . mt_rand(0, 50);
-                    $file_path = Yii::$app->request->hostInfo . $image_src;
-                } else {
-                    if (strpos($image_src, 'http:\/\/') === false) {
-                        $file_path = Yii::$app->basePath . '/web' . $image_src;
-                        $file_name = basename($image_src);
-                    }
-                }
-
-                return [$file_name, $file_path];
-            })
-            ->getFile();
-
-        Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
-        Yii::$app->end();
     }
 
     /**

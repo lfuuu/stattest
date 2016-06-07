@@ -6,7 +6,6 @@ use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\models\Courier;
 use app\models\ClientAccount;
-use app\models\ClientCounter;
 use app\models\CurrencyRate;
 use app\models\Payment;
 use app\models\Param;

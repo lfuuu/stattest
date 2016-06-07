@@ -7,7 +7,7 @@ use app\models\Currency;
 
 class DocSoglMCMTelekom extends DocumentReport
 {
-    const BILL_DOC_TYPE = 'sogl_mcm_telekom';
+    const DOC_TYPE_BILL = 'sogl_mcm_telekom';
 
     public function getLanguage()
     {
@@ -21,7 +21,7 @@ class DocSoglMCMTelekom extends DocumentReport
 
     public function getDocType()
     {
-        return self::BILL_DOC_TYPE;
+        return self::DOC_TYPE_BILL;
     }
 
     public function getName()

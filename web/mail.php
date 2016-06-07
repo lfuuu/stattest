@@ -37,7 +37,7 @@ if (in_array($o["object_type"], array(
     if ($R['obj'] === 'bill') {
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
-        $report = DocumentReportFactory::me()->getReport($bill, DocumentReport::BILL_DOC_TYPE, $sendEmail = 1);
+        $report = DocumentReportFactory::me()->getReport($bill, DocumentReport::DOC_TYPE_BILL, $sendEmail = 1);
         echo $report->render();
     } else {
         if ($R['obj'] === 'notice_mcm_telekom') {

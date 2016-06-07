@@ -58,8 +58,17 @@ class Bill extends ActiveRecord
     /**
      * @return string
      */
+    public function getCurrency()
+    {
+        return $this->clientAccount->currency;
+    }
+
+    /**
+     * @return string
+     */
     public function getUrl()
     {
         return Url::to(['uu/bill', 'BillFilter[id]' => $this->id]);
     }
+
 }

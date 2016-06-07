@@ -6,7 +6,7 @@ use app\models\Currency;
 
 class DocNoticeMCMTelekom extends DocumentReport
 {
-    const BILL_DOC_TYPE = 'notice_mcm_telekom';
+    const DOC_TYPE_BILL = 'notice_mcm_telekom';
 
     public function getLanguage()
     {
@@ -20,7 +20,7 @@ class DocNoticeMCMTelekom extends DocumentReport
 
     public function getDocType()
     {
-        return self::BILL_DOC_TYPE;
+        return self::DOC_TYPE_BILL;
     }
 
     public function getName()
