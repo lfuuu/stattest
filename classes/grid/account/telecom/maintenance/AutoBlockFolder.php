@@ -35,6 +35,8 @@ class AutoBlockFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
+        $realtimeBalanceExpression = new Expression('(c.balance + counters.amount_sum + c.credit) < 0');
+
         $query->addSelect('ab.block_date');
 
         array_unshift($query->join, ['INNER JOIN', 'client_counters counters', 'counters.client_id = c.id']);
@@ -49,15 +51,7 @@ class AutoBlockFolder extends AccountGridFolder
             'ab.`client_id` = c.`id`');
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere([
-            'not in',
-            'cr.business_process_status_id',
-            [
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED,
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
-            ],
-        ]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 0]);
 
         $pg_query = new Query();
@@ -69,14 +63,14 @@ class AutoBlockFolder extends AccountGridFolder
                 ['IN', 'c.id', $ids],
                 [
                     'AND',
-                    ['>', 'c.credit', 0],
-                    new Expression('(c.balance + counters.amount_sum + c.credit) < 0'),
+                    ['>', 'c.credit', -1],
+                    $realtimeBalanceExpression,
                 ],
             ]);
         }
         else {
             $query->andWhere(['>', 'c.credit', 0]);
-            $query->andWhere(new Expression('(c.balance + counters.amount_sum + c.credit) < 0'));
+            $query->andWhere($realtimeBalanceExpression);
         }
     }
 }
