@@ -5,7 +5,7 @@ namespace app\classes\uu\model;
 use Yii;
 
 /**
- * Стоимость ресурса
+ * Стоимость ресурса (дисковое пространство, абоненты, линии и пр.)
  *
  * @property integer $id
  * @property float $amount

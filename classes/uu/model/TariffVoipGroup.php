@@ -3,7 +3,7 @@
 namespace app\classes\uu\model;
 
 /**
- * Группа тарифов телефонии
+ * Группа тарифов телефонии (местные, междугородние, международные и пр.)
  *
  * @property int $id
  * @property string $name
