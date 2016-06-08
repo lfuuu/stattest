@@ -201,11 +201,15 @@ if (!$model->id) {
                         ); ?>
                     </div>
                     <div class="col-sm-2">
-                        <input class="form-control input-sm" type="text" name="ClientDocument[comment]">
+                        <input class="form-control input-sm" type="text" name="ClientDocument[comment]" />
                     </div>
 
                     <div class="col-sm-2">
-                        <?= Html::dropDownList('', null, ClientDocumentDao::getFolders(), [
+                        <?php
+                        $defaultFolder = ClientDocumentDao::getFolderIsDefaultForBusiness($model->business_id);
+                        ?>
+
+                        <?= Html::dropDownList('', (!is_null($defaultFolder) ? $defaultFolder->id : ''), ClientDocumentDao::getFolders(), [
                             'class' => 'form-control input-sm document-template',
                             'data-documents' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
                             'data-folders' => ClientDocument::DOCUMENT_AGREEMENT_TYPE,

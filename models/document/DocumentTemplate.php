@@ -16,8 +16,16 @@ class DocumentTemplate extends ActiveRecord
     const DEFAULT_WIZARD_EURO_LEGAL = 133;
     const DEFAULT_WIZARD_EURO_PERSON = 148;
 
-    const DOCUMENT_FOLDER = 'glyphicon glyphicon-folder-close';
-    const DOCUMENT_ICON = 'glyphicon glyphicon-file';
+    const DOCUMENT_ICON_FOLDER = 'glyphicon glyphicon-folder-close';
+    const DOCUMENT_ICON_CONTRACT = 'glyphicon glyphicon-book';
+    const DOCUMENT_ICON_AGREEMENT = 'glyphicon glyphicon-duplicate';
+    const DOCUMENT_ICON_BLANK = 'glyphicon glyphicon-file';
+
+    public static $documentIcons = [
+        ClientDocument::DOCUMENT_CONTRACT_TYPE => self::DOCUMENT_ICON_CONTRACT,
+        ClientDocument::DOCUMENT_AGREEMENT_TYPE => self::DOCUMENT_ICON_AGREEMENT,
+        ClientDocument::DOCUMENT_BLANK_TYPE => self::DOCUMENT_ICON_BLANK,
+    ];
 
     /**
      * @return string
@@ -34,7 +42,7 @@ class DocumentTemplate extends ActiveRecord
     {
         return [
             [['name', 'content'], 'string'],
-            ['folder_id', 'integer'],
+            [['folder_id', 'sort',], 'integer'],
             [['name', 'folder_id', ], 'required'],
             ['type', 'in', 'range' => array_keys(ClientDocument::$types)],
         ];
@@ -51,6 +59,7 @@ class DocumentTemplate extends ActiveRecord
             'id' => 'Шаблон',
             'name' => 'Название',
             'content' => 'Содержание',
+            'sort' => 'Приоритет',
         ];
     }
 
@@ -72,6 +81,17 @@ class DocumentTemplate extends ActiveRecord
             'id',
             'name'
         );
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getIcon()
+    {
+        if (array_key_exists($this->type, self::$documentIcons)) {
+            return self::$documentIcons[$this->type];
+        }
+        return false;
     }
 
     /**

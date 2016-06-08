@@ -21,12 +21,24 @@ use app\models\TariffVoip;
 class ClientDocumentDao extends Singleton
 {
 
-    /** @todo Изменится, когда появится логика назначения значений по-умолчанию от бизнес процесса */
-    const DEFAULT_FOLDER_MCN = 3;
+    /**
+     * Получение раздела по-умолчанию от бизнес-процесса
+     *
+     * @param int $businessId
+     * @return DocumentFolder
+     */
+    public static function getFolderIsDefaultForBusiness($businessId)
+    {
+        return DocumentFolder::findOne([
+            'default_for_business_id' => $businessId,
+            'parent_id' => 0,
+        ]);
+    }
 
     /**
      * Получение списка разделов верхнего уровня с указанным типом документов
      *
+     * @param string $documentType
      * @return array
      */
     public static function getFolders($documentType = ClientDocument::DOCUMENT_CONTRACT_TYPE)
@@ -583,12 +595,7 @@ class ClientDocumentDao extends Singleton
                 )
                 ->groupBy('folders.id')
                 ->having('documents > 0')
-                ->orderBy([
-                    /** @todo Изменится, когда появится логика назначения значений по-умолчанию от бизнес процесса */
-                    new Expression('IF(folders.id=' . self::DEFAULT_FOLDER_MCN . ', 100, 0) DESC'),
-                    'folders.name' => SORT_ASC,
-                    'folders.sort' => SORT_DESC,
-                ]);
+                ->orderBy(DocumentFolder::$orderBy);
 
         return $query;
     }

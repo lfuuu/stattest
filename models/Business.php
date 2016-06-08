@@ -12,6 +12,10 @@ use yii\helpers\ArrayHelper;
  */
 class Business extends ActiveRecord
 {
+
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
+
     const TELEKOM = 2;
     const OPERATOR = 3;
     const PROVIDER = 4;
@@ -26,12 +30,13 @@ class Business extends ActiveRecord
         return 'client_contract_business';
     }
 
-    public static function getList()
+    /**
+     * По какому полю сортировать для getList()
+     * @return []
+     */
+    public static function getListOrderBy()
     {
-        $arr = self::find()
-            ->orderBy('sort')
-            ->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+        return ['sort' => SORT_ASC];
     }
 
     public function getBusinessProcesses()

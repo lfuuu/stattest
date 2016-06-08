@@ -44,8 +44,11 @@ $form = ActiveForm::begin([]);
         ])
         ?>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?= $form->field($model, 'type')->dropDownList(\app\models\ClientDocument::$types) ?>
+    </div>
+    <div class="col-sm-1">
+        <?= $form->field($model, 'sort')->textInput() ?>
     </div>
 </div>
 
