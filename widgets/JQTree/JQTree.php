@@ -77,10 +77,12 @@ class JQTree extends Widget
         $options['onCreateLi'] = new JsExpression('
             function(node, $li) {
                 if (node.href) {
-                    $li.find(".jqtree-element span.jqtree-title").wrap("<a href=\"" + node.href + "\"></a>");
+                    $li.find(".jqtree-element span.jqtree-title").wrap($("<a />").attr("href", node.href));
                 }
                 if (node.icon) {
-                    $li.find(".jqtree-element span").prepend("<span class=\"" + node.icon + "\"></span>");
+                    var icon = node.icon,
+                        iconTitle = node.iconTitle;
+                    $li.find(".jqtree-element span").prepend($("<span />").addClass(icon).attr("title", iconTitle));
                 }
             }
         ');

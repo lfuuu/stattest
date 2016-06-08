@@ -4,17 +4,20 @@ namespace app\models\document;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use app\models\ClientDocument;
 
 class DocumentFolder extends ActiveRecord
 {
 
     public
         $parentIdField = 'parent_id',
-        $textField = 'name',
+        $textField = 'name';
+
+    public static
         $orderBy = [
             'parent_id' => SORT_DESC,
-            'name' => SORT_ASC,
             'sort' => SORT_DESC,
+            'name' => SORT_ASC,
         ];
 
     /**
@@ -25,7 +28,7 @@ class DocumentFolder extends ActiveRecord
         return [
             [['name',], 'string'],
             [['name',], 'required'],
-            [['parent_id', 'sort'], 'integer'],
+            [['parent_id', 'default_for_business_id', 'sort'], 'integer'],
         ];
     }
 
@@ -37,7 +40,8 @@ class DocumentFolder extends ActiveRecord
         return [
             'name' => 'Название',
             'parent_id' => 'Раздел',
-            'sort' => 'Позиция в ветке',
+            'default_for_business_id' => 'Бизнес-процесс по-умолчанию',
+            'sort' => 'Приоритет',
         ];
     }
 
@@ -54,7 +58,7 @@ class DocumentFolder extends ActiveRecord
      */
     public static function getList()
     {
-        return ArrayHelper::map(self::find()->orderBy('sort')->all(), 'id', 'name');
+        return ArrayHelper::map(self::find()->orderBy(self::$orderBy)->all(), 'id', 'name');
     }
 
     /**
@@ -70,7 +74,10 @@ class DocumentFolder extends ActiveRecord
      */
     public function getDocuments()
     {
-        return $this->hasMany(DocumentTemplate::className(), ['folder_id' => 'id']);
+        return $this->hasMany(DocumentTemplate::className(), ['folder_id' => 'id'])->orderBy([
+            'sort' => SORT_DESC,
+            'name' => SORT_ASC,
+        ]);
     }
 
     /**
@@ -91,7 +98,7 @@ class DocumentFolder extends ActiveRecord
         if (!is_array($data)) {
             $data = static::find()
                 ->where([$this->parentIdField => 0])
-                ->orderBy($this->orderBy)
+                ->orderBy(self::$orderBy)
                 ->all();
         }
 
@@ -105,12 +112,13 @@ class DocumentFolder extends ActiveRecord
             ];
 
             if ($row instanceof DocumentTemplate) {
-                $resultRow['icon'] = DocumentTemplate::DOCUMENT_ICON;
+                $resultRow['icon'] = $row->icon;
+                $resultRow['iconTitle'] = ClientDocument::$types[$row->type];
                 $resultRow['href'] = Url::toRoute(['/document/template/edit', 'id' => $row->id]);
             }
 
             if ($row instanceof self) {
-                $resultRow['icon'] = DocumentTemplate::DOCUMENT_FOLDER;
+                $resultRow['icon'] = DocumentTemplate::DOCUMENT_ICON_FOLDER;
                 $resultRow['href'] = Url::toRoute(['/document/folder/edit', 'id' => $row->id]);
 
                 if ($withDocuments === true && count($row->documents)) {
