@@ -66,7 +66,7 @@ foreach($clients as $k => $c) {
         (new ClientAccountOptionsForm)
             ->setClientAccountId($clients[$k]['id'])
             ->setOption(ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN)
-            ->setValue(date('с'));
+            ->setValue(date('c'));
 
     if (!$option->save($deleteExisting = true)) {
         echo 'Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN . '" not saved for client #' . $clients[$k]['id'] . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL;
