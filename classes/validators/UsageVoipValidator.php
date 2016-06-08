@@ -1,8 +1,9 @@
 <?php
 namespace app\classes\validators;
 
-use app\models\UsageVoip;
 use yii\validators\NumberValidator;
+use app\models\ClientAccount;
+use app\models\UsageVoip;
 
 class UsageVoipValidator extends NumberValidator
 {
@@ -21,8 +22,9 @@ class UsageVoipValidator extends NumberValidator
         if (!$model->hasErrors()) {
             $usage = UsageVoip::find()->where(['E164' => $model->$attribute]);
 
-            if ($this->account_id_field) {
-                $usage->andWhere(['client' => 'id' . $model->{$this->account_id_field}]);
+            if (!is_null($this->account_id_field)) {
+                $clientAccount = ClientAccount::findOne($model->{$this->account_id_field});
+                $usage->andWhere(['client' => $clientAccount->client]);
             }
 
             if ($usage->one() === null) {

@@ -12,7 +12,7 @@ class DynamicModel extends \yii\base\DynamicModel
      * create the specified validation rules, and then validate the data using these rules.
      * @param array $data the data (name-value pairs) to be validated
      * @param array $rules the validation rules. Please refer to [[Model::rules()]] on the format of this parameter.
-     * @return static the model instance that contains the data being validated
+     * @return DynamicModel static the model instance that contains the data being validated
      * @throws InvalidConfigException if a validation rule is not specified correctly.
      */
     public static function validateData(array $data, $rules = [])
