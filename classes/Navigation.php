@@ -141,6 +141,7 @@ class Navigation
                 ->addItem('Регионы', ['/nnp/region/'])
                 ->addItem('Префиксы', ['/nnp/prefix/'])
                 ->addItem('Направления', ['/nnp/destination/'])
+                ->addItem('Пакеты', ['/nnp/package/'])
         );
     }
 
