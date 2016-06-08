@@ -2,18 +2,18 @@
 
 namespace app\classes\grid\column\important_events\details;
 
-use yii\helpers\ArrayHelper;
 use app\classes\Html;
+use app\models\Currency;
 use app\models\important_events\ImportantEvents;
 
-abstract class NotifyColumn
+abstract class PaymentColumn
 {
 
     /**
      * @param ImportantEvents $column
      * @return array
      */
-    public static function renderZeroBalanceDetails($column)
+    public static function renderPaymentAddDetails($column)
     {
         return self::renderDetails($column);
     }
@@ -22,43 +22,7 @@ abstract class NotifyColumn
      * @param ImportantEvents $column
      * @return array
      */
-    public static function renderUnsetZeroBalanceDetails($column)
-    {
-        return self::renderDetails($column);
-    }
-
-    /**
-     * @param ImportantEvents $column
-     * @return array
-     */
-    public static function renderMinBalanceDetails($column)
-    {
-        return self::renderDetails($column);
-    }
-
-    /**
-     * @param ImportantEvents $column
-     * @return array
-     */
-    public static function renderUnsetMinBalanceDetails($column)
-    {
-        return self::renderDetails($column);
-    }
-
-    /**
-     * @param ImportantEvents $column
-     * @return array
-     */
-    public static function renderDayLimitDetails($column)
-    {
-        return self::renderDetails($column);
-    }
-
-    /**
-     * @param ImportantEvents $column
-     * @return array
-     */
-    public static function renderAddPayNotifDetails($column)
+    public static function renderPaymentDelDetails($column)
     {
         return self::renderDetails($column);
     }
@@ -92,12 +56,12 @@ abstract class NotifyColumn
             $result[] = DetailsHelper::renderBalance((string)$properties['balance']);
         }
 
-        if (isset($properties['limit'])) {
-            $result[] = Html::tag('b', 'Лимит: ') . (string)$properties['limit'];
+        if (isset($properties['sum'])) {
+            $result[] = Html::tag('b', 'Сумма: ') . (string)$properties['sum'];
         }
 
-        if (isset($properties['value'])) {
-            $result[] = DetailsHelper::renderValue((string)$properties['value']);
+        if (isset($properties['currency'])) {
+            $result[] = Html::tag('b', 'Валюта: ') . Currency::symbol((string)$properties['currency']);
         }
 
         return $result;

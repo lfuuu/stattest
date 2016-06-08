@@ -132,7 +132,7 @@ class RenderParams extends Singleton
      */
     private function getNewPaymentValue($clientAccountId, $contactId, $eventId)
     {
-        return (float)$this->eventProperty($clientAccountId, $eventId, 'value');
+        return (float)$this->eventProperty($clientAccountId, $eventId, 'sum');
     }
 
     /**

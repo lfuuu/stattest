@@ -45,6 +45,11 @@ abstract class DetailColumnFactory
             ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
 
         ],
+
+        PaymentColumn::class => [
+            ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD,
+            ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_DELETE,
+        ],
     ];
 
     /**
@@ -61,7 +66,7 @@ abstract class DetailColumnFactory
             }
         }
 
-        return $column->event;
+        return DefaultColumn::render($column);
     }
 
 }
