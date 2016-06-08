@@ -288,6 +288,70 @@
                 ];
                 break;
         }
+    }elseif ($p_region == 90) { // Челябинск
+        switch ($p_dest) {
+            case 1:
+            case 2:
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 391,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 2,
+                    'pricelist_id' => 392,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 4:
+                // Прайс-лист отсутствует
+            case 5:
+                break;
+        }
+    }elseif ($p_region == 92) { // Пермь
+        switch ($p_dest) {
+            case 1:
+            case 2:
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 326,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 2,
+                    'pricelist_id' => 327,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 4:
+                $filter .= ' and d.mob=false ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 325,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+            case 5:
+                $filter .= ' and d.mob=true ';
+                $params[] = [
+                    'report_id' => $report_id,
+                    'position' => 1,
+                    'pricelist_id' => 325,
+                    'param' => 'd1',
+                    'date' => date('Y-m-d')
+                ];
+                break;
+        }
     }else{
         die('error: incorrect parameters');
     }
