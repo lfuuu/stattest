@@ -48,4 +48,22 @@ abstract class DetailsHelper
         return Html::tag('b', 'Создал: ') . $user->name;
     }
 
+    /**
+     * @param string $balance
+     * @return string
+     */
+    public static function renderBalance($balance)
+    {
+        return Html::tag('b', 'Баланс: ') . $balance;
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    public static function renderValue($value)
+    {
+        return Html::tag('b', 'Значение на момент события: ') . $value;
+    }
+
 }
