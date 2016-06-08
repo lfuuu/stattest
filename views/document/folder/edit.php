@@ -44,7 +44,7 @@ $form = ActiveForm::begin([]);
     </div>
     <?php if(!is_null($model) && !$model->parent_id): ?>
         <div class="col-sm-3">
-            <?= $form->field($model, 'default_for_business_id')->dropDownList(['' => '----'] + Business::getList()) ?>
+            <?= $form->field($model, 'default_for_business_id')->dropDownList(Business::getList(true)) ?>
         </div>
     <?php endif; ?>
     <div class="col-sm-1">

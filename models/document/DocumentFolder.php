@@ -54,14 +54,6 @@ class DocumentFolder extends ActiveRecord
     }
 
     /**
-     * @return array
-     */
-    public static function getList()
-    {
-        return ArrayHelper::map(self::find()->orderBy(self::$orderBy)->all(), 'id', 'name');
-    }
-
-    /**
      * @return \yii\db\ActiveQuery
      */
     public function getChilds()
