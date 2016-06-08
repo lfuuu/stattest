@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\destination;
 
-use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\Destination;
 
-class OperatorFormEdit extends OperatorForm
+class FormEdit extends Form
 {
     /**
      * конструктор
@@ -19,10 +19,10 @@ class OperatorFormEdit extends OperatorForm
     }
 
     /**
-     * @return Operator
+     * @return Destination
      */
-    public function getOperatorModel()
+    public function getDestinationModel()
     {
-        return Operator::findOne($this->id);
+        return Destination::findOne($this->id);
     }
 }

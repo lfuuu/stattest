@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\DestinationFilter;
-use app\modules\nnp\forms\DestinationFormEdit;
-use app\modules\nnp\forms\DestinationFormNew;
+use app\modules\nnp\forms\destination\FormEdit;
+use app\modules\nnp\forms\destination\FormNew;
 use Yii;
 
 /**
@@ -35,8 +35,8 @@ class DestinationController extends BaseController
      */
     public function actionNew()
     {
-        /** @var DestinationFormNew $form */
-        $form = new DestinationFormNew();
+        /** @var FormNew $form */
+        $form = new FormNew();
 
         if ($form->isSaved) {
             return $this->redirect(['index']);
@@ -55,8 +55,8 @@ class DestinationController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var DestinationFormEdit $form */
-        $form = new DestinationFormEdit([
+        /** @var FormEdit $form */
+        $form = new FormEdit([
             'id' => $id
         ]);
 

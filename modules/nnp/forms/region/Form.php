@@ -1,13 +1,12 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\region;
 
-use app\classes\Form;
 use app\modules\nnp\models\Region;
 use InvalidArgumentException;
 use yii;
 
-abstract class RegionForm extends Form
+abstract class Form extends \app\classes\Form
 {
     /** @var int ID сохраненный модели */
     public $id;

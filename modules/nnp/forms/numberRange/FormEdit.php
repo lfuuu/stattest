@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\numberRange;
 
 use app\modules\nnp\models\NumberRange;
 
-class NumberRangeFormEdit extends NumberRangeForm
+class FormEdit extends Form
 {
     /**
      * конструктор

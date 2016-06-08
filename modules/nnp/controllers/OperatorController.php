@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\OperatorFilter;
-use app\modules\nnp\forms\OperatorFormEdit;
-use app\modules\nnp\forms\OperatorFormNew;
+use app\modules\nnp\forms\operator\FormEdit;
+use app\modules\nnp\forms\operator\FormNew;
 use Yii;
 
 /**
@@ -35,8 +35,8 @@ class OperatorController extends BaseController
      */
     public function actionNew()
     {
-        /** @var OperatorFormNew $form */
-        $form = new OperatorFormNew();
+        /** @var FormNew $form */
+        $form = new FormNew();
 
         if ($form->isSaved) {
             return $this->redirect(['index']);
@@ -55,8 +55,8 @@ class OperatorController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var OperatorFormEdit $form */
-        $form = new OperatorFormEdit([
+        /** @var FormEdit $form */
+        $form = new FormEdit([
             'id' => $id
         ]);
 

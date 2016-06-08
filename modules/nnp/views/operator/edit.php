@@ -3,10 +3,10 @@
  * Создание/редактирование оператора
  *
  * @var \yii\web\View $this
- * @var OperatorForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\OperatorForm;
+use app\modules\nnp\forms\operator\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 

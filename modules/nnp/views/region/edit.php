@@ -3,10 +3,10 @@
  * Создание/редактирование регионы
  *
  * @var \yii\web\View $this
- * @var RegionForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\RegionForm;
+use app\modules\nnp\forms\region\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 

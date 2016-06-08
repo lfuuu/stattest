@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\prefix;
 
-use app\modules\nnp\models\Region;
+use app\modules\nnp\models\Prefix;
 
-class RegionFormEdit extends RegionForm
+class FormEdit extends Form
 {
     /**
      * конструктор
@@ -19,10 +19,10 @@ class RegionFormEdit extends RegionForm
     }
 
     /**
-     * @return Region
+     * @return Prefix
      */
-    public function getRegionModel()
+    public function getPrefixModel()
     {
-        return Region::findOne($this->id);
+        return Prefix::findOne($this->id);
     }
 }

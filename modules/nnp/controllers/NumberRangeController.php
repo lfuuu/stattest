@@ -4,7 +4,7 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\NumberRangeFilter;
-use app\modules\nnp\forms\NumberRangeFormEdit;
+use app\modules\nnp\forms\numberRange\FormEdit;
 use Yii;
 
 /**
@@ -45,8 +45,8 @@ class NumberRangeController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var NumberRangeFormEdit $form */
-        $form = new NumberRangeFormEdit([
+        /** @var FormEdit $form */
+        $form = new FormEdit([
             'id' => $id
         ]);
 

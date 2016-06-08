@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\RegionFilter;
-use app\modules\nnp\forms\RegionFormEdit;
-use app\modules\nnp\forms\RegionFormNew;
+use app\modules\nnp\forms\region\FormEdit;
+use app\modules\nnp\forms\region\FormNew;
 use Yii;
 
 /**
@@ -35,8 +35,8 @@ class RegionController extends BaseController
      */
     public function actionNew()
     {
-        /** @var RegionFormNew $form */
-        $form = new RegionFormNew();
+        /** @var FormNew $form */
+        $form = new FormNew();
 
         if ($form->isSaved) {
             return $this->redirect(['index']);
@@ -55,8 +55,8 @@ class RegionController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var RegionFormEdit $form */
-        $form = new RegionFormEdit([
+        /** @var FormEdit $form */
+        $form = new FormEdit([
             'id' => $id
         ]);
 

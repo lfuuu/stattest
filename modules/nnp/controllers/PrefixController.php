@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\PrefixFilter;
-use app\modules\nnp\forms\PrefixFormEdit;
-use app\modules\nnp\forms\PrefixFormNew;
+use app\modules\nnp\forms\prefix\FormEdit;
+use app\modules\nnp\forms\prefix\FormNew;
 use Yii;
 
 /**
@@ -35,8 +35,8 @@ class PrefixController extends BaseController
      */
     public function actionNew()
     {
-        /** @var PrefixFormNew $form */
-        $form = new PrefixFormNew();
+        /** @var FormNew $form */
+        $form = new FormNew();
 
         if ($form->isSaved) {
             return $this->redirect(['index']);
@@ -55,8 +55,8 @@ class PrefixController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var PrefixFormEdit $form */
-        $form = new PrefixFormEdit([
+        /** @var FormEdit $form */
+        $form = new FormEdit([
             'id' => $id
         ]);
 

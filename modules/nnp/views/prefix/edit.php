@@ -3,10 +3,10 @@
  * Создание/редактирование префикса
  *
  * @var \yii\web\View $this
- * @var PrefixForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\PrefixForm;
+use app\modules\nnp\forms\prefix\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
