@@ -6,7 +6,11 @@
  * @var Form $formModel
  */
 
+use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\Tariff;
 use app\modules\nnp\forms\package\Form;
+use app\modules\nnp\models\Destination;
+use app\modules\nnp\models\Package;
 use app\modules\nnp\models\Prefix;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -52,6 +56,55 @@ if (!$package->isNewRecord) {
         <?php // Название ?>
         <div class="col-sm-4">
             <?= $form->field($package, 'name')->textInput() ?>
+        </div>
+
+        <?php // Тариф ?>
+        <div class="col-sm-4">
+            <?= $form->field($package, 'tariff_id')->widget(Select2::className(), [
+                'data' => Tariff::getList($package->isNewRecord, $isWithNullAndNotNull = false, $serviceTypeId = ServiceType::ID_VOIP),
+            ]) ?>
+        </div>
+
+        <?php // Период ?>
+        <div class="col-sm-4">
+            <?= $form->field($package, 'period_id')->widget(Select2::className(), [
+                'data' => Package::getPeriodList($package->isNewRecord),
+            ]) ?>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <?php // Тип пакета ?>
+        <div class="col-sm-3">
+            <?= $form->field($package, 'package_type_id')->widget(Select2::className(), [
+                'data' => Package::getPackageTypeList($package->isNewRecord),
+            ]) ?>
+        </div>
+
+        <?php // Направление ?>
+        <div class="col-sm-3">
+            <?= $form->field($package, 'destination_id')->widget(Select2::className(), [
+                'data' => Destination::getList($package->isNewRecord),
+            ]) ?>
+        </div>
+
+        <?php // Прайслист ?>
+        <div class="col-sm-3">
+            <?= $form->field($package, 'pricelist_id')->widget(Select2::className(), [
+                'data' => \app\models\billing\Pricelist::getList($package->isNewRecord, $isWithNullAndNotNull = false, $type = 'client', $orig = true),
+            ]) ?>
+        </div>
+
+        <?php // Цена ?>
+        <div class="col-sm-3">
+            <?= $form->field($package, 'price')->textInput() ?>
+        </div>
+
+        <?php // Минуты ?>
+        <div class="col-sm-3">
+            <?= $form->field($package, 'minute')->textInput() ?>
         </div>
 
     </div>

@@ -132,4 +132,42 @@ class Package extends ActiveRecord
     {
         return Url::to(['/nnp/package/edit', 'id' => $id]);
     }
+
+    /**
+     * Вернуть список всех доступных типов
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public static function getPackageTypeList($isWithEmpty = false)
+    {
+        $list = [
+            self::PACKAGE_TYPE_MINUTE => 'Предоплаченные минуты',
+            self::PACKAGE_TYPE_PRICE => 'Цена по направлениям',
+            self::PACKAGE_TYPE_PRICELIST => 'Прайслист с МГП',
+        ];
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+        return $list;
+    }
+
+    /**
+     * Вернуть список всех доступных периодов
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public static function getPeriodList($isWithEmpty = false)
+    {
+        $list = [
+            self::PERIOD_SINGLE => 'Разовый',
+            self::PERIOD_PERIOD => 'Периодический',
+        ];
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+        return $list;
+    }
+
 }

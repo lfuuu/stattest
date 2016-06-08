@@ -14,6 +14,9 @@ use yii\db\ActiveRecord;
  */
 class Pricelist extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
+
     const TYPE_CLIENT = 'client';
     const TYPE_OPERATOR = 'operator';
     const TYPE_LOCAL = 'network_prices';
@@ -46,6 +49,25 @@ class Pricelist extends ActiveRecord
     public function isLocal()
     {
         return $this->type == self::TYPE_LOCAL;
+    }
+
+    /**
+     * Вернуть список всех доступных моделей
+     * @param bool $isWithEmpty
+     * @param bool $isWithNullAndNotNull
+     * @param int $serviceTypeId
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = null, $orig = null)
+    {
+        $query = self::find()
+            ->orderBy(self::getListOrderBy())
+            ->indexBy('id');
+        !is_null($type) && $query->andWhere(['type' => $type]);
+        !is_null($orig) && $query->andWhere(['orig' => $orig]);
+        $list = $query->all();
+
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 
 }
