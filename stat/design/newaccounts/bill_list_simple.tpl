@@ -131,8 +131,8 @@
         {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
-                <td rowspan="{$rowspan}"{if $op.bill.postreg!="0000-00-00"} style="background-color: #FFFFD0"{/if}>{$op.bill.bill_date}</td>
-                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}">
+                <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}">{$op.bill.bill_date}</td>
+                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
                 </td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
@@ -149,10 +149,10 @@
                     {if $smarty.foreach.inner.iteration!=1}
                         </tr><tr class="{$class}">
                     {/if}
-                    <td{if $op.isCanceled==1 && $pay.sum < 0} style="text-decoration: line-through;"{/if}>
+                    <td>
                         {objCurrency op=$op obj='pay' pay=$pay currency=$fixclient_data.currency simple=1}
                     </td>
-                    <td style="font-size: 85%;{if $op.isCanceled==1 && $pay.sum < 0}text-decoration: line-through;{/if}">
+                    <td style="font-size: 85%;">
                         {$pay.payment_date} - &#8470;{$pay.payment_no} /
                         {if $pay.type=='bank'}b({$pay.bank})
                         {elseif $pay.type=='prov'}p
