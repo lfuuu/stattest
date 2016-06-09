@@ -796,7 +796,7 @@ class DbFormEmails extends DbForm {
         $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
-        $this->fields['password']=array("type" => "password");
+        $this->fields['password'] = array('type' => 'password');
         $this->fields['box_quota']=array('assoc_enum'=>array('50000'=>'50 Mb','100000'=>'100 Mb'));
         $this->fields['box_size']=array('type'=>'label');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
@@ -808,8 +808,9 @@ class DbFormEmails extends DbForm {
     public function Load($id)
     {
         $r = DbForm::Load($id);
-        if($r)
-            if($r["password"] != "") $r["password"] = "*******";
+        if ($r) {
+            unset($this->fields['password']);
+        }
         $this->data = $r;
         return $r;
     }
