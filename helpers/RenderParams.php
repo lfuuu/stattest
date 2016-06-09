@@ -154,7 +154,7 @@ class RenderParams extends Singleton
 
         return
             $eventProperty !== false && isset($event->properties[$eventProperty])
-                ? $event->properties[$eventProperty]
+                ? (string)$event->properties[$eventProperty]
                 : $event->properties;
 
     }
