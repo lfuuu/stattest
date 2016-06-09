@@ -20,8 +20,13 @@ use yii\db\ActiveRecord;
  */
 class TroubleStage extends ActiveRecord
 {
-    public $dif_time = '00:00';
 
+    public $dif_time = '00:00';
+    public static $closedStates = [2, 20, 7, 8, 48];
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -29,16 +34,25 @@ class TroubleStage extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'tt_stages';
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getState()
     {
         return $this->hasOne(TroubleState::className(), ['id' => 'state_id']);
     }
 
+    /**
+     * @return $this
+     */
     public static function find()
     {
         return parent::find()->select([
