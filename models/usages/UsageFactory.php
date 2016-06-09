@@ -68,7 +68,7 @@ abstract class UsageFactory
         self::USAGE_VOIP => UsageVoipEditForm::class,
         self::USAGE_VIRTBPX => UsageVirtpbxForm::class,
         self::USAGE_EXTRA => UsageExtraForm::class,
-        self::USAGE_EMAIL => UsageEmailsForm::class,
+        //self::USAGE_EMAIL => UsageEmailsForm::class, // Отключено для db_form
         self::USAGE_TECH_CPE => UsageTechCpeForm::class,
         self::USAGE_SMS => UsageSmsForm::class,
         self::USAGE_IP_PORTS => UsageIpPortsForm::class,

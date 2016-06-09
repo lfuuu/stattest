@@ -17,14 +17,14 @@ class UsageEmailsForm extends Form
         $actual_to,
         $local_part,
         $domain,
-        $password,
         $client,
         $box_size,
         $box_quota,
         $enabled,
         $spam_act,
         $smtp_auth,
-        $status;
+        $status,
+        $password;
 
     public function rules()
     {

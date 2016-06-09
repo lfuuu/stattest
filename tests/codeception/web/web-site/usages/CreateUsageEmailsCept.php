@@ -38,12 +38,6 @@ $I->amOnPage('/?module=services&action=em_add');
 $I->dontSeeElement('div.alert-danger');
 
 /*
- *  Negative test
- */
-$I->submitForm('//form[@id="dbform"]', []);
-$I->seeElement('div.alert-danger');
-
-/*
  * Positive test
  */
 $domainSelector = '//select[@id="domain"]';
