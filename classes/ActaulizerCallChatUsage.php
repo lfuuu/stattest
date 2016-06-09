@@ -194,7 +194,7 @@ class ActaulizerCallChatUsage extends Singleton
         ) {
 
             try {
-                ApiCore::remoteProduct('feedback', $callChatRow->client_id);
+                ApiCore::remoteProduct('feedback', $callChatRow->client_id, $usage->id);
                 $usage->delete();
             } catch (InvalidConfigException $e) {
                 return true;
