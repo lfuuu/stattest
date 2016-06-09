@@ -72,7 +72,10 @@ class Package extends ActiveRecord
     public function rules()
     {
         return [
+            [['name', 'tariff_id', 'package_type_id', 'period_id'], 'required'],
             [['name'], 'string'],
+            [['tariff_id', 'package_type_id', 'period_id', 'minute', 'pricelist_id', 'destination_id'], 'integer'],
+            [['price'], 'number'],
         ];
     }
 

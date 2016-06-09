@@ -77,33 +77,33 @@ if (!$package->isNewRecord) {
     <div class="row">
 
         <?php // Тип пакета ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <?= $form->field($package, 'package_type_id')->widget(Select2::className(), [
                 'data' => Package::getPackageTypeList($package->isNewRecord),
             ]) ?>
         </div>
 
         <?php // Направление ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4" id="div-destination">
             <?= $form->field($package, 'destination_id')->widget(Select2::className(), [
                 'data' => Destination::getList($package->isNewRecord),
             ]) ?>
         </div>
 
         <?php // Прайслист ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4" id="div-pricelist">
             <?= $form->field($package, 'pricelist_id')->widget(Select2::className(), [
                 'data' => \app\models\billing\Pricelist::getList($package->isNewRecord, $isWithNullAndNotNull = false, $type = 'client', $orig = true),
             ]) ?>
         </div>
 
         <?php // Цена ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4" id="div-price">
             <?= $form->field($package, 'price')->textInput() ?>
         </div>
 
         <?php // Минуты ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4" id="div-minute">
             <?= $form->field($package, 'minute')->textInput() ?>
         </div>
 
@@ -120,3 +120,40 @@ if (!$package->isNewRecord) {
 
     <?php ActiveForm::end(); ?>
 </div>
+
+<script type='text/javascript'>
+    $(function () {
+        $("#package-package_type_id")
+            .on("change", function (e, item) {
+                var $typeId = $(this).val();
+                switch ($typeId) {
+                    case '<?= Package::PACKAGE_TYPE_MINUTE ?>':
+                        $('#div-destination').show();
+                        $('#div-pricelist').hide();
+                        $('#div-price').hide();
+                        $('#div-minute').show();
+                        break;
+                    case '<?= Package::PACKAGE_TYPE_PRICE ?>':
+                        $('#div-destination').show();
+                        $('#div-pricelist').hide();
+                        $('#div-price').show();
+                        $('#div-minute').hide();
+                        break;
+                    case '<?= Package::PACKAGE_TYPE_PRICELIST ?>':
+                        $('#div-destination').hide();
+                        $('#div-pricelist').show();
+                        $('#div-price').hide();
+                        $('#div-minute').hide();
+                        break;
+                    default:
+                        $('#div-destination').hide();
+                        $('#div-pricelist').hide();
+                        $('#div-price').hide();
+                        $('#div-minute').hide();
+                        break;
+                }
+            })
+            .trigger('change');
+
+    });
+</script>
