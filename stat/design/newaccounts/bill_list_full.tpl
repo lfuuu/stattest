@@ -150,8 +150,8 @@
         {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
-                <td rowspan="{$rowspan}"{if $op.bill.postreg!="0000-00-00"} style="background-color:#FFFFD0"{/if}>{$op.bill.bill_date}</td>
-                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}">
+                <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}">{$op.bill.bill_date}</td>
+                <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a></td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
             {else}
@@ -168,10 +168,10 @@
                         </tr><tr class="{$class}">
                     {/if}
                     {if isset($pay.p_bill_no) && isset($op.bill.bill_no) && $pay.p_bill_no==$op.bill.bill_no}
-                        <td{if $op.isCanceled==1 && $pay.sum < 0} style="text-decoration: line-through;"{/if}>
+                        <td>
                             {objCurrency op=$op obj='pay_full' pay=$pay currency=$fixclient_data.currency}
                         </td>
-                        <td style="font-size: 85%;{if $op.isCanceled==1 && $pay.sum < 0}text-decoration: line-through;{/if}">
+                        <td style="font-size: 85%;">
                             {$pay.payment_date} - &#8470;{$pay.payment_no} /
                             {if $pay.type=='bank'}b
                             {elseif $pay.type=='prov'}p
