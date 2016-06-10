@@ -63,7 +63,7 @@ class TrunkDao extends Singleton
     /**
      * @param int $trunkId
      * @param int $connectionPointId
-     * @return ActiveRecord[]|[]
+     * @return ActiveRecord[]
      */
     public function getContragents($trunkId = 0, $connectionPointId = 0)
     {
