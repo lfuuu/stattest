@@ -9,6 +9,8 @@ use yii\db\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsSources;
+use app\models\Trouble;
+use app\models\TroubleStage;
 
 class Troubles extends Behavior
 {
@@ -43,7 +45,16 @@ class Troubles extends Behavior
      */
     public function registerUpdateEvent($event)
     {
-        if ($event->sender->date_close) {
+        /** @var Trouble $trouble */
+        $trouble = Trouble::findOne($event->sender->id);
+
+        if (
+            $event->sender->date_close
+                &&
+            $trouble->currentStage->state_id != $event->sender->currentStage->state_id
+                &&
+            !in_array($event->sender->currentStage->state_id, TroubleStage::$closedStates, true)
+        ) {
             ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CLOSED_TROUBLE,
                 ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                     'trouble_id' => $event->sender->id,
