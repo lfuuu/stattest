@@ -3,10 +3,10 @@
  * Создание/редактирование регионы
  *
  * @var \yii\web\View $this
- * @var RegionForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\RegionForm;
+use app\modules\nnp\forms\region\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -34,13 +34,6 @@ if (!$region->isNewRecord) {
         'formModel' => $formModel,
         'form' => $form,
     ];
-    ?>
-
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
     ?>
 
     <div class="row">

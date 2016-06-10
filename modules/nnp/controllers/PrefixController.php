@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\PrefixFilter;
-use app\modules\nnp\forms\PrefixFormEdit;
-use app\modules\nnp\forms\PrefixFormNew;
+use app\modules\nnp\forms\prefix\FormEdit;
+use app\modules\nnp\forms\prefix\FormNew;
 use Yii;
 
 /**
@@ -35,14 +35,19 @@ class PrefixController extends BaseController
      */
     public function actionNew()
     {
-        /** @var PrefixFormNew $form */
-        $form = new PrefixFormNew();
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -55,16 +60,21 @@ class PrefixController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var PrefixFormEdit $form */
-        $form = new PrefixFormEdit([
+        /** @var FormEdit $formModel */
+        $formModel = new FormEdit([
             'id' => $id
         ]);
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }

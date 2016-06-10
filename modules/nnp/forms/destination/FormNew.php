@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\destination;
 
 use app\modules\nnp\models\Destination;
 
-class DestinationFormNew extends DestinationForm
+class FormNew extends Form
 {
     /**
      * @return Destination

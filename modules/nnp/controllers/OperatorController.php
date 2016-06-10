@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\OperatorFilter;
-use app\modules\nnp\forms\OperatorFormEdit;
-use app\modules\nnp\forms\OperatorFormNew;
+use app\modules\nnp\forms\operator\FormEdit;
+use app\modules\nnp\forms\operator\FormNew;
 use Yii;
 
 /**
@@ -35,14 +35,19 @@ class OperatorController extends BaseController
      */
     public function actionNew()
     {
-        /** @var OperatorFormNew $form */
-        $form = new OperatorFormNew();
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -55,16 +60,21 @@ class OperatorController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var OperatorFormEdit $form */
-        $form = new OperatorFormEdit([
+        /** @var FormEdit $formModel */
+        $formModel = new FormEdit([
             'id' => $id
         ]);
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }

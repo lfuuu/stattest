@@ -1,37 +1,39 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\package;
 
-use app\classes\Form;
-use app\modules\nnp\models\NumberRange;
+use app\classes\uu\forms\CrudMultipleTrait;
+use app\modules\nnp\models\Package;
 use InvalidArgumentException;
 use yii;
 
-abstract class NumberRangeForm extends Form
+abstract class Form extends \app\classes\Form
 {
+    use CrudMultipleTrait;
+
     /** @var int ID сохраненный модели */
     public $id;
 
     /** @var bool */
     public $isSaved = false;
 
-    /** @var NumberRange */
-    public $numberRange;
+    /** @var Package */
+    public $package;
 
     /** @var string[] */
     public $validateErrors = [];
 
     /**
-     * @return NumberRange
+     * @return Package
      */
-    abstract public function getNumberRangeModel();
+    abstract public function getPackageModel();
 
     /**
      * конструктор
      */
     public function init()
     {
-        $this->numberRange = $this->getNumberRangeModel();
+        $this->package = $this->getPackageModel();
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -43,19 +45,28 @@ abstract class NumberRangeForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = Package::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 
-            if ($this->numberRange->load($post)) {
+            // название
+            if (isset($post['dropButton'])) {
+
+                // удалить
+                $this->package->delete();
+                $this->id = null;
+                $this->isSaved = true;
+
+            } elseif ($this->package->load($post)) {
 
                 // создать/редактировать
-                if ($this->numberRange->validate() && $this->numberRange->save()) {
-                    $this->id = $this->numberRange->id;
+                if ($this->package->validate() && $this->package->save()) {
+                    $this->id = $this->package->id;
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $this->numberRange->getFirstErrors();
+                    $this->validateErrors += $this->package->getFirstErrors();
                 }
             }
 
@@ -68,6 +79,7 @@ abstract class NumberRangeForm extends Form
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
             $this->isSaved = false;
+            $this->validateErrors[] = $e->getMessage();
 
         } catch (\Exception $e) {
             $transaction->rollBack();

@@ -1,15 +1,14 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\destination;
 
-use app\classes\Form;
 use app\classes\uu\forms\CrudMultipleTrait;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PrefixDestination;
 use InvalidArgumentException;
 use yii;
 
-abstract class DestinationForm extends Form
+abstract class Form extends \app\classes\Form
 {
     use CrudMultipleTrait;
 
@@ -47,7 +46,8 @@ abstract class DestinationForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = Destination::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 

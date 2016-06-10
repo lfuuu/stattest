@@ -328,4 +328,23 @@ class Tariff extends \yii\db\ActiveRecord
 
         return $types;
     }
+
+    /**
+     * Вернуть список всех доступных моделей
+     * @param bool $isWithEmpty
+     * @param bool $isWithNullAndNotNull
+     * @param int $serviceTypeId
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $serviceTypeId = null)
+    {
+        $query = self::find()
+            ->orderBy(self::getListOrderBy())
+            ->indexBy('id');
+        $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
+        $list = $query->all();
+
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
+
 }

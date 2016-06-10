@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\numberRange;
 
-use app\modules\nnp\models\Region;
+use app\modules\nnp\models\NumberRange;
 
-class RegionFormEdit extends RegionForm
+class FormEdit extends Form
 {
     /**
      * конструктор
@@ -19,10 +19,10 @@ class RegionFormEdit extends RegionForm
     }
 
     /**
-     * @return Region
+     * @return NumberRange
      */
-    public function getRegionModel()
+    public function getNumberRangeModel()
     {
-        return Region::findOne($this->id);
+        return NumberRange::findOne($this->id);
     }
 }

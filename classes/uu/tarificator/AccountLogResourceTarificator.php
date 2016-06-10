@@ -32,8 +32,11 @@ class AccountLogResourceTarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffs = AccountTariff::find();
+        $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
-            echo '. ';
+            if ($i++ % 10000 === 0) {
+                echo '. ';
+            }
 
             /** @var AccountTariffLog $accountTariffLog */
             $accountTariffLogs = $accountTariff->accountTariffLogs;

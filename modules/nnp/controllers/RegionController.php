@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\RegionFilter;
-use app\modules\nnp\forms\RegionFormEdit;
-use app\modules\nnp\forms\RegionFormNew;
+use app\modules\nnp\forms\region\FormEdit;
+use app\modules\nnp\forms\region\FormNew;
 use Yii;
 
 /**
@@ -35,14 +35,19 @@ class RegionController extends BaseController
      */
     public function actionNew()
     {
-        /** @var RegionFormNew $form */
-        $form = new RegionFormNew();
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -55,16 +60,21 @@ class RegionController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var RegionFormEdit $form */
-        $form = new RegionFormEdit([
+        /** @var FormEdit $formModel */
+        $formModel = new FormEdit([
             'id' => $id
         ]);
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }

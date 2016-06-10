@@ -1,13 +1,12 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\operator;
 
-use app\classes\Form;
 use app\modules\nnp\models\Operator;
 use InvalidArgumentException;
 use yii;
 
-abstract class OperatorForm extends Form
+abstract class Form extends \app\classes\Form
 {
     /** @var int ID сохраненный модели */
     public $id;
@@ -43,7 +42,8 @@ abstract class OperatorForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = Operator::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 

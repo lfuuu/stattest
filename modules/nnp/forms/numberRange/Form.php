@@ -1,13 +1,12 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\numberRange;
 
-use app\classes\Form;
-use app\modules\nnp\models\Prefix;
+use app\modules\nnp\models\NumberRange;
 use InvalidArgumentException;
 use yii;
 
-abstract class PrefixForm extends Form
+abstract class Form extends \app\classes\Form
 {
     /** @var int ID сохраненный модели */
     public $id;
@@ -15,23 +14,23 @@ abstract class PrefixForm extends Form
     /** @var bool */
     public $isSaved = false;
 
-    /** @var Prefix */
-    public $prefix;
+    /** @var NumberRange */
+    public $numberRange;
 
     /** @var string[] */
     public $validateErrors = [];
 
     /**
-     * @return Prefix
+     * @return NumberRange
      */
-    abstract public function getPrefixModel();
+    abstract public function getNumberRangeModel();
 
     /**
      * конструктор
      */
     public function init()
     {
-        $this->prefix = $this->getPrefixModel();
+        $this->numberRange = $this->getNumberRangeModel();
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -43,27 +42,20 @@ abstract class PrefixForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = NumberRange::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 
-            // название
-            if (isset($post['dropButton'])) {
-
-                // удалить
-                $this->prefix->delete();
-                $this->id = null;
-                $this->isSaved = true;
-
-            } elseif ($this->prefix->load($post)) {
+            if ($this->numberRange->load($post)) {
 
                 // создать/редактировать
-                if ($this->prefix->validate() && $this->prefix->save()) {
-                    $this->id = $this->prefix->id;
+                if ($this->numberRange->validate() && $this->numberRange->save()) {
+                    $this->id = $this->numberRange->id;
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $this->prefix->getFirstErrors();
+                    $this->validateErrors += $this->numberRange->getFirstErrors();
                 }
             }
 

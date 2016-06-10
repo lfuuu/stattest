@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\package;
 
-use app\modules\nnp\models\Destination;
+use app\modules\nnp\models\Package;
 
-class DestinationFormEdit extends DestinationForm
+class FormEdit extends Form
 {
     /**
      * конструктор
@@ -19,10 +19,10 @@ class DestinationFormEdit extends DestinationForm
     }
 
     /**
-     * @return Destination
+     * @return Package
      */
-    public function getDestinationModel()
+    public function getPackageModel()
     {
-        return Destination::findOne($this->id);
+        return Package::findOne($this->id);
     }
 }

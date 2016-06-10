@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\prefix;
 
 use app\modules\nnp\models\Prefix;
 
-class PrefixFormNew extends PrefixForm
+class FormNew extends Form
 {
     /**
      * @return Prefix

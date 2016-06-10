@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\region;
 
 use app\modules\nnp\models\Region;
 
-class RegionFormNew extends RegionForm
+class FormNew extends Form
 {
     /**
      * @return Region

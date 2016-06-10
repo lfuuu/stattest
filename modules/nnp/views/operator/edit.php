@@ -3,10 +3,10 @@
  * Создание/редактирование оператора
  *
  * @var \yii\web\View $this
- * @var OperatorForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\OperatorForm;
+use app\modules\nnp\forms\operator\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -34,13 +34,6 @@ if (!$operator->isNewRecord) {
         'formModel' => $formModel,
         'form' => $form,
     ];
-    ?>
-
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
     ?>
 
     <div class="row">

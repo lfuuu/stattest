@@ -1,13 +1,12 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\region;
 
-use app\classes\Form;
 use app\modules\nnp\models\Region;
 use InvalidArgumentException;
 use yii;
 
-abstract class RegionForm extends Form
+abstract class Form extends \app\classes\Form
 {
     /** @var int ID сохраненный модели */
     public $id;
@@ -43,7 +42,8 @@ abstract class RegionForm extends Form
     protected function loadFromInput()
     {
         // загрузить параметры от юзера
-        $transaction = \Yii::$app->db->beginTransaction();
+        $db = Region::getDb();
+        $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 

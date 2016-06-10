@@ -3,11 +3,11 @@
  * Создание/редактирование диапазона номеров
  *
  * @var \yii\web\View $this
- * @var NumberRangeForm $formModel
+ * @var Form $formModel
  */
 
 use app\models\City;
-use app\modules\nnp\forms\NumberRangeForm;
+use app\modules\nnp\forms\numberRange\Form;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
@@ -38,13 +38,6 @@ if (!$numberRange->isNewRecord) {
         'formModel' => $formModel,
         'form' => $form,
     ];
-    ?>
-
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
     ?>
 
     <div class="row">

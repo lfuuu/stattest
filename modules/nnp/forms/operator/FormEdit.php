@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\nnp\forms;
+namespace app\modules\nnp\forms\operator;
 
-use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\models\Operator;
 
-class NumberRangeFormEdit extends NumberRangeForm
+class FormEdit extends Form
 {
     /**
      * конструктор
@@ -19,10 +19,10 @@ class NumberRangeFormEdit extends NumberRangeForm
     }
 
     /**
-     * @return NumberRange
+     * @return Operator
      */
-    public function getNumberRangeModel()
+    public function getOperatorModel()
     {
-        return NumberRange::findOne($this->id);
+        return Operator::findOne($this->id);
     }
 }

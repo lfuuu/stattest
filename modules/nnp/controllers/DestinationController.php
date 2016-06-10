@@ -4,8 +4,8 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\DestinationFilter;
-use app\modules\nnp\forms\DestinationFormEdit;
-use app\modules\nnp\forms\DestinationFormNew;
+use app\modules\nnp\forms\destination\FormEdit;
+use app\modules\nnp\forms\destination\FormNew;
 use Yii;
 
 /**
@@ -35,14 +35,19 @@ class DestinationController extends BaseController
      */
     public function actionNew()
     {
-        /** @var DestinationFormNew $form */
-        $form = new DestinationFormNew();
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -55,16 +60,21 @@ class DestinationController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var DestinationFormEdit $form */
-        $form = new DestinationFormEdit([
+        /** @var FormEdit $formModel */
+        $formModel = new FormEdit([
             'id' => $id
         ]);
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }

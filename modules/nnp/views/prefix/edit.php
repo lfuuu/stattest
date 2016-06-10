@@ -3,10 +3,10 @@
  * Создание/редактирование префикса
  *
  * @var \yii\web\View $this
- * @var PrefixForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\PrefixForm;
+use app\modules\nnp\forms\prefix\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -34,13 +34,6 @@ if (!$prefix->isNewRecord) {
         'formModel' => $formModel,
         'form' => $form,
     ];
-    ?>
-
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
     ?>
 
     <div class="row">

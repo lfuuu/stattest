@@ -3,10 +3,10 @@
  * Создание/редактирование направления
  *
  * @var \yii\web\View $this
- * @var DestinationForm $formModel
+ * @var Form $formModel
  */
 
-use app\modules\nnp\forms\DestinationForm;
+use app\modules\nnp\forms\destination\Form;
 use app\modules\nnp\models\Prefix;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -38,14 +38,7 @@ if (!$destination->isNewRecord) {
     ];
     ?>
 
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
-
-    $prefixList = Prefix::getList(false);
-    ?>
+    <?php $prefixList = Prefix::getList(false) ?>
 
     <div class="row">
 

@@ -3,14 +3,15 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\NumberRangeFilter;
-use app\modules\nnp\forms\numberRange\FormEdit;
+use app\modules\nnp\filter\PackageFilter;
+use app\modules\nnp\forms\package\FormEdit;
+use app\modules\nnp\forms\package\FormNew;
 use Yii;
 
 /**
- * Диапазон номеров
+ * Пакеты
  */
-class NumberRangeController extends BaseController
+class PackageController extends BaseController
 {
     /**
      * Список
@@ -19,22 +20,36 @@ class NumberRangeController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new NumberRangeFilter();
-
-        $get = Yii::$app->request->get();
-        if (!isset($get['CountryFilter'])) {
-            $get['NumberRangeFilter']['is_active'] = 1; // по-умолчанию только "вкл."
-        }
-        $filterModel->load($get);
-
-        $post = Yii::$app->request->post();
-        if (isset($post['Prefix'])) {
-            $filterModel->addOrRemoveFilterModelToPrefix($post['Prefix']);
-        }
+        $filterModel = new PackageFilter();
+        $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
+    }
+
+    /**
+     * Создать
+     *
+     * @return string
+     */
+    public function actionNew()
+    {
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
+
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('edit', [
+                'formModel' => $formModel,
+            ]);
+        }
     }
 
     /**
