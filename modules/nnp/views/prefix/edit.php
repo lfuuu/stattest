@@ -36,13 +36,6 @@ if (!$prefix->isNewRecord) {
     ];
     ?>
 
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
-    ?>
-
     <div class="row">
 
         <?php // Название ?>

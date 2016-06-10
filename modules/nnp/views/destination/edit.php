@@ -38,14 +38,7 @@ if (!$destination->isNewRecord) {
     ];
     ?>
 
-    <?php
-    // сообщение об ошибке
-    if ($formModel->validateErrors) {
-        Yii::$app->session->setFlash('error', $formModel->validateErrors);
-    }
-
-    $prefixList = Prefix::getList(false);
-    ?>
+    <?php $prefixList = Prefix::getList(false) ?>
 
     <div class="row">
 

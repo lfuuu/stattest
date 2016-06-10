@@ -35,14 +35,19 @@ class OperatorController extends BaseController
      */
     public function actionNew()
     {
-        /** @var FormNew $form */
-        $form = new FormNew();
+        /** @var FormNew $formModel */
+        $formModel = new FormNew();
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
@@ -55,16 +60,21 @@ class OperatorController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var FormEdit $form */
-        $form = new FormEdit([
+        /** @var FormEdit $formModel */
+        $formModel = new FormEdit([
             'id' => $id
         ]);
 
-        if ($form->isSaved) {
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
             return $this->redirect(['index']);
         } else {
             return $this->render('edit', [
-                'formModel' => $form,
+                'formModel' => $formModel,
             ]);
         }
     }
