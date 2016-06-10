@@ -62,10 +62,15 @@ class TrunkDao extends Singleton
 
     /**
      * @param int $trunkId
+     * @param int $connectionPointId
      * @return ActiveRecord[]
      */
-    public function getContragents($trunkId = 0)
+    public function getContragents($trunkId = 0, $connectionPointId = 0)
     {
+        if (!$trunkId && !$connectionPointId) {
+            return [];
+        }
+
         $query =
             (new Query)
                 ->select([
@@ -90,7 +95,8 @@ class TrunkDao extends Singleton
                 )
                 ->groupBy('trunks.client_account_id');
 
-        $trunkId !== '' && $query->where(['trunks.id' => $trunkId]);
+        $trunkId !== '' && $query->andWhere(['trunks.trunk_id' => $trunkId]);
+        $connectionPointId !== '' && $query->andWhere(['trunks.connection_point_id' => $connectionPointId]);
 
         return $query->all();
     }

@@ -16,6 +16,7 @@ class TrunkContragentColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
     public $filter = ['' => '----'];
     public $trunkId = '';
+    public $connectionPointId = '';
 
     private $contragents = [];
 
@@ -26,7 +27,7 @@ class TrunkContragentColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $result = Trunk::dao()->getContragents($this->trunkId);
+        $result = Trunk::dao()->getContragents($this->trunkId, $this->connectionPointId);
 
         $this->filter += ArrayHelper::map($result, 'id', 'name');
         $this->contragents = ArrayHelper::map($result, 'id', 'name', 'client_account_id');
@@ -51,8 +52,12 @@ class TrunkContragentColumn extends DataColumn
             reset($this->contragents[$value]);
             list($contragent_id, $contragent_name) = each($this->contragents[$value]);
 
-            return Html::a($contragent_name, Url::toRoute(['contragent/edit', 'id' => $contragent_id]),
-                ['target' => '_blank']);
+            return
+                '(' .
+                Html::a($value, Url::toRoute(['client/view', 'id' => $value]) . '#contragent' . $contragent_id,
+                    ['target' => '_blank']) .
+                ') ' .
+                $contragent_name;
         }
 
         return $value;

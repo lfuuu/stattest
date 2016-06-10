@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\grid\column\billing\TrunkContractColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use app\classes\Html;
@@ -42,17 +43,22 @@ $columns = [
         'label' => 'Контрагент',
         'class' => TrunkContragentColumn::className(),
         'trunkId' => $filterModel->trunk_id,
+        'connectionPointId' => $filterModel->connection_point_id,
         'width' => '20%',
+        'filterOptions' => [
+            'class' => $filterModel->trunk_id ? 'alert-success' : 'alert-danger',
+            'title' => 'Фильтр зависит от Точки присоединения и Транк',
+        ],
     ],
     [
-        'attribute' => 'contract_id',
+        'attribute' => 'contract_number',
         'label' => '№ договора',
         'class' => StringColumn::className(),
         'format' => 'raw',
         'value' => function ($row) {
-            return Html::a($row['contract_id'], Url::toRoute(['contract/edit', 'id' => $row['contract_id']]), ['target' => '_blank']);
+            return $row['contract_number'];
         },
-        'width' => '5%',
+        'width' => '10%',
     ],
     [
         'attribute' => 'contract_type_id',
@@ -60,6 +66,10 @@ $columns = [
         'class' => TrunkContractTypeColumn::className(),
         'filterByBusinessProcessId' => $filterModel->business_process_id,
         'width' => '10%',
+        'filterOptions' => [
+            'class' => $filterModel->contract_type_id ? 'alert-success' : 'alert-danger',
+            'title' => 'Фильтр зависит от Бизнес-процесс',
+        ],
     ],
     [
         'attribute' => 'business_process_id',
@@ -71,7 +81,12 @@ $columns = [
         'attribute' => 'trunk_id',
         'label' => 'Транк',
         'class' => UsageTrunkColumn::className(),
+        'filterByServerId' => $filterModel->connection_point_id,
         'width' => '*',
+        'filterOptions' => [
+            'class' => $filterModel->trunk_id ? 'alert-success' : 'alert-danger',
+            'title' => 'Фильтр зависит от Точки присоединения и Оператора (суперклиента)',
+        ],
     ],
     [
         'attribute' => 'what_is_enabled',
@@ -86,4 +101,5 @@ echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите точку подключения',
 ]);
