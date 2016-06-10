@@ -171,6 +171,7 @@ class m_newaccounts extends IModule
 
         $isMulty = ClientAccount::findOne($fixclient)->isMulty();
         $isViewCanceled = get_param_raw("view_canceled", null);
+        $clientAccount = ClientAccount::findOne($fixclient);
 
         if($isViewCanceled === null){
             if(isset($_SESSION["view_canceled"])){
@@ -202,7 +203,7 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($fixclient_data["id"]);
+        $stDates = $this->_getSwitchTelekomDate($clientAccount->contract_id);
 
         if($stDates)
         {
