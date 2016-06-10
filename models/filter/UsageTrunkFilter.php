@@ -17,7 +17,7 @@ class UsageTrunkFilter extends UsageTrunk
         $connection_point_id,
         $trunk_ids,
         $contragent_id,
-        $contract_id,
+        $contract_number,
         $contract_type_id,
         $business_process_id,
         $trunk_id,
@@ -35,14 +35,13 @@ class UsageTrunkFilter extends UsageTrunk
                 [
                     'connection_point_id',
                     'contragent_id',
-                    'contract_id',
                     'contract_type_id',
                     'business_process_id',
                     'trunk_id',
                 ],
                 'integer'
             ],
-            [['what_is_enabled', 'trunk_ids',], 'string'],
+            [['what_is_enabled', 'trunk_ids', 'contract_number',], 'string'],
         ];
     }
 
@@ -72,7 +71,7 @@ class UsageTrunkFilter extends UsageTrunk
         $query->select([
             'usage_trunk_id' => 'trunk.id',
             'trunk.*',
-            'contract_id' => 'contract.id',
+            'contract_number' => 'contract.number',
             'business_process_id' => 'contract.business_process_id',
             'contract_type_id' => 'contract.contract_type_id',
         ]);
@@ -115,7 +114,7 @@ class UsageTrunkFilter extends UsageTrunk
             $this->trunkIDs
         ]);
         !empty($this->contragent_id) && $query->andWhere(['contract.contragent_id' => $this->contragent_id]);
-        !empty($this->contract_id) && $query->andWhere(['contract.id' => $this->contract_id]);
+        !empty($this->contract_number) && $query->andWhere(['LIKE', 'contract.number', $this->contract_number]);
         !empty($this->contract_type_id) && $query->andWhere(['contract.contract_type_id' => $this->contract_type_id]);
         !empty($this->business_process_id) && $query->andWhere(['contract.business_process_id' => $this->business_process_id]);
         !empty($this->trunk_id) && $query->andWhere(['trunk.trunk_id' => $this->trunk_id]);
@@ -136,6 +135,7 @@ class UsageTrunkFilter extends UsageTrunk
                 break;
             }
         }
+        !$this->isFilteringPossible() && $query->where('false');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -144,6 +144,15 @@ class UsageTrunkFilter extends UsageTrunk
         ]);
 
         return $dataProvider;
+    }
+
+    /**
+     * Указаны ли необходимые фильтры. Если нет, то фильтрация не происходит
+     * @return bool
+     */
+    public function isFilteringPossible()
+    {
+        return (int)$this->connection_point_id;
     }
 
 }

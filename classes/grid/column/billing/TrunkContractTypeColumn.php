@@ -6,7 +6,6 @@ use app\models\ContractType;
 use yii\db\ActiveRecord;
 use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 class TrunkContractTypeColumn extends DataColumn

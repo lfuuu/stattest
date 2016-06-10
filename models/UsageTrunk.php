@@ -125,9 +125,10 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     {
         // ORM не поддерживает многоуровневый join и indexBy по полю не из модели
         $list = (new \yii\db\Query())
-            ->select(['usage_trunk.trunk_id', 'usage_trunk.client_account_id', 'client_contragent.name'])
+            ->select(['usage_trunk.trunk_id', 'usage_trunk.client_account_id', 'client_super.name'])
             ->from('usage_trunk')
             ->innerJoin('clients', 'usage_trunk.client_account_id = clients.id')
+            ->innerJoin('client_super', 'client_super.id = clients.super_id')
             ->innerJoin('client_contract', 'clients.contract_id = client_contract.id')
             ->innerJoin('client_contragent', 'client_contract.contragent_id = client_contragent.id')
             ->orderBy('client_contragent.name')
