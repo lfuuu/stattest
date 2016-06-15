@@ -56,7 +56,7 @@ trait CrudMultipleTrait
         // delete
         foreach ($models as $model) {
             try {
-                $model->delete();
+                $model->id && $model->delete();
             } catch (IntegrityException $e) {
                 $this->validateErrors[] = Yii::t('common', 'You can not delete the object which used in another place');
             }
