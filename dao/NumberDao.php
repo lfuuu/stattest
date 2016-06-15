@@ -195,7 +195,14 @@ class NumberDao extends Singleton
         }
     }
 
-    public function getCallsWithoutUsages($region)
+    /**
+     * Статистика по звонкам за последние 3 месяца
+     *
+     * @param int $region
+     * @param int $dstNumber
+     * @return array
+     */
+    public function getCallsWithoutUsages($region, $dstNumber = null)
     {
         $dt = new \DateTime("now", new \DateTimeZone("UTC"));
         $dt->modify("first day of -3 month, 00:00:00");
@@ -218,6 +225,8 @@ class NumberDao extends Singleton
                 'u',
                 'm'
             ]);
+
+        $dstNumber && $query->andWhere(['dst_number' => $dstNumber]);
 
         if ($region == 99) {
             $query->andWhere(

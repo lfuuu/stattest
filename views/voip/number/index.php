@@ -4,11 +4,13 @@
  *
  * @var app\classes\BaseView $this
  * @var NumberFilter $filterModel
+ * @var int $currentClientAccountId
  */
 
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\DidGroupColumn;
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -29,14 +31,18 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
     <div class="well">
-        <?= $filterModel->city_id ?
-            $this->render('_indexGroupEdit', ['city_id' => $filterModel->city_id]) :
-            'Для группового редактирование отфильруйте минимум по городу'
-        ?>
+        <?= $this->render('_indexGroupEdit', [
+            'city_id' => $filterModel->city_id,
+            'currentClientAccountId' => $currentClientAccountId,
+        ]) ?>
     </div>
 
 <?php
 $baseView = $this;
+$monthMinus3 = (new DateTimeImmutable())->modify('-3 month');
+$monthMinus2 = (new DateTimeImmutable())->modify('-2 month');
+$monthMinus1 = (new DateTimeImmutable())->modify('-1 month');
+
 $columns = [
     [
         'attribute' => 'number',
@@ -44,6 +50,30 @@ $columns = [
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
         ],
+    ],
+    [
+        'label' => 'Кол-во звонков',
+        'headerOptions' => ['colspan' => 3],
+        'filter' => Yii::$app->formatter->asDate($monthMinus3, 'php:M'),
+        'value' => function (\app\models\Number $number) use ($monthMinus3) {
+            return $number->getCallsWithoutUsagesByMonth($monthMinus3->format('m'));
+        },
+    ],
+    [
+        'label' => 'Кол-во звонков',
+        'headerOptions' => ['class' => 'hidden'], // потому что colspan
+        'filter' => Yii::$app->formatter->asDate($monthMinus2, 'php:M'),
+        'value' => function (\app\models\Number $number) use ($monthMinus2) {
+            return $number->getCallsWithoutUsagesByMonth($monthMinus2->format('m'));
+        }
+    ],
+    [
+        'label' => 'Кол-во звонков',
+        'headerOptions' => ['class' => 'hidden'], // потому что colspan
+        'filter' => Yii::$app->formatter->asDate($monthMinus1, 'php:M'),
+        'value' => function (\app\models\Number $number) use ($monthMinus1) {
+            return $number->getCallsWithoutUsagesByMonth($monthMinus1->format('m'));
+        },
     ],
     [
         'attribute' => 'usage_id',
@@ -56,7 +86,18 @@ $columns = [
                     $number->usage->getUrl()
                 ) :
                 Yii::t('common', '(not set)');
-        }
+        },
+    ],
+    [
+        'attribute' => 'client_id',
+        'class' => IntegerColumn::className(),
+        'isNullAndNotNull' => true,
+        'format' => 'html',
+        'value' => function (\app\models\Number $number) {
+            return $number->client_id ?
+                $number->clientAccount->getLink() :
+                Yii::t('common', '(not set)');
+        },
     ],
     [
         'attribute' => 'city_id',

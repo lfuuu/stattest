@@ -6,6 +6,7 @@
 namespace app\controllers\voip;
 
 use app\classes\BaseController;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\voip\forms\NumberFormEdit;
 use app\classes\voip\forms\NumberFormNew;
 use app\models\filter\voip\NumberFilter;
@@ -13,6 +14,18 @@ use Yii;
 
 class NumberController extends BaseController
 {
+    // Вернуть текущего клиента, если он есть
+    use AddClientAccountFilterTraits;
+
+    /**
+     * Вернуть имя колонки, в которую надо установить фильтр по клиенту
+     * @return string
+     */
+    protected function getClientAccountField()
+    {
+        return 'client_id';
+    }
+
     /**
      * Список
      *
@@ -21,7 +34,7 @@ class NumberController extends BaseController
     public function actionIndex()
     {
         $filterModel = new NumberFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $this->addClientAccountFilter($filterModel);
 
         $post = Yii::$app->request->post();
         if (isset($post['Number'])) {
@@ -30,6 +43,7 @@ class NumberController extends BaseController
 
         return $this->render('index', [
             'filterModel' => $filterModel,
+            'currentClientAccountId' => $this->getCurrentClientAccountId(),
         ]);
     }
 

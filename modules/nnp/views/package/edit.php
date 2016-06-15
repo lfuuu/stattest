@@ -54,7 +54,7 @@ if (!$package->isNewRecord) {
         <?php // Тариф ?>
         <div class="col-sm-4">
             <?= $form->field($package, 'tariff_id')->widget(Select2::className(), [
-                'data' => Tariff::getList($package->isNewRecord, $isWithNullAndNotNull = false, $serviceTypeId = ServiceType::ID_VOIP),
+                'data' => Tariff::getList($package->isNewRecord, $isWithNullAndNotNull = false, $serviceTypeId = ServiceType::ID_VOIP_PACKAGE),
             ]) ?>
         </div>
 

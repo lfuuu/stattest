@@ -16,13 +16,14 @@ trait AddClientAccountFilterTraits
     private function addClientAccountFilter(ActiveRecord &$filterModel)
     {
         $get = Yii::$app->request->get();
+        $clientAccountField = $this->getClientAccountField();
 
         $className = $filterModel->formName();
         if (
             ($clientAccountId = $this->getCurrentClientAccountId()) &&
-            !isset($get[$className]['client_account_id'])
+            !isset($get[$className][$clientAccountField])
         ) {
-            $get[$className]['client_account_id'] = $clientAccountId;
+            $get[$className][$clientAccountField] = $clientAccountId;
         }
 
         $filterModel->load($get);
@@ -40,5 +41,14 @@ trait AddClientAccountFilterTraits
         }
 
         return null;
+    }
+
+    /**
+     * Вернуть имя колонки, в которую надо установить фильтр по клиенту
+     * @return string
+     */
+    protected function getClientAccountField()
+    {
+        return 'client_account_id';
     }
 }

@@ -19,12 +19,13 @@ class NumberFilter extends \app\models\Number
     public $did_group_id = '';
     public $beauty_level = '';
     public $usage_id = '';
+    public $client_id = '';
 
     public function rules()
     {
         return [
             [['number', 'status'], 'string'],
-            [['city_id', 'beauty_level', 'usage_id'], 'integer'], // , 'did_group_id'
+            [['city_id', 'beauty_level', 'usage_id', 'client_id'], 'integer'], // , 'did_group_id'
         ];
     }
 
@@ -61,6 +62,20 @@ class NumberFilter extends \app\models\Number
                 break;
         }
 
+        switch ($this->client_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere('client_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere('client_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere(['client_id' => $this->client_id]);
+                break;
+        }
+
         return $dataProvider;
     }
 
@@ -89,7 +104,13 @@ class NumberFilter extends \app\models\Number
             $didGroupId = 0;
         }
 
-        if (!$status && $beautyLevel === '' && !$didGroupId) {
+        if (isset($postNumber['client_id'])) {
+            $clientId = (int)$postNumber['client_id'];
+        } else {
+            $clientId = 0;
+        }
+
+        if (!$status && $beautyLevel === '' && !$didGroupId && !$clientId) {
             Yii::$app->session->setFlash('error', Yii::t('common', 'None of the new value is not specified'));
             return false;
         }
@@ -124,6 +145,11 @@ class NumberFilter extends \app\models\Number
             if ($didGroupId) {
                 $sqlSet .= 'voip_number.did_group_id = :did_group_id, ';
                 $params[':did_group_id'] = $didGroupId;
+            }
+
+            if ($clientId) {
+                $sqlSet .= 'voip_number.client_id = :client_id, ';
+                $params[':client_id'] = ($clientId == GetListTrait::$isNull) ? null : $clientId;
             }
 
             // сразу UPDATE было бы лучше, но

@@ -267,6 +267,7 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.number-status-column,
 .is-null-and-not-null-column,
 .did-group-column,
 .operator-column,

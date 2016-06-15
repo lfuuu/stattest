@@ -38,6 +38,8 @@ use yii\helpers\Url;
  * @property UsageVoip $usage
  * @property NumberType $numberType
  * @property TariffNumber $tariff
+ * @property ClientAccount $clientAccount
+ *
  * @property array $actualPrice
  */
 class Number extends ActiveRecord
@@ -56,6 +58,8 @@ class Number extends ActiveRecord
         self::STATUS_ACTIVE => 'Используется',
         self::STATUS_HOLD => 'В отстойнике',
     ];
+
+    protected $callsCount = null;
 
     /**
      * @return string
@@ -115,7 +119,7 @@ class Number extends ActiveRecord
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
     }
 
-   /**
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getUsage()
@@ -129,6 +133,14 @@ class Number extends ActiveRecord
     public function getNumberType()
     {
         return $this->hasOne(NumberType::className(), ['id' => 'number_type']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
     /**
@@ -209,5 +221,23 @@ class Number extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/voip/number/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть кол-во звонков за месяц
+     * @param string $month %02d
+     * @return int
+     */
+    public function getCallsWithoutUsagesByMonth($month)
+    {
+        if (is_null($this->callsCount)) {
+            $this->callsCount = \app\models\Number::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
+        }
+        foreach ($this->callsCount as $calls) {
+            if ($calls['m'] === $month) {
+                return $calls['c'];
+            }
+        }
+        return '';
     }
 }
