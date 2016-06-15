@@ -45,6 +45,8 @@ $rows = AccountTariff::getGroupedObjects($query);
             ?>
             <?php // город ?>
             <h2 class="panel-title">
+                <?= Html::checkbox(null, $checked = true, ['class' => 'check-all', 'style' => 'display: none;', 'title' => 'Отметить всё']) ?>
+
                 <?= $accountTariffFirst->city ? $accountTariffFirst->city->name : Yii::t('common', '(not set)') ?>
             </h2>
 
@@ -60,7 +62,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                         <?php // номера ?>
                         <div>
-                            <?= Html::checkbox('AccountTariff[ids][]', true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
+                            <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
                             <?= Html::a($accountTariff->voip_number ?: Yii::t('common', '(not set)'), $accountTariff->getUrl()) ?>
                         </div>
 
@@ -111,7 +113,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                                             'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                             'title' => 'Сменить тариф или отключить услугу',
                                             'data-id' => $accountTariffFirst->id,
-                                            'data-city_id' => $accountTariff->city_id,
+                                            'data-city_id' => (int)$accountTariff->city_id,
                                         ]
                                     ) : ''
                                 ?>
@@ -221,6 +223,7 @@ $rows = AccountTariff::getGroupedObjects($query);
             .on("click", function (e, item) {
                 var $this = $(this);
                 var $panel = $this.parents('.panel-info');
+                var $checkboxCheckAll = $panel.find('.panel-heading input');
                 var $checkboxes = $panel.find('.account-tariff-voip-numbers input');
                 var $editButtons = $(".account-tariff-voip-button");
                 var $div = $this.next();
@@ -231,12 +234,14 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                 if ($div.html()) {
                     // форма смены тарифа уже есть - убрать
+                    $checkboxCheckAll.hide(); // убрать чекбокс "всё"
                     $checkboxes.hide(); // убрать чекбоксы у номеров
                     $div.slideUp(function () { // скрыть форму смены тарифа
                         $div.html('');
                     });
                     $editButtons.show(); // показать кнопки загрузки формы смены тарифа
                 } else {
+                    $checkboxCheckAll.show(); // показать чекбокс "всё"
                     $checkboxes.show(); // показать чекбоксы у номеров
                     $div.show()  // загрузить форму смены тарифа
                         .addClass('loading')
@@ -247,6 +252,15 @@ $rows = AccountTariff::getGroupedObjects($query);
                     $editButtons.hide();
                     $this.show();
                 }
+            });
+
+        $(".check-all")
+            .on("click", function (e, item) {
+                var $this = $(this);
+                var $panel = $this.parents('.panel-info');
+                var $checkboxes = $panel.find('.account-tariff-voip-numbers input');
+
+                $checkboxes.prop('checked', this.checked);
             });
 
         $(".account-tariff-button-cancel")
