@@ -88,9 +88,24 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorFuture($attribute, $params)
     {
-        if (strtotime($this->actual_from) <= time()) {
-            $this->addError($attribute,
-                'К сожалению, машины времени нет, поэтому сменить тариф можно только в будущем.');
+        if (!$this->isNewRecord) {
+            return;
+        }
+
+        $currentDate = date('Y-m-d');
+        if ($this->actual_from > $currentDate) {
+            return;
+        }
+        if ($this->actual_from < $currentDate) {
+            $this->addError($attribute, 'Нельзя менять тариф задним числом.');
+        }
+
+        // С сегодня. При подключени нового это можно, но при смене существующего нельзя
+        if (self::find()
+            ->where(['account_tariff_id' => $this->account_tariff_id])
+            ->count()
+        ) {
+            $this->addError($attribute, 'Сменить тариф можно только с завтра или позже.');
         }
     }
 
@@ -101,15 +116,15 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorOneInFuture($attribute, $params)
     {
-        if (
-            $this->isNewRecord &&
-            $a = self::find()
-                ->where(['account_tariff_id' => $this->account_tariff_id])
-                ->andWhere(['>=', 'actual_from', new Expression('now()')])
-                ->one()
+        if (!$this->isNewRecord) {
+            return;
+        }
+        if (self::find()
+            ->where(['account_tariff_id' => $this->account_tariff_id])
+            ->andWhere(['>=', 'actual_from', new Expression('now()')])
+            ->count()
         ) {
-            $this->addError($attribute,
-                'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
+            $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
         }
     }
 }

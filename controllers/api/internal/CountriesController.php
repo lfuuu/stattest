@@ -205,7 +205,7 @@ class CountriesController extends ApiInternalController
      */
     public function actionGetCountries()
     {
-        $countries = Country::find()->where(['is_use' => 1])->all();
+        $countries = Country::find()->where(['in_use' => 1])->all();
         $result = [];
 
         foreach ($countries as $country) {
