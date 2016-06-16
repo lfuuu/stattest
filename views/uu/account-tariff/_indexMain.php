@@ -103,6 +103,8 @@ $columns[] = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
+    'extraButtons' => $serviceType->id == ServiceType::ID_VOIP_PACKAGE ?
+        '' :
+        $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,
 ]) ?>
