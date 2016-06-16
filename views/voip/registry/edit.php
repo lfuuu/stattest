@@ -11,10 +11,10 @@ use kartik\builder\Form;
 
 
 $countryList = \app\models\Country::getList();
-$cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
+$cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id, false, false);
 
 if ($model->registry && $model->country_id != $model->registry->country_id) {
-    $cityLabelList = \app\models\City::dao()->getList(false, $model->registry->country_id);
+    $cityLabelList = \app\models\City::dao()->getList(false, $model->registry->country_id, false, false);
 }
 
 

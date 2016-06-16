@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\classes\traits\GetListTrait;
 use app\models\City;
+use app\models\Number;
 use app\models\UsageVoip;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -20,13 +21,18 @@ class CityDao extends Singleton
      * @param bool $isWithEmpty
      * @param null $countryId
      * @param bool $isWithNullAndNotNull
+     * @param bool $isOnlyUse
      * @return array
      */
-    public function getList($isWithEmpty = false, $countryId = null, $isWithNullAndNotNull = false)
+    public function getList($isWithEmpty = false, $countryId = null, $isWithNullAndNotNull = false, $isOnlyUse = true)
     {
         $query = City::find();
         if ($countryId) {
             $query->andWhere(['country_id' => $countryId]);
+        }
+
+        if ($isOnlyUse) {
+            $query->andWhere(['in_use' => 1]);
         }
 
         $list =
@@ -86,5 +92,18 @@ class CityDao extends Singleton
         }
 
         return $list;
+    }
+
+    /**
+     * Обновляем список городов, доступнеых для использования в ЛК и улугах телефонии
+     *
+     * @throws \yii\db\Exception
+     */
+    public function markUseCities()
+    {
+        $transaction = \Yii::$app->getDb()->beginTransaction();
+        City::updateAll(['in_use' => 0]);
+        City::updateAll(['in_use' => 1], ['id' => Number::find()->distinct()->select('city_id')->column()]);
+        $transaction->commit();
     }
 }

@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
+use app\models\City;
 use app\models\Country;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
@@ -271,4 +272,5 @@ class AccountController extends BaseController
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);
     }
+
 }

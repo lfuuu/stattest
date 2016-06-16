@@ -11,6 +11,7 @@ use yii\helpers\Url;
  * @property int $country_id
  * @property int $connection_point_id
  * @property string $voip_number_format
+ * @property int $in_use
  *
  * @property Country $country
  */
@@ -30,6 +31,7 @@ class City extends ActiveRecord
             'country_id' => 'Страна',
             'connection_point_id' => 'Точка подключения',
             'voip_number_format' => 'Формат номеров',
+            'in_use' => 'Используется',
         ];
     }
 

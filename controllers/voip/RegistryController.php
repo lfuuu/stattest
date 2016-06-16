@@ -2,6 +2,7 @@
 namespace app\controllers\voip;
 
 use app\forms\voip\RegistryForm;
+use app\models\City;
 use app\models\voip\Registry;
 use Yii;
 use app\models\filter\voip\RegistryFilter;
@@ -88,6 +89,7 @@ class RegistryController extends BaseController
         try {
             if (Yii::$app->request->post('fill-numbers')) {
                 $registry->fillNumbers();
+                City::dao()->markUseCities();
                 $isShowCheckList = true;
             }
 

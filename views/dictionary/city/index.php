@@ -50,6 +50,10 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
+        'attribute' => 'in_use',
+        'class' => \app\classes\grid\column\universal\YesNoColumn::className(),
+    ],
+    [
         'class' => ActionColumn::className(),
         'template' => '{update} {delete}',
         'buttons' => [
@@ -68,6 +72,7 @@ $columns = [
         ],
         'hAlign' => GridView::ALIGN_CENTER,
     ],
+
 ];
 
 echo GridView::widget([

@@ -468,6 +468,7 @@ class ApiLk
 
         $cities =
             City::find()
+                ->where(['in_use' => 1])
                 ->all(); /** @var City[] $cities */
         $resultCitiesByCountryId = [];
         foreach ($cities as $city) {
