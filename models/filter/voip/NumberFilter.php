@@ -13,7 +13,8 @@ use yii\db\ActiveQuery;
  */
 class NumberFilter extends \app\models\Number
 {
-    public $number = '';
+    public $number_from = '';
+    public $number_to = '';
     public $city_id = '';
     public $status = '';
     public $did_group_id = '';
@@ -24,8 +25,8 @@ class NumberFilter extends \app\models\Number
     public function rules()
     {
         return [
-            [['number', 'status'], 'string'],
-            [['city_id', 'beauty_level', 'usage_id', 'client_id'], 'integer'], // , 'did_group_id'
+            [['status'], 'string'],
+            [['number_from', 'number_to', 'city_id', 'beauty_level', 'usage_id', 'client_id'], 'integer'], // , 'did_group_id'
         ];
     }
 
@@ -42,9 +43,12 @@ class NumberFilter extends \app\models\Number
         ]);
 
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        $this->number !== '' &&
-        ($this->number = strtr($this->number, ['.' => '_', '*' => '%'])) &&
-        $query->andWhere('number LIKE :number', [':number' => $this->number]);
+//        $this->number !== '' &&
+//        ($this->number = strtr($this->number, ['.' => '_', '*' => '%'])) &&
+//        $query->andWhere('number LIKE :number', [':number' => $this->number]);
+
+        $this->number_from !== '' && $query->andWhere(['>=', 'number', $this->number_from]);
+        $this->number_to !== '' && $query->andWhere(['<=', 'number', $this->number_to]);
 
         $this->city_id !== '' && $query->andWhere(['city_id' => $this->city_id]);
         $this->status !== '' && $query->andWhere(['status' => $this->status]);

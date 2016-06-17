@@ -11,9 +11,9 @@ use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\DidGroupColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
-use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\voip\NumberFilter;
@@ -46,10 +46,7 @@ $monthMinus1 = (new DateTimeImmutable())->modify('-1 month');
 $columns = [
     [
         'attribute' => 'number',
-        'class' => StringColumn::className(),
-        'filterOptions' => [
-            'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
-        ],
+        'class' => IntegerRangeColumn::className(),
     ],
     [
         'label' => 'Кол-во звонков',
