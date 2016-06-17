@@ -8,6 +8,7 @@
 
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
+use app\models\billing\Pricelist;
 use app\modules\nnp\forms\package\Form;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\Package;
@@ -86,7 +87,7 @@ if (!$package->isNewRecord) {
         <?php // Прайслист ?>
         <div class="col-sm-4" id="div-pricelist">
             <?= $form->field($package, 'pricelist_id')->widget(Select2::className(), [
-                'data' => \app\models\billing\Pricelist::getList($package->isNewRecord, $isWithNullAndNotNull = false, $type = 'client', $orig = true),
+                'data' => Pricelist::getList($package->isNewRecord, $isWithNullAndNotNull = false, $type = 'client', $orig = true),
             ]) ?>
         </div>
 

@@ -267,6 +267,9 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.pricelist-column,
+.package-type-column,
+.package-period-column,
 .number-status-column,
 .is-null-and-not-null-column,
 .did-group-column,

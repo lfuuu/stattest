@@ -6,8 +6,14 @@
  * @var PackageFilter $filterModel
  */
 
+use app\classes\grid\column\billing\PricelistColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\TariffColumn;
 use app\classes\grid\GridView;
+use app\modules\nnp\column\DestinationColumn;
+use app\modules\nnp\column\PackagePeriodColumn;
+use app\modules\nnp\column\PackageTypeColumn;
 use app\modules\nnp\filter\PackageFilter;
 use app\modules\nnp\models\Package;
 use kartik\grid\ActionColumn;
@@ -29,6 +35,41 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
+    ],
+
+    [
+        'attribute' => 'tariff_id',
+        'class' => TariffColumn::className(),
+    ],
+
+    [
+        'attribute' => 'period_id',
+        'class' => PackagePeriodColumn::className(),
+    ],
+
+    [
+        'attribute' => 'package_type_id',
+        'class' => PackageTypeColumn::className(),
+    ],
+
+    [
+        'attribute' => 'destination_id',
+        'class' => DestinationColumn::className(),
+    ],
+
+    [
+        'attribute' => 'pricelist_id',
+        'class' => PricelistColumn::className(),
+    ],
+
+    [
+        'attribute' => 'price',
+        'class' => IntegerRangeColumn::className(),
+    ],
+
+   [
+        'attribute' => 'minute',
+        'class' => IntegerRangeColumn::className(),
     ],
 
     [
