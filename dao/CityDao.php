@@ -21,17 +21,17 @@ class CityDao extends Singleton
      * @param bool $isWithEmpty
      * @param null $countryId
      * @param bool $isWithNullAndNotNull
-     * @param bool $isOnlyUse
+     * @param bool $isUsedOnly
      * @return array
      */
-    public function getList($isWithEmpty = false, $countryId = null, $isWithNullAndNotNull = false, $isOnlyUse = true)
+    public function getList($isWithEmpty = false, $countryId = null, $isWithNullAndNotNull = false, $isUsedOnly = true)
     {
         $query = City::find();
         if ($countryId) {
             $query->andWhere(['country_id' => $countryId]);
         }
 
-        if ($isOnlyUse) {
+        if ($isUsedOnly) {
             $query->andWhere(['in_use' => 1]);
         }
 
@@ -95,7 +95,7 @@ class CityDao extends Singleton
     }
 
     /**
-     * Обновляем список городов, доступнеых для использования в ЛК и улугах телефонии
+     * Обновляем список городов, доступных для использования в ЛК и услугах телефонии
      *
      * @throws \yii\db\Exception
      */

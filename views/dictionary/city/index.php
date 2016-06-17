@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\ConnectionPointColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\City;
 use app\models\filter\CityFilter;
@@ -51,7 +52,7 @@ $columns = [
     ],
     [
         'attribute' => 'in_use',
-        'class' => \app\classes\grid\column\universal\YesNoColumn::className(),
+        'class' => YesNoColumn::className(),
     ],
     [
         'class' => ActionColumn::className(),
