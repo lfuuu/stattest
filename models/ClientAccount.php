@@ -33,6 +33,7 @@ use yii\helpers\Url;
  * @property int $region
  * @property string $address_post
  * @property string $site_name
+ * @property string $timezone_name
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient

@@ -188,13 +188,13 @@ class UsageVoipEditForm extends UsageVoipForm
                 } else {
                     if (
                         $number->status != Number::STATUS_INSTOCK
-                        && $number->status != Number::STATUS_HOLD
-                        && !($number->status == Number::STATUS_RESERVED && $number->client_id == $this->clientAccount->id)
-                        && $number->status != Number::STATUS_ACTIVE //контроль переноса номера в статусе "активный" регулируется далее
+                        && $number->status != Number::STATUS_NOTACTIVE_HOLD
+                        && !($number->status == Number::STATUS_NOTACTIVE_RESERVED && $number->client_id == $this->clientAccount->id)
+                        && !in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]) //контроль переноса номера в статусе "активный" регулируется далее
                     ) {
                         $msg = 'Номер находится в статусе "' . Number::$statusList[$number->status] . '"';
 
-                        if ($number->status == Number::STATUS_RESERVED || $number->status == Number::STATUS_ACTIVE) {
+                        if ($number->status == Number::STATUS_NOTACTIVE_RESERVED || in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE])) {
                             $msg .= ', Л/С: ' . $number->client_id;
                         }
 
@@ -439,6 +439,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->saveChangeHistory($this->usage->oldAttributes, $this->usage->attributes, 'usage_voip');
 
             $this->usage->save();
+
+            Number::dao()->actualizeStatusByE164($this->usage->E164);
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -738,6 +740,8 @@ class UsageVoipEditForm extends UsageVoipForm
                     $this->tariff_group_local_mob_price, $this->tariff_group_russia_price,
                     $this->tariff_group_intern_price
                 );
+
+                Number::dao()->actualizeStatusByE164($tariffUsage->E164);
             }
         }
     }

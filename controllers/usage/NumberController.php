@@ -113,7 +113,7 @@ class NumberController extends BaseController
 
         if (!$statuses) {
             $statusList = Number::$statusList;
-            unset($statusList[Number::STATUS_HOLD]);
+            unset($statusList[Number::STATUS_NOTACTIVE_HOLD], $statusList[Number::STATUS_RELEASED]);
             $statuses = array_keys($statusList);
         }
 
@@ -162,7 +162,7 @@ class NumberController extends BaseController
                 $city->connection_point_id
                 &&
                 (
-                    in_array(Number::STATUS_HOLD, $statuses, true)
+                    in_array(Number::STATUS_NOTACTIVE_HOLD, $statuses, true)
                     ||
                     in_array(Number::STATUS_INSTOCK, $statuses, true)
                 )

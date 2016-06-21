@@ -1,21 +1,25 @@
 <?php
 
+use app\forms\usage\UsageVoipEditForm;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
 use app\models\UsageVoip;
-use app\models\LogTarif;
 use app\models\ClientAccount;
 
 $I = new _FuncTester($scenario);
 $I->wantTo('Test Number life cycle');
 
+$now = new \DateTime('now', new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_MOSCOW));
+
 $transaction = Yii::$app->db->beginTransaction();
 
+// создаем ЛС
 $clientAccount = createSingleClientAccount();
 $I->assertNotNull($clientAccount);
 
 $freeNumber =
     (new FreeNumberFilter)
+        ->setRegions([$clientAccount->region])
         ->getNumbers()
         ->randomOne();
 
@@ -26,7 +30,7 @@ $I->assertEquals($number->status, Number::STATUS_INSTOCK);
 // Резервируем номер
 Number::dao()->startReserve($number, $clientAccount);
 $number->refresh();
-$I->assertEquals($number->status, Number::STATUS_RESERVED);
+$I->assertEquals($number->status, Number::STATUS_NOTACTIVE_RESERVED);
 $I->assertEquals($number->client_id, $clientAccount->id);
 
 // Отмена резервирования номера
@@ -47,7 +51,7 @@ checkInStock($I, $number);
 // Снятие номера с продажи
 Number::dao()->startNotSell($number);
 $number->refresh();
-$I->assertEquals($number->status, Number::STATUS_NOTSELL);
+$I->assertEquals($number->status, Number::STATUS_NOTSALE);
 $I->assertEquals($number->client_id, 764);
 
 // Отмена снятия номера с продажи
@@ -55,100 +59,70 @@ Number::dao()->stopNotSell($number);
 $number->refresh();
 checkInStock($I, $number);
 
+// Работа с услугой
+
 // Проверка существования услуги с номером
-$now = new \DateTime('now', new \DateTimeZone('UTC'));
-$usageVoip = new UsageVoip([
-    'client' => $clientAccount->client,
-    'actual_from' => $now->format('Y-m-d'),
-    'actual_to' => $now->modify('+1 month')->format('Y-m-d'),
-    'E164' => $number->number,
-    'address' => 'test address'
-]);
-$I->assertTrue($usageVoip->save());
+
+$usage = createUsage($I, $clientAccount, $number, 531 /*обычный публичный тариф */);
+
+$I->assertNotNull($usage);
+$I->assertNotNull($usage->tariff);
+$I->assertNotEmpty($usage->tariff->name);
+$I->assertFalse($usage->tariff->isTested());
+
+
 Number::dao()->actualizeStatus($number);
 $number->refresh();
 
-$I->assertEquals($number->status, Number::STATUS_ACTIVE);
+$I->assertEquals($number->status, Number::STATUS_ACTIVE_COMMERCIAL);
 $I->assertEquals($number->client_id, $clientAccount->id);
-$I->assertEquals($number->usage_id, $usageVoip->id);
+$I->assertEquals($number->usage_id, $usage->id);
 
-// Проверка актуальности статуса номера
-$I->assertEquals($usageVoip->delete(), 1);
-Number::dao()->actualizeStatus($number);
+//выключаем
+$form = new UsageVoipEditForm();
+$form->initModel($usage->clientAccount, $usage);
+$form->connecting_date = $now->modify("-2 day")->format("Y-m-d");
+$form->disconnecting_date = $now->modify("-1 day")->format("Y-m-d");
+$form->edit();
+
 $number->refresh();
 checkHold($I, $number);
 
-// Проверка актуальности тарифного плана
-$now = new \DateTime('now', new \DateTimeZone('UTC'));
-$usageVoip = new UsageVoip([
-    'client' => $clientAccount->client,
-    'actual_from' => $now->format('Y-m-d'),
-    'actual_to' => $now->modify('+1 month')->format('Y-m-d'),
-    'E164' => $number->number,
-    'address' => 'test address'
-]);
-$I->assertTrue($usageVoip->save());
+$number->hold_to = $now->modify("-1 minute")->format(DateTime::ATOM);
+$I->assertTrue($number->save());
 
-$logTarif = new logTarif([
-    'service' => 'usage_voip',
-    'id_service' => $usageVoip->id,
-    'id_tarif' => 624,
-    'date_activation' => $now->format('Y-m-d')
-]);
-$I->assertTrue($logTarif->save());
-
-Number::dao()->actualizeStatus($number);
-$number->refresh();
-
-$I->assertEquals($number->status, Number::STATUS_ACTIVE);
-$I->assertEquals($number->client_id, $clientAccount->id);
-$I->assertEquals($number->usage_id, $usageVoip->id);
-
-$number->refresh();
-$I->assertEquals($number->status, Number::STATUS_ACTIVE);
-
-// Отмена активности услуги номера
-$dFrom = new \DateTime('now', new \DateTimeZone('UTC'));
-$dFrom->modify('-2 month');
-$dTo = new \DateTime('now', new \DateTimeZone('UTC'));
-$dTo->modify('-1 month');
-
-$usageVoip->actual_from = $dFrom->format('Y-m-d');
-$usageVoip->actual_to = $dTo->format('Y-m-d');
-
-$logTarif->date_activation = $dFrom->format('Y-m-d');
-$I->assertTrue($logTarif->save());
-$I->assertTrue($usageVoip->save()); // актуализация статуса через поведение
-
-$number->refresh();
-
-checkInStock($I, $number);
-
-$I->assertEquals($usageVoip->delete(), 1);
-$I->assertEquals($logTarif->delete(), 1);
-
-// Восстановление номера из отстойника
-$now = new \DateTime('now', new \DateTimeZone('UTC'));
-$m1 = new \DateTime('now', new \DateTimeZone('UTC'));
-$m1->modify('+1 month');
-
-$m2 = new \DateTime('now', new \DateTimeZone('UTC'));
-$m2->modify('-1 sec');
-
-$number->status = Number::STATUS_HOLD;
-$number->hold_from = $now->format('Y-m-d H:i:s');
-$number->hold_to = $m1->format('Y-m-d H:i:s');
-$number->save();
 \app\commands\NumberController::actionReleaseFromHold();
 
 $number->refresh();
-$I->assertEquals($number->status, Number::STATUS_HOLD);
 
-$number->hold_to = $m2->format('Y-m-d H:i:s');
-$number->save();
-app\commands\NumberController::actionReleaseFromHold();
-$number->refresh();
 checkInStock($I, $number);
+$I->assertEquals($usage->delete(), 1);
+
+$usage = createUsage($I, $clientAccount, $number, 624 /*тестовый тариф*/);
+
+$I->assertNotNull($usage);
+$I->assertNotNull($usage->tariff);
+$I->assertNotEmpty($usage->tariff->name);
+$I->assertTrue($usage->tariff->isTested());
+
+$number->refresh();
+
+$I->assertEquals($number->status, Number::STATUS_ACTIVE_TESTED);
+$I->assertEquals($number->client_id, $clientAccount->id);
+$I->assertEquals($number->usage_id, $usage->id);
+
+//выключаем
+$form = new UsageVoipEditForm();
+$form->initModel($usage->clientAccount, $usage);
+$form->connecting_date = $now->modify("-2 day")->format("Y-m-d");
+$form->disconnecting_date = $now->modify("-1 day")->format("Y-m-d");
+$form->edit();
+
+$number->refresh();
+
+checkInStock($I, $number);
+$I->assertEquals($usage->delete(), 1);
+
 
 $transaction->rollBack();
 
@@ -158,11 +132,13 @@ $transaction->rollBack();
  */
 function createSingleClientAccount()
 {
-    $client = new ClientAccount;
+    $client = new ClientAccount();
     $client->is_active = 0;
     $client->validate();
     $client->save();
     $client->client = 'id' . $client->id;
+    $client->timezone_name = \app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT;
+    $client->currency = \app\models\Currency::RUB;
     $client->save();
     return $client;
 }
@@ -173,7 +149,7 @@ function createSingleClientAccount()
  * @param _FuncTester $I
  * @param Number $number
  */
-function checkInStock($I, Number $number)
+function checkInStock($I, \app\models\Number $number)
 {
     $I->assertEquals($number->status, Number::STATUS_INSTOCK);
     $I->assertNull($number->client_id);
@@ -188,9 +164,9 @@ function checkInStock($I, Number $number)
  * @param _FuncTester $I
  * @param Number $number
  */
-function checkHold($I, Number $number)
+function checkHold($I, \app\models\Number $number)
 {
-    $I->assertEquals($number->status, Number::STATUS_HOLD);
+    $I->assertEquals($number->status, Number::STATUS_NOTACTIVE_HOLD);
     $I->assertNotNull($number->hold_from);
     $I->assertNotNull($number->hold_to);
 
@@ -203,4 +179,21 @@ function checkHold($I, Number $number)
     $diff = $dtHoldFrom->diff($dtHoldTo);
     $I->assertNotNull($diff);
     $I->assertEquals($diff->m, 6); // 6 month
+}
+
+function createUsage($I, ClientAccount $clientAccount, \app\models\Number $number, $tarifMainId)
+{
+    $form = new UsageVoipEditForm();
+    $form->scenario = 'add';
+    $form->timezone = $clientAccount->timezone_name;
+    $form->initModel($clientAccount);
+    $form->did = $number->number;
+    $form->tariff_main_id = $tarifMainId;
+    $form->prepareAdd();
+
+    $I->assertTrue($form->validate());
+    $I->assertTrue($form->add());
+
+    $usage = UsageVoip::findOne(['id' => $form->id]);
+    return $usage;
 }

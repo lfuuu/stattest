@@ -21,7 +21,7 @@ use yii\db\Expression;
 class NumberDao extends Singleton
 {
 
-    public function startReserve(Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
+    public function startReserve(\app\models\Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
     {
         Assert::isEqual($number->status, Number::STATUS_INSTOCK);
 
@@ -30,15 +30,15 @@ class NumberDao extends Singleton
         $number->client_id = $clientAccount ? $clientAccount->id : null;
         $number->reserve_from = (new DateTime('now', $utc))->format('Y-m-d H:i:s');
         $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format('Y-m-d H:i:s') : null;
-        $number->status = Number::STATUS_RESERVED;
+        $number->status = Number::STATUS_NOTACTIVE_RESERVED;
         $number->save();
 
         Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
     }
 
-    public function stopReserve(Number $number)
+    public function stopReserve(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_RESERVED);
+        Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_RESERVED);
 
         $number->reserve_from = null;
         $number->reserve_till = null;
@@ -47,27 +47,36 @@ class NumberDao extends Singleton
         Number::dao()->toInstock($number);
     }
 
-    public function startActiveStat(Number $number, UsageVoip $usage)
+    public function startActive(\app\models\Number $number, UsageVoip $usage)
     {
+        $newStatus = $usage->tariff->isTested() ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+
+        if ($newStatus == $number->status) {
+            return;
+        }
+
         $number->client_id = $usage->clientAccount->id;
         $number->usage_id = $usage->id;
         $number->reserve_from = null;
         $number->reserve_till = null;
         $number->hold_from = null;
         $number->hold_to = null;
-        $number->status = Number::STATUS_ACTIVE;
+        $number->status = $newStatus;
         $number->save();
 
-        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
+        Number::dao()->log($number, NumberLog::ACTION_ACTIVE, $newStatus == Number::STATUS_ACTIVE_TESTED ? NumberLog::ACTION_ADDITION_TESTED : NumberLog::ACTION_ADDITION_COMMERCIAL);
     }
 
-    public function stopActive(Number $number)
+    public function stopActive(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_ACTIVE);
+        if (!in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE])) {
+            return;
+        }
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
         // Если тариф тестовый, то выкладываем номер минуя отстойник.
+        /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
             ->andWhere(['<', 'actual_to', $now->format('Y-m-d')])
@@ -75,12 +84,7 @@ class NumberDao extends Singleton
             ->limit(1)
             ->one();
 
-        if (
-            $usage
-            && ($log = $usage->getLogTariff($usage->actual_from))
-            && ($currentTariff = TariffVoip::findOne($log->id_tarif))
-            && ($currentTariff->status == "test")
-        ) {
+        if ($usage && $usage->tariff->isTested()) {
             Number::dao()->toInstock($number);
             return;
         }
@@ -88,7 +92,7 @@ class NumberDao extends Singleton
         Number::dao()->startHold($number);
     }
 
-    public function toInstock(Number $number)
+    public function toInstock(\app\models\Number $number)
     {
         $number->client_id = null;
         $number->usage_id = null;
@@ -101,13 +105,26 @@ class NumberDao extends Singleton
         Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'N');
     }
 
-    public function startHold(Number $number, DateTime $holdTo = null)
+    public function toRelease(\app\models\Number $number)
     {
-        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_ACTIVE]);
+        $number->client_id = null;
+        $number->usage_id = null;
+        $number->hold_from = null;
+        $number->hold_to = null;
+
+        $number->status = Number::STATUS_RELEASED;
+        $number->save();
+
+        Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
+    }
+
+    public function startHold(\app\models\Number $number, DateTime $holdTo = null)
+    {
+        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_ACTIVE_COMMERCIAL, Number::STATUS_NOTACTIVE_HOLD]);
 
         $number->client_id = null;
         $number->usage_id = null;
-        $number->status = Number::STATUS_HOLD;
+        $number->status = Number::STATUS_NOTACTIVE_HOLD;
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
         $number->hold_from = $now->format(DateTime::ATOM);
@@ -124,9 +141,9 @@ class NumberDao extends Singleton
         Number::dao()->log($number, NumberLog::ACTION_HOLD);
     }
 
-    public function stopHold(Number $number)
+    public function stopHold(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_HOLD);
+        Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_HOLD);
 
         $number->status = Number::STATUS_INSTOCK;
         $number->hold_to = null;
@@ -135,20 +152,20 @@ class NumberDao extends Singleton
         Number::dao()->log($number, NumberLog::ACTION_UNHOLD);
     }
 
-    public function startNotSell(Number $number)
+    public function startNotSell(\app\models\Number $number)
     {
         Assert::isEqual($number->status, Number::STATUS_INSTOCK);
 
         $number->client_id = 764;
-        $number->status = Number::STATUS_NOTSELL;
+        $number->status = Number::STATUS_NOTSALE;
         $number->save();
 
         Number::dao()->log($number, NumberLog::ACTION_NOTSALE);
     }
 
-    public function stopNotSell(Number $number)
+    public function stopNotSell(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOTSELL);
+        Assert::isEqual($number->status, Number::STATUS_NOTSALE);
 
         $number->client_id = null;
         $number->status = Number::STATUS_INSTOCK;
@@ -157,7 +174,7 @@ class NumberDao extends Singleton
         Number::dao()->log($number, NumberLog::ACTION_SALE);
     }
 
-    public function log(Number $number, $action, $addition = null)
+    public function log(\app\models\Number $number, $action, $addition = null)
     {
         $row = new NumberLog();
         $row->e164 = $number->number;
@@ -176,22 +193,18 @@ class NumberDao extends Singleton
         }
     }
 
-    public function actualizeStatus(Number $number)
+    public function actualizeStatus(\app\models\Number $number)
     {
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
-            ->andWhere('actual_from<=DATE(now()) and actual_to >= DATE(now())')
+            ->actual()
             ->one();
 
         if ($usage) {
-            if ($number->status != Number::STATUS_ACTIVE) {
-                Number::dao()->startActiveStat($number, $usage);
-            }
+            Number::dao()->startActive($number, $usage);
         } else {
-            if ($number->status == Number::STATUS_ACTIVE) {
-                Number::dao()->stopActive($number);
-            }
+            Number::dao()->stopActive($number);
         }
     }
 

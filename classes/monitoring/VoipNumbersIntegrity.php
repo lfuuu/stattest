@@ -84,7 +84,7 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                 ->select(['vn.*', 'uv.id AS usage_id'])
                 ->from([Number::tableName() . ' vn'])
                 ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number')
-                ->where(['vn.status' => Number::STATUS_ACTIVE])
+                ->where(['vn.status' => Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]])
                 ->andWhere('uv.id IS NULL')
                 ->all()
         );
@@ -98,7 +98,7 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                 ->where(['uv.type_id' => 'number'])
                 ->andWhere(new Expression('uv.actual_from <= CAST(NOW() AS DATE)'))
                 ->andWhere(new Expression('uv.actual_to > CAST(NOW() AS DATE)'))
-                ->andWhere(['!=', 'vn.status', Number::STATUS_ACTIVE])
+                ->andWhere(['not in', 'vn.status', Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]])
                 ->all()
         );
 

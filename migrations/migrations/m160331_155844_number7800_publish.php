@@ -11,6 +11,6 @@ class m160331_155844_number7800_publish extends \app\classes\Migration
 
     public function down()
     {
-        $this->update(Number::tableName(), ['status' => Number::STATUS_NOTSELL], ['number_type' => 5]);
+        $this->update(Number::tableName(), ['status' => Number::STATUS_NOTSALE], ['number_type' => 5]);
     }
 }

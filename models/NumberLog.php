@@ -26,6 +26,10 @@ class NumberLog extends ActiveRecord
     const ACTION_HOLD = 'hold';
     const ACTION_UNHOLD = 'unhold';
 
+    const ACTION_ACTIVE = 'active';
+    const ACTION_ADDITION_TESTED = 'tested';
+    const ACTION_ADDITION_COMMERCIAL = 'commercial';
+
     const ACTION_INVERTRESERVED = 'invertReserved';
     //const ACTION_INVERTOUR = 'invertOur';
     //const ACTION_INVERTSPECIAL = 'invertSpecial';

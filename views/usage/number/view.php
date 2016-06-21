@@ -39,7 +39,7 @@ use app\helpers\DateTimeZoneHelper;
                     </th>
                 </tr>
                 <?php endif; ?>
-                <?php if ($number->status == Number::STATUS_HOLD): ?>
+                <?php if ($number->status == Number::STATUS_NOTACTIVE_HOLD): ?>
                 <tr>
                     <td>В остойнике до:</td>
                     <th>
@@ -62,8 +62,6 @@ use app\helpers\DateTimeZoneHelper;
                 if ($actionForm->client_account_id) {
                     $clientAccount = ClientAccount::findOne($actionForm->client_account_id);
                     echo Html::button('Зарезервировать за клиентом ' . $clientAccount->id . ' ' . $clientAccount->company, ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                } else {
-                    echo Html::button('Зарезервировать без указания клиента', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
                 }
 
                 echo "<br>".Html::button('Поместить в отстойник (6 месяцев)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('6')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -71,14 +69,16 @@ use app\helpers\DateTimeZoneHelper;
                 echo "<br>".Html::button('Поместить в отстойник (1 месяц)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('1')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
                 echo Html::button('Номер не продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+
+                echo "<br>" . Html::button('Высвободить номер', ['class' => 'btn btn-danger', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
             }
-            if ($number->status == Number::STATUS_RESERVED) {
+            if ($number->status == Number::STATUS_NOTACTIVE_RESERVED) {
                 echo Html::button('Снять с резерва', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_HOLD) {
+            if ($number->status == Number::STATUS_NOTACTIVE_HOLD) {
                 echo Html::button('Убрать из отстойника', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopHold')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
-            if ($number->status == Number::STATUS_NOTSELL) {
+            if ($number->status == Number::STATUS_NOTSALE) {
                 echo Html::button('Номер продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
 
@@ -103,8 +103,7 @@ use app\helpers\DateTimeZoneHelper;
                                     case NumberLog::ACTION_FIX:
                                         ?>
                                         <b>зафиксирован</b> за клиентом
-                                        <a style='text-decoration:none;font-weight:bold'
-                                           href='?module=clients&id=<?= $log['client_id'] ?>'><?= $log['client'] ?></a>
+                                        <?=Html::a($log['client'], ['/client/view', 'id' => $log['client']], ['style' => 'text-decoration:none;font-weight:bold']) ?>
                                         <?php break;
                                     case NumberLog::ACTION_UNFIX:
                                         ?>
@@ -127,11 +126,33 @@ use app\helpers\DateTimeZoneHelper;
                                             ?><b>Снят резерв.</b><?php
                                         }
                                         if ($log['client_id']) {
-                                            ?>ЛС: <a href='/client/view?id=<?= $log['client_id'] ?>'
+                                            ?>, Л/С: <a href='/client/view?id=<?= $log['client_id'] ?>'
                                                      style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
                                             <?php
                                         };
                                         break;
+                                    case NumberLog::ACTION_ACTIVE:
+                                        if ($log['addition'] == NumberLog::ACTION_ADDITION_TESTED) {
+                                            ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_TESTED] ?></b><?php
+                                        } else
+                                        if ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) {
+                                            ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
+                                        } else {
+                                            ?><b>Используется</b><?php
+                                        }
+                                        if ($log['client_id']) {
+                                            ?>, Л/С: <a href='/client/view?id=<?= $log['client_id'] ?>'
+                                                     style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
+                                            <?php
+                                        };
+
+                                        break;
+                                    case NumberLog::ACTION_CREATE:
+                                        if ($log['addition'] == "N") {
+                                            ?><b>Номер высвобожден</b><?
+                                        } else {
+                                            ?><b>Номер создан</b><?
+                                        }
                                         ?>
                                     <?php } ?>
                             </td>

@@ -27,7 +27,8 @@ class NumberForm extends Form
                     'startHold',
                     'stopHold',
                     'startNotSell',
-                    'stopNotSell'
+                    'stopNotSell',
+                    'toRelease'
                 ]
             ],
             [['hold_month'], 'default', 'value' => 6],
@@ -58,6 +59,8 @@ class NumberForm extends Form
             Number::dao()->startNotSell($number);
         } elseif ($this->scenario == 'stopNotSell') {
             Number::dao()->stopNotSell($number);
+        } elseif ($this->scenario == 'toRelease') {
+            Number::dao()->toRelease($number);
         }
 
         return true;

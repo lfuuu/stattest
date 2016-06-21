@@ -164,8 +164,8 @@ echo Breadcrumbs::widget([
                                 'value' => 'Залить номера'
                             ])
                             : '')
-                        . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSELL]) && $statusInfo[Number::STATUS_NOTSELL]?
-                            ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSELL] . ' шт.)', [
+                        . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSALE]) && $statusInfo[Number::STATUS_NOTSALE]?
+                            ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSALE] . ' шт.)', [
                                 'class' => 'btn btn-warning',
                                 'name' => 'to-sale',
                                 'value' => 'Передать в продажу номера'

@@ -2,7 +2,6 @@
 namespace app\models;
 
 use app\dao\NumberDao;
-use app\models\light_models\CurrencyLight;
 use app\models\light_models\NumberPriceLight;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -44,19 +43,30 @@ use yii\helpers\Url;
  */
 class Number extends ActiveRecord
 {
-
+    const STATUS_NOTSALE = 'notsale';
     const STATUS_INSTOCK = 'instock';
-    const STATUS_HOLD = 'hold';
-    const STATUS_ACTIVE = 'active';
-    const STATUS_RESERVED = 'reserved';
-    const STATUS_NOTSELL = 'notsell';
+    const STATUS_ACTIVE_TESTED = 'active_tested';
+    const STATUS_ACTIVE_COMMERCIAL = 'active_commercial';
+    const STATUS_NOTACTIVE_RESERVED = 'notactive_reserved';
+    const STATUS_NOTACTIVE_HOLD = 'notactive_hold';
+    const STATUS_RELEASED = 'released';
+
+    const STATUS_GROUP_ACTIVE = 'active';
+    const STATUS_GROUP_NOTACTIVE = 'notactive';
 
     public static $statusList = [
-        self::STATUS_NOTSELL => 'Не продается',
+        self::STATUS_NOTSALE => 'Не продается',
         self::STATUS_INSTOCK => 'Свободен',
-        self::STATUS_RESERVED => 'В резерве',
-        self::STATUS_ACTIVE => 'Используется',
-        self::STATUS_HOLD => 'В отстойнике',
+        self::STATUS_ACTIVE_TESTED => 'Используется. Тестируется.',
+        self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
+        self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
+        self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
+        self::STATUS_RELEASED => 'Высвобожден',
+    ];
+
+    public static $statusGroup = [
+        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
+        self::STATUS_GROUP_NOTACTIVE => [self::STATUS_NOTACTIVE_RESERVED, self::STATUS_NOTACTIVE_HOLD],
     ];
 
     protected $callsCount = null;
@@ -102,6 +112,7 @@ class Number extends ActiveRecord
     {
         return NumberDao::me();
     }
+
 
     /**
      * @return \yii\db\ActiveQuery
@@ -216,6 +227,7 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @param $id
      * @return string
      */
     public static function getUrlById($id)

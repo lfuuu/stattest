@@ -5,6 +5,7 @@ use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\DidGroup;
 use app\models\Number;
+use app\models\NumberLog;
 use app\models\voip\Registry;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
@@ -120,6 +121,8 @@ class VoipRegistryDao extends Singleton
             throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
         }
 
+        $transaction = \Yii::$app->getDb()->beginTransaction();
+
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
@@ -127,7 +130,7 @@ class VoipRegistryDao extends Singleton
         $number->region = $registry->city->connection_point_id;
         $number->number_type = $registry->number_type_id;
         $number->city_id = $registry->city_id;
-        $number->status = Number::STATUS_NOTSELL;
+        $number->status = Number::STATUS_NOTSALE;
         $number->edit_user_id = \Yii::$app->user->identity->id;
         $number->operator_account_id = $registry->account_id;
         $number->country_code = $registry->city->country->code;
@@ -135,6 +138,8 @@ class VoipRegistryDao extends Singleton
 
         $number->save();
 
+        Number::dao()->log($number, NumberLog::ACTION_CREATE, "Y");
+        $transaction->commit();
     }
 
     public function getStatusInfo(Registry $registry)
@@ -154,13 +159,16 @@ class VoipRegistryDao extends Singleton
 
     public function toSale(Registry $registry)
     {
-        Number::updateAll(['status' => Number::STATUS_INSTOCK],
-            [
+        foreach(Number::find()->where([
                 'AND', ['city_id' => $registry->city_id],
                 ['between', 'number', $registry->number_from, $registry->number_to],
-                ['status' => Number::STATUS_NOTSELL]
-            ]
-        );
+                ['status' => Number::STATUS_NOTSALE]
+            ])->all() as $number) {
+            \Yii::$app->getDb()->transaction(function($db) use ($number) {
+                $number->status = Number::STATUS_INSTOCK;
+                $number->save();
+                Number::dao()->log($number, NumberLog::ACTION_SALE, "Y");
+            });
+        }
     }
-
 }

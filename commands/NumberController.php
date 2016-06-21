@@ -15,7 +15,7 @@ class NumberController extends Controller
     {
         $numbers =
             Number::find()
-                ->andWhere(['status' => Number::STATUS_HOLD])
+                ->andWhere(['status' => Number::STATUS_NOTACTIVE_HOLD])
                 ->andWhere('hold_to < NOW()')
                 ->all();
         /** @var Number[] $numbers */

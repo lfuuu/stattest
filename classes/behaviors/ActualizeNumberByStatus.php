@@ -20,6 +20,8 @@ class ActualizeNumberByStatus extends Behavior
 
     public function actualizeNumberByStatus($event)
     {
-        Number::dao()->actualizeStatusByE164($event->sender->E164);
+        if ($event->sender->tariff) {
+            Number::dao()->actualizeStatusByE164($event->sender->E164);
+        }
     }
 }

@@ -96,7 +96,7 @@ class UsageController extends Controller
             $tarif = $usage->tariff;
             $account = $usage->clientAccount;
 
-            if (!$tarif || $tarif->status == "test") // тестовый тариф, или без тарифа вообще
+            if (!$tarif || $tarif->isTested()) // тестовый тариф, или без тарифа вообще
             {
                 if ($usage->actual_to != $now->format("Y-m-d")) // не выключенные сегодня
                 {

@@ -21,7 +21,6 @@ use app\classes\behaviors\UsageVoipActualToDependencyPackage;
 use yii\helpers\Url;
 
 /**
- * @property string tarif
  * @property int id
  * @property int region
  * @property string actual_from
@@ -44,6 +43,7 @@ use yii\helpers\Url;
  * @property int prev_usage_id
  * @property int next_usage_id
  *
+ * @property TariffVoip tariff
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
  * @property UsageVoipPackage $packages

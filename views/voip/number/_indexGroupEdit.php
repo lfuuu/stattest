@@ -80,7 +80,7 @@ $viewParams = [
         $("#number-status")
             .on("change", function (e, item) {
                 var clientAccountId = '';
-                if ($(this).val() == '<?= \app\models\Number::STATUS_RESERVED ?>') {
+                if ($(this).val() == '<?= \app\models\Number::STATUS_NOTACTIVE_RESERVED ?>') {
                     clientAccountId = <?= $currentClientAccountId ?>;
                 } else {
                     clientAccountId = <?= GetListTrait::$isNull ?>;
