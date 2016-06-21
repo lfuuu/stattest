@@ -141,8 +141,9 @@ class PricelistController extends BaseController
         $pricelist = Pricelist::findOne($pricelistId);
         Assert::isObject($pricelist);
 
-        if (!$_FILES['upfile'] && $_FILES['upfile']['error']) {
-            throw new Exception('Файл не был загружен');
+        if (!isset($_FILES['upfile']) || (int)$_FILES['upfile']['error']) {
+            Yii::$app->session->addFlash('error', 'Файл не был загружен');
+            return $this->redirect(['/voip/pricelist/files', 'pricelistId' => $pricelistId]);
         }
 
         $parser = new UniversalPricelistLoader();
