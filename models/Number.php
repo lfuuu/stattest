@@ -61,7 +61,7 @@ class Number extends ActiveRecord
         self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
-        self::STATUS_RELEASED => 'Высвобожден',
+        self::STATUS_RELEASED => 'Откреплен',
     ];
 
     public static $statusGroup = [
