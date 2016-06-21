@@ -24,12 +24,14 @@ class NumberType extends ActiveRecord
     const ID_NON_GEO_DID = 2;
     const ID_INTERNATIONAL_DID = 3;
     const ID_INTERNAL = 4;
-    const ID_EXTERNAL = 5;
+    const ID_EXTERNAL__NOT_USED__ = 5;
+    const ID_7800 = 8;
 
     const DEFAULT_HOLD = '6 month';
 
     private static $holdList = [
-        self::ID_EXTERNAL => '1 day'
+        self::ID_EXTERNAL__NOT_USED__ => '1 day',
+        self::ID_7800 => '1 day',
     ];
 
     public static function tableName()

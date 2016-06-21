@@ -229,7 +229,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => null,
         'ndc' => 800,
-        'number_type' => 5,
+        'number_type' => 8,
         'number_cut' => '01',
     ],
     [
@@ -240,7 +240,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => null,
         'ndc' => 800,
-        'number_type' => 5,
+        'number_type' => 8,
         'number_cut' => '02',
     ],
 ];

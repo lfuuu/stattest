@@ -33,7 +33,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
             [NumberType::ID_NON_GEO_DID, 'Национальный негеографический'],
             [NumberType::ID_INTERNATIONAL_DID, 'Международный'],
             [NumberType::ID_INTERNAL, 'Внутренний'],
-            [NumberType::ID_EXTERNAL, 'Внешний'],
+            [NumberType::ID_EXTERNAL__NOT_USED__, 'Внешний'],
         ]);
     }
 
@@ -73,7 +73,7 @@ class m160331_173500_create_voip_number_type extends \app\classes\Migration
             [NumberType::ID_INTERNAL, Country::HUNGARY],
             [NumberType::ID_INTERNAL, Country::GERMANY],
 
-            [NumberType::ID_EXTERNAL, Country::RUSSIA],
+            [NumberType::ID_EXTERNAL__NOT_USED__, Country::RUSSIA],
         ]);
     }
 

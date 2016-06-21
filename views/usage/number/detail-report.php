@@ -38,10 +38,6 @@ $this->registerJsFile('@web/js/behaviors/usage-number-detail-report.js', ['depen
                         $subList = $didGroupList;
                         $subSelect = $didGroups;
                         $name = 'didGroups';
-                    } elseif ($numberTypeId == NumberType::ID_EXTERNAL) {
-                        $subList = $externalGroupList;
-                        $subSelect = $externalGroups;
-                        $name = 'externalGroups';
                     }
                     foreach ($subList as $subId => $subName): ?>
                         <label style="padding-left: 15px;"><input type="checkbox" class="subList" name="<?= $name ?>[]"

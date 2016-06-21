@@ -47,7 +47,7 @@ class FreeNumberFilter extends Number
      */
     public function getNumbers7800()
     {
-        $this->type = NumberType::ID_EXTERNAL;
+        $this->type = NumberType::ID_7800;
         return $this;
     }
 
@@ -72,7 +72,7 @@ class FreeNumberFilter extends Number
                 '));
                 break;
             }
-            case NumberType::ID_EXTERNAL: {
+            case NumberType::ID_7800: {
                 $this->query->andWhere([parent::tableName() . '.ndc' => 800]);
             }
         }

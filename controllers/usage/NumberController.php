@@ -88,7 +88,6 @@ class NumberController extends BaseController
         $cityId = Yii::$app->request->post('cityId', Yii::$app->user->identity->city_id);
         $didGroups = Yii::$app->request->post('didGroups');
         $numberType = Yii::$app->request->post('numberType');
-        $externalGroups = Yii::$app->request->post('externalGroups');
         $statuses = Yii::$app->request->post('statuses');
         $prefix = Yii::$app->request->post('prefix');
         $viewTypeFile = Yii::$app->request->post('view-minimal');
@@ -97,7 +96,6 @@ class NumberController extends BaseController
         $cityList = City::dao()->getList(true);
         $didGroupList = DidGroup::dao()->getList(false, $cityId);
         $numberTypeList = NumberType::getList();
-        $externalGroupList = ['7800' => 'Номера 7800']; //TODO: перевести на справочник внешних груп
 
         if (!$numberType) {
             $numberType = NumberType::ID_INTERNAL;
@@ -105,10 +103,6 @@ class NumberController extends BaseController
 
         if ($numberType == NumberType::ID_INTERNAL && !$didGroups) {
             $didGroups = array_keys($didGroupList);
-        }
-
-        if ($numberType == NumberType::ID_EXTERNAL && !$externalGroups) {
-            $externalGroups = array_keys($externalGroupList);
         }
 
         if (!$statuses) {
@@ -198,13 +192,11 @@ class NumberController extends BaseController
             'cityId' => $cityId,
             'numberType' => $numberType,
             'didGroups' => $didGroups,
-            'externalGroups' => $externalGroups,
             'statuses' => $statuses,
             'prefix' => $prefix,
             'cityList' => $cityList,
             'numberTypeList' => $numberTypeList,
             'didGroupList' => $didGroupList,
-            'externalGroupList' => $externalGroupList,
             'statusList' => Number::$statusList,
             'numbers' => $numbers,
             'minCalls' => 10,
