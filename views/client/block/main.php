@@ -149,20 +149,37 @@ use app\models\ClientContract;
                                                 </abbr>
                                             </span>
                                             <span class="col-sm-2 text-right" style="text-align: right;">
-                                                <abbr
-                                                    title="Суточный расход" class="text-nowrap"
-                                                    style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
-                                                >
-                                                    <?= abs($contractAccount->billingCounters->daySummary); ?>
-                                                    <?= $contractAccount->currency; ?>
-                                                </abbr>
-                                                <br />
-                                                <abbr title="Дневной лимит" class="text-nowrap">
-                                                    <?php
-                                                    echo ($contractAccount->voip_is_day_calc === 1 ? 'Авто лим. ' : 'Сут.лим. ') . ': ';
-                                                    echo $contractAccount->voip_credit_limit_day;
-                                                    ?>
-                                                </abbr>
+                                                <?php if ($contract->business_id == \app\models\Business::OPERATOR) : ?>
+                                                    <abbr
+                                                        title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
+                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                    >
+                                                        Вх: <?= abs($contractAccount->interopCounter->income_sum); ?> <?= $contractAccount->currency; ?>
+                                                    </abbr>
+                                                    <br />
+                                                    <abbr
+                                                        title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС" class="text-nowrap"
+                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                    >
+                                                        Исх: <?= abs($contractAccount->interopCounter->outcome_sum); ?> <?= $contractAccount->currency; ?>
+                                                    </abbr>
+
+                                                    <?php else:  ?>
+                                                    <abbr
+                                                        title="Суточный расход" class="text-nowrap"
+                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                    >
+                                                        <?= abs($contractAccount->billingCounters->daySummary); ?>
+                                                        <?= $contractAccount->currency; ?>
+                                                    </abbr>
+                                                    <br />
+                                                    <abbr title="Дневной лимит" class="text-nowrap">
+                                                        <?php
+                                                        echo ($contractAccount->voip_is_day_calc === 1 ? 'Авто лим. ' : 'Сут.лим. ') . ': ';
+                                                        echo $contractAccount->voip_credit_limit_day;
+                                                        ?>
+                                                    </abbr>
+                                                <?php endif; ?>
                                             </span>
                                             <div class="btn-group" style="float: right; padding-top: 12px;">
                                                 <?php if($contractAccount->hasVoip): ?>

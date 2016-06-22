@@ -726,6 +726,20 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInteropCounter()
+    {
+        $counter = CounterInteropTrunk::findOne(['account_id' => $this->id]);
+        if (!$counter) {
+            $counter = new CounterInteropTrunk();
+            $counter->account_id = $this->id;
+        }
+
+        return $counter;
+    }
+
+    /**
      * @return string
      */
     public function getUrl()
