@@ -128,6 +128,7 @@ class Navigation
                 ->addItem('Правила на события', ['/important_events/rules'])
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
+                ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
         );
 
         $this->addBlockUniversalUsage();

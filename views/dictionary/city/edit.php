@@ -8,6 +8,7 @@
 
 use app\classes\dictionary\forms\CityForm;
 use app\models\Country;
+use app\models\CityBillingMethod;
 use app\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -49,22 +50,17 @@ if (!$city->isNewRecord) {
     <div class="row">
 
         <?php // ID ?>
-        <div class="col-sm-1">
+        <div class="col-sm-2">
             <?= $form->field($city, 'id')->textInput() ?>
         </div>
 
         <?php // Название ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <?= $form->field($city, 'name')->textInput() ?>
         </div>
 
-        <?php // Формат номеров ?>
-        <div class="col-sm-3">
-            <?= $form->field($city, 'voip_number_format')->textInput() ?>
-        </div>
-
         <?php // Страна ?>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <?= $form->field($city, 'country_id')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($city->isNewRecord),
@@ -76,6 +72,22 @@ if (!$city->isNewRecord) {
             <?= $form->field($city, 'connection_point_id')
                 ->widget(Select2::className(), [
                     'data' => Region::dao()->getList($city->isNewRecord),
+                ]) ?>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <?php // Формат номеров ?>
+        <div class="col-sm-4">
+            <?= $form->field($city, 'voip_number_format')->textInput() ?>
+        </div>
+
+        <?php // Метод биллингования ?>
+        <div class="col-sm-2">
+            <?= $form->field($city, 'billing_method_id')
+                ->widget(Select2::className(), [
+                    'data' => CityBillingMethod::getList($isWithEmpty = true),
                 ]) ?>
         </div>
 

@@ -6,6 +6,7 @@
  * @var CityFilter $filterModel
  */
 
+use app\classes\grid\column\universal\CityBillingMethodColumn;
 use app\classes\grid\column\universal\ConnectionPointColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
@@ -49,6 +50,10 @@ $columns = [
     [
         'attribute' => 'voip_number_format',
         'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'billing_method_id',
+        'class' => CityBillingMethodColumn::className(),
     ],
     [
         'attribute' => 'in_use',

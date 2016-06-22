@@ -32,6 +32,7 @@ class City extends ActiveRecord
             'connection_point_id' => 'Точка подключения',
             'voip_number_format' => 'Формат номеров',
             'in_use' => 'Используется',
+            'billing_method_id' => 'Метод биллингования',
         ];
     }
 
@@ -50,7 +51,7 @@ class City extends ActiveRecord
     {
         return [
             [['name', 'voip_number_format'], 'string'],
-            [['id', 'country_id', 'connection_point_id'], 'integer'],
+            [['id', 'country_id', 'connection_point_id', 'billing_method_id'], 'integer'],
             [['name', 'voip_number_format', 'country_id', 'connection_point_id', 'id'], 'required'],
         ];
     }
@@ -79,6 +80,13 @@ class City extends ActiveRecord
         return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBillingMethod()
+    {
+        return $this->hasOne(CityBillingMethod::className(), ['id' => 'billing_method_id']);
+    }
 
     /**
      * @return string

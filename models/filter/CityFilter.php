@@ -16,6 +16,7 @@ class CityFilter extends City
     public $connection_point_id = '';
     public $voip_number_format = '';
     public $in_use = '';
+    public $billing_method_id = '';
 
     public function rules()
     {
@@ -26,6 +27,7 @@ class CityFilter extends City
             [['connection_point_id'], 'integer'],
             [['voip_number_format'], 'string'],
             [['in_use'], 'integer'],
+            [['billing_method_id'], 'integer'],
         ];
     }
 
@@ -47,6 +49,7 @@ class CityFilter extends City
         $this->connection_point_id !== '' && $query->andWhere(['connection_point_id' => $this->connection_point_id]);
         $this->voip_number_format !== '' && $query->andWhere(['LIKE', 'voip_number_format', $this->voip_number_format]);
         $this->in_use !== '' && $query->andWhere(['in_use' => $this->in_use]);
+        $this->billing_method_id !== '' && $query->andWhere(['billing_method_id' => $this->billing_method_id]);
 
         return $dataProvider;
     }
