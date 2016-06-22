@@ -224,7 +224,9 @@ echo Breadcrumbs::widget([
             'pageSize' => 50,
         ],
     ]);
+
     echo \app\classes\grid\GridView::widget([
+        'panelHeadingTemplate' => '<div class="pull-left">{summary}</div>',
         'dataProvider' => $provider,
         'rowOptions' => function ($model) {
             return ['class' => $model['filling'] == "pass" ? 'warning' : 'success'];
