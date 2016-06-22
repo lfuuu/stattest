@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property int $old_prefix
  * @property Country $country
  * @property City $city
+ * @property DidGroup $didGroup
  * @method static TariffNumber findOne($condition)
  * @property
  */
@@ -65,6 +66,14 @@ class TariffNumber extends ActiveRecord
     public function getCurrency()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDidGroup()
+    {
+        return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
     }
 
 }

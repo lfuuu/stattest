@@ -5,6 +5,7 @@ use app\models\BillDocument;
 use app\models\Country;
 use app\classes\Assert;
 use app\classes\Language;
+use app\models\DidGroup;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
 use app\models\City;
@@ -460,6 +461,7 @@ class ApiLk
                 'name' => $tariff->name,
                 'activation_fee' => (float)$tariff->activation_fee,
                 'currency_id' => $tariff->currency_id,
+                'promo_info' => $tariff->city->country_id == Country::RUSSIA && $tariff->didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
             ];
         }
 
