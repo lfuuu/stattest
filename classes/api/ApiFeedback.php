@@ -32,7 +32,7 @@ class ApiFeedback
     {
         $data = [
             'account_id' => $clientId,
-            'chat_id' => $chatId,
+            'stat_product_id' => $chatId,
             'name' => $chatName ?: ($chatId ? 'Чат #' . $chatId : '')
         ];
 
@@ -41,17 +41,12 @@ class ApiFeedback
 
     public static function removeChat($clientId, $chatId)
     {
-        //TODO реализовать когда feedback/chat::remove() будет доработан
-        return true;
-
-        /*
         $data = [
             'account_id' => $clientId,
-            'chat_id' => $chatId
+            'stat_product_id' => $chatId
         ];
 
         return self::exec('removeChat', $data);
-        */
     }
 
     public static function getChatList($clientId)
