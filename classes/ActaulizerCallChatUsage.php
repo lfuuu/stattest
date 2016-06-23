@@ -49,7 +49,6 @@ class ActaulizerCallChatUsage extends Singleton
             $diff['add'][] = $actual[$l];
         }
 
-
         foreach (array_diff(array_keys($saved), array_keys($actual)) as $l) {
             if (!isset($diff['del'])) {
                 $diff['del'] = [];
@@ -57,6 +56,22 @@ class ActaulizerCallChatUsage extends Singleton
             $diff['del'][] = $saved[$l];
         }
 
+        foreach ($actual as $usageId => $usage) {
+            if (isset($saved[$usageId])) {
+                if (
+                    $saved[$usageId]['tarif_id'] != $usage['tarif_id']
+                        ||
+                    $saved[$usageId]['comment'] != $usage['comment']
+                ) {
+                    $diff['change'][] = [
+                        'usage_id' => $usageId,
+                        'client_id' => $usage['client_id'],
+                        'tarif_id' => $usage['tarif_id'],
+                        'comment' => $usage['comment'],
+                    ];
+                }
+            }
+        }
 
         return $diff;
     }
@@ -66,6 +81,12 @@ class ActaulizerCallChatUsage extends Singleton
         if (isset($diff['add'])) {
             foreach ($diff['add'] as $row) {
                 Event::go('call_chat__add', $row);
+            }
+        }
+
+        if (isset($diff['change'])) {
+            foreach ($diff['change'] as $row) {
+                Event::go('call_chat__update', $row);
             }
         }
 
@@ -84,6 +105,12 @@ class ActaulizerCallChatUsage extends Singleton
             }
         }
 
+        if (isset($diff['change'])) {
+            foreach ($diff['change'] as $row) {
+                $this->applyUpdate($row);
+            }
+        }
+
         if (isset($diff['del'])) {
             foreach ($diff['del'] as $row) {
                 $this->applyDel($row);
@@ -95,16 +122,38 @@ class ActaulizerCallChatUsage extends Singleton
     {
         $transaction = ActualCallChat::getDb()->beginTransaction();
         try {
-
             $callChatRow = new ActualCallChat();
             $callChatRow->client_id = $row['client_id'];
             $callChatRow->usage_id = $row['usage_id'];
             $callChatRow->tarif_id = $row['tarif_id'];
+            $callChatRow->comment = $row['comment'];
             $callChatRow->save();
 
             $this->sendAddEvent($callChatRow);
             $this->checkProductToAdd($callChatRow);
             $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+            throw $e;
+        }
+    }
+
+    private function applyUpdate($row)
+    {
+        $transaction = ActualCallChat::getDb()->beginTransaction();
+        try {
+            $callChatRow = ActualCallChat::findOne([
+                'usage_id' => $row['usage_id'],
+                'client_id' => $row['client_id'],
+            ]);
+
+            if (!is_null($callChatRow)) {
+                $callChatRow->comment = $row['comment'];
+                $callChatRow->save();
+
+                $this->sendUpdateEvent($callChatRow);
+                $transaction->commit();
+            }
         } catch (\Exception $e) {
             $transaction->rollback();
             throw $e;
@@ -139,6 +188,20 @@ class ActaulizerCallChatUsage extends Singleton
         if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
             try {
                 return ApiFeedback::createChat($callChatRow->client_id, $usage->id, $usage->comment);
+            } catch (InvalidConfigException $e) {
+                return true;
+            } catch (Exception $e) {
+                throw $e;
+            }
+        }
+        return true;
+    }
+
+    private function sendUpdateEvent(ActualCallChat $callChatRow)
+    {
+        if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
+            try {
+                return ApiFeedback::updateChat($callChatRow->client_id, $usage->id, $usage->comment);
             } catch (InvalidConfigException $e) {
                 return true;
             } catch (Exception $e) {

@@ -21,7 +21,8 @@ class ActualCallChatDao extends Singleton
             ->select([
                 'usage_id' => 'u.id',
                 'client_id' => 'c.id',
-                'tarif_id' => 'u.tarif_id'
+                'tarif_id' => 'u.tarif_id',
+                'comment' => 'u.comment',
             ])
             ->from(['u' => UsageCallChat::tableName()])
             ->innerJoin(ClientAccount::tableName() . ' c', '`c`.`client` = `u`.`client`')

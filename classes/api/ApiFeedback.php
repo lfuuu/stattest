@@ -39,6 +39,17 @@ class ApiFeedback
         return self::exec('createChat', $data);
     }
 
+    public static function updateChat($clientId, $chatId, $chatName = '')
+    {
+        $data = [
+            'account_id' => $clientId,
+            'stat_product_id' => $chatId,
+            'name' => $chatName ?: ($chatId ? 'Чат #' . $chatId : '')
+        ];
+
+        return self::exec('updateChat', $data);
+    }
+
     public static function removeChat($clientId, $chatId)
     {
         $data = [
@@ -65,7 +76,7 @@ class ApiFeedback
         }
 
         if (!($apiKey = self::getApiKey())) {
-            throw new \InvalidConfigException("FEEDBACK_API_KEY now set");
+            throw new InvalidConfigException('FEEDBACK_API_KEY now set');
         }
 
         if (is_array($data)) {

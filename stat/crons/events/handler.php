@@ -212,11 +212,11 @@ function do_events()
                         break;
                 }
 
-                //события услги звонок_чат
+                //события услуги звонок_чат
                 if (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']) {
                     switch ($event->event) {
-
                         case 'call_chat__add':
+                        case 'call_chat__update':
                         case 'call_chat__del':
                             ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
                             break;
