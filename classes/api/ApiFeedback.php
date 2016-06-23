@@ -102,7 +102,11 @@ class ApiFeedback
                 }
             }
 
-            throw new \HttpResponseException($msg, $code);
+            if (!is_numeric($code)) { //продукт "feedback" иногда возвращает не числовой код ошибки, а какой-то мнемонический код (etc 'not_found'...).
+                $code = 500;
+            }
+
+            throw new \Exception($msg, $code);
         }
 
         return $result;
