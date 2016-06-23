@@ -9,6 +9,7 @@ use app\forms\usage\UsageVoipEditForm;
 use app\forms\usage\UsageVoipEditPackageForm;
 use app\models\ClientAccount;
 use app\models\LogTarif;
+use app\models\UsageTrunk;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
 use app\models\billing\StatPackage;
@@ -44,6 +45,13 @@ class VoipController extends BaseController
     public function actionAdd($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
+
+        Assert::isObject($clientAccount);
+
+        if (UsageTrunk::dao()->hasService($clientAccount)) {
+            return $this->render('//error', ['error' => 'Услуга номера не совместима с данным ЛС']);
+        }
+
 
         $model = new UsageVoipEditForm(['no_of_lines' => 1, 'city_id' => Yii::$app->user->identity->city_id]);
         $model->scenario = Yii::$app->request->post('scenario', 'default');

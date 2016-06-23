@@ -1,9 +1,11 @@
 <?php
 namespace app\controllers\usage;
 
+use app\classes\Assert;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\models\UsageTrunkSettings;
+use app\models\UsageVoip;
 use Yii;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkEditForm;
@@ -31,8 +33,13 @@ class TrunkController extends BaseController
 
     public function actionAdd($clientAccountId)
     {
-
         $clientAccount = ClientAccount::findOne($clientAccountId);
+
+        Assert::isObject($clientAccount);
+
+        if (UsageVoip::dao()->hasService($clientAccount)) {
+            return $this->render('//error', ['error' => 'Транк не совместим с данным ЛС']);
+        }
 
         $model = new UsageTrunkEditForm();
         $model->orig_min_payment = 0;

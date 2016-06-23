@@ -22,4 +22,8 @@ class TrunkServiceDao extends Singleton implements ServiceDao
                 ->all();
     }
 
+    public function hasService(ClientAccount $client)
+    {
+        return UsageTrunk::find()->where(['client_account_id' => $client->id])->count() > 0;
+    }
 }

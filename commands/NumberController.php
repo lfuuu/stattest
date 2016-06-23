@@ -56,20 +56,21 @@ class NumberController extends Controller
 
     public function actionPreloadDetailReport()
     {
-        echo "\n" . date("r") . ": start";
+        echo PHP_EOL . date("r") . ": start";
         if (date("N") > 5) {
-            echo "\n" . date("r") . ": non working day";
+            echo PHP_EOL . date("r") . ": non working day";
         } else {
             foreach (Region::find()->all() as $region) {
-                echo "\n" . date("r") . ": region " . $region->id;
+                echo PHP_EOL . date("r") . ": region " . $region->id;
                 Number::dao()->getCallsWithoutUsages($region->id);
             }
         }
-        echo "\n" . date("r") . ": end";
+        echo PHP_EOL . date("r") . ": end";
     }
 
     public function actionUpdateInteropCounter()
     {
+        echo PHP_EOL . PHP_EOL . date("r");
         $saved = CounterInteropTrunk::find()->indexBy('account_id')->asArray()->all();
 
         $loaded = ArrayHelper::index(\Yii::$app->dbPg->createCommand("
@@ -121,15 +122,18 @@ class NumberController extends Controller
 
             /** @var $db Connection */
             if ($addRows) {
+                echo PHP_EOL . "add: [" . var_export($addRows, true) . "]";
                 $db->createCommand()->batchInsert(CounterInteropTrunk::tableName(), ['account_id', 'income_sum', 'outcome_sum'], $addRows)->execute();
             }
 
             if ($delAccounts) {
+                echo PHP_EOL . "del: [" . implode(", ", $delAccounts) . "]";
                 CounterInteropTrunk::deleteAll(['account_id' => $delAccounts]);
             }
 
             if ($changedRows) {
                 foreach ($changedRows as $accountId => $row) {
+                    echo PHP_EOL . "change: " . str_replace(["\n", "array "], "", var_export(['account_id' => $accountId] + $row, true));
                     CounterInteropTrunk::updateAll($row, ['account_id' => $accountId]);
                 }
             }

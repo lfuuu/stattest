@@ -39,4 +39,9 @@ class VoipServiceDao extends Singleton implements ServiceDao
             ")->queryScalar();
     }
 
+    public function hasService(ClientAccount $client)
+    {
+        return UsageVoip::find()->client($client->client)->count() > 0;
+    }
+
 }
