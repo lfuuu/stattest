@@ -1010,8 +1010,6 @@ class ApiLk
         if (array_search($number->number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'voip_number_not_free');
 
-        $connectingDate = new DateTime('now', $clientAccount->timezone);
-
         $mainTariff = TariffVoip::findOne($mainTariffId);
         Assert::isObject($mainTariff);
         Assert::isEqual($clientAccount->currency, $mainTariff->currency_id);
@@ -1584,23 +1582,16 @@ class ApiLk
 
         $regions_cnt = count($regions);
 
-        $phone = $last_region = '';
+        $last_region = '';
         $regions = $phones = array();
+        $isAllRegions = false;
         if ($regions_cnt > 1) {
-            $region = 'all';
+            $isAllRegions = true;
             $phones['all'] = 'Все регионы';
         }
 
-        if ($phone == '' && count($usages) > 0) {
-            $phone = $usages[0]['region'];
-        }
-        if ($region != 'all') {
-            $region = explode('_', $phone);
-            $region = $region[0];
-        }
-
         foreach ($usages as $r) {
-            if ($region == 'all') {
+            if ($isAllRegions) {
                 if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
                 if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
             }
@@ -1681,12 +1672,7 @@ class ApiLk
                 $isFull
             );
         }
-        foreach ($stats as $k=>$r) {
-            $stats[$k]["ts1"] = $stats[$k]["ts1"];
-            $stats[$k]["tsf1"] = $stats[$k]["tsf1"];
-            $stats[$k]["price"] = $stats[$k]["price"];
-            $stats[$k]["geo"] = $stats[$k]["geo"];
-        }
+
         return $stats;
     }
 
