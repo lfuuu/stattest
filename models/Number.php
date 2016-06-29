@@ -31,6 +31,9 @@ use yii\helpers\Url;
  * @property string date_end
  * @property int operator_account_id
  * @property int country_code
+ * @property int calls_per_month_0 Кол-во звонков за текущий месяц
+ * @property int calls_per_month_1 Кол-во звонков за -1 месяц
+ * @property int calls_per_month_2 Кол-во звонков за -2 месяц
  *
  * @property City $city
  * @property DidGroup $didGroup
@@ -93,6 +96,7 @@ class Number extends ActiveRecord
             'did_group_id' => 'DID группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
+            'number_type' => 'Тип номера',
         ];
     }
 

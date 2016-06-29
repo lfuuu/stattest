@@ -4,6 +4,7 @@ namespace app\models\filter\voip;
 
 use app\classes\Connection;
 use app\classes\traits\GetListTrait;
+use app\models\City;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -21,12 +22,26 @@ class NumberFilter extends \app\models\Number
     public $beauty_level = '';
     public $usage_id = '';
     public $client_id = '';
+    public $country_id = '';
+    public $number_type = '';
+
+    public $calls_per_month_2_from = '';
+    public $calls_per_month_2_to = '';
+
+    public $calls_per_month_1_from = '';
+    public $calls_per_month_1_to = '';
+
+    public $calls_per_month_0_from = '';
+    public $calls_per_month_0_to = '';
 
     public function rules()
     {
         return [
             [['status'], 'string'],
-            [['number_from', 'number_to', 'city_id', 'beauty_level', 'usage_id', 'client_id'], 'integer'], // , 'did_group_id'
+            [['number_from', 'number_to', 'city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'number_type'], 'integer'], // , 'did_group_id'
+            [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
+            [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
+            [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
         ];
     }
 
@@ -42,25 +57,43 @@ class NumberFilter extends \app\models\Number
             'query' => $query,
         ]);
 
+        $numberTableName = \app\models\Number::tableName();
+
         // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
 //        $this->number !== '' &&
 //        ($this->number = strtr($this->number, ['.' => '_', '*' => '%'])) &&
 //        $query->andWhere('number LIKE :number', [':number' => $this->number]);
 
-        $this->number_from !== '' && $query->andWhere(['>=', 'number', $this->number_from]);
-        $this->number_to !== '' && $query->andWhere(['<=', 'number', $this->number_to]);
+        $this->number_from !== '' && $query->andWhere(['>=', $numberTableName . '.number', $this->number_from]);
+        $this->number_to !== '' && $query->andWhere(['<=', $numberTableName . '.number', $this->number_to]);
 
-        $this->city_id !== '' && $query->andWhere(['city_id' => $this->city_id]);
-        $this->status !== '' && $query->andWhere(['status' => $this->status]);
-        $this->beauty_level !== '' && $query->andWhere(['beauty_level' => $this->beauty_level]);
-        $this->did_group_id !== '' && $query->andWhere(['did_group_id' => $this->did_group_id]);
+        $this->city_id !== '' && $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
+        $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
+        $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
+        $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
+        $this->number_type !== '' && $query->andWhere([$numberTableName . '.number_type' => $this->number_type]);
+
+        $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_from]);
+        $this->calls_per_month_2_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_to]);
+
+        $this->calls_per_month_1_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_1', $this->calls_per_month_1_from]);
+        $this->calls_per_month_1_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_1', $this->calls_per_month_1_to]);
+
+        $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_from]);
+        $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_to]);
+
+        if ($this->country_id !== '') {
+            $cityTableName = City::tableName();
+            $query->joinWith('city');
+            $query->andWhere([$cityTableName . '.country_id' => $this->country_id]);
+        }
 
         switch ($this->usage_id) {
             case GetListTrait::$isNull:
-                $query->andWhere('usage_id IS NULL');
+                $query->andWhere($numberTableName . '.usage_id IS NULL');
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere('usage_id IS NOT NULL');
+                $query->andWhere($numberTableName . '.usage_id IS NOT NULL');
                 break;
             default:
                 break;
@@ -70,13 +103,13 @@ class NumberFilter extends \app\models\Number
             case '':
                 break;
             case GetListTrait::$isNull:
-                $query->andWhere('client_id IS NULL');
+                $query->andWhere($numberTableName . '.client_id IS NULL');
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere('client_id IS NOT NULL');
+                $query->andWhere($numberTableName . '.client_id IS NOT NULL');
                 break;
             default:
-                $query->andWhere(['client_id' => $this->client_id]);
+                $query->andWhere([$numberTableName . '.client_id' => $this->client_id]);
                 break;
         }
 

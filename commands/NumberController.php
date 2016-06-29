@@ -2,12 +2,13 @@
 namespace app\commands;
 
 use app\models\CounterInteropTrunk;
-use Yii;
-use DateTime;
-use yii\console\Controller;
 use app\models\Number;
-use app\models\UsageVoip;
 use app\models\Region;
+use app\models\UsageVoip;
+use DateTime;
+use DateTimeImmutable;
+use Yii;
+use yii\console\Controller;
 use yii\helpers\ArrayHelper;
 
 
@@ -78,7 +79,7 @@ class NumberController extends Controller
             ROUND(CAST(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) as NUMERIC), 2) as income_sum, 
             ROUND(CAST(SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) as NUMERIC), 2) as outcome_sum, 
             account_id
-          FROM \"calls_raw\".\"calls_raw_".date("Ym")."\" 
+          FROM \"calls_raw\".\"calls_raw_" . date("Ym") . "\" 
           WHERE 
                 account_id IS NOT NULL 
             AND trunk_service_id IS NOT NULL 
@@ -92,13 +93,13 @@ class NumberController extends Controller
         $delAccounts = array_diff($savedAccounts, $loadAccounts);
 
         $addRows = [];
-        foreach($addAccounts as $accountId) {
+        foreach ($addAccounts as $accountId) {
             $row = $loaded[$accountId];
             $addRows[] = [$accountId, $row['income_sum'], $row['outcome_sum']];
         }
 
         $changedRows = [];
-        foreach(array_intersect($savedAccounts, $loadAccounts) as $accountId) {
+        foreach (array_intersect($savedAccounts, $loadAccounts) as $accountId) {
             $savedRow = $saved[$accountId];
             $loadedRow = $loaded[$accountId];
 
@@ -118,7 +119,7 @@ class NumberController extends Controller
             }
         }
 
-        CounterInteropTrunk::getDb()->transaction(function($db) use ($addRows, $delAccounts, $changedRows) {
+        CounterInteropTrunk::getDb()->transaction(function ($db) use ($addRows, $delAccounts, $changedRows) {
 
             /** @var $db Connection */
             if ($addRows) {
@@ -140,4 +141,130 @@ class NumberController extends Controller
         });
     }
 
+    /**
+     * Пересчитать voip_numbers.calls_per_month_0/1/2
+     */
+    public function actionCalcCallsPerMonth()
+    {
+        $this->actionCalcCallsPerMonth0();
+        $this->actionCalcCallsPerMonth1();
+        $this->actionCalcCallsPerMonth2();
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * /**
+     * Пересчитать voip_numbers.calls_per_month_0
+     */
+    public function actionCalcCallsPerMonth0()
+    {
+        $dtFrom = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))
+            ->modify("first day of this month, 00:00:00");
+
+        $this->calcCallsPerMonth('calls_per_month_0', $dtFrom, $dtTo = null);
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Пересчитать voip_numbers.calls_per_month_1
+     */
+    public function actionCalcCallsPerMonth1()
+    {
+        $dtTo = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))
+            ->modify("last day of -1 month, 23:59:59");
+        $dtFrom = $dtTo->modify("first day of this month, 00:00:00");
+
+        $this->calcCallsPerMonth('calls_per_month_1', $dtFrom, $dtTo);
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Пересчитать voip_numbers.calls_per_month_2
+     */
+    public function actionCalcCallsPerMonth2()
+    {
+        $dtTo = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))
+            ->modify("last day of -2 month, 23:59:59");
+        $dtFrom = $dtTo->modify("first day of this month, 00:00:00");
+
+        $this->calcCallsPerMonth('calls_per_month_2', $dtFrom, $dtTo);
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Пересчитать voip_numbers.calls_per_month за один календарный месяц
+     *
+     * @param string $fieldName
+     * @param \DateTime|\DateTimeImmutable $dtFrom
+     * @param \DateTime|\DateTimeImmutable $dtTo
+     */
+    protected function calcCallsPerMonth($fieldName, $dtFrom, $dtTo)
+    {
+        echo PHP_EOL . $fieldName . ' ' . date(DATE_ATOM) . PHP_EOL;
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            // временная таблица для результата. Для multi-update
+            $sql = 'CREATE TEMPORARY TABLE voip_numbers_tmp (
+                `number` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+                `calls_per_month` int(11) NOT NULL,
+                PRIMARY KEY (`number`)
+                )';
+            Yii::$app->db->createCommand($sql)->execute();
+
+            // посчитать
+            $values = [];
+            $query = \app\models\Number::dao()->getCallsWithoutUsagesQuery($region = null, $dstNumber = null, $dtFrom, $dtTo);
+            $command = $query->createCommand();
+            foreach ($command->query() as $calls) {
+
+                if (strlen($calls['u']) > 15) {
+                    continue; // какой то левый номер
+                }
+
+                $values[] = sprintf("('%s', %d)", $calls['u'], $calls['c']);
+
+                if (count($values) % 1000 === 0) {
+                    // добавить во временную таблицу
+                    $sql = 'INSERT INTO voip_numbers_tmp VALUES ' . implode(', ', $values);
+                    Yii::$app->db->createCommand($sql)->execute();
+                    $values = [];
+                    echo '. ';
+                }
+            }
+
+            if (count($values)) {
+                // добавить во временную таблицу
+                $sql = 'INSERT INTO voip_numbers_tmp VALUES ' . implode(', ', $values);
+                Yii::$app->db->createCommand($sql)->execute();
+            }
+            echo '# ';
+
+            // всё сбросить
+            \app\models\Number::updateAll([$fieldName => 0]);
+
+            // обновить
+            $numberTableName = \app\models\Number::tableName();
+            $sql = "UPDATE {$numberTableName}, voip_numbers_tmp
+                SET {$numberTableName}.{$fieldName} = voip_numbers_tmp.calls_per_month
+                WHERE {$numberTableName}.number = voip_numbers_tmp.number
+            ";
+            Yii::$app->db->createCommand($sql)->execute();
+
+            // убрать за собой
+            $sql = 'DROP TABLE voip_numbers_tmp';
+            Yii::$app->db->createCommand($sql)->execute();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+    }
 }

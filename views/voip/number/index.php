@@ -1,6 +1,6 @@
 <?php
 /**
- * Список городов
+ * Список номеров
  *
  * @var app\classes\BaseView $this
  * @var NumberFilter $filterModel
@@ -9,11 +9,13 @@
 
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
+use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\DidGroupColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
+use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\voip\NumberFilter;
@@ -39,9 +41,9 @@ use yii\widgets\Breadcrumbs;
 
 <?php
 $baseView = $this;
-$monthMinus3 = (new DateTimeImmutable())->modify('-3 month');
-$monthMinus2 = (new DateTimeImmutable())->modify('-2 month');
-$monthMinus1 = (new DateTimeImmutable())->modify('-1 month');
+$month0 = (new DateTimeImmutable())->modify('first day of this month');
+$month1 = $month0->modify('-1 month');
+$month2 = $month1->modify('-1 month');
 
 $columns = [
     [
@@ -49,28 +51,19 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
     ],
     [
-        'label' => 'Кол-во звонков',
-        'headerOptions' => ['colspan' => 3],
-        'filter' => Yii::$app->formatter->asDate($monthMinus3, 'php:M'),
-        'value' => function (\app\models\Number $number) use ($monthMinus3) {
-            return $number->getCallsWithoutUsagesByMonth($monthMinus3->format('m'));
-        },
+        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
+        'attribute' => 'calls_per_month_2',
+        'class' => IntegerRangeColumn::className(),
     ],
     [
-        'label' => 'Кол-во звонков',
-        'headerOptions' => ['class' => 'hidden'], // потому что colspan
-        'filter' => Yii::$app->formatter->asDate($monthMinus2, 'php:M'),
-        'value' => function (\app\models\Number $number) use ($monthMinus2) {
-            return $number->getCallsWithoutUsagesByMonth($monthMinus2->format('m'));
-        }
+        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month1, 'php:m'),
+        'attribute' => 'calls_per_month_1',
+        'class' => IntegerRangeColumn::className(),
     ],
     [
-        'label' => 'Кол-во звонков',
-        'headerOptions' => ['class' => 'hidden'], // потому что colspan
-        'filter' => Yii::$app->formatter->asDate($monthMinus1, 'php:M'),
-        'value' => function (\app\models\Number $number) use ($monthMinus1) {
-            return $number->getCallsWithoutUsagesByMonth($monthMinus1->format('m'));
-        },
+        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month0, 'php:m'),
+        'attribute' => 'calls_per_month_0',
+        'class' => IntegerRangeColumn::className(),
     ],
     [
         'attribute' => 'usage_id',
@@ -97,12 +90,26 @@ $columns = [
         },
     ],
     [
+        'label' => 'Страна',
+        'attribute' => 'country_id',
+        'class' => CountryColumn::className(),
+        'value' => function (\app\models\Number $number) {
+            return $number->city_id ?
+                (string)$number->city->country :
+                Yii::t('common', '(not set)');
+        },
+    ],
+    [
         'attribute' => 'city_id',
         'class' => CityColumn::className(),
     ],
     [
         'attribute' => 'status',
         'class' => NumberStatusColumn::className(),
+    ],
+    [
+        'attribute' => 'number_type',
+        'class' => NumberTypeColumn::className(),
     ],
     [
         'attribute' => 'beauty_level',

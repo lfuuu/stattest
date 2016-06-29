@@ -12,6 +12,7 @@ use app\models\UsageVoip;
 use DateTime;
 use DateTimeZone;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
@@ -217,8 +218,27 @@ class NumberDao extends Singleton
      */
     public function getCallsWithoutUsages($region, $dstNumber = null)
     {
-        $dt = new \DateTime("now", new \DateTimeZone("UTC"));
-        $dt->modify("first day of -3 month, 00:00:00");
+        return $this->getCallsWithoutUsagesQuery($region, $dstNumber)
+            ->createCommand()
+            ->cache(86400)
+            ->queryAll();
+    }
+
+    /**
+     * Статистика по звонкам за заданный период (если не задано, то за 3 последних месяца)
+     *
+     * @param int $region
+     * @param int $dstNumber
+     * @param \DateTime|\DateTimeImmutable $dtFrom
+     * @param \DateTime|\DateTimeImmutable $dtTo
+     * @return ActiveQuery
+     */
+    public function getCallsWithoutUsagesQuery($region, $dstNumber = null, $dtFrom = null, $dtTo = null)
+    {
+        if (!$dtFrom) {
+            $dtFrom = new \DateTime("now", new \DateTimeZone("UTC"));
+            $dtFrom->modify("first day of -3 month, 00:00:00");
+        }
 
         $query = Calls::find()
             ->select([
@@ -226,11 +246,7 @@ class NumberDao extends Singleton
                 'c' => (new Expression('count(*)')),
                 'm' => (new Expression("to_char(connect_time, 'MM')"))
             ])
-            ->where(
-                ['>', 'connect_time', $dt->format(DateTime::ATOM)]
-            )
             ->andWhere([
-                'server_id' => $region,
                 'number_service_id' => null,
                 'orig' => false
             ])
@@ -239,7 +255,14 @@ class NumberDao extends Singleton
                 'm'
             ]);
 
+        $region && $query->andWhere(['server_id' => $region]);
         $dstNumber && $query->andWhere(['dst_number' => $dstNumber]);
+
+        if ($dtTo) {
+            $query->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTime::ATOM), $dtTo->format(DateTime::ATOM)]);
+        } else {
+            $query->andWhere(['>=', 'connect_time', $dtFrom->format(DateTime::ATOM)]);
+        }
 
         if ($region == 99) {
             $query->andWhere(
@@ -247,10 +270,7 @@ class NumberDao extends Singleton
             );
         }
 
-        return $query
-            ->createCommand()
-            ->cache(86400)
-            ->queryAll();
+        return $query;
     }
 
     /**
