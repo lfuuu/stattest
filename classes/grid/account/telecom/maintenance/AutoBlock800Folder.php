@@ -27,6 +27,7 @@ class AutoBlock800Folder extends AccountGridFolder
             'id',
             'company',
             'currency',
+            'block_date',
             'manager',
             'region',
             'legal_entity',
@@ -37,6 +38,15 @@ class AutoBlock800Folder extends AccountGridFolder
     {
         parent::queryParams($query);
 
+        $query->addSelect('ab.block_date');
+        $query->leftJoin(
+            '(
+                SELECT `client_id`, MAX(`date`) AS block_date
+                FROM `lk_notice_log`
+                WHERE `event` = "zero_balance"
+                GROUP BY `client_id`
+            ) AS ab',
+            'ab.`client_id` = c.`id`');
         $query->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to');
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
