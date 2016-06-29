@@ -292,38 +292,40 @@ if ($has) :
                                     <td style="font-size: 8pt;">
                                         <?= $currentTariff->name ?> (<?= $currentTariff->month_number . '-' . $currentTariff->month_line ?>)
                                         <?php
-                                        if ($currentLogTariff->dest_group != '0') {
-                                            echo '/ Набор:';
-                                            if (strpos($currentLogTariff->dest_group, '5') !== false) {
-                                                echo ' Моб';
+                                        if ($currentLogTariff) {
+                                            if ($currentLogTariff->dest_group != '0') {
+                                                echo '/ Набор:';
+                                                if (strpos($currentLogTariff->dest_group, '5') !== false) {
+                                                    echo ' Моб';
+                                                }
+                                                if (strpos($currentLogTariff->dest_group, '1') !== false) {
+                                                    echo ' МГ';
+                                                }
+                                                if (strpos($currentLogTariff->dest_group, '2') !== false) {
+                                                    echo ' МН';
+                                                }
+                                                if (strpos($currentLogTariff->dest_group, '3') !== false) {
+                                                    echo ' СНГ';
+                                                }
+                                                echo $currentLogTariff->minpayment_group;
                                             }
-                                            if (strpos($currentLogTariff->dest_group, '1') !== false) {
-                                                echo ' МГ';
-                                            }
-                                            if (strpos($currentLogTariff->dest_group, '2') !== false) {
-                                                echo ' МН';
-                                            }
-                                            if (strpos($currentLogTariff->dest_group, '3') !== false) {
-                                                echo ' СНГ';
-                                            }
-                                            echo $currentLogTariff->minpayment_group;
-                                        }
 
-                                        /** @var TariffVoip $tariff */
-                                        $tariff = null;
-                                        if (strpos($currentLogTariff->dest_group, '5') === false) {
-                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_local_mob);
-                                            echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_local_mob > 0 ? '(' . $currentLogTariff->minpayment_local_mob . ')' : '');
-                                        }
-                                        if (strpos($currentLogTariff->dest_group, '1') === false) {
-                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia);
-                                            echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_russia > 0 ? '(' . $currentLogTariff->minpayment_russia . ')' : '');
-                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia_mob);
-                                            echo '/ МГ ' . ($tariff ? $tariff->name : '');
-                                        }
-                                        if (strpos($currentLogTariff->dest_group, '2') === false) {
-                                            $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_intern);
-                                            echo '/ МН ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_intern > 0 ? '(' . $currentLogTariff->minpayment_intern . ')' : '');
+                                            /** @var TariffVoip $tariff */
+                                            $tariff = null;
+                                            if (strpos($currentLogTariff->dest_group, '5') === false) {
+                                                $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_local_mob);
+                                                echo '/ Моб ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_local_mob > 0 ? '(' . $currentLogTariff->minpayment_local_mob . ')' : '');
+                                            }
+                                            if (strpos($currentLogTariff->dest_group, '1') === false) {
+                                                $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia);
+                                                echo '/ МГ ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_russia > 0 ? '(' . $currentLogTariff->minpayment_russia . ')' : '');
+                                                $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_russia_mob);
+                                                echo '/ МГ ' . ($tariff ? $tariff->name : '');
+                                            }
+                                            if (strpos($currentLogTariff->dest_group, '2') === false) {
+                                                $tariff = TariffVoip::findOne($currentLogTariff->id_tarif_intern);
+                                                echo '/ МН ' . ($tariff ? $tariff->name : '') . ($currentLogTariff->minpayment_intern > 0 ? '(' . $currentLogTariff->minpayment_intern . ')' : '');
+                                            }
                                         }
 
                                         if ($futureTariff !== null) {

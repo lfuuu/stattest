@@ -116,8 +116,6 @@ class UserForm extends Form
             throw $e;
         }
 
-        Language::setCurrentLanguage($this->language);
-
         return true;
     }
 

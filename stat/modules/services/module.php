@@ -754,6 +754,7 @@ class m_services extends IModule{
 
                 $r['number_status'] = Number::$statusList[$usage->voipNumber->status];
 
+                $r['packages'] = [];
                 foreach ($usage->packages as $package) {
                     list ($description) = $package->helper->description;
                     $r['packages'][] = [

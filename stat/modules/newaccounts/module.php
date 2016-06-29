@@ -1665,7 +1665,7 @@ class m_newaccounts extends IModule
                 $set[$key."-2"] = 1;
             }
         }
-        if(count($R) == 1 && $R[0]["obj"] == "envelope")
+        if(count($R) == 1 && isset($R[0]["obj"]) && $R[0]["obj"] == "envelope")
         {
             $R[0]["param"] = "alone=true";
         }

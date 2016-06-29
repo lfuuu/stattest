@@ -652,11 +652,13 @@ class ClientAccount extends HistoryActiveRecord
         try {
             $locks = Locks::find()->where(['client_id' => $this->id])->one();
 
-            if ($locks->voip_auto_disabled_local) {
-                $warnings['voip.auto_disabled_local'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)';
-            }
-            if ($locks->voip_auto_disabled) {
-                $warnings['voip.auto_disabled'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)';
+            if ($locks) {
+                if ($locks->voip_auto_disabled_local) {
+                    $warnings['voip.auto_disabled_local'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)';
+                }
+                if ($locks->voip_auto_disabled) {
+                    $warnings['voip.auto_disabled'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)';
+                }
             }
         } catch (\Exception $e) {
             $warnings['unavailable.locks'] = 'Сервер статистики недоступен. Данные о блокировках недоступны';
@@ -665,7 +667,6 @@ class ClientAccount extends HistoryActiveRecord
         $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && -$counters->daySummary > $this->voip_credit_limit_day);
         $need_lock_limit_month = ($this->voip_credit_limit != 0 && -$counters->monthSummary > $this->voip_credit_limit);
         $need_lock_credit = ($this->credit >= 0 && $counters->realtimeBalance + $this->credit < 0);
-        $need_lock_flag = ($this->voip_disabled > 0);
 
         if ($need_lock_limit_day) {
             $warnings['lock.limit_day'] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;

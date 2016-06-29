@@ -42,10 +42,17 @@ class ApiLk
 
         list($R, $sum, ) = BalanceSimple::get($params);
 
+        /*
         $cutOffDate = \app\models\HistoryVersion::find()
-            ->andWhere(['model' => ClientAccount::className(), 'model_id' => $clientId])
-            ->orderBy('date DESC')->one();
-        $cutOffDate = $cutOffDate->date;
+            ->andWhere([
+                'model' => ClientAccount::className(),
+                'model_id' => $clientId
+            ])
+            ->orderBy('date DESC')
+            ->one();
+        $cutOffDate->date;
+        */
+        $cutOffDate = '2000-01-01';
 
         $bills = array();
         foreach ($R as $r)
