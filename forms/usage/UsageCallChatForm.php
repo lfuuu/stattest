@@ -29,7 +29,6 @@ class UsageCallChatForm extends Form
             'actual_to' => 'Дата отключения',
             'tarif_id' => 'Тариф',
             'status' => 'Статус услуги',
-            'comment' => 'Название чата'
         ];
     }
 

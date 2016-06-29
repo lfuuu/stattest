@@ -58,16 +58,11 @@ class ActaulizerCallChatUsage extends Singleton
 
         foreach ($actual as $usageId => $usage) {
             if (isset($saved[$usageId])) {
-                if (
-                    $saved[$usageId]['tarif_id'] != $usage['tarif_id']
-                        ||
-                    $saved[$usageId]['comment'] != $usage['comment']
-                ) {
+                if ($saved[$usageId]['tarif_id'] != $usage['tarif_id']) {
                     $diff['change'][] = [
                         'usage_id' => $usageId,
                         'client_id' => $usage['client_id'],
                         'tarif_id' => $usage['tarif_id'],
-                        'comment' => $usage['comment'],
                     ];
                 }
             }
@@ -126,7 +121,6 @@ class ActaulizerCallChatUsage extends Singleton
             $callChatRow->client_id = $row['client_id'];
             $callChatRow->usage_id = $row['usage_id'];
             $callChatRow->tarif_id = $row['tarif_id'];
-            $callChatRow->comment = $row['comment'];
             $callChatRow->save();
 
             $this->sendAddEvent($callChatRow);
@@ -148,9 +142,6 @@ class ActaulizerCallChatUsage extends Singleton
             ]);
 
             if (!is_null($callChatRow)) {
-                $callChatRow->comment = $row['comment'];
-                $callChatRow->save();
-
                 $this->sendUpdateEvent($callChatRow);
                 $transaction->commit();
             }
@@ -187,7 +178,7 @@ class ActaulizerCallChatUsage extends Singleton
     {
         if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
             try {
-                return ApiFeedback::createChat($callChatRow->client_id, $usage->id, $usage->comment);
+                return ApiFeedback::createChat($callChatRow->client_id, $usage->id);
             } catch (InvalidConfigException $e) {
                 return true;
             } catch (Exception $e) {
@@ -201,7 +192,7 @@ class ActaulizerCallChatUsage extends Singleton
     {
         if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
             try {
-                return ApiFeedback::updateChat($callChatRow->client_id, $usage->id, $usage->comment);
+                return ApiFeedback::updateChat($callChatRow->client_id, $usage->id);
             } catch (InvalidConfigException $e) {
                 return true;
             } catch (Exception $e) {

@@ -18,14 +18,12 @@ class UsageCallChatEditForm extends UsageCallChatForm
     public $actual_from;
     public $actual_to = "";
     public $status;
-    public $comment = "";
     public $tarif_id;
 
     public function rules()
     {
         $rules = parent::rules();
         $rules[] = [['actual_from', 'status', 'tarif_id'], 'required'];
-        $rules[] = ['comment', 'string'];
         return $rules;
     }
 
@@ -52,7 +50,6 @@ class UsageCallChatEditForm extends UsageCallChatForm
 
         $usage->status = $this->status;
         $usage->tarif_id = $this->tarif_id;
-        $usage->comment = $this->comment;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

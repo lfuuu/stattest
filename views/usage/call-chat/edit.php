@@ -36,7 +36,7 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 4,
+        'columns' => 3,
         'attributes' => [
             'actual_from' => [
                 'type' => Form::INPUT_WIDGET,
@@ -79,17 +79,15 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 4,
+        'columns' => 3,
         'attributes' => [
             'tarif_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => TariffCallChat::dao()->getList($model->clientAccount->currency, true),
-                'columnOptions'=>['colspan'=>3]
+                'columnOptions' => [
+                    'colspan' => 3
+                ]
             ],
-            'comment' => [
-                'type' => Form::INPUT_TEXT
-            ]
-
         ],
     ]);
 

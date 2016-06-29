@@ -28,23 +28,22 @@ class ApiFeedback
     }
 
 
-    public static function createChat($clientId, $chatId = 0, $chatName = '')
+    public static function createChat($clientId, $chatId = 0)
     {
         $data = [
             'account_id' => $clientId,
             'stat_product_id' => $chatId,
-            'name' => $chatName ?: ($chatId ? 'Чат #' . $chatId : '')
+            'name' => 'Chat ' . $chatId
         ];
 
         return self::exec('createChat', $data);
     }
 
-    public static function updateChat($clientId, $chatId, $chatName = '')
+    public static function updateChat($clientId, $chatId)
     {
         $data = [
             'account_id' => $clientId,
-            'stat_product_id' => $chatId,
-            'name' => $chatName ?: ($chatId ? 'Чат #' . $chatId : '')
+            'stat_product_id' => $chatId
         ];
 
         return self::exec('updateChat', $data);
