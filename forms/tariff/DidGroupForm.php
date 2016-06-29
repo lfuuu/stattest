@@ -29,7 +29,6 @@ class DidGroupForm extends Form
             [['name'],FormFieldValidator::className()],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
             ['city_id', 'validateCity', 'on' => 'save'],
-            ['city_id', 'validateOverWrite', 'on' => 'save'],
             ['beauty_level', 'in', 'range' => array_keys(DidGroup::$beautyLevelNames), 'on' => 'save'],
         ];
     }
@@ -45,27 +44,6 @@ class DidGroupForm extends Form
     {
         if (!array_key_exists($this->city_id, City::dao()->getList(false, $this->country_id))){
             $this->addError('city_id', 'Значение "Город" неверно');
-        }
-    }
-
-    /**
-     * Валидатор. Проверка существования DID-группы.
-     *
-     * @param $attr
-     */
-    public function validateOverWrite($attr)
-    {
-        $didGroup = DidGroup::find()
-            ->where([
-                'city_id' => $this->city_id,
-                'beauty_level' => $this->beauty_level
-            ]);
-        if ($this->didGroup) {
-            $didGroup->andWhere(['!=', 'id', $this->didGroup->id]);
-        }
-
-        if ($didGroup->one()) {
-            $this->addError($attr, 'DID-группа в данном городе и заданной "красивостью" существует');
         }
     }
 
