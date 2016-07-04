@@ -145,6 +145,7 @@ class ActaulizerCallChatUsage extends Singleton
                 $this->sendUpdateEvent($callChatRow);
                 $transaction->commit();
             }
+
         } catch (\Exception $e) {
             $transaction->rollback();
             throw $e;
@@ -161,9 +162,8 @@ class ActaulizerCallChatUsage extends Singleton
                 'usage_id' => $row['usage_id']
             ]);
 
-            if ($this->sendDelEvent($callChatRow)) {
-                $callChatRow->delete();
-            }
+            $this->sendDelEvent($callChatRow);
+            $callChatRow->delete();
 
             $this->checkProductToDel($callChatRow);
 
@@ -190,6 +190,15 @@ class ActaulizerCallChatUsage extends Singleton
 
     private function sendUpdateEvent(ActualCallChat $callChatRow)
     {
+        /**
+         * В данный момент разные тарифы не поддерживаются продуктом.
+         * Ранее применялась для синхронизации названия чата. Названия изменяется внутри самого продукта.
+         * На данный момент функция API ждет названия, которого нет.
+         * Будет включена в будущем.
+         **/
+
+        return true;
+
         if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
             try {
                 return ApiFeedback::updateChat($callChatRow->client_id, $usage->id);
