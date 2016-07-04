@@ -9,7 +9,9 @@ use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\voip\forms\NumberFormEdit;
 use app\classes\voip\forms\NumberFormNew;
+use app\models\Country;
 use app\models\filter\voip\NumberFilter;
+use app\models\NumberType;
 use Yii;
 
 class NumberController extends BaseController
@@ -34,7 +36,13 @@ class NumberController extends BaseController
     public function actionIndex()
     {
         $filterModel = new NumberFilter();
-        $this->addClientAccountFilter($filterModel);
+
+        $get = Yii::$app->request->get();
+        $className = $filterModel->formName();
+        !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
+        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
+
+        $this->addClientAccountFilter($filterModel, $get);
 
         $post = Yii::$app->request->post();
         if (isset($post['Number'])) {

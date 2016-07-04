@@ -14,6 +14,8 @@ use yii\db\ActiveQuery;
  */
 class NumberFilter extends \app\models\Number
 {
+    const ROWS_PER_PAGE = 100;
+
     public $number_from = '';
     public $number_to = '';
     public $city_id = '';
@@ -55,6 +57,9 @@ class NumberFilter extends \app\models\Number
         $query = \app\models\Number::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => self::ROWS_PER_PAGE,
+            ],
         ]);
 
         $numberTableName = \app\models\Number::tableName();

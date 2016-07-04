@@ -13,9 +13,11 @@ trait AddClientAccountFilterTraits
      * Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
      * @param ActiveRecord $filterModel
      */
-    private function addClientAccountFilter(ActiveRecord &$filterModel)
+    private function addClientAccountFilter(ActiveRecord &$filterModel, $get = [])
     {
-        $get = Yii::$app->request->get();
+        if (!$get) {
+            $get = Yii::$app->request->get();
+        }
         $clientAccountField = $this->getClientAccountField();
 
         $className = $filterModel->formName();
