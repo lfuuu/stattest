@@ -17,7 +17,7 @@ $accountTariffLog = $formModel->accountTariffLog;
 ?>
 
 <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-5">
         <?php
         $tariffPeriods = $formModel->getAvailableTariffPeriods($defaultTariffPeriodId, true, $accountTariff->service_type_id, $accountTariff->city_id);
 
@@ -36,7 +36,7 @@ $accountTariffLog = $formModel->accountTariffLog;
             ]) ?>
     </div>
 
-    <div class="col-sm-2">
+    <div class="col-sm-3">
         <?= $form->field($accountTariffLog, 'actual_from')->widget(DatePicker::className(), [
             'removeButton' => false,
             'pluginOptions' => [

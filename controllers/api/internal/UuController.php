@@ -440,6 +440,7 @@ class UuController extends ApiInternalController
      * @SWG\Put(tags = {"Универсальные тарифы"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу клиенту", operationId = "Добавить услугу клиенту",
      *   @SWG\Parameter(name = "clientAccountId", type = "integer", description = "ID аккаунта клиента", in = "formData", required = true),
      *   @SWG\Parameter(name = "serviceTypeId", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true),
+     *   @SWG\Parameter(name = "tariffId", type = "integer", description = "ID тарифа", in = "formData", required = true),
      *   @SWG\Parameter(name = "tariffPeriodId", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true),
      *   @SWG\Parameter(name = "actualFrom", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня. Если с сегодня, то отменить нельзя - можно только закрыть с завтра", in = "formData"),
      *   @SWG\Parameter(name = "regionId", type = "integer", description = "ID региона (кроме телефонии)", in = "formData"),
@@ -462,37 +463,57 @@ class UuController extends ApiInternalController
      */
     public function actionAddAccountTariff()
     {
-        $postData = Yii::$app->request->post();
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $postData = Yii::$app->request->post();
 
-        $accountTariff = new AccountTariff();
-        isset($postData['clientAccountId']) && $accountTariff->client_account_id = (int)$postData['clientAccountId'];
-        isset($postData['serviceTypeId']) && $accountTariff->service_type_id = (int)$postData['serviceTypeId'];
-        isset($postData['regionId']) && $accountTariff->region_id = (int)$postData['regionId'];
-        isset($postData['cityId']) && $accountTariff->city_id = (int)$postData['cityId'];
-        isset($postData['voipNumber']) && $accountTariff->voip_number = $postData['voipNumber'];
-        isset($postData['comment']) && $accountTariff->comment = $postData['comment'];
-        isset($postData['tariffPeriodId']) && $accountTariff->tariff_period_id = $postData['tariffPeriodId'];
-        isset($postData['prevAccountTariffId']) && $accountTariff->prev_account_tariff_id = $postData['prevAccountTariffId'];
+            $tariffPeriod = TariffPeriod::findOne(['id' => (int)$postData['tariffPeriodId']]);
+            if (!$tariffPeriod) {
+                throw new InvalidArgumentException('Неправильный tariffPeriodId');
+            }
+            if ($tariffPeriod->tariff->service_type_id != (int)$postData['serviceTypeId']) {
+                throw new InvalidArgumentException('Тип услуги не соответствует типу услуги тарифа');
+            }
+            if ($tariffPeriod->tariff_id != (int)$postData['tariffId']) {
+                throw new InvalidArgumentException('Период тарифа не соответствует тарифу');
+            }
 
-        if (!$accountTariff->save()) {
-            throw new ExceptionValidationForm($accountTariff);
-        }
+            $accountTariff = new AccountTariff();
+            isset($postData['clientAccountId']) && $accountTariff->client_account_id = (int)$postData['clientAccountId'];
+            isset($postData['serviceTypeId']) && $accountTariff->service_type_id = (int)$postData['serviceTypeId'];
+            isset($postData['regionId']) && $accountTariff->region_id = (int)$postData['regionId'];
+            isset($postData['cityId']) && $accountTariff->city_id = (int)$postData['cityId'];
+            isset($postData['voipNumber']) && $accountTariff->voip_number = $postData['voipNumber'];
+            isset($postData['comment']) && $accountTariff->comment = $postData['comment'];
+            isset($postData['tariffPeriodId']) && $accountTariff->tariff_period_id = $postData['tariffPeriodId'];
+            isset($postData['prevAccountTariffId']) && $accountTariff->prev_account_tariff_id = $postData['prevAccountTariffId'];
 
-        // записать в лог тарифа
-        $accountTariffLog = new AccountTariffLog;
-        $accountTariffLog->account_tariff_id = $accountTariff->id;
-        isset($postData['tariffPeriodId']) && $accountTariffLog->tariff_period_id = $postData['tariffPeriodId'];
-        $accountTariffLog->actual_from = isset($postData['actualFrom']) ? $postData['actualFrom'] : date('Y-m-d');
-        if ($accountTariffLog->save()) {
+            if (!$accountTariff->save()) {
+                throw new ExceptionValidationForm($accountTariff);
+            }
+
+            // записать в лог тарифа
+            $accountTariffLog = new AccountTariffLog;
+            $accountTariffLog->account_tariff_id = $accountTariff->id;
+            isset($postData['tariffPeriodId']) && $accountTariffLog->tariff_period_id = $postData['tariffPeriodId'];
+            $accountTariffLog->actual_from = isset($postData['actualFrom']) ? $postData['actualFrom'] : date('Y-m-d');
+            if (!$accountTariffLog->save()) {
+                throw new ExceptionValidationForm($accountTariffLog);
+            }
+
+            $transaction->commit();
             return $accountTariff->id;
-        } else {
-            throw new ExceptionValidationForm($accountTariffLog);
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
     }
 
     /**
      * @SWG\Post(tags = {"Универсальные тарифы"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге клиента", operationId = "Сменить тариф услуге клиента",
      *   @SWG\Parameter(name = "accountTariffId", type = "integer", description = "ID услуги", in = "query", required = true),
+     *   @SWG\Parameter(name = "tariffId", type = "integer", description = "ID тарифа", in = "formData", required = true),
      *   @SWG\Parameter(name = "tariffPeriodId", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true),
      *   @SWG\Parameter(name = "actualFrom", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData"),
      *
@@ -513,6 +534,7 @@ class UuController extends ApiInternalController
         $postData = Yii::$app->request->post();
         return $this->editAccountTariff(
             $accountTariffId,
+            $postData['tariffId'],
             $postData['tariffPeriodId'],
             isset($postData['actualFrom']) ? $postData['actualFrom'] : null
         );
@@ -540,6 +562,7 @@ class UuController extends ApiInternalController
         $postData = Yii::$app->request->post();
         return $this->editAccountTariff(
             $accountTariffId,
+            null,
             null,
             isset($postData['actualFrom']) ? $postData['actualFrom'] : null
         );
@@ -617,36 +640,59 @@ class UuController extends ApiInternalController
 
     /**
      * @param $accountTariffId
+     * @param $tariffId
      * @param $tariffPeriodId
      * @param $actualFrom
      * @return int
      * @throws ExceptionValidationForm
      */
-    public function editAccountTariff($accountTariffId, $tariffPeriodId, $actualFrom)
+    public function editAccountTariff($accountTariffId, $tariffId, $tariffPeriodId, $actualFrom)
     {
         if (!$accountTariffId) {
-            throw new InvalidArgumentException('Не указан обязательный параметр');
+            throw new InvalidArgumentException('Не указан обязательный параметр accountTariffId');
         }
         $accountTariff = AccountTariff::findOne(['id' => (int)$accountTariffId]);
         if (!$accountTariff) {
-            throw new InvalidArgumentException('Услуга с таким идентификатором не найдена');
+            throw new InvalidArgumentException('Услуга с таким идентификатором не найдена ' . $accountTariffId);
         }
 
-        // у услуги сменить кэш тарифа
-        $accountTariff->tariff_period_id = $tariffPeriodId;
-        if (!$accountTariff->save()) {
-            throw new ExceptionValidationForm($accountTariff);
-        }
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
 
-        // записать в лог тарифа
-        $accountTariffLog = new AccountTariffLog;
-        $accountTariffLog->account_tariff_id = $accountTariff->id;
-        $accountTariffLog->tariff_period_id = $tariffPeriodId;
-        $accountTariffLog->actual_from = $actualFrom ?: (new \DateTimeImmutable())->modify('tomorrow')->format('Y-m-d');
-        if ($accountTariffLog->save()) {
+            if ($tariffPeriodId) {
+                $tariffPeriod = TariffPeriod::findOne(['id' => $tariffPeriodId]);
+                if (!$tariffPeriod) {
+                    throw new InvalidArgumentException('Неправильный tariffPeriodId');
+                }
+                if ($tariffPeriod->tariff->service_type_id != $accountTariff->service_type_id) {
+                    throw new InvalidArgumentException('Новый тип услуги не соответствует старому');
+                }
+                if ($tariffPeriod->tariff_id != (int)$tariffId) {
+                    throw new InvalidArgumentException('Период тарифа не соответствует тарифу');
+                }
+            }
+
+            // у услуги сменить кэш тарифа
+            $accountTariff->tariff_period_id = $tariffPeriodId;
+            if (!$accountTariff->save()) {
+                throw new ExceptionValidationForm($accountTariff);
+            }
+
+            // записать в лог тарифа
+            $accountTariffLog = new AccountTariffLog;
+            $accountTariffLog->account_tariff_id = $accountTariff->id;
+            $accountTariffLog->tariff_period_id = $tariffPeriodId;
+            $accountTariffLog->actual_from = $actualFrom ?: (new \DateTimeImmutable())->modify('tomorrow')->format('Y-m-d');
+            if (!$accountTariffLog->save()) {
+                throw new ExceptionValidationForm($accountTariffLog);
+            }
+
+            $transaction->commit();
             return $accountTariffLog->id;
-        } else {
-            throw new ExceptionValidationForm($accountTariffLog);
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
     }
 

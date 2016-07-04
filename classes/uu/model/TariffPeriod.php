@@ -128,7 +128,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
             $activeQuery->andWhere(['tariff.currency_id' => $currency]);
         }
 
-        if ($cityId) {
+        if ($cityId && ($serviceTypeId == ServiceType::ID_VOIP || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE)) {
             $activeQuery
                 ->innerJoin(TariffVoipCity::tableName() . ' cities', 'tariff.id = cities.tariff_id')
                 ->andWhere(['cities.city_id' => $cityId]);
