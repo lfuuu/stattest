@@ -6,6 +6,8 @@ use app\classes\validators\FormFieldValidator;
 use app\models\City;
 use app\models\Country;
 use app\models\DidGroup;
+use app\models\Number;
+use app\models\NumberType;
 
 class DidGroupForm extends Form
 {
@@ -16,20 +18,24 @@ class DidGroupForm extends Form
         $original_country_id = 0,
         $city_id = City::DEFAULT_USER_CITY_ID,
         $name = '',
-        $beauty_level = DidGroup::BEAUTY_LEVEL_STANDART
+        $beauty_level = DidGroup::BEAUTY_LEVEL_STANDART,
+        $number_type_id = NumberType::ID_GEO_DID
     ;
 
+    /** @var DidGroup */
     public $didGroup = null;
 
     public function rules()
     {
         return [
             ['country_id', 'safe'],
-            [['country_id', 'city_id', 'name', 'beauty_level'], 'required', 'on' => 'save'],
-            [['name'],FormFieldValidator::className()],
+            [['country_id', 'city_id', 'name', 'beauty_level', 'number_type_id'], 'required', 'on' => 'save'],
+            [['name'], FormFieldValidator::className()],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
             ['city_id', 'validateCity', 'on' => 'save'],
             ['beauty_level', 'in', 'range' => array_keys(DidGroup::$beautyLevelNames), 'on' => 'save'],
+            ['number_type_id', 'in', 'range' => array_keys(NumberType::getList()), 'on' => 'save'],
+            ['number_type_id', 'validateNumberTypeDependency'],
         ];
     }
 
@@ -42,8 +48,17 @@ class DidGroupForm extends Form
 
     public function validateCity()
     {
-        if (!array_key_exists($this->city_id, City::dao()->getList(false, $this->country_id))){
+        if (!array_key_exists($this->city_id, City::dao()->getList(false, $this->country_id))) {
             $this->addError('city_id', 'Значение "Город" неверно');
+        }
+    }
+
+    public function validateNumberTypeDependency()
+    {
+        if ($this->didGroup && $this->didGroup->number_type_id != $this->number_type_id) {
+            if (Number::findOne(['did_group_id' => $this->didGroup->id])) {
+                $this->addError('number_type_id', 'Невозможно сменить тип номер, т.к. у этой DID-групы есть номера');
+            }
         }
     }
 
@@ -100,9 +115,7 @@ class DidGroupForm extends Form
             $this->didGroup = new DidGroup();
         }
 
-        foreach(['city_id', 'beauty_level', 'name'] as $field) {
-            $this->didGroup->{$field} = $this->{$field};
-        }
+        $this->didGroup->setAttributes($this->getAttributes());
 
         $result = $this->didGroup->save();
 

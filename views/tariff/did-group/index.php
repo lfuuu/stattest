@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -56,6 +57,10 @@ $columns = [
         'attribute' => 'beauty_level',
         'class' => BeautyLevelColumn::className(),
     ],
+    [
+        'attribute' => 'number_type_id',
+        'class' => NumberTypeColumn::className()
+    ]
 ];
 
 $linkAdd = ['url' => '/tariff/did-group/add'];

@@ -9,6 +9,7 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property int $beauty_level
  * @property int city_id
+ * @property int number_type_id
  *
  * @property City $city
  */
@@ -41,6 +42,7 @@ class DidGroup extends ActiveRecord
             'city_id' => 'Город',
             'name' => 'Название',
             'beauty_level' => 'Красивость',
+            'number_type_id' => 'Тип номера',
         ];
     }
 

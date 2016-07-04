@@ -11,7 +11,7 @@ use kartik\builder\Form;
 
 $countryList = \app\models\Country::getList();
 $cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
-
+$numberTypeList = \app\models\NumberType::getList(true);
 
 $title = $model->id ? 'Редактирование DID-групы №' . $model->didGroup->id : 'Новая запись';
 
@@ -89,7 +89,14 @@ echo Breadcrumbs::widget([
             'columns' => 3,
             'attributes' => [
                 'name' => [
-                    'type' => Form::INPUT_TEXT
+                    'type' => Form::INPUT_TEXT,
+                    'columnOptions' => [
+                        'colspan' => 2
+                    ]
+                ],
+                'number_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $numberTypeList
                 ]
             ]
         ]);

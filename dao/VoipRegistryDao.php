@@ -97,7 +97,7 @@ class VoipRegistryDao extends Singleton
             return true;
         }
 
-        $this->didGroups =  DidGroup::dao()->getDidGroupMapByCityId($registry->city_id);
+        $this->didGroups = DidGroup::find(['city_id' => $registry->city_id])->indexBy('beauty_level')->all();
 
         if (!$this->didGroups) {
             throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
@@ -121,12 +121,16 @@ class VoipRegistryDao extends Singleton
             throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
         }
 
+        if ($this->didGroups[$beautyLevel]->number_type_id != $registry->number_type_id) {
+            throw new InvalidConfigException('Тип номера ' .$addNumber . ' ("' . DidGroup::$beautyLevelNames[$beautyLevel] . '") в DID-группе (id: ' . $this->didGroups[$beautyLevel]->id . ') и в реестре не совпадают');
+        }
+
         $transaction = \Yii::$app->getDb()->beginTransaction();
 
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
-        $number->did_group_id = $this->didGroups[$beautyLevel];
+        $number->did_group_id = $this->didGroups[$beautyLevel]->id;
         $number->region = $registry->city->connection_point_id;
         $number->number_type = $registry->number_type_id;
         $number->city_id = $registry->city_id;
