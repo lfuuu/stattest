@@ -125,7 +125,7 @@ class Wordifier
 
 
         if (floor($num) == 0) {
-            $v = array('ноль ', 0);
+            $v = array('ноль  ', 0);
         } else {
             $v = self::MakeSections(floor($num), 0);
         }

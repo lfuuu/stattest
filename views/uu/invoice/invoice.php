@@ -213,7 +213,7 @@ $organization = $clientAccount->contract->getOrganization($firstEntry->date);
                             <td></td>
 
                             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td><p align="right">За главного&nbsp;бухгалтер:</td>
+                            <td><p align="right">За главного&nbsp;бухгалтера:</td>
                             <td>
 
                                 <br>________________________________<br><br></td>

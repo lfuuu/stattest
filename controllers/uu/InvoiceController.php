@@ -5,13 +5,13 @@
 
 namespace app\controllers\uu;
 
-use Yii;
-use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountTariff;
 use app\models\ClientAccount;
+use Yii;
+use yii\filters\AccessControl;
 
 class InvoiceController extends BaseController
 {
@@ -41,23 +41,27 @@ class InvoiceController extends BaseController
     /**
      * @return string
      */
-    public function actionView($clientAccountId = null, $renderMode = null)
+    public function actionView($clientAccountId = null, $renderMode = null, $month = null)
     {
         // Вернуть текущего клиента, если он есть
         !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
 
         $accountEntries = [];
-        $date = (new \DateTime)
-            ->modify('first day of previous month')
-            ->format('Y-m-d');
+
+        if ($month) {
+            $date = $month . '-01';
+        } else {
+            $date = (new \DateTime)
+                ->modify('first day of previous month')
+                ->format('Y-m-d');
+        }
 
         if (($clientAccount = ClientAccount::findOne($clientAccountId)) === null) {
             Yii::$app->session->setFlash('error',
                 Yii::t('tariff', 'You should {a_start}select a client first{a_finish}',
                     ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
             $renderMode = null;
-        }
-        else {
+        } else {
 
             // Вернуть проводки клиента за предыдущий календарный месяц для счета-фактуры
             $accountEntryTableName = AccountEntry::tableName();
