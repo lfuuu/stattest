@@ -25,6 +25,8 @@ $accountTariffLog = $formModel->accountTariffLog;
         !$accountTariffLog->tariff_period_id && $defaultTariffPeriodId && $accountTariffLog->tariff_period_id = $defaultTariffPeriodId; // иначе (при создании) дефолтный
 
         $id = mt_rand(0, 1000000); // чтобы на одной странице можно было несколько объектов показывать
+
+        $accountTariffLog->tariffPeriodFieldName = $accountTariff->service_type_id == \app\classes\uu\model\ServiceType::ID_VOIP_PACKAGE ? 'Период пакета' : 'Период тарифа';
         ?>
         <?= $form->field($accountTariffLog, 'tariff_period_id')
             ->widget(Select2::className(), [

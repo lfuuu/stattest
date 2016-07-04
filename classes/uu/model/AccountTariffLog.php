@@ -21,10 +21,14 @@ use yii\db\Expression;
 class AccountTariffLog extends ActiveRecord
 {
     // Перевод названий полей модели
-    use \app\classes\traits\AttributeLabelsTraits;
+    use \app\classes\traits\AttributeLabelsTraits {
+        attributeLabels as attributeLabelsFromTrait;
+    }
 
     // Методы для полей insert_time, insert_user_id
     use \app\classes\traits\InsertUserTrait;
+
+    public $tariffPeriodFieldName = '';
 
     /**
      * @return string
@@ -46,6 +50,17 @@ class AccountTariffLog extends ActiveRecord
             ['actual_from', 'validatorFuture'],
             ['actual_from', 'validatorOneInFuture'],
         ];
+    }
+
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        $attributeLabels = $this->attributeLabelsFromTrait();
+        $this->tariffPeriodFieldName && $attributeLabels['tariff_period_id'] = $this->tariffPeriodFieldName;
+        return $attributeLabels;
     }
 
     /**
