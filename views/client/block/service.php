@@ -6,6 +6,7 @@ use app\models\TariffInternet;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageTechCpe;
+use yii\helpers\Url;
 
 $actual = function ($from, $to) {
     return (strtotime($from) < time() && strtotime($to) > time()) ? true : false;
@@ -64,7 +65,7 @@ if ($has) :
     ?>
     <div class="service">
         <div class="row" style="padding-left: 15px;">
-            <h2>Услуги</h2>
+            <h2>Услуги, <a href="<?= Url::to(['/uu/account-tariff', 'AccountTariffFilter[client_account_id]' => $account->id]) ?>">Универсальные услуги</a></h2>
             <?php if ($services['ipport']) : ?>
                 <div id="ipport">
                     <h3><a href="?module=services&action=in_view">Интернет подключения</a></h3>

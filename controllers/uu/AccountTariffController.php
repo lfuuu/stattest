@@ -56,7 +56,7 @@ class AccountTariffController extends BaseController
      * @param int $serviceTypeId
      * @return string
      */
-    public function actionIndex($serviceTypeId = ServiceType::ID_VPBX)
+    public function actionIndex($serviceTypeId = '')
     {
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->addClientAccountFilter($filterModel);

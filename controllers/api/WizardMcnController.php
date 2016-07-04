@@ -223,7 +223,7 @@ class WizardMcnController extends WizardBaseController
      * ),
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard-mcn/save-'document/",
+     *   path="/wizard-mcn/save-document/",
      *   summary="Сохранение документа",
      *   operationId="Сохранение документа",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),

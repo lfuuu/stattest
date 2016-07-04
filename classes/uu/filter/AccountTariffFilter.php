@@ -34,7 +34,9 @@ class AccountTariffFilter extends AccountTariff
      */
     public function getServiceType()
     {
-        return ServiceType::findOne($this->service_type_id);
+        return $this->service_type_id ?
+            ServiceType::findOne($this->service_type_id) :
+            null;
     }
 
     /**

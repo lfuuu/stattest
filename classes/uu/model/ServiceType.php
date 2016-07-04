@@ -44,6 +44,29 @@ class ServiceType extends \yii\db\ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    public static $ids = [
+        self::ID_VPBX,
+        self::ID_VOIP,
+        self::ID_VOIP_PACKAGE,
+
+        self::ID_INTERNET,
+        self::ID_COLLOCATION,
+        self::ID_VPN,
+
+        self::ID_IT_PARK,
+        self::ID_DOMAIN,
+        self::ID_MAILSERVER,
+        self::ID_ATS,
+        self::ID_SITE,
+        self::ID_USPD,
+        self::ID_WELLSYSTEM,
+        self::ID_WELLTIME,
+        self::ID_EXTRA,
+        self::ID_SMS_GATE,
+
+        self::ID_SMS,
+    ];
+
     /**
      * @inheritdoc
      */

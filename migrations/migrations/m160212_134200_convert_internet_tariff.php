@@ -1,14 +1,8 @@
 <?php
 
-use app\classes\uu\model\Period;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffPeriod;
-use app\classes\uu\model\TariffPerson;
-use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffStatus;
-use app\models\Country;
 
 class m160212_134200_convert_internet_tariff extends \app\classes\Migration
 {
@@ -20,9 +14,6 @@ class m160212_134200_convert_internet_tariff extends \app\classes\Migration
         $this->addServiceType();
         $this->addTariffStatus();
         $this->addResource();
-        $this->convertTariff();
-        $this->convertTariffPeriod();
-        $this->convertTariffResource();
     }
 
     /**
@@ -30,10 +21,6 @@ class m160212_134200_convert_internet_tariff extends \app\classes\Migration
      */
     public function safeDown()
     {
-        // TariffPeriod и TariffResource должны удалиться CASCADE
-        $this->delete(Tariff::tableName(), [
-            'service_type_id' => ServiceType::ID_INTERNET,
-        ]);
         $this->deleteResource();
         $this->deleteTariffStatus();
         $this->deleteServiceType();
@@ -113,91 +100,5 @@ class m160212_134200_convert_internet_tariff extends \app\classes\Migration
         $this->delete($tableName, [
             'id' => TariffStatus::ID_INTERNET_ADSL,
         ]);
-    }
-
-    /**
-     * Конвертировать Tariff
-     */
-    protected function convertTariff()
-    {
-        $statusIdPublic = TariffStatus::ID_PUBLIC;
-        $statusIdSpecial = TariffStatus::ID_SPECIAL;
-        $statusIdArchive = TariffStatus::ID_ARCHIVE;
-        $statusIdAdsl = TariffStatus::ID_INTERNET_ADSL;
-
-        $serviceTypeIdInternet = ServiceType::ID_INTERNET;
-        $countryIdRussia = Country::RUSSIA;
-
-        $personIdAll = TariffPerson::ID_ALL;
-        $tariffTableName = Tariff::tableName();
-        $deltaInternetTariff = Tariff::DELTA_INTERNET;
-
-        $this->execute("INSERT INTO {$tariffTableName}
-          (id,  service_type_id, currency_id, name, tariff_status_id, is_include_vat, tariff_person_id, country_id,
-          is_autoprolongation, is_charge_after_period, is_charge_after_blocking, count_of_validity_period,
-          insert_user_id, insert_time, update_user_id, update_time)
-
-  SELECT id + {$deltaInternetTariff},
-      {$serviceTypeIdInternet},
-      currency,
-      name,
-      CASE status
-        WHEN 'public' THEN {$statusIdPublic}
-        WHEN 'special' THEN {$statusIdSpecial}
-        WHEN 'archive' THEN {$statusIdArchive}
-        WHEN 'adsl_su' THEN {$statusIdAdsl}
-      END,
-      price_include_vat,
-      {$personIdAll},
-      {$countryIdRussia},
-      1,
-      0,
-      0,
-      0,
-      edit_user,
-      edit_time,
-      edit_user,
-      edit_time
-
-  FROM tarifs_internet
-  WHERE type = 'I'
-    ");
-    }
-
-    /**
-     * Конвертировать TariffPeriod
-     */
-    protected function convertTariffPeriod()
-    {
-        $periodIdMonth = Period::ID_MONTH;
-        $deltaInternetTariff = Tariff::DELTA_INTERNET;
-        $tariffPeriodTableName = TariffPeriod::tableName();
-
-        $this->execute("INSERT INTO {$tariffPeriodTableName}
-          (price_per_period, price_setup, price_min, tariff_id, period_id, charge_period_id)
-
-  SELECT pay_month, pay_once, 0, id + {$deltaInternetTariff}, {$periodIdMonth}, {$periodIdMonth}
-  FROM tarifs_internet
-  WHERE type = 'I'
-  ");
-
-    }
-
-    /**
-     * Конвертировать TariffPeriodResource
-     */
-    protected function convertTariffResource()
-    {
-        $deltaInternetTariff = Tariff::DELTA_INTERNET;
-        $resourceIdTraffic = Resource::ID_INTERNET_TRAFFIC;
-        $tariffResourceTableName = TariffResource::tableName();
-
-        $this->execute("INSERT INTO {$tariffResourceTableName}
-          (amount, price_per_unit, price_min, resource_id, tariff_id)
-
-  SELECT mb_month, pay_mb, 0, {$resourceIdTraffic}, id + {$deltaInternetTariff}
-  FROM tarifs_internet
-  WHERE type = 'I'
-  ");
     }
 }
