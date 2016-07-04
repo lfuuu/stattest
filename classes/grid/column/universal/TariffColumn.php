@@ -15,11 +15,12 @@ class TariffColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $serviceTypeId = null;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Tariff::getList(true);
+        $this->filter = Tariff::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $this->serviceTypeId);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' tariff-column';
     }

@@ -297,6 +297,7 @@ a.nohover:hover {
     min-width: 160px;
 }
 
+.nnp-package-tariff-column,
 .resource-column {
     min-width: 200px;
 }

@@ -11,6 +11,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\TariffColumn;
 use app\classes\grid\GridView;
+use app\classes\uu\model\ServiceType;
 use app\modules\nnp\column\DestinationColumn;
 use app\modules\nnp\column\PackagePeriodColumn;
 use app\modules\nnp\column\PackageTypeColumn;
@@ -40,6 +41,10 @@ $columns = [
     [
         'attribute' => 'tariff_id',
         'class' => TariffColumn::className(),
+        'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE,
+        'filterOptions' => [
+            'class' => 'nnp-package-tariff-column',
+        ],
     ],
 
     [
@@ -67,7 +72,7 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
     ],
 
-   [
+    [
         'attribute' => 'minute',
         'class' => IntegerRangeColumn::className(),
     ],
