@@ -2,6 +2,8 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
+use app\models\City;
+use app\models\Country;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -21,6 +23,8 @@ use yii\helpers\Url;
  * @property bool is_mob true - DEF, false - ABC
  * @property bool is_active
  *
+ * @property Country country
+ * @property City city
  * @property Operator operator
  * @property Region region
  * @property NumberRangePrefix[] numberRangePrefixes
@@ -120,6 +124,22 @@ class NumberRange extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCity()
+    {
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 
     /**
