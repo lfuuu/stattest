@@ -340,16 +340,21 @@ class ClientController extends ApiInternalController
                 }
             }
             //clean
-            $result['contragents'] = [];
-            foreach ($preresult['contragents'] as $precontragent) {
-                $contragent = $precontragent;
-                $contragent['accounts'] = [];
-                foreach ($precontragent['accounts'] as $account) {
-                    $contragent['accounts'] [] = $account;
+            if ($preresult['contragents']) {
+                $result['contragents'] = [];
+                foreach ($preresult['contragents'] as $precontragent) {
+                    $contragent = $precontragent;
+                    $contragent['accounts'] = [];
+                    foreach ($precontragent['accounts'] as $account) {
+                        $contragent['accounts'] [] = $account;
+                    }
+                    $result['contragents'] [] = $contragent;
                 }
-                $result['contragents'] [] = $contragent;
             }
-            $fullResult [] = $result;
+            
+            if ($result) {
+                $fullResult [] = $result;
+            }
         }
         return $fullResult;
     }
