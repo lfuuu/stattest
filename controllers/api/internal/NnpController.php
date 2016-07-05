@@ -74,26 +74,26 @@ class NnpController extends ApiInternalController
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC (ABC/DEF). Код города/оператора"),
-     *   @SWG\Property(property = "numberFrom", type = "integer", description = "Номер с"),
-     *   @SWG\Property(property = "numberTo", type = "integer", description = "Номер по"),
-     *   @SWG\Property(property = "operatorSource", type = "string", description = "Исходный оператор"),
+     *   @SWG\Property(property = "number_from", type = "integer", description = "Номер с"),
+     *   @SWG\Property(property = "number_to", type = "integer", description = "Номер по"),
+     *   @SWG\Property(property = "operator_source", type = "string", description = "Исходный оператор"),
      *   @SWG\Property(property = "operator", type = "object", description = "Оператор", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "regionSource", type = "string", description = "Исходный регион"),
+     *   @SWG\Property(property = "region_source", type = "string", description = "Исходный регион"),
      *   @SWG\Property(property = "region", type = "object", description = "Регион", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "isMob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF"),
-     *   @SWG\Property(property = "isActive", type = "integer", description = "Активен? 0 - выключен, 1 - активен"),
+     *   @SWG\Property(property = "is_mob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF"),
+     *   @SWG\Property(property = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен"),
      * ),
      *
      * @SWG\Get(tags = {"Национальный номерной план"}, path = "/internal/nnp/get-number-ranges", summary = "Диапазоны номеров", operationId = "Диапазоны номеров",
-     *   @SWG\Parameter(name = "countryId", type = "integer", description = "ID страны (не префикс!)", in = "query"),
+     *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны (не префикс!)", in = "query"),
      *   @SWG\Parameter(name = "ndc", type = "integer", description = "NDC (ABC/DEF). Код города/оператора. Обычно 3 символа", in = "query"),
      *   @SWG\Parameter(name = "number", type = "integer", description = "Номер без префиксов. Обычно 7 символов", in = "query"),
-     *   @SWG\Parameter(name = "operatorId", type = "integer", description = "ID оператора. Также можно указать -1 для пустого или -2 для любого", in = "query"),
-     *   @SWG\Parameter(name = "regionId", type = "integer", description = "ID региона. Также можно указать -1 для пустого или -2 для любого", in = "query"),
-     *   @SWG\Parameter(name = "cityId", type = "integer", description = "ID города. Также можно указать -1 для пустого или -2 для любого", in = "query"),
-     *   @SWG\Parameter(name = "isMob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF", in = "query"),
-     *   @SWG\Parameter(name = "isActive", type = "integer", description = "Активен? 0 - выключен, 1 - активен", in = "query"),
+     *   @SWG\Parameter(name = "operator_id", type = "integer", description = "ID оператора. Также можно указать -1 для пустого или -2 для любого", in = "query"),
+     *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона. Также можно указать -1 для пустого или -2 для любого", in = "query"),
+     *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города. Также можно указать -1 для пустого или -2 для любого", in = "query"),
+     *   @SWG\Parameter(name = "is_mob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF", in = "query"),
+     *   @SWG\Parameter(name = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен", in = "query"),
      *
      *   @SWG\Response(response = 200, description = "Диапазоны номеров",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/nnpNumberRangeRecord"))
@@ -107,26 +107,26 @@ class NnpController extends ApiInternalController
      * @return array
      */
     public function actionGetNumberRanges(
-        $countryId = '',
+        $country_id = '',
         $ndc = '',
         $number = '',
-        $operatorId = '',
-        $regionId = '',
-        $cityId = '',
-        $isMob = '',
-        $isActive = ''
+        $operator_id = '',
+        $region_id = '',
+        $city_id = '',
+        $is_mob = '',
+        $is_active = ''
     ) {
 
         $query = NumberRange::find();
         $numberRangeTableName = NumberRange::tableName();
 
-        $countryId && $query->andWhere([$numberRangeTableName . '.country_code' => $countryId]);
+        $country_id && $query->andWhere([$numberRangeTableName . '.country_code' => $country_id]);
         $ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $ndc]);
 
-        $isMob !== '' && $query->andWhere([$numberRangeTableName . '.is_mob' => (bool)$isMob]);
-        $isActive !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$isActive]);
+        $is_mob !== '' && $query->andWhere([$numberRangeTableName . '.is_mob' => (bool)$is_mob]);
+        $is_active !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$is_active]);
 
-        switch ($operatorId) {
+        switch ($operator_id) {
             case '':
                 break;
             case GetListTrait::$isNull:
@@ -136,11 +136,11 @@ class NnpController extends ApiInternalController
                 $query->andWhere($numberRangeTableName . '.operator_id IS NOT NULL');
                 break;
             default:
-                $query->andWhere([$numberRangeTableName . '.operator_id' => $operatorId]);
+                $query->andWhere([$numberRangeTableName . '.operator_id' => $operator_id]);
                 break;
         }
 
-        switch ($regionId) {
+        switch ($region_id) {
             case '':
                 break;
             case GetListTrait::$isNull:
@@ -150,11 +150,11 @@ class NnpController extends ApiInternalController
                 $query->andWhere($numberRangeTableName . '.region_id IS NOT NULL');
                 break;
             default:
-                $query->andWhere([$numberRangeTableName . '.region_id' => $regionId]);
+                $query->andWhere([$numberRangeTableName . '.region_id' => $region_id]);
                 break;
         }
 
-        switch ($cityId) {
+        switch ($city_id) {
             case '':
                 break;
             case GetListTrait::$isNull:
@@ -164,7 +164,7 @@ class NnpController extends ApiInternalController
                 $query->andWhere($numberRangeTableName . '.city_id IS NOT NULL');
                 break;
             default:
-                $query->andWhere([$numberRangeTableName . '.city_id' => $cityId]);
+                $query->andWhere([$numberRangeTableName . '.city_id' => $city_id]);
                 break;
         }
 
@@ -193,15 +193,15 @@ class NnpController extends ApiInternalController
             'id' => $numberRange->id,
             'country' => $this->getIdNameRecord($numberRange->country, 'code'),
             'ndc' => $numberRange->ndc,
-            'numberFrom' => $numberRange->number_from,
-            'numberTo' => $numberRange->number_to,
-            'operatorSource' => $numberRange->operator_source,
+            'number_from' => $numberRange->number_from,
+            'number_to' => $numberRange->number_to,
+            'operator_source' => $numberRange->operator_source,
             'operator' => $this->getIdNameRecord($numberRange->operator),
-            'regionSource' => $numberRange->region_source,
+            'region_source' => $numberRange->region_source,
             'region' => $this->getIdNameRecord($numberRange->region),
             'city' => $this->getIdNameRecord($numberRange->city),
-            'isMob' => (int)$numberRange->is_mob,
-            'isActive' => (int)$numberRange->is_active,
+            'is_mob' => (int)$numberRange->is_mob,
+            'is_active' => (int)$numberRange->is_active,
         ];
     }
 }

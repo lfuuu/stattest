@@ -28,7 +28,12 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
     'dataProvider' => $formModel->getAccountTariffLogGrid(),
     'columns' => [
 
-        ['attribute' => 'actual_from'],
+        [
+            'attribute' => 'actual_from',
+            'value' => function (AccountTariffLog $accountTariffLog) {
+                return Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'php:d M Y');
+            }
+        ],
 
         [
             'attribute' => 'tariff_period_id',

@@ -117,6 +117,9 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_SMS => '/pop_services.php?table=usage_sms&id=%d',
     ];
 
+    /** @var int */
+    protected $serviceTypeIdOld = null;
+
     public static function tableName()
     {
         return 'uu_account_tariff';
@@ -139,6 +142,8 @@ class AccountTariff extends ActiveRecord
             ],
             [['comment'], 'string'],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
+            ['service_type_id', 'validatorServiceType'],
+            ['tariff_period_id', 'validatorTariffPeriod'],
         ];
     }
 
@@ -697,5 +702,51 @@ class AccountTariff extends ActiveRecord
     public static function getMinLogDatetime()
     {
         return (new DateTime())->setTime(0, 0, 0)->modify('first day of this month -1 months');
+    }
+
+    /**
+     * This method is called when the AR object is created and populated with the query result.
+     * The default implementation will trigger an [[EVENT_AFTER_FIND]] event.
+     * When overriding this method, make sure you call the parent implementation to ensure the
+     * event is triggered.
+     */
+    public function afterFind()
+    {
+        parent::afterFind();
+        $this->serviceTypeIdOld = $this->service_type_id;
+    }
+
+    /**
+     * Валидировать, что tariff_period_id соответствует service_type_id
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorServiceType($attribute, $params)
+    {
+        if (!$this->isNewRecord && $this->serviceTypeIdOld != $this->service_type_id) {
+            $this->addError($attribute, 'Нельзя менять service_type_id');
+            return;
+        }
+    }
+
+    /**
+     * Валидировать, что tariff_period_id соответствует service_type_id
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorTariffPeriod($attribute, $params)
+    {
+        if (!$this->tariff_period_id) {
+            return;
+        }
+        $tariffPeriod = $this->tariffPeriod;
+        if (!$tariffPeriod) {
+            $this->addError($attribute, 'Неправильный tariff_period_id');
+            return;
+        }
+        if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
+            $this->addError($attribute, 'Tariff_period_id не соответствует service_type_id');
+            return;
+        }
     }
 }

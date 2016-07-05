@@ -3,6 +3,7 @@
 namespace app\classes\uu\model;
 
 use app\classes\Html;
+use DateTime;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -30,6 +31,8 @@ class AccountTariffLog extends ActiveRecord
 
     public $tariffPeriodFieldName = '';
 
+    protected $countLogs = null;
+
     /**
      * @return string
      */
@@ -45,10 +48,11 @@ class AccountTariffLog extends ActiveRecord
     {
         return [
             [['account_tariff_id', 'tariff_period_id'], 'integer'],
-            [['account_tariff_id', 'actual_from'], 'required'],
+            [['account_tariff_id'], 'required'],
             ['actual_from', 'date', 'format' => 'php:Y-m-d'],
-            ['actual_from', 'validatorFuture'],
+            ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['actual_from', 'validatorOneInFuture'],
+            ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
         ];
     }
 
@@ -107,6 +111,11 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
+        if (!$this->actual_from) {
+            $this->actual_from = (new DateTime())->modify($this->getCountLogs() ? '+1 day' : '+0 day')->format('Y-m-d');
+        }
+
+
         $currentDate = date('Y-m-d');
         if ($this->actual_from > $currentDate) {
             return;
@@ -116,10 +125,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         // С сегодня. При подключени нового это можно, но при смене существующего нельзя
-        if (self::find()
-            ->where(['account_tariff_id' => $this->account_tariff_id])
-            ->count()
-        ) {
+        if ($this->getCountLogs()) {
             $this->addError($attribute, 'Сменить тариф можно только с завтра или позже.');
         }
     }
@@ -142,4 +148,31 @@ class AccountTariffLog extends ActiveRecord
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените предыдущую смену.');
         }
     }
+
+    /**
+     * Валидировать, что при создании сразу же не закрытый
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorCreateNotClose($attribute, $params)
+    {
+        if (!$this->tariff_period_id && !$this->getCountLogs()) {
+            $this->addError($attribute, 'Не указан период тарифа.');
+        }
+    }
+
+    /**
+     * Вернуть кол-во предыдущих логов
+     */
+    protected function getCountLogs()
+    {
+        if (!is_null($this->countLogs)) {
+            return $this->countLogs;
+        }
+
+        return $this->countLogs = self::find()
+            ->where(['account_tariff_id' => $this->account_tariff_id])
+            ->count();
+    }
+
 }
