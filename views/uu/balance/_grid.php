@@ -55,7 +55,7 @@ class AccountEntryPaymentCo
     public static function convertFromAccountEntry(AccountEntry $accountEntry)
     {
         $accountEntryPaymentCo = new self;
-        $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($accountEntry->date, 'php:M Y');
+        $accountEntryPaymentCo->month = datefmt_format_object(new DateTime($accountEntry->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
         $accountEntryPaymentCo->accountEntryUpdateTime = Yii::$app->formatter->asDate($accountEntry->update_time, 'php: d M');
         $accountEntryPaymentCo->accountEntryPrice = (($accountEntry->date == date('Y-m-01')) ? '0 / ' : '') .
             Html::a(
@@ -77,7 +77,7 @@ class AccountEntryPaymentCo
     public static function convertFromPayment(Payment $payment)
     {
         $accountEntryPaymentCo = new self;
-        $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($payment->payment_date, 'php:M Y');
+        $accountEntryPaymentCo->month = datefmt_format_object(new DateTime($payment->payment_date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
         $accountEntryPaymentCo->paymentDate = Yii::$app->formatter->asDate($payment->payment_date, 'php: d M');
 //        $accountEntryPaymentCo->billBillNo = Html::a(
 //            $payment->bill_no,
@@ -98,8 +98,7 @@ class AccountEntryPaymentCo
     public static function convertFromBillLine(BillLine $billLine)
     {
         $accountEntryPaymentCo = new self;
-        $accountEntryPaymentCo->month = Yii::$app->formatter->asDate($billLine->date_from, 'php:M Y');
-
+        $accountEntryPaymentCo->month = datefmt_format_object(new DateTime($billLine->date_from), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
         $accountEntryPaymentCo->billDate =
             Yii::$app->formatter->asDate($billLine->date_from, 'php:d') . '-' .
             Yii::$app->formatter->asDate($billLine->date_to, 'php:d M');

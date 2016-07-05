@@ -41,7 +41,7 @@ use yii\widgets\Breadcrumbs;
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (Bill $bill) {
-                return Yii::$app->formatter->asDate($bill->date, 'php:M Y');
+                return datefmt_format_object(new DateTime($bill->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             }
         ],
         [

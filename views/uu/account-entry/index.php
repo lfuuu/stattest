@@ -50,7 +50,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
-                return Yii::$app->formatter->asDate($accountEntry->date, 'php:M Y');
+                return datefmt_format_object(new DateTime($accountEntry->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             },
         ],
         [
