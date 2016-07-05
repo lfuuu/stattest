@@ -2261,11 +2261,10 @@ class ApiLk
 
     public static function _exportModelRow($fields, &$row)
     {
-        $spec_chars = array('/\t/', '/\f/','/\n/','/\r/','/\v/');
-        $line = array();
-        foreach ($fields as $field)
-        {
-            $line[$field] = preg_replace($spec_chars,' ',$row->{$field});
+        $spec_chars = ['/\t/u', '/\f/u', '/\n/u', '/\r/u', '/\v/u'];
+        $line = [];
+        foreach ($fields as $field) {
+            $line[$field] = preg_replace($spec_chars, ' ', $row->{$field});
         }
         return $line;
     }
