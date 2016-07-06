@@ -6,6 +6,7 @@ use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use RangeException;
+use Yii;
 
 /**
  * Предварительное списание (транзакции) абонентской платы. Тарификация
@@ -40,7 +41,16 @@ class AccountLogPeriodTarificator
                 continue;
             }
 
-            $this->tarificateAccountTariff($accountTariff);
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $this->tarificateAccountTariff($accountTariff);
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                echo $e->getMessage();
+                Yii::error($e->getMessage());
+                // не получилось с одной услугой - пойдем считать другую
+            }
         }
     }
 

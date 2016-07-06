@@ -505,8 +505,7 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('There are unknown calculated accountLogSetup: %s',
-                implode(', ', array_keys($accountLogs))));
+            throw new RangeException(sprintf('Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;
@@ -534,14 +533,12 @@ class AccountTariff extends ActiveRecord
                 $accountLog = $accountLogs[$dateFromYmd];
                 $dateToTmp = $accountLogFromToTariff->getDateTo()->format('Y-m-d');
                 if ($accountLog->date_to !== $dateToTmp) {
-                    throw new RangeException(sprintf('Calculated accountLogPeriod date %s is not equal %s',
-                        $accountLog->date_to, $dateToTmp));
+                    throw new RangeException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
                 }
 
                 $tariffPeriodId = $accountLogFromToTariff->getTariffPeriod()->id;
                 if ($accountLog->tariff_period_id !== $tariffPeriodId) {
-                    throw new RangeException(sprintf('Calculated accountLogPeriod %s is not equal %s',
-                        $accountLog->tariff_period_id, $tariffPeriodId));
+                    throw new RangeException(sprintf('Error. Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
                 }
                 unset($accountLogs[$dateFromYmd]);
             } else {
@@ -552,8 +549,7 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('There are unknown calculated accountLogPeriod: %s',
-                implode(', ', array_keys($accountLogs))));
+            throw new RangeException(sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;
@@ -585,8 +581,7 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('There are unknown calculated accountLogResource: %s',
-                implode(', ', array_keys($accountLogs))));
+            throw new RangeException(sprintf('Error. There are unknown calculated accountLogResource for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;

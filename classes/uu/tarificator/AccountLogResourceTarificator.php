@@ -8,6 +8,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
+use Yii;
 
 /**
  * Предварительное списание (транзакции) платы за ресурсы. Тарификация
@@ -48,7 +49,16 @@ class AccountLogResourceTarificator
                 continue;
             }
 
-            $this->tarificateAccountTariff($accountTariff);
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $this->tarificateAccountTariff($accountTariff);
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                echo $e->getMessage();
+                Yii::error($e->getMessage());
+                // не получилось с одной услугой - пойдем считать другую
+            }
         }
     }
 

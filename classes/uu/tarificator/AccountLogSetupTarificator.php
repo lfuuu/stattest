@@ -5,6 +5,7 @@ namespace app\classes\uu\tarificator;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use Yii;
 
 /**
  * Предварительное списание (транзакции) стоимости подключения. Тарификация
@@ -39,7 +40,16 @@ class AccountLogSetupTarificator
                 continue;
             }
 
-            $this->tarificateAccountTariff($accountTariff);
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $this->tarificateAccountTariff($accountTariff);
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                echo $e->getMessage();
+                Yii::error($e->getMessage());
+                // не получилось с одной услугой - пойдем считать другую
+            }
         }
     }
 
