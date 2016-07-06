@@ -70,31 +70,36 @@
 </form><br>
 
 <table style="text-align: center;border-collapse: collapse;" border=1 colspan=1 cellspacing=0 width=60%>
-<tr>
-<td>/</td>
-{foreach from=$l1 item=c key=k}
-<td colspan={$c.colspan} style="background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};"><b>{$c.title}</b></td>
-{/foreach}
-</tr>
-{foreach from=$payments key=date item=di}
-<tr>
-<td><b>{$date|mdate:"d-m-Y"}</b></td>
-{foreach from=$companyes key=k item=i}
-{foreach from=$i.acc item=a}
-<td style="padding: 3px 3px 3px 3px;background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};">
-    {if isset($di[$k][$a]) && $di[$k][$a]}
-        <a href=".?module=newaccounts&action=pi_process&file={$di[$k][$a]}">{$a}</a>
-    {else}
-        &nbsp;
-    {/if}
-    {if $a == "citi" && isset($di[$k].citi_info) && $di[$k].citi_info}
-        <sup title="Дополнительная информация к платежам загруженна" style="color:#20a420; font-size: 7pt;">+info</sup>
-    {/if}
-</td>
-{/foreach}
-{/foreach}
-</tr>
-{/foreach}
+	<tr>
+		<td>/</td>
+		{foreach from=$l1 item=c key=k}
+			<td colspan={$c.colspan} style="background-color:
+				{if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};
+			">
+			<b>{$c.title}</b>
+			</td>
+		{/foreach}
+	</tr>
+	{foreach from=$payments key=date item=di}
+		<tr>
+			<td><b>{$date|mdate:"d-m-Y"}</b></td>
+			{foreach from=$companyes key=k item=i}
+				{foreach from=$i.acc item=a}
+					<td style="padding: 3px 3px 3px 3px;background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};">
+						{if isset($di[$k][$a]) && $di[$k][$a]}
+							<a href=".?module=newaccounts&action=pi_process&file={$di[$k][$a]}">{$a}</a>
+						{else}
+							&nbsp;
+						{/if}
+						{if $a == "citi" && isset($di[$k].citi_info) && $di[$k].citi_info}
+							<sup title="Дополнительная информация к платежам загруженна"
+								 style="color:#20a420; font-size: 7pt;">+info</sup>
+						{/if}
+					</td>
+				{/foreach}
+			{/foreach}
+		</tr>
+	{/foreach}
 </table>
 
 {*foreach from=$payments item=file name=outer}
