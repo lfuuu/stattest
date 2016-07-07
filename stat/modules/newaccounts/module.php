@@ -3116,7 +3116,7 @@ where cg.inn = '" . $inn . "'";
 
                 /** @var $payment PaymentSberOnline */
                 $payments[] = [
-                    'no' => $payment->code5,
+                    'no' => $payment->code4,
                     'date_exch' => $payment->payment_sent_date,
                     'date' => $payment->payment_received_date,
                     'oper_date' => $payment->payment_sent_date,
