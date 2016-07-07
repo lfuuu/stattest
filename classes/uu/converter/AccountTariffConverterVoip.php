@@ -8,6 +8,7 @@ use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\models\City;
+use app\models\Region;
 use Yii;
 
 /**
@@ -84,16 +85,19 @@ class AccountTariffConverterVoip extends AccountTariffConverterA
         parent::postProcessing();
 
         $cityTableName = City::tableName();
-        $accountTableName = AccountTariff::tableName();
+        $accounttariffTableName = AccountTariff::tableName();
+        $regionTableName = Region::tableName();
         $sql = <<<SQL
 UPDATE
-    {$accountTableName} account_tariff,
-    {$cityTableName} city
+    {$accounttariffTableName} account_tariff,
+    {$cityTableName} city,
+    {$regionTableName} regions
 SET
     account_tariff.city_id = city.id
 WHERE
     account_tariff.city_id IS NULL
-    AND account_tariff.region_id = city.connection_point_id
+    AND account_tariff.region_id = regions.id
+    AND regions.name = city.name
 SQL;
         $this->execute($sql);
 

@@ -385,7 +385,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "query"),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "query"),
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "query"),
-     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги клиента. Если список услуг пакета телефонии, то можно здесь указать ID услуги телефонии", in = "formData"),
+     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги клиента. Если список услуг пакета телефонии, то можно здесь указать ID услуги телефонии", in = "query"),
      *
      *   @SWG\Response(response = 200, description = "Список услуг у клиента",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffAccountRecord"))
@@ -416,10 +416,10 @@ class UuController extends ApiInternalController
         $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
         $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
         $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
-        $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prevAccountTariffId' => $prev_account_tariff_id]);
+        $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
 
         if (!$id && !$service_type_id && !$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр id, serviceTypeId или clientAccountId');
+            throw new InvalidArgumentException('Необходимо указать фильтр id, service_type_id или client_account_id');
         }
 
         $result = [];
