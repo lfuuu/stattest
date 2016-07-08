@@ -42,6 +42,7 @@ class Payment extends ActiveRecord
     const BANK_URAL = 'ural';
     const BANK_SBER = 'sber';
     const BANK_RAIFFEISEN = 'raiffeisen';
+    const BANK_PROMSVIAZBANK = 'promsviazbank';
 
     const ECASH_CYBERPLAT = 'cyberplat';
     const ECASH_YANDEX = 'yandex';
@@ -59,6 +60,7 @@ class Payment extends ActiveRecord
         self::BANK_MOS => 'Банк Москвы',
         self::BANK_URAL => 'УралСиб',
         self::BANK_SBER => 'Сбербанк',
+        self::BANK_PROMSVIAZBANK => 'Промсвязьбанк',
         self::BANK_RAIFFEISEN => 'Raiffeisen Bank Zrt.',
     ];
 
