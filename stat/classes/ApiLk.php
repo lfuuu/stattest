@@ -422,14 +422,17 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
+        $isOrderOfServices = $clientAccount->contract->business_process_status_id == \app\models\BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+
         $tariffs =
             TariffVoip::find()
-                ->andWhere(['status' => TariffNumber::STATUS_PUBLIC])
+                ->andWhere(['status' => $isOrderOfServices ? TariffVoip::STATE_TEST : TariffVoip::STATE_PUBLIC])
                 ->andWhere(['dest' => 4])
                 ->all();
 
         $resultTariffsByConnectionPointId = [];
 
+        /** @var TariffVoip $tariff */
         foreach ($tariffs as $tariff) {
 
             if (!isset($resultTariffsByConnectionPointId[$tariff->connection_point_id])) {

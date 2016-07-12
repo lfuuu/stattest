@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use app\models\BusinessProcessStatus;
 use app\models\Emails;
 use app\models\UsageVoip;
 use Yii;
@@ -12,6 +13,10 @@ use app\forms\usage\UsageVoipEditForm;
 
 class UsageController extends Controller
 {
+
+    const ACTION_SET_BLOCK = 1;
+    const ACTION_SET_OFF = 2;
+    const ACTION_CLEAN_ORDER_OF_SERVICE = 3;
 
     public function actionClientUpdateIsActive()
     {
@@ -42,6 +47,14 @@ class UsageController extends Controller
         return Controller::EXIT_CODE_NORMAL;
     }
 
+    /**
+     * Очистка услуг телефонии.
+     * через 3 дня   - высвободить номер, если статус бизнес процесса - "Заказ услуг"
+     * через 10 дней - заблокировать ЛС, если есть услуга в тесте
+     * через 40 дней - высвободить номер, если есть услуга в тесте
+     *
+     * @return int
+     */
     public function actionVoipTestClean()
     {
         $info = [];
@@ -50,14 +63,17 @@ class UsageController extends Controller
 
         echo "\nstart " . $now->format("Y-m-d H:i:s") . "\n";
 
+        $cleanOrderOfServiceDate = (new DateTime("now"))->modify("-3 day");
         $blockDate = (new DateTime("now"))->modify("-10 day");
         $offDate = (new DateTime("now"))->modify("-40 day");
 
         echo $now->format("Y-m-d") . ": block: " . $blockDate->format("Y-m-d") . "\n";
-        echo $now->format("Y-m-d") . ": off: " . $offDate->format("Y-m-d") . "\n";
+        echo $now->format("Y-m-d") . ": off:   " . $offDate->format("Y-m-d") . "\n";
+        echo $now->format("Y-m-d") . ": clean: " . $cleanOrderOfServiceDate->format("Y-m-d") . "\n";
 
-        $infoBlock = $this->cleanUsages($blockDate, "set block");
-        $infoOff = $this->cleanUsages($offDate, "set off");
+        $infoBlock = $this->cleanUsages($blockDate, self::ACTION_SET_BLOCK);
+        $infoOff = $this->cleanUsages($offDate, self::ACTION_SET_OFF);
+        $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_ORDER_OF_SERVICE);
 
         if ($infoBlock) {
             $info = array_merge($info, $infoBlock);
@@ -65,6 +81,10 @@ class UsageController extends Controller
 
         if ($infoOff) {
             $info = array_merge($info, $infoOff);
+        }
+
+        if ($infoClean) {
+            $info = array_merge($info, $infoClean);
         }
 
         if ($info) {
@@ -78,7 +98,7 @@ class UsageController extends Controller
         return Controller::EXIT_CODE_NORMAL;
     }
 
-    private function cleanUsages($date, $action)
+    private function cleanUsages(\DateTime $date, $action)
     {
         $now = new DateTime("now");
 
@@ -90,11 +110,18 @@ class UsageController extends Controller
             $tarif = $usage->tariff;
             $account = $usage->clientAccount;
 
-            if (!$tarif || $tarif->isTested()) // тестовый тариф, или без тарифа вообще
-            {
-                if ($usage->actual_to != $now->format("Y-m-d")) // не выключенные сегодня
-                {
-                    if ($action == "set block") {
+            if ($action == self::ACTION_CLEAN_ORDER_OF_SERVICE) {
+                if ($account->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
+                    $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean order of service";
+
+                    $model = new UsageVoipEditForm();
+                    $model->initModel($account, $usage);
+                    $model->disconnecting_date = $now->format("Y-m-d");
+                    $model->edit();
+                }
+            } elseif (!$tarif || $tarif->isTested()) {// тестовый тариф, или без тарифа вообще
+                if ($usage->actual_to != $now->format("Y-m-d")) {// не выключенные сегодня
+                    if ($action == self::ACTION_SET_BLOCK) {
                         if (!$account->is_blocked) {
                             $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set block " . $tarif->status;
 
@@ -103,11 +130,11 @@ class UsageController extends Controller
                         }
                     }
 
-                    if ($action == "set off") {
+                    if ($action == self::ACTION_SET_OFF) {
                         $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
 
                         $model = new UsageVoipEditForm();
-                        $model->initModel($usage->clientAccount, $usage);
+                        $model->initModel($account, $usage);
                         $model->disconnecting_date = $now->format("Y-m-d");
                         $model->edit();
                     }

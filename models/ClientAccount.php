@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property int $business_id
  * @property int $price_include_vat
  * @property int $is_active
+ * @property int $is_blocked
  * @property int $region
  * @property string $address_post
  * @property string $site_name
