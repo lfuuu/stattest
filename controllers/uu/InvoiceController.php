@@ -60,7 +60,7 @@ class InvoiceController extends BaseController
             Yii::$app->session->setFlash('error',
                 Yii::t('tariff', 'You should {a_start}select a client first{a_finish}',
                     ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
-            $renderMode = null;
+            return $this->redirect('/');
         } else {
 
             // Вернуть проводки клиента за предыдущий календарный месяц для счета-фактуры
