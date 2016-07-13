@@ -129,6 +129,14 @@ class Number extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDidGroup()
     {
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);

@@ -93,6 +93,18 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int $countryCode
+     * @return $this
+     */
+    public function setCountry($countryCode = 0)
+    {
+        if ((int)$countryCode) {
+            $this->query->andWhere(['country_code' => $countryCode]);
+        }
+        return $this;
+    }
+
+    /**
      * @param string[] $numbers
      * @return $this
      */

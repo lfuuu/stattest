@@ -78,6 +78,9 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="offset",type="integer",description="смещение результатов поиска",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="кол-во записей (default: 12, 'null' для получения всех)",in="query"),
      *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
+     *   @SWG\Parameter(name="countryCode",type="integer",description="Код страны",in="query"),
+     *   @SWG\Parameter(name="cities[]",type="integer",description="ID города",in="query"),
+     *   @SWG\Parameter(name="cities[]",type="integer",description="ID города",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Выбрать список свободных номеров",
@@ -103,11 +106,15 @@ final class OpenController extends Controller
         $like = null,
         $offset = 0,
         $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
-        $currency = Currency::RUB
+        $currency = Currency::RUB,
+        $countryCode = 0,
+        array $cities = []
     ) {
         $numbers =
             (new FreeNumberFilter)
                 ->setRegions($regions)
+                ->setCountry($countryCode)
+                ->setCities($cities)
                 ->setMinCost($minCost)
                 ->setMaxCost($maxCost)
                 ->setBeautyLvl($beautyLvl);
