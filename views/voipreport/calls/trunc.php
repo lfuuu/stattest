@@ -13,6 +13,7 @@ use app\classes\grid\column\billing\OrigColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\billing\TrunkSuperClientColumn;
+use app\classes\grid\column\billing\DisconnectCauseColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
@@ -22,6 +23,7 @@ use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
 use app\models\billing\Calls;
 use app\models\filter\CallsFilter;
+use kartik\export\ExportMenu;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
 
@@ -82,6 +84,7 @@ $columns = [
     ],
     [
         'attribute' => 'src_number',
+        'label' => 'Номер А',
         'class' => StringColumn::className(),
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
@@ -89,6 +92,7 @@ $columns = [
     ],
     [
         'attribute' => 'dst_number',
+        'label' => 'Номер Б',
         'class' => StringColumn::className(),
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
@@ -105,16 +109,16 @@ $columns = [
     [
         'attribute' => 'rate',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'interconnect_rate',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Цена минуты с интерконнектом, у.е.',
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->rate + $calls->interconnect_rate;
         }
@@ -122,16 +126,16 @@ $columns = [
     [
         'attribute' => 'cost',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'interconnect_cost',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Стоимость с интерконнектом, у.е.',
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->cost + $calls->interconnect_cost;
         }
@@ -160,6 +164,10 @@ $columns = [
         'attribute' => 'account_id',
         'class' => StringColumn::className(),
     ],
+    [
+        'attribute' => 'disconnect_cause',
+        'class' => DisconnectCauseColumn::className(),
+    ]
 ];
 ?>
 

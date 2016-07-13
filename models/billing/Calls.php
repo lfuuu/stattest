@@ -93,6 +93,7 @@ class Calls extends ActiveRecord
             'package_time' => 'Секунд из пакета',
             'package_credit' => 'Перерасход (?)',
             'destination_id' => 'Направление',
+            'disconnect_cause' => 'Код завершения',
             // auth.destination
             'pricelist_id' => 'Прайслист',
             'prefix' => 'Префикс',

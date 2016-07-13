@@ -85,6 +85,8 @@ class CallsFilter extends Calls
     public $billed_time_sum_from = '';
     public $billed_time_sum_to = '';
 
+    public $disconnect_cause;
+
     /**
      * @return array
      */
@@ -122,6 +124,8 @@ class CallsFilter extends Calls
             [['acd_from', 'acd_to'], 'double'],
 
             [['billed_time_sum_from', 'billed_time_sum_to'], 'double'],
+
+            [['disconnect_cause'], 'integer'],
         ];
     }
 
@@ -240,6 +244,8 @@ class CallsFilter extends Calls
         $this->mob !== '' && $query->andWhere(($this->mob ? '' : 'NOT ') . 'mob');
 
         $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
+
+        (int)$this->disconnect_cause && $query->andWhere(['disconnect_cause' => $this->disconnect_cause]);
 
         !$this->isFilteringPossible() && $query->andWhere('false');
 
@@ -366,6 +372,6 @@ class CallsFilter extends Calls
      */
     public function isFilteringPossible()
     {
-        return $this->trunk_id !== '' && $this->connect_time_from !== '';
+        return $this->connect_time_from !== '';
     }
 }

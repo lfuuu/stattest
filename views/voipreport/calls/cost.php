@@ -57,18 +57,18 @@ $columns = [
     [
         'attribute' => 'billed_time_sum', // псевдо-поле
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'acd', // псевдо-поле Средняя длительность
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'rate',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 //    [
 //        'attribute' => 'interconnect_rate',
@@ -78,13 +78,13 @@ $columns = [
     [
         'attribute' => 'rate_with_interconnect', // псевдо-поле
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'cost_sum', // псевдо-поле
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 //    [
 //        'attribute' => 'interconnect_cost_sum', // псевдо-поле
@@ -94,13 +94,13 @@ $columns = [
     [
         'attribute' => 'cost_with_interconnect_sum',
         'class' => FloatRangeColumn::className(), // псевдо-поле
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'asr', // псевдо-поле Отношение звонков с длительностью ко всем звонкам
         'class' => IntegerRangeColumn::className(),
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
 ];
 ?>
