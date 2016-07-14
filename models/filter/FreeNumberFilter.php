@@ -2,13 +2,13 @@
 
 namespace app\models\filter;
 
-use yii\db\Expression;
 use app\models\Currency;
+use app\models\DidGroup;
+use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\models\NumberType;
-use app\models\DidGroup;
 use app\models\TariffNumber;
-use app\models\light_models\NumberLight;
+use yii\db\Expression;
 
 /**
  * Фильтрация для свободных номеров
@@ -164,8 +164,9 @@ class FreeNumberFilter extends Number
      */
     public function setNumberMask($mask = null)
     {
-        if (!is_null($mask)) {
-            $this->query->andWhere(parent::tableName() . '.number LIKE :part', [':part' => $mask]);
+        if ($mask) {
+            $mask = strtr($mask, ['.' => '_', '*' => '%']);
+            $this->query->andWhere(parent::tableName() . '.number LIKE :number', [':number' => $mask]);
         }
         return $this;
     }
@@ -176,8 +177,8 @@ class FreeNumberFilter extends Number
      */
     public function setDidGroup($didGroupId)
     {
-        if ((int) $didGroupId) {
-            $this->query->andWhere([parent::tableName() . '.did_group_id' => (int) $didGroupId]);
+        if ((int)$didGroupId) {
+            $this->query->andWhere([parent::tableName() . '.did_group_id' => (int)$didGroupId]);
         }
         return $this;
     }
@@ -188,8 +189,8 @@ class FreeNumberFilter extends Number
      */
     public function setCity($cityId)
     {
-        if ((int) $cityId) {
-            $this->query->andWhere([parent::tableName() . '.city_id' => (int) $cityId]);
+        if ((int)$cityId) {
+            $this->query->andWhere([parent::tableName() . '.city_id' => (int)$cityId]);
         }
         return $this;
     }

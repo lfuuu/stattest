@@ -68,19 +68,19 @@ final class OpenController extends Controller
      *   path="/open/get-free-numbers-by-filter",
      *   summary="Выбрать список свободных номеров в зависимости от параметров",
      *   operationId="Выбрать список свободных номеров в зависимости от параметров",
-     *   @SWG\Parameter(name="regions[]",type="integer",description="код региона(ов)",in="query"),
-     *   @SWG\Parameter(name="regions[]",type="integer",description="код региона(ов)",in="query"),
+     *   @SWG\Parameter(name="regions[0]",type="integer",description="код региона(ов)",in="query"),
+     *   @SWG\Parameter(name="regions[1]",type="integer",description="код региона(ов)",in="query"),
      *   @SWG\Parameter(name="numberType",type="integer",description="тип номеров (const from NumberType)",in="query"),
      *   @SWG\Parameter(name="minCost",type="number",description="минимальная стоимость",in="query"),
      *   @SWG\Parameter(name="maxCost",type="number",description="максимальная стоимость",in="query"),
      *   @SWG\Parameter(name="beautyLvl",type="integer",description="уровень красоты",in="query"),
-     *   @SWG\Parameter(name="like",type="string",description="выражение для поиска вхождения",in="query"),
+     *   @SWG\Parameter(name="like",type="string",description="Номер телефона. Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)",in="query"),
      *   @SWG\Parameter(name="offset",type="integer",description="смещение результатов поиска",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="кол-во записей (default: 12, 'null' для получения всех)",in="query"),
      *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
      *   @SWG\Parameter(name="countryCode",type="integer",description="Код страны",in="query"),
-     *   @SWG\Parameter(name="cities[]",type="integer",description="ID города",in="query"),
-     *   @SWG\Parameter(name="cities[]",type="integer",description="ID города",in="query"),
+     *   @SWG\Parameter(name="cities[0]",type="integer",description="ID города",in="query"),
+     *   @SWG\Parameter(name="cities[1]",type="integer",description="ID города",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Выбрать список свободных номеров",
@@ -117,13 +117,8 @@ final class OpenController extends Controller
                 ->setCities($cities)
                 ->setMinCost($minCost)
                 ->setMaxCost($maxCost)
-                ->setBeautyLvl($beautyLvl);
-        if (!is_null($like)) {
-            if (!preg_match('#^%?\d{3,}%$#', $like)) {
-                throw new BadRequestHttpException('Bad format for mask search');
-            }
-            $numbers->setNumberMask($like);
-        }
+                ->setBeautyLvl($beautyLvl)
+                ->setNumberMask($like);
         if ((int)$offset) {
             $numbers->setOffset((int)$offset);
         }
