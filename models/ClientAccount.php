@@ -558,7 +558,8 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOption($name)
     {
-        return ArrayHelper::getColumn($this->getOptions()->where(['option' => $name])->all(), 'value');
+        $option  = $this->getOptions()->where(['option' => $name])->all();
+        return $option !== null ? ArrayHelper::getColumn($option, 'value') : false;
     }
 
     public function convertSum($originalSum, $taxRate = null)

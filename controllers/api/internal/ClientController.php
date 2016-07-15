@@ -11,6 +11,7 @@ use app\models\ClientAccount;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\api\internal\PartnerNotFoundException;
 use app\forms\client\ClientCreateExternalForm;
+use yii\helpers\ArrayHelper;
 
 class ClientController extends ApiInternalController
 {
@@ -458,4 +459,5 @@ class ClientController extends ApiInternalController
             }
         }
     }
+
 }

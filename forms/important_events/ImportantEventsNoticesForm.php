@@ -12,8 +12,8 @@ use app\forms\client\ClientAccountOptionsForm;
 class ImportantEventsNoticesForm extends Form
 {
 
-    const MAILER_METHOD_READ = '/site/accesslistjson';
-    const MAILER_METHOD_UPDATE = '/site/accesssetjson?';
+    const MAILER_METHOD_READ = '/site/events';
+    const MAILER_METHOD_UPDATE = '/site/events-set';
 
     public
         $clientAccountId,
@@ -54,41 +54,36 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
-        $client = new HttpClient([
-            'transport' => 'yii\httpclient\CurlTransport',
-            'requestConfig' => [
-                'format' => HttpClient::FORMAT_URLENCODED
-            ],
-            'responseConfig' => [
-                'format' => HttpClient::FORMAT_JSON
-            ],
-        ]);
+        $client = new HttpClient;
+        $client->setTransport(\yii\httpclient\CurlTransport::class);
+        $client->requestConfig = [
+            'format' => HttpClient::FORMAT_RAW_URLENCODED,
+        ];
+        $client->responseConfig = [
+            'format' => HttpClient::FORMAT_JSON,
+        ];
+        $request = $client
+            ->createRequest()
+            ->setMethod('get')
+            ->setData(['clientAccountId' => $this->clientAccountId])
+            ->setUrl(Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_READ)
+            ->setHeaders([
+                isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                    ? $client->auth(Yii::$app->params['MAILER']['auth'])
+                    : []
+            ]);
 
         /** @var \yii\httpclient\Response $response */
         try {
-            $response =
-                $client
-                    ->get(
-                        Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_READ,
-                        ['client_account_id' => $this->clientAccountId],
-                        [], // Headers array
-                        (
-                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
-                            ? $client->auth(Yii::$app->params['MAILER']['auth'])
-                            : []
-                        ) // Options array
-                    )
-                    ->send();
+            $response = $client->send($request);
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error',
                 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
             return false;
         }
 
-        $result = [];
-
         if (!$response->isOk) {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->statusCode);
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->getStatusCode());
             return false;
         }
 
@@ -97,12 +92,18 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
+        $result = [];
+
         foreach ($response->data as $record) {
             $result[] = [
                 'event' => $record['event_code'],
                 'group_id' => $record['group_id'],
+                'do_email_monitoring' => $record['do_email_monitoring'],
+                'do_email_operator' => $record['do_email_operator'],
                 'do_email' => $record['do_email'],
+                'do_email_personal' => $record['do_email_personal'],
                 'do_sms' => $record['do_sms'],
+                'do_sms_personal' => $record['do_sms_personal'],
                 'do_lk' => $record['do_lk'],
             ];
         }
@@ -135,30 +136,28 @@ class ImportantEventsNoticesForm extends Form
             $result[] = $row;
         }
 
-        $client = new HttpClient([
-            'transport' => 'yii\httpclient\CurlTransport',
-            'requestConfig' => [
-                'format' => HttpClient::FORMAT_JSON
-            ],
-            'responseConfig' => [
-                'format' => HttpClient::FORMAT_JSON
-            ],
-        ]);
+        $client = new HttpClient;
+        $client->setTransport(\yii\httpclient\CurlTransport::class);
+        $client->requestConfig = [
+            'format' => HttpClient::FORMAT_JSON,
+        ];
+        $client->responseConfig = [
+            'format' => HttpClient::FORMAT_JSON,
+        ];
+        $request = $client
+            ->createRequest()
+            ->setMethod('post')
+            ->setData($result)
+            ->setUrl(Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_UPDATE . '?clientAccountId=' . $this->clientAccountId)
+            ->setHeaders(
+                isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
+                    ? $client->auth(Yii::$app->params['MAILER']['auth'])
+                    : []
+            );
 
         /** @var \yii\httpclient\Response $response */
         try {
-            $response =
-                $client
-                    ->post(
-                        Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_UPDATE . 'client_account_id=' . $this->clientAccountId,
-                        $result,
-                        [], // Headers array
-                        (
-                        isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
-                            ? $client->auth(Yii::$app->params['MAILER']['auth'])
-                            : []
-                        ) // Options array
-                    )->send();
+            $response = $client->send($request);
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error',
                 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
@@ -166,7 +165,7 @@ class ImportantEventsNoticesForm extends Form
         }
 
         if (!$response->isOk) {
-            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->statusCode);
+            Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->getStatusCode());
             return false;
         }
 

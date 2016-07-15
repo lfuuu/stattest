@@ -276,7 +276,7 @@ class ClientController extends BaseController
     {
         if (!($clientAccount = $this->getFixClient()) instanceof ClientAccount) {
             Yii::$app->session->addFlash('error', 'Выберите клиента');
-            return false;
+            return $this->redirect('/');
         }
 
         $form = new ImportantEventsNoticesForm;

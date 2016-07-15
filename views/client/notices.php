@@ -80,8 +80,33 @@ echo GridView::widget([
             'class' => \app\classes\grid\column\important_events\GroupColumn::class,
         ],
         [
-            'attribute' => 'do_email',
-            'label' => 'Email',
+            'label' => 'Email (Мониторинг)',
+            'format' => 'raw',
+            'value' => function($data) {
+                $fieldName = 'FormData[events][' . $data['event'] . '][do_email_monitoring]';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, isset($data['do_email_monitoring']) && $data['do_email_monitoring']);
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Email (Оператор)',
+            'format' => 'raw',
+            'value' => function($data) {
+                $fieldName = 'FormData[events][' . $data['event'] . '][do_email_operator]';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, isset($data['do_email_operator']) && $data['do_email_operator']);
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Email (Официальный)',
             'format' => 'raw',
             'value' => function($data) {
                 $fieldName = 'FormData[events][' . $data['event'] . '][do_email]';
@@ -91,10 +116,23 @@ echo GridView::widget([
                     Html::checkbox($fieldName, isset($data['do_email']) && $data['do_email']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
-            'width' => '8%',
+            'width' => '5%',
         ],
         [
-            'label' => 'Sms',
+            'label' => 'Email (Персональный)',
+            'format' => 'raw',
+            'value' => function($data) {
+                $fieldName = 'FormData[events][' . $data['event'] . '][do_email_personal]';
+
+                return
+                    Html::hiddenInput($fieldName, isset($data['do_email_personal']) && $data['do_email_personal']) .
+                    Html::checkbox($fieldName, isset($data['do_email_personal']) && $data['do_email_personal'], ['disabled' => true]);
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Sms (Официальный)',
             'format' => 'raw',
             'value' => function($data) {
                 $fieldName = 'FormData[events][' . $data['event'] . '][do_sms]';
@@ -104,7 +142,20 @@ echo GridView::widget([
                     Html::checkbox($fieldName, isset($data['do_sms']) && $data['do_sms']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
-            'width' => '8%',
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Sms (Персональный)',
+            'format' => 'raw',
+            'value' => function($data) {
+                $fieldName = 'FormData[events][' . $data['event'] . '][do_sms_personal]';
+
+                return
+                    Html::hiddenInput($fieldName, isset($data['do_sms_personal']) && $data['do_sms_personal']) .
+                    Html::checkbox($fieldName, isset($data['do_sms_personal']) && $data['do_sms_personal'], ['disabled' => true]);
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
         ],
         [
             'label' => 'ЛК',
@@ -117,7 +168,7 @@ echo GridView::widget([
                     Html::checkbox($fieldName, isset($data['do_lk']) && $data['do_lk']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
-            'width' => '8%',
+            'width' => '5%',
         ],
     ],
     'pjax' => false,

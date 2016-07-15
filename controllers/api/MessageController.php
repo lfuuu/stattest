@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use Yii;
+use yii\db\Query;
 use yii\web\BadRequestHttpException;
 use app\exceptions\FormValidationException;
 use app\classes\validators\AccountIdValidator;
@@ -14,6 +15,7 @@ use app\models\ClientAccountOptions;
 use app\models\Message;
 use app\models\message\Template;
 use app\models\message\TemplateContent;
+use app\models\message\TemplateEvents;
 use app\models\Language;
 
 class MessageController extends ApiController
@@ -198,16 +200,38 @@ class MessageController extends ApiController
     }
 
     /**
-     * @param int $templateId
-     * @param string $langCode
+     * @SWG\Get(
+     *   tags={"Работа с сообщениями"},
+     *   path="/message/get-template/",
+     *   summary="Получение содержания шаблона почтового сообщения",
+     *   operationId="Получение содержания шаблона почтового сообщения",
+     *   @SWG\Parameter(name="eventCode",type="string",description="Идентификатор события",in="query",required=true),
+     *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true),
+     *   @SWG\Parameter(name="contactId",type="integer",description="ID контакта",in="query",required=true),
+     *   @SWG\Parameter(name="type",type="string",description="Тип шаблона (по-умолчанию: email)",in="query"),
+     *   @SWG\Parameter(name="eventId",type="integer",description="ID значимового события",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="сообщение",
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @param string $eventCode
      * @param int $clientAccountId
      * @param int $contactId
      * @param string $type
      * @param int|null $eventId
      */
-    public function actionEmailTemplateContent(
-        $templateId,
-        $langCode = Language::LANGUAGE_RUSSIAN, // Остается пока не изменится вызывающая сторона
+    public function actionGetTemplate(
+        $eventCode,
         $clientAccountId,
         $contactId,
         $type = Template::TYPE_EMAIL,
@@ -223,28 +247,44 @@ class MessageController extends ApiController
         }
 
         /** @var TemplateContent $templateContent */
-        $templateContent = TemplateContent::findOne([
-            'country_id' => $clientAccount->country->code,
-            'template_id' => $templateId,
-            'lang_code' => $languageCode,
-            'type' => $type
-        ]);
+        $templateContentTbl = TemplateContent::tableName();
+        $templateContent =
+            TemplateContent::find()
+                ->leftJoin([
+                    'event' => TemplateEvents::tableName()
+                ], 'event.template_id = ' . $templateContentTbl . '.template_id')
+                ->leftJoin([
+                    'template' => Template::tableName()
+                ], 'template.id = ' . $templateContentTbl . '.template_id')
+                ->where([
+                    'event.event_code' => $eventCode,
+                    $templateContentTbl . '.lang_code' => $languageCode,
+                    $templateContentTbl . '.country_id' => $clientAccount->country->code,
+                    $templateContentTbl . '.type' => $type
+                ])
+                ->one();
 
         if (!is_null($templateContent)) {
             switch ($type) {
                 case Template::TYPE_EMAIL: {
                     $content = $templateContent->mediaManager->getFile($templateContent, true);
-                    echo RenderParams::me()->apply($content['content'], $clientAccountId, $contactId, $eventId);
-                    break;
+                    return [
+                        'locale' => $templateContent->lang_code,
+                        'subject' => $templateContent->title,
+                        'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $contactId, $eventId),
+                    ];
                 }
                 case Template::TYPE_EMAIL_INNER:
                 case Template::TYPE_SMS: {
-                    echo RenderParams::me()->apply($templateContent->content, $clientAccountId, $contactId, $eventId);
-                    break;
+                    return [
+                        'locale' => $templateContent->lang_code,
+                        'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId, $contactId, $eventId),
+                    ];
                 }
             }
-            exit(0);
         }
+
+        return false;
     }
 
 }

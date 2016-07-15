@@ -46,7 +46,7 @@ class TemplateController extends BaseController
             $templateContentData = Yii::$app->request->post('TemplateContent');
 
             foreach ($templateContentData as $templateContentKey => $templateContentInput) {
-                list($countryId,, $languageCode, $contentType) = explode('_', $templateContentKey);
+                list($countryId,, $languageCode, $contentType) = explode(':', $templateContentKey);
                 $templateContent = $model->getTemplateContent($countryId, $languageCode, $contentType);
 
                 if ($templateContent->load($templateContentData, $templateContent->formNameKey()) && $templateContent->validate()) {

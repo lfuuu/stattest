@@ -76,7 +76,7 @@ class TemplateContent extends ActiveRecord
      */
     public function formNameKey()
     {
-        return implode('_', [$this->country_id, $this->template_id, $this->lang_code, $this->type]);
+        return implode(':', [$this->country_id, $this->template_id, $this->lang_code, $this->type]);
     }
 
     /**

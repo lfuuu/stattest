@@ -57,10 +57,11 @@ class LkController extends ApiController
         Assert::isObject($account);
 
         return [
-            "id" => $account->id,
-            "country_id" => $account->country_id,
-            "connect_point_id" => $account->region,
-            "currency" => $account->currency
+            'id' => $account->id,
+            'country_id' => $account->country_id,
+            'connect_point_id' => $account->region,
+            'currency' => $account->currency,
+            'country_lang' => $account->country->lang,
         ];
     }
 }

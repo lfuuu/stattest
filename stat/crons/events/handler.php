@@ -172,6 +172,11 @@ function do_events()
                     break;
                 }
 
+                case 'lk_settings_to_mailer': {
+                    \app\models\LkNoticeSetting::sendToMailer($param['client_account_id']);
+                    break;
+                }
+
             }
 
             if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {

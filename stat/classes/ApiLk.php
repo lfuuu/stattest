@@ -12,6 +12,7 @@ use app\models\City;
 use app\models\Region;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\Payment as PaymentModel;
+use app\models\LkNoticeSetting;
 use app\models\important_events\ImportantEventsNames;
 use app\models\Language as LanguageModel;
 
@@ -1820,11 +1821,10 @@ class ApiLk
         }
 
         if ($contact_id && $contact_id > 0) {
-            $res = $db->QueryInsert("lk_notice_settings", array(
-                            "client_contact_id" => $contact_id,
-                            "client_id"         => $client_id
-                            )
-                        );
+            $record = new LkNoticeSetting;
+            $record->client_contact_id = $contact_id;
+            $record->client_id = $client_id;
+            $record->save();
         } else
             return array('status'=>'error','message'=>'contact_add_error');
 
@@ -1881,15 +1881,12 @@ class ApiLk
                         )
                     );
         if ($res) {
-            $res = $db->QueryUpdate(
-                    "lk_notice_settings",
-                    array('client_id','client_contact_id'),
-                    array(
-                        'status'=>'connecting',
-                        'client_id'=>$client_id,
-                        'client_contact_id'=>$contact_id
-                        )
-                    );
+            $res = LkNoticeSetting::updateAll([
+                'status' => LkNoticeSetting::STATUS_CONNECT,
+            ], [
+                'client_id' => $client_id,
+                'client_contact_id' => $contact_id,
+            ]);
         }
 
         if ($res && $status == 'working') {
@@ -1913,7 +1910,7 @@ class ApiLk
         if (!self::validateContact($client_id, $contact_id))
             return array('status'=>'error','message'=>'contact_id_error');
 
-        $db->QueryDelete('lk_notice_settings', array('client_contact_id'=>$contact_id));
+        LkNoticeSetting::deleteAll(['client_contact_id' => $contact_id]);
         $db->QueryDelete('client_contacts', array('id'=>$contact_id, 'client_id'=>$client_id));
 
         return array('status'=>'ok','message'=>'contact_del_ok');
@@ -1940,11 +1937,17 @@ class ApiLk
         if ($etalon_code != $code)
             return array('status'=>'error','message'=>'contact_activation_code_bad');
 
-        $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
-        if ($res)
-            return array('status'=>'ok','message'=>'contact_activation_ok');
-        else
-            return array('status'=>'error','message'=>'contact_activation_error');
+        $res = LkNoticeSetting::updateAll([
+            'status' => LkNoticeSetting::STATUS_WORK,
+        ], [
+            'client_id' => $client_id,
+            'client_contact_id' => $contact_id,
+        ]);
+        if ($res) {
+            return ['status'=>'ok','message'=>'contact_activation_ok'];
+        }
+
+        return ['status'=>'error','message'=>'contact_activation_error'];
     }
 
     /**
@@ -1965,11 +1968,17 @@ class ApiLk
         if ($key == '' || $key != md5($client_id.'SeCrEt-KeY'.$contact_id))
             return array('status'=>'error','message'=>'contact_activation_code_bad');
 
-        $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
-        if ($res)
-            return array('status'=>'ok','message'=>'contact_activation_ok');
-        else
-            return array('status'=>'error','message'=>'contact_activation_error');
+        $res = LkNoticeSetting::updateAll([
+            'status' => LkNoticeSetting::STATUS_WORK,
+        ], [
+            'client_id' => $client_id,
+            'client_contact_id' => $contact_id,
+        ]);
+        if ($res) {
+            return ['status'=>'ok','message'=>'contact_activation_ok'];
+        }
+
+        return ['status'=>'error','message'=>'contact_activation_error'];
     }
 
     /**
@@ -1992,74 +2001,60 @@ class ApiLk
             if(!isset($res[$tmp[1]]))
                 $res[$tmp[1]] = [
                     'client_contact_id' => $tmp[1],
-                    'min_balance' => 0,
-                    'min_day_limit' => 0,
-                    'add_pay_notif' => 0
+                    ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
+                    ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => 0,
+                    ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0,
                 ];
 
             $res[$tmp[1]][$tmp[0]] = 1;
         }
 
-        $allSavedContacts = $db->AllRecords("
-                SELECT id 
-                FROM `client_contacts` 
-                WHERE `client_id` = '".$db->escape($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
+        $contacts = \app\models\ClientContact::findAll([
+            'client_id' => $client_id,
+            'is_active' => 1,
+            'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
+        ]);
 
-        foreach ($res as $contact_id=>$d)
+        foreach ($contacts as $contact)
         {
-            if (!isset($allSavedContacts[$contact_id]))
-                continue;
-
-            unset($allSavedContacts[$contact_id]);
-
-            $cc_id = $db->GetValue("select client_contact_id 
-                    from lk_notice_settings 
-                    where client_contact_id='".$d['client_contact_id']."' and client_id='".$client_id."'");
-
-            $data = [
-                'client_contact_id' => $d['client_contact_id'],
+            $noticeSettings = LkNoticeSetting::findOne([
+                'client_contact_id' => $contact->id,
                 'client_id' => $client_id,
-                'min_balance' => $d['min_balance'],
-                'min_day_limit' => $d['day_limit'],
-                'add_pay_notif' => $d['add_pay_notif']
-            ];
-            if ($cc_id) {
-                $db->QueryUpdate('lk_notice_settings',array('client_contact_id','client_id'),$data);
-            } else {
-                $db->QueryInsert('lk_notice_settings',$data);
-            }
-        }
+            ]);
 
-        if ($allSavedContacts) //for deletion because there is no data
-        {
-            foreach($db->AllRecords("select client_contact_id as id from lk_notice_settings where client_contact_id in ('".implode("','", array_keys($allSavedContacts))."')", "id") as $contact_id => $data)
-            {
-                $db->QueryUpdate(
-                    "lk_notice_settings",
-                    "client_contact_id",
-                    [
-                        "client_contact_id" => $contact_id,
-                        'min_balance' => 0,
-                        'min_day_limit' => 0,
-                        'add_pay_notif' => 0
-                    ]
-                );
+            if (is_null($noticeSettings)) {
+                $noticeSettings = new LkNoticeSetting;
             }
+
+            $noticeSettings->setAttribute(
+                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] : 0
+            );
+            $noticeSettings->setAttribute(
+                ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT] : 0
+            );
+            $noticeSettings->setAttribute(
+                ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF] : 0
+            );
+
+            $noticeSettings->save();
         }
 
         $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='".$client_id."'");
 
         $data = [
             'client_id' => $client_id,
-            'min_balance' => $min_balance,
-            'min_day_limit' => $min_day_limit
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $min_balance,
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $min_day_limit
         ];
         if ($clientSettings)
         {
             if (
                 $clientSettings['is_min_balance_sent']
                     &&
-                $clientSettings['min_balance'] < $data['min_balance']
+                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE]
             ) {
                 $data['is_min_balance_sent'] = 0;
             }
@@ -2067,7 +2062,7 @@ class ApiLk
             if (
                 $clientSettings['is_min_day_limit_sent']
                     &&
-                $clientSettings['min_day_limit'] < $data['min_day_limit']
+                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT]
             ) {
                 $data['is_min_day_limit_sent'] = 0;
             }
@@ -2110,15 +2105,13 @@ class ApiLk
 
         if ($type == 'email') {
             $key = md5($client_id . 'SeCrEt-KeY' . $contact_id);
-            $db->QueryUpdate(
-                'lk_notice_settings',
-                ['client_contact_id', 'client_id'],
-                [
-                    'client_contact_id' => $contact_id,
-                    'client_id' => $client_id,
-                    'activate_code' => $key
-                ]
-            );
+
+            LkNoticeSetting::updateAll([
+                'activate_code' => $key,
+            ], [
+                'client_contact_id' => $contact_id,
+                'client_id' => $client_id,
+            ]);
 
             $assigns = [
                 'url' =>
@@ -2155,15 +2148,13 @@ class ApiLk
                 $code .= mt_rand(0, 9);
             }
 
-            $db->QueryUpdate(
-                'lk_notice_settings',
-                ['client_contact_id', 'client_id'],
-                [
-                    'client_contact_id' => $contact_id,
-                    'client_id' => $client_id,
-                    'activate_code' => $code
-                ]
-            );
+            LkNoticeSetting::updateAll([
+                'activate_code' => $code,
+            ], [
+                'client_contact_id' => $contact_id,
+                'client_id' => $client_id,
+            ]);
+
             $params = [
                 'data' => $data,
                 'message' => 'Код активации: ' . $code,
