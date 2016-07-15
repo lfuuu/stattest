@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Assert;
 use app\classes\Singleton;
 use app\models\billing\Calls;
+use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
@@ -85,9 +86,11 @@ class NumberDao extends Singleton
             ->limit(1)
             ->one();
 
-        if ($usage && $usage->tariff->isTested()) {
-            Number::dao()->toInstock($number);
-            return;
+        if ($usage) {
+            if ($usage->tariff->isTested() || $usage->clientAccount->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+                Number::dao()->toInstock($number);
+                return;
+            }
         }
 
         Number::dao()->startHold($number);

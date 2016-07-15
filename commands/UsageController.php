@@ -16,7 +16,7 @@ class UsageController extends Controller
 
     const ACTION_SET_BLOCK = 1;
     const ACTION_SET_OFF = 2;
-    const ACTION_CLEAN_ORDER_OF_SERVICE = 3;
+    const ACTION_CLEAN_TRASH = 3;
 
     public function actionClientUpdateIsActive()
     {
@@ -73,7 +73,7 @@ class UsageController extends Controller
 
         $infoBlock = $this->cleanUsages($blockDate, self::ACTION_SET_BLOCK);
         $infoOff = $this->cleanUsages($offDate, self::ACTION_SET_OFF);
-        $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_ORDER_OF_SERVICE);
+        $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_TRASH);
 
         if ($infoBlock) {
             $info = array_merge($info, $infoBlock);
@@ -110,13 +110,13 @@ class UsageController extends Controller
             $tarif = $usage->tariff;
             $account = $usage->clientAccount;
 
-            if ($action == self::ACTION_CLEAN_ORDER_OF_SERVICE) {
-                if ($account->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
-                    $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean order of service";
+            if ($action == self::ACTION_CLEAN_TRASH) {
+                if ($account->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+                    $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean trash";
 
                     $model = new UsageVoipEditForm();
                     $model->initModel($account, $usage);
-                    $model->disconnecting_date = $now->format("Y-m-d");
+                    $model->disconnecting_date = $now->modify('-1 day')->format("Y-m-d");
                     $model->edit();
                 }
             } elseif (!$tarif || $tarif->isTested()) {// тестовый тариф, или без тарифа вообще
