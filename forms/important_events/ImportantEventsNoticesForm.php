@@ -8,6 +8,7 @@ use app\classes\HttpClient;
 use app\models\Language;
 use app\models\ClientAccountOptions;
 use app\forms\client\ClientAccountOptionsForm;
+use yii\base\InvalidConfigException;
 
 class ImportantEventsNoticesForm extends Form
 {
@@ -54,6 +55,12 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
+        $config = Yii::$app->params['MAILER'];
+
+        if (!isset($config, $config['url'])) {
+            throw new InvalidConfigException('Mailer was not configured');
+        }
+
         $client = new HttpClient;
         $client->setTransport(\yii\httpclient\CurlTransport::class);
         $client->requestConfig = [
@@ -66,12 +73,11 @@ class ImportantEventsNoticesForm extends Form
             ->createRequest()
             ->setMethod('get')
             ->setData(['clientAccountId' => $this->clientAccountId])
-            ->setUrl(Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_READ)
-            ->setHeaders([
-                isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
-                    ? $client->auth(Yii::$app->params['MAILER']['auth'])
-                    : []
-            ]);
+            ->setUrl($config['url'] . self::MAILER_METHOD_READ);
+
+        if (isset($config['auth'])) {
+            $client->auth($request, $config['auth']);
+        }
 
         /** @var \yii\httpclient\Response $response */
         try {
@@ -122,6 +128,12 @@ class ImportantEventsNoticesForm extends Form
             return false;
         }
 
+        $config = Yii::$app->params['MAILER'];
+
+        if (!isset($config, $config['url'])) {
+            throw new InvalidConfigException('Mailer was not configured');
+        }
+
         (new ClientAccountOptionsForm)
             ->setClientAccountId($this->clientAccountId)
             ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
@@ -148,12 +160,11 @@ class ImportantEventsNoticesForm extends Form
             ->createRequest()
             ->setMethod('post')
             ->setData($result)
-            ->setUrl(Yii::$app->params['MAILER']['url'] . self::MAILER_METHOD_UPDATE . '?clientAccountId=' . $this->clientAccountId)
-            ->setHeaders(
-                isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['auth'])
-                    ? $client->auth(Yii::$app->params['MAILER']['auth'])
-                    : []
-            );
+            ->setUrl($config['url'] . self::MAILER_METHOD_UPDATE . '?clientAccountId=' . $this->clientAccountId);
+
+        if (isset($config['auth'])) {
+            $client->auth($request, $config['auth']);
+        }
 
         /** @var \yii\httpclient\Response $response */
         try {

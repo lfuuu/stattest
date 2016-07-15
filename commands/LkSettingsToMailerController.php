@@ -72,8 +72,11 @@ class LkSettingsToMailerController extends Controller
                     ->createRequest()
                     ->setMethod('post')
                     ->setData($result)
-                    ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $setting['client_id'])
-                    ->setHeaders(isset($config['auth']) ? $client->auth($config['auth']) : []);
+                    ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $setting['client_id']);
+
+                if (isset($config['auth'])) {
+                    $client->auth($request, $config['auth']);
+                }
 
                 /** @var \yii\httpclient\Response $response */
                 try {

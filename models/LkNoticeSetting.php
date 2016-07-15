@@ -131,8 +131,11 @@ class LkNoticeSetting extends ActiveRecord
             ->createRequest()
             ->setMethod('post')
             ->setData($result)
-            ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $clientAccountId)
-            ->setHeaders(isset($config['auth']) ? $client->auth($config['auth']) : []);
+            ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $clientAccountId);
+
+        if (isset($config['auth'])) {
+            $client->auth($request, $config['auth']);
+        }
 
         /** @var \yii\httpclient\Response $response */
         try {
