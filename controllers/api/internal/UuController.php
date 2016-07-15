@@ -435,8 +435,8 @@ class UuController extends ApiInternalController
      * @SWG\Definition(definition = "grouppedAccountTariffRecord", type = "object",
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_numbers", type = "array", description = "Номера. Если 4-5 символов - номер линии, если больше - номер телефона", @SWG\Items(type = "integer")),
-     *   @SWG\Property(property = "is_cancelable", type = "integer", description = "Можно ли отменить смену тарифа? 0 или 1"),
-     *   @SWG\Property(property = "is_editable", type = "integer", description = "Можно ли сменить тариф или отключить услугу? 0 или 1"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
      *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/accountTariffRecord")),
      * ),
@@ -781,8 +781,8 @@ class UuController extends ApiInternalController
         return [
             'voip_city' => $this->getIdNameRecord($accountTariffFirst->city),
             'voip_numbers' => $numbers,
-            'is_cancelable' => (int) $accountTariffFirst->isCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => (int) (bool) $accountTariffFirst->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
+            'is_cancelable' => $accountTariffFirst->isCancelable(), // Можно ли отменить смену тарифа?
+            'is_editable' => (bool) $accountTariffFirst->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'account_tariff_logs' => $this->getAccountTariffLogRecord($accountTariffFirst->accountTariffLogs),
             'next_account_tariffs' => $this->getAccountTariffRecord($accountTariffFirst->nextAccountTariffs),
         ];

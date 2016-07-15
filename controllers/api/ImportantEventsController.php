@@ -202,7 +202,7 @@ class ImportantEventsController extends ApiInternalController
     }
 
     /**
-     * @SWG\GET(
+     * @SWG\Get(
      *   tags={"Работа со значимыми событиями"},
      *   path="/important-events/get-names/",
      *   summary="Получение списка названий значимых событий",
