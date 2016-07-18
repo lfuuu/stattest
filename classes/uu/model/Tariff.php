@@ -289,12 +289,12 @@ class Tariff extends \yii\db\ActiveRecord
      */
     public function getNonUniversalUrl()
     {
+        $id = $this->getNonUniversalId();
         $url = $this->serviceIdToUrl[$this->service_type_id];
         if (!$url) {
-            return '';
+            return $id;
         }
 
-        $id = $this->getNonUniversalId();
         return Html::a($id, sprintf($url, $id));
     }
 

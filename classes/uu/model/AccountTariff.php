@@ -636,7 +636,7 @@ class AccountTariff extends ActiveRecord
     public function isCancelable()
     {
         $accountTariffLogs = $this->accountTariffLogs;
-        return strtotime(reset($accountTariffLogs)->actual_from) >= time();
+        return reset($accountTariffLogs)->actual_from > date('Y-m-d');
     }
 
     /**
