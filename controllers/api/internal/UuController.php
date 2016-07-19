@@ -898,11 +898,11 @@ class UuController extends ApiInternalController
     {
         $result = [];
 
-        if (!isset($models[0])) {
+        /** @var AccountTariffLog $model */
+        $model = array_shift($models);
+        if (!$model) {
             return $result;
         }
-        /** @var AccountTariffLog $model */
-        $model = $models[0];
         $isCancelable = $model->actual_from > date('Y-m-d');
         $result[] = [
             'tariff_period' => $this->getTariffPeriodRecord($model->tariffPeriod),
@@ -912,15 +912,16 @@ class UuController extends ApiInternalController
             'deactivate_future_date' => (!$model->tariff_period_id && $isCancelable) ? $model->actual_from : null, // закрытие тарифа в будущем
         ];
 
-        if (!isset($models[1])) {
-            return $result;
-        }
         if (!($model->tariff_period_id && $isCancelable)) {
             // только для "смена тарифа в будущем" выведем предыдущий тариф. А для всего остального больше ничего не надо
-            return;
+            return $result;
         }
+
         /** @var AccountTariffLog $model */
-        $model = $models[1];
+        $model = array_shift($models);
+        if (!$model) {
+            return $result;
+        }
         $result[] = [
             'tariff_period' => $this->getTariffPeriodRecord($model->tariffPeriod),
             'activate_past_date' => $model->actual_from, // обычная смена тарифа в прошлом,
