@@ -9,9 +9,9 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-$clientId = 36166;
+$clientId = 38230;
 
-$address = '142800, Российская Федерация, Московская область, г. Ступино, ул. Пристанционная, вл. 6';
+$address = ''; //142800, Российская Федерация, Московская область, г. Ступино, ул. Пристанционная, вл. 6';
 //
 //Краснодар 100 номеров - 97 - 36166++
 //Ростов-на-Дону 50 номеров - 87 - 36254++
@@ -64,6 +64,20 @@ $confs = [
     ],
     */
     [
+        "didGroupId" => 37,
+        "region" => 89, //Владивосток
+        "count_numbers" => 24,
+
+        "id_tarif" => 672, //Партнёр 100-500
+        "id_tarif_local_mob" => 315,
+        "id_tarif_russia" => 316,
+        "id_tarif_russia_mob" => 316,
+        "id_tarif_intern" => 318
+
+    ],
+
+    /*
+    [
         "didGroupId" => 22,
         "region" => 95,
         "count_numbers" => 30,
@@ -87,6 +101,7 @@ $confs = [
         "id_tarif_russia_mob" => 208,
         "id_tarif_intern" => 210,
     ],
+    */
         /*
     [
         "didGroupId" => 47,
@@ -144,7 +159,7 @@ foreach($confs as $conf)
             $u->actual_from = $actualFrom;
             $u->actual_to = "4000-01-01";
             $u->client = $client->client;
-            $u->address = $address;
+            $address && $u->address = $address;
             $u->E164 = $number;
             $u->no_of_lines = 1;
             $u->edit_user_id = $userId;
@@ -172,6 +187,8 @@ foreach($confs as $conf)
             $l->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
             $l->date_activation = (new DateTime())->setTimestamp(strtotime("first day of this month, midnight"))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');;
             $l->save();
+
+            Number::dao()->actualizeStatusByE164($number);
         }
     }
 }
