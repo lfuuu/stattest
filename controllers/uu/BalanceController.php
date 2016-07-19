@@ -126,11 +126,19 @@ class BalanceController extends BaseController
             $accountEntries = AccountEntry::find()
                 ->joinWith('accountTariff')
                 ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-//                ->andWhere(['>', $accountEntryTableName . '.price', 0])
+                //->andWhere(['>', $accountEntryTableName . '.price', 0])
                 ->orderBy([
                     'date' => SORT_DESC,
                     'account_tariff_id' => SORT_ASC,
                     'type_id' => SORT_ASC,
+                ])
+                ->all();
+
+            $accountBills = \app\classes\uu\model\Bill::find()
+                ->where(['client_account_id' => $clientAccountId])
+                ->orderBy([
+                    'date' => SORT_DESC,
+                    'id' => SORT_DESC,
                 ])
                 ->all();
 
@@ -171,6 +179,7 @@ class BalanceController extends BaseController
             'currency' => $currency,
             'accountEntries' => $accountEntries,
             'payments' => $payments,
+            'accountBills' => $accountBills,
             'bills' => $bills,
             'accountEntrySummary' => $accountEntrySummary,
             'accountLogSetupSummary' => $accountLogSetupSummary,

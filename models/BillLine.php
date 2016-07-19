@@ -40,11 +40,25 @@ class BillLine extends ActiveRecord
     const LINE_TYPE_GOOD = 'good';
     const LINE_TYPE_ALL4NET = 'all4net';
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'newbill_lines';
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBill()
+    {
+        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @param boolean $priceIncludeVat
+     */
     public function calculateSum($priceIncludeVat)
     {
         $sum = $this->price * $this->amount - $this->discount_auto - $this->discount_set;
@@ -59,4 +73,5 @@ class BillLine extends ActiveRecord
             $this->sum = $this->sum_without_tax + $this->sum_tax;
         }
     }
+
 }

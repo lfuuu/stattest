@@ -7,6 +7,7 @@
  * @var Currency $currency
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
+ * @var \app\classes\uu\model\Bill[] $accountBills
  * @var Bill[] $bills
  * @var array $accountEntrySummary
  * @var array $accountLogSetupSummary
@@ -142,16 +143,12 @@ class AccountEntryPaymentCo
     }
 }
 
+/*
 $accountEntryPaymentCos = [];
 
 foreach ($accountEntries as $accountEntry) {
     // проводки
     $accountEntryPaymentCos[$accountEntry->date . ' accountEntry ' . $accountEntry->id] = AccountEntryPaymentCo::convertFromAccountEntry($accountEntry);
-}
-
-foreach ($payments as $payment) {
-    // платежи
-    $accountEntryPaymentCos[$payment->payment_date . ' payment ' . $payment->id] = AccountEntryPaymentCo::convertFromPayment($payment);
 }
 
 foreach ($bills as $bill) {
@@ -168,9 +165,149 @@ krsort($accountEntryPaymentCos);
 $dataProvider = new ArrayDataProvider([
     'allModels' => $accountEntryPaymentCos,
 ]);
-?>
+*/
 
-<?= GridView::widget([
+$result = [];
+
+foreach ($accountBills as $bill) {
+    $billShortDate = (new DateTime($bill->date))->format('Y-m');
+
+    foreach ($bill->accountEntries as $item) {
+        $itemShortDate = (new DateTime($item->date))->format('Y-m');
+        $result[$itemShortDate]['uuItems'][] = $item;
+    }
+
+    $result[$billShortDate]['uuBills'][] = $bill;
+    $result[$billShortDate]['totalUuItems'] += count($bill->accountEntries);
+}
+
+foreach ($bills as $bill) {
+    $billShortDate = (new DateTime($bill->bill_date))->format('Y-m');
+
+    foreach ($bill->lines as $item) {
+        $itemShortDate = (new DateTime($item->date_from))->format('Y-m');
+        $result[$itemShortDate]['oldItems'][] = $item;
+    }
+
+    $result[$billShortDate]['oldBills'][] = $bill;
+    $result[$billShortDate]['totalOldItems'] += count($bill->lines);
+}
+
+foreach ($payments as $payment) {
+    $billShortDate = (new DateTime($payment->payment_date))->format('Y-m');
+    $result[$billShortDate]['payments'][] = AccountEntryPaymentCo::convertFromPayment($payment);
+}
+
+foreach ($result as $monthKey => $month):
+    $totalItems = $month['totalUuItems'] ?: 0;
+    if ($totalItems < $month['totalOldItems']) {
+        $totalItems = $month['totalOldItems'];
+    }
+    ?>
+    <table border="0" class="table table-bordered table-striped">
+        <colgroup>
+            <col width="10%" />
+            <col width="20%" />
+            <col width="10%" />
+            <col width="20%" />
+            <col width="10%" />
+            <col width="20%" />
+            <col width="10%" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="2">
+                    <div style="overflow: hidden; float: left; font-size: 14px;">
+                        <?= datefmt_format_object(new DateTime($monthKey), 'LLL Y', Yii::$app->formatter->locale) ?>
+                    </div>
+                    <div class="text-center" style="overflow: hidden;">Счет-фактура</div>
+                </th>
+                <th colspan="2">Новые счета</th>
+                <th colspan="2">Старые счета</th>
+                <th>Платежи</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php for ($i=0; $i < $totalItems; $i++): ?>
+                <tr>
+                    <?php if (!isset($month['uuBills'][$i]) && count($month['uuBills']) == $i): ?>
+                        <td rowspan="<?= ($totalItems - $i) ?>"></td>
+                    <?php elseif (isset($month['uuBills'][$i])): ?>
+                        <td>
+                            <a href="<?= \yii\helpers\Url::toRoute(['/uu/invoice/view', 'month' => (new DateTime($month['uuBills'][$i]->date))->format('Y-m')]) ?>" target="_blank">Счет-фактура № <?= $month['uuBills'][$i]->id ?></a>
+                        </td>
+                    <?php endif; ?>
+                    <td>
+                        <?php if (isset($month['uuItems'][$i])): ?>
+                            <abbr title="ID не универсальной услуги"><?= $month['uuItems'][$i]->accountTariff->getNonUniversalId() ?></abbr>:
+                            <?php
+                            switch ($month['uuItems'][$i]->type_id) {
+                                case -2:
+                                    echo '<i>' . $month['uuItems'][$i]->getTypeName() . '</i>';
+                                    break;
+                                default:
+                                    echo $month['uuItems'][$i]->getTypeName();
+                                    break;
+                            }
+                            ?>
+                            (<?= $month['uuItems'][$i]->price_with_vat ?>)
+                        <?php endif; ?>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <?php if (!isset($month['oldBills'][$i]) && count($month['oldBills']) == $i): ?>
+                        <td rowspan="<?= ($totalItems - $i) ?>"></td>
+                    <?php elseif (isset($month['oldBills'][$i])) :?>
+                        <td>
+                            <a href="<?= \yii\helpers\Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $month['oldBills'][$i]->bill_no]) ?>" class="bill-info" data-bill="<?= $month['oldBills'][$i]->bill_no ?>" target="_blank">Счет № <?= $month['oldBills'][$i]->bill_no ?></a>
+                        </td>
+                    <?php endif; ?>
+                    <td>
+                        <?php if (isset($month['oldItems'][$i])): ?>
+                            <div data-bill="<?= $month['oldItems'][$i]->bill_no ?>">
+                                <abbr title="ID не универсальной услуги"><?= $month['oldItems'][$i]->id_service ?></abbr>:
+                                <?php
+                                if ($month['oldItems'][$i]->date_from !== $month['oldItems'][$i]->bill->bill_date) {
+                                    echo 'Плата за услугу';
+                                }
+                                elseif ((new DateTime($month['oldItems'][$i]->date_from))->format('Y-m') == $monthKey) {
+                                    echo '<i>Абонентка</i>';
+                                }
+                                ?>
+                                (<?= $month['oldItems'][$i]->price ?>)
+                            </div>
+                        <?php endif; ?>
+                    </td>
+                    <?php if (!isset($month['uuBills'][$i]) && count($month['uuBills']) == $i): ?>
+                        <td rowspan="<?= ($totalItems - $i) ?>"></td>
+                    <?php elseif (isset($month['payments'][$i])): ?>
+                        <td>
+                            <?= $month['payments'][$i]->paymentDate ?>
+                            (<?= $month['payments'][$i]->paymentSum ?>)
+                        </td>
+                    <?php endif; ?>
+                </tr>
+            <?php endfor; ?>
+        </tbody>
+    </table>
+<?php endforeach; ?>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('a.bill-info')
+        .hover(
+            function() {
+                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', '#C0C0D0');
+            },
+            function() {
+                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', 'inherit');
+            }
+        )
+});
+</script>
+
+<?
+/*GridView::widget([
     'dataProvider' => $dataProvider,
     'extraButtons' =>
         $this->render('//uu/bill/_ico', ['clientAccountId' => $clientAccount->id]) . ' ' .
@@ -271,4 +408,6 @@ $dataProvider = new ArrayDataProvider([
             ],
         ],
     ],
-]) ?>
+])
+*/
+?>

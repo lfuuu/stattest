@@ -25,6 +25,7 @@ $params = [
     'currency' => $currency,
     'accountEntries' => $accountEntries,
     'payments' => $payments,
+    'accountBills' => $accountBills,
     'bills' => $bills,
     'accountEntrySummary' => $accountEntrySummary,
     'accountLogSetupSummary' => $accountLogSetupSummary,
