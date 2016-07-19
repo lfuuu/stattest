@@ -51,7 +51,7 @@ echo Breadcrumbs::widget([
                             ],
                         ],
                     ],
-                ],
+                ] + ($model->usage ? ['disabled' => true] : []),
             ],
             'actual_to' => [
                 'type' => Form::INPUT_WIDGET,

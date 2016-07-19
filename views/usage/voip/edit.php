@@ -164,6 +164,7 @@ echo Breadcrumbs::widget([
                             ],
                         ],
                     ],
+                    'disabled' => true
                 ],
             ],
             'disconnecting_date' => [

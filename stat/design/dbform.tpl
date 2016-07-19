@@ -1,6 +1,7 @@
 {if $dbform_h2}<h2>{$dbform_h2}</h2>{/if}
 {if $dbform_h3}<h3>{$dbform_h3}</h3>{/if}
 {assign var="use_datepicker" value="false"}
+{assign var="disabled_actual_from_datepicker" value=false}
 {if !isset($hl)}
     {assign var="hl" value=''}
 {/if}
@@ -103,9 +104,25 @@
                             {/if}
                         {/if}
                         {if $key == "actual_from" || $key == "actual_to"}
-                            <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip"  || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}'>
-                            <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-4000";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}' style="">
-                            {assign var="use_datepicker" value="true"}
+                            {if $key == "actual_from" && $dbform_data.id.value}
+                                {assign var="disabled_actual_from_datepicker" value=true}
+                            {else}
+                                <input type=button value="С" title="Сейчас" onclick='
+                                        var d = new Date();
+                                        document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";
+                                        change_datepicker_option("{$key}");
+                                    {if $key == "actual_from" && ($dbform_table == "usage_voip"  || $dbform_table == "usage_virtpbx")}
+                                        optools.voip.check_e164.move_checking();
+                                    {/if}'>
+
+                                <input type=button value="&#8734;" title="Услуга открыта" onclick='
+                                        document.getElementById("{$key}").value="01-01-4000";
+                                        change_datepicker_option("{$key}");
+                                    {if $key == "actual_from" && ($dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx")}
+                                        optools.voip.check_e164.move_checking();
+                                    {/if}' style="">
+                                {assign var="use_datepicker" value="true"}
+                            {/if}
                         {/if}
                     </td>
                 </tr>
@@ -202,6 +219,9 @@
 {if $use_datepicker}
 <script>
     optools.DatePickerInit('', 'actual');
+    {if $disabled_actual_from_datepicker}
+        $('#actual_from').attr('disabled','disabled');
+    {/if}
     {literal}
     function change_datepicker_option(key)
     {
