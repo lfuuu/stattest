@@ -32,6 +32,14 @@ class MailJob {
 	public function assign_client($client){
 		global $db;
 		$this->client = $db->GetRow('select * from clients where client="'.$client.'"');
+		$fullName = '';
+		if ($this->client) {
+			$accountClient = \app\models\ClientAccount::findOne(['id' => $this->client['id']]);
+			if ($accountClient) {
+				$fullName = $accountClient->contragent->name_full;
+			}
+		}
+		$this->client['company_full'] = $fullName;
 		$this->emails = array();
 		if(!$this->client)
 			return;
