@@ -2,6 +2,7 @@
 
 use app\classes\DateFunction;
 use app\classes\uu\model\AccountEntry;
+use app\classes\uu\model\ServiceType;
 use app\classes\Wordifier;
 use app\models\ClientAccount;
 use app\models\Organization;
@@ -154,7 +155,10 @@ $organization = $clientAccount->contract->getOrganization($firstEntry->date);
                             $summaryWithVat += $accountEntry->price_with_vat;
                             ?>
                             <tr>
-                                <td><?= $accountEntry->accountTariff->getName(false) ?></td>
+                                <td>
+                                    <?= $accountEntry->accountTariff->getName(false) ?>. <?= $accountEntry->getTypeName() ?>
+                                    <?= ($accountEntry->accountTariff->service_type_id == ServiceType::ID_VOIP ? $accountEntry->accountTariff->voip_number : '') ?>
+                                </td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>

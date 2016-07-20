@@ -213,7 +213,11 @@ foreach ($result as $monthKey => $month):
                         <td rowspan="<?= ($totalItems - $i) ?>"></td>
                     <?php elseif (isset($monthOldBills[$i])) :?>
                         <td>
-                            <?= Html::a('Счет № ' . $monthOldBills[$i]->bill_no, $monthOldBills[$i]->url, ['target' => '_blank']) ?>
+                            <?= Html::a('Счет № ' . $monthOldBills[$i]->bill_no, $monthOldBills[$i]->url, [
+                                'target' => '_blank',
+                                'class' => 'bill-info',
+                                'data-bill' => $monthOldBills[$i]->bill_no,
+                            ]) ?>
                         </td>
                     <?php endif; ?>
                     <td>
@@ -248,7 +252,7 @@ jQuery(document).ready(function() {
     $('a.bill-info')
         .hover(
             function() {
-                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', '#F0F0F0');
+                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', '#D0D0D0');
             },
             function() {
                 $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', 'inherit');
