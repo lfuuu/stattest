@@ -106,6 +106,7 @@
                         {if $key == "actual_from" || $key == "actual_to"}
                             {if $key == "actual_from" && $dbform_data.id.value}
                                 {assign var="disabled_actual_from_datepicker" value=true}
+                                <input type="hidden" name="dbform[{$key}]" value="{$item.value}">
                             {else}
                                 <input type=button value="С" title="Сейчас" onclick='
                                         var d = new Date();
