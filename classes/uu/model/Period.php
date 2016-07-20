@@ -2,8 +2,8 @@
 
 namespace app\classes\uu\model;
 
+use DateTimeImmutable;
 use LogicException;
-use Yii;
 
 /**
  * Периоды (день, месяц, квартал и т.д.)
@@ -77,6 +77,85 @@ class Period extends \yii\db\ActiveRecord
             return sprintf('+%d days', $this->dayscount);
         } else {
             throw new LogicException('Dayscount and monthscount are 0');
+        }
+    }
+
+    /**
+     * Найти конец диапазона, начавшегося $dateTimeFrom, чтобы он содержал в себе $dateTimeMin
+     * Он должен являться концом месяца/квартала/полугода/года
+     *
+     * @param DateTimeImmutable $dateTimeFrom
+     * @param DateTimeImmutable $dateTimeMin
+     * @return DateTimeImmutable
+     */
+    public function getMaxDateTo(DateTimeImmutable $dateTimeFrom, DateTimeImmutable $dateTimeMin)
+    {
+        if (!$this->monthscount) {
+            // посуточная оплата - до начала нового периода
+            return $dateTimeMin;
+        }
+
+        /** @var DateTimeImmutable $dateTimeFromTmp */
+        $dateTimeFromTmp = clone $dateTimeFrom;
+
+        while (true) {
+            // конец текущего месяца/квартала/полугода/года
+            $dateTimeFromTmp = $this->getMinDateTo($dateTimeFromTmp);
+
+            if ($dateTimeFromTmp >= $dateTimeMin) {
+                return $dateTimeFromTmp;
+            }
+
+            // начать следующий период
+            $dateTimeFromTmp = $dateTimeFromTmp->modify('+1 day');
+        }
+    }
+
+    /**
+     * Вернуть конец текущего месяца/квартала/полугода/года
+     *
+     * @param DateTimeImmutable $dateTimeFrom
+     * @return DateTimeImmutable
+     */
+    public function getMinDateTo(DateTimeImmutable $dateTimeFrom)
+    {
+        switch ($this->monthscount) {
+            case 0:
+                // день
+                return $dateTimeFrom;
+
+            case 1:
+                // месяц
+                return $dateTimeFrom->modify('last day of this month');
+
+            case 3:
+                // квартал
+                $month = $dateTimeFrom->format('n'); // 'm' нельзя, ибо '09' в восьмеричной системе неправильно
+                if ($month <= 3) {
+                    return $dateTimeFrom->modify('last day of march');
+                } elseif ($month >= 4 && $month <= 6) {
+                    return $dateTimeFrom->modify('last day of june');
+                } elseif ($month >= 7 && $month <= 9) {
+                    return $dateTimeFrom->modify('last day of september');
+                } else {
+                    return $dateTimeFrom->modify('last day of december');
+                }
+
+            case 6:
+                // полгода
+                $month = $dateTimeFrom->format('n'); // 'm' нельзя, ибо '09' в восьмеричной системе неправильно
+                if ($month <= 6) {
+                    return $dateTimeFrom->modify('last day of june');
+                } else {
+                    return $dateTimeFrom->modify('last day of december');
+                }
+
+            case 12:
+                // год
+                return $dateTimeFrom->modify('last day of december');
+
+            default:
+                throw new LogicException('Unknow period: ' . $this->monthscount . ' months');
         }
     }
 }

@@ -13,59 +13,24 @@ use DateTimeImmutable;
 class AccountLogFromToTariff
 {
     /** @var DateTimeImmutable $dateFrom */
-    protected $dateFrom = null;
+    public $dateFrom = null;
 
     /** @var DateTimeImmutable $dateTo */
-    protected $dateTo = null;
+    public $dateTo = null;
 
-    /** @var TariffPeriod $dateTo */
-    protected $tariffPeriod = null;
+    /** @var TariffPeriod $tariffPeriod */
+    public $tariffPeriod = null;
 
-    /**
-     * @return DateTimeImmutable
-     */
-    public function getDateFrom()
-    {
-        return $this->dateFrom;
-    }
+    /** @var bool $isFirst нужно для списывания платы за подключение номера  */
+    public $isFirst = null;
 
     /**
-     * @param DateTimeImmutable $dateFrom
+     * Вернуть уникальный Id
+     * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     * @return string
      */
-    public function setDateFrom($dateFrom)
+    public function getUniqueId()
     {
-        $this->dateFrom = $dateFrom;
-    }
-
-    /**
-     * @return DateTimeImmutable
-     */
-    public function getDateTo()
-    {
-        return $this->dateTo;
-    }
-
-    /**
-     * @param DateTimeImmutable $dateTo
-     */
-    public function setDateTo($dateTo)
-    {
-        $this->dateTo = $dateTo;
-    }
-
-    /**
-     * @return TariffPeriod
-     */
-    public function getTariffPeriod()
-    {
-        return $this->tariffPeriod;
-    }
-
-    /**
-     * @param TariffPeriod $tariffPeriod
-     */
-    public function setTariffPeriod($tariffPeriod)
-    {
-        $this->tariffPeriod = $tariffPeriod;
+        return $this->dateFrom->format('Y-m-d') . '_' . ($this->tariffPeriod ? $this->tariffPeriod->id : '');
     }
 }

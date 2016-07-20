@@ -32,6 +32,7 @@ use yii\helpers\Url;
  * @property ServiceType $serviceType
  * @property Region $region
  * @property City $city
+ * @property \app\models\Number $number
  * @property AccountTariff $prevAccountTariff  Основная услуга
  * @property AccountTariff[] $nextAccountTariffs   Пакеты
  * @property AccountTariffLog[] $accountTariffLogs
@@ -144,6 +145,7 @@ class AccountTariff extends ActiveRecord
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
             ['tariff_period_id', 'validatorTariffPeriod'],
+//            ['tariff_period_id', 'validatorBalance', 'on' => 'create'],
         ];
     }
 
@@ -262,6 +264,14 @@ class AccountTariff extends ActiveRecord
     /**
      * @return ActiveQuery
      */
+    public function getNumber()
+    {
+        return $this->hasOne(\app\models\Number::className(), ['number' => 'voip_number']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
@@ -307,7 +317,7 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть лог уникальных тарифов
      * В отличие от $this->accountTariffLogs
-     *  - только те, которые не переопределены в тот же день другим тарифом
+     *  - только те, которые не переопределены другим до наступления этой даты
      *  - в порядке возрастания
      *  - только активные на данный момент
      *
@@ -316,24 +326,30 @@ class AccountTariff extends ActiveRecord
     public function getUniqueAccountTariffLogs()
     {
         $accountTariffLogs = [];
+        /** @var AccountTariffLog $accountTariffLogPrev */
+        $accountTariffLogPrev = null;
         foreach ($this->accountTariffLogs as $accountTariffLog) {
-            if (isset($accountTariffLogs[$accountTariffLog->actual_from])) {
-                // неактивный тариф, потому что в тот же день переопределен другим
+            if ($accountTariffLogPrev &&
+                $accountTariffLogPrev->actual_from == $accountTariffLog->actual_from &&
+                $accountTariffLogPrev->actual_from > $accountTariffLogPrev->insert_time // строго раньше наступления даты @todo таймзона клиента
+            ) {
+                // неактивный тариф, потому что переопределен другим до наступления этой даты
+                // если переопределен в тот же день, то списываем за оба
                 continue;
             }
             if ($accountTariffLog->actual_from > date('Y-m-d')) {
                 // еще не наступил
                 continue;
             }
-            $accountTariffLogs[$accountTariffLog->actual_from] = $accountTariffLog;
+            $accountTariffLogs[$accountTariffLog->getUniqueId()] = $accountTariffLogPrev = $accountTariffLog;
         }
-        ksort($accountTariffLogs); // по возрастанию. Это важно для расчета периодов и цен
+        $accountTariffLogs = array_reverse($accountTariffLogs, true); // по возрастанию. Это важно для расчета периодов и цен
         return $accountTariffLogs;
     }
 
     /**
      * Вернуть большие периоды, разбитые только по смене тарифов
-     * У последнего тарифа getDateFrom может быть null (не ограничен по времени)
+     * У последнего тарифа dateTo может быть null (не ограничен по времени)
      *
      * @return AccountLogFromToTariff[]
      */
@@ -348,8 +364,29 @@ class AccountTariff extends ActiveRecord
             $dateActualFrom = new DateTimeImmutable($uniqueAccountTariffLog->actual_from);
 
             if (($count = count($accountLogPeriods)) > 0) {
+
                 // закончить предыдущий период
-                $accountLogPeriods[$count - 1]->setDateTo($dateActualFrom->modify('-1 day'));
+                $prevAccountTariffLog = $accountLogPeriods[$count - 1];
+                $prevTariffPeriodChargePeriod = $prevAccountTariffLog->tariffPeriod->chargePeriod;
+
+                // старый тариф должен закончиться не раньше этой даты
+                $dateActualFromYmd = $dateActualFrom->format('Y-m-d');
+                $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format('Y-m-d');
+                if ($dateActualFromYmd < $insertTimeYmd) {
+                    $insertTimeYmd = '1970-01-01'; // @todo ну, надо же хоть как-нибудь посчитать этот идиотизм
+//                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
+                }
+
+                /** @var DateTimeImmutable $dateFromNext дата теоретического начала (продолжения) старого тарифа. Из нее -1day получается дата окончания его прошлого периода */
+                if ($dateActualFromYmd == $insertTimeYmd) {
+                    // если смена произошла в тот же день, то этот день билингуется дважды: по старому тарифу (с полуночи до insert_time, но не менее периода списания) и по новому (с insert_time)
+                    $dateTimeMin = $dateActualFrom;
+                } else {
+                    $dateTimeMin = $dateActualFrom->modify('-1 day');
+                }
+                unset($dateActualFromYmd, $insertTimeYmd);
+
+                $prevAccountTariffLog->dateTo = $prevTariffPeriodChargePeriod->getMaxDateTo($prevAccountTariffLog->dateFrom, $dateTimeMin);
             }
 
             if (!$uniqueAccountTariffLog->tariffPeriod) {
@@ -360,8 +397,8 @@ class AccountTariff extends ActiveRecord
             // начать новый период
             $accountLogPeriods[] = new AccountLogFromToTariff();
             $count = count($accountLogPeriods);
-            $accountLogPeriods[$count - 1]->setDateFrom($dateActualFrom);
-            $accountLogPeriods[$count - 1]->setTariffPeriod($uniqueAccountTariffLog->tariffPeriod);
+            $accountLogPeriods[$count - 1]->dateFrom = $dateActualFrom;
+            $accountLogPeriods[$count - 1]->tariffPeriod = $uniqueAccountTariffLog->tariffPeriod;
         }
 
         return $accountLogPeriods;
@@ -370,7 +407,6 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть периоды, разбитые не более периода списания
      * Разбиты по логу тарифов, периодам списания, 1-м числам месяца.
-     * По возможности - по периодам списания, но иногда и меньше (от подключения до первого числа, а также при переключении тарифов).
      *
      * @param Period $chargePeriodMain если указано, то использовать указанное, а не из getAccountLogHugeFromToTariffs
      * @param bool $isWithCurrent возвращать ли незаконченный (длится еще) тариф? Для предоплаты надо, для постоплаты нет
@@ -383,62 +419,38 @@ class AccountTariff extends ActiveRecord
         $dateTo = $dateFrom = null;
         $minLogDatetime = self::getMinLogDatetime();
 
-        // взять больший периоды, разбитые только по смене тарифов
+        // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
         $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
-            $dateTo = $accountLogHugePeriod->getDateTo();
+            $dateTo = $accountLogHugePeriod->dateTo;
             if ($dateTo && $dateTo < $minLogDatetime) {
                 // слишком старый. Для оптимизации считать не будем
                 continue;
             }
 
-            $tariffPeriod = $accountLogHugePeriod->getTariffPeriod();
+            $tariffPeriod = $accountLogHugePeriod->tariffPeriod;
             $chargePeriod = $chargePeriodMain ?: $tariffPeriod->chargePeriod;
-            $dateFrom = $accountLogHugePeriod->getDateFrom();
-            $dateToLimited = $dateTo ?:
-                (new DateTimeImmutable())
-                    ->modify($chargePeriod->monthscount ? 'last day of this month' : '-1 day'); // помесячно - до конца месяца, посуточно - до вчерашнего дня
-
-            if (
-                $chargePeriod->monthscount >= 1 &&
-                (
-                    // даты в разных месяцах, если разница больше 31 дня или месяц не совпадает
-                    $dateToLimited->diff($dateFrom)->days > 31 ||
-                    $dateFrom->format('m') !== $dateToLimited->format('m')
-                )
-            ) {
-                // если период списания не менее месяца, а даты начала и конца - в разных месяцах, то разбить по первым числам месяца
-                $accountLogPeriod = new AccountLogFromToTariff();
-                $accountLogPeriod->setTariffPeriod($tariffPeriod);
-                $accountLogPeriod->setDateFrom($dateFrom);
-
-                // следующий период будет начинаться 1 числа следующего месяца
-                $dateFrom = $dateFrom->setDate($dateFrom->format('Y'), 1 + (int)$dateFrom->format('m'), 1);
-                $accountLogPeriod->setDateTo($dateFrom->modify('-1 day'));
-
-                if ($accountLogPeriod->getDateTo() >= $minLogDatetime) {
-                    // Для оптимизации считаем только нестарые
-                    $accountLogPeriods[] = $accountLogPeriod;
-                }
-            }
+            $dateFrom = $accountLogHugePeriod->dateFrom;
+            $dateToLimited = $dateTo ?: $chargePeriod->getMaxDateTo($dateFrom, new DateTimeImmutable);
 
             do {
-                // начать новый период
                 $accountLogPeriod = new AccountLogFromToTariff();
-                $accountLogPeriod->setTariffPeriod($tariffPeriod);
-                $accountLogPeriod->setDateFrom($dateFrom);
+                $accountLogPeriod->tariffPeriod = $tariffPeriod;
+                $accountLogPeriod->dateFrom = $dateFrom;
+                $accountLogPeriod->dateTo = $chargePeriod->monthscount ? $dateFrom->modify('last day of this month') : $dateFrom;
 
-                // следующий период будет начинаться через заданный период
-                $dateFrom = $dateFrom->modify($chargePeriod->getModify());
-                $accountLogPeriod->setDateTo(min($dateFrom->modify('-1 day'), $dateToLimited));
-
-                if ($accountLogPeriod->getDateTo() >= $minLogDatetime) {
+                if ($accountLogPeriod->dateTo >= $minLogDatetime) {
                     // Для оптимизации считаем только нестарые
                     $accountLogPeriods[] = $accountLogPeriod;
                 }
-            } while ($dateFrom < $dateToLimited);
+
+                // начать новый период
+                /** @var DateTimeImmutable $dateFrom */
+                $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
+
+            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d'));
 
         }
 
@@ -485,20 +497,29 @@ class AccountTariff extends ActiveRecord
         $minLogDatetime = self::getMinLogDatetime();
         $accountLogFromToTariffs = $this->getAccountLogHugeFromToTariffs(); // все
 
+        $i = 0;
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
-            $dateFrom = $accountLogFromToTariff->getDateFrom();
-            if ($dateFrom < $minLogDatetime) {
+            if ($accountLogFromToTariff->tariffPeriod->tariff->tariff_status_id == TariffStatus::ID_TEST) {
+                // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
+                // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
+                continue;
+            }
+
+            $i++;
+
+            if ($accountLogFromToTariff->dateFrom < $minLogDatetime) {
                 // слишком старый. Для оптимизации считать не будем
                 continue;
             }
 
-            $dateFromYmd = $dateFrom->format('Y-m-d');
-            if (isset($accountLogs[$dateFromYmd])) {
-                unset($accountLogs[$dateFromYmd]);
+            $uniqueId = $accountLogFromToTariff->getUniqueId();
+            if (isset($accountLogs[$uniqueId])) {
+                unset($accountLogs[$uniqueId]);
             } else {
                 // этот период не рассчитан
+                $accountLogFromToTariff->isFirst = ($i === 1);
                 $untarificatedPeriods[] = $accountLogFromToTariff;
             }
         }
@@ -525,22 +546,26 @@ class AccountTariff extends ActiveRecord
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
-            $dateFrom = $accountLogFromToTariff->getDateFrom();
-            $dateFromYmd = $dateFrom->format('Y-m-d');
-            if (isset($accountLogs[$dateFromYmd])) {
+            if ($accountLogFromToTariff->tariffPeriod->tariff->tariff_status_id == TariffStatus::ID_TEST) {
+                // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
+                // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
+                continue;
+            }
+            $uniqueId = $accountLogFromToTariff->getUniqueId();
+            if (isset($accountLogs[$uniqueId])) {
                 // такой период рассчитан
                 // проверим, все ли корректно
-                $accountLog = $accountLogs[$dateFromYmd];
-                $dateToTmp = $accountLogFromToTariff->getDateTo()->format('Y-m-d');
+                $accountLog = $accountLogs[$uniqueId];
+                $dateToTmp = $accountLogFromToTariff->dateTo->format('Y-m-d');
                 if ($accountLog->date_to !== $dateToTmp) {
-                    throw new RangeException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
+                    throw new \LogicException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
                 }
 
-                $tariffPeriodId = $accountLogFromToTariff->getTariffPeriod()->id;
+                $tariffPeriodId = $accountLogFromToTariff->tariffPeriod->id;
                 if ($accountLog->tariff_period_id !== $tariffPeriodId) {
-                    throw new RangeException(sprintf('Error. Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
+                    throw new \LogicException(sprintf('Error. Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
                 }
-                unset($accountLogs[$dateFromYmd]);
+                unset($accountLogs[$uniqueId]);
             } else {
                 // этот период не рассчитан
                 $untarificatedPeriods[] = $accountLogFromToTariff;
@@ -549,7 +574,7 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            throw new \LogicException(sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;
@@ -569,7 +594,7 @@ class AccountTariff extends ActiveRecord
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->getDateFrom()->format('Y-m-d');
+            $dateFromYmd = $accountLogFromToTariff->dateFrom->format('Y-m-d');
             if (isset($accountLogs[$dateFromYmd])) {
                 // такой период рассчитан
                 unset($accountLogs[$dateFromYmd]);
@@ -741,6 +766,79 @@ class AccountTariff extends ActiveRecord
         }
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
             $this->addError($attribute, 'Tariff_period_id не соответствует service_type_id');
+            return;
+        }
+    }
+
+    /**
+     * Валидировать, что realtime balance больше обязательного платежа по услуге (подключение + абонентская плата + минимальная плата за ресурсы)
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorBalance($attribute, $params)
+    {
+        // @todo после создания отдельного поля в акаунте клиента - вынести в отдельный метод по-новому
+//        // все платежи
+//        $paymentSummary = Payment::find()
+//            ->select([
+//                'total_price' => 'SUM(sum)',
+//            ])
+//            ->where(['client_id' => $this->client_account_id])
+//            ->asArray()
+//            ->one();
+//
+//        // все списания
+//        // счетов меньше, чем транзакций и проводок - считать быстрее
+//        // @todo счета все время хранятся, а старые проводки в целях оптимизации удаляются
+//        $billSummary = Bill::find()
+//            ->select([
+//                'total_price' => 'SUM(price)',
+//            ])
+//            ->where(['client_account_id' => $this->client_account_id])
+//            ->asArray()
+//            ->one();
+//
+//        $realtimeBalance = $paymentSummary['total_price'] - $billSummary['total_price'] + $credit;
+
+        $clientAccount = $this->clientAccount;
+        if (!$clientAccount) {
+            $this->addError($attribute, 'Клиент не указан'); // правильнее это к полю client_account_id, но оно не отображается
+            return;
+        }
+
+        // кредитный лимит
+        $credit = $clientAccount->credit;
+
+        $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance() + $credit;
+
+        if ($realtimeBalance < 0) {
+            $this->addError($attribute, 'Клиент находится в финансовой блокировке'); // правильнее это к полю client_account_id, но оно не отображается
+            return;
+        }
+
+        if ($realtimeBalance == 0) {
+            $this->addError($attribute, 'Нет денег на счету'); // правильнее это к полю client_account_id, но оно не отображается
+            return;
+        }
+
+        $tariffPeriod = $this->tariffPeriod;
+        if (!$tariffPeriod) {
+            $this->addError($attribute, 'Неправильный tariff_period_id');
+            return;
+        }
+
+        // @todo абонентскую плату считать не за период абонентки, а за период списания
+        // @todo абонентскую плату считать с выравниванием
+        $tariffPrice = $tariffPeriod->price_setup + $tariffPeriod->price_per_period + $tariffPeriod->price_min;
+        if ($realtimeBalance < $tariffPrice) {
+            $this->addError($attribute,
+                sprintf('На счету %.2f у.е., что меньше первичного платежа по тарифу, который составляет %.2f у.е. (подключение %.2f у.е. + абонентская плата %.2f у.е. + минимальная стоимость ресурсов %.2f у.е.)',
+                    $realtimeBalance,
+                    $tariffPrice,
+                    $tariffPeriod->price_setup,
+                    $tariffPeriod->price_per_period,
+                    $tariffPeriod->price_min
+                ));
             return;
         }
     }

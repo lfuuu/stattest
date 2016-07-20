@@ -10,14 +10,9 @@ use app\tests\codeception\fixtures\NumberFixture;
 
 class FreeNumbersTest extends TestCase
 {
-
-    private $filter;
-
     protected function setUp()
     {
         parent::setUp();
-        $this->filter = new FreeNumberFilter;
-
         (new NumberFixture)->load();
     }
 

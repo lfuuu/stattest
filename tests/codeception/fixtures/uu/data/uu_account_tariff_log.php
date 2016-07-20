@@ -1,0 +1,50 @@
+<?php
+
+$dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+
+return [
+
+    // тест 1
+    [
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое и 2ое число прошлого месяца
+        'account_tariff_id' => 1,
+        'tariff_period_id' => 1, // по дням
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format('c'),
+    ],
+    [
+        // 2го с 3го подключил месячный тариф
+        // по этому тарифу с 3го до конца прошлого месяца и весь этот месяц
+        'account_tariff_id' => 1,
+        'tariff_period_id' => 2, // по месяцам
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('c'),
+    ],
+
+    // тест 2
+    [
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое и 2ое число прошлого месяца
+        'account_tariff_id' => 2,
+        'tariff_period_id' => 1, // по дням
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format('c'),
+    ],
+    [
+        // 2го сразу же подключил месячный тариф
+        // по этому тарифу со 2го до конца прошлого месяца
+        'account_tariff_id' => 2,
+        'tariff_period_id' => 2, // по месяцам
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->modify('+1 days')->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('c'),
+    ],
+    [
+        // 4го сразу же подключил годовой тариф
+        // по этому тарифу с 4го до конца этого года
+        'account_tariff_id' => 2,
+        'tariff_period_id' => 3, // по годам
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->modify('+3 days')->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format('c'),
+    ],
+];

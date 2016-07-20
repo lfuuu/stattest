@@ -20,6 +20,6 @@ class VpbxDiskResourceReader extends VpbxResourceReader implements ResourceReade
     {
         // из b преобразовать в Gb
         $value = parent::read($accountTariff, $dateTime);
-        return $value === null ? $value : $value / (1024 * 1024);
+        return $value === null ? $value : $value / (1024 * 1024 * 1024);
     }
 }

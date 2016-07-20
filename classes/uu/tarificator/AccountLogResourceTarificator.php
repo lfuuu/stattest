@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
@@ -55,7 +56,7 @@ class AccountLogResourceTarificator
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
-                echo $e->getMessage();
+                echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
             }
@@ -76,8 +77,8 @@ class AccountLogResourceTarificator
 
         $untarificatedPeriods = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $date = $untarificatedPeriod->getDateFrom();
-            $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
+            $date = $untarificatedPeriod->dateFrom;
+            $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
             $tariffId = $tariffPeriod->tariff_id;
             if (!isset($this->tariffIdToTariffResources[$tariffId])) {

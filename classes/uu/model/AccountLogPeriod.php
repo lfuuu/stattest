@@ -74,4 +74,14 @@ class AccountLogPeriod extends ActiveRecord
     {
         return Url::to(['uu/account-log/period', 'AccountLogPeriodFilter[id]' => $this->id]);
     }
+
+    /**
+     * Вернуть уникальный Id
+     * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return $this->date_from . '_' . $this->tariff_period_id;
+    }
 }

@@ -12,6 +12,9 @@ use yii\db\Expression;
 
 /**
  * Фильтрация для свободных номеров
+ *
+ * @property FreeNumberFilter numbers
+ * @property FreeNumberFilter numbers7800
  */
 class FreeNumberFilter extends Number
 {
@@ -122,7 +125,7 @@ class FreeNumberFilter extends Number
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->query->andWhere(['>=', TariffNumber::tableName() . '.activation_fee', $minCost])->joinWith('tariff');
+            $this->query->andWhere(['>=', 'tariff1.activation_fee', $minCost])->joinWith('tariff tariff1');
         }
         return $this;
     }
@@ -134,7 +137,7 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->query->andWhere(['<=', TariffNumber::tableName() . '.activation_fee', $maxCost])->joinWith('tariff');
+            $this->query->andWhere(['<=', 'tariff2.activation_fee', $maxCost])->joinWith('tariff tariff2');
         }
         return $this;
     }

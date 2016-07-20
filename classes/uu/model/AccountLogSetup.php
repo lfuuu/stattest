@@ -13,7 +13,9 @@ use yii\helpers\Url;
  * @property string $date
  * @property int $tariff_period_id  кэш accountTariff -> accountTariffLog -> tariff_period_id
  * @property int $account_tariff_id
- * @property float $price кэш tariffPeriod -> price_setup
+ * @property float $price_setup кэш tariffPeriod -> price_setup
+ * @property float $price_number
+ * @property float $price кэш price_setup + price_number
  * @property string $insert_time
  * @property int $account_entry_id
  *
@@ -35,7 +37,7 @@ class AccountLogSetup extends ActiveRecord
     {
         return [
             [['id', 'tariff_period_id', 'account_tariff_id'], 'integer'],
-            [['price'], 'double'],
+            [['price_setup', 'price_number', 'price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
     }
@@ -70,5 +72,15 @@ class AccountLogSetup extends ActiveRecord
     public function getUrl()
     {
         return Url::to(['uu/account-log/setup', 'AccountLogSetupFilter[id]' => $this->id]);
+    }
+
+    /**
+     * Вернуть уникальный Id
+     * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return $this->date . '_' . $this->tariff_period_id;
     }
 }

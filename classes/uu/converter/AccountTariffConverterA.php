@@ -139,7 +139,7 @@ abstract class AccountTariffConverterA
             AND active.actual_from > closed.actual_from
           ");
 
-        // кэш последнего тарифа
+        // @todo кэш последнего тарифа
         $this->execute("UPDATE {$accountTariffTableName}
         SET
           tariff_period_id = (

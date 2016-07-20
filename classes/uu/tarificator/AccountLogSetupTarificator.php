@@ -2,9 +2,11 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\ServiceType;
 use Yii;
 
 /**
@@ -18,7 +20,7 @@ class AccountLogSetupTarificator
     public function tarificateAll()
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
-        // в целях оптимизации удалить старые данные
+        // в целях оптимизации удалить слишком старые данные
         AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
 
         $accountTariffs = AccountTariff::find();
@@ -46,7 +48,7 @@ class AccountLogSetupTarificator
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
-                echo $e->getMessage();
+                echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
             }
@@ -62,18 +64,31 @@ class AccountLogSetupTarificator
         /** @var AccountLogSetup[] $accountLogs */
         $accountLogs = AccountLogSetup::find()
             ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
-            ->indexBy('date')
+            ->indexBy(function (AccountLogSetup $accountLogSetup) {
+                return $accountLogSetup->getUniqueId();
+            })
             ->all(); // по которым произведен расчет
 
+        $accountTariff->accountTariffLogs;
+
         $untarificatedPeriods = $accountTariff->getUntarificatedSetupPeriods($accountLogs);
+        /** @var AccountLogFromToTariff $untarificatedPeriod */
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $tariffPeriod = $untarificatedPeriod->getTariffPeriod();
+            $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
             $accountLogSetup = new AccountLogSetup();
-            $accountLogSetup->date = $untarificatedPeriod->getDateFrom()->format('Y-m-d');
+            $accountLogSetup->date = $untarificatedPeriod->dateFrom->format('Y-m-d');
             $accountLogSetup->tariff_period_id = $tariffPeriod->id;
             $accountLogSetup->account_tariff_id = $accountTariff->id;
-            $accountLogSetup->price = $tariffPeriod->price_setup;
+
+            $accountLogSetup->price_setup = $tariffPeriod->price_setup;
+            if ($untarificatedPeriod->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
+                // телефонный номер кроме телефонной линии (4-5 знаков)
+                // только первое подключение. При смене тарифа на том же аккаунте не считать
+                $accountLogSetup->price_number = $accountTariff->number->price;
+            }
+
+            $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
             $accountLogSetup->save();
         }
     }

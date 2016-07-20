@@ -14,7 +14,6 @@ use yii\helpers\Url;
  * @property string hold_from
  * @property string hold_to
  * @property int beauty_level
- * @property float price
  * @property int region
  * @property int client_id
  * @property int usage_id
@@ -42,7 +41,9 @@ use yii\helpers\Url;
  * @property TariffNumber $tariff
  * @property ClientAccount $clientAccount
  *
- * @property array $actualPrice
+ * @property float originPrice
+ * @property float price
+ * @property array priceWithCurrency
  */
 class Number extends ActiveRecord
 {
@@ -214,6 +215,9 @@ class Number extends ActiveRecord
      */
     public function getOriginPrice()
     {
+        if (!$this->tariff) {
+            throw new \Exception('Не указана стоимость подключения номера ' . $this->number);
+        }
         return $this->tariff->activation_fee;
     }
 

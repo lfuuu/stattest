@@ -175,4 +175,13 @@ class AccountTariffLog extends ActiveRecord
             ->count();
     }
 
+    /**
+     * Вернуть уникальный Id
+     * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return $this->actual_from . '_' . $this->tariff_period_id;
+    }
 }
