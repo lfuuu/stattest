@@ -440,21 +440,21 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      * ),
      *
-     * @SWG\Definition(definition = "grouppedAccountTariffRecord", type = "object",
+     * @SWG\Definition(definition = "grouppedAccountTariffVoipRecord", type = "object",
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_numbers", type = "array", description = "Номера. Если 4-5 символов - номер линии, если больше - номер телефона", @SWG\Items(type = "integer")),
      *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      *   @SWG\Property(property = "account_tariff_logs_light", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов. По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
-     *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/accountTariffRecord")),
+     *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/grouppedAccountTariffVoipRecord")),
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы"}, path = "/internal/uu/get-account-tariffs-voip", summary = "Сгруппированный список услуг телефонии у клиента", operationId = "Сгруппированный список услуг телефонии у клиента",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
      *
      *   @SWG\Response(response = 200, description = "Сгруппированный список услуг телефонии у клиента",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/grouppedAccountTariffRecord"))
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/grouppedAccountTariffVoipRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -744,6 +744,10 @@ class UuController extends ApiInternalController
      */
     private function getAccountTariffRecord($accountTariff)
     {
+        if (!$accountTariff) {
+            return null;
+        }
+
         if (is_array($accountTariff)) {
 
             $result = [];
@@ -779,6 +783,10 @@ class UuController extends ApiInternalController
      */
     private function getGrouppedAccountTariffVoipRecord($accountTariffs)
     {
+        if (!$accountTariffs) {
+            return null;
+        }
+
         /** @var AccountTariff $accountTariffFirst */
         $accountTariffFirst = reset($accountTariffs);
 
@@ -794,7 +802,7 @@ class UuController extends ApiInternalController
             'is_editable' => (bool)$accountTariffFirst->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'account_tariff_logs_light' => $this->getAccountTariffLogLightRecord($accountTariffFirst->accountTariffLogs),
             'account_tariff_logs' => $this->getAccountTariffLogRecord($accountTariffFirst->accountTariffLogs),
-            'next_account_tariffs' => $this->getAccountTariffRecord($accountTariffFirst->nextAccountTariffs),
+            'next_account_tariffs' => $this->getGrouppedAccountTariffVoipRecord($accountTariffFirst->nextAccountTariffs),
         ];
     }
 
