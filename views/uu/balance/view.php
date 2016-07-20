@@ -1,4 +1,11 @@
 <?php
+
+use yii\widgets\Breadcrumbs;
+use app\classes\uu\model\Bill as uuBill;
+use app\classes\uu\model\AccountEntry;
+use app\models\ClientAccount;
+use app\models\Bill;
+
 /**
  * Бухгалтерский баланс
  *
@@ -7,6 +14,7 @@
  * @var Currency $currency
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
+ * @var uuBill[] $uuBills
  * @var Bill[] $bills
  * @var array $accountEntrySummary
  * @var array $accountLogSetupSummary
@@ -15,17 +23,12 @@
  * @var array $paymentSummary
  */
 
-use app\classes\uu\model\AccountEntry;
-use app\models\Bill;
-use app\models\ClientAccount;
-use yii\widgets\Breadcrumbs;
-
 $params = [
     'clientAccount' => $clientAccount,
     'currency' => $currency,
     'accountEntries' => $accountEntries,
     'payments' => $payments,
-    'accountBills' => $accountBills,
+    'uuBills' => $uuBills,
     'bills' => $bills,
     'accountEntrySummary' => $accountEntrySummary,
     'accountLogSetupSummary' => $accountLogSetupSummary,

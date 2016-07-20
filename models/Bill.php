@@ -5,6 +5,7 @@ use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
 use app\queries\BillQuery;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -201,6 +202,14 @@ class Bill extends ActiveRecord
         }
 
         return $bill !== null ? $bill : false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $this->bill_no]);
     }
 
     /**

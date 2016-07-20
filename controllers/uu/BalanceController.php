@@ -134,7 +134,8 @@ class BalanceController extends BaseController
                 ])
                 ->all();
 
-            $accountBills = \app\classes\uu\model\Bill::find()
+            // Все универсальные счета клиента
+            $uuBills = \app\classes\uu\model\Bill::find()
                 ->where(['client_account_id' => $clientAccountId])
                 ->orderBy([
                     'date' => SORT_DESC,
@@ -151,7 +152,7 @@ class BalanceController extends BaseController
                 ])
                 ->all();
 
-            // Все старые счета клиента для грида
+            // Все старые счета клиента
             $bills = Bill::find()
                 ->where(['client_id' => $clientAccountId])
                 ->orderBy([
@@ -165,6 +166,7 @@ class BalanceController extends BaseController
             $currency =
             $accountEntries =
             $payments =
+            $uuBills =
             $bills =
             $accountEntrySummary =
             $accountLogSetupSummary =
@@ -179,7 +181,7 @@ class BalanceController extends BaseController
             'currency' => $currency,
             'accountEntries' => $accountEntries,
             'payments' => $payments,
-            'accountBills' => $accountBills,
+            'uuBills' => $uuBills,
             'bills' => $bills,
             'accountEntrySummary' => $accountEntrySummary,
             'accountLogSetupSummary' => $accountLogSetupSummary,
