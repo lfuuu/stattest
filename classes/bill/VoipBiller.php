@@ -5,7 +5,6 @@ use app\classes\Assert;
 use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
-use app\models\UsageVoipPackage;
 use app\dao\billing\CallsDao;
 use Yii;
 
@@ -31,8 +30,30 @@ class VoipBiller extends Biller
                 ->orderBy('date_activation desc, id desc')
                 ->limit(1)
                 ->one();
+
         if ($this->logTariff === null) {
             return false;
+        }
+
+        // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
+        if ($this->logTariff->voipTariffMain->isTested()) {
+            $this->logTariff =
+                LogTarif::find()
+                    ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
+                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                    ->andWhere('id_tarif != 0')
+                    ->andWhere(['not', ['id_tarif' => TariffVoip::find()->where(['status' => TariffVoip::STATUS_TEST])->select('id')->column()]])
+                    ->orderBy('date_activation desc, id desc')
+                    ->limit(1)
+                    ->one();
+
+            // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
+            if ($this->logTariff === null || $this->logTariff->date_activation >= $this->billerActualTo->format('Y-m-d')) {
+                return false;
+            }
+
+            $this->billerPeriodFrom = $this->usageActualFrom = $this->billerActualFrom =
+                new \DateTime($this->logTariff->date_activation, clone $this->usageActualFrom->getTimezone());
         }
 
         $this->tariff = TariffVoip::findOne($this->logTariff->id_tarif);
