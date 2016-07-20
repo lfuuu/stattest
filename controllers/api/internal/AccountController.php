@@ -195,7 +195,7 @@ class AccountController extends ApiInternalController
     /**
      * @SWG\Post(
      *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/balance_full/",
+     *   path="/internal/account/balance-full/",
      *   summary="Получение полного баланса лицевого счёта",
      *   operationId="Получение полного баланса лицевого счёта",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",required=true),

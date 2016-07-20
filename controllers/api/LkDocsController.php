@@ -34,7 +34,7 @@ class LkDocsController extends ApiController
     /**
      * @SWG\Post(
      *   tags={"Работа с документами"},
-     *   path="/lk_docs/sections/",
+     *   path="/lk-docs/sections/",
      *   summary="Получение карточки клиента",
      *   operationId="Получение списка звонков",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),

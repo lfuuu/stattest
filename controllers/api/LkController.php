@@ -15,7 +15,7 @@ class LkController extends ApiController
     /**
      * @SWG\Post(
      *   tags={"Работа с лицевыми счетами"},
-     *   path="/lk/account_info/",
+     *   path="/lk/account-info/",
      *   summary="Получение информации о лицевом счёте",
      *   operationId="Получение информации о лицевом счёте",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),

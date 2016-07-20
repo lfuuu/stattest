@@ -124,7 +124,7 @@ abstract class WizardBaseController extends ApiController
      * ),
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/state/",
+     *   path="/wizard-mcn/state/",
      *   summary="Получение статуса, в котором находится визард",
      *   operationId="Получение статуса, в котором находится визард",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
@@ -166,7 +166,7 @@ abstract class WizardBaseController extends ApiController
      * ),
      * @SWG\Post(
      *   tags={"Работа с визардом"},
-     *   path="/wizard_mcn/read/",
+     *   path="/wizard-mcn/read/",
      *   summary="Получение всей необходимой информации для визарда",
      *   operationId="Получение всей необходимой информации для визарда",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),

@@ -232,7 +232,7 @@ class TicketController extends ApiController
     /**
      * @SWG\Post(
      *   tags={"Работа с тикетами"},
-     *   path="/ticket/set_read/",
+     *   path="/ticket/set-read/",
      *   summary="Отметить комментарии в тикете как прочитанные",
      *   operationId="Отметить комментарии в тикете как прочитанные",
      *   @SWG\Parameter(name="client_account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
