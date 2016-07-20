@@ -11,8 +11,9 @@ class AccountTariffConverterDummy extends AccountTariffConverterA
     /**
      * Доконвертировать тариф
      */
-    public function convert()
+    public function convert($serviceTypeId)
     {
+        $this->calcAccountTariffTariff($serviceTypeId);
     }
 
     /**

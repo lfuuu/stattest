@@ -139,7 +139,18 @@ abstract class AccountTariffConverterA
             AND active.actual_from > closed.actual_from
           ");
 
-        // @todo кэш последнего тарифа
+        $this->calcAccountTariffTariff($serviceTypeId);
+    }
+
+    /**
+     * @todo кэш последнего тарифа
+     * @param int $serviceTypeId
+     */
+    protected function calcAccountTariffTariff($serviceTypeId)
+    {
+        $accountTariffTableName = AccountTariff::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+
         $this->execute("UPDATE {$accountTariffTableName}
         SET
           tariff_period_id = (

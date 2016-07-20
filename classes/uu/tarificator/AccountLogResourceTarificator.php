@@ -36,7 +36,7 @@ class AccountLogResourceTarificator
         $accountTariffs = AccountTariff::find();
         $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
-            if ($i++ % 10000 === 0) {
+            if ($i++ % 1000 === 0) {
                 echo '. ';
             }
 
