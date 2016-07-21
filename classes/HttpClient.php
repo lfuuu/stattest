@@ -4,7 +4,7 @@ namespace app\classes;
 
 use Yii;
 use yii\httpclient\Client;
-use yii\httpclient\Request;
+use yii\httpclient\Request as HttpRequest;
 
 class HttpClient extends Client
 {
@@ -12,7 +12,7 @@ class HttpClient extends Client
     /**
      * @param [] $config
      */
-    public function auth(Request $request, array $config)
+    public function auth(HttpRequest $request, array $config)
     {
         if (isset($config['method'])) {
             switch ($config['method']) {
