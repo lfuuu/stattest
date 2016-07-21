@@ -22,17 +22,17 @@ class TariffConverterSms extends TariffConverterA
     {
         $statusIdPublic = TariffStatus::ID_PUBLIC;
 
-        $serviceTypeIdSms = ServiceType::ID_SMS;
+        $serviceTypeId = ServiceType::ID_SMS;
         $countryIdRussia = Country::RUSSIA;
 
         $personIdAll = TariffPerson::ID_ALL;
-        $deltaItParkTariff = Tariff::DELTA_SMS;
+        $deltaTariff = Tariff::DELTA_SMS;
 
         // подготовить старые тарифы
         $this->execute("CREATE TEMPORARY TABLE tariff_tmp
             SELECT
-                tarifs_sms.id + {$deltaItParkTariff} AS id,
-                {$serviceTypeIdSms} AS service_type_id,
+                tarifs_sms.id + {$deltaTariff} AS id,
+                {$serviceTypeId} AS service_type_id,
                 tarifs_sms.currency AS currency_id,
                 tarifs_sms.description AS name,
                 {$statusIdPublic} AS tariff_status_id,
@@ -60,14 +60,14 @@ class TariffConverterSms extends TariffConverterA
     protected function createTemporaryTableForTariffPeriod()
     {
         $periodIdMonth = Period::ID_MONTH;
-        $deltaSmsTariff = Tariff::DELTA_SMS;
+        $deltaTariff = Tariff::DELTA_SMS;
 
         $this->execute("CREATE TEMPORARY TABLE tariff_period_tmp
            SELECT
                 per_month_price AS price_per_period,
                 0 AS price_setup, 
                 0 AS price_min, 
-                id + {$deltaSmsTariff} AS tariff_id,
+                id + {$deltaTariff} AS tariff_id,
                 {$periodIdMonth} AS period_id,
                 {$periodIdMonth} AS charge_period_id
             FROM tarifs_sms
@@ -79,21 +79,20 @@ class TariffConverterSms extends TariffConverterA
      */
     protected function createTemporaryTableForTariffResource()
     {
-        $deltaSmsTariff = Tariff::DELTA_SMS;
+        $deltaTariff = Tariff::DELTA_SMS;
 
         // SMS
-        $resourceIdSms = Resource::ID_SMS;
+        $resourceId = Resource::ID_SMS;
         $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
            SELECT
                 0 AS amount, 
                 per_sms_price AS price_per_unit, 
                 0 AS price_min, 
-                {$resourceIdSms} AS resource_id, 
-                id + {$deltaSmsTariff} AS tariff_id
+                {$resourceId} AS resource_id, 
+                id + {$deltaTariff} AS tariff_id
             FROM tarifs_sms
         ");
 
         return true;
     }
 }
-

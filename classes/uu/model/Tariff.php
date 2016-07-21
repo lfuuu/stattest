@@ -72,10 +72,12 @@ class Tariff extends \yii\db\ActiveRecord
     const DELTA_SMS_GATE = 4000;
     const DELTA_USPD = 4000;
     const DELTA_WELLSYSTEM = 4000;
-    const DELTA_WELLTIME = 4000;
+    const DELTA_WELLTIME_PRODUCT = 4000;
     const DELTA_EXTRA = 4000;
 
     const DELTA_SMS = 5000;
+
+    const DELTA_WELLTIME_SAAS = 6000;
 
     const NUMBER_TYPE_NUMBER = 'number';
     const NUMBER_TYPE_7800 = '7800';
@@ -99,10 +101,12 @@ class Tariff extends \yii\db\ActiveRecord
         ServiceType::ID_SMS_GATE => self::DELTA_SMS_GATE,
         ServiceType::ID_USPD => self::DELTA_USPD,
         ServiceType::ID_WELLSYSTEM => self::DELTA_WELLSYSTEM,
-        ServiceType::ID_WELLTIME => self::DELTA_WELLTIME,
+        ServiceType::ID_WELLTIME_PRODUCT => self::DELTA_WELLTIME_PRODUCT,
         ServiceType::ID_EXTRA => self::DELTA_EXTRA,
 
         ServiceType::ID_SMS => self::DELTA_SMS,
+
+        ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
     ];
 
     public $serviceIdToUrl = [
@@ -122,10 +126,12 @@ class Tariff extends \yii\db\ActiveRecord
         ServiceType::ID_SMS_GATE => '/?module=tarifs&action=edit&m=extra&id=%d',
         ServiceType::ID_USPD => '/?module=tarifs&action=edit&m=extra&id=%d',
         ServiceType::ID_WELLSYSTEM => '/?module=tarifs&action=edit&m=wellsystem&id=%d',
-        ServiceType::ID_WELLTIME => '/?module=tarifs&action=edit&m=welltime&id=%d',
+        ServiceType::ID_WELLTIME_PRODUCT => '/?module=tarifs&action=edit&m=welltime&id=%d',
         ServiceType::ID_EXTRA => '/?module=tarifs&action=edit&m=extra&id=%d',
 
         ServiceType::ID_SMS => '/?module=tarifs&action=edit&m=sms&id=%d',
+
+        ServiceType::ID_WELLTIME_SAAS => '/?module=tarifs&action=edit&m=welltime&id=%d',
     ];
 
     /**

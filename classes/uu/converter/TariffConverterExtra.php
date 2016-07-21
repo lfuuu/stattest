@@ -32,7 +32,7 @@ class TariffConverterExtra extends TariffConverterA
         $serviceTypeIdSms = ServiceType::ID_SMS_GATE;
         $serviceTypeIdUspd = ServiceType::ID_USPD;
         $serviceTypeIdWellsystem = ServiceType::ID_WELLSYSTEM;
-        $serviceTypeIdWelltime = ServiceType::ID_WELLTIME;
+        $serviceTypeIdWelltime = ServiceType::ID_WELLTIME_PRODUCT;
         $serviceTypeIdExtra = ServiceType::ID_EXTRA;
 
         $countryIdRussia = Country::RUSSIA;

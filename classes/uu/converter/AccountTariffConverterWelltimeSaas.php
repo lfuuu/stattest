@@ -10,28 +10,28 @@ use app\classes\uu\model\TariffPeriod;
 
 /**
  */
-class AccountTariffConverterSms extends AccountTariffConverterA
+class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
 {
     /**
      * Создать временную таблицу для конвертации услуги
      */
     protected function createTemporaryTableForAccountTariff()
     {
-        $deltaAccountTariff = AccountTariff::DELTA_SMS;
-        $serviceTypeId = ServiceType::ID_SMS;
+        $deltaAccountTariff = AccountTariff::DELTA_WELLTIME_SAAS;
+        $serviceTypeId = ServiceType::ID_WELLTIME_SAAS;
 
         // подготовить старые услуги
         $this->execute("CREATE TEMPORARY TABLE account_tariff_tmp
             SELECT 
-                usage_sms.id + {$deltaAccountTariff} AS id,
+                usage_welltime.id + {$deltaAccountTariff} AS id,
                 clients.id AS client_account_id,
                 {$serviceTypeId} AS service_type_id,
                 NULL AS region_id,
                 NULL AS prev_account_tariff_id,
-                '' AS comment,
+                usage_welltime.comment AS comment,
                 null AS voip_number
-            FROM usage_sms, clients
-            WHERE usage_sms.client = clients.client
+            FROM usage_welltime, clients
+            WHERE usage_welltime.client = clients.client
         ");
     }
 
@@ -41,8 +41,8 @@ class AccountTariffConverterSms extends AccountTariffConverterA
      */
     protected function insertIntoAccountTariffLog()
     {
-        $deltaAccountTariff = AccountTariff::DELTA_SMS;
-        $deltaTariff = Tariff::DELTA_SMS;
+        $deltaAccountTariff = AccountTariff::DELTA_WELLTIME_SAAS;
+        $deltaTariff = Tariff::DELTA_WELLTIME_SAAS;
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
 
@@ -51,14 +51,14 @@ class AccountTariffConverterSms extends AccountTariffConverterA
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_sms.actual_from, usage_sms.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_sms.activation_dt
+  SELECT usage_welltime.actual_from, usage_welltime.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+      null, usage_welltime.activation_dt
 
-  FROM usage_sms,
+  FROM usage_welltime,
     clients,
     {$tariffPeriodTableName}
-  WHERE usage_sms.client = clients.client
-    AND usage_sms.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+  WHERE usage_welltime.client = clients.client
+    AND usage_welltime.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
     ");
 
         // лог тарифов 1-в-1 to
@@ -66,14 +66,14 @@ class AccountTariffConverterSms extends AccountTariffConverterA
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_sms.actual_to, usage_sms.id + {$deltaAccountTariff}, null,
-      null, usage_sms.activation_dt
+  SELECT usage_welltime.actual_to, usage_welltime.id + {$deltaAccountTariff}, null,
+      null, usage_welltime.activation_dt
 
-  FROM usage_sms,
+  FROM usage_welltime,
     clients,
     {$tariffPeriodTableName}
-  WHERE usage_sms.client = clients.client
-    AND usage_sms.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+  WHERE usage_welltime.client = clients.client
+    AND usage_welltime.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
     ");
 
         return $count1 + $count2;

@@ -32,7 +32,7 @@ class m160212_192300_convert_extra_tariff extends \app\classes\Migration
             ServiceType::ID_SMS_GATE,
             ServiceType::ID_USPD,
             ServiceType::ID_WELLSYSTEM,
-            ServiceType::ID_WELLTIME,
+            ServiceType::ID_WELLTIME_PRODUCT,
             ServiceType::ID_EXTRA,
         ];
 
@@ -90,7 +90,7 @@ class m160212_192300_convert_extra_tariff extends \app\classes\Migration
         ]);
 
         $this->insert($tableName, [
-            'id' => ServiceType::ID_WELLTIME,
+            'id' => ServiceType::ID_WELLTIME_PRODUCT,
             'name' => 'Welltime',
         ]);
 

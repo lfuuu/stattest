@@ -7,7 +7,6 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
-use Yii;
 
 /**
  */
@@ -64,15 +63,15 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
                 ServiceType::ID_SITE,
                 ServiceType::ID_USPD,
                 ServiceType::ID_WELLSYSTEM,
-                ServiceType::ID_WELLTIME,
+                ServiceType::ID_WELLTIME_PRODUCT,
                 ServiceType::ID_EXTRA,
                 ServiceType::ID_SMS_GATE,
             ]) . ")
         ");
         printf('before2 = %d, ', $affectedRows);
 
-        // лог тарифов 1-в-1
-        return $this->execute("INSERT INTO {$accountTariffLogTableName}
+        // лог тарифов 1-в-1 from
+        $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
@@ -85,5 +84,22 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
   WHERE usage_extra.client = clients.client
     AND usage_extra.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
     ");
+
+        // лог тарифов 1-в-1 to
+        $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
+          (actual_from, account_tariff_id, tariff_period_id,
+          insert_user_id, insert_time)
+
+  SELECT usage_extra.actual_to, usage_extra.id + {$deltaAccountTariff}, null,
+      null, usage_extra.activation_dt
+
+  FROM usage_extra,
+    clients,
+    {$tariffPeriodTableName}
+  WHERE usage_extra.client = clients.client
+    AND usage_extra.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+    ");
+
+        return $count1 + $count2;
     }
 }

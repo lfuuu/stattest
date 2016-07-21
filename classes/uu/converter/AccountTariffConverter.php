@@ -28,11 +28,13 @@ class AccountTariffConverter
         ServiceType::ID_SITE => '\app\classes\uu\converter\AccountTariffConverterDummy',
         ServiceType::ID_USPD => '\app\classes\uu\converter\AccountTariffConverterDummy',
         ServiceType::ID_WELLSYSTEM => '\app\classes\uu\converter\AccountTariffConverterDummy',
-        ServiceType::ID_WELLTIME => '\app\classes\uu\converter\AccountTariffConverterDummy',
+        ServiceType::ID_WELLTIME_PRODUCT => '\app\classes\uu\converter\AccountTariffConverterDummy',
         ServiceType::ID_EXTRA => '\app\classes\uu\converter\AccountTariffConverterDummy',
         ServiceType::ID_SMS_GATE => '\app\classes\uu\converter\AccountTariffConverterDummy',
 
         ServiceType::ID_SMS => '\app\classes\uu\converter\AccountTariffConverterSms',
+
+        ServiceType::ID_WELLTIME_SAAS => '\app\classes\uu\converter\AccountTariffConverterWelltimeSaas',
     ];
 
     /**

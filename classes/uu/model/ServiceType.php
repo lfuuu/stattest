@@ -32,11 +32,13 @@ class ServiceType extends \yii\db\ActiveRecord
     const ID_SITE = 11; // Сайт. site
     const ID_USPD = 12; // Провайдер. uspd
     const ID_WELLSYSTEM = 13; // Wellsystem. wellsystem
-    const ID_WELLTIME = 14; // Welltime. welltime, ip
+    const ID_WELLTIME_PRODUCT = 14; // Welltime как продукт. welltime, ip
     const ID_EXTRA = 15; // Дополнительные услуги
     const ID_SMS_GATE = 16; // СМС. sms_gate
 
     const ID_SMS = 17; // SMS
+
+    const ID_WELLTIME_SAAS = 18; // Welltime как сервис. welltime
 
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -60,11 +62,13 @@ class ServiceType extends \yii\db\ActiveRecord
         self::ID_SITE,
         self::ID_USPD,
         self::ID_WELLSYSTEM,
-        self::ID_WELLTIME,
+        self::ID_WELLTIME_PRODUCT,
         self::ID_EXTRA,
         self::ID_SMS_GATE,
 
         self::ID_SMS,
+
+        self::ID_WELLTIME_SAAS,
     ];
 
     /**
