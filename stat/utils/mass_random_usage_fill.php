@@ -37,6 +37,18 @@ $confs = [
 
     ],
     */
+    [
+        "didGroupId" => 12, //Стандартный
+        "region" => 97, //Краснодар
+        "count_numbers" => 20,
+
+        "id_tarif" => 640, //Партнёр 1000 и более
+        "id_tarif_local_mob" => 85,
+        "id_tarif_russia" => 63,
+        "id_tarif_russia_mob" => 63,
+        "id_tarif_intern" => 69
+
+    ],
 /*
     [
         "didGroupId" => 32,
@@ -63,6 +75,7 @@ $confs = [
         "id_tarif_intern" => 69
     ],
     */
+    /*
     [
         "didGroupId" => 37,
         "region" => 89, //Владивосток
@@ -75,7 +88,7 @@ $confs = [
         "id_tarif_intern" => 318
 
     ],
-
+*/
     /*
     [
         "didGroupId" => 22,
