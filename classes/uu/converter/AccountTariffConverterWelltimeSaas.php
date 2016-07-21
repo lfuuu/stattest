@@ -74,6 +74,8 @@ class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
     {$tariffPeriodTableName}
   WHERE usage_welltime.client = clients.client
     AND usage_welltime.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+    AND usage_welltime.actual_to IS NOT NULL
+    AND usage_welltime.actual_to < '2020-01-01'
     ");
 
         return $count1 + $count2;

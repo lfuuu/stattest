@@ -74,6 +74,8 @@ class AccountTariffConverterSms extends AccountTariffConverterA
     {$tariffPeriodTableName}
   WHERE usage_sms.client = clients.client
     AND usage_sms.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+    AND usage_sms.actual_to IS NOT NULL
+    AND usage_sms.actual_to < '2020-01-01'
     ");
 
         return $count1 + $count2;
