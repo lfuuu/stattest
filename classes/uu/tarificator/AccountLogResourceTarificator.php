@@ -73,7 +73,6 @@ class AccountLogResourceTarificator
         /** @var AccountLogResource[] $accountLogs */
         $accountLogs = AccountLogResource::find()
             ->where(['account_tariff_id' => $accountTariff->id])
-            ->andWhere('resource_id IS NOT NULL')
             ->indexBy('date')
             ->all();
 
