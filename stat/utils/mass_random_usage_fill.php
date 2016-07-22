@@ -37,6 +37,7 @@ $confs = [
 
     ],
     */
+        /*
     [
         "didGroupId" => 12, //Стандартный
         "region" => 97, //Краснодар
@@ -47,8 +48,8 @@ $confs = [
         "id_tarif_russia" => 63,
         "id_tarif_russia_mob" => 63,
         "id_tarif_intern" => 69
-
     ],
+    */
 /*
     [
         "didGroupId" => 32,
@@ -75,20 +76,20 @@ $confs = [
         "id_tarif_intern" => 69
     ],
     */
-    /*
-    [
-        "didGroupId" => 37,
-        "region" => 89, //Владивосток
-        "count_numbers" => 24,
 
-        "id_tarif" => 672, //Партнёр 100-500
+    [
+        "didGroupId" => 37, //Стандартные
+        "region" => 89, //Владивосток
+        "count_numbers" => 40,
+
+        "id_tarif" => 674, // Партнёр 1000 и более; "672" - Партнёр 100-500
         "id_tarif_local_mob" => 315,
         "id_tarif_russia" => 316,
         "id_tarif_russia_mob" => 316,
         "id_tarif_intern" => 318
 
     ],
-*/
+
     /*
     [
         "didGroupId" => 22,
@@ -102,32 +103,33 @@ $confs = [
         "id_tarif_intern" => 162
 
     ],
-
+*/
     [
-        "didGroupId" => 42,
-        "region" => 88,
-        "count_numbers" => 30,
+        "didGroupId" => 42, //Стандартные
+        "region" => 88, //Нижний Новгород
+        "count_numbers" => 40,
 
-        "id_tarif" => 681,
+        "id_tarif" => 681, //Партнёр 1000 и более
         "id_tarif_local_mob" => 207,
         "id_tarif_russia" => 208,
         "id_tarif_russia_mob" => 208,
         "id_tarif_intern" => 210,
     ],
-    */
-        /*
-    [
-        "didGroupId" => 47,
-        "region" => 87,
-        "count_numbers" => 50,
 
-        "id_tarif" => 660,
+
+    [
+        "didGroupId" => 47, //Стандартные
+        "region" => 87, //Ростов-на-Дону
+        "count_numbers" => 20,
+
+        "id_tarif" => 660, //Партнёр 1000 и более
         "id_tarif_local_mob" => 185,
         "id_tarif_russia" => 186,
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
 
+/*
     [
         "didGroupId" => 37,
         "region" => 86,
