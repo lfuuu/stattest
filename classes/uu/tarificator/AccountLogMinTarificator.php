@@ -58,13 +58,7 @@ class AccountLogMinTarificator
                 tariff_period.price_min as period_price,
                 account_log_period.coefficient,
                 tariff_period.price_min * account_log_period.coefficient as price_with_coefficient,
-                (
-                    SELECT 
-                        SUM(account_log_resource.price) 
-                    FROM {$accountLogResourceTableName} account_log_resource
-                    WHERE
-                        account_log_resource.date BETWEEN account_log_period.date_from AND account_log_period.date_to
-                ) as price_resource,
+                0 as price_resource,
                 0 as price
             FROM
                {$accountLogPeriodTableName} account_log_period,
@@ -75,6 +69,27 @@ SQL;
         $db->createCommand($insertSql)
             ->execute();
         unset($insertSql);
+
+        // обновить стоимость ресурсов
+        echo '. ';
+        $updateSql = <<<SQL
+            UPDATE 
+                {$accountLogMinTableName} account_log_min,
+                (
+                    SELECT
+                        DATE_FORMAT(account_log_resource.date, "%Y-%m-01") as date,
+                        SUM(account_log_resource.price) as price 
+                    FROM {$accountLogResourceTableName} account_log_resource
+                    GROUP BY DATE_FORMAT(account_log_resource.date, "%Y-%m-01") 
+                ) account_log_resource_groupped
+            SET
+                account_log_min.price_resource = account_log_resource_groupped.price
+            WHERE
+                 account_log_min.date_from = account_log_resource_groupped.date
+SQL;
+        $db->createCommand($updateSql)
+            ->execute();
+        unset($updateSql);
 
         // обновить итоговую стоимость
         echo '. ';
