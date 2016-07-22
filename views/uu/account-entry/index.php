@@ -151,6 +151,7 @@ $accountTariffTableName = AccountTariff::tableName();
                         });
                         break;
 
+                    case AccountEntry::TYPE_ID_MIN:
                     default:
                         $accountLogs = $accountEntry->accountLogResources;
                         array_walk($accountLogs, function (&$accountLog) {

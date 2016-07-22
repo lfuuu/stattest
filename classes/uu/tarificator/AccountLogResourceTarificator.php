@@ -2,13 +2,13 @@
 
 namespace app\classes\uu\tarificator;
 
-use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
+use DateTimeImmutable;
 use Yii;
 
 /**
@@ -52,7 +52,7 @@ class AccountLogResourceTarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->tarificateAccountTariff($accountTariff);
+                $this->_tarificateAccountTariff($accountTariff);
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -67,16 +67,19 @@ class AccountLogResourceTarificator
      * Рассчитать плату по конкретной услуге
      * @param AccountTariff $accountTariff
      */
-    public function tarificateAccountTariff(AccountTariff $accountTariff)
+    protected function _tarificateAccountTariff(AccountTariff $accountTariff)
     {
+        // ресурсы, по которым произведен расчет
         /** @var AccountLogResource[] $accountLogs */
         $accountLogs = AccountLogResource::find()
-            ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
+            ->where(['account_tariff_id', $accountTariff->id])
+            ->andWhere('resource_id IS NOT NULL')
             ->indexBy('date')
-            ->all(); // по которым произведен расчет
+            ->all();
 
         $untarificatedPeriods = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
+            /** @var DateTimeImmutable $date */
             $date = $untarificatedPeriod->dateFrom;
             $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
@@ -85,6 +88,7 @@ class AccountLogResourceTarificator
                 // записать в кэш
                 $this->tariffIdToTariffResources[$tariffId] = $tariffPeriod->tariff->tariffResources;
             }
+
             /** @var TariffResource[] $tariffResources */
             $tariffResources = $this->tariffIdToTariffResources[$tariffId];
 

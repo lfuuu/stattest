@@ -15,11 +15,14 @@ class AccountEntryTypeColumn extends DataColumn
 
     public function __construct($config = [])
     {
+        $tableName = AccountEntry::tableName();
+
         parent::__construct($config);
         $this->filter = $list = [
             '' => '',
-            AccountEntry::TYPE_ID_SETUP => 'Подключение',
-            AccountEntry::TYPE_ID_PERIOD => 'Абонентка',
+            AccountEntry::TYPE_ID_SETUP => Yii::t('models/' . $tableName, 'type_id_' . AccountEntry::TYPE_ID_SETUP),
+            AccountEntry::TYPE_ID_PERIOD => Yii::t('models/' . $tableName, 'type_id_' . AccountEntry::TYPE_ID_PERIOD),
+            AccountEntry::TYPE_ID_MIN => Yii::t('models/' . $tableName, 'type_id_' . AccountEntry::TYPE_ID_MIN),
             'Ресурсы' => Resource::getList(null, false),
         ];
 

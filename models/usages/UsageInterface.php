@@ -14,6 +14,7 @@ use app\models\ClientAccount;
 interface UsageInterface
 {
     const MAX_POSSIBLE_DATE = '4000-01-01';
+    const MIDDLE_DATE = '3000-01-01'; // "полпути в никуда" или "посередине ничего"
 
     /**
      * @return Biller

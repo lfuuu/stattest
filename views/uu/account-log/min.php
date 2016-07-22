@@ -1,9 +1,9 @@
 <?php
 /**
- * Расчет платы за подключение
+ * Расчет минималки
  *
  * @var \yii\web\View $this
- * @var AccountLogSetupFilter $filterModel
+ * @var AccountLogMinFilter $filterModel
  */
 
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
@@ -13,20 +13,19 @@ use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\classes\uu\filter\AccountLogSetupFilter;
-use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogSetup;
+use app\classes\uu\filter\AccountLogMinFilter;
+use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountTariff;
 use yii\widgets\Breadcrumbs;
 
-$accountLogPeriodTableName = AccountLogPeriod::tableName();
+$accountLogMinTableName = AccountLogMin::tableName();
 $accountTariffTableName = AccountTariff::tableName();
 ?>
 
 <?= Breadcrumbs::widget([
     'links' => [
         Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Setup tariffication'), 'url' => '/uu/account-log/setup']
+        ['label' => $this->title = Yii::t('tariff', 'Min resource tariffication'), 'url' => '/uu/account-log/min']
     ],
 ]) ?>
 
@@ -39,27 +38,31 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => IntegerColumn::className(),
         ],
         [
-            'attribute' => 'date',
+            'attribute' => 'date_from',
+            'class' => DateRangeDoubleColumn::className(),
+        ],
+        [
+            'attribute' => 'date_to',
             'class' => DateRangeDoubleColumn::className(),
         ],
         [
             'label' => 'Тип услуги',
             'attribute' => 'service_type_id',
             'class' => ServiceTypeColumn::className(),
-            'value' => function (AccountLogSetup $accountLogSetup) {
-                return $accountLogSetup->accountTariff->serviceType->name;
+            'value' => function (AccountLogMin $accountLogMin) {
+                return $accountLogMin->accountTariff->serviceType->name;
             }
         ],
         [
-            'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
+            'label' => Yii::t('models/' . $accountLogMinTableName, 'account_tariff_id'),
             'attribute' => 'tariff_period_id',
             'format' => 'html',
             'class' => TariffPeriodColumn::className(),
             'serviceTypeId' => $filterModel->service_type_id,
-            'value' => function (AccountLogSetup $accountLogSetup) {
-                $accountTariff = $accountLogSetup->accountTariff;
+            'value' => function (AccountLogMin $accountLogMin) {
+                $accountTariff = $accountLogMin->accountTariff;
                 return Html::a(
-                    Html::encode($accountLogSetup->tariffPeriod->getName()), // $accountTariff->getName(false)
+                    Html::encode($accountLogMin->tariffPeriod->getName()), // $accountTariff->getName(false)
                     $accountTariff->getUrl()
                 );
             }
@@ -69,16 +72,24 @@ $accountTariffTableName = AccountTariff::tableName();
             'attribute' => 'client_account_id',
             'class' => IntegerColumn::className(),
             'format' => 'html',
-            'value' => function (AccountLogSetup $accountLogSetup) {
-                return $accountLogSetup->accountTariff->clientAccount->getLink();
+            'value' => function (AccountLogMin $accountLogMin) {
+                return $accountLogMin->accountTariff->clientAccount->getLink();
             }
         ],
         [
-            'attribute' => 'price_setup',
+            'attribute' => 'period_price',
             'class' => IntegerRangeColumn::className(),
         ],
         [
-            'attribute' => 'price_number',
+            'attribute' => 'coefficient',
+            'class' => IntegerRangeColumn::className(),
+        ],
+        [
+            'attribute' => 'price_with_coefficient',
+            'class' => IntegerRangeColumn::className(),
+        ],
+        [
+            'attribute' => 'price_resource',
             'class' => IntegerRangeColumn::className(),
         ],
         [

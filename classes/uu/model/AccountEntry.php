@@ -35,6 +35,7 @@ class AccountEntry extends ActiveRecord
 
     const TYPE_ID_SETUP = -1;
     const TYPE_ID_PERIOD = -2;
+    const TYPE_ID_MIN = -3;
 
     public static function tableName()
     {
@@ -100,6 +101,7 @@ class AccountEntry extends ActiveRecord
         switch ($this->type_id) {
             case self::TYPE_ID_SETUP:
             case self::TYPE_ID_PERIOD:
+            case self::TYPE_ID_MIN:
                 return Yii::t('models/' . $tableName, 'type_id_' . $this->type_id);
 
             default:

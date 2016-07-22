@@ -84,35 +84,23 @@ class AccountLogResourceFilter extends AccountLogResource
 
         $this->id !== '' && $query->andWhere([$accountLogResourceTableName . '.id' => $this->id]);
 
-        $this->date_from !== '' && $query->andWhere($accountLogResourceTableName . '.date >= :date_from',
-            [':date_from' => $this->date_from]);
-        $this->date_to !== '' && $query->andWhere($accountLogResourceTableName . '.date <= :date_to',
-            [':date_to' => $this->date_to]);
+        $this->date_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.date', $this->date_from]);
+        $this->date_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.date', $this->date_to]);
 
-        $this->amount_use_from !== '' && $query->andWhere($accountLogResourceTableName . '.amount_use >= :amount_use_from',
-            [':amount_use_from' => $this->amount_use_from]);
-        $this->amount_use_to !== '' && $query->andWhere($accountLogResourceTableName . '.amount_use <= :amount_use_to',
-            [':amount_use_to' => $this->amount_use_to]);
+        $this->amount_use_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.amount_use', $this->amount_use_from]);
+        $this->amount_use_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.amount_use', $this->amount_use_to]);
 
-        $this->amount_free_from !== '' && $query->andWhere($accountLogResourceTableName . '.amount_free >= :amount_free_from',
-            [':amount_free_from' => $this->amount_free_from]);
-        $this->amount_free_to !== '' && $query->andWhere($accountLogResourceTableName . '.amount_free <= :amount_free_to',
-            [':amount_free_to' => $this->amount_free_to]);
+        $this->amount_free_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.amount_free', $this->amount_free_from]);
+        $this->amount_free_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.amount_free', $this->amount_free_to]);
 
-        $this->amount_overhead_from !== '' && $query->andWhere($accountLogResourceTableName . '.amount_overhead >= :amount_overhead_from',
-            [':amount_overhead_from' => $this->amount_overhead_from]);
-        $this->amount_overhead_to !== '' && $query->andWhere($accountLogResourceTableName . '.amount_overhead <= :amount_overhead_to',
-            [':amount_overhead_to' => $this->amount_overhead_to]);
+        $this->amount_overhead_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.amount_overhead', $this->amount_overhead_from]);
+        $this->amount_overhead_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.amount_overhead', $this->amount_overhead_to]);
 
-        $this->price_per_unit_from !== '' && $query->andWhere($accountLogResourceTableName . '.price_per_unit >= :price_per_unit_from',
-            [':price_per_unit_from' => $this->price_per_unit_from]);
-        $this->price_per_unit_to !== '' && $query->andWhere($accountLogResourceTableName . '.price_per_unit <= :price_per_unit_to',
-            [':price_per_unit_to' => $this->price_per_unit_to]);
+        $this->price_per_unit_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.price_per_unit', $this->price_per_unit_from]);
+        $this->price_per_unit_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.price_per_unit', $this->price_per_unit_to]);
 
-        $this->price_from !== '' && $query->andWhere($accountLogResourceTableName . '.price >= :price_from',
-            [':price_from' => $this->price_from]);
-        $this->price_to !== '' && $query->andWhere($accountLogResourceTableName . '.price <= :price_to',
-            [':price_to' => $this->price_to]);
+        $this->price_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.price', $this->price_from]);
+        $this->price_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.price', $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
 

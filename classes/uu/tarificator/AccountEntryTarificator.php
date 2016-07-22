@@ -3,6 +3,7 @@
 namespace app\classes\uu\tarificator;
 
 use app\classes\uu\model\AccountEntry;
+use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
@@ -41,12 +42,20 @@ class AccountEntryTarificator
             'date_from'
         );
 
-        // проводки за ресурсы (каждый по-отдельности)
-        echo PHP_EOL . 'Проводки за ресурсы (каждый по-отдельности)';
+        // проводки за ресурсы
+        echo PHP_EOL . 'Проводки за ресурсы';
         $this->_tarificateAll(
             AccountLogResource::tableName(),
             'tariff_resource_id',
             '`date`'
+        );
+
+        // проводки за минимальную плату
+        echo PHP_EOL . 'Проводки за минимальную плату';
+        $this->_tarificateAll(
+            AccountLogMin::tableName(),
+            new Expression((string)AccountEntry::TYPE_ID_MIN),
+            'date_from'
         );
 
         // Расчёт НДС
@@ -57,7 +66,10 @@ class AccountEntryTarificator
     }
 
     /**
-     * На основе новых транзакций создать новые пустые проводки
+     * На основе новых транзакций создать проводки
+     * @param string $accountLogTableName
+     * @param int|Expression $typeId
+     * @param string $dateFieldName
      */
     private function _tarificateAll($accountLogTableName, $typeId, $dateFieldName)
     {
@@ -125,7 +137,6 @@ SQL;
             ->execute();
         unset($updateSql);
     }
-
 
     /**
      * Посчитать НДС

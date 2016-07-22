@@ -7,10 +7,10 @@ namespace app\controllers\uu;
 
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
+use app\classes\uu\filter\AccountLogMinFilter;
 use app\classes\uu\filter\AccountLogPeriodFilter;
 use app\classes\uu\filter\AccountLogResourceFilter;
 use app\classes\uu\filter\AccountLogSetupFilter;
-use Yii;
 use yii\filters\AccessControl;
 
 class AccountLogController extends BaseController
@@ -30,7 +30,7 @@ class AccountLogController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['setup', 'period', 'resource'],
+                        'actions' => ['setup', 'period', 'resource', 'min'],
                         'roles' => ['newaccounts_balance.read'],
                     ],
                 ],
@@ -76,4 +76,18 @@ class AccountLogController extends BaseController
             'filterModel' => $filterModel,
         ]);
     }
+
+    /**
+     * @return string
+     */
+    public function actionMin()
+    {
+        $filterModel = new AccountLogMinFilter();
+        $this->addClientAccountFilter($filterModel);
+
+        return $this->render('min', [
+            'filterModel' => $filterModel,
+        ]);
+    }
+
 }

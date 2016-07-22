@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\usages\UsageInterface;
 use Yii;
 
 /**
@@ -47,6 +48,7 @@ class AccountTariffConverterInternet extends AccountTariffConverterA
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
+        $middleDate = UsageInterface::MIDDLE_DATE;
 
         // удалить старый лог тарифов
         $affectedRows = $this->execute("DELETE
@@ -84,7 +86,7 @@ class AccountTariffConverterInternet extends AccountTariffConverterA
 
   WHERE log_tarif.service = 'usage_ip_ports'
     AND log_tarif.date_activation > '2000-01-01'
-    AND log_tarif.date_activation < '2020-01-01'
+    AND log_tarif.date_activation < '{$middleDate}'
     AND log_tarif.id_service = usage_ip_ports.id
     AND usage_ip_ports.client = clients.client
     AND log_tarif.id_tarif + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id

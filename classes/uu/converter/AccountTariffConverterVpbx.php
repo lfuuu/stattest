@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\usages\UsageInterface;
 use Yii;
 
 /**
@@ -47,6 +48,7 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
+        $middleDate = UsageInterface::MIDDLE_DATE;
 
         return $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
@@ -91,7 +93,7 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
     AND log_tarif.id_service = usage_virtpbx.id
     AND usage_virtpbx.client = clients.client
     AND log_tarif.id_tarif = tarifs_virtpbx.id
-    AND log_tarif.date_activation < '2020-01-01'
+    AND log_tarif.date_activation < '{$middleDate}'
     ");
     }
 }

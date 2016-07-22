@@ -44,7 +44,7 @@ class AccountLogSetupTarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->tarificateAccountTariff($accountTariff);
+                $this->_tarificateAccountTariff($accountTariff);
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -59,7 +59,7 @@ class AccountLogSetupTarificator
      * Рассчитать плату по конкретной услуге
      * @param AccountTariff $accountTariff
      */
-    public function tarificateAccountTariff(AccountTariff $accountTariff)
+    protected function _tarificateAccountTariff(AccountTariff $accountTariff)
     {
         /** @var AccountLogSetup[] $accountLogs */
         $accountLogs = AccountLogSetup::find()

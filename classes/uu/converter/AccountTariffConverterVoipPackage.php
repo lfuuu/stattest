@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\usages\UsageInterface;
 use Yii;
 
 /**
@@ -46,6 +47,7 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
         $deltaVoipAccountTariffPackage = AccountTariff::DELTA_VOIP_PACKAGE;
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
+        $middleDate = UsageInterface::MIDDLE_DATE;
 
         // лог тарифов 1-в-1
         return $this->execute("INSERT INTO {$accountTariffLogTableName}
@@ -68,7 +70,7 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
 
   WHERE log_tarif.service = 'usage_voip_package'
     AND log_tarif.date_activation > '2000-01-01'
-    AND log_tarif.date_activation < '2020-01-01'
+    AND log_tarif.date_activation < '{$middleDate}'
     AND log_tarif.id_service = usage_voip_package.id
     AND usage_voip_package.client = clients.client
     AND log_tarif.id_tarif + {$deltaVoipTariffPackage} = {$tariffPeriodTableName}.tariff_id

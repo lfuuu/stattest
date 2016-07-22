@@ -15,7 +15,6 @@ class NumberStatusColumn extends DataColumn
 
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
-    public $isWithNullAndNotNull = false;
 
     public function __construct($config = [])
     {

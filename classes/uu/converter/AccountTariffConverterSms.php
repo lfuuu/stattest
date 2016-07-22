@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\usages\UsageInterface;
 
 /**
  */
@@ -45,6 +46,7 @@ class AccountTariffConverterSms extends AccountTariffConverterA
         $deltaTariff = Tariff::DELTA_SMS;
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
+        $middleDate = UsageInterface::MIDDLE_DATE;
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
@@ -75,7 +77,7 @@ class AccountTariffConverterSms extends AccountTariffConverterA
   WHERE usage_sms.client = clients.client
     AND usage_sms.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
     AND usage_sms.actual_to IS NOT NULL
-    AND usage_sms.actual_to < '2020-01-01'
+    AND usage_sms.actual_to < '{$middleDate}'
     ");
 
         return $count1 + $count2;

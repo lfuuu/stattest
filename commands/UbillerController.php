@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\Bill;
 use app\classes\uu\tarificator\AccountEntryTarificator;
+use app\classes\uu\tarificator\AccountLogMinTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogResourceTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
@@ -26,10 +27,16 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
+        // транзакции
         $this->actionSetup();
         $this->actionPeriod();
         $this->actionResource();
+        $this->actionMin();
+
+        // проводки
         $this->actionEntry();
+
+        // счета
         $this->actionBill();
 
         return Controller::EXIT_CODE_NORMAL;
@@ -93,6 +100,27 @@ class UbillerController extends Controller
 
             echo PHP_EOL . 'Плата за ресурсы. ' . date(DATE_ATOM) . PHP_EOL;
             (new AccountLogResourceTarificator)->tarificateAll();
+            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+            return Controller::EXIT_CODE_NORMAL;
+
+        } catch (\Exception $e) {
+            Yii::error('Ошибка универсального тарификатора');
+            Yii::error($e);
+            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            return Controller::EXIT_CODE_ERROR;
+        }
+    }
+
+    /**
+     * Создать транзакции минималки за ресурсы.
+     * Предоплата помесячно
+     */
+    public function actionMin()
+    {
+        try {
+
+            echo PHP_EOL . 'Минималка за ресурсы. ' . date(DATE_ATOM) . PHP_EOL;
+            (new AccountLogMinTarificator)->tarificateAll();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
             return Controller::EXIT_CODE_NORMAL;
 

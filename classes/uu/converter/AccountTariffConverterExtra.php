@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\usages\UsageInterface;
 
 /**
  */
@@ -46,6 +47,7 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
+        $middleDate = UsageInterface::MIDDLE_DATE;
 
         // удалить старый лог тарифов
         $affectedRows = $this->execute("DELETE
@@ -99,7 +101,7 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
   WHERE usage_extra.client = clients.client
     AND usage_extra.tarif_id + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
     AND usage_extra.actual_to IS NOT NULL
-    AND usage_extra.actual_to < '2020-01-01'
+    AND usage_extra.actual_to < '{$middleDate}'
     ");
 
         return $count1 + $count2;

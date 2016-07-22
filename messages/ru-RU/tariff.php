@@ -6,6 +6,7 @@ return [
     'Setup tariffication' => 'Плата за подключение',
     'Period tariffication' => 'Абонентская плата',
     'Resource tariffication' => 'Плата за ресурсы',
+    'Min resource tariffication' => 'Минималка за ресурсы',
     'Monitoring' => 'Мониторинг',
     'Account entries' => 'Проводки',
     'Bills' => 'Счета',
