@@ -10,6 +10,7 @@ class BillerPackageResource extends BillerPackage
     protected $freeAmount;
     protected $minPayment;
     protected $minPaymentTemplate;
+    protected $isMinPaymentExposed = false;
 
     public function setFreeAmount($freeAmount)
     {
@@ -29,6 +30,18 @@ class BillerPackageResource extends BillerPackage
         return $this;
     }
 
+    /**
+     * Установка флага биллеру, что минимальный платеж уже выставлен ранее.
+     *
+     * @param bool $isMinPaymentExposed
+     * @return $this
+     */
+    public function setIsMinPaymentExposed($isMinPaymentExposed)
+    {
+        $this->isMinPaymentExposed = $isMinPaymentExposed;
+        return $this;
+    }
+
     public function createTransaction()
     {
         $currentPeriod = $this->billerPeriodTo->getTimestamp() - $this->billerPeriodFrom->getTimestamp();
@@ -41,12 +54,23 @@ class BillerPackageResource extends BillerPackage
         $amount = round($amount, 6);
         $price = $this->price;
 
-        if (!is_null($this->minPayment) && round($amount * $price,
-                2) < $this->minPayment * $effectivePeriod / $currentPeriod
-        ) {
-            $amount = $effectivePeriod / $currentPeriod;
-            $price = $this->minPayment;
-            $template = $this->minPaymentTemplate;
+        if (!is_null($this->minPayment)) {
+
+            $paymentService = round($amount * $price, 2);
+            $effectiveMinPayment = $this->minPayment * $effectivePeriod / $currentPeriod;
+
+            if ($this->isMinPaymentExposed) {
+                if ($paymentService <= $effectiveMinPayment) {
+                    return null;
+                }
+                
+                $price = $paymentService - $this->minPayment;
+                $amount = 1;
+
+            } elseif ($paymentService < $effectiveMinPayment) {
+                $price = $this->minPayment;
+                $template = $this->minPaymentTemplate;
+            }
         } else {
             $template = $this->template;
         }
