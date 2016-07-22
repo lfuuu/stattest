@@ -35,6 +35,8 @@ class SwaggerController extends BaseController
             Yii::$app->controllerPath . '/api',
         ]);
 
+        $swagger->schemes = [];
+
         $response = Yii::$app->getResponse();
         $response->headers->set('Content-Type', 'application/json');
         $response->format = Response::FORMAT_JSON;

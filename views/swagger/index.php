@@ -45,7 +45,7 @@ $this->beginPage();
                         window.SwaggerTranslator.translate();
                     }
 
-                    window.swaggerUi.api.clientAuthorizations.add('api_key', new SwaggerClient.ApiKeyAuthorization('Authorization', 'Bearer <?= $apiKey; ?>', 'header'));
+                    window.swaggerUi.api.clientAuthorizations.add('api_key', new SwaggerClient.ApiKeyAuthorization('Authorization', "Bearer <?= addslashes($apiKey); ?>", 'header'));
                 },
                 onFailure: function(data) {
                     log('Unable to Load SwaggerUI');
