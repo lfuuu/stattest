@@ -9,7 +9,15 @@ use app\models\ClientAccount;
 
 /**
  * @property int $id
- * @property
+ * @property string client
+ * @property string activation_dt
+ * @property string expire_dt
+ * @property string actual_from
+ * @property string actual_to
+ * @property string status
+ * @property int moved_from
+ * @property int prev_usage_id
+ * @property int next_usage_id
  */
 interface UsageInterface
 {

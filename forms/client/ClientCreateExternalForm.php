@@ -1,13 +1,14 @@
 <?php
 namespace app\forms\client;
 
+use app\models\City;
 use app\models\Country;
 use app\models\Region;
 use Yii;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use VoipReservNumber;
+use VoipReserveNumber;
 use app\classes\Form;
 use app\classes\validators\FormFieldValidator;
 use app\classes\StatModule;
@@ -58,6 +59,9 @@ class ClientCreateExternalForm extends Form
     public $info = "";
     public $isCreated = null;
 
+    public $ip = "";
+    public $connect_region = "";
+
 
     public function rules()
     {
@@ -100,7 +104,9 @@ class ClientCreateExternalForm extends Form
             ['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
             ['timezone', 'in', 'range' => Region::getTimezoneList()],
             ['country_id', 'default', 'value' => Country::RUSSIA],
-            ['country_id', 'in', 'range' => array_keys(Country::dao()->getList())]
+            ['country_id', 'in', 'range' => array_keys(Country::dao()->getList())],
+            ['connect_region', 'default', 'value' => Region::MOSCOW],
+            ['ip', 'safe']
 
         ];
         return $rules;
@@ -131,11 +137,8 @@ class ClientCreateExternalForm extends Form
         }
 
         if (
-            ($account = ClientAccount::findOne(['id' => $partnerId]))
-            && ($account->isPartner())
+            !(($account = ClientAccount::findOne(['id' => $partnerId])) && ($account->isPartner()))
         ) {
-            // OK
-        } else {
             $this->addError($attr, "Партнер не найден");
         }
     }
@@ -163,6 +166,8 @@ class ClientCreateExternalForm extends Form
 
     public function create()
     {
+        $resVats = null;
+
         $transaction = Yii::$app->db->beginTransaction();
 
         if ($this->findByEmail()) {
@@ -288,7 +293,7 @@ class ClientCreateExternalForm extends Form
             'date_finish_desired' => date('Y-m-d H:i:s'),
             'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
             'user_author' => "system",
-            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '')
+            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
@@ -317,7 +322,7 @@ class ClientCreateExternalForm extends Form
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->region = \app\models\Region::MOSCOW;
+                $vats->region = Region::MOSCOW;
                 $vats->save();
 
                 $logTarif = new LogTarif;
@@ -338,25 +343,29 @@ class ClientCreateExternalForm extends Form
                     if (!($usage instanceof UsageVoip)) {
                         $result['info'][] = 'voip';
 
-                        $freeNumber =
-                            (new \app\models\filter\FreeNumberFilter)
-                                ->getNumbers()
-                                ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
-                                ->randomOne();
-
-                        if (!($freeNumber instanceof Number)) {
-                            throw new Exception('Not found free number into 499 DID group', 500);
-                        }
-
                         $transaction = Yii::$app->db->beginTransaction();
                         try {
                             $form = new UsageVoipEditForm;
                             $form->scenario = 'add';
                             $form->initModel($client);
-                            $form->did = $freeNumber->number;
+                            if ($this->connect_region == Region::HUNGARY) { //в венгрии подключаем только линии без номера
+                                $form->type_id = 'line';
+                                $form->city_id = City::DEFAULT_USER_CITY_ID;
+                            } else {
+                                $freeNumber =
+                                    (new \app\models\filter\FreeNumberFilter)
+                                        ->getNumbers()
+                                        ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                                        ->randomOne();
+
+                                if (!($freeNumber instanceof Number)) {
+                                    throw new Exception('Not found free number into 499 DID group', 500);
+                                }
+
+                                $form->did = $freeNumber->number;
+                            }
                             $form->prepareAdd();
-                            $form->tariff_main_id = VoipReservNumber::getDefaultTarifId($client->region,
-                                $client->currency);
+                            $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId($client->region, $client->currency);
                             $form->create_params = \yii\helpers\Json::encode([
                                 'vpbx_stat_product_id' => $vats->id,
                             ]);

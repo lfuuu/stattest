@@ -4,7 +4,13 @@ namespace app\classes\api;
 use app\classes\JSONQuery;
 use app\models\important_events\ImportantEventsNames;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 
+/**
+ * Class ApiCore
+ * @package app\classes\api
+ */
 class ApiCore
 {
     const ERROR_PRODUCT_NOT_EXSISTS = 538;//"Приложения 'vpbx' для лицевого счёта '####' не существует";
@@ -22,7 +28,7 @@ class ApiCore
     public static function exec($action, $data)
     {
         if (!self::isAvailable()) {
-            throw new ConfigExceptionException('API Core was not configured');
+            throw new InvalidConfigException('API Core was not configured');
         }
 
         $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
@@ -79,4 +85,22 @@ class ApiCore
         ]);
     }
 
+    /**
+     * Проверяем, заведен ли емайл как главный в каком-либо клиенте ЛК
+     *
+     * @param string $email
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws \Exception
+     */
+    public static function isEmailExists($email)
+    {
+        $result = ApiCore::exec('is_email_exists', ['email' => $email]);
+
+        if (isset($result['exists'])) {
+            return $result['exists'];
+        }
+
+        throw new \Exception('[core/is_email_exists] Ответ не найден!');
+    }
 }

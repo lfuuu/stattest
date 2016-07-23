@@ -52,8 +52,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Reserve reserved number ');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->see('Exception');
-$I->see('Номер уже используется');
+$I->see('0');
 
 $query = http_build_query([
     'test' => 1,

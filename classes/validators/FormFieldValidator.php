@@ -16,7 +16,7 @@ class FormFieldValidator extends FilterValidator
         parent::init();
     }
 
-    public function cleanField($value)
+    public static function cleanField($value)
     {
         return htmlspecialchars(trim(strip_tags($value)));
     }

@@ -2,7 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\models\ClientAccount;
 
 /**
  * Class ClientContact
@@ -17,6 +16,8 @@ use app\models\ClientAccount;
  * @property string comment
  * @property int is_active
  * @property int is_official
+ * @property ClientAccount client
+ *
  * @method static ClientContact findOne($condition)
  */
 class ClientContact extends ActiveRecord
