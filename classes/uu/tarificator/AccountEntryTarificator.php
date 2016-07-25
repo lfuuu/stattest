@@ -8,8 +8,10 @@ use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\Resource;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\classes\uu\model\TariffResource;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Organization;
@@ -180,19 +182,26 @@ SQL;
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
+        $tariffResourceTableName = TariffResource::tableName();
+        $resourceIdVoipCalls = Resource::ID_VOIP_CALLS; // стоимость звонков от низкоуровневого биллера уже приходит с НДС
         $updateSql = <<<SQL
-            UPDATE
+        UPDATE
+            (
             {$accountEntryTableName} account_entry,
             {$accountTariffTableName} account_tariff,
             {$tariffPeriodTableName} tariff_period,
             {$tariffTableName} tariff
-         SET
+            )
+        LEFT JOIN
+            {$tariffResourceTableName} tariff_resource
+            ON account_entry.type_id = tariff_resource.id
+        SET
             account_entry.price_without_vat = IF(
-                account_entry.type_id < 0  AND tariff.is_include_vat,
+                (account_entry.type_id < 0  AND tariff.is_include_vat) OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id = {$resourceIdVoipCalls}),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
                )
-         WHERE
+        WHERE
             account_entry.vat_rate IS NOT NULL
             AND account_entry.account_tariff_id = account_tariff.id
             AND account_tariff.tariff_period_id = tariff_period.id
@@ -206,12 +215,12 @@ SQL;
         // посчитать НДС и цену с НДС для юр.лиц
         echo '. ';
         $updateSql = <<<SQL
-            UPDATE
+        UPDATE
             {$accountEntryTableName} account_entry
-         SET
+        SET
             vat = price_without_vat * vat_rate / 100,
             price_with_vat = price_without_vat * (100 + vat_rate) / 100
-         WHERE
+        WHERE
             price_without_vat IS NOT NULL
 SQL;
         $db->createCommand($updateSql)
