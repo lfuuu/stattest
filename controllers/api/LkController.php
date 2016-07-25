@@ -62,6 +62,7 @@ class LkController extends ApiController
             'connect_point_id' => $account->region,
             'currency' => $account->currency,
             'country_lang' => $account->country->lang,
+            'version' => $account->account_version,
         ];
     }
 }

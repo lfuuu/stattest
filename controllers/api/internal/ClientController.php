@@ -2,6 +2,10 @@
 
 namespace app\controllers\api\internal;
 
+use app\helpers\DateTimeZoneHelper;
+use app\models\Business;
+use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
 use Yii;
 use Exception;
 use app\classes\ApiInternalController;
@@ -319,50 +323,61 @@ class ClientController extends ApiInternalController
 
         $fullResult = [];
         foreach ($ids as $id) {
-            $response = Yii::$app->db->createCommand("select * from view_client_struct_ro WHERE id=:id", [':id' => $id])->queryAll();
+            $super = ClientSuper::find()->where(['id' => $id])->with('contragents')->with('contracts')->with('accounts')->one();
 
-            $preresult = [];
-            $result = [];
-            //map
-            foreach ($response as $minimal_row) {
-                $result['id'] = (int)$minimal_row['id'];
-                $result['timezone'] = $minimal_row['timezone'];
-                $result['name'] = $minimal_row['name'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['id'] = (int)$minimal_row['contragents_id'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['name'] = $minimal_row['contragents_name'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['country'] = $minimal_row['contragents_country'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_disabled'] = (bool)$minimal_row['is_disabled'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['is_partner'] = (bool)$minimal_row['contragents_accounts_is_partner'];
-                $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['id'] = (int)$minimal_row['contragents_accounts_id'];
-                if (empty($result['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'])) {
-                    $clientIdent = $minimal_row['clientIdent'];
-                    $applications = $this->getPlatformaServices($clientIdent);
-                    $preresult['contragents'][$minimal_row['contragents_id']]['accounts'][$minimal_row['contragents_accounts_id']]['applications'] = $applications;
-                }
-            }
-            //clean
-            if ($preresult['contragents']) {
-                $result['contragents'] = [];
-                foreach ($preresult['contragents'] as $precontragent) {
-                    $contragent = $precontragent;
-                    $contragent['accounts'] = [];
-                    foreach ($precontragent['accounts'] as $account) {
-                        $contragent['accounts'] [] = $account;
+            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
+
+            $resultContragents = [];
+
+            /** @var ClientContragent $contragent */
+            foreach ($super->contragents as $contragent) {
+                $resultAccounts = [];
+                /** @var ClientContract $contract */
+                foreach ($contragent->contracts as $contract) {
+                    /** @var ClientAccount $account */
+                    foreach ($contract->accounts as $account) {
+                        $resultAccounts[] = [
+                            'id' => $account->id,
+                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'is_partner' => $contract->isPartner(),
+                            'version' => $account->account_version,
+                            'applications' => $this->getPlatformaServices($account->client)
+                        ];
+                        $timezone = $account->timezone_name;
                     }
-                    $result['contragents'] [] = $contragent;
+                }
+
+                if ($resultAccounts) {
+                    $resultContragents[] = [
+                        'id' => $contragent->id,
+                        'name' => $contragent->name,
+                        'country' => $contragent->country->alpha_3,
+                        'accounts' => $resultAccounts
+                    ];
                 }
             }
-            
-            if ($result) {
-                $fullResult [] = $result;
+
+            if ($resultContragents) {
+                $fullResult[] = [
+                    'id' => $super->id,
+                    'timezone' => $timezone,
+                    'name' => $super->name,
+                    'contragents' => $resultContragents
+                ];
             }
         }
+
         return $fullResult;
     }
 
     private function getPlatformaServices($client)
     {
-        return Yii::$app->db->createCommand("
+        return array_map(function ($row) {
+            $row['id'] = (int)$row['id'];
+            $row['is_enabled'] = (bool)$row['enabled']; //TODO: Разобраться кто использует, и перевести с текстового "enabled" на булевое "is_enabled"
+            return $row;
+        },
+            Yii::$app->db->createCommand("
                 select 
                     `usage_voip`.`client` AS `client`,
                     `usage_voip`.`id` AS `id`,
@@ -389,7 +404,7 @@ class ClientController extends ApiInternalController
                     ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 
                 from `usage_call_chat`
                 where client = :client
-        ", [":client" => $client])->queryAll();
+        ", [":client" => $client])->queryAll());
     }
 
     /**

@@ -331,4 +331,9 @@ class ClientContract extends HistoryActiveRecord
 
         return [];
     }
+
+    public function isPartner()
+    {
+        return $this->business_id == Business::PARTNER;
+    }
 }

@@ -70,7 +70,9 @@ class AccountEditForm extends Form
         $lk_balance_view_mode,
         $anti_fraud_disabled,
         $options,
-        $site_name;
+        $site_name,
+        $account_version
+    ;
 
     public function rules()
     {
@@ -135,7 +137,8 @@ class AccountEditForm extends Form
                     'is_agent',
                     'admin_contact_id',
                     'admin_is_active',
-                    'anti_fraud_disabled'
+                    'anti_fraud_disabled',
+                    'account_version'
                 ],
                 'integer'
             ],
@@ -174,6 +177,7 @@ class AccountEditForm extends Form
                 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]
             ],
             [['options',], ArrayValidator::className()],
+            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE]
         ];
         return $rules;
     }

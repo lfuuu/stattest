@@ -47,7 +47,7 @@ use app\models\Currency;
             'credit' => ['columnOptions' => ['id' => 'credit-size']],
             ['type' => Form::INPUT_RAW,],
             'lk_balance_view_mode' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$balanceViewMode],
-            ['type' => Form::INPUT_RAW,],
+            'account_version' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientAccount::$versions],
 
             'voip_credit_limit_day' => ['columnOptions' => ['colspan' => 1],],
             [

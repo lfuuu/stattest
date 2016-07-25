@@ -35,6 +35,7 @@ use yii\helpers\Url;
  * @property string $address_post
  * @property string $site_name
  * @property string $timezone_name
+ * @property int $account_version
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -83,6 +84,9 @@ class ClientAccount extends HistoryActiveRecord
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
 
+    const VERSION_BILLER_USAGE = 4;
+    const VERSION_BILLER_UNIVERSAL = 5;
+
     public $client_orig = '';
 
     public static $statuses = [
@@ -125,6 +129,11 @@ class ClientAccount extends HistoryActiveRecord
         'new' => 'Новый',
     ];
 
+    public static $versions = [
+        self::VERSION_BILLER_USAGE => 'Использует "старые" услуги',
+        self::VERSION_BILLER_UNIVERSAL => 'Использует универсальные услуги',
+    ];
+
     public static $shopIds = [14050, 18042];
 
     /** Virtual variables */
@@ -147,6 +156,7 @@ class ClientAccount extends HistoryActiveRecord
         $rules[] = ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC];
         $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
         $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
+        $rules[] = ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE];
 
         return $rules;
     }
@@ -209,6 +219,7 @@ class ClientAccount extends HistoryActiveRecord
             'account_manager' => 'Ак. менеджер',
             'custom_properties' => 'Ввести данные вручную',
             'lk_balance_view_mode' => 'Тип отображения баланса в ЛК',
+            'account_version' => 'Версия ЛС',
             'anti_fraud_disabled' => 'Отключен анти-фрод'
         ];
     }
@@ -717,7 +728,7 @@ class ClientAccount extends HistoryActiveRecord
 
     public function isPartner()
     {
-        return $this->contract->business_id == Business::PARTNER;
+        return $this->contract->isPartner();
     }
 
     /**

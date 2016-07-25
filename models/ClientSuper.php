@@ -4,11 +4,12 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
+ * Class ClientSuper
+ *
  * @property int $id
  * @property string $name
  * @property int $financial_manager_id
  * @property ClientContragent[] $contragents
- * @property
  */
 class ClientSuper extends ActiveRecord
 {
@@ -28,6 +29,16 @@ class ClientSuper extends ActiveRecord
     public function getContragents()
     {
         return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
+    }
+
+    public function getContracts()
+    {
+        return $this->hasMany(ClientContract::className(), ['super_id' => 'id']);
+    }
+
+    public function getAccounts()
+    {
+        return $this->hasMany(ClientAccount::className(), ['super_id' => 'id']);
     }
 
 }

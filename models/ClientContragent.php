@@ -31,6 +31,7 @@ use app\classes\validators\InnKppValidator;
  * @property int sale_channel_id
  * @property int partner_contract_id
  * @property ClientContragentPerson person
+ * @property Country country
  * @package app\models
  */
 class ClientContragent extends HistoryActiveRecord
