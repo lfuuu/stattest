@@ -54,9 +54,11 @@ class ClientCounter extends ActiveRecord
     public function getRealtimeBalance()
     {
         return
-            $this->clientAccount->credit > -1
-                ? $this->clientAccount->balance + $this->amount_sum
-                : $this->clientAccount->balance;
+            sprintf('%0.2f', (
+                $this->clientAccount->credit > -1
+                    ? $this->clientAccount->balance + $this->amount_sum
+                    : $this->clientAccount->balance
+            ));
     }
 
     /**

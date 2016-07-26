@@ -122,6 +122,16 @@ class RenderParams extends Singleton
     private function getClientAccountDayLimit($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
+        return $clientAccount->voip_credit_limit_day;
+    }
+
+    /**
+     * @param $clientAccountId
+     * @return int
+     */
+    private function getClientAccountMinDayLimit($clientAccountId)
+    {
+        $clientAccount = ClientAccount::findOne($clientAccountId);
         return $clientAccount->lkSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT};
     }
 
