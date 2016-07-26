@@ -57,6 +57,7 @@ $tariffResources = $formModel->tariffResources;
 
                 <?php // имена инпутов сделаны для совместимости с multiple-input ?>
                 <div class="col-sm-2">
+                    <?= Html::activeHiddenInput($tariffResource, "[{$i}]id") ?>
                     <?= Html::activeHiddenInput($tariffResource, "[{$i}]resource_id") ?>
                     <?php
                     if ($isNumber) {
