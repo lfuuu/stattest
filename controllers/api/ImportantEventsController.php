@@ -147,7 +147,9 @@ class ImportantEventsController extends ApiInternalController
             throw new FormValidationException($model);
         }
 
-        $result = ImportantEvents::find()->orderBy(['date' => SORT_DESC]);
+        $result = ImportantEvents::find()->orderBy([
+            'id' => SORT_ASC,
+        ]);
         $applyFilter = false;
 
         if ($model->id) {
