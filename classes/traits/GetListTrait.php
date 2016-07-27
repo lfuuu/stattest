@@ -8,8 +8,6 @@ use yii\db\ActiveQuery;
  * Определяет getList (список для selectbox) и __toString
  *
  * @method static ActiveQuery find()
- * @property int $id
- * @property string $name
  */
 trait GetListTrait
 {

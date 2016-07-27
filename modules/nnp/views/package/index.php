@@ -6,17 +6,15 @@
  * @var PackageFilter $filterModel
  */
 
-use app\classes\grid\column\billing\PricelistColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\TariffColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\classes\uu\model\ServiceType;
-use app\modules\nnp\column\DestinationColumn;
-use app\modules\nnp\column\PackagePeriodColumn;
-use app\modules\nnp\column\PackageTypeColumn;
 use app\modules\nnp\filter\PackageFilter;
 use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -34,11 +32,6 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'name',
-        'class' => StringColumn::className(),
-    ],
-
-    [
         'attribute' => 'tariff_id',
         'class' => TariffColumn::className(),
         'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE,
@@ -48,33 +41,62 @@ $columns = [
     ],
 
     [
-        'attribute' => 'period_id',
-        'class' => PackagePeriodColumn::className(),
+        'label' => 'Предоплаченные минуты',
+        'format' => 'html',
+        'value' => function (Package $package) {
+            $packageMinutes = $package->packageMinutes;
+            $echoArray = array_map(function (PackageMinute $packageMinute) {
+                ob_start();
+                $destination = $packageMinute->destination;
+                ?>
+                <div class="row">
+                    <div class="col-sm-10"><?= Html::a($destination->name, $destination->getUrl()) ?></div>
+                    <div class="col-sm-2"><?= $packageMinute->minute ?></div>
+                </div>
+                <?php
+                return ob_get_clean();
+            }, $packageMinutes);
+            return implode(PHP_EOL, $echoArray);
+        }
     ],
 
     [
-        'attribute' => 'package_type_id',
-        'class' => PackageTypeColumn::className(),
+        'label' => 'Цена по направлениям',
+        'format' => 'html',
+        'value' => function (Package $package) {
+            $packagePrices = $package->packagePrices;
+            $echoArray = array_map(function (PackagePrice $packagePrice) {
+                $destination = $packagePrice->destination;
+                ob_start();
+                ?>
+                <div class="row">
+                    <div class="col-sm-10"><?= Html::a($destination->name, $destination->getUrl()) ?></div>
+                    <div class="col-sm-2"><?= $packagePrice->price ?></div>
+                </div>
+                <?php
+                return ob_get_clean();
+            }, $packagePrices);
+            return implode(PHP_EOL, $echoArray);
+        }
     ],
 
     [
-        'attribute' => 'destination_id',
-        'class' => DestinationColumn::className(),
-    ],
-
-    [
-        'attribute' => 'pricelist_id',
-        'class' => PricelistColumn::className(),
-    ],
-
-    [
-        'attribute' => 'price',
-        'class' => IntegerRangeColumn::className(),
-    ],
-
-    [
-        'attribute' => 'minute',
-        'class' => IntegerRangeColumn::className(),
+        'label' => 'Прайслист с МГП',
+        'format' => 'html',
+        'value' => function (Package $package) {
+            $packagePricelists = $package->packagePricelists;
+            $echoArray = array_map(function (PackagePricelist $packagePricelist) {
+                ob_start();
+                $pricelist = $packagePricelist->pricelist;
+                ?>
+                <div class="row">
+                    <div class="col-sm-12"><?= Html::a($pricelist->name, $pricelist->getUrl()) ?></div>
+                </div>
+                <?php
+                return ob_get_clean();
+            }, $packagePricelists);
+            return implode(PHP_EOL, $echoArray);
+        }
     ],
 
     [

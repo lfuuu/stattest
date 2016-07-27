@@ -176,7 +176,15 @@ class Tariff extends \yii\db\ActiveRecord
      */
     public function getUrl()
     {
-        return Url::to(['uu/tariff/edit', 'id' => $this->id]);
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/uu/tariff/edit', 'id' => $id]);
     }
 
     /**
@@ -184,7 +192,7 @@ class Tariff extends \yii\db\ActiveRecord
      */
     public static function getUrlNew($serviceTypeId)
     {
-        return Url::to(['uu/tariff/new', 'serviceTypeId' => $serviceTypeId]);
+        return Url::to(['/uu/tariff/new', 'serviceTypeId' => $serviceTypeId]);
     }
 
     /**

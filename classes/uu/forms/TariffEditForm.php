@@ -28,6 +28,7 @@ class TariffEditForm extends TariffForm
     {
         $tariffTableName = Tariff::tableName();
 
+        /** @var Tariff $tariff */
         $tariff = Tariff::find()
             ->where($tariffTableName . '.id = :id', [':id' => $this->id])
             ->joinWith(['tariffPeriods', 'country', 'status'])

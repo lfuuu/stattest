@@ -4,6 +4,9 @@ namespace app\modules\nnp\forms\package;
 
 use app\classes\uu\forms\CrudMultipleTrait;
 use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use InvalidArgumentException;
 use yii;
 
@@ -12,7 +15,7 @@ abstract class Form extends \app\classes\Form
     use CrudMultipleTrait;
 
     /** @var int ID сохраненный модели */
-    public $id;
+    public $tariff_id;
 
     /** @var bool */
     public $isSaved = false;
@@ -53,21 +56,34 @@ abstract class Form extends \app\classes\Form
             // название
             if (isset($post['dropButton'])) {
 
-                // удалить
+                // удалить. Связанные таблицы удалятся автоматически
                 $this->package->delete();
-                $this->id = null;
+                $this->tariff_id = null;
                 $this->isSaved = true;
 
             } elseif ($this->package->load($post)) {
 
                 // создать/редактировать
                 if ($this->package->validate() && $this->package->save()) {
-                    $this->id = $this->package->id;
+                    $this->tariff_id = $this->package->tariff_id;
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->package->getFirstErrors();
                 }
+
+                $packageMinute = new PackageMinute();
+                $packageMinute->tariff_id = $this->tariff_id;
+                self::crudMultiple($this->package->packageMinutes, $post, $packageMinute);
+
+                $packagePrice = new PackagePrice();
+                $packagePrice->tariff_id = $this->tariff_id;
+                self::crudMultiple($this->package->packagePrices, $post, $packagePrice);
+
+                $packagePricelist = new PackagePricelist();
+                $packagePricelist->tariff_id = $this->tariff_id;
+                self::crudMultiple($this->package->packagePricelists, $post, $packagePricelist);
+
             }
 
             if ($this->validateErrors) {

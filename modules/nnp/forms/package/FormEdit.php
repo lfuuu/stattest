@@ -11,8 +11,8 @@ class FormEdit extends Form
      */
     public function init()
     {
-        if ($this->id === null) {
-            throw new \InvalidArgumentException(\Yii::t('tariff', 'You should enter id'));
+        if ($this->tariff_id === null) {
+            throw new \InvalidArgumentException(\Yii::t('tariff', 'You should enter tariff_id'));
         }
 
         parent::init();
@@ -23,6 +23,6 @@ class FormEdit extends Form
      */
     public function getPackageModel()
     {
-        return Package::findOne($this->id);
+        return Package::findOne($this->tariff_id);
     }
 }

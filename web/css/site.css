@@ -379,3 +379,10 @@ a.nohover:hover {
     padding-left: 20px;
     padding-top: 5px;
 }
+
+.package-minute h2,
+.package-price h2,
+.package-pricelist h2 {
+    margin-top: -10px;
+    margin-bottom: 0;
+}

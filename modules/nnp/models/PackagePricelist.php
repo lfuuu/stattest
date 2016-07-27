@@ -1,0 +1,88 @@
+<?php
+namespace app\modules\nnp\models;
+
+use app\classes\Connection;
+use app\classes\uu\model\Tariff;
+use app\models\billing\Pricelist;
+use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+
+/**
+ * Пакеты. Прайслист с МГП (минимальный гарантированный платеж)
+ *
+ * @property int id
+ * @property int tariff_id
+ * @property int pricelist_id
+ *
+ * @property Tariff tariff  FK нет, ибо в таблица в другой БД
+ * @property Package package
+ * @property Pricelist pricelist  FK нет, ибо в таблица в другой БД
+ */
+class PackagePricelist extends ActiveRecord
+{
+    /**
+     * имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'tariff_id' => 'Тариф',
+            'pricelist_id' => 'Прайслист',
+        ];
+    }
+
+    /**
+     * имя таблицы
+     * @return string
+     */
+    public static function tableName()
+    {
+        return 'nnp.package_pricelist';
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['tariff_id', 'pricelist_id'], 'required'],
+            [['tariff_id', 'pricelist_id'], 'integer'],
+        ];
+    }
+
+    /**
+     * Returns the database connection
+     * @return Connection
+     */
+    public static function getDb()
+    {
+        return Yii::$app->dbPgNnp;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariff()
+    {
+        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackage()
+    {
+        return $this->hasOne(Package::className(), ['tariff_id' => 'tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPricelist()
+    {
+        return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
+    }
+}

@@ -4,9 +4,11 @@ namespace app\models\billing;
 use app\dao\billing\PricelistDao;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * @property int $id
+ * @property string $name
  * @property string $type
  * @property bool $orig
  *
@@ -49,6 +51,22 @@ class Pricelist extends ActiveRecord
     public function isLocal()
     {
         return $this->type == self::TYPE_LOCAL;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/voip/pricelist/edit', 'id' => $id]);
     }
 
     /**

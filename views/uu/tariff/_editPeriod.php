@@ -34,7 +34,6 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                     'name' => 'charge_period_id',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'charge_period_id'),
                     'type' => Editable::INPUT_SELECT2,
-                    'items' => $periodList,
                     'options' => [
                         'data' => $periodList,
                     ],

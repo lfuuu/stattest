@@ -55,14 +55,14 @@ class PackageController extends BaseController
     /**
      * Редактировать
      *
-     * @param int $id
+     * @param int $tariff_id
      * @return string
      */
-    public function actionEdit($id)
+    public function actionEdit($tariff_id)
     {
         /** @var FormEdit $formModel */
         $formModel = new FormEdit([
-            'id' => $id
+            'tariff_id' => $tariff_id
         ]);
 
         // сообщение об ошибке
