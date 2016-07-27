@@ -28,6 +28,7 @@ class PricelistEditForm extends PricelistForm
         $pricelist->tariffication_full_first_minute = $this->tariffication_full_first_minute;
         $pricelist->price_include_vat = $this->price_include_vat;
         $pricelist->local_network_config_id = $this->type == 'network_prices' ? $this->local_network_config_id : null;
+        $pricelist->is_global = $this->is_global;
 
         $pricelist->save();
 

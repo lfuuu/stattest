@@ -45,8 +45,7 @@ echo Breadcrumbs::widget([
             'tariffication_full_first_minute' => ['type' => Form::INPUT_CHECKBOX],
             'initiate_zona_cost' => ['type' => Form::INPUT_TEXT],
             'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
-            ['type' => Form::INPUT_RAW],
-            ['type' => Form::INPUT_RAW],
+            'is_global' => ['type' => Form::INPUT_CHECKBOX],
         ],
     ]);
 

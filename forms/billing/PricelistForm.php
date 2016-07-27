@@ -17,6 +17,7 @@ class PricelistForm extends Form
     public $initiate_zona_cost;
     public $local_network_config_id;
     public $price_include_vat;
+    public $is_global;
 
     public function rules()
     {
@@ -24,7 +25,7 @@ class PricelistForm extends Form
             [['id', 'connection_point_id', 'local_network_config_id'], 'integer'],
             [['name'], 'string'],
             [['type'], 'string'],
-            [['orig', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'price_include_vat'], 'boolean'],
+            [['orig', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'price_include_vat', 'is_global'], 'boolean'],
             [['initiate_mgmn_cost', 'initiate_zona_cost'], 'number'],
         ];
     }
@@ -43,6 +44,7 @@ class PricelistForm extends Form
             'price_include_vat' => 'Цена включает НДС',
             'initiate_mgmn_cost' => 'Инициация МГМН вызова',
             'initiate_zona_cost' => 'Инициация зонового вызова',
+            'is_global' => 'Глобальный прайс-лист',
         ];
     }
 }

@@ -67,11 +67,20 @@ if ($type == Pricelist::TYPE_OPERATOR && $orig == 0) {
             return $data->initiate_mgmn_cost > 0 ?: '';
         },
     ];
+
     $columns[] = [
         'label' => 'Инициация зонового вызова',
         'format' => 'raw',
         'value' => function ($data) {
             return $data->initiate_zona_cost > 0 ?: '';
+        },
+    ];
+
+    $columns[] = [
+        'label' => 'Глобальный прайс-лист',
+        'format' => 'raw',
+        'value' => function ($data) {
+            return $data->is_global > 0 ?: '';
         },
     ];
 }

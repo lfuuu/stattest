@@ -38,6 +38,7 @@ class PricelistAddForm extends PricelistForm
         $pricelist->price_include_vat = $this->price_include_vat;
         $pricelist->local_network_config_id = $this->type == Pricelist::TYPE_LOCAL ? $this->local_network_config_id : null;
         $pricelist->local = $this->type == Pricelist::TYPE_LOCAL;
+        $pricelist->is_global = $this->is_global;
 
         $pricelist->save();
 
