@@ -97,7 +97,7 @@ class VoipRegistryDao extends Singleton
             return true;
         }
 
-        $this->didGroups = DidGroup::find(['city_id' => $registry->city_id])->indexBy('beauty_level')->all();
+        $this->didGroups = DidGroup::find()->where(['city_id' => $registry->city_id])->indexBy('beauty_level')->all();
 
         if (!$this->didGroups) {
             throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
