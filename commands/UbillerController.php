@@ -2,6 +2,7 @@
 namespace app\commands;
 
 use app\classes\uu\model\AccountEntry;
+use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
@@ -182,16 +183,12 @@ class UbillerController extends Controller
      */
     public function actionClear()
     {
-        AccountLogSetup::deleteAll();
-        echo '. ';
-        AccountLogPeriod::deleteAll();
-        echo '. ';
-        AccountLogResource::deleteAll();
-        echo '. ';
-        AccountEntry::deleteAll();
-        echo '. ';
-        Bill::deleteAll();
-        echo '. ' . PHP_EOL;
+        $this->actionClearSetup();
+        $this->actionClearPeriod();
+        $this->actionClearResource();
+        $this->actionClearMin();
+        $this->actionClearEntry();
+        $this->actionClearBill();
     }
 
     /**
@@ -218,6 +215,15 @@ class UbillerController extends Controller
     public function actionClearResource()
     {
         AccountLogResource::deleteAll();
+        echo '. ' . PHP_EOL;
+    }
+
+    /**
+     * Удалить транзакции за минималку. 2 сек
+     */
+    public function actionClearMin()
+    {
+        AccountLogMin::deleteAll();
         echo '. ' . PHP_EOL;
     }
 
