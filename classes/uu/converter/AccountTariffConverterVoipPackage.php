@@ -49,8 +49,8 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
         $tariffPeriodTableName = TariffPeriod::tableName();
         $middleDate = UsageInterface::MIDDLE_DATE;
 
-        // лог тарифов 1-в-1
-        return $this->execute("INSERT INTO {$accountTariffLogTableName}
+        // лог тарифов 1-в-1 from
+        $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
@@ -69,11 +69,26 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
   ON log_tarif.id_user = user_users.id
 
   WHERE log_tarif.service = 'usage_voip_package'
-    AND log_tarif.date_activation > '2000-01-01'
-    AND log_tarif.date_activation < '{$middleDate}'
+    AND log_tarif.date_activation BETWEEN '2000-01-01' AND '{$middleDate}'
     AND log_tarif.id_service = usage_voip_package.id
     AND usage_voip_package.client = clients.client
     AND log_tarif.id_tarif + {$deltaVoipTariffPackage} = {$tariffPeriodTableName}.tariff_id
+    
+  ORDER BY log_tarif.id
     ");
+
+        // лог тарифов 1-в-1 to
+        $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
+          (actual_from, account_tariff_id, tariff_period_id,
+          insert_user_id, insert_time)
+
+  SELECT actual_to, id + {$deltaVoipAccountTariffPackage}, null,
+      null, expire_dt
+
+  FROM usage_voip_package
+  WHERE actual_to < '{$middleDate}'
+    ");
+
+        return $count1 + $count2;
     }
 }

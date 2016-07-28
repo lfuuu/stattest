@@ -65,8 +65,8 @@ class AccountTariffConverterInternet extends AccountTariffConverterA
         ");
         printf('before2 = %d, ', $affectedRows);
 
-        // лог тарифов 1-в-1
-        return $this->execute("INSERT INTO {$accountTariffLogTableName}
+        // лог тарифов 1-в-1 from
+        $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
@@ -85,11 +85,27 @@ class AccountTariffConverterInternet extends AccountTariffConverterA
     ON log_tarif.id_user = user_users.id
 
   WHERE log_tarif.service = 'usage_ip_ports'
-    AND log_tarif.date_activation > '2000-01-01'
-    AND log_tarif.date_activation < '{$middleDate}'
+    AND log_tarif.date_activation BETWEEN '2000-01-01' AND '{$middleDate}'
     AND log_tarif.id_service = usage_ip_ports.id
     AND usage_ip_ports.client = clients.client
     AND log_tarif.id_tarif + {$deltaTariff} = {$tariffPeriodTableName}.tariff_id
+    
+  ORDER BY log_tarif.id
     ");
+
+        // лог тарифов 1-в-1 to
+        $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
+          (actual_from, account_tariff_id, tariff_period_id,
+          insert_user_id, insert_time)
+
+  SELECT usage_ip_ports.actual_to, usage_ip_ports.id + {$deltaAccountTariff}, null,
+      null, usage_ip_ports.expire_dt
+
+  FROM usage_ip_ports, clients
+  WHERE usage_ip_ports.actual_to < '{$middleDate}'
+    AND usage_ip_ports.client = clients.client
+    ");
+
+        return $count1 + $count2;
     }
 }

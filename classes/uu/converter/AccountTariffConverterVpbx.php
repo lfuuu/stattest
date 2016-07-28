@@ -43,14 +43,14 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
      */
     protected function insertIntoAccountTariffLog()
     {
-        // лог тарифов 1-в-1
+        // лог тарифов 1-в-1 from
         $deltaVpbxAccountTariff = AccountTariff::DELTA_VPBX;
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $middleDate = UsageInterface::MIDDLE_DATE;
 
-        return $this->execute("INSERT INTO {$accountTariffLogTableName}
+        $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
@@ -94,7 +94,23 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
     AND usage_virtpbx.client = clients.client
     AND log_tarif.id_tarif = tarifs_virtpbx.id
     AND log_tarif.date_activation < '{$middleDate}'
+    
+  ORDER BY log_tarif.id
     ");
+
+        // лог тарифов 1-в-1 to
+        $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
+          (actual_from, account_tariff_id, tariff_period_id,
+          insert_user_id, insert_time)
+
+  SELECT actual_to, id + {$deltaVpbxAccountTariff}, null,
+      null, expire_dt
+
+  FROM usage_virtpbx
+  WHERE actual_to < '{$middleDate}'
+    ");
+
+        return $count1 + $count2;
     }
 }
 
