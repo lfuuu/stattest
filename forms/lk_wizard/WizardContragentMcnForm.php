@@ -69,12 +69,12 @@ class WizardContragentMcnForm extends Form
 
         $rules[] = [
             [
-                'name', /*'address_jur',*/
+                'name',
+                'address_jur',
                 'first_name',
                 'last_name',
                 'inn',
                 'ogrn',
-                'address'
             ],
             'required',
             'when' => function ($model) {
