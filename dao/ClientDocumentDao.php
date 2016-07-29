@@ -329,8 +329,7 @@ class ClientDocumentDao extends Singleton
         }
 
         /*
-        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $usage)
-        {
+        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $usage) {
             $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->per_month_price, $usageTaxRate);
 
@@ -361,7 +360,6 @@ class ClientDocumentDao extends Singleton
         }
 
         foreach (\app\models\UsageWelltime::find()->client($client)->actual()->all() as $usage) {
-
             $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->price * $usage->amount,
                 $usageTaxRate);
@@ -379,6 +377,13 @@ class ClientDocumentDao extends Singleton
         foreach (\app\models\UsageVoipPackage::find()->client($client)->actual()->all() as $usage) {
             $data['voip_packages'][] = [
                 'usage_voip' => $usage->usageVoip,
+                'tariff' => $usage->tariff,
+                'from' => $usage->actual_from,
+            ];
+        }
+
+        foreach(\app\models\UsageCallChat::find()->client($client)->actual()->all() as $usage) {
+            $data['call_chat'][] = [
                 'tariff' => $usage->tariff,
                 'from' => $usage->actual_from,
             ];
