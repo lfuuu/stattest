@@ -85,7 +85,7 @@ class Package extends ActiveRecord
             ->indexBy('id');
     }
 
-   /**
+    /**
      * @return ActiveQuery
      */
     public function getPackagePrices()
@@ -94,7 +94,7 @@ class Package extends ActiveRecord
             ->indexBy('id');
     }
 
-   /**
+    /**
      * @return ActiveQuery
      */
     public function getPackagePricelists()

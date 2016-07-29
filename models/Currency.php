@@ -77,4 +77,13 @@ class Currency extends ActiveRecord
     {
         return isset(self::$currencyByCountry[$countyId]) ? self::$currencyByCountry[$countyId] : self::RUB;
     }
+
+    /**
+     * Преобразовать объект в строку
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->id;
+    }
 }

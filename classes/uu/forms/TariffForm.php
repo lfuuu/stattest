@@ -9,6 +9,10 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
+use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use InvalidArgumentException;
 use yii;
 
@@ -136,8 +140,31 @@ abstract class TariffForm extends Form
                         // только для ВАТС
                         break;
 
-                    case ServiceType::ID_VOIP:
                     case ServiceType::ID_VOIP_PACKAGE:
+
+                        if ($this->id) {
+
+                            if (!$this->tariff->package) {
+                                $package = new Package();
+                                $package->tariff_id = $this->id;
+                                $package->save();
+                            }
+                            
+                            $packageMinute = new PackageMinute();
+                            $packageMinute->tariff_id = $this->id;
+                            self::crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
+
+                            $packagePrice = new PackagePrice();
+                            $packagePrice->tariff_id = $this->id;
+                            self::crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
+
+                            $packagePricelist = new PackagePricelist();
+                            $packagePricelist->tariff_id = $this->id;
+                            self::crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+                        }
+
+                    // без break;
+                    case ServiceType::ID_VOIP:
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
@@ -145,7 +172,6 @@ abstract class TariffForm extends Form
                             $tariffVoipCity, 'city_id');
                         break;
                 }
-
             }
 
             if ($this->validateErrors) {

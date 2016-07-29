@@ -11,6 +11,11 @@ use app\classes\uu\model\TariffVoipGroup;
 use kartik\select2\Select2;
 
 $tariff = $formModel->tariff;
+$viewParams = [
+    'formModel' => $formModel,
+    'form' => $form,
+];
+
 ?>
 
 <div class="well">
@@ -23,8 +28,17 @@ $tariff = $formModel->tariff;
         </div>
     </div>
 
-    <?= $this->render('_editMainVoipCity', [
-        'formModel' => $formModel,
-        'form' => $form,
-    ]) ?>
+    <?= $this->render('_editMainVoipCity', $viewParams) ?>
+</div>
+
+<div class="row">
+    <div class="col-sm-4">
+        <?= $this->render('_editMainVoipPackageMinute', $viewParams) ?>
+    </div>
+    <div class="col-sm-4">
+        <?= $this->render('_editMainVoipPackagePrice', $viewParams) ?>
+    </div>
+    <div class="col-sm-4">
+        <?= $this->render('_editMainVoipPackagePricelist', $viewParams) ?>
+    </div>
 </div>

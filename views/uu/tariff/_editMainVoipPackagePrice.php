@@ -1,30 +1,30 @@
 <?php
 /**
- * Пакеты. Предоплаченные минуты
+ * Пакеты. Цена по направлениям
  *
  * @var \yii\web\View $this
- * @var Form $formModel
+ * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  */
 
 use app\modules\nnp\forms\package\Form;
 use app\modules\nnp\models\Destination;
-use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
 use kartik\editable\Editable;
 use unclead\widgets\TabularInput;
 
-$packageMinute = new PackageMinute;
-$attributeLabels = $packageMinute->attributeLabels();
+$packagePrice = new PackagePrice;
+$attributeLabels = $packagePrice->attributeLabels();
 
-$packageMinutes = $formModel->package->packageMinutes;
-if (!$packageMinutes) {
-    // нет моделей, но виджет для рендеринга их обяхательно требует
+$packagePrices = $formModel->tariff->packagePrices;
+if (!$packagePrices) {
+    // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
-    $packageMinutes = [$packageMinute];
+    $packagePrices = [$packagePrice];
     ?>
     <script type='text/javascript'>
         $(function () {
-            $(".package-minute .multiple-input")
+            $(".package-price .multiple-input")
                 .on("afterInit", function () {
                     $(this).multipleInput('remove');
                 });
@@ -35,10 +35,10 @@ if (!$packageMinutes) {
 $destinationList = Destination::getList(true);
 ?>
 
-<div class="well package-minute">
-    <h2>Предоплаченные минуты</h2>
+<div class="well package-price">
+    <h2>Цена по направлениям</h2>
     <?= TabularInput::widget([
-            'models' => array_values($packageMinutes), // ключ должен быть автоинкрементный
+            'models' => array_values($packagePrices), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
             'columns' => [
                 [
@@ -49,14 +49,14 @@ $destinationList = Destination::getList(true);
                         'data' => $destinationList,
                     ],
                     'headerOptions' => [
-                        'class' => 'col-sm-4',
+                        'class' => 'col-sm-9',
                     ],
                 ],
                 [
-                    'name' => 'minute',
-                    'title' => $attributeLabels['minute'],
+                    'name' => 'price',
+                    'title' => $attributeLabels['price'],
                     'headerOptions' => [
-                        'class' => 'col-sm-1',
+                        'class' => 'col-sm-3',
                     ],
                 ],
                 [

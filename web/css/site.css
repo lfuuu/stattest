@@ -254,6 +254,7 @@ a.nohover:hover {
     text-align: center;
 }
 
+.currency-column,
 .month-column,
 .integer-column,
 .integer-range-column,
@@ -263,6 +264,10 @@ a.nohover:hover {
     min-width: 80px;
 }
 
+.country-column,
+.tariff-status-column,
+.tariff-person-column,
+.tariff-voip-group-column,
 .date-range-double-column {
     min-width: 110px;
 }
@@ -278,11 +283,6 @@ a.nohover:hover {
 .service-type-column,
 .region-column,
 .city-column,
-.tariff-person-column,
-.tariff-status-column,
-.country-column,
-.currency-column,
-.tariff-voip-group-column,
 .number-type-column,
 .server-column,
 .destination-column,

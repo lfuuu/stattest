@@ -5,6 +5,10 @@ namespace app\classes\uu\model;
 use app\classes\Html;
 use app\models\Country;
 use app\models\Currency;
+use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -36,9 +40,15 @@ use yii\helpers\Url;
  * @property TariffPerson $group
  * @property TariffPeriod[] $tariffPeriods
  *
- * VOIP only!
+ * VOIP && VOIP package only!
  * @property integer $voip_tarificate_id
  * @property integer $voip_group_id
+ *
+ * VOIP package only!
+ * @property Package $package
+ * @property PackageMinute[] packageMinutes
+ * @property PackagePrice[] packagePrices
+ * @property PackagePricelist[] packagePricelists
  *
  * @property TariffVoipTarificate $voipTarificate
  * @property TariffVoipGroup $voipGroup
@@ -201,6 +211,41 @@ class Tariff extends \yii\db\ActiveRecord
     public function getCurrency()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackage()
+    {
+        return $this->hasOne(Package::className(), ['tariff_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackageMinutes()
+    {
+        return $this->hasMany(PackageMinute::className(), ['tariff_id' => 'id'])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePrices()
+    {
+        return $this->hasMany(PackagePrice::className(), ['tariff_id' => 'id'])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePricelists()
+    {
+        return $this->hasMany(PackagePricelist::className(), ['tariff_id' => 'id'])
+            ->indexBy('id');
     }
 
     /**

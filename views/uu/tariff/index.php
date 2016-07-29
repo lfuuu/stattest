@@ -20,6 +20,10 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
+use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -99,6 +103,45 @@ switch ($serviceType->id) {
             'class' => TariffVoipGroupColumn::className(),
             'value' => function (Tariff $tariff) {
                 return $tariff->voip_group_id;
+            }
+        ];
+
+        $columns[] = [
+            'label' => 'Предоплаченные минуты',
+            'format' => 'html',
+            'value' => function (Tariff $tariff) {
+                $packageMinutes = $tariff->packageMinutes;
+                $echoArray = array_map(function (PackageMinute $packageMinute) {
+                    $destination = $packageMinute->destination;
+                    return sprintf('%d %s', $packageMinute->minute, Html::a($destination->name, $destination->getUrl()));
+                }, $packageMinutes);
+                return implode('<br/>', $echoArray);
+            }
+        ];
+
+        $columns[] = [
+            'label' => 'Цена по направлениям',
+            'format' => 'html',
+            'value' => function (Tariff $tariff) {
+                $packagePrices = $tariff->packagePrices;
+                $echoArray = array_map(function (PackagePrice $packagePrice) {
+                    $destination = $packagePrice->destination;
+                    return sprintf('%d %s', $packagePrice->price, Html::a($destination->name, $destination->getUrl()));
+                }, $packagePrices);
+                return implode('<br/>', $echoArray);
+            }
+        ];
+
+        $columns[] = [
+            'label' => 'Прайслист с МГП',
+            'format' => 'html',
+            'value' => function (Tariff $tariff) {
+                $packagePricelists = $tariff->packagePricelists;
+                $echoArray = array_map(function (PackagePricelist $packagePricelist) {
+                    $pricelist = $packagePricelist->pricelist;
+                    return Html::a($pricelist->name, $pricelist->getUrl());
+                }, $packagePricelists);
+                return implode('<br/>', $echoArray);
             }
         ];
         break;

@@ -3,12 +3,11 @@
  * Пакеты. Прайслист с МГП (минимальный гарантированный платеж)
  *
  * @var \yii\web\View $this
- * @var Form $formModel
+ * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  */
 
 use app\models\billing\Pricelist;
-use app\modules\nnp\forms\package\Form;
 use app\modules\nnp\models\PackagePricelist;
 use kartik\editable\Editable;
 use unclead\widgets\TabularInput;
@@ -16,9 +15,9 @@ use unclead\widgets\TabularInput;
 $packagePricelist = new PackagePricelist;
 $attributeLabels = $packagePricelist->attributeLabels();
 
-$packagePricelists = $formModel->package->packagePricelists;
+$packagePricelists = $formModel->tariff->packagePricelists;
 if (!$packagePricelists) {
-    // нет моделей, но виджет для рендеринга их обяхательно требует
+    // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packagePricelists = [$packagePricelist];
     ?>
@@ -36,7 +35,7 @@ $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type =
 ?>
 
 <div class="well package-pricelist">
-    <h2>Прайслист с МГП (минимальный гарантированный платеж)</h2>
+    <h2>Прайслист с МГП</h2>
     <?= TabularInput::widget([
             'models' => array_values($packagePricelists), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
@@ -47,9 +46,6 @@ $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type =
                     'type' => Editable::INPUT_SELECT2,
                     'options' => [
                         'data' => $pricelistList,
-                    ],
-                    'headerOptions' => [
-                        'class' => 'col-sm-4',
                     ],
                 ],
                 [

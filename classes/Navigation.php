@@ -137,12 +137,12 @@ class Navigation
             NavigationBlock::create()
                 ->setId('nnp')
                 ->setTitle('Национальный номерной план')
-                ->addItem('Диапазон номеров', ['/nnp/number-range/'])
-                ->addItem('Операторы', ['/nnp/operator/'])
-                ->addItem('Регионы', ['/nnp/region/'])
-                ->addItem('Префиксы', ['/nnp/prefix/'])
-                ->addItem('Направления', ['/nnp/destination/'])
-                ->addItem('Пакеты', ['/nnp/package/'])
+                ->addItem('Диапазон номеров', ['/nnp/number-range/'], ['tarifs.read'])
+                ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
+                ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])
+                ->addItem('Префиксы', ['/nnp/prefix/'], ['tarifs.read'])
+                ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
+                ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
         );
     }
 
