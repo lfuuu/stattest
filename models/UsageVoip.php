@@ -252,15 +252,5 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     {
         return Url::to(['/usage/voip/edit', 'id' => $id]);
     }
-
-    /**
-     * Является ли номер, номером 7800
-     *
-     * @return bool
-     */
-    public function is7800()
-    {
-        return substr($this->E164, 0, 4) == "7800";
-    }
 }
 

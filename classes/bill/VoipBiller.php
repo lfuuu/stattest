@@ -133,37 +133,19 @@ class VoipBiller extends Biller
                     ->setTemplateData($template_data)
             );
         }
-
-        if ($this->usage->is7800() && $this->tariff->month_min_payment > 0 && $this->isStartedMinPaymentExposed()) {
-
-            $template_data = [
-                'service' => $this->usage->E164,
-                'by_agreement' => ''
-            ];
-            $template = 'voip_calls_minpay';
-
-            $this->addPackage(
-                BillerPackagePeriodical::create($this)
-                    ->setPeriodType($this->tariff->period)
-                    ->setIsAlign(true)
-                    ->setIsPartialWriteOff(false)
-                    ->setPrice($this->tariff->month_min_payment)
-                    ->setTemplate($template)
-                    ->setTemplateData($template_data)
-            );
-        }
     }
 
     protected function processResource()
     {
-        $lines = $this->calc($this->usage->is7800(), $this->logTariff);
+        $is7800 = substr($this->usage->E164, 0, 4) == "7800";
+
+        $lines = $this->calc($is7800, $this->logTariff);
 
         foreach ($lines as $dest => $r) {
 
             $template = null;
             $minPayment = null;
             $minPaymentTemplate = null;
-            $isMinPaymentExposed = false;
 
             if ($dest == '4') {
                 $template = 'voip_overlimit';
@@ -212,17 +194,14 @@ class VoipBiller extends Biller
                 $minPayment = $this->logTariff->minpayment_group;
                 $minPaymentTemplate = 'voip_group_minpay';
             } elseif ($dest == '900') {
-                if ($this->usage->is7800()) {
+                if ($is7800) {
                     $template = 'voip_calls_payment';
                     $minPayment = $this->tariff->month_min_payment;
                     $minPaymentTemplate = 'voip_calls_minpay';
-
-                    if ($this->isStartedMinPaymentExposed()) {
-                        $isMinPaymentExposed = true;
-                    }
                 } else {
                     $template = 'voip_group_calls_payment';
                 }
+
             }
 
             $template_data = [
@@ -245,7 +224,6 @@ class VoipBiller extends Biller
                     ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
-                    ->setIsMinPaymentExposed($isMinPaymentExposed)
             );
         }
     }
@@ -316,22 +294,6 @@ class VoipBiller extends Biller
         return $lines;
     }
 
-    /**
-     * Включает ли выставляемый период
-     * выставление минималки в начале месяца
-     * по номерам 7800
-     *
-     * @return bool
-     */
-    private function isStartedMinPaymentExposed()
-    {
-        $startMinPaymentExposed = new \DateTime();
-        $startMinPaymentExposed->setTimezone($this->billerPeriodFrom->getTimezone());
-        $startMinPaymentExposed->setDate(2016, 8, 1);
-        $startMinPaymentExposed->setTime(0, 0, 0);
-
-        return $startMinPaymentExposed <= $this->billerPeriodFrom;
-    }
 }
 
 function cmp_calc_voip_by_dest($a, $b)
