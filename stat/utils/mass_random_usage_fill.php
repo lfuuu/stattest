@@ -9,7 +9,7 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-$clientId = 38230;
+$clientId = 36166;
 
 $address = ''; //142800, Российская Федерация, Московская область, г. Ступино, ул. Пристанционная, вл. 6';
 //
@@ -37,11 +37,11 @@ $confs = [
 
     ],
     */
-        /*
+
     [
         "didGroupId" => 12, //Стандартный
         "region" => 97, //Краснодар
-        "count_numbers" => 20,
+        "count_numbers" => 50,
 
         "id_tarif" => 640, //Партнёр 1000 и более
         "id_tarif_local_mob" => 85,
@@ -49,7 +49,7 @@ $confs = [
         "id_tarif_russia_mob" => 63,
         "id_tarif_intern" => 69
     ],
-    */
+
 /*
     [
         "didGroupId" => 32,
@@ -76,7 +76,7 @@ $confs = [
         "id_tarif_intern" => 69
     ],
     */
-
+/*
     [
         "didGroupId" => 37, //Стандартные
         "region" => 89, //Владивосток
@@ -89,7 +89,7 @@ $confs = [
         "id_tarif_intern" => 318
 
     ],
-
+*/
     /*
     [
         "didGroupId" => 22,
@@ -104,6 +104,7 @@ $confs = [
 
     ],
 */
+    /*
     [
         "didGroupId" => 42, //Стандартные
         "region" => 88, //Нижний Новгород
@@ -128,7 +129,7 @@ $confs = [
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
-
+*/
 /*
     [
         "didGroupId" => 37,
