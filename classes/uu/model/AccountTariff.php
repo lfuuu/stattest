@@ -151,7 +151,6 @@ class AccountTariff extends ActiveRecord
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
             ['tariff_period_id', 'validatorTariffPeriod'],
-//            ['tariff_period_id', 'validatorBalance', 'on' => 'create'],
         ];
     }
 
@@ -772,79 +771,6 @@ class AccountTariff extends ActiveRecord
         }
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
             $this->addError($attribute, 'Tariff_period_id не соответствует service_type_id');
-            return;
-        }
-    }
-
-    /**
-     * Валидировать, что realtime balance больше обязательного платежа по услуге (подключение + абонентская плата + минимальная плата за ресурсы)
-     * @param string $attribute
-     * @param [] $params
-     */
-    public function validatorBalance($attribute, $params)
-    {
-        // @todo после создания отдельного поля в акаунте клиента - вынести в отдельный метод по-новому
-//        // все платежи
-//        $paymentSummary = Payment::find()
-//            ->select([
-//                'total_price' => 'SUM(sum)',
-//            ])
-//            ->where(['client_id' => $this->client_account_id])
-//            ->asArray()
-//            ->one();
-//
-//        // все списания
-//        // счетов меньше, чем транзакций и проводок - считать быстрее
-//        // @todo счета все время хранятся, а старые проводки в целях оптимизации удаляются
-//        $billSummary = Bill::find()
-//            ->select([
-//                'total_price' => 'SUM(price)',
-//            ])
-//            ->where(['client_account_id' => $this->client_account_id])
-//            ->asArray()
-//            ->one();
-//
-//        $realtimeBalance = $paymentSummary['total_price'] - $billSummary['total_price'] + $credit;
-
-        $clientAccount = $this->clientAccount;
-        if (!$clientAccount) {
-            $this->addError($attribute, 'Клиент не указан'); // правильнее это к полю client_account_id, но оно не отображается
-            return;
-        }
-
-        // кредитный лимит
-        $credit = $clientAccount->credit;
-
-        $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance() + $credit;
-
-        if ($realtimeBalance < 0) {
-            $this->addError($attribute, 'Клиент находится в финансовой блокировке'); // правильнее это к полю client_account_id, но оно не отображается
-            return;
-        }
-
-        if ($realtimeBalance == 0) {
-            $this->addError($attribute, 'Нет денег на счету'); // правильнее это к полю client_account_id, но оно не отображается
-            return;
-        }
-
-        $tariffPeriod = $this->tariffPeriod;
-        if (!$tariffPeriod) {
-            $this->addError($attribute, 'Неправильный tariff_period_id');
-            return;
-        }
-
-        // @todo абонентскую плату считать не за период абонентки, а за период списания
-        // @todo абонентскую плату считать с выравниванием
-        $tariffPrice = $tariffPeriod->price_setup + $tariffPeriod->price_per_period + $tariffPeriod->price_min;
-        if ($realtimeBalance < $tariffPrice) {
-            $this->addError($attribute,
-                sprintf('На счету %.2f у.е., что меньше первичного платежа по тарифу, который составляет %.2f у.е. (подключение %.2f у.е. + абонентская плата %.2f у.е. + минимальная стоимость ресурсов %.2f у.е.)',
-                    $realtimeBalance,
-                    $tariffPrice,
-                    $tariffPeriod->price_setup,
-                    $tariffPeriod->price_per_period,
-                    $tariffPeriod->price_min
-                ));
             return;
         }
     }

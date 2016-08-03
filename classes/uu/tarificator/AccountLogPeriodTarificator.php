@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
@@ -71,34 +72,48 @@ class AccountLogPeriodTarificator
 
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods($accountLogs);
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $tariffPeriod = $untarificatedPeriod->tariffPeriod;
-            $period = $tariffPeriod->period;
-
-            $accountLogPeriod = new AccountLogPeriod();
-            $accountLogPeriod->date_from = $untarificatedPeriod->dateFrom->format('Y-m-d');
-            $accountLogPeriod->date_to = $untarificatedPeriod->dateTo->format('Y-m-d');
-            if ($untarificatedPeriod->dateTo < $untarificatedPeriod->dateFrom) {
-                throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d',
-                    $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));
-            }
-
-            $accountLogPeriod->tariff_period_id = $tariffPeriod->id;
-            $accountLogPeriod->account_tariff_id = $accountTariff->id;
-            $accountLogPeriod->period_price = $tariffPeriod->price_per_period;
-            $accountLogPeriod->coefficient = 1 + $untarificatedPeriod->dateTo
-                    ->diff($untarificatedPeriod->dateFrom)
-                    ->days; // кол-во потраченных дней
-            if ($period->monthscount) {
-                // разделить на кол-во дней в периоде
-                $days = 1 + $untarificatedPeriod->dateFrom
-                        ->modify($period->getModify())
-                        ->modify('-1 day')
-                        ->diff($untarificatedPeriod->dateFrom)
-                        ->days;
-                $accountLogPeriod->coefficient /= $days;
-            }
-            $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
+            $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $accountLogPeriod->save();
         }
+    }
+
+    /**
+     * Создать и вернуть AccountLogPeriod, но не сохранять его!
+     * "Не сохранение" нужно для проверки возможности списания без фактического списывания
+     *
+     * @param AccountTariff $accountTariff
+     * @param AccountLogFromToTariff $accountLogFromToTariff
+     * @return AccountLogPeriod
+     */
+    public function getAccountLogPeriod(AccountTariff $accountTariff, AccountLogFromToTariff $accountLogFromToTariff)
+    {
+        $tariffPeriod = $accountLogFromToTariff->tariffPeriod;
+        $period = $tariffPeriod->period;
+
+        $accountLogPeriod = new AccountLogPeriod();
+        $accountLogPeriod->date_from = $accountLogFromToTariff->dateFrom->format('Y-m-d');
+        $accountLogPeriod->date_to = $accountLogFromToTariff->dateTo->format('Y-m-d');
+        if ($accountLogFromToTariff->dateTo < $accountLogFromToTariff->dateFrom) {
+            throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d',
+                $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));
+        }
+
+        $accountLogPeriod->tariff_period_id = $tariffPeriod->id;
+        $accountLogPeriod->account_tariff_id = $accountTariff->id;
+        $accountLogPeriod->period_price = $tariffPeriod->price_per_period;
+
+        $accountLogPeriod->coefficient = 1 + $accountLogFromToTariff->dateTo
+                ->diff($accountLogFromToTariff->dateFrom)
+                ->days; // кол-во потраченных дней
+        if ($period->monthscount) {
+            // разделить на кол-во дней в периоде
+            $days = $accountLogFromToTariff->dateFrom
+                    ->modify($period->getModify())
+                    ->diff($accountLogFromToTariff->dateFrom)
+                    ->days;
+            $accountLogPeriod->coefficient /= $days;
+        }
+        $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
+        return $accountLogPeriod;
     }
 }

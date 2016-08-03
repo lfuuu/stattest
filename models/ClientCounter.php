@@ -2,9 +2,9 @@
 
 namespace app\models;
 
+use app\models\billing\Counter as BillingCounter;
 use Yii;
 use yii\db\ActiveRecord;
-use app\models\billing\Counter as BillingCounter;
 
 /**
  * @property int $client_id
@@ -18,6 +18,8 @@ use app\models\billing\Counter as BillingCounter;
  * @property float $totalSummary
  * @property float $daySummary
  * @property float $monthSummary
+ *
+ * @property ClientAccount clientAccount
  */
 class ClientCounter extends ActiveRecord
 {
@@ -53,12 +55,38 @@ class ClientCounter extends ActiveRecord
      */
     public function getRealtimeBalance()
     {
-        return
-            sprintf('%0.2f', (
-                $this->clientAccount->credit > -1
-                    ? $this->clientAccount->balance + $this->amount_sum
-                    : $this->clientAccount->balance
-            ));
+        switch ($this->clientAccount->account_version) {
+
+            case ClientAccount::VERSION_BILLER_USAGE:
+                // старый (текущий) биллинг
+                return
+                    $this->clientAccount->credit > -1
+                        ? $this->clientAccount->balance + $this->amount_sum
+                        : $this->clientAccount->balance;
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL:
+                // новый (универсальный) биллинг
+
+                // все платежи
+                $paymentSummary = Payment::find()
+                    ->select(['total_price' => 'SUM(sum)'])
+                    ->where(['client_id' => $this->client_id])
+                    ->asArray()
+                    ->one();
+
+                // все списания
+                // счетов меньше, чем транзакций и проводок - считать быстрее
+                $billSummary = Bill::find()
+                    ->select(['total_price' => 'SUM(price)'])
+                    ->where(['client_account_id' => $this->client_id])
+                    ->asArray()
+                    ->one();
+
+                return $paymentSummary['total_price'] - $billSummary['total_price'];
+
+            default:
+                throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
+        }
     }
 
     /**
@@ -101,6 +129,7 @@ class ClientCounter extends ActiveRecord
         $localCounter = static::getLocalCounter($clientAccountId);
 
         try {
+            /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
 
             $localCounter->amount_sum = $billingCounter->amount_sum;

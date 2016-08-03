@@ -145,8 +145,8 @@ abstract class AccountTariffForm extends Form
             if ($this->accountTariff->load($post)) {
 
                 // услуга
-                if ($this->accountTariff->validate()) {
-                    $this->accountTariff->save();
+                $this->accountTariff->tariff_period_id = isset($post['AccountTariffLog']['tariff_period_id']) ? $post['AccountTariffLog']['tariff_period_id'] : null;
+                if ($this->accountTariff->save()) {
                     $this->id = $this->accountTariff->id;
                     $this->isSaved = true;
                 } else {

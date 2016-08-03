@@ -5,6 +5,11 @@ namespace app\models\billing;
 use Yii;
 use yii\db\ActiveRecord;
 
+/**
+ * @property float amount_sum
+ * @property float amount_day_sum
+ * @property float amount_month_sum
+ */
 class Counter extends ActiveRecord
 {
 

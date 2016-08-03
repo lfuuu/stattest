@@ -74,22 +74,36 @@ class AccountLogSetupTarificator
         $untarificatedPeriods = $accountTariff->getUntarificatedSetupPeriods($accountLogs);
         /** @var AccountLogFromToTariff $untarificatedPeriod */
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            $tariffPeriod = $untarificatedPeriod->tariffPeriod;
-
-            $accountLogSetup = new AccountLogSetup();
-            $accountLogSetup->date = $untarificatedPeriod->dateFrom->format('Y-m-d');
-            $accountLogSetup->tariff_period_id = $tariffPeriod->id;
-            $accountLogSetup->account_tariff_id = $accountTariff->id;
-
-            $accountLogSetup->price_setup = $tariffPeriod->price_setup;
-            if ($untarificatedPeriod->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
-                // телефонный номер кроме телефонной линии (4-5 знаков)
-                // только первое подключение. При смене тарифа на том же аккаунте не считать
-                $accountLogSetup->price_number = $accountTariff->number->price;
-            }
-
-            $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
+            $accountLogSetup = $this->getAccountLogSetup($accountTariff, $untarificatedPeriod);
             $accountLogSetup->save();
         }
+    }
+
+    /**
+     * Создать и вернуть AccountLogPeriod, но не сохранять его!
+     * "Не сохранение" нужно для проверки возможности списания без фактического списывания
+     *
+     * @param AccountTariff $accountTariff
+     * @param AccountLogFromToTariff $accountLogFromToTariff
+     * @return AccountLogSetup
+     */
+    public function getAccountLogSetup(AccountTariff $accountTariff, AccountLogFromToTariff $accountLogFromToTariff)
+    {
+        $tariffPeriod = $accountLogFromToTariff->tariffPeriod;
+
+        $accountLogSetup = new AccountLogSetup();
+        $accountLogSetup->date = $accountLogFromToTariff->dateFrom->format('Y-m-d');
+        $accountLogSetup->tariff_period_id = $tariffPeriod->id;
+        $accountLogSetup->account_tariff_id = $accountTariff->id;
+
+        $accountLogSetup->price_setup = $tariffPeriod->price_setup;
+        if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
+            // телефонный номер кроме телефонной линии (4-5 знаков)
+            // только первое подключение. При смене тарифа на том же аккаунте не считать
+            $accountLogSetup->price_number = $accountTariff->number->price;
+        }
+
+        $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
+        return $accountLogSetup;
     }
 }

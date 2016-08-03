@@ -59,23 +59,20 @@ class AccountLogMonitorFilter extends AccountTariff
         ]);
 
         $this->client_account_id !== '' && $query->andWhere(['client_account_id' => $this->client_account_id]);
-
-        if (!$this->service_type_id) {
-            $this->tariff_period_id = '';
-        }
         $this->service_type_id !== '' && $query->andWhere(['service_type_id' => $this->service_type_id]);
-        if ($this->tariff_period_id !== '') {
-            switch ($this->tariff_period_id) {
-                case TariffPeriod::IS_NOT_SET:
-                    $query->andWhere(['tariff_period_id' => null]);
-                    break;
-                case TariffPeriod::IS_SET:
-                    $query->andWhere('tariff_period_id IS NOT NULL');
-                    break;
-                default:
-                    $query->andWhere(['tariff_period_id' => $this->tariff_period_id]);
-                    break;
-            }
+
+        switch ($this->tariff_period_id) {
+            case '':
+                break;
+            case TariffPeriod::IS_NOT_SET:
+                $query->andWhere(['tariff_period_id' => null]);
+                break;
+            case TariffPeriod::IS_SET:
+                $query->andWhere('tariff_period_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere(['tariff_period_id' => $this->tariff_period_id]);
+                break;
         }
 
         return $dataProvider;
