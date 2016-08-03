@@ -77,15 +77,19 @@ SQL;
                 {$accountLogMinTableName} account_log_min,
                 (
                     SELECT
+                        account_log_resource.account_tariff_id,
                         DATE_FORMAT(account_log_resource.date, "%Y-%m-01") as date,
                         SUM(account_log_resource.price) as price 
                     FROM {$accountLogResourceTableName} account_log_resource
-                    GROUP BY DATE_FORMAT(account_log_resource.date, "%Y-%m-01") 
+                    GROUP BY
+                        account_log_resource.account_tariff_id,
+                        DATE_FORMAT(account_log_resource.date, "%Y-%m-01") 
                 ) account_log_resource_groupped
             SET
                 account_log_min.price_resource = account_log_resource_groupped.price
             WHERE
-                 account_log_min.date_from = account_log_resource_groupped.date
+                 account_log_min.account_tariff_id = account_log_resource_groupped.account_tariff_id
+                 AND account_log_min.date_from = account_log_resource_groupped.date
 SQL;
         $db->createCommand($updateSql)
             ->execute();

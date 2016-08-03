@@ -18,27 +18,19 @@ $viewParams = [
 
 ?>
 
-<div class="well">
-    <div class="row">
-        <div class="col-sm-4">
-            <?= $form->field($tariff, 'voip_group_id')
-                ->widget(Select2::className(), [
-                    'data' => TariffVoipGroup::getList(true),
-                ]) ?>
+    <div class="well">
+        <div class="row">
+            <div class="col-sm-4">
+                <?= $form->field($tariff, 'voip_group_id')
+                    ->widget(Select2::className(), [
+                        'data' => TariffVoipGroup::getList(true),
+                    ]) ?>
+            </div>
         </div>
+
+        <?= $this->render('_editMainVoipCity', $viewParams) ?>
     </div>
 
-    <?= $this->render('_editMainVoipCity', $viewParams) ?>
-</div>
-
-<div class="row">
-    <div class="col-sm-4">
-        <?= $this->render('_editMainVoipPackageMinute', $viewParams) ?>
-    </div>
-    <div class="col-sm-4">
-        <?= $this->render('_editMainVoipPackagePrice', $viewParams) ?>
-    </div>
-    <div class="col-sm-4">
-        <?= $this->render('_editMainVoipPackagePricelist', $viewParams) ?>
-    </div>
-</div>
+<?= $this->render('_editMainVoipPackageMinute', $viewParams) ?>
+<?= $this->render('_editMainVoipPackagePrice', $viewParams) ?>
+<?= $this->render('_editMainVoipPackagePricelist', $viewParams) ?>
