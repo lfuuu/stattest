@@ -47,7 +47,7 @@ class ContactController extends BaseController
         }
 
         $model->is_active = (int)!$model->is_active;
-        $model->save();
+        $model->save(false);
         $this->redirect(Yii::$app->request->referrer);
     }
 
