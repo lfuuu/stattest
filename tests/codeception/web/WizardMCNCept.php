@@ -216,7 +216,7 @@ function save_step1_ip($I, $s_base, $s)
         "last_name" => "Иванов",
         "first_name" => "Иван",
         "middle_name" => "Иванович",
-        "address" => "Россия, Воронежская область, город Воронеж, Железнодорожный район, ул. Мира, д.1, кв.2"
+        "address_jur" => "Россия, Воронежская область, город Воронеж, Железнодорожный район, ул. Мира, д.1, кв.2"
     ];
 
     $I->sendPOST("/api/wizard-mcn/save", merge($s_base, ["step1" => $s_step1_ip]));
