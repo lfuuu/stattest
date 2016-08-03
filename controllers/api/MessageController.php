@@ -207,7 +207,6 @@ class MessageController extends ApiController
      *   operationId="Получение содержания шаблона почтового сообщения",
      *   @SWG\Parameter(name="eventCode",type="string",description="Идентификатор события",in="query",required=true),
      *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true),
-     *   @SWG\Parameter(name="contactId",type="integer",description="ID контакта",in="query",required=true),
      *   @SWG\Parameter(name="type",type="string",description="Тип шаблона (по-умолчанию: email)",in="query"),
      *   @SWG\Parameter(name="eventId",type="integer",description="ID значимового события",in="query"),
      *   @SWG\Response(
@@ -226,14 +225,12 @@ class MessageController extends ApiController
     /**
      * @param string $eventCode
      * @param int $clientAccountId
-     * @param int $contactId
      * @param string $type
      * @param int|null $eventId
      */
     public function actionGetTemplate(
         $eventCode,
         $clientAccountId,
-        $contactId,
         $type = Template::TYPE_EMAIL,
         $eventId = null
     ) {
@@ -271,14 +268,14 @@ class MessageController extends ApiController
                     return [
                         'locale' => $templateContent->lang_code,
                         'subject' => $templateContent->title,
-                        'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $contactId, $eventId),
+                        'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $eventId),
                     ];
                 }
                 case Template::TYPE_EMAIL_INNER:
                 case Template::TYPE_SMS: {
                     return [
                         'locale' => $templateContent->lang_code,
-                        'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId, $contactId, $eventId),
+                        'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId, $eventId),
                     ];
                 }
             }

@@ -2,8 +2,8 @@
 namespace app\helpers;
 
 use Yii;
+use app\classes\Assert;
 use app\classes\Singleton;
-use yii\helpers\ArrayHelper;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Country;
@@ -24,85 +24,61 @@ class RenderParams extends Singleton
     }
 
     /**
-     *
      * @param string $tpl
      * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    public function apply($tpl, $clientAccountId, $contactId, $eventId = null)
+     * @param null|int $eventId
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    public function apply($tpl, $clientAccountId, $eventId = null)
     {
-        assert(!empty($tpl));
+        Assert::isEmpty($tpl);
+
         foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $call) {
-            $replaceTo = $this->{$call}($clientAccountId, $contactId, $eventId);
+            $replaceTo = $this->{$call}($clientAccountId, $eventId);
             $tpl = str_replace($replaceFrom, $replaceTo, $tpl);
         }
+
         return $tpl;
     }
 
     /**
      * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getClientAccountId($clientAccountId, $contactId)
+     * @return int
+     */
+    private function getClientAccountId($clientAccountId)
     {
         return $clientAccountId;
     }
 
     /**
      * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getContactId($clientAccountId, $contactId)
-    {
-        return $contactId;
-    }
-
-    /**
-     * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getKey($clientAccountId, $contactId)
-    {
-        return 'key';
-    }
-
-    /**
-     * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getContractNum($clientAccountId, $contactId)
+     * @return int
+     */
+    private function getContractNum($clientAccountId)
     {
         return ClientAccount::findOne($clientAccountId)->contract_id;
     }
 
     /**
      * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getBalance($clientAccountId, $contactId)
+     * @return float
+     */
+    private function getBalance($clientAccountId)
     {
         return ClientAccount::findOne($clientAccountId)->billingCounters->realtimeBalance;
     }
 
     /**
      * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getLnk($clientAccountId, $contactId)
+     * @return string
+     */
+    private function getLnk($clientAccountId)
     {
         $region_id = ClientAccount::findOne($clientAccountId)->region;
         $country_id = Region::findOne($region_id)->country_id;
         $lkPrefix = Yii::t('settings', 'lk_domain', [], Country::findOne(['code' => $country_id])->lang);
         return $lkPrefix . 'core/auth/activate?token=<token>';
-    }
-
-    /**
-     * @param int $clientAccountId
-     * @param int $contactId
-     **/
-    private function getPassword($clientAccountId, $contactId)
-    {
-        return 'anyPass';
     }
 
     /**
@@ -136,11 +112,11 @@ class RenderParams extends Singleton
     }
 
     /**
+     * @param int $clientAccountId
      * @param int $eventId
-     * @param string $eventProperty
-     * @param boolean $allMode
+     * @return float
      */
-    private function getNewPaymentValue($clientAccountId, $contactId, $eventId)
+    private function getNewPaymentValue($clientAccountId, $eventId)
     {
         return (float)$this->eventProperty($clientAccountId, $eventId, 'sum');
     }
