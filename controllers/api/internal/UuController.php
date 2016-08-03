@@ -955,13 +955,17 @@ class UuController extends ApiInternalController
             if ($isCancelable) {
 
                 // смена тарифа в будущем
-                $result[] = [
-                    'tariff_period' => $this->getTariffPeriodRecord($modelPrev->tariffPeriod),
-                    'activate_past_date' => $modelPrev->actual_from,
-                    'activate_future_date' => null,
-                    'deactivate_past_date' => null,
-                    'deactivate_future_date' => null,
-                ];
+                if ($modelPrev) {
+                    // текущий тариф
+                    $result[] = [
+                        'tariff_period' => $this->getTariffPeriodRecord($modelPrev->tariffPeriod),
+                        'activate_past_date' => $modelPrev->actual_from,
+                        'activate_future_date' => null,
+                        'deactivate_past_date' => null,
+                        'deactivate_future_date' => null,
+                    ];
+                }
+                // будущий
                 $result[] = [
                     'tariff_period' => $this->getTariffPeriodRecord($modelLast->tariffPeriod),
                     'activate_past_date' => null,
