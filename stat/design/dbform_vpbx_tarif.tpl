@@ -10,6 +10,7 @@
                 <option value="public"{if $dbform_f_tarif_current.status eq 'public'} selected="selected"{/if}>Публичный</option>
                 <option value="archive"{if $dbform_f_tarif_current.status eq 'archive'} selected="selected"{/if}>Архивный</option>
                 <option value="special"{if $dbform_f_tarif_current.status eq 'special'} selected="selected"{/if}>Специальный</option>
+                <option value="test"{if $dbform_f_tarif_current.status eq 'test'} selected="selected"{/if}>Тестовый</option>
             </select>
         </td>
         <td></td>
@@ -41,6 +42,16 @@
                 <option value="0">-- выберите тариф --</option>
                 {foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
                     {if $tarif.status eq 'special'}
+                    <option value="{$tarif.id}"{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id} selected="selected"{/if}>
+                        {$tarif.description}
+                    </option>
+                    {/if}
+                {/foreach}
+            </select>
+            <select id="t_id_tarif_test" name="">
+                <option value="0">-- выберите тариф --</option>
+                {foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
+                    {if $tarif.status eq 'test'}
                     <option value="{$tarif.id}"{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id} selected="selected"{/if}>
                         {$tarif.description}
                     </option>

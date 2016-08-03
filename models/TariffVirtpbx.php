@@ -7,11 +7,9 @@ use app\helpers\tariffs\TariffVirtpbxHelper;
 
 /**
  * @property int $id
- * @property
  */
 class TariffVirtpbx extends ActiveRecord implements TariffInterface
 {
-
     const TEST_TARIFF_ID = 42;
 
     public static function tableName()

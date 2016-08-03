@@ -643,8 +643,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 }
 
                 //BIL-1442: У номеров 7800 тариф берется из папки 7800, или архив
-                if (!in_array($this->tariff_main_status, [TariffVoip::STATE_7800, TariffVoip::STATE_STORE])) {
-                    $this->tariff_main_status = TariffVoip::STATE_7800;
+                if (!in_array($this->tariff_main_status, [TariffVoip::STATUS_7800, TariffVoip::STATUS_ARCHIVE])) {
+                    $this->tariff_main_status = TariffVoip::STATUS_7800;
                 }
 
                 if (substr($this->did, 0, 4) != '7800') {

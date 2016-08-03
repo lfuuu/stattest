@@ -19,6 +19,7 @@ use yii\db\ActiveRecord;
  * @property TariffVoip $voipTariffRussiaMob
  * @property TariffVoip $voipTariffIntern
  * @property TariffVoip $voipTariffSng
+ * @property TariffInternet $internetTariff
  * @property
  */
 class LogTarif extends ActiveRecord
@@ -36,6 +37,11 @@ class LogTarif extends ActiveRecord
     public function getVoipTariffMain()
     {
         return $this->hasOne(TariffVoip::className(), ['id' => 'id_tarif']);
+    }
+
+    public function getInternetTariff()
+    {
+        return $this->hasOne(TariffInternet::className(), ['id' => 'id_tarif']);
     }
 
     public function getVoipTariffLocalMob()

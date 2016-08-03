@@ -46,31 +46,25 @@ use app\helpers\tariffs\TariffVoipHelper;
  */
 class TariffVoip extends ActiveRecord implements TariffInterface
 {
-    const STATE_PUBLIC = 'public';
-    const STATE_TRANSIT = 'transit';
-    const STATE_SPECIAL = 'special';
-    const STATE_STORE = 'archive';
-    const STATE_OPERATOR = 'operator';
-    const STATE_TEST = 'test';
-    const STATE_7800 = '7800';
+    const STATUS_TRANSIT = 'transit';
+    const STATUS_OPERATOR = 'operator';
+    const STATUS_7800 = '7800';
 
     const DEST_RUSSIA = 1;
     const DEST_INTERNATIONAL = 2;
     const DEST_LOCAL_FIXED = 4;
     const DEST_LOCAL_MOBILE = 5;
 
-    const STATE_DEFAULT = self::STATE_PUBLIC;
-
-    const STATUS_TEST = 'test';
+    const STATE_DEFAULT = self::STATUS_PUBLIC;
 
     public static $statuses = [
-        self::STATE_PUBLIC => 'Публичный',
-        self::STATE_SPECIAL => 'Специальный',
-        self::STATE_TRANSIT => 'Переходный',
-        self::STATE_OPERATOR => 'Оператор',
-        self::STATE_TEST => 'Тестовый',
-        self::STATE_7800 => '7800',
-        self::STATE_STORE => 'Архивный',
+        self::STATUS_PUBLIC => 'Публичный',
+        self::STATUS_SPECIAL => 'Специальный',
+        self::STATUS_TRANSIT => 'Переходный',
+        self::STATUS_OPERATOR => 'Оператор',
+        self::STATUS_TEST => 'Тестовый',
+        self::STATUS_7800 => '7800',
+        self::STATUS_ARCHIVE => 'Архивный',
     ];
 
     public static $destinations = [

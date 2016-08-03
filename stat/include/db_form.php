@@ -469,6 +469,7 @@ class DbFormUsageIpPorts extends DbForm{
             $R[] = array($a,'public',$a.'P');
             $R[] = array($a,'special',$a.'S');
             $R[] = array($a,'archive',$a.'A');
+            $R[] = array($a,'test',$a.'T');
             if($a=='I'){
                 $R[] = array($a,'adsl_su',$a.'Su');
                 $R[] = array($a,'ss',$a.'Ss');

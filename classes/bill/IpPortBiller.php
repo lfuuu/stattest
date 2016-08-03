@@ -331,17 +331,37 @@ class IpPortBiller extends Biller
         $logTariff =
             LogTarif::find()
                 ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
-                ->andWhere('date_activation < :to', [':to' => $this->billerActualTo->format('Y-m-d')])
+                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
                 ->andWhere('id_tarif != 0')
                 ->orderBy('date_activation desc, id desc')
-                ->limit(1)
                 ->one();
 
         if (!$logTariff) {
             return null;
         }
 
-        return TariffInternet::findOne($logTariff->id_tarif);
+        // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
+        if ($logTariff->internetTariff->isTested()) {
+            $logTariff =
+                LogTarif::find()
+                    ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
+                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                    ->andWhere('id_tarif != 0')
+                    ->leftJoin(['tv' => TariffInternet::tableName()], 'tv.id = id_tarif')
+                    ->andWhere(['not', ['tv.status' => TariffInternet::STATUS_TEST]])
+                    ->orderBy('date_activation desc, id desc')
+                    ->one();
+
+            // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
+            if ($logTariff === null || $logTariff->date_activation >= $this->billerActualTo->format('Y-m-d')) {
+                return false;
+            }
+
+            $this->billerPeriodFrom = $this->usageActualFrom = $this->billerActualFrom =
+                new \DateTime($logTariff->date_activation, clone $this->usageActualFrom->getTimezone());
+        }
+
+        return $logTariff->internetTariff;
     }
 
     private function netmask_to_ip_sum($mask)

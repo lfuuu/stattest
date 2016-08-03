@@ -42,9 +42,9 @@ class VoipBiller extends Biller
                     ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
                     ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
                     ->andWhere('id_tarif != 0')
-                    ->andWhere(['not', ['id_tarif' => TariffVoip::find()->where(['status' => TariffVoip::STATUS_TEST])->select('id')->column()]])
+                    ->leftJoin(['tv' => TariffVoip::tableName()], 'tv.id = id_tarif')
+                    ->andWhere(['not', ['tv.status' => TariffVoip::STATUS_TEST]])
                     ->orderBy('date_activation desc, id desc')
-                    ->limit(1)
                     ->one();
 
             // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета

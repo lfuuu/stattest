@@ -180,7 +180,7 @@ class VoipReserveNumber
     public static function getDefaultTariffId($regionId, $currency)
     {
         $tariff = TariffVoip::findOne([
-            'status' => TariffVoip::STATE_TEST,
+            'status' => TariffVoip::STATUS_TEST,
             'connection_point_id' => $regionId,
             'currency_id' => $currency
         ]);

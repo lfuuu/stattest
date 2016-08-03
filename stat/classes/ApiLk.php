@@ -960,7 +960,7 @@ class ApiLk
         }
 
         $mainTariff = TariffVoip::findOne([
-            'status' => TariffVoip::STATE_TEST,
+            'status' => TariffVoip::STATUS_TEST,
             'connection_point_id' => $number->city->connection_point_id
         ]);
 

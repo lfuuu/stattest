@@ -153,12 +153,15 @@ function form_ip_ports_tarif(){
 	document.getElementById('t_id_tarifIP').style.display=(val=='IP'?'':'none');
 	document.getElementById('t_id_tarifIS').style.display=(val=='IS'?'':'none');
 	document.getElementById('t_id_tarifIA').style.display=(val=='IA'?'':'none');
+	document.getElementById('t_id_tarifIT').style.display=(val=='IT'?'':'none');
 	document.getElementById('t_id_tarifCP').style.display=(val=='CP'?'':'none');
 	document.getElementById('t_id_tarifCS').style.display=(val=='CS'?'':'none');
 	document.getElementById('t_id_tarifCA').style.display=(val=='CA'?'':'none');
+	document.getElementById('t_id_tarifCT').style.display=(val=='CT'?'':'none');
 	document.getElementById('t_id_tarifVP').style.display=(val=='VP'?'':'none');
 	document.getElementById('t_id_tarifVS').style.display=(val=='VS'?'':'none');
 	document.getElementById('t_id_tarifVA').style.display=(val=='VA'?'':'none');
+	document.getElementById('t_id_tarifVT').style.display=(val=='VT'?'':'none');
 	document.getElementById('t_id_tarifISu').style.display=(val=='ISu'?'':'none');
 	document.getElementById('t_id_tarifISs').style.display=(val=='ISs'?'':'none');
 	document.getElementById('t_id_tarifISc').style.display=(val=='ISc'?'':'none');

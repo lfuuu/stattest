@@ -9,6 +9,7 @@
 <option value=P{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='public'} selected{/if}>public</option>
 <option value=S{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='special'} selected{/if}>special</option>
 <option value=A{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='archive'} selected{/if}>archive</option>
+<option value=T{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='test'} selected{/if}>тестовый</option>
 <option value=Su{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='adsl_su'} selected{/if}>adsl.su</option>
 <option value=Ss{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='ss'} selected{/if}>Специальный обычный</option>
 <option value=Sc{if $dbform_f_tarif_current && $dbform_f_tarif_current.status=='sc'} selected{/if}>Специальный коллективный</option>
