@@ -81,6 +81,11 @@ HTML;
     ];
 
     /**
+     * @var null|string
+     */
+    public $exportWidget = null;
+
+    /**
      * Сгенерировать HTML до/после header/footer
      * В отличии от базового генерируются фильтры вне колонок. Можно было бы сделать это вне грида, но проще использовать его готовые column-классы для фильтров
      *
@@ -240,12 +245,28 @@ HTML;
     /**
      * @inheritdoc
      */
+    protected function initExport()
+    {
+        if (is_null($this->exportWidget)) {
+            parent::initExport();
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function renderExport()
     {
         if (!$this->dataProvider->getTotalCount()) {
             // не показывать кнопку, если нет данных
             return '';
         }
+
+        // Отображать кастомный export
+        if (!is_null($this->exportWidget)) {
+            return $this->exportWidget;
+        }
+
         return parent::renderExport();
     }
 

@@ -1,0 +1,30 @@
+.export-checkbox-list .checkbox {
+    padding: 0 20px;
+}
+
+.export-checkbox-list label {
+    width: 100%;
+}
+
+.export-checkbox-list label.disabled {
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    opacity: .65;
+}
+
+.export-toggle-all {
+    font-style: italic;
+    color: #337ab7;
+}
+
+.export-toggle-all:hover {
+    color: #286090;
+}
+
+.export-dialog .dialog-step {
+    display: none;
+}
+
+.export-dialog .dialog-step:first-child {
+    display: block;
+}

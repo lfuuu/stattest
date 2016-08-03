@@ -258,5 +258,11 @@ $summaryColumns = [
             'columns' => $summaryColumns,
         ]
     ],
+    'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
+        'dataProvider' => $filterModel->search(),
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+        'batchSize' => 5000,
+    ]),
 ]) ?>
 
