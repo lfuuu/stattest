@@ -1188,7 +1188,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN tt_states as tts ON tts.id = S.state_id
             LEFT JOIN tt_states_rb as ttsrb ON ttsrb.id = S.state_id
             LEFT JOIN newbills_add_info nba ON nba.bill_no = T.bill_no
-            LEFT JOIN newbills n  ON n.bill_no = T.bill_no
+            LEFT JOIN newbills n  ON (n.bill_no = T.bill_no AND n.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ')
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
             LEFT JOIN `client_contract` cr ON cr.id=cl.contract_id
@@ -1476,7 +1476,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($v>=2){
             if($this->curclient)
-                $design->assign('bills',$db->AllRecords('select bill_no from newbills where is_payed=0 and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") order by bill_date desc','bill_no',MYSQL_ASSOC));
+                $design->assign('bills',$db->AllRecords(
+                    'select bill_no 
+                     from newbills 
+                     where 
+                            is_payed=0 
+                        and biller_version = ' . ClientAccoun::VERSION_BILLER_USAGE . ' 
+                        and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") 
+                        order by bill_date desc','bill_no',MYSQL_ASSOC));
             $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
 
             $design->assign('curtype',$this->curtype);
@@ -1908,7 +1915,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 	LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
 	LEFT JOIN `tt_stages` `ts_last` ON `ts_last`.`stage_id` = `tt`.`cur_stage_id`
 	LEFT JOIN `tt_states` st ON `st`.id = `ts_last`.state_id
-	LEFT JOIN `newbills` nb ON nb.bill_no = tt.bill_no
+	LEFT JOIN `newbills` nb ON (nb.bill_no = tt.bill_no AND nb.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
 	LEFT JOIN `newbills_add_info` nai on nai.bill_no = nb.bill_no
 	WHERE `cr`.`enabled` = 'yes'
 	GROUP BY
@@ -2171,7 +2178,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-                        AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
+                            AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
+                            AND nb.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
@@ -2254,6 +2262,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                                     order by created_at desc
                                     limit 1
                             )
+                        AND nb.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
@@ -2363,6 +2372,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                                     order by created_at desc
                                     limit 1
                             )
+                        AND nb.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
@@ -2419,7 +2429,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
 
             FROM (".$query.") tbl2
-            LEFT JOIN newbills nb2 ON tbl2.bill_no = nb2.bill_no
+            LEFT JOIN newbills nb2 ON (tbl2.bill_no = nb2.bill_no AND nb2.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
             ";
         }
 

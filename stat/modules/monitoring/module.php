@@ -1,5 +1,7 @@
-<?
+<?php
 //вывод данных мониторинга
+use app\models\ClientAccount;
+
 class m_monitoring {
 	var $actions=array(
 					'default'			=> array('monitoring','view'),
@@ -484,14 +486,15 @@ class m_monitoring {
 			LEFT JOIN clients as C ON C.id = B.client_id 
 			LEFT JOIN newbill_lines as L ON B.bill_no = L.bill_no
 		';
-		$options['conditions'] = array(
-			'C.region > 0 AND C.status = ? AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
+		$options['conditions'] = [
+			'C.region > 0 AND C.status = ? AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ? AND biller_version = ?',
 			'work',
 			date('Y-m-d', $from),
 			date('Y-m-d', $to),
 			'RUB',
-			0
-		);
+			0,
+			ClientAccount::VERSION_BILLER_USAGE
+		];
 		if ($regionId)
 		{
 			$options['conditions'][0] .= ' AND C.region = ?';

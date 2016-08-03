@@ -12,7 +12,7 @@ use app\models\usages\UsageInterface;
 
 /**
  * @property int $id
- * @property
+ * @property UsageEmailHelper $helper
  */
 class UsageEmails extends ActiveRecord implements UsageInterface
 {

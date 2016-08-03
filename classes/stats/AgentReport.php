@@ -157,6 +157,7 @@ class AgentReport
                 FROM newbills
                 WHERE
                     newbills.client_id = client.id
+                    AND biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
                     AND is_payed = 1
             )',
         ]);
@@ -229,6 +230,7 @@ class AgentReport
                 FROM newbills
                 WHERE
                     newbills.client_id = client.id
+                    AND biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
                     AND is_payed = 1
             )',
         ]);

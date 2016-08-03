@@ -30,9 +30,17 @@ class ClientAccountDao extends Singleton
             ClientAccount::getDb()->createCommand("
                     select max(b.bill_date)
                     from newbills b, newbill_lines bl
-                    where b.client_id=:clientAccountId and day(b.bill_date) = 1 and b.bill_no=bl.bill_no and bl.id_service > 0
+                    where 
+                            b.client_id=:clientAccountId 
+                        and day(b.bill_date) = 1 
+                        and b.bill_no=bl.bill_no 
+                        and bl.id_service > 0
+                        and biller_version = :billerVersion
                 ",
-                [':clientAccountId' => $clientAccount->id]
+                [
+                    ':clientAccountId' => $clientAccount->id,
+                    ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
+                ]
             )->queryScalar();
 
         if (!$billDate) {
@@ -50,12 +58,15 @@ class ClientAccountDao extends Singleton
         return ClientAccount::getDb()->createCommand("
                 select b.bill_date - interval day(b.bill_date)-1 day
                 from newbills b left join newbill_lines bl on b.bill_no=bl.bill_no
-                where b.client_id=:clientAccountId and b.is_payed=1 and bl.id_service > 0
+                where b.client_id=:clientAccountId and b.is_payed=1 and bl.id_service > 0 and biller_version = :billerVersion
                 group by b.bill_date
                 order by b.bill_date desc
                 limit 1
             ",
-            [':clientAccountId' => $clientAccount->id]
+            [
+                ':clientAccountId' => $clientAccount->id,
+                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
+            ]
         )->queryScalar();
     }
 
@@ -449,6 +460,7 @@ class ClientAccountDao extends Singleton
                     B.client_id = :clientAccountId
                     and B.currency = :currency
                     and B.bill_date >= :saldoDate
+                    and B.biller_version = :billerVersion
 
                 UNION
 
@@ -494,7 +506,8 @@ class ClientAccountDao extends Singleton
                     [
                         ':clientAccountId' => $clientAccount->id,
                         ':currency' => $clientAccount->currency,
-                        ':saldoDate' => $saldoDate
+                        ':saldoDate' => $saldoDate,
+                        ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
                     ]
                 )
                 ->queryAll();
@@ -557,11 +570,16 @@ class ClientAccountDao extends Singleton
                             and B.sum < 0
                             and B.currency = 'RUB'
                             and C.status NOT IN ('operator', 'distr')
+                            and B.biller_version = :billerVersion
         ";
         $billPayments =
             Bill::getDb()->createCommand(
                 $sql,
-                [':clientAccountId' => $clientAccount->id, ':saldoDate' => $saldoDate]
+                [
+                    ':clientAccountId' => $clientAccount->id,
+                    ':saldoDate' => $saldoDate,
+                    ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE,
+                ]
             )->queryAll();
 
         $paymentsAndChargebacks = [];

@@ -15,7 +15,7 @@ use app\models\usages\UsageInterface;
  * @property int $id
  *
  * @property TariffExtra $tariff
- * @property
+ * @property UsageWelltimeHelper $helper
  */
 class UsageWelltime extends ActiveRecord implements UsageInterface
 {

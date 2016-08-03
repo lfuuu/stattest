@@ -153,13 +153,29 @@ class BalanceController extends BaseController
                 ->all();
 
             // Все старые счета клиента
-            $bills = Bill::find()
-                ->where(['client_id' => $clientAccountId])
+            $billsUsage = Bill::find()
+                ->where([
+                    'client_id' => $clientAccountId,
+                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE
+                ])
                 ->orderBy([
                     'bill_date' => SORT_DESC,
                     'id' => SORT_DESC,
                 ])
                 ->all();
+
+            // Все сконвертиованные новые счета в старые счета клиента
+            $billsUniversal = Bill::find()
+                ->where([
+                    'client_id' => $clientAccountId,
+                    'biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL
+                ])
+                ->orderBy([
+                    'bill_date' => SORT_DESC,
+                    'id' => SORT_DESC,
+                ])
+                ->all();
+
 
         } else {
             $clientAccount =
@@ -167,7 +183,8 @@ class BalanceController extends BaseController
             $accountEntries =
             $payments =
             $uuBills =
-            $bills =
+            $billsUsage =
+            $billsUniversal =
             $accountEntrySummary =
             $accountLogSetupSummary =
             $accountLogPeriodSummary =
@@ -182,7 +199,8 @@ class BalanceController extends BaseController
             'accountEntries' => $accountEntries,
             'payments' => $payments,
             'uuBills' => $uuBills,
-            'bills' => $bills,
+            'billsUsage' => $billsUsage,
+            'billsUniversal' => $billsUniversal,
             'accountEntrySummary' => $accountEntrySummary,
             'accountLogSetupSummary' => $accountLogSetupSummary,
             'accountLogPeriodSummary' => $accountLogPeriodSummary,

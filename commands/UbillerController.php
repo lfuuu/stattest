@@ -13,6 +13,8 @@ use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogResourceTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
 use app\classes\uu\tarificator\BillTarificator;
+use app\models\Bill as stdBill;
+use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
 
@@ -243,5 +245,39 @@ class UbillerController extends Controller
     {
         Bill::deleteAll();
         echo '. ' . PHP_EOL;
+    }
+
+    /**
+     * перенос проводок в "старые" счета
+     * @param int|null $clientAccountId
+     */
+    public function actionTransferBills($clientAccountId = null)
+    {
+        $clientAccountsQuery = ClientAccount::find()->where(['is_active' => 1]);
+        if ($clientAccountId) {
+            $clientAccountsQuery->andWhere(['id' => $clientAccountId]);
+        }
+        $clientAccounts = $clientAccountsQuery->all();
+
+        foreach($clientAccounts as $clientAccount) {
+            echo PHP_EOL . 'client: ' . $clientAccount->id;
+
+            $transaction = Yii::$app->getDb()->beginTransaction();
+            stdBill::dao()->transferUniversalBillsToBills($clientAccount);
+            $transaction->commit();
+        }
+
+        echo PHP_EOL . 'done.';
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Удаление счетов сделанных из проводок универсального биллера
+     */
+    public function actionCleanTransferedBills()
+    {
+        stdBill::deleteAll(['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]);
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 }

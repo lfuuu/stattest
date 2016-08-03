@@ -19,6 +19,7 @@ use app\helpers\usages\LogTariffTrait;
  * @property int amount
  * @property string comment
  * @property TariffVirtpbx $tariff
+ * @property UsageVirtpbxHelper $helper
  */
 class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {

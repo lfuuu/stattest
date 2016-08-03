@@ -14,7 +14,7 @@ use app\models\usages\UsageInterface;
 /**
  * @property int $id
  * @property TariffExtra $tariff
- * @property
+ * @property UsageExtraHelper $helper
  */
 class UsageExtra extends ActiveRecord implements UsageInterface
 {

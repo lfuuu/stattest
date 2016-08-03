@@ -4,6 +4,14 @@ namespace app\helpers\usages;
 
 use yii\db\ActiveRecord;
 
+/**
+ * Interface UsageHelperInterface
+ * @package app\helpers\usages
+ * @property string title
+ * @property string description
+ * @property string help
+ * @property string editLink
+ */
 interface UsageHelperInterface
 {
 

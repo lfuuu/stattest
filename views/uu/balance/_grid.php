@@ -19,7 +19,8 @@ use app\models\Payment;
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
  * @var uuBill[] $uuBills
- * @var Bill[] $bills
+ * @var Bill[] $billsUsage
+ * @var Bill[] $billsUniversal
  * @var array $accountEntrySummary
  * @var array $accountLogSetupSummary
  * @var array $accountLogPeriodSummary
@@ -114,12 +115,12 @@ foreach ($uuBills as $bill) {
 }
 
 // Формирование массив старых счетов и позиций
-foreach ($bills as $bill) {
+foreach ($billsUsage as $bill) {
     // Определение месяца/года
     $billShortDate = (new DateTime($bill->bill_date))->format('Y-m');
 
     // Заполнение массива позиций на месяц
-    foreach ($bill->lines as $item) {
+    foreach ($bill->getLines()->orderBy(['id_service' => SORT_ASC])->all() as $item) {
         $itemShortDate = (new DateTime($item->date_from))->format('Y-m');
         $result[$itemShortDate]['oldItems'][] = $item;
     }
@@ -129,6 +130,21 @@ foreach ($bills as $bill) {
     $result[$billShortDate]['totalOldItems'] += count($bill->lines);
 }
 
+foreach ($billsUniversal as $bill) {
+    // Определение месяца/года
+    $billShortDate = (new DateTime($bill->bill_date))->format('Y-m');
+
+    // Заполнение массива позиций на месяц
+    foreach ($bill->getLines()->orderBy(new \yii\db\Expression('CAST(item_id as UNSIGNED)'))->all() as $item) {
+        $itemShortDate = (new DateTime($item->date_from))->format('Y-m');
+        $result[$itemShortDate]['oldUUItems'][] = $item;
+    }
+
+    // Заполнение массива счетов на месяц
+    $result[$billShortDate]['oldUUBills'][] = $bill;
+    $result[$billShortDate]['totalOldUUItems'] += count($bill->lines);
+}
+
 // Формирование массив платежей
 foreach ($payments as $payment) {
     $billShortDate = (new DateTime($payment->payment_date))->format('Y-m');
@@ -136,10 +152,7 @@ foreach ($payments as $payment) {
 }
 
 foreach ($result as $monthKey => $month):
-    $totalItems = $month['totalUuItems'] ?: 0;
-    if ($totalItems < $month['totalOldItems']) {
-        $totalItems = $month['totalOldItems'];
-    }
+    $totalItems = max($month['totalUuItems'], $month['totalOldItems'], $month['totalOld2Items']);
     ?>
     <table border="0" class="table table-bordered table-striped">
         <colgroup>
@@ -173,6 +186,9 @@ foreach ($result as $monthKey => $month):
                 $monthOldBills = $month['oldBills']; // Старые счета за месяц
                 $monthOldItems = $month['oldItems']; // Старые позиции счета за месяц
 
+                $monthOldUUBills = $month['oldUUBills'];
+                $monthOldUUItems = $month['oldUUItems'];
+
                 $monthPayments = $month['payments']; // Платежи за месяц
 
                 /**
@@ -189,6 +205,7 @@ foreach ($result as $monthKey => $month):
                     <?php elseif (isset($monthUuBills[$i])): ?>
                         <td>
                             <?= Html::a('Счет-фактура № '. $monthUuBills[$i]->id, $monthUuBills[$i]->url, ['target' => '_blank']) ?>
+                            от <?=$monthUuBills[$i]->date?> на <?=$monthUuBills[$i]->price?>
                         </td>
                     <?php endif; ?>
                     <td>
@@ -207,8 +224,31 @@ foreach ($result as $monthKey => $month):
                             (<?= $monthUuItems[$i]->price_with_vat ?>)
                         <?php endif; ?>
                     </td>
-                    <td></td>
-                    <td></td>
+                    <?php if (!isset($monthOldUUBills[$i]) && count($monthOldUUBills) == $i): ?>
+                        <td rowspan="<?= ($totalItems - $i) ?>"></td>
+                    <?php elseif (isset($monthOldUUBills[$i])) :?>
+                        <td>
+                            <?= Html::a('Счет № ' . $monthOldUUBills[$i]->bill_no, $monthOldUUBills[$i]->url, [
+                                'target' => '_blank',
+                                'class' => 'bill-info',
+                                'data-bill' => $monthOldUUBills[$i]->bill_no,
+                            ]) ?> от <?=$monthOldUUBills[$i]->bill_date?> на <?=$monthOldUUBills[$i]->sum?>
+                        </td>
+                    <?php endif; ?>
+                    <td>
+                        <?php if (isset($monthOldUUItems[$i])): ?>
+                            <div data-bill="<?= $monthOldUUItems[$i]->bill_no ?>">
+                                <abbr title="ID не универсальной услуги"><?= $monthOldUUItems[$i]->item_id ?></abbr>:
+                                <?php if ($monthOldUUItems[$i]->date_from !== $monthOldUUItems[$i]->bill->bill_date): ?>
+                                    Плата за услугу
+                                <?php elseif ((new DateTime($monthOldUUItems[$i]->date_from))->format('Y-m') == $monthKey): ?>
+                                    <i>Абонентка</i>
+                                <?php endif; ?>
+                                (<?= $monthOldUUItems[$i]->sum ?>)
+                            </div>
+                        <?php endif; ?>
+                    </td>
+
                     <?php if (!isset($monthOldBills[$i]) && count($monthOldBills) == $i): ?>
                         <td rowspan="<?= ($totalItems - $i) ?>"></td>
                     <?php elseif (isset($monthOldBills[$i])) :?>
@@ -217,7 +257,7 @@ foreach ($result as $monthKey => $month):
                                 'target' => '_blank',
                                 'class' => 'bill-info',
                                 'data-bill' => $monthOldBills[$i]->bill_no,
-                            ]) ?>
+                            ]) ?> от <?=$monthOldBills[$i]->bill_date?> на <?=$monthOldBills[$i]->sum?>
                         </td>
                     <?php endif; ?>
                     <td>
@@ -229,7 +269,7 @@ foreach ($result as $monthKey => $month):
                                 <?php elseif ((new DateTime($monthOldItems[$i]->date_from))->format('Y-m') == $monthKey): ?>
                                     <i>Абонентка</i>
                                 <?php endif; ?>
-                                (<?= $monthOldItems[$i]->price ?>)
+                                (<?= $monthOldItems[$i]->sum ?>)
                             </div>
                         <?php endif; ?>
                     </td>

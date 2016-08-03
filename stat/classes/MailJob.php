@@ -189,8 +189,8 @@ class MailJob {
 			AND 
 				`sum` > 0 
 			AND 
-				`bill_date` BETWEEN '".$match[2]."-1'
-							AND		DATE_ADD(DATE_ADD('".$match[2]."-1', INTERVAL 1 MONTH),INTERVAL -1 DAY)
+					`bill_date` BETWEEN '" . $match[2] . "-1' AND DATE_ADD(DATE_ADD('" . $match[2] . "-1', INTERVAL 1 MONTH), INTERVAL -1 DAY)
+				AND biller_version = '" . \app\models\ClientAccount::VERSION_BILLER_USAGE . "' 
 			".$pay_flag;
 
 		$rows = $db->AllRecords($query,null,MYSQL_ASSOC);

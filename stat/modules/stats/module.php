@@ -2606,7 +2606,7 @@ function stat_test($itemNum, $dateFrom, $dateTo)
     $vv = $db->AllRecords("select l.bill_no, cast(s.date_start as date) as ds,  client
             from tt_troubles t , tt_stages s, tt_stages s2, newbill_lines l, newbills b, g_goods g
             where s.date_start between '".$dateFrom."' and '".$dateTo."'  and s.trouble_id = t.id and s.state_id = 18 and t.bill_no = l.bill_no and
-            item_id =g.id and  g.num_id = ".$itemNum." and b.bill_no = l.bill_no and client ='WiMaxComstar'
+            item_id =g.id and  g.num_id = ".$itemNum." and b.bill_no = l.bill_no and client ='WiMaxComstar'  AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
             and s2.stage_id =cur_stage_id and s2.state_id != 21  group by b.bill_no");
 
     $d = array();
@@ -3803,6 +3803,7 @@ if($client != "nbn")
 			and t.bill_no = a.bill_no
             and b.bill_no = t.bill_no
             and is_rollback = 0
+            and b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
             ".$addWhere."
             group by s.trouble_id
 	        ");
@@ -3826,6 +3827,7 @@ if($client != "nbn")
                         t.client = '".$client."'
                     and b.bill_no = t.bill_no
                     and s.stage_id = t.cur_stage_id
+                    and b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                     and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'
                     ".$addWhere)+array("delivery" => count($deliveryList));
 
@@ -3941,6 +3943,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             AND date_creation between '".$d1." 00:00:00' AND '".$d2." 23:59:59'
                             AND i.bill_no = t.bill_no
                             AND t.bill_no = b.bill_no
+                            AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                             AND ".$sTypes[$listType]["sql"]."
                             ".$addWhere."
                         ORDER BY
@@ -4140,6 +4143,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                     b.status IN ('testing', 'conecting', 'work') AND
                     d.legal_type IN ('legal', 'ip') AND
                     sum > 0
+                    AND a.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                 GROUP BY
                     b.region
                 ORDER BY
@@ -4593,6 +4597,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                 b.status IN ('testing', 'conecting', 'work') AND
                 d.legal_type IN ('legal', 'ip') AND
                 sum > 0
+                AND biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
             GROUP BY
                 b.region
             ORDER BY

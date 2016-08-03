@@ -1,4 +1,6 @@
 <?php
+use app\models\ClientAccount;
+
 /**
  * Класс предназначен для формирования "Отчета по агентам"
  */
@@ -220,7 +222,7 @@ class AgentReport
                     clients c
                 LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
                 LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
-                LEFT JOIN newbills b ON (b.client_id = c.id)
+                LEFT JOIN newbills b ON (b.client_id = c.id AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE
                     c.sale_channel = ".$agent['id']."
@@ -248,7 +250,7 @@ class AgentReport
             FROM
                 clients c
             LEFT JOIN 
-                newbills b  ON (b.client_id = c.id)
+                newbills b  ON (b.client_id = c.id AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
             LEFT JOIN 
                 newbill_lines l ON (l.bill_no = b.bill_no)
             WHERE
@@ -315,7 +317,7 @@ class AgentReport
                     clients c
                 LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
                 LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
-                LEFT JOIN newbills b ON (b.client_id = c.id)
+                LEFT JOIN newbills b ON (b.client_id = c.id AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE
                     c.sale_channel = ".$agent['id']."
@@ -361,7 +363,7 @@ class AgentReport
             FROM
                 clients c
             LEFT JOIN 
-                newbills b ON (b.client_id = c.id)
+                newbills b ON (b.client_id = c.id AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . ")
             LEFT JOIN 
                 newbill_lines l ON (b.bill_no = l.bill_no)
             WHERE
@@ -448,7 +450,7 @@ class AgentReport
         
         $title = array();
         $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
-        $title['title'] = \app\models\ClientAccount::findOne($client_id)->contract->contragent->name;
+        $title['title'] = ClientAccount::findOne($client_id)->contract->contragent->name;
         $title['client_id'] = $client_id;
         
         $from = date('Y-m-d', $from);
@@ -483,6 +485,7 @@ class AgentReport
                 AND b.bill_date >= '".$from."' 
                 AND b.bill_date <= '".$to."' 
                 AND b.bill_no NOT LIKE '%/%' 
+                AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
             ORDER BY 
                 b.bill_no, l.sort
         ");
@@ -514,6 +517,7 @@ class AgentReport
                 AND b.bill_date <= '".$to."' 
                 AND b.is_payed = 1
                 AND l.sum > 0 
+                AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
         ");
 
         $design->assign('totals', $totals);
@@ -537,7 +541,7 @@ class AgentReport
         
         $title = array();
         $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
-        $title['title'] = \app\models\ClientAccount::findOne($client_id)->contract->contragent->name;
+        $title['title'] = ClientAccount::findOne($client_id)->contract->contragent->name;
         $title['client_id'] = $client_id;
         
         $from = date('Y-m-d', $from);
@@ -565,6 +569,7 @@ class AgentReport
                 AND b.bill_date >= '".$from."' 
                 AND b.bill_date <= '".$to."' 
                 AND b.bill_no NOT LIKE '%/%' 
+                AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
             ORDER BY 
                 b.bill_no, l.sort
         ");
@@ -589,6 +594,7 @@ class AgentReport
                 AND b.bill_date <= '".$to."' 
                 AND b.is_payed = 1
                 AND l.sum > 0 
+                AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
         ");
         
         $design->assign('totals', $totals);

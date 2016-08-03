@@ -361,10 +361,10 @@ function smarty_modifier_usage_link($usageType, $usageId)
         case 'usage_welltime':
             return \app\models\UsageWelltime::findOne($usageId)->helper->editLink;
         case 'usage_voip_package':
-            return
-                \app\models\UsageVoip::findOne(
-                    \app\models\UsageVoipPackage::findOne($usageId)->usage_voip_id
-                )->helper->editLink;
+            return \app\models\UsageVoipPackage::findOne($usageId)->usageVoip->helper->editLink;
+		case 'uu_account_tariff':
+			return \yii\helpers\Url::to(['/uu/account-tariff/edit', 'id' => $usageId]);
+
         default:
             return 'javascript:void(0)';
     }

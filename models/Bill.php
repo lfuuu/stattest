@@ -35,13 +35,14 @@ use yii\helpers\Url;
  * @property string $bill_no_ext        ??
  * @property string $bill_no_ext_date   ??
  * @property int $price_include_vat   ??
+ * @property int $biller_version
+ * @property int $uu_bill_id
  * @property ClientAccount $clientAccount   ??
  * @property BillLine[] $lines   ??
  * @property Transaction[] $transactions   ??
  */
 class Bill extends ActiveRecord
 {
-
     const MINIMUM_BILL_DATE = '2000-01-01';
 
     /**

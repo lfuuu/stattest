@@ -9,7 +9,7 @@ use app\helpers\usages\UsageTechCpeHelper;
 
 /**
  * @property int $id
- * @property
+ * @property UsageTechCpeHelper $helper
  */
 class UsageTechCpe extends ActiveRecord
 {

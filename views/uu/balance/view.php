@@ -15,7 +15,8 @@ use app\models\Bill;
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
  * @var uuBill[] $uuBills
- * @var Bill[] $bills
+ * @var Bill[] $billsUsage
+ * @var Bill[] $billsUniversal
  * @var array $accountEntrySummary
  * @var array $accountLogSetupSummary
  * @var array $accountLogPeriodSummary
@@ -29,7 +30,8 @@ $params = [
     'accountEntries' => $accountEntries,
     'payments' => $payments,
     'uuBills' => $uuBills,
-    'bills' => $bills,
+    'billsUsage' => $billsUsage,
+    'billsUniversal' => $billsUniversal,
     'accountEntrySummary' => $accountEntrySummary,
     'accountLogSetupSummary' => $accountLogSetupSummary,
     'accountLogPeriodSummary' => $accountLogPeriodSummary,

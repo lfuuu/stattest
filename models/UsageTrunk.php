@@ -24,9 +24,9 @@ use yii\db\ActiveRecord;
  * @property int $orig_min_payment
  * @property int $term_min_payment
  * @property string $description
- *
  * @property ClientAccount $clientAccount
  * @property Region $connectionPoint
+ * @property UsageVoipTrunkHelper $helper
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {

@@ -16,7 +16,7 @@ use app\helpers\usages\LogTariffTrait;
 
 /**
  * @property int $id
- * @property
+ * @property UsageIpPortsHelper $helper
  */
 class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {

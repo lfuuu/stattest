@@ -47,6 +47,7 @@ use yii\helpers\Url;
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
  * @property UsageVoipPackage $packages
+ * @property UsageVoipHelper $helper
  */
 class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {

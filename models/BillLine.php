@@ -30,6 +30,7 @@ use yii\db\ActiveRecord;
  * @property string $contry_maker   Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
  * @property int $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
  * @property int $tax_rate       Значение ставки налога
+ * @property int $uu_account_entry_id
  */
 class BillLine extends ActiveRecord
 {

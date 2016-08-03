@@ -3,6 +3,7 @@ namespace app\classes\grid\account\telecom\reports;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
+use app\models\ClientAccount;
 use Yii;
 use yii\db\Query;
 
@@ -39,7 +40,7 @@ class IncomeFromManagersFolder extends AccountGridFolder
             'b.bill_date',
         ]);
 
-        $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id');
+        $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE);
         $query->join('INNER JOIN', 'newbill_lines l', 'l.bill_no=b.bill_no');
 
         $query->andWhere('b.is_payed = 1');

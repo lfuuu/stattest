@@ -49,6 +49,7 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'app\commands',
+    'language' => 'ru-RU',
     'timeZone' => 'UTC',
     'components' => [
         'cache' => [

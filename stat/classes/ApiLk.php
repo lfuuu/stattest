@@ -2185,6 +2185,7 @@ class ApiLk
                                 b.client_id = '".$clientId."'
                             AND l.bill_no = b.bill_no 
                             AND is_user_prepay 
+                            AND biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                         GROUP BY 
                             bill_no 
                         HAVING 

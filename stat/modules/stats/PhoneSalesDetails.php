@@ -263,7 +263,7 @@
 			}
 				
 			$design->assign('ts', $ts);
-			$condition = "b.bill_date BETWEEN '" . date('Y-m-d', $ts) . "' AND '" . date('Y-m-t', $ts) . "'";
+			$condition = "b.bill_date BETWEEN '" . date('Y-m-d', $ts) . "' AND '" . date('Y-m-t', $ts) . "'  AND b.biller_version = " . ClientAccount::VERSION_BILLER_USAGE;
 			
 			$bills = $db->AllRecords($q = '
 				select 

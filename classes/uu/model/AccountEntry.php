@@ -27,6 +27,8 @@ use yii\helpers\Url;
  * @property AccountLogSetup[] $accountLogSetups
  * @property AccountLogPeriod[] $accountLogPeriods
  * @property AccountLogResource[] $accountLogResources
+ * @property string typeName
+ * @property string code
  */
 class AccountEntry extends ActiveRecord
 {
@@ -36,6 +38,17 @@ class AccountEntry extends ActiveRecord
     const TYPE_ID_SETUP = -1;
     const TYPE_ID_PERIOD = -2;
     const TYPE_ID_MIN = -3;
+
+    const CODE_TYPE_ID_SETUP = 'setup';
+    const CODE_TYPE_ID_PERIOD = 'period';
+    const CODE_TYPE_ID_MINIMUM = 'minimum';
+    const CODE_TYPE_ID_RESOURCES = 'resource';
+
+    private $codeNames = [
+        self::TYPE_ID_SETUP => self::CODE_TYPE_ID_SETUP,
+        self::TYPE_ID_PERIOD => self::CODE_TYPE_ID_PERIOD,
+        self::TYPE_ID_MIN => self::CODE_TYPE_ID_MINIMUM,
+    ];
 
     public static function tableName()
     {
@@ -92,6 +105,17 @@ class AccountEntry extends ActiveRecord
     }
 
     /**
+     * @return string
+     */
+    public function getCode()
+    {
+        if (!isset($this->codeNames[$this->type_id])) {
+            return self::CODE_TYPE_ID_RESOURCES;
+        }
+        return $this->codeNames[$this->type_id];
+    }
+
+    /**
      * Вернуть тип текстом
      * @return string
      */
@@ -102,10 +126,25 @@ class AccountEntry extends ActiveRecord
             case self::TYPE_ID_SETUP:
             case self::TYPE_ID_PERIOD:
             case self::TYPE_ID_MIN:
-                return Yii::t('models/' . $tableName, 'type_id_' . $this->type_id);
 
-            default:
-                if (($tariffResource = $this->tariffResource) &&
+            $serviceTypeName = '';
+            if (
+                ($accountTariff = $this->accountTariff)
+                && ($serviceType = $accountTariff->serviceType)
+            ) {
+                $serviceTypeName = $serviceType->name . '. ';
+            }
+
+            $name = Yii::t(
+                'models/' . $tableName,
+                $this->code
+            );
+
+            return $serviceTypeName . $name;
+
+            default: //resources
+                if (
+                    ($tariffResource = $this->tariffResource) &&
                     ($resource = $tariffResource->resource)
                 ) {
                     return $resource->getFullName();

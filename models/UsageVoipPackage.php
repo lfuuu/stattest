@@ -35,6 +35,8 @@ use app\models\important_events\ImportantEventsProperties;
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
  * @property TariffVoipPackage $tariff
+ * @property UsageVoip $usageVoip
+ * @property UsageVoipPackageHelper $helper
  * @property
  */
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
