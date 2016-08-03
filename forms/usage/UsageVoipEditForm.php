@@ -176,6 +176,14 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 
         switch ($this->type_id) {
+
+            case '7800': {
+                if (!preg_match('/^7800\d{7}$/', $this->did)) {
+                    $this->addError('did', 'Неверный формат номера');
+                }
+                //no break;
+            }
+
             case 'number': {
                 if (!preg_match('/^\d+$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
@@ -217,13 +225,6 @@ class UsageVoipEditForm extends UsageVoipForm
 
             case 'operator': {
                 if (!preg_match('/^\d{3}$/', $this->did)) {
-                    $this->addError('did', 'Неверный формат номера');
-                }
-                break;
-            }
-
-            case '7800': {
-                if (!preg_match('/^7800\d{7}$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
                 }
                 break;
