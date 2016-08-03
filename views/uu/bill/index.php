@@ -55,7 +55,6 @@ use yii\widgets\Breadcrumbs;
         [
             'attribute' => 'price',
             'class' => IntegerRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'label' => 'Проводки, у.е.',

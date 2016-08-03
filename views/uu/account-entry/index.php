@@ -93,27 +93,22 @@ $accountTariffTableName = AccountTariff::tableName();
         [
             'attribute' => 'price',
             'class' => FloatRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'attribute' => 'price_without_vat',
             'class' => FloatRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'attribute' => 'vat_rate',
             'class' => IntegerRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'attribute' => 'vat',
             'class' => FloatRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'attribute' => 'price_with_vat',
             'class' => FloatRangeColumn::className(),
-            'format' => ['decimal', 'decimals' => 2],
         ],
         [
             'label' => 'Транзакции, у.е.',

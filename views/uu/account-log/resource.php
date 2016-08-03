@@ -73,27 +73,22 @@ $columns = [
     [
         'attribute' => 'amount_use',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'amount_free',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'amount_overhead',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'price_per_unit',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 'decimals' => 2],
     ],
     [
         'attribute' => 'price',
         'class' => FloatRangeColumn::className(),
-        'format' => ['decimal', 'decimals' => 2],
     ],
 ];
 
