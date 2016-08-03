@@ -1481,7 +1481,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                      from newbills 
                      where 
                             is_payed=0 
-                        and biller_version = ' . ClientAccoun::VERSION_BILLER_USAGE . ' 
+                        and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ' 
                         and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") 
                         order by bill_date desc','bill_no',MYSQL_ASSOC));
             $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
