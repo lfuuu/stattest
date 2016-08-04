@@ -2,15 +2,13 @@
 use app\models\ClientContact;
 use yii\helpers\ArrayHelper;
 
-/** @var $document app\classes\documents\DocumentReport */
-
 $contacts = ClientContact::find()->andWhere([
-    'client_id' => $document->bill->clientAccount->id,
+    'client_id' => $payer_company->id,
     'is_official' => 1,
     'is_active' => 1,
     'type' => ClientContact::TYPE_FAX,
-]);
-$contacts = ArrayHelper::map($contacts, 'id', 'data');
+])->indexBy('id')->all() ?: [];
+
 ?>
 
 <p>

@@ -99,4 +99,9 @@ class ClientContact extends ActiveRecord
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
+    public function __toString()
+    {
+        return $this->data;
+    }
+
 }
