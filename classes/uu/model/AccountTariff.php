@@ -74,6 +74,8 @@ class AccountTariff extends ActiveRecord
 
     const DELTA_WELLTIME_SAAS = 90000;
 
+    const DELTA = 100000;
+
     public $serviceIdToDelta = [
         ServiceType::ID_VPBX => self::DELTA_VPBX,
         ServiceType::ID_VOIP => self::DELTA_VOIP,
@@ -623,7 +625,11 @@ class AccountTariff extends ActiveRecord
      */
     public function getNonUniversalId()
     {
-        return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+        if ($this->id < self::DELTA) {
+            return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -632,12 +638,16 @@ class AccountTariff extends ActiveRecord
      */
     public function getNonUniversalUrl()
     {
-        $url = $this->serviceIdToUrl[$this->service_type_id];
-        if (!$url) {
+        $id = $this->getNonUniversalId();
+        if (!$id) {
             return '';
         }
 
-        $id = $this->getNonUniversalId();
+        $url = $this->serviceIdToUrl[$this->service_type_id];
+        if (!$url) {
+            return $id;
+        }
+
         return Html::a($id, sprintf($url, $id));
     }
 

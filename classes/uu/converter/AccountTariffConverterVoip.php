@@ -74,7 +74,7 @@ class AccountTariffConverterVoip extends AccountTariffConverterA
     AND log_tarif.id_service = usage_voip.id
     AND usage_voip.client = clients.client
     AND log_tarif.id_tarif + {$deltaVoipTariff} = {$tariffPeriodTableName}.tariff_id
-    AND log_tarif.date_activation < usage_voip.actual_to
+    AND log_tarif.date_activation <= usage_voip.actual_to
     
   ORDER BY log_tarif.id
     ");

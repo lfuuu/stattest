@@ -9,7 +9,6 @@ use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
-use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -88,6 +87,8 @@ class Tariff extends \yii\db\ActiveRecord
     const DELTA_SMS = 5000;
 
     const DELTA_WELLTIME_SAAS = 6000;
+
+    const DELTA = 10000;
 
     const NUMBER_TYPE_NUMBER = 'number';
     const NUMBER_TYPE_7800 = '7800';
@@ -335,11 +336,15 @@ class Tariff extends \yii\db\ActiveRecord
 
     /**
      * Вернуть ID неуниверсальной услуги
-     * @return int
+     * @return int|null
      */
     public function getNonUniversalId()
     {
-        return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+        if ($this->id < self::DELTA) {
+            return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -349,6 +354,10 @@ class Tariff extends \yii\db\ActiveRecord
     public function getNonUniversalUrl()
     {
         $id = $this->getNonUniversalId();
+        if (!$id) {
+            return '';
+        }
+
         $url = $this->serviceIdToUrl[$this->service_type_id];
         if (!$url) {
             return $id;

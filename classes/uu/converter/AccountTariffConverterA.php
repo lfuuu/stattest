@@ -111,6 +111,7 @@ abstract class AccountTariffConverterA
     {
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
+        $accountTariffDelta = AccountTariff::DELTA;
 
         // удалить старый лог тарифов
         $affectedRows = $this->execute("DELETE
@@ -121,6 +122,7 @@ abstract class AccountTariffConverterA
         WHERE
             account_tariff.id = account_tariff_log.account_tariff_id
             AND account_tariff.service_type_id = {$serviceTypeId}
+            AND account_tariff.id < {$accountTariffDelta}
         ");
         printf('before = %d, ', $affectedRows);
 

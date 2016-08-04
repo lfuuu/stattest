@@ -133,6 +133,7 @@ class TariffConverterVoip extends TariffConverterA
      */
     protected function postProcessing()
     {
+        $deltaTariff = Tariff::DELTA;
         $deltaVoipTariff = Tariff::DELTA_VOIP;
         $tariffTableName = Tariff::tableName();
         $tariffVoipCityTableName = TariffVoipCity::tableName();
@@ -147,6 +148,7 @@ class TariffConverterVoip extends TariffConverterA
         WHERE
             tariff_voip_city.tariff_id = tariff.id
             AND tariff.service_type_id = {$serviceTypeId}
+            AND tariff.id < {$deltaTariff}
         ");
 
         // добавить заново

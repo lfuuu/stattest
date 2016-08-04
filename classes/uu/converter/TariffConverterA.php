@@ -105,7 +105,7 @@ abstract class TariffConverterA
             tariff.id = tariff_tmp.id
         ");
 
-        // оставшие добавить
+        // оставшиеся добавить
         $affectedRows = $this->execute("INSERT INTO {$tariffTableName}
             (id, service_type_id, currency_id, name, tariff_status_id, is_include_vat, tariff_person_id, country_id,
             is_autoprolongation, is_charge_after_period, is_charge_after_blocking, count_of_validity_period,

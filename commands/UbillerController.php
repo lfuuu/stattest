@@ -248,7 +248,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * перенос проводок в "старые" счета
+     * перенос проводок в неуниверсальные счета
      * @param int|null $clientAccountId
      */
     public function actionTransferBills($clientAccountId = null)
@@ -272,7 +272,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Удаление счетов сделанных из проводок универсального биллера
+     * Удаление счетов, сделанных из проводок универсального биллера
      */
     public function actionCleanTransferedBills()
     {
