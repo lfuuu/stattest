@@ -76,7 +76,7 @@ class ClientCounter extends ActiveRecord
 
                 // все списания
                 // счетов меньше, чем транзакций и проводок - считать быстрее
-                $billSummary = Bill::find()
+                $billSummary = \app\classes\uu\model\Bill::find()
                     ->select(['total_price' => 'SUM(price)'])
                     ->where(['client_account_id' => $this->client_id])
                     ->asArray()
