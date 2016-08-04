@@ -1,4 +1,5 @@
 <?php
+use app\models\ClientAccount;
 use app\models\User;
 
 class m_mail{
@@ -325,7 +326,7 @@ class m_mail{
 		$design->assign('mail_id',$id);
 		$design->assign('f_manager', User::dao()->getListByDepartments('manager'));
         $design->assign('f_organization', \app\models\Organization::find()->actual()->all());
-		$design->assign('f_status', \app\models\ClientAccount::$statuses);
+		$design->assign('f_status', ClientAccount::$statuses);
 		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
 		$f_tarifs = array();
 		foreach ($f_regions as $v) {

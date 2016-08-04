@@ -183,9 +183,12 @@ class Bill extends ActiveRecord
         // First unpaid bill
         $bill =
             self::find()
-                ->where(['client_id' => $clientAccount->id])
+                ->where([
+                    'client_id' => $clientAccount->id,
+                    'currency' => $clientAccount->currency,
+                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE
+                ])
                 ->andWhere(['in', 'is_payed', [0, 2]])
-                ->andWhere(['currency' => $clientAccount->currency])
                 ->andWhere(['>', 'bill_date', $fromDate])
                 ->orderBy('bill_date')
                 ->one();
@@ -194,9 +197,12 @@ class Bill extends ActiveRecord
             // Last bill
             $bill =
                 self::find()
-                    ->where(['client_id' => $clientAccount->id])
+                    ->where([
+                        'client_id' => $clientAccount->id,
+                        'currency' => $clientAccount->currency,
+                        'biller_version' => ClientAccount::VERSION_BILLER_USAGE
+                    ])
                     ->andWhere(['is_payed' => 1])
-                    ->andWhere(['currency' => $clientAccount->currency])
                     ->andWhere(['>', 'bill_date', $fromDate])
                     ->orderBy(['bill_date' => SORT_DESC])
                     ->one();
