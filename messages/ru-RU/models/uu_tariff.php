@@ -6,7 +6,7 @@ return [
     'country_id' => 'Страна',
     'is_autoprolongation' => 'Автопролонгация',
     'is_charge_after_blocking' => 'Списывать после блокировки',
-    'is_include_vat' => 'Включить НДС',
+    'is_include_vat' => 'Включая НДС',
     'is_charge_after_period' => 'Списывать в конце периода',
     'is_default' => 'По умолчанию',
     'count_of_validity_period' => 'Кол-во периодов',

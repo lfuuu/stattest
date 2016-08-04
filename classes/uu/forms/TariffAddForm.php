@@ -39,6 +39,7 @@ class TariffAddForm extends TariffForm
         $tariff->currency_id = Currency::RUB;
         $tariff->tariff_status_id = TariffStatus::ID_PUBLIC;
         $tariff->count_of_validity_period = 0;
+        $tariff->is_include_vat = 1;
         $tariff->is_autoprolongation = 1;
         return $tariff;
     }

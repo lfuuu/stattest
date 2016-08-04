@@ -6,6 +6,7 @@
  * @var TariffFilter $filterModel
  */
 
+use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -20,7 +21,7 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
-use app\modules\nnp\models\Package;
+use app\classes\uu\model\TariffVoipCity;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -94,9 +95,29 @@ switch ($serviceType->id) {
                 return $tariff->voip_tarificate_id;
             }
         ];
+
+        $columns[] = [
+            'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
+            'attribute' => 'voip_city_id',
+            'format' => 'html',
+            'class' => CityColumn::className(),
+            'value' => function (Tariff $tariff) {
+                return implode('<br>', $tariff->voipCities);
+            }
+        ];
         break;
 
     case ServiceType::ID_VOIP_PACKAGE:
+        $columns[] = [
+            'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
+            'attribute' => 'voip_city_id',
+            'format' => 'html',
+            'class' => CityColumn::className(),
+            'value' => function (Tariff $tariff) {
+                return implode('<br>', $tariff->voipCities);
+            }
+        ];
+
         $columns[] = [
             'label' => Html::encode(Yii::t('models/' . Tariff::tableName(), 'voip_group_id')),
             'attribute' => 'voip_group_id',

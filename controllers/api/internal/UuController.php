@@ -235,7 +235,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_autoprolongation", type = "integer", description = "Автопролонгация"),
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
      *   @SWG\Property(property = "is_charge_after_period", type = "integer", description = "Списывать в конце периода"),
-     *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включить НДС"),
+     *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
      *   @SWG\Property(property = "is_default", type = "integer", description = "По умолчанию"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),

@@ -4,6 +4,7 @@ namespace app\classes\uu\filter;
 
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffVoipCity;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -19,6 +20,7 @@ class TariffFilter extends Tariff
 
     public $voip_tarificate_id = '';
     public $voip_group_id = '';
+    public $voip_city_id = '';
 
     public $service_type_id = '';
 
@@ -29,6 +31,18 @@ class TariffFilter extends Tariff
     {
         $this->service_type_id = $serviceTypeId;
         parent::__construct();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return array_merge(
+            parent::rules(),
+            [
+                ['voip_city_id', 'integer'],
+            ]);
     }
 
     /**
@@ -49,7 +63,8 @@ class TariffFilter extends Tariff
         $query = Tariff::find()
             ->joinWith('country')
             ->joinWith('status')
-            ->with('tariffPeriods');
+            ->with('tariffPeriods')
+            ->with('voipCities');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -66,6 +81,11 @@ class TariffFilter extends Tariff
 
         $this->voip_tarificate_id !== '' && $query->andWhere([$tariffTableName . '.voip_tarificate_id' => $this->voip_tarificate_id]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
+
+        if ($this->voip_city_id !== '') {
+            $query->joinWith('voipCities');
+            $query->andWhere([TariffVoipCity::tableName() . '.city_id' => $this->voip_city_id]);
+        }
 
         return $dataProvider;
     }
