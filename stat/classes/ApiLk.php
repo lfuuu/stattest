@@ -2332,6 +2332,6 @@ class ApiLk
     public static function paypalApply($token, $payerId)
     {
         $paypal = new \PayPal();
-        return $paypal->paymentApply($token, $payerId);
+        return ['result' => $paypal->paymentApply($token, $payerId)];
     }
 }
