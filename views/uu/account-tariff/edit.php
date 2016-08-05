@@ -7,6 +7,7 @@
  */
 
 use app\classes\uu\model\ServiceType;
+use app\models\ClientAccount;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -35,9 +36,18 @@ if (!$accountTariff->isNewRecord) {
 ]) ?>
 
 <?php
-if ($formModel->IsNeedToSelectClient) {
+$clientAccount = $formModel->getAccountTariffModel()->clientAccount;
+if ($formModel->IsNeedToSelectClient || !$clientAccount) {
     Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
     return;
+}
+if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
+    if ($accountTariff->isNewRecord) {
+        Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только аккаунту, тарифицируемому универсально.');
+        return;
+    }
+    Yii::$app->session->setFlash('error', 'Универсальную услугу можно редактировать только у аккаунта, тарифицируемого универсально. Все ваши изменения будут затерты конвертером из старых услуг.');
+    $isReadOnly = true;
 }
 ?>
 

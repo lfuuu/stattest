@@ -34,6 +34,12 @@ if (!$serviceType) {
     ],
 ]) ?>
 
+<?php
+if ($tariff->getNonUniversalId()) {
+    Yii::$app->session->setFlash('error', 'Этот тариф автоматически сконвертирован из старого. Все ваши изменения будут затерты конвертером из старого тарифа.');
+}
+?>
+
 <div class="resource-tariff-form">
     <?php
     $form = ActiveForm::begin();

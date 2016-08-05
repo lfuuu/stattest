@@ -75,6 +75,7 @@ abstract class AccountTariffForm extends Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         try {
+            /** @var array $post */
             $post = Yii::$app->request->post();
 
             // при создании услуга + лог в одной форме, при редактировании - в разных
@@ -88,55 +89,63 @@ abstract class AccountTariffForm extends Form
                 && $this->accountTariffLog->load($post)
             ) {
 
-                if ($accountTariffVoip->validate() && ($this->accountTariffLog->account_tariff_id = -1 /* любое число, лишь бы прошла валидация */) && $this->accountTariffLog->validate(null,
-                        false)
-                ) {
+                if (!$accountTariffVoip->validate()) {
+                    $this->validateErrors += $accountTariffVoip->getFirstErrors();
+                    throw new InvalidArgumentException('');
+                }
 
-                    $this->accountTariff->city_id = $accountTariffVoip->city_id;
+                $this->accountTariff->city_id = $accountTariffVoip->city_id;
 
-                    // каждый выбранный номер телефона - отдельная услуга
-                    foreach ($accountTariffVoip->voip_numbers as $voipNumber) {
+                // каждый выбранный номер телефона - отдельная услуга
+                foreach ($accountTariffVoip->voip_numbers as $voipNumber) {
 
-                        // услуга
-                        $accountTariff = clone $this->accountTariff;
-                        $accountTariff->voip_number = $voipNumber;
-                        $accountTariff->tariff_period_id = $this->accountTariffLog->tariff_period_id;
-                        $accountTariff->id = 0;
-                        $accountTariff->save();
-
-                        // лог тарифов
-                        $accountTariffLog = clone $this->accountTariffLog;
-                        $accountTariffLog->account_tariff_id = $accountTariff->id;
-                        $accountTariffLog->id = 0;
-                        $accountTariffLog->save();
-
-                        // пакеты
-                        foreach ($accountTariffVoip->voip_package_tariff_period_ids as $voipPackageTariffPeriodId) {
-                            // услуга
-                            $accountTariffPackage = new AccountTariff;
-                            $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
-                            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
-                            $accountTariffPackage->region_id = $accountTariff->region_id;
-                            $accountTariffPackage->city_id = $accountTariff->city_id;
-                            $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
-                            $accountTariffPackage->tariff_period_id = $voipPackageTariffPeriodId;
-                            $accountTariffPackage->save();
-
-                            // лог тарифов
-                            $accountTariffLogPackage = new AccountTariffLog;
-                            $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
-                            $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
-                            $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
-                            $accountTariffLogPackage->save();
-                        }
+                    // услуга
+                    $accountTariff = clone $this->accountTariff;
+                    $accountTariff->voip_number = $voipNumber;
+                    $accountTariff->tariff_period_id = $this->accountTariffLog->tariff_period_id;
+                    $accountTariff->id = 0;
+                    if (!$accountTariff->validate() || !$accountTariff->save()) {
+                        $this->validateErrors += $accountTariff->getFirstErrors();
+                        throw new InvalidArgumentException('');
                     }
 
-                    $this->isSaved = true;
-                } else {
-                    // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $accountTariffVoip->getFirstErrors();
-                    $this->validateErrors += $this->accountTariffLog->getFirstErrors();
+                    // лог тарифов
+                    $accountTariffLog = clone $this->accountTariffLog;
+                    $accountTariffLog->account_tariff_id = $accountTariff->id;
+                    $accountTariffLog->id = 0;
+                    if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
+                        $this->validateErrors += $accountTariffLog->getFirstErrors();
+                        throw new InvalidArgumentException('');
+                    }
+
+                    // пакеты
+                    foreach ($accountTariffVoip->voip_package_tariff_period_ids as $voipPackageTariffPeriodId) {
+                        // услуга
+                        $accountTariffPackage = new AccountTariff;
+                        $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
+                        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+                        $accountTariffPackage->region_id = $accountTariff->region_id;
+                        $accountTariffPackage->city_id = $accountTariff->city_id;
+                        $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                        $accountTariffPackage->tariff_period_id = $voipPackageTariffPeriodId;
+                        if (!$accountTariffPackage->validate() || !$accountTariffPackage->save()) {
+                            $this->validateErrors += $accountTariffPackage->getFirstErrors();
+                            throw new InvalidArgumentException('');
+                        }
+
+                        // лог тарифов
+                        $accountTariffLogPackage = new AccountTariffLog;
+                        $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
+                        $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
+                        $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
+                        if (!$accountTariffLogPackage->validate() || !$accountTariffLogPackage->save()) {
+                            $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
+                            throw new InvalidArgumentException('');
+                        }
+                    }
                 }
+
+                $this->isSaved = true;
 
                 $this->accountTariffLog->account_tariff_id = 0; // вернуть обратно. 0 - потому что $isNewRecord
                 $post = []; // чтобы дальше логика универсальных услуг не отрабатывала

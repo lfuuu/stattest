@@ -625,7 +625,7 @@ class AccountTariff extends ActiveRecord
      */
     public function getNonUniversalId()
     {
-        if ($this->id < self::DELTA) {
+        if ($this->id && $this->id < self::DELTA) {
             return $this->id - $this->serviceIdToDelta[$this->service_type_id];
         } else {
             return null;

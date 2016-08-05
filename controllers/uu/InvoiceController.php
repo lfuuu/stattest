@@ -57,26 +57,24 @@ class InvoiceController extends BaseController
         }
 
         if (($clientAccount = ClientAccount::findOne($clientAccountId)) === null) {
-            Yii::$app->session->setFlash('error',
-                Yii::t('tariff', 'You should {a_start}select a client first{a_finish}',
-                    ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
+            Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
             return $this->redirect('/');
-        } else {
-
-            // Вернуть проводки клиента за предыдущий календарный месяц для счета-фактуры
-            $accountEntryTableName = AccountEntry::tableName();
-            $accountTariffTableName = AccountTariff::tableName();
-            $accountEntries = AccountEntry::find()
-                ->joinWith('accountTariff')
-                ->where([$accountTariffTableName . '.client_account_id' => $clientAccount->id])
-                ->orderBy([
-                    'account_tariff_id' => SORT_ASC,
-                    'type_id' => SORT_ASC,
-                ])
-                ->andWhere(['>', $accountEntryTableName . '.vat', 0])
-                ->andWhere([$accountEntryTableName . '.date' => $date])
-                ->all();
         }
+
+        // Вернуть проводки клиента за предыдущий календарный месяц для счета-фактуры
+        $accountEntryTableName = AccountEntry::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+        $accountEntries = AccountEntry::find()
+            ->joinWith('accountTariff')
+            ->where([$accountTariffTableName . '.client_account_id' => $clientAccount->id])
+            ->orderBy([
+                'account_tariff_id' => SORT_ASC,
+                'type_id' => SORT_ASC,
+            ])
+            ->andWhere(['>', $accountEntryTableName . '.vat', 0])
+            ->andWhere([$accountEntryTableName . '.date' => $date])
+            ->all();
+
 
         switch ($renderMode) {
             case 'pdf': {
