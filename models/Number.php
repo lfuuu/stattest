@@ -227,10 +227,17 @@ class Number extends ActiveRecord
     public function getOriginPriceWithCurrency()
     {
         $formattedResult = new NumberPriceLight;
-        $formattedResult->setAttributes([
-            'currency' => $this->tariff->currency->id,
-            'price' => $this->originPrice,
-        ]);
+        try {
+            $formattedResult->setAttributes([
+                'currency' => $this->tariff->currency->id,
+                'price' => $this->originPrice,
+            ]);
+        } catch (\Exception $e) {
+            $formattedResult->setAttributes([
+                'currency' => null,
+                'price' => null,
+            ]);
+        }
         return $formattedResult;
     }
 
