@@ -21,6 +21,9 @@ use app\classes\uu\model\TariffVoipGroup;
 use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\exceptions\web\NotImplementedHttpException;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -228,6 +231,20 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "tariff", type = "object", description = "Тариф", ref = "#/definitions/idNameRecord"),
      * ),
      *
+     * @SWG\Definition(definition = "voipPackageMinuteRecord", type = "object",
+     *   @SWG\Property(property = "destination", type = "string", description = "Направление"),
+     *   @SWG\Property(property = "minute", type = "integer", description = "Количество предоплаченных минут"),
+     * ),
+     *
+     * @SWG\Definition(definition = "voipPackagePriceRecord", type = "object",
+     *   @SWG\Property(property = "destination", type = "string", description = "Направление"),
+     *   @SWG\Property(property = "price", type = "number", description = "Цена"),
+     * ),
+     *
+     * @SWG\Definition(definition = "voipPackagePricelistRecord", type = "object",
+     *   @SWG\Property(property = "pricelist", type = "string", description = "Прайслист"),
+     * ),
+     *
      * @SWG\Definition(definition = "tariffRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
@@ -247,6 +264,9 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_tarificate", type = "object", description = "Телефония. Тип тарификации (посекундный, поминутный и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_group", type = "object", description = "Телефония. Группа (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_cities", type = "array", description = "Телефония. Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
+     *   @SWG\Property(property = "voip_package_minute", type = "array", description = "Телефония. Пакет. Предоплаченные минуты", @SWG\Items(ref = "#/definitions/voipPackageMinuteRecord")),
+     *   @SWG\Property(property = "voip_package_price", type = "array", description = "Телефония. Пакет. Цена по направлениям", @SWG\Items(ref = "#/definitions/voipPackagePriceRecord")),
+     *   @SWG\Property(property = "voip_package_pricelist", type = "array", description = "Телефония. Пакет. Прайслист", @SWG\Items(ref = "#/definitions/voipPackagePricelistRecord")),
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "Список тарифов",
@@ -756,6 +776,9 @@ class UuController extends ApiInternalController
             'voip_tarificate' => $this->getIdNameRecord($tariff->voipTarificate),
             'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
             'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
+            'voip_package_minute' => $this->getVoipPackageMinuteRecord($tariff->packageMinutes),
+            'voip_package_price' => $this->getVoipPackagePriceRecord($tariff->packagePrices),
+            'voip_package_pricelist' => $this->getVoipPackagePricelistRecord($tariff->packagePricelists),
         ];
     }
 
@@ -793,6 +816,83 @@ class UuController extends ApiInternalController
             'account_log_setups' => $this->getAccountLogSetupRecord($accountTariff->accountLogSetups),
             'account_log_periods' => $this->getAccountLogPeriodRecord($accountTariff->accountLogPeriods),
             'account_log_resources' => $this->getAccountLogResourceRecord($accountTariff->accountLogResources),
+        ];
+    }
+
+    /**
+     * @param PackageMinute|PackageMinute[] $packageMinutes
+     * @return array
+     */
+    private function getVoipPackageMinuteRecord($packageMinutes)
+    {
+        if (!$packageMinutes) {
+            return null;
+        }
+
+        if (is_array($packageMinutes)) {
+
+            $result = [];
+            foreach ($packageMinutes as $packageMinute) {
+                $result[] = $this->getVoipPackageMinuteRecord($packageMinute);
+            }
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string) $packageMinutes->destination,
+            'minute' => $packageMinutes->minute,
+        ];
+    }
+
+    /**
+     * @param PackagePrice|PackagePrice[] $packagePrices
+     * @return array
+     */
+    private function getVoipPackagePriceRecord($packagePrices)
+    {
+        if (!$packagePrices) {
+            return null;
+        }
+
+        if (is_array($packagePrices)) {
+
+            $result = [];
+            foreach ($packagePrices as $packagePrice) {
+                $result[] = $this->getVoipPackagePriceRecord($packagePrice);
+            }
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string) $packagePrices->destination,
+            'price' => $packagePrices->price,
+        ];
+    }
+
+    /**
+     * @param PackagePricelist|PackagePricelist[] $packagePricelists
+     * @return array
+     */
+    private function getVoipPackagePricelistRecord($packagePricelists)
+    {
+        if (!$packagePricelists) {
+            return null;
+        }
+
+        if (is_array($packagePricelists)) {
+
+            $result = [];
+            foreach ($packagePricelists as $packagePricelist) {
+                $result[] = $this->getVoipPackagePricelistRecord($packagePricelist);
+            }
+            return $result;
+
+        }
+
+        return [
+            'pricelist' => (string) $packagePricelists->pricelist,
         ];
     }
 
