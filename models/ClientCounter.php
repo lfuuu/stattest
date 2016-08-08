@@ -61,8 +61,9 @@ class ClientCounter extends ActiveRecord
                 // старый (текущий) биллинг
                 return
                     $this->clientAccount->credit > -1
-                        ? $this->clientAccount->balance + $this->amount_sum
-                        : $this->clientAccount->balance;
+                       ? $this->clientAccount->balance + $this->amount_sum
+                       : $this->clientAccount->balance;
+
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг

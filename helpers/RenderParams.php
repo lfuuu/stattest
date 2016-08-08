@@ -62,11 +62,11 @@ class RenderParams extends Singleton
 
     /**
      * @param int $clientAccountId
-     * @return float
+     * @return string
      */
     private function getBalance($clientAccountId)
     {
-        return ClientAccount::findOne($clientAccountId)->billingCounters->realtimeBalance;
+        return sprintf('%0.2f', ClientAccount::findOne($clientAccountId)->billingCounters->realtimeBalance);
     }
 
     /**

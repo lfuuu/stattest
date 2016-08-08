@@ -140,7 +140,7 @@ use app\models\ClientContract;
                                                     class="text-nowrap"
                                                     style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
                                                 >
-                                                    <?= $contractAccount->billingCounters->realtimeBalance ?>
+                                                    <?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
                                                     <?= $contractAccount->currency ?>
                                                 </abbr>
                                                 <br />
