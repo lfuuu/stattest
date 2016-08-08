@@ -30,20 +30,18 @@ trait CrudMultipleTrait
             /** @var string[] $dataParam */
             foreach ($data[$formName] as $i => $dataParam) {
 
+                /** @var ActiveRecord $model */
                 $id = isset($dataParam['id']) ? (int)$dataParam['id'] : 0;
-                if ($id && isset($models[$id])) {
+                if ($id && isset($models[$id]) && $model = $models[$id] && $model->id == $id) {
                     // update
-                    $model = $models[$id];
                     unset($models[$id]);
                 } else {
                     // insert
                     $model = clone $originalModel;
                 }
 
-                /** @var ActiveRecord $model */
                 $model->load($dataParam, '');
-                if ($model->validate()) {
-                    $model->save();
+                if ($model->validate() && $model->save()) {
                     $returnModels[$model->id] = $model;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
@@ -96,8 +94,7 @@ trait CrudMultipleTrait
 
                 /** @var ActiveRecord $model */
                 $model->{$fieldName} = $id;
-                if ($model->validate()) {
-                    $model->save();
+                if ($model->validate() && $model->save()) {
                     $returnModels[$model->{$fieldName}] = $model;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных

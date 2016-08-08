@@ -117,14 +117,14 @@ abstract class TariffForm extends Form
                 if ($this->tariff->is_autoprolongation) {
                     $this->tariff->count_of_validity_period = 0;
                 }
-                if ($this->tariff->validate()) {
-                    $this->tariff->save();
-                    $this->id = $this->tariff->id;
-                    $this->isSaved = true;
-                } else {
-                    // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
+
+                if (!$this->tariff->validate() || !$this->tariff->save()) {
                     $this->validateErrors += $this->tariff->getFirstErrors();
+                    throw new InvalidArgumentException('');
                 }
+
+                $this->id = $this->tariff->id;
+                $this->isSaved = true;
 
                 $tariffPeriod = new TariffPeriod();
                 $tariffPeriod->tariff_id = $this->id;
@@ -147,9 +147,12 @@ abstract class TariffForm extends Form
                             if (!$this->tariff->package) {
                                 $package = new Package();
                                 $package->tariff_id = $this->id;
-                                $package->save();
+                                if (!$package->validate() || !$package->save()) {
+                                    $this->validateErrors += $package->getFirstErrors();
+                                    throw new InvalidArgumentException('');
+                                }
                             }
-                            
+
                             $packageMinute = new PackageMinute();
                             $packageMinute->tariff_id = $this->id;
                             self::crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
@@ -168,8 +171,7 @@ abstract class TariffForm extends Form
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
-                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post,
-                            $tariffVoipCity, 'city_id');
+                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
                         break;
                 }
             }
