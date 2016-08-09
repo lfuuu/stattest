@@ -32,7 +32,7 @@ class RenderParams extends Singleton
      */
     public function apply($tpl, $clientAccountId, $eventId = null)
     {
-        Assert::isEmpty($tpl);
+        Assert::isNotEmpty($tpl);
 
         foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $call) {
             $replaceTo = $this->{$call}($clientAccountId, $eventId);
