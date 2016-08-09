@@ -15,19 +15,21 @@
                 {if $pay.inn == $isSberObline}
                     <b><span class="accounts-show" data-pay-no="{$pay.no}">Показать всех</span> / <span class="accounts-hide" data-pay-no="{$pay.no}">Скрыть</span></b><br />
                 {/if}
-                <div class="accounts" data-pay-no="{$pay.no}" data-is-sber-online="{if $pay.inn == $isSberObline}1{else}0{/if}">
-                    {if $pay.clients}
-                        {foreach from=$pay.clients item=client}
-                            <input type="radio" name="pay[{$pay.no}][client]" value="{$client.client}"{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled="disabled"{/if} />
+
+                {if $pay.clients}
+                    {foreach from=$pay.clients item=client}
+                        <div class="accounts" data-pay-no="{$pay.no}" data-is-sber-online="{if $pay.inn == $isSberObline}1{else}0{/if}">
+                            <input type="radio" name="pay[{$pay.no}][client]" data-client-account-id="{$client.id}" value="{$client.client}" />
                             <a href="./?module=newaccounts&action=bill_list&clients_client={$client.id}">
                                 {$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font>
-                            </a> - <span style='font-size:85%'>{$client.full_name} ({$client.manager})</span><br />
-                        {/foreach}
-                    {/if}
-                    {if !isset($pay.imported) || !$pay.imported}
-                        <input type="radio" name="pay[{$pay.no}][client]" value="" />не вносить
-                    {/if}
-                </div>
+                            </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})</span>
+                        </div>
+                    {/foreach}
+                {/if}
+
+                {if !isset($pay.imported) || !$pay.imported}
+                    <input type="radio" name="pay[{$pay.no}][client]" value="" />не вносить
+                {/if}
             </td>
         </tr>
         <tr bgcolor="{if isset($pay.imported) && $pay.imported}#FFE0E0{else}#EEDCA9{/if}">
@@ -50,7 +52,7 @@
             <td><b>{$pay.sum}</b> р.</td>
             <td>
                 {if $pay.clients}
-                    <select name="pay[{$pay.no}][bill_no]" id="bills_{$pay.no}"{if isset($pay.to_check_bill_only) && $pay.to_check_bill_only} disabled="disabled"{/if}>
+                    <select name="pay[{$pay.no}][bill_no]" data-pay-no="{$pay.no}" id="bills_{$pay.no}"{if isset($pay.to_check_bill_only) && $pay.to_check_bill_only} disabled="disabled"{/if}>
                         <option value=''>(без привязки)</option>
                         {assign var='is_select' value=false}
                         {foreach from=$pay.clients_bills item=bill name=inner2}
@@ -58,7 +60,7 @@
                                 </optgroup>
                                 <optgroup label="{$bill.bill_no}">
                             {else}
-                                <option value="{$bill.bill_no}"{if $bill.is_selected} selected{assign var='is_select' value=true}{/if}>
+                                <option value="{$bill.bill_no}" data-client-account-id="{$bill.client_id}"{if $bill.is_selected} selected{assign var='is_select' value=true}{/if}>
                                     ЛС {$bill.client_id} # {$bill.bill_no}
                                     {if $bill.is_payed==1}
                                         =
@@ -273,8 +275,20 @@
         $('span.accounts-hide').each(function() {
             var $that = $(this);
             $(this).wrap($('<a />').attr('href', 'javascript:void(0)').on('click', function() {
-                $('div[data-pay-no="' + $that.data('pay-no') + '"]').hide();
+                $('div[data-pay-no="' + $that.data('pay-no') + '"]')
+                        .hide()
+                        .find('input:checked')
+                        .parent('div')
+                            .show();
             }));
+        });
+
+        $('select[data-pay-no]').on('change', function() {
+            var $clients = $('div[data-pay-no="' + $(this).data('pay-no') + '"]'),
+                clientAccountId = $(this).find('option:selected').data('client-account-id');
+
+            $clients.find('input[data-client-account-id="' + clientAccountId + '"]:not(:disabled)').prop('checked', true);
+            $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]').parent('a').trigger('click');
         });
     });
 {/literal}
