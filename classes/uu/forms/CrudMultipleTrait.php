@@ -28,7 +28,7 @@ trait CrudMultipleTrait
         $formName = $originalModel->formName();
         if (isset($data[$formName])) {
             /** @var string[] $dataParam */
-            foreach ($data[$formName] as $i => $dataParam) {
+            foreach ($data[$formName] as $dataParam) {
 
                 /** @var ActiveRecord $model */
                 $id = isset($dataParam['id']) ? (int)$dataParam['id'] : 0;
@@ -83,9 +83,8 @@ trait CrudMultipleTrait
             foreach ($data[$formName] as $id) {
 
                 $id = (int)$id;
-                if ($id && isset($models[$id])) {
+                if ($id && isset($models[$id]) && ($model = $models[$id]) && $model->{$fieldName} == $id) {
                     // update
-                    $model = $models[$id];
                     unset($models[$id]);
                 } else {
                     // insert
@@ -95,7 +94,7 @@ trait CrudMultipleTrait
                 /** @var ActiveRecord $model */
                 $model->{$fieldName} = $id;
                 if ($model->validate() && $model->save()) {
-                    $returnModels[$model->{$fieldName}] = $model;
+                    $returnModels[$id] = $model;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $model->getFirstErrors();
@@ -107,7 +106,7 @@ trait CrudMultipleTrait
         // delete
         foreach ($models as $model) {
             try {
-                $model->delete();
+                $model->{$fieldName} && $model->delete();
             } catch (IntegrityException $e) {
                 $this->validateErrors[] = Yii::t('common', 'You can not delete the object which used in another place');
             }
