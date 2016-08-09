@@ -50,7 +50,7 @@ $confs = [
         "id_tarif_intern" => 69
     ],
 */
-
+/*
     [
         "didGroupId" => 32,
         "region" => 93, //Казань
@@ -90,20 +90,19 @@ $confs = [
 
     ],
 */
-    /*
+
     [
         "didGroupId" => 22,
-        "region" => 95,
-        "count_numbers" => 30,
+        "region" => 95, //Екатеринбуг
+        "count_numbers" => 50,
 
-        "id_tarif" => 646,
+        "id_tarif" => 646, //Партнёр 1000 и более
         "id_tarif_local_mob" => 159,
         "id_tarif_russia" => 160,
         "id_tarif_russia_mob" => 160,
         "id_tarif_intern" => 162
-
     ],
-*/
+
     /*
     [
         "didGroupId" => 42, //Стандартные
@@ -118,6 +117,7 @@ $confs = [
     ],
 
 */
+/*    
     [
         "didGroupId" => 47, //Стандартные
         "region" => 87, //Ростов-на-Дону
@@ -129,7 +129,7 @@ $confs = [
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
-
+ */
 /*
     [
         "didGroupId" => 37,
