@@ -23,7 +23,7 @@ class NumberType extends ActiveRecord
     const ID_GEO_DID = 1;
     const ID_NON_GEO_DID = 2;
     const ID_INTERNATIONAL_DID = 3;
-    const ID_INTERNAL = 4;
+    const ID_INTERNAL__NOT_USED__ = 4;
     const ID_EXTERNAL__NOT_USED__ = 5;
     const ID_7800 = 8;
 

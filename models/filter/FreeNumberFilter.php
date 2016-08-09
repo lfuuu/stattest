@@ -40,7 +40,7 @@ class FreeNumberFilter extends Number
      */
     public function getNumbers()
     {
-        $this->type = NumberType::ID_INTERNAL;
+        $this->type = NumberType::ID_GEO_DID;
         return $this;
     }
 
@@ -58,12 +58,12 @@ class FreeNumberFilter extends Number
      * @param int $numberType - константа из NumberType
      * @return $this
      */
-    public function setType($numberType = NumberType::ID_INTERNAL)
+    public function setType($numberType = NumberType::ID_GEO_DID)
     {
         $this->query->andWhere([parent::tableName() . '.number_type' => $numberType]);
 
         switch ($numberType) {
-            case NumberType::ID_INTERNAL: {
+            case NumberType::ID_GEO_DID: {
                 $this->query->having(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",

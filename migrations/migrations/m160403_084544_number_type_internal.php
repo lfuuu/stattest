@@ -7,7 +7,7 @@ class m160403_084544_number_type_internal extends \app\classes\Migration
 {
     public function up()
     {
-        $this->update(Number::tableName(), ['number_type' => NumberType::ID_INTERNAL], ['number_type' => null]);
+        $this->update(Number::tableName(), ['number_type' => NumberType::ID_INTERNAL__NOT_USED__], ['number_type' => null]);
 
         $this->execute('ALTER TABLE `voip_number_type` ENGINE=InnoDB');
         $this->execute('ALTER TABLE `voip_number_type_country` ENGINE=InnoDB');
@@ -23,6 +23,6 @@ class m160403_084544_number_type_internal extends \app\classes\Migration
         $this->execute('ALTER TABLE `voip_number_type` ENGINE=MyISAM');
         $this->execute('ALTER TABLE `voip_number_type_country` ENGINE=MyISAM');
 
-        $this->update(Number::tableName(), ['number_type' => null], ['number_type' => NumberType::ID_INTERNAL]);
+        $this->update(Number::tableName(), ['number_type' => null], ['number_type' => NumberType::ID_INTERNAL__NOT_USED__]);
     }
 }

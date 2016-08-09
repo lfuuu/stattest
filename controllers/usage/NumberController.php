@@ -98,10 +98,10 @@ class NumberController extends BaseController
         $numberTypeList = NumberType::getList();
 
         if (!$numberType) {
-            $numberType = NumberType::ID_INTERNAL;
+            $numberType = NumberType::ID_GEO_DID;
         }
 
-        if ($numberType == NumberType::ID_INTERNAL && !$didGroups) {
+        if ($numberType == NumberType::ID_GEO_DID && !$didGroups) {
             $didGroups = array_keys($didGroupList);
         }
 
@@ -138,7 +138,7 @@ class NumberController extends BaseController
                     'n.status' => $statuses
                 ]);
 
-            if ($numberType == NumberType::ID_INTERNAL) {
+            if ($numberType == NumberType::ID_GEO_DID) {
                 $numbersQuery->andWhere(['did_group_id' => $didGroups]);
             }
 

@@ -20,7 +20,7 @@ class RegistryForm extends Form
         $city_id = City::DEFAULT_USER_CITY_ID,
         $city_number_format = '',
         $source = VoipRegistrySourceEnum::OPERATOR,
-        $number_type_id = NumberType::ID_INTERNAL,
+        $number_type_id = NumberType::ID_GEO_DID,
         $number_from,
         $number_to,
         $account_id,

@@ -34,7 +34,7 @@ $this->registerJsFile('@web/js/behaviors/usage-number-detail-report.js', ['depen
                             <?= ($numberType == $numberTypeId) ? 'checked' : '' ?> > <?= $numberTypeName ?></label><br/>
                     <?php
                     $subList = [];
-                    if ($numberTypeId == NumberType::ID_INTERNAL) {
+                    if ($numberTypeId == NumberType::ID_GEO_DID) {
                         $subList = $didGroupList;
                         $subSelect = $didGroups;
                         $name = 'didGroups';

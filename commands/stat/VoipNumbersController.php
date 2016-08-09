@@ -106,7 +106,7 @@ class VoipNumbersController extends Controller
 
             $this->stdout('Номер: ' . $number . PHP_EOL, Console::FG_GREEN);
 
-            $insert[] = [$number, $regionId, $cityId, NumberType::ID_INTERNAL];
+            $insert[] = [$number, $regionId, $cityId, NumberType::ID_GEO_DID];
         }
 
         $inserted = 0;
