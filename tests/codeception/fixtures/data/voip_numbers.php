@@ -1,5 +1,7 @@
 <?php
 
+use app\models\NumberType;
+
 return [
     [
         'number' => '74992130001',
@@ -9,7 +11,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '01',
     ],
     [
@@ -20,7 +22,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 6,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '02',
     ],
     [
@@ -31,7 +33,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '03',
     ],
     [
@@ -42,7 +44,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '04',
     ],
     [
@@ -53,7 +55,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '05',
     ],
     [
@@ -64,7 +66,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '06',
     ],
     [
@@ -75,7 +77,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '07',
     ],
     [
@@ -86,7 +88,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '08',
     ],
     [
@@ -97,7 +99,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '09',
     ],
     [
@@ -108,7 +110,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '10',
     ],
     [
@@ -119,7 +121,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '11',
     ],
     [
@@ -130,7 +132,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '12',
     ],
     [
@@ -141,7 +143,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '13',
     ],
     [
@@ -152,7 +154,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '14',
     ],
     [
@@ -163,7 +165,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '15',
     ],
     [
@@ -174,7 +176,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '16',
     ],
     [
@@ -185,7 +187,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => 2,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '17',
     ],
     [
@@ -196,7 +198,7 @@ return [
         'city_id' => 361,
         'did_group_id' => 62,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '18',
     ],
     [
@@ -207,7 +209,7 @@ return [
         'city_id' => 361,
         'did_group_id' => 52,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '19',
     ],
     [
@@ -218,7 +220,7 @@ return [
         'city_id' => 361,
         'did_group_id' => 52,
         'ndc' => null,
-        'number_type' => 4,
+        'number_type' => NumberType::ID_GEO_DID,
         'number_cut' => '20',
     ],
     [
@@ -229,7 +231,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => null,
         'ndc' => 800,
-        'number_type' => 8,
+        'number_type' => NumberType::ID_7800,
         'number_cut' => '01',
     ],
     [
@@ -240,7 +242,7 @@ return [
         'city_id' => 7495,
         'did_group_id' => null,
         'ndc' => 800,
-        'number_type' => 8,
+        'number_type' => NumberType::ID_7800,
         'number_cut' => '02',
     ],
 ];
