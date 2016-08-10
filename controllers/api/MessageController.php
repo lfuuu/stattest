@@ -265,18 +265,23 @@ class MessageController extends ApiController
             switch ($type) {
                 case Template::TYPE_EMAIL: {
                     $content = $templateContent->mediaManager->getFile($templateContent, true);
-                    return [
-                        'locale' => $templateContent->lang_code,
-                        'subject' => $templateContent->title,
-                        'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $eventId),
-                    ];
+                    if (!empty($content)) {
+                        return [
+                            'locale' => $templateContent->lang_code,
+                            'subject' => $templateContent->title,
+                            'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $eventId),
+                        ];
+                    }
                 }
                 case Template::TYPE_EMAIL_INNER:
                 case Template::TYPE_SMS: {
-                    return [
-                        'locale' => $templateContent->lang_code,
-                        'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId, $eventId),
-                    ];
+                    if (!empty($templateContent->content)) {
+                        return [
+                            'locale' => $templateContent->lang_code,
+                            'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId,
+                                $eventId),
+                        ];
+                    }
                 }
             }
         }
