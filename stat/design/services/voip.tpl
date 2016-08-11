@@ -66,7 +66,7 @@
                         <a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
                     {/if}
                 </td>
-                <td width=50% align="right" style="{if $client.voip_disabled or $voip_counters.auto_disabled}background-color: #f4a0a0;{else}color: #ccc;{/if}">
+                <td width=50% align="right" style="{if $client.voip_disabled}background-color: #f4a0a0;{else}color: #ccc;{/if}">
                     <b>Телефония:</b>
                     <label>
                         <input type="checkbox" id="voip_disabled" name="voip_disabled" value=1{if $client.voip_disabled} checked{/if}{if !access("clients", "client_type_change")} disabled{/if}> - Выключить телефонию (МГ, МН, Местные мобильные)

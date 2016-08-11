@@ -666,11 +666,11 @@ class ClientAccount extends HistoryActiveRecord
             $locks = Locks::find()->where(['client_id' => $this->id])->one();
 
             if ($locks) {
-                if ($locks->voip_auto_disabled_local) {
-                    $warnings['voip.auto_disabled_local'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)';
+                if ($locks->is_finance_block) {
+                    $warnings['lock.is_finance_block'] = true;
                 }
-                if ($locks->voip_auto_disabled) {
-                    $warnings['voip.auto_disabled'] = 'ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Полная блокировка)';
+                if ($locks->is_overran) {
+                    $warnings['lock.is_overran'] = true;
                 }
             }
         } catch (\Exception $e) {

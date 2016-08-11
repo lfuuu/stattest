@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Html;
 use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
@@ -96,9 +97,8 @@ use app\models\ClientContract;
                                         $warningsKeys = array_keys($warnings);
                                         $contractBlockers = [];
 
-                                        $lockByCredit = in_array('lock.credit', $warningsKeys, true);
-                                        $lockByDayLimit = in_array('lock.limit_day', $warningsKeys, true);
-
+                                        $lockByCredit = isset($warningsKeys['lock.credit']) || isset($warningsKeys['lock.is_finance_block']);
+                                        $lockByDayLimit = isset($warningsKeys['lock.limit_day']);
                                         ?>
                                         <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
@@ -112,20 +112,20 @@ use app\models\ClientContract;
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
                                                 <?php
-                                                if ($contractAccount->is_blocked || in_array('voip.auto_disabled', $warningsKeys, true)) {
+                                                if ($contractAccount->is_blocked) {
                                                     $contractBlockers[] = 'Заблокирован';
                                                 }
 
-                                                if (in_array('voip.auto_disabled_local', $warningsKeys, true)) {
-                                                    $contractBlockers[] = 'Блок лок.';
+                                                if (isset($warningsKeys['lock.is_overran'])) {
+                                                    $contractBlockers[] = Html::tag('abbr', 'Блок превышение', ['title' => 'Аккаунт заблокирован по превышению лимитов. Возможно, его взломали']);
                                                 }
 
                                                 if ($lockByDayLimit) {
-                                                    $contractBlockers[] = 'Блок сут.';
+                                                    $contractBlockers[] = Html::tag('abbr', 'Блок лимит', ['title' => 'Аккаунт заблокирован по превышению дневного лимита']);
                                                 }
 
                                                 if ($lockByCredit) {
-                                                    $contractBlockers[] = 'Блок фин.';
+                                                    $contractBlockers[] = Html::tag('abbr', 'Блок фин.', ['title' => 'Аккаунт находится в финансовой блокировке. Она автоматически снимется после пополнения счета']);
                                                 }
 
                                                 echo implode(' / ', $contractBlockers);
@@ -205,7 +205,9 @@ use app\models\ClientContract;
                                             <?php if ($warnings): ?>
                                                 <div class="col-sm-12">
                                                     <?php foreach($warnings as $warningCode => $warningText): ?>
-                                                        <span class="label label-danger"><?= $warningText; ?></span>
+                                                        <?php if (is_string($warningText)): ?>
+                                                            <span class="label label-danger"><?= $warningText; ?></span>
+                                                        <?php endif; ?>
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>

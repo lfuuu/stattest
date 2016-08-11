@@ -56,7 +56,7 @@ class AutoBlockFolder extends AccountGridFolder
                 ->from(['clients' => Clients::tableName()])
                 ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
                 ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
-                ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'))
+                ->where(new Expression('TRUE IN (lock.is_finance_block, lock.is_overran)'))
                 ->orWhere([
                     'OR',
                     new Expression('clients.credit < -clients.balance'),

@@ -145,32 +145,40 @@ class UsageController extends Controller
         return $info;
     }
 
+    /**
+     * @inheritdoc
+     * @return int
+     */
     public function actionCheckVoipDayDisable()
     {
-        $now = new DateTime("now");
-        echo "\nstart " . $now->format("Y-m-d H:i:s");
+        $now = new DateTime('now');
+        echo PHP_EOL . 'start ' . $now->format('Y-m-d H:i:s');
 
-        $ress = Yii::$app->dbPg->createCommand("
+        $ress = Yii::$app->dbPg->createCommand('
             SELECT cc.client_id
-            FROM billing.clients c
-            LEFT JOIN billing.counters cc ON c.id=cc.client_id
-            LEFT JOIN billing.locks cl ON c.id=cl.client_id
-            WHERE (cl.voip_auto_disabled or cl.voip_auto_disabled_local) AND not c.voip_disabled
-            AND (
-                (voip_limit_day != 0 AND amount_day_sum < -voip_limit_day) OR
-                (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
-            )
-            ")->queryAll();
+            FROM
+                billing.clients c
+                    LEFT JOIN billing.counters cc ON c.id=cc.client_id
+                        LEFT JOIN billing.locks cl ON c.id=cl.client_id
+            WHERE
+                cl.is_overran
+                AND NOT c.voip_disabled
+                AND (
+                    (voip_limit_day != 0 AND amount_day_sum < -voip_limit_day) OR
+                    (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
+                )
+        ')->queryAll();
 
         foreach ($ress as $res) {
-            $client = ClientAccount::findOne($res["client_id"]);
+            $client = ClientAccount::findOne($res['client_id']);
 
             if ($client->voip_disabled == 0) {
-                echo "\n..." . $res["client_id"];
+                echo PHP_EOL . '...' . $res['client_id'];
                 $client->voip_disabled = 1;
                 $client->save();
             }
         }
+
         return Controller::EXIT_CODE_NORMAL;
     }
 }
