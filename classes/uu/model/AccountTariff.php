@@ -470,7 +470,7 @@ class AccountTariff extends ActiveRecord
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
                 // продлевать бесконечно или не более определенного кол-ва раз
-                $isNeedAutoClose = !($tariff->is_autoprolongation || ++$i <= $tariff->count_of_validity_period);
+                $isNeedAutoClose = !($tariff->is_autoprolongation || $i++ <= $tariff->count_of_validity_period);
 
             } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d') && !$isNeedAutoClose);
 
@@ -485,7 +485,7 @@ class AccountTariff extends ActiveRecord
                 // надо было закрыть раньше. Видимо биллер долго не запускался
                 // чтобы не было ошибки "нельзя менять задним числом", сначала закрываем сегодняшним числом, а потом сдвигаем дату на старую
                 $accountTariffLog->actual_from = $dateTimeNow->format('Y-m-d');
-                $accountTariffLog->insert_time = $dateFrom->modify('-1 day')->format('Y-m-d 23:59:59');
+                $accountTariffLog->insert_time = $dateFrom->modify('-1 day')->format('Y-m-d 20:59:58'); // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
                 $accountTariffLog->save();
             }
             $accountTariffLog->actual_from = $dateFrom->format('Y-m-d');

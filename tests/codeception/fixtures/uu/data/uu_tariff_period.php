@@ -42,4 +42,13 @@ return [
         'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_DAY,
     ],
+    [
+        'id' => 5,
+        'price_per_period' => 511,
+        'price_setup' => 512,
+        'price_min' => 513,
+        'tariff_id' => 3,
+        'period_id' => Period::ID_MONTH,
+        'charge_period_id' => Period::ID_DAY,
+    ],
 ];

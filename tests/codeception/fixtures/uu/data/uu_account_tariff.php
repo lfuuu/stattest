@@ -27,4 +27,9 @@ return [
         'client_account_id' => $account->id,
         'service_type_id' => ServiceType::ID_VPBX,
     ],
+    [
+        'id' => 4,
+        'client_account_id' => $account->id,
+        'service_type_id' => ServiceType::ID_VPBX,
+    ],
 ];

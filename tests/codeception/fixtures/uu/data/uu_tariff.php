@@ -17,11 +17,22 @@ return [
     ],
     [
         'id' => 2,
-        'name' => 'Tariff without autoprolongation',
+        'name' => 'Tariff without autoprolongation 0',
         'service_type_id' => ServiceType::ID_VPBX,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,
         'country_id' => Country::RUSSIA,
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,
         'is_autoprolongation' => 0,
+        'n_prolongation_periods' => 0,
+    ],
+    [
+        'id' => 3,
+        'name' => 'Tariff without autoprolongation 1',
+        'service_type_id' => ServiceType::ID_VPBX,
+        'tariff_status_id' => TariffStatus::ID_PUBLIC,
+        'country_id' => Country::RUSSIA,
+        'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,
+        'is_autoprolongation' => 0,
+        'n_prolongation_periods' => 1,
     ],
 ];

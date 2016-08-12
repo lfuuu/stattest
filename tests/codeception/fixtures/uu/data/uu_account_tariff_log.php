@@ -58,4 +58,12 @@ return [
         'actual_from' => $dateTimeFirstDayOfPrevMonth->format('c'),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format('c'),
     ],
+    [
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое и 2ое число прошлого месяца, потому что должен закрыться автоматически через день
+        'account_tariff_id' => 4,
+        'tariff_period_id' => 5,
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format('c'),
+    ],
 ];

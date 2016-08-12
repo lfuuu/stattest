@@ -24,6 +24,7 @@ class TariffConverterInternet extends TariffConverterA
         $statusIdSpecial = TariffStatus::ID_SPECIAL;
         $statusIdArchive = TariffStatus::ID_ARCHIVE;
         $statusIdAdsl = TariffStatus::ID_INTERNET_ADSL;
+        $statusIdTest = TariffStatus::ID_TEST;
 
         $serviceTypeIdInternet = ServiceType::ID_INTERNET;
         $countryIdRussia = Country::RUSSIA;
@@ -43,6 +44,7 @@ class TariffConverterInternet extends TariffConverterA
                     WHEN 'special' THEN {$statusIdSpecial}
                     WHEN 'archive' THEN {$statusIdArchive}
                     WHEN 'adsl_su' THEN {$statusIdAdsl}
+                    WHEN 'test' THEN {$statusIdTest}
                 END AS tariff_status_id,
                 price_include_vat AS is_include_vat,
                 {$personIdAll} AS tariff_person_id,
