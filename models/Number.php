@@ -175,13 +175,18 @@ class Number extends ActiveRecord
         return $this->hasOne(TariffNumber::className(), ['city_id' => 'city_id', 'did_group_id' => 'did_group_id']);
     }
 
+
     /**
-     * @param null|string $currency
-     * @return float
+     * @param string|null $currency
+     * @return float|null
      */
     public function getPrice($currency = null)
     {
-        $price = $this->originPrice;
+        try {
+            $price = $this->originPrice;
+        } catch (\Exception $e) {
+            return null;
+        }
 
         if (!is_null($currency) && $this->tariff->currency != $currency) {
             if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->tariff->currency)) !== null) {
