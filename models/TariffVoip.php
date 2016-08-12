@@ -117,9 +117,16 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         return new TariffVoipHelper($this);
     }
 
+    /**
+     * Тестовй ли тариф
+     *
+     * По основному алгоритму, тестовый тариф - это тот который, в статусе "test".
+     * Но для номеров 7800, отдельная папка. И там флаг is_testing определяет - тестовый ли тариф.
+     * @return bool
+     */
     public function isTested()
     {
-        return $this->status == self::STATUS_TEST;
+        return $this->status == self::STATUS_TEST || $this->is_testing;
     }
 
 }
