@@ -19,7 +19,7 @@
                 {if $pay.clients}
                     {foreach from=$pay.clients item=client}
                         <div class="accounts" data-pay-no="{$pay.no}" data-is-sber-online="{if $pay.inn == $isSberObline}1{else}0{/if}">
-                            <input type="radio" name="pay[{$pay.no}][client]" data-client-account-id="{$client.id}" value="{$client.client}" />
+                            <input type="radio" name="pay[{$pay.no}][client]" data-pay-no="{$pay.no}" data-client-account-id="{$client.id}" value="{$client.client}"{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled="disabled"{/if} />
                             <a href="./?module=newaccounts&action=bill_list&clients_client={$client.id}">
                                 {$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font>
                             </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})</span>
@@ -287,8 +287,23 @@
             var $clients = $('div[data-pay-no="' + $(this).data('pay-no') + '"]'),
                 clientAccountId = $(this).find('option:selected').data('client-account-id');
 
-            $clients.find('input[data-client-account-id="' + clientAccountId + '"]:not(:disabled)').prop('checked', true);
-            $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]').parent('a').trigger('click');
+            $clients
+                .find('input[data-client-account-id="' + clientAccountId + '"]:not(:disabled)')
+                    .prop('checked', true);
+
+            $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]')
+                .parent('a')
+                    .trigger('click');
+        });
+
+        $('input[data-client-account-id]').on('change', function() {
+            $('select[data-pay-no="' + $(this).data('pay-no') + '"]')
+                .find('option[data-client-account-id="' + $(this).data('client-account-id') + '"]')
+                    .prop('selected', true);
+
+            $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]')
+                    .parent('a')
+                    .trigger('click');
         });
     });
 {/literal}
