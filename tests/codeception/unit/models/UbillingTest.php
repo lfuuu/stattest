@@ -195,7 +195,6 @@ class UbillingTest extends TestCase
         $this->assertEquals($accountLogFromToTariffs[3]->tariffPeriod->id, 2);
     }
 
-
     /**
      * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам)
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
@@ -282,5 +281,42 @@ class UbillingTest extends TestCase
 
         }
     }
+
+    /**
+     * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам)
+     * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     */
+    public function testAccountLogWithoutAutoprolongation()
+    {
+        $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['id' => 3])->one();
+        $this->assertNotEmpty($accountTariff);
+
+        $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
+        $this->assertEquals(count($accountLogFromToTariffs), 2);
+
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
+
+        // диапазон 0
+        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
+        $this->assertEquals($accountLogFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+
+        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
+        $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+
+        $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 4);
+
+        // диапазон 1
+        $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
+        $this->assertEquals($accountLogFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+
+        $this->assertEmpty($accountLogFromToTariffs[1]->dateTo);
+
+        $this->assertEmpty($accountLogFromToTariffs[1]->tariffPeriod->id);
+    }
+
 
 }

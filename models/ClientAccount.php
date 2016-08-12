@@ -10,6 +10,7 @@ use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
+use DateTimeImmutable;
 use DateTimeZone;
 use yii\base\Exception;
 use yii\db\ActiveQuery;
@@ -740,7 +741,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return CounterInteropTrunk
      */
     public function getInteropCounter()
     {
@@ -770,5 +771,17 @@ class ClientAccount extends HistoryActiveRecord
             Html::encode($this->client),
             $this->getUrl()
         );
+    }
+
+    /**
+     * @return DateTimeImmutable
+     */
+    public function getDatetimeWithTimezone()
+    {
+        $timezoneName = $this->timezone_name;
+        $timezone = new DateTimeZone($timezoneName);
+        return (new DateTimeImmutable)
+            ->setTimezone($timezone);
+
     }
 }

@@ -5,14 +5,15 @@ namespace app\classes\uu\model;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
+use app\classes\uu\tarificator\AccountEntryTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
+use app\classes\uu\tarificator\BillTarificator;
 use app\models\ClientAccount;
 use DateTimeImmutable;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\db\Expression;
 
 /**
  * Лог тарифов универсальной услуги
@@ -194,6 +195,10 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorBalance($attribute, $params)
     {
+        if (!$this->isNewRecord) {
+            return;
+        }
+
         $accountTariff = $this->accountTariff;
         if (!$accountTariff) {
             $this->addError($attribute, 'Услуга не указана.');
@@ -202,12 +207,13 @@ class AccountTariffLog extends ActiveRecord
 
         $clientAccount = $accountTariff->clientAccount;
         if (!$clientAccount) {
-            $this->addError($attribute, 'Аккаунт клиента не указан.');
+            $this->addError($attribute, 'Аккаунт не указан.');
             return;
         }
 
         if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $this->addError($attribute, 'Универсальную услугу можно добавить только аккаунту, тарифицируемому универсально.');
+            // а конвертация из неуниверсальных услуг идет с помощью SQL и сюда не попадает
             return;
         }
 
@@ -218,34 +224,32 @@ class AccountTariffLog extends ActiveRecord
             );
         }
 
-        if ($this->getCountLogs()) {
+        $credit = $clientAccount->credit; // кредитный лимит
+        $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance();
+        $realtimeBalanceWithCredit = $realtimeBalance + $credit;
+
+        $isNewRecord = !$this->getCountLogs();
+        if (!$isNewRecord) {
             // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
+
+            $datimeNow = $clientAccount->getDatetimeWithTimezone();
+            if ($tariffPeriod && $realtimeBalanceWithCredit < 0 && $datimeNow->format('Y-m-d') == $this->actual_from) {
+                // сегодня смена тарифа при отрицательном балансе. Откладывает +1 день, пока деньги не появятся
+                $this->actual_from = $datimeNow->modify('+1 day')->format('Y-m-d');
+            }
             return;
         }
 
+        // создание услуги
         if (!$tariffPeriod) {
             $this->addError($attribute, 'Период тарифа не указан.');
             return;
         }
 
-        $credit = $clientAccount->credit; // кредитный лимит
-        $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance();
-        $realtimeBalanceWithCredit = $realtimeBalance + $credit;
-
         if ($realtimeBalanceWithCredit < 0) {
             $this->addError(
                 $attribute,
-                sprintf('Клиент находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s',
-                    $realtimeBalance, $clientAccount->currency,
-                    $credit, $clientAccount->currency)
-            );
-            return;
-        }
-
-        if ($realtimeBalanceWithCredit == 0) {
-            $this->addError(
-                $attribute,
-                sprintf('У клиента нет денег на счету даже с учетом кредита. На счету %.2f %s и кредит %.2f %s',
+                sprintf('Аккаунт находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s',
                     $realtimeBalance, $clientAccount->currency,
                     $credit, $clientAccount->currency)
             );
@@ -273,7 +277,7 @@ class AccountTariffLog extends ActiveRecord
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
             $this->addError($attribute,
-                sprintf('На счету %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
+                sprintf('У аккаунта на счету %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
                     $realtimeBalance, $clientAccount->currency,
                     $credit, $clientAccount->currency,
                     $tariffPrice, $clientAccount->currency,
@@ -283,5 +287,20 @@ class AccountTariffLog extends ActiveRecord
                 ));
             return;
         }
+
+        // списать деньги (транзакции)
+        if (!$accountLogSetup->save()) {
+            $this->addError($attribute, implode('. ', $accountLogSetup->getFirstErrors()));
+        }
+        if (!$accountLogPeriod->save()) {
+            $this->addError($attribute, implode('. ', $accountLogPeriod->getFirstErrors()));
+        }
+        // пересчитать проводки
+        ob_start();
+        (new AccountEntryTarificator)->tarificateAll($this->account_tariff_id);
+        (new BillTarificator)->tarificateAll($this->account_tariff_id);
+        ob_end_clean();
+
+        // @todo надо отправить данные на платформу
     }
 }

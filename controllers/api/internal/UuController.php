@@ -248,7 +248,7 @@ class UuController extends ApiInternalController
      * @SWG\Definition(definition = "tariffRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
-     *   @SWG\Property(property = "count_of_validity_period", type = "integer", description = "Кол-во периодов"),
+     *   @SWG\Property(property = "count_of_validity_period", type = "integer", description = "Кол-во периодов списания"),
      *   @SWG\Property(property = "is_autoprolongation", type = "integer", description = "Автопролонгация"),
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
      *   @SWG\Property(property = "is_charge_after_period", type = "integer", description = "Списывать в конце периода"),

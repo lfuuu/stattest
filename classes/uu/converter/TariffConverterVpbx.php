@@ -75,6 +75,7 @@ class TariffConverterVpbx extends TariffConverterA
     {
         $periodIdMonth = Period::ID_MONTH;
         $tariffTableName = Tariff::tableName();
+        $serviceTypeId = ServiceType::ID_VPBX;
 
         $this->execute("CREATE TEMPORARY TABLE tariff_period_tmp
             SELECT
@@ -89,6 +90,7 @@ class TariffConverterVpbx extends TariffConverterA
                 {$tariffTableName} new
             WHERE
                 old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
     }
 
@@ -99,6 +101,7 @@ class TariffConverterVpbx extends TariffConverterA
     {
         $serviceTypeIdVpbx = ServiceType::ID_VPBX;
         $tariffTableName = Tariff::tableName();
+        $serviceTypeId = ServiceType::ID_VPBX;
 
         // ВАТС. Абоненты
         $resourceIdAbonent = Resource::ID_VPBX_ABONENT;
@@ -111,6 +114,7 @@ class TariffConverterVpbx extends TariffConverterA
                 new.id AS tariff_id
             FROM tarifs_virtpbx old, {$tariffTableName} new
             WHERE old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
 
         // ВАТС. Дисковое пространство
@@ -124,6 +128,7 @@ class TariffConverterVpbx extends TariffConverterA
                 new.id AS tariff_id
             FROM tarifs_virtpbx old, {$tariffTableName} new
             WHERE old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
 
         // ВАТС. Подключение номера другого оператора
@@ -151,6 +156,7 @@ class TariffConverterVpbx extends TariffConverterA
                 new.id AS tariff_id
             FROM tarifs_virtpbx old, {$tariffTableName} new
             WHERE old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
 
         // ВАТС. Звонки с сайта
@@ -164,6 +170,7 @@ class TariffConverterVpbx extends TariffConverterA
                 new.id AS tariff_id
             FROM tarifs_virtpbx old, {$tariffTableName} new
             WHERE old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
 
         // ВАТС. Факс
@@ -177,6 +184,7 @@ class TariffConverterVpbx extends TariffConverterA
                 new.id AS tariff_id
             FROM tarifs_virtpbx old, {$tariffTableName} new
             WHERE old.description = new.name
+                AND new.service_type_id = {$serviceTypeId}
         ");
 
         return true;

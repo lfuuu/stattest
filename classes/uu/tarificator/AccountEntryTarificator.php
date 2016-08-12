@@ -25,15 +25,18 @@ class AccountEntryTarificator
 {
     /**
      * На основе новых транзакций создать новые проводки или добавить в существующие
+     *
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificateAll($accountTariffId = null)
     {
         // проводки за подключение
         echo 'Проводки за подключение';
         $this->_tarificateAll(
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
-            '`date`'
+            'date',
+            $accountTariffId
         );
 
         // проводки за абоненскую плату
@@ -41,7 +44,8 @@ class AccountEntryTarificator
         $this->_tarificateAll(
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
-            'date_from'
+            'date_from',
+            $accountTariffId
         );
 
         // проводки за ресурсы
@@ -49,7 +53,8 @@ class AccountEntryTarificator
         $this->_tarificateAll(
             AccountLogResource::tableName(),
             'tariff_resource_id',
-            '`date`'
+            'date',
+            $accountTariffId
         );
 
         // проводки за минимальную плату
@@ -57,26 +62,35 @@ class AccountEntryTarificator
         $this->_tarificateAll(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
-            'date_from'
+            'date_from',
+            $accountTariffId
         );
 
         // Расчёт НДС
         echo PHP_EOL . 'Расчёт НДС';
-        $this->_tarificateVat();
+        $this->_tarificateVat($accountTariffId);
 
         echo PHP_EOL;
     }
 
     /**
      * На основе новых транзакций создать проводки
+     *
      * @param string $accountLogTableName
      * @param int|Expression $typeId
      * @param string $dateFieldName
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    private function _tarificateAll($accountLogTableName, $typeId, $dateFieldName)
+    private function _tarificateAll($accountLogTableName, $typeId, $dateFieldName, $accountTariffId)
     {
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
+
+        if ($accountTariffId) {
+            $sqlAndWhere = ' AND account_log.account_tariff_id = ' . $accountTariffId;
+        } else {
+            $sqlAndWhere = '';
+        }
 
         // создать пустые проводки
         echo '. ';
@@ -84,7 +98,7 @@ class AccountEntryTarificator
             INSERT INTO {$accountEntryTableName}
             (date, account_tariff_id, type_id, price)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.{$dateFieldName}, "%Y-%m-01"),
+                    DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01"),
                     account_log.account_tariff_id,
                     {$typeId},
                     0
@@ -92,6 +106,7 @@ class AccountEntryTarificator
                     {$accountLogTableName} account_log
                 WHERE
                     account_log.account_entry_id IS NULL
+                    {$sqlAndWhere}
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
         $db->createCommand($insertSQL)
@@ -108,9 +123,10 @@ SQL;
                account_log.account_entry_id = account_entry.id
             WHERE
                account_log.account_entry_id IS NULL
-               AND account_entry.date = DATE_FORMAT(account_log.{$dateFieldName}, "%Y-%m-01")
+               AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01")
                AND account_entry.type_id = {$typeId}
                AND account_entry.account_tariff_id = account_log.account_tariff_id
+               {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
             ->execute();
@@ -127,6 +143,9 @@ SQL;
                    SUM(price) AS price
                 FROM
                    {$accountLogTableName}
+                WHERE
+                    true
+                    {$sqlAndWhere}
                 GROUP BY
                    account_entry_id
             ) t
@@ -143,11 +162,19 @@ SQL;
     /**
      * Посчитать НДС
      * Проще через ClientAccount->getOrganization()->vat_rate, но это слишком долго. Поэтому хардкор
+     *
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    private function _tarificateVat()
+    private function _tarificateVat($accountTariffId)
     {
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
+
+        if ($accountTariffId) {
+            $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
+        } else {
+            $sqlAndWhere = '';
+        }
 
         // посчитать ставку НДС для юр.лиц
         echo '. ';
@@ -162,15 +189,16 @@ SQL;
             {$clientAccountTableName} client_account,
             {$clientContractTableName} client_contract,
             {$organizationTableName} organization
-         SET
+        SET
             account_entry.vat_rate = organization.vat_rate
-         WHERE
+        WHERE
             account_entry.account_tariff_id = account_tariff.id
             AND account_tariff.client_account_id = client_account.id
             AND client_account.contract_id = client_contract.id
             AND client_contract.organization_id = organization.organization_id
             AND organization.actual_from <= account_entry.date
             AND account_entry.date < organization.actual_to
+            {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
             ->execute();
@@ -206,6 +234,7 @@ SQL;
             AND account_entry.account_tariff_id = account_tariff.id
             AND account_tariff.tariff_period_id = tariff_period.id
             AND tariff_period.tariff_id = tariff.id
+            {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
             ->execute();
@@ -222,6 +251,7 @@ SQL;
             price_with_vat = price_without_vat * (100 + vat_rate) / 100
         WHERE
             price_without_vat IS NOT NULL
+            {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
             ->execute();

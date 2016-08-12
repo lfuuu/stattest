@@ -49,6 +49,7 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $middleDate = UsageInterface::MIDDLE_DATE;
+        $serviceTypeId = ServiceType::ID_VPBX;
 
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
           (actual_from, account_tariff_id, tariff_period_id,
@@ -86,6 +87,7 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
         , '  ', ' ')
     )
     = LOWER({$tariffTableName}.name)
+    AND {$tariffTableName}.service_type_id = {$serviceTypeId}
   LEFT JOIN {$tariffPeriodTableName}
     ON {$tariffPeriodTableName}.tariff_id = {$tariffTableName}.id
 

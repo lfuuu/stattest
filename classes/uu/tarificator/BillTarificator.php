@@ -14,13 +14,21 @@ class BillTarificator
 {
     /**
      * На основе новых проводок создать новые счета или добавить в существующие
+     *
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificateAll($accountTariffId = null)
     {
         $db = Yii::$app->db;
         $billTableName = Bill::tableName();
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
+
+        if ($accountTariffId) {
+            $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
+        } else {
+            $sqlAndWhere = '';
+        }
 
         // создать пустые счета
         echo '. ';
@@ -37,6 +45,7 @@ class BillTarificator
                 WHERE
                     account_entry.bill_id IS NULL
                     AND account_entry.account_tariff_id = account_tariff.id
+                    {$sqlAndWhere}
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
         $db->createCommand($insertSQL)
@@ -56,6 +65,7 @@ SQL;
                AND account_entry.bill_id IS NULL
                AND account_entry.date = bill.date
                AND account_tariff.client_account_id = bill.client_account_id
+               {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
             ->execute();
@@ -71,7 +81,10 @@ SQL;
                    bill_id,
                    SUM(price) AS price
                 FROM
-                   {$accountEntryTableName}
+                   {$accountEntryTableName} account_entry
+                WHERE
+                    true
+                    {$sqlAndWhere}
                 GROUP BY
                    bill_id
             ) t

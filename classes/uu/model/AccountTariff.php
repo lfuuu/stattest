@@ -7,6 +7,7 @@ use app\classes\uu\forms\AccountLogFromToTariff;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
+use app\models\usages\UsageInterface;
 use DateTime;
 use DateTimeImmutable;
 use RangeException;
@@ -380,7 +381,7 @@ class AccountTariff extends ActiveRecord
                 $dateActualFromYmd = $dateActualFrom->format('Y-m-d');
                 $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format('Y-m-d');
                 if ($dateActualFromYmd < $insertTimeYmd) {
-                    $insertTimeYmd = '1970-01-01'; // @todo ну, надо же хоть как-нибудь посчитать этот идиотизм
+                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
 //                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
                 }
 
@@ -403,6 +404,7 @@ class AccountTariff extends ActiveRecord
 
             // начать новый период
             $accountLogPeriods[] = new AccountLogFromToTariff();
+
             $count = count($accountLogPeriods);
             $accountLogPeriods[$count - 1]->dateFrom = $dateActualFrom;
             $accountLogPeriods[$count - 1]->tariffPeriod = $uniqueAccountTariffLog->tariffPeriod;
@@ -425,6 +427,8 @@ class AccountTariff extends ActiveRecord
         $accountLogPeriods = [];
         $dateTo = $dateFrom = null;
         $minLogDatetime = self::getMinLogDatetime();
+        $isNeedAutoClose = false;
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone();
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
@@ -438,9 +442,17 @@ class AccountTariff extends ActiveRecord
             }
 
             $tariffPeriod = $accountLogHugePeriod->tariffPeriod;
+            $tariff = $tariffPeriod->tariff;
+            $i = 0;
             $chargePeriod = $chargePeriodMain ?: $tariffPeriod->chargePeriod;
             $dateFrom = $accountLogHugePeriod->dateFrom;
-            $dateToLimited = $dateTo ?: $chargePeriod->getMaxDateTo($dateFrom, new DateTimeImmutable);
+            if ($dateTo) {
+                $dateToLimited = $dateTo;
+            } else {
+                // текущий день по таймзоне аккаунта
+                $dateToLimited = $chargePeriod->getMaxDateTo($dateFrom, $dateTimeNow);
+                unset($timezoneName, $timezone);
+            }
 
             do {
                 $accountLogPeriod = new AccountLogFromToTariff();
@@ -457,8 +469,44 @@ class AccountTariff extends ActiveRecord
                 /** @var DateTimeImmutable $dateFrom */
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
-            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d'));
+                // продлевать бесконечно или не более определенного кол-ва раз
+                $isNeedAutoClose = !($tariff->is_autoprolongation || ++$i <= $tariff->count_of_validity_period);
 
+            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d') && !$isNeedAutoClose);
+
+        }
+
+        if (!$dateTo && $isNeedAutoClose && $this->clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            // нужно закрыть автоматически
+            $accountTariffLog = new AccountTariffLog();
+            $accountTariffLog->account_tariff_id = $this->id;
+            $accountTariffLog->tariff_period_id = null;
+            if ($dateTimeNow > $dateFrom) {
+                // надо было закрыть раньше. Видимо биллер долго не запускался
+                // чтобы не было ошибки "нельзя менять задним числом", сначала закрываем сегодняшним числом, а потом сдвигаем дату на старую
+                $accountTariffLog->actual_from = $dateTimeNow->format('Y-m-d');
+                $accountTariffLog->insert_time = $dateFrom->modify('-1 day')->format('Y-m-d 23:59:59');
+                $accountTariffLog->save();
+            }
+            $accountTariffLog->actual_from = $dateFrom->format('Y-m-d');
+            if (!$accountTariffLog->save()) {
+                throw new \LogicException(implode('. ', $accountTariffLog->getFirstErrors()));
+            }
+
+            $this->tariff_period_id = null;
+            if (!$this->save()) {
+                throw new \LogicException(implode('. ', $accountTariffLog->getFirstErrors()));
+            }
+
+            if ($dateFrom >= $minLogDatetime) {
+                // добавить закрытие в периоды
+                // Для оптимизации считаем только нестарые
+                $accountLogPeriod = new AccountLogFromToTariff();
+                $accountLogPeriod->tariffPeriod = null;
+                $accountLogPeriod->dateFrom = $dateFrom;
+                $accountLogPeriod->dateTo = null;
+                $accountLogPeriods[] = $accountLogPeriod;
+            }
         }
 
         if (!$isWithCurrent &&

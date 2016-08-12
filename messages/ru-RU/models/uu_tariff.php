@@ -9,7 +9,7 @@ return [
     'is_include_vat' => 'Включая НДС',
     'is_charge_after_period' => 'Списывать в конце периода',
     'is_default' => 'По умолчанию',
-    'count_of_validity_period' => 'Кол-во периодов',
+    'count_of_validity_period' => 'Кол-во периодов списания',
     'tariff_status_id' => 'Статус',
     'currency_id' => 'Валюта',
     'tariff_person_id' => 'Для кого',

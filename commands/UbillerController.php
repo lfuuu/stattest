@@ -12,6 +12,7 @@ use app\classes\uu\tarificator\AccountLogMinTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogResourceTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
+use app\classes\uu\tarificator\BalanceTarificator;
 use app\classes\uu\tarificator\BillTarificator;
 use app\models\Bill as stdBill;
 use app\models\ClientAccount;
@@ -30,6 +31,10 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
+        // проверить баланс при смене тарифа. Если денег не хватает - отложить на день
+        // обязательно это вызывать ДО транзакций
+        $this->actionCheckBalance();
+
         // транзакции
         $this->actionSetup();
         $this->actionPeriod();
@@ -73,7 +78,7 @@ class UbillerController extends Controller
      * Предоплата
      * Абонентская плата берется с выравниванием по периоду списания, то есть до конца текущего периода (месяца, квартала, года)
      * Если получилось меньше периода списания - пропорционально кол-ву дней
-     * Разбить по календарным месяцам, каждый меся записать отдельной транзакцией
+     * Разбить по календарным месяцам, каждый месяц записать отдельной транзакцией
      */
     public function actionPeriod()
     {
@@ -115,8 +120,8 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать транзакции минималки за ресурсы.
-     * Предоплата помесячно
+     * Создать транзакции минималки за ресурсы. 5 сек.
+     * Предоплата по аналогии с абоненткой
      */
     public function actionMin()
     {
@@ -280,4 +285,26 @@ class UbillerController extends Controller
 
         return Controller::EXIT_CODE_NORMAL;
     }
+
+    /**
+     * Проверить баланс при смене тарифа
+     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
+     */
+    public function actionCheckBalance()
+    {
+        try {
+
+            echo PHP_EOL . 'Баланс при смена тарифа. ' . date(DATE_ATOM) . PHP_EOL;
+            (new BalanceTarificator)->tarificateAll();
+            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+            return Controller::EXIT_CODE_NORMAL;
+
+        } catch (\Exception $e) {
+            Yii::error('Ошибка универсального тарификатора');
+            Yii::error($e);
+            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            return Controller::EXIT_CODE_ERROR;
+        }
+    }
 }
+

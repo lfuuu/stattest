@@ -44,7 +44,7 @@ class AccountLogSetupTarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->_tarificateAccountTariff($accountTariff);
+                $this->tarificateAccountTariff($accountTariff);
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -59,7 +59,7 @@ class AccountLogSetupTarificator
      * Рассчитать плату по конкретной услуге
      * @param AccountTariff $accountTariff
      */
-    protected function _tarificateAccountTariff(AccountTariff $accountTariff)
+    public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
         /** @var AccountLogSetup[] $accountLogs */
         $accountLogs = AccountLogSetup::find()
@@ -100,7 +100,7 @@ class AccountLogSetupTarificator
         if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
             // телефонный номер кроме телефонной линии (4-5 знаков)
             // только первое подключение. При смене тарифа на том же аккаунте не считать
-            $accountLogSetup->price_number = $accountTariff->number->price;
+            $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
         }
 
         $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;

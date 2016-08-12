@@ -4,6 +4,7 @@ $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of p
 
 return [
 
+    // Tariff with autoprolongation
     // тест 1
     [
         // 1го сразу же подключил дневной тариф
@@ -46,5 +47,15 @@ return [
         'tariff_period_id' => 3, // по годам
         'actual_from' => $dateTimeFirstDayOfPrevMonth->modify('+3 days')->format('c'),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format('c'),
+    ],
+
+    // Tariff without autoprolongation
+    [
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
+        'account_tariff_id' => 3,
+        'tariff_period_id' => 4,
+        'actual_from' => $dateTimeFirstDayOfPrevMonth->format('c'),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format('c'),
     ],
 ];

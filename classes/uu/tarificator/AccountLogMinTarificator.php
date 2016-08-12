@@ -5,6 +5,7 @@ namespace app\classes\uu\tarificator;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
+use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\TariffPeriod;
 use Yii;
 
@@ -15,8 +16,10 @@ class AccountLogMinTarificator
 {
     /**
      * Предварительное списание (транзакции) минимальной платы за ресурсы
+     * Если указана услуга - только для нее, иначе для всех
+     * @param int $accountTariffId
      */
-    public function tarificateAll()
+    public function tarificateAll($accountTariffId = null)
     {
         $db = Yii::$app->db;
         $accountLogMinTableName = AccountLogMin::tableName();
@@ -27,7 +30,11 @@ class AccountLogMinTarificator
 
         // удалить всё
         echo '. ';
-        $truncateSQL = "TRUNCATE TABLE {$accountLogMinTableName}";
+        if ($accountTariffId) {
+            $truncateSQL = "DELETE FROM {$accountLogMinTableName} WHERE account_tariff_id = {$accountTariffId}";
+        } else {
+            $truncateSQL = "TRUNCATE TABLE {$accountLogMinTableName}";
+        }
         $db->createCommand($truncateSQL)
             ->execute();
         unset($truncateSQL);
@@ -66,6 +73,9 @@ class AccountLogMinTarificator
             WHERE
                 account_log_period.tariff_period_id = tariff_period.id
 SQL;
+        if ($accountTariffId) {
+            $insertSql .= " AND account_log_period.account_tariff_id = {$accountTariffId}";
+        }
         $db->createCommand($insertSql)
             ->execute();
         unset($insertSql);
@@ -91,6 +101,9 @@ SQL;
                  account_log_min.account_tariff_id = account_log_resource_groupped.account_tariff_id
                  AND account_log_min.date_from = account_log_resource_groupped.date
 SQL;
+        if ($accountTariffId) {
+            $updateSql .= " AND account_log_min.account_tariff_id = {$accountTariffId}";
+        }
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
@@ -101,6 +114,9 @@ SQL;
             UPDATE {$accountLogMinTableName}
             SET price = GREATEST(0, price_with_coefficient - price_resource)
 SQL;
+        if ($accountTariffId) {
+            $updateSql .= " WHERE account_tariff_id = {$accountTariffId}";
+        }
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);

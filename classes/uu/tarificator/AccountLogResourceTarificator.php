@@ -52,7 +52,7 @@ class AccountLogResourceTarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->_tarificateAccountTariff($accountTariff);
+                $this->tarificateAccountTariff($accountTariff);
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -67,7 +67,7 @@ class AccountLogResourceTarificator
      * Рассчитать плату по конкретной услуге
      * @param AccountTariff $accountTariff
      */
-    protected function _tarificateAccountTariff(AccountTariff $accountTariff)
+    public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
         // ресурсы, по которым произведен расчет
         /** @var AccountLogResource[] $accountLogs */

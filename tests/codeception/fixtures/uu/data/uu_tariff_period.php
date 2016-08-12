@@ -3,6 +3,7 @@
 use app\classes\uu\model\Period;
 
 return [
+    // Tariff with autoprolongation
     [
         'id' => 1,
         'price_per_period' => 111,
@@ -27,7 +28,18 @@ return [
         'price_setup' => 312,
         'price_min' => 313,
         'tariff_id' => 1,
-        'period_id' => Period::ID_QUARTER,
+        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_YEAR,
+    ],
+
+    // Tariff without autoprolongation
+    [
+        'id' => 4,
+        'price_per_period' => 411,
+        'price_setup' => 412,
+        'price_min' => 413,
+        'tariff_id' => 2,
+        'period_id' => Period::ID_MONTH,
+        'charge_period_id' => Period::ID_DAY,
     ],
 ];
