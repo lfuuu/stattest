@@ -44,7 +44,7 @@ echo GridView::widget([
         ],
         [
             'class' => 'app\classes\grid\column\BooleanColumn',
-            'attribute' => 'is_testing',
+            'attribute' => 'is_default',
             'values' => [0 => '', 1 => 'по-умолчанию'],
             'label' => 'По-умолчанию',
             'noWrap' => true,

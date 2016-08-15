@@ -119,7 +119,7 @@ class UsageController extends Controller
                     $model->disconnecting_date = $now->modify('-1 day')->format("Y-m-d");
                     $model->edit();
                 }
-            } elseif (!$tarif || $tarif->isTested()) {// тестовый тариф, или без тарифа вообще
+            } elseif (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
                 if ($usage->actual_to != $now->format("Y-m-d")) {// не выключенные сегодня
                     if ($action == self::ACTION_SET_BLOCK) {
                         if (!$account->is_blocked) {

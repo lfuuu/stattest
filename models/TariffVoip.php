@@ -49,6 +49,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
     const STATUS_TRANSIT = 'transit';
     const STATUS_OPERATOR = 'operator';
     const STATUS_7800 = '7800';
+    const STATUS_7800_TEST = '7800_test';
 
     const DEST_RUSSIA = 1;
     const DEST_INTERNATIONAL = 2;
@@ -121,12 +122,12 @@ class TariffVoip extends ActiveRecord implements TariffInterface
      * Тестовй ли тариф
      *
      * По основному алгоритму, тестовый тариф - это тот который, в статусе "test".
-     * Но для номеров 7800, отдельная папка. И там флаг is_testing определяет - тестовый ли тариф.
+     * Но для номеров 7800, отдельная папка.
      * @return bool
      */
-    public function isTested()
+    public function isTest()
     {
-        return $this->status == self::STATUS_TEST || $this->is_testing;
+        return $this->status == self::STATUS_TEST || $this->status == self::STATUS_7800_TEST;
     }
 
 }

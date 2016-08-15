@@ -16,7 +16,7 @@ class TariffInternet extends ActiveRecord implements TariffInterface
         return 'tarifs_internet';
     }
 
-    public function isTested()
+    public function isTest()
     {
         return $this->status == self::STATUS_TEST;
     }

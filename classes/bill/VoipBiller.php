@@ -36,7 +36,7 @@ class VoipBiller extends Biller
         }
 
         // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
-        if ($this->logTariff->voipTariffMain->isTested()) {
+        if ($this->logTariff->voipTariffMain->isTest()) {
             $this->logTariff =
                 LogTarif::find()
                     ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])

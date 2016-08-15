@@ -51,7 +51,7 @@ class NumberDao extends Singleton
 
     public function startActive(\app\models\Number $number, UsageVoip $usage)
     {
-        $newStatus = $usage->tariff->isTested() ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+        $newStatus = $usage->tariff->isTest() ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
 
         if ($newStatus == $number->status) {
             return;
@@ -87,7 +87,7 @@ class NumberDao extends Singleton
             ->one();
 
         if ($usage) {
-            if ($usage->tariff->isTested() || $usage->clientAccount->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+            if ($usage->tariff->isTest() || $usage->clientAccount->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
                 Number::dao()->toInstock($number);
                 return;
             }

@@ -141,7 +141,7 @@ echo Breadcrumbs::widget([
         'columns' => 3,
         'attributes' => [
             'is_virtual' => ['type' => Form::INPUT_CHECKBOX],
-            'is_testing' => ['type' => Form::INPUT_CHECKBOX],
+            'is_default' => ['type' => Form::INPUT_CHECKBOX],
             'price_include_vat' => ['type' => Form::INPUT_CHECKBOX],
         ],
     ]);

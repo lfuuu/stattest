@@ -28,7 +28,7 @@ class TariffVoipDao extends Singleton
         $list =
             $query
                 ->orderBy([
-                    'is_testing' => SORT_DESC,
+                    'is_default' => SORT_DESC,
                     'status' => SORT_ASC,
                     'month_line' => SORT_ASC,
                     'month_min_payment' => SORT_ASC,

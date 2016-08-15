@@ -68,7 +68,7 @@ $usage = createUsage($I, $clientAccount, $number, 531 /*обычный публ�
 $I->assertNotNull($usage);
 $I->assertNotNull($usage->tariff);
 $I->assertNotEmpty($usage->tariff->name);
-$I->assertFalse($usage->tariff->isTested());
+$I->assertFalse($usage->tariff->isTest());
 
 
 Number::dao()->actualizeStatus($number);
@@ -103,7 +103,7 @@ $usage = createUsage($I, $clientAccount, $number, 624 /*тестовый тар�
 $I->assertNotNull($usage);
 $I->assertNotNull($usage->tariff);
 $I->assertNotEmpty($usage->tariff->name);
-$I->assertTrue($usage->tariff->isTested());
+$I->assertTrue($usage->tariff->isTest());
 
 $number->refresh();
 

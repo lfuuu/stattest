@@ -30,7 +30,7 @@ class TariffVoipForm extends Form
         $tariffication_full_first_minute = 0,
         $tariffication_free_first_seconds = 0,
         $is_virtual = 0,
-        $is_testing = 0,
+        $is_default = 0,
         $price_include_vat = 1,
         $edit_user = 0,
         $edit_time = '';
@@ -45,7 +45,7 @@ class TariffVoipForm extends Form
                     'connection_point_id',
                     'pricelist_id',
                     'is_virtual',
-                    'is_testing',
+                    'is_default',
                     'price_include_vat',
                     'free_local_min',
                     'freemin_for_number',
@@ -85,7 +85,7 @@ class TariffVoipForm extends Form
             'tariffication_full_first_minute' => 'тарификация: первая минута оплачивается полностью',
             'tariffication_free_first_seconds' => 'тарификация: первые 5 секунд бесплатно',
             'is_virtual' => 'тариф для виртуальных номеров',
-            'is_testing' => 'тариф по-умолчанию',
+            'is_default' => 'тариф по-умолчанию',
             'price_include_vat' => 'включить в цену ставку налога',
         ];
     }
