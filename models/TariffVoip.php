@@ -65,6 +65,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         self::STATUS_OPERATOR => 'Оператор',
         self::STATUS_TEST => 'Тестовый',
         self::STATUS_7800 => '7800',
+        self::STATUS_7800_TEST => '7800 Тестовый',
         self::STATUS_ARCHIVE => 'Архивный',
     ];
 
