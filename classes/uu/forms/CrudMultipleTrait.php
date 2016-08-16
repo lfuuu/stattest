@@ -32,7 +32,7 @@ trait CrudMultipleTrait
 
                 /** @var ActiveRecord $model */
                 $id = isset($dataParam['id']) ? (int)$dataParam['id'] : 0;
-                if ($id && isset($models[$id]) && $model = $models[$id] && $model->id == $id) {
+                if ($id && isset($models[$id]) && ($model = $models[$id]) && $model->id == $id) {
                     // update
                     unset($models[$id]);
                 } else {
