@@ -19,7 +19,6 @@ use yii\helpers\Url;
  * @property string $name
  * @property integer $service_type_id
  * @property integer $tariff_status_id
- * @property integer $n_prolongation_periods
  * @property string $currency_id
  * @property integer $count_of_validity_period
  * @property integer $country_id
@@ -163,7 +162,6 @@ class Tariff extends \yii\db\ActiveRecord
                 [
                     'service_type_id',
                     'tariff_status_id',
-                    'n_prolongation_periods',
                     'count_of_validity_period',
                     'tariff_person_id',
                     'is_autoprolongation',
@@ -415,4 +413,14 @@ class Tariff extends \yii\db\ActiveRecord
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 
+    /**
+     * Тестовый ли?
+     * @return bool
+     */
+    public function getIsTest()
+    {
+        return $this->tariff_status_id == TariffStatus::ID_TEST ||
+        $this->tariff_status_id == TariffStatus::ID_VOIP_8800_TEST;
+
+    }
 }

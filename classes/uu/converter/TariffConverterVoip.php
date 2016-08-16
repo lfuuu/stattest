@@ -26,6 +26,7 @@ class TariffConverterVoip extends TariffConverterA
         $statusIdArchive = TariffStatus::ID_ARCHIVE;
         $statusIdTest = TariffStatus::ID_TEST;
         $statusId8800 = TariffStatus::ID_VOIP_8800;
+        $statusId8800Test = TariffStatus::ID_VOIP_8800_TEST;
         $statusIdOperator = TariffStatus::ID_VOIP_OPERATOR;
         $statusIdTransit = TariffStatus::ID_VOIP_TRANSIT;
 
@@ -51,6 +52,7 @@ class TariffConverterVoip extends TariffConverterA
                     WHEN 'archive' THEN {$statusIdArchive}
                     WHEN 'test' THEN {$statusIdTest}
                     WHEN '7800' THEN {$statusId8800}
+                    WHEN '7800_test' THEN {$statusId8800Test}
                     WHEN 'operator' THEN {$statusIdOperator}
                     WHEN 'transit' THEN {$statusIdTransit}
                 END AS tariff_status_id,

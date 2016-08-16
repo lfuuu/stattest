@@ -3,6 +3,7 @@
 namespace app\models\billing;
 
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -24,6 +25,10 @@ class Locks extends ActiveRecord
         return Yii::$app->dbPg;
     }
 
+    /**
+     * @inheritdoc
+     * @return ActiveQuery the newly created [[ActiveQuery]] instance.
+     */
     public static function find()
     {
         $query = parent::find();

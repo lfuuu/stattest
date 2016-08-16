@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\models\ClientAccount;
 use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
@@ -97,8 +98,8 @@ use app\models\ClientContract;
                                         $warningsKeys = array_keys($warnings);
                                         $contractBlockers = [];
 
-                                        $lockByCredit = isset($warningsKeys['lock.credit']) || isset($warningsKeys['lock.is_finance_block']);
-                                        $lockByDayLimit = isset($warningsKeys['lock.limit_day']);
+                                        $lockByCredit = isset($warningsKeys[ClientAccount::WARNING_CREDIT]) || isset($warningsKeys[ClientAccount::WARNING_FINANCE]);
+                                        $lockByDayLimit = isset($warningsKeys[ClientAccount::WARNING_LIMIT_DAY]);
                                         ?>
                                         <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
@@ -116,7 +117,7 @@ use app\models\ClientContract;
                                                     $contractBlockers[] = 'Заблокирован';
                                                 }
 
-                                                if (isset($warningsKeys['lock.is_overran'])) {
+                                                if (isset($warningsKeys[ClientAccount::WARNING_OVERRAN])) {
                                                     $contractBlockers[] = Html::tag('abbr', 'Блок превышение', ['title' => 'Аккаунт заблокирован по превышению лимитов. Возможно, его взломали']);
                                                 }
 

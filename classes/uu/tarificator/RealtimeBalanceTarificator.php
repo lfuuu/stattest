@@ -1,0 +1,67 @@
+<?php
+
+namespace app\classes\uu\tarificator;
+
+use app\classes\uu\model\Bill;
+use app\models\ClientAccount;
+use app\models\Payment;
+use Yii;
+
+/**
+ * Пересчитать RealtimeBalance
+ */
+class RealtimeBalanceTarificator implements TarificatorI
+{
+    /**
+     * @param int|null $accountClientId Если указан, то только для этого аккаунта. Если не указан - для всех
+     */
+    public function tarificate($accountClientId = null)
+    {
+        $db = Yii::$app->db;
+
+        $clientAccountTableName = ClientAccount::tableName();
+        $paymentTableName = Payment::tableName();
+        $billTableName = Bill::tableName();
+        $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
+
+        if ($accountClientId) {
+            $sqlAndWhere = ' AND clients.id = ' . $accountClientId;
+        } else {
+            $sqlAndWhere = '';
+        }
+
+        $selectSQL = <<<SQL
+            CREATE TEMPORARY TABLE clients_tmp
+            SELECT
+                clients.id,
+                SUM(payment.sum) - SUM(bill.price) AS balance
+            FROM
+                {$clientAccountTableName} clients
+            LEFT JOIN {$paymentTableName} payment
+                ON payment.client_id = clients.id
+            LEFT JOIN {$billTableName} bill
+                ON bill.client_account_id = clients.id
+            WHERE
+                clients.account_version = {$versionBillerUniversal}
+                {$sqlAndWhere}
+            GROUP BY
+                clients.id
+SQL;
+        $db->createCommand($selectSQL)
+            ->query();
+        echo '. ';
+
+        $updateSQL = <<<SQL
+            UPDATE
+                {$clientAccountTableName} clients,
+                clients_tmp
+            SET
+                clients.balance = clients_tmp.balance
+            WHERE
+                clients.id = clients_tmp.id
+SQL;
+        $db->createCommand($updateSQL)
+            ->query();
+        echo '. ';
+    }
+}

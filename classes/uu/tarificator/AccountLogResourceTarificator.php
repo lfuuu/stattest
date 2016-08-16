@@ -14,7 +14,7 @@ use Yii;
 /**
  * Предварительное списание (транзакции) платы за ресурсы. Тарификация
  */
-class AccountLogResourceTarificator
+class AccountLogResourceTarificator implements TarificatorI
 {
 
     /** @var TariffResource[] кэш */
@@ -25,8 +25,9 @@ class AccountLogResourceTarificator
 
     /**
      * Рассчитать плату всех услуг
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
@@ -34,6 +35,8 @@ class AccountLogResourceTarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffs = AccountTariff::find();
+        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
+
         $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {

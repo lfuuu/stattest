@@ -7,13 +7,7 @@ use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\Bill;
-use app\classes\uu\tarificator\AccountEntryTarificator;
-use app\classes\uu\tarificator\AccountLogMinTarificator;
-use app\classes\uu\tarificator\AccountLogPeriodTarificator;
-use app\classes\uu\tarificator\AccountLogResourceTarificator;
-use app\classes\uu\tarificator\AccountLogSetupTarificator;
-use app\classes\uu\tarificator\BalanceTarificator;
-use app\classes\uu\tarificator\BillTarificator;
+use app\classes\uu\tarificator\TarificatorI;
 use app\models\Bill as stdBill;
 use app\models\ClientAccount;
 use Yii;
@@ -33,7 +27,7 @@ class UbillerController extends Controller
     {
         // проверить баланс при смене тарифа. Если денег не хватает - отложить на день
         // обязательно это вызывать ДО транзакций
-        $this->actionCheckBalance();
+        $this->actionChangeTariff();
 
         // транзакции
         $this->actionSetup();
@@ -47,7 +41,37 @@ class UbillerController extends Controller
         // счета
         $this->actionBill();
 
+        // пересчитать realtimeBalance
+        $this->actionRealtimeBalance();
+
+        // Месячную финансовую блокировку заменить на постоянную
+        $this->actionFinanceBlock();
+
         return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Тарифицировать, вызвав нужный класс
+     * @param string $className
+     * @param string $name
+     */
+    protected function _tarificate($className, $name)
+    {
+        try {
+            echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
+            $className = '\\app\\classes\\uu\\tarificator\\' . $className;
+            /** @var TarificatorI $tarificator */
+            $tarificator = (new $className);
+            $tarificator->tarificate();
+            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+            return Controller::EXIT_CODE_NORMAL;
+
+        } catch (\Exception $e) {
+            Yii::error('Ошибка универсального тарификатора');
+            Yii::error($e);
+            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            return Controller::EXIT_CODE_ERROR;
+        }
     }
 
     /**
@@ -58,19 +82,7 @@ class UbillerController extends Controller
      */
     public function actionSetup()
     {
-        try {
-
-            echo PHP_EOL . 'Плата за подключение. ' . date(DATE_ATOM) . PHP_EOL;
-            (new AccountLogSetupTarificator)->tarificateAll();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+        $this->_tarificate('AccountLogSetupTarificator', 'Плата за подключение');
     }
 
     /**
@@ -82,19 +94,7 @@ class UbillerController extends Controller
      */
     public function actionPeriod()
     {
-        try {
-
-            echo PHP_EOL . 'Абонентская плата. ' . date(DATE_ATOM) . PHP_EOL;
-            (new AccountLogPeriodTarificator)->tarificateAll();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+        $this->_tarificate('AccountLogPeriodTarificator', 'Абонентская плата');
     }
 
     /**
@@ -104,19 +104,7 @@ class UbillerController extends Controller
      */
     public function actionResource()
     {
-        try {
-
-            echo PHP_EOL . 'Плата за ресурсы. ' . date(DATE_ATOM) . PHP_EOL;
-            (new AccountLogResourceTarificator)->tarificateAll();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+        $this->_tarificate('AccountLogResourceTarificator', 'Плата за ресурсы');
     }
 
     /**
@@ -125,19 +113,7 @@ class UbillerController extends Controller
      */
     public function actionMin()
     {
-        try {
-
-            echo PHP_EOL . 'Минималка за ресурсы. ' . date(DATE_ATOM) . PHP_EOL;
-            (new AccountLogMinTarificator)->tarificateAll();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+        $this->_tarificate('AccountLogMinTarificator', 'Минималка за ресурсы');
     }
 
     /**
@@ -147,19 +123,7 @@ class UbillerController extends Controller
      */
     public function actionEntry()
     {
-        try {
-
-            echo PHP_EOL . 'Проводки. ' . date(DATE_ATOM) . PHP_EOL;
-            (new AccountEntryTarificator)->tarificateAll();
-            echo date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+        $this->_tarificate('AccountEntryTarificator', 'Проводки');
     }
 
     /**
@@ -170,19 +134,33 @@ class UbillerController extends Controller
      */
     public function actionBill()
     {
-        try {
+        $this->_tarificate('BillTarificator', 'Счета');
+    }
 
-            echo PHP_EOL . 'Счета. ' . date(DATE_ATOM) . PHP_EOL;
-            (new BillTarificator)->tarificateAll();
-            echo date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
 
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
+    /**
+     * Проверить баланс при смене тарифа
+     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
+     */
+    public function actionChangeTariff()
+    {
+        $this->_tarificate('ChangeTariffTarificator', 'Проверить баланс при смене тарифа');
+    }
+
+    /**
+     * пересчитать realtimeBalance
+     */
+    public function actionRealtimeBalance()
+    {
+        $this->_tarificate('RealtimeBalanceTarificator', 'RealtimeBalance');
+    }
+
+    /**
+     * Месячную финансовую блокировку заменить на постоянную
+     */
+    public function actionFinanceBlock()
+    {
+        $this->_tarificate('FinanceBlockTarificator', 'Месячную финансовую блокировку заменить на постоянную');
     }
 
     /**
@@ -264,7 +242,7 @@ class UbillerController extends Controller
         }
         $clientAccounts = $clientAccountsQuery->all();
 
-        foreach($clientAccounts as $clientAccount) {
+        foreach ($clientAccounts as $clientAccount) {
             echo PHP_EOL . 'client: ' . $clientAccount->id;
 
             $transaction = Yii::$app->getDb()->beginTransaction();
@@ -285,26 +263,4 @@ class UbillerController extends Controller
 
         return Controller::EXIT_CODE_NORMAL;
     }
-
-    /**
-     * Проверить баланс при смене тарифа
-     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
-     */
-    public function actionCheckBalance()
-    {
-        try {
-
-            echo PHP_EOL . 'Баланс при смена тарифа. ' . date(DATE_ATOM) . PHP_EOL;
-            (new BalanceTarificator)->tarificateAll();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
-        }
-    }
 }
-

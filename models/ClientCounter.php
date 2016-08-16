@@ -61,29 +61,33 @@ class ClientCounter extends ActiveRecord
                 // старый (текущий) биллинг
                 return
                     $this->clientAccount->credit > -1
-                       ? $this->clientAccount->balance + $this->amount_sum
-                       : $this->clientAccount->balance;
+                        ? $this->clientAccount->balance + $this->amount_sum
+                        : $this->clientAccount->balance;
 
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
 
-                // все платежи
-                $paymentSummary = Payment::find()
-                    ->select(['total_price' => 'SUM(sum)'])
-                    ->where(['client_id' => $this->client_id])
-                    ->asArray()
-                    ->one();
+                // лучше с кэшированием, который пересчитывается RealtimeBalanceTarificator
+                return $this->clientAccount->balance;
 
-                // все списания
-                // счетов меньше, чем транзакций и проводок - считать быстрее
-                $billSummary = \app\classes\uu\model\Bill::find()
-                    ->select(['total_price' => 'SUM(price)'])
-                    ->where(['client_account_id' => $this->client_id])
-                    ->asArray()
-                    ->one();
-
-                return $paymentSummary['total_price'] - $billSummary['total_price'];
+                // если нужно без кэширования, то расскомментируйте эти строчки
+//                // все платежи
+//                $paymentSummary = Payment::find()
+//                    ->select(['total_price' => 'SUM(sum)'])
+//                    ->where(['client_id' => $this->client_id])
+//                    ->asArray()
+//                    ->one();
+//
+//                // все списания
+//                // счетов меньше, чем транзакций и проводок - считать быстрее
+//                $billSummary = \app\classes\uu\model\Bill::find()
+//                    ->select(['total_price' => 'SUM(price)'])
+//                    ->where(['client_account_id' => $this->client_id])
+//                    ->asArray()
+//                    ->one();
+//
+//                return $paymentSummary['total_price'] - $billSummary['total_price'];
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);

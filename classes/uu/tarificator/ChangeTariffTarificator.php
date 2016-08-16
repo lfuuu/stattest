@@ -12,12 +12,13 @@ use Yii;
 /**
  * Проверить баланс при смене тарифа
  */
-class BalanceTarificator
+class ChangeTariffTarificator implements TarificatorI
 {
     /**
      * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificate($accountTariffId = null)
     {
         // перебирать все услуги слишком долго. Быстрее по логу тарифов найти нужное
         // Надо учесть таймзону клиента
@@ -67,6 +68,9 @@ SQL;
                 AND account_tariff_log.actual_from = '{$clientDate}'
                 AND account_log_period.id IS NULL
 SQL;
+            if ($accountTariffId) {
+                $selectSQL .= " AND account_tariff.id = {$accountTariffId} ";
+            }
             $accountTariffQuery = $db->createCommand($selectSQL)
                 ->query();
             foreach ($accountTariffQuery as $accountTariffArray) {
@@ -78,14 +82,20 @@ SQL;
 
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
+                    $clientAccount = $accountTariff->clientAccount;
+
+                    ob_start();
                     (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
                     (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
                     (new AccountLogResourceTarificator)->tarificateAccountTariff($accountTariff);
-                    (new AccountLogMinTarificator)->tarificateAll($accountTariff->id);
+                    (new AccountLogMinTarificator)->tarificate($accountTariff->id);
+                    (new AccountEntryTarificator)->tarificate($accountTariff->id);
+                    (new BillTarificator)->tarificate($accountTariff->id);
+                    (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
+                    ob_end_clean();
 
-                    $clientAccount = $accountTariff->clientAccount;
                     $credit = $clientAccount->credit; // кредитный лимит
-                    $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance();
+                    $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
                     $realtimeBalanceWithCredit = $realtimeBalance + $credit;
 
                     if ($realtimeBalanceWithCredit < 0) {
@@ -114,8 +124,5 @@ SQL;
                 }
             }
         }
-
-
-        echo PHP_EOL;
     }
 }

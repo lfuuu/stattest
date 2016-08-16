@@ -12,18 +12,20 @@ use Yii;
 /**
  * Предварительное списание (транзакции) абонентской платы. Тарификация
  */
-class AccountLogPeriodTarificator
+class AccountLogPeriodTarificator implements TarificatorI
 {
     /**
      * Рассчитать плату всех услуг
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
         AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format('Y-m-d')]);
 
         $accountTariffs = AccountTariff::find();
+        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
         $i = 0;
@@ -108,12 +110,20 @@ class AccountLogPeriodTarificator
         if ($period->monthscount) {
             // разделить на кол-во дней в периоде
             $days = $accountLogFromToTariff->dateFrom
-                    ->modify($period->getModify())
-                    ->diff($accountLogFromToTariff->dateFrom)
-                    ->days;
+                ->modify($period->getModify())
+                ->diff($accountLogFromToTariff->dateFrom)
+                ->days;
             $accountLogPeriod->coefficient /= $days;
         }
-        $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
+
+        if ($tariffPeriod->tariff->getIsTest()) {
+            // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
+            // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
+            $accountLogPeriod->price = 0;
+        } else {
+            $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
+        }
+
         return $accountLogPeriod;
     }
 }

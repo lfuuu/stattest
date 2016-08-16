@@ -21,18 +21,18 @@ use yii\db\Expression;
 /**
  * Расчет для бухгалтерской проводки (AccountEntry)
  */
-class AccountEntryTarificator
+class AccountEntryTarificator implements TarificatorI
 {
     /**
      * На основе новых транзакций создать новые проводки или добавить в существующие
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll($accountTariffId = null)
+    public function tarificate($accountTariffId = null)
     {
         // проводки за подключение
         echo 'Проводки за подключение';
-        $this->_tarificateAll(
+        $this->_tarificate(
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
             'date',
@@ -41,7 +41,7 @@ class AccountEntryTarificator
 
         // проводки за абоненскую плату
         echo PHP_EOL . 'Проводки за абоненскую плату';
-        $this->_tarificateAll(
+        $this->_tarificate(
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
@@ -50,7 +50,7 @@ class AccountEntryTarificator
 
         // проводки за ресурсы
         echo PHP_EOL . 'Проводки за ресурсы';
-        $this->_tarificateAll(
+        $this->_tarificate(
             AccountLogResource::tableName(),
             'tariff_resource_id',
             'date',
@@ -59,7 +59,7 @@ class AccountEntryTarificator
 
         // проводки за минимальную плату
         echo PHP_EOL . 'Проводки за минимальную плату';
-        $this->_tarificateAll(
+        $this->_tarificate(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
             'date_from',
@@ -81,7 +81,7 @@ class AccountEntryTarificator
      * @param string $dateFieldName
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    private function _tarificateAll($accountLogTableName, $typeId, $dateFieldName, $accountTariffId)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId)
     {
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();

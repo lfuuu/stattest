@@ -6,9 +6,11 @@ use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\tarificator\AccountEntryTarificator;
+use app\classes\uu\tarificator\AccountLogMinTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
 use app\classes\uu\tarificator\BillTarificator;
+use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\models\ClientAccount;
 use DateTimeImmutable;
 use Yii;
@@ -225,28 +227,45 @@ class AccountTariffLog extends ActiveRecord
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
-        $realtimeBalance = $clientAccount->billingCounters->getRealtimeBalance();
+        $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
         $realtimeBalanceWithCredit = $realtimeBalance + $credit;
+
+        $warnings = $clientAccount->getVoipWarnings();
 
         $isNewRecord = !$this->getCountLogs();
         if (!$isNewRecord) {
             // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
 
             $datimeNow = $clientAccount->getDatetimeWithTimezone();
-            if ($tariffPeriod && $realtimeBalanceWithCredit < 0 && $datimeNow->format('Y-m-d') == $this->actual_from) {
-                // сегодня смена тарифа при отрицательном балансе. Откладывает +1 день, пока деньги не появятся
+            if (
+                $tariffPeriod && $datimeNow->format('Y-m-d') == $this->actual_from
+                && ($realtimeBalanceWithCredit < 0 || $clientAccount->is_blocked || isset($warnings[ClientAccount::WARNING_OVERRAN]) || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT]))
+            ) {
+                // сегодня смена тарифа при отрицательном балансе (или блокировке). Откладываем +1 день, пока деньги не появятся (или не разблокируется)
                 $this->actual_from = $datimeNow->modify('+1 day')->format('Y-m-d');
             }
+            // @todo надо отправить данные на платформу
             return;
         }
 
         // создание услуги
+
         if (!$tariffPeriod) {
             $this->addError($attribute, 'Период тарифа не указан.');
             return;
         }
 
-        if ($realtimeBalanceWithCredit < 0) {
+        if ($clientAccount->is_blocked) {
+            $this->addError($attribute, 'Аккаунт заблокирован');
+            return;
+        }
+
+        if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
+            $this->addError($attribute, 'Аккаунт заблокирован из-за превышения лимитов');
+            return;
+        }
+
+        if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
             $this->addError(
                 $attribute,
                 sprintf('Аккаунт находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s',
@@ -262,18 +281,13 @@ class AccountTariffLog extends ActiveRecord
         $accountLogFromToTariff->tariffPeriod = $tariffPeriod;
         $accountLogFromToTariff->isFirst = true;
 
+        // AccountLogSetupTarificator и AccountLogPeriodTarificator сейчас нельзя вызвать, потому что записи в логе тарифов еще нет
+        // AccountLogResourceTarificator пока нет
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
         $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
 
-        // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
-        // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
-        $isTest = $tariffPeriod->tariff->tariff_status_id == TariffStatus::ID_TEST;
-
-        $priceSetup = $isTest ? 0 : $accountLogSetup->price;
-        $pricePeriod = $isTest ? 0 : $accountLogPeriod->price;
         $priceMin = $tariffPeriod->price_min * $accountLogPeriod->coefficient;
-
-        $tariffPrice = $priceSetup + $pricePeriod + $priceMin;
+        $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceMin;
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
             $this->addError($attribute,
@@ -281,24 +295,30 @@ class AccountTariffLog extends ActiveRecord
                     $realtimeBalance, $clientAccount->currency,
                     $credit, $clientAccount->currency,
                     $tariffPrice, $clientAccount->currency,
-                    $priceSetup, $clientAccount->currency,
-                    $pricePeriod, $clientAccount->currency,
+                    $accountLogSetup->price, $clientAccount->currency,
+                    $accountLogPeriod->price, $clientAccount->currency,
                     $priceMin, $clientAccount->currency
                 ));
             return;
         }
 
+        // все хорошо - денег хватает
+        // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
+
         // списать деньги (транзакции)
         if (!$accountLogSetup->save()) {
             $this->addError($attribute, implode('. ', $accountLogSetup->getFirstErrors()));
+            return;
         }
         if (!$accountLogPeriod->save()) {
             $this->addError($attribute, implode('. ', $accountLogPeriod->getFirstErrors()));
+            return;
         }
-        // пересчитать проводки
         ob_start();
-        (new AccountEntryTarificator)->tarificateAll($this->account_tariff_id);
-        (new BillTarificator)->tarificateAll($this->account_tariff_id);
+        (new AccountLogMinTarificator)->tarificate($this->account_tariff_id);
+        (new AccountEntryTarificator)->tarificate($this->account_tariff_id);
+        (new BillTarificator)->tarificate($this->account_tariff_id);
+        (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
         ob_end_clean();
 
         // @todo надо отправить данные на платформу

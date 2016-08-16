@@ -10,14 +10,14 @@ use Yii;
 /**
  * Расчет для счетов (Bill)
  */
-class BillTarificator
+class BillTarificator implements TarificatorI
 {
     /**
      * На основе новых проводок создать новые счета или добавить в существующие
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll($accountTariffId = null)
+    public function tarificate($accountTariffId = null)
     {
         $db = Yii::$app->db;
         $billTableName = Bill::tableName();
@@ -96,7 +96,5 @@ SQL;
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
-
-        echo PHP_EOL;
     }
 }

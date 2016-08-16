@@ -107,7 +107,7 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_VOIP => '/usage/voip/edit?id=%d',
         ServiceType::ID_VOIP_PACKAGE => '',
 
-        ServiceType::ID_INTERNET => '',
+        ServiceType::ID_INTERNET => '/pop_services.php?table=usage_ip_ports&id=%d',
         ServiceType::ID_COLLOCATION => '',
         ServiceType::ID_VPN => '',
 
@@ -470,7 +470,7 @@ class AccountTariff extends ActiveRecord
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
                 // продлевать бесконечно или не более определенного кол-ва раз
-                $isNeedAutoClose = !($tariff->is_autoprolongation || $i++ <= $tariff->count_of_validity_period);
+                $isNeedAutoClose = !($tariff->is_autoprolongation || ++$i <= $tariff->count_of_validity_period);
 
             } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d') && !$isNeedAutoClose);
 
@@ -552,17 +552,14 @@ class AccountTariff extends ActiveRecord
         $minLogDatetime = self::getMinLogDatetime();
         $accountLogFromToTariffs = $this->getAccountLogHugeFromToTariffs(); // все
 
-        $i = 0;
+        $i = 0; // Порядковый номер нетестового тарифа
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
-            if ($accountLogFromToTariff->tariffPeriod->tariff->tariff_status_id == TariffStatus::ID_TEST) {
-                // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
-                // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
-                continue;
-            }
-
-            $i++;
+            // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
+            // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
+            $isTest = $accountLogFromToTariff->tariffPeriod->tariff->getIsTest();
+            !$isTest && $i++;
 
             if ($accountLogFromToTariff->dateFrom < $minLogDatetime) {
                 // слишком старый. Для оптимизации считать не будем
@@ -574,7 +571,7 @@ class AccountTariff extends ActiveRecord
                 unset($accountLogs[$uniqueId]);
             } else {
                 // этот период не рассчитан
-                $accountLogFromToTariff->isFirst = ($i === 1);
+                $accountLogFromToTariff->isFirst = !$isTest && ($i === 1);
                 $untarificatedPeriods[] = $accountLogFromToTariff;
             }
         }
@@ -601,11 +598,6 @@ class AccountTariff extends ActiveRecord
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
-            if ($accountLogFromToTariff->tariffPeriod->tariff->tariff_status_id == TariffStatus::ID_TEST) {
-                // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
-                // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
-                continue;
-            }
             $uniqueId = $accountLogFromToTariff->getUniqueId();
             if (isset($accountLogs[$uniqueId])) {
                 // такой период рассчитан
@@ -638,7 +630,7 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть даты периодов, по которым не произведен расчет по ресурсам
      *
-     * @param AccountLogPeriod[] $accountLogClassName уже обработанные
+     * @param AccountLogResource[] $accountLogs уже обработанные
      * @return AccountLogFromToTariff[]
      */
     public function getUntarificatedResourcePeriods($accountLogs)
@@ -661,7 +653,12 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('Error. There are unknown calculated accountLogResource for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+            // Решили пока игнорировать
+            printf('Error. There are unknown calculated accountLogResource for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs)));
+            foreach($accountLogs as $accountLog) {
+                $accountLog->delete();
+            }
         }
 
         return $untarificatedPeriods;

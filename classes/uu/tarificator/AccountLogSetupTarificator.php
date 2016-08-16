@@ -12,18 +12,20 @@ use Yii;
 /**
  * Предварительное списание (транзакции) стоимости подключения. Тарификация
  */
-class AccountLogSetupTarificator
+class AccountLogSetupTarificator implements TarificatorI
 {
     /**
      * Рассчитать плату всех услуг
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll()
+    public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить слишком старые данные
         AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
 
         $accountTariffs = AccountTariff::find();
+        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
         $i = 0;
@@ -97,13 +99,22 @@ class AccountLogSetupTarificator
         $accountLogSetup->account_tariff_id = $accountTariff->id;
 
         $accountLogSetup->price_setup = $tariffPeriod->price_setup;
+
         if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
             // телефонный номер кроме телефонной линии (4-5 знаков)
             // только первое подключение. При смене тарифа на том же аккаунте не считать
             $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
+        } else {
+            $accountLogSetup->price_number = 0;
         }
 
-        $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
+        if ($tariffPeriod->tariff->getIsTest()) {
+            // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
+            // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
+            $accountLogSetup->price = 0;
+        } else {
+            $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
+        }
         return $accountLogSetup;
     }
 }

@@ -32,6 +32,8 @@ class TariffStatus extends \yii\db\ActiveRecord
 
     const ID_INTERNET_ADSL = 8;
 
+    const ID_VOIP_8800_TEST = 9;
+
     public static function tableName()
     {
         return 'uu_tariff_status';

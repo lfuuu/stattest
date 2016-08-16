@@ -54,7 +54,6 @@ use yii\helpers\Url;
  * @property LkWizardState lkWizardState
  * @property ClientCounter billingCounters
  * @property ClientCounter billingCountersFastMass
- * @method static ClientAccount findOne($condition)
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -87,6 +86,14 @@ class ClientAccount extends HistoryActiveRecord
 
     const VERSION_BILLER_USAGE = 4;
     const VERSION_BILLER_UNIVERSAL = 5;
+
+    const WARNING_UNAVAILABLE_BILLING = 'unavailable.billing'; // Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными
+    const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
+    const WARNING_FINANCE = 'lock.is_finance_block'; // Финансовая блокировка
+    const WARNING_OVERRAN = 'lock.is_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали
+    const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
+    const WARNING_LIMIT_MONTH = 'lock.limit_month'; // Превышен месячный лимит
+    const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
 
     public $client_orig = '';
 
@@ -660,7 +667,7 @@ class ClientAccount extends HistoryActiveRecord
         $counters = $this->billingCounters;
 
         if ($counters->isLocal) {
-            $warnings['unavailable.billing'] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
+            $warnings[self::WARNING_UNAVAILABLE_BILLING] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
         }
 
         try {
@@ -668,14 +675,14 @@ class ClientAccount extends HistoryActiveRecord
 
             if ($locks) {
                 if ($locks->is_finance_block) {
-                    $warnings['lock.is_finance_block'] = true;
+                    $warnings[self::WARNING_FINANCE] = true;
                 }
                 if ($locks->is_overran) {
-                    $warnings['lock.is_overran'] = true;
+                    $warnings[self::WARNING_OVERRAN] = true;
                 }
             }
         } catch (\Exception $e) {
-            $warnings['unavailable.locks'] = 'Сервер статистики недоступен. Данные о блокировках недоступны';
+            $warnings[self::WARNING_UNAVAILABLE_LOCKS] = 'Сервер статистики недоступен. Данные о блокировках недоступны';
         }
 
         $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && -$counters->daySummary > $this->voip_credit_limit_day);
@@ -683,13 +690,13 @@ class ClientAccount extends HistoryActiveRecord
         $need_lock_credit = ($this->credit >= 0 && $counters->realtimeBalance + $this->credit < 0);
 
         if ($need_lock_limit_day) {
-            $warnings['lock.limit_day'] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
+            $warnings[self::WARNING_LIMIT_DAY] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
         }
         if ($need_lock_limit_month) {
-            $warnings['lock.limit_month'] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
+            $warnings[self::WARNING_LIMIT_MONTH] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
         }
         if ($need_lock_credit) {
-            $warnings['lock.credit'] = 'Превышен лимит кредита: ' . sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit;
+            $warnings[self::WARNING_CREDIT] = 'Превышен лимит кредита: ' . sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit;
         }
 
         return $warnings;

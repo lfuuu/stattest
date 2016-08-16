@@ -12,14 +12,14 @@ use Yii;
 /**
  * Предварительное списание (транзакции) минимальной платы за ресурсы. Тарификация
  */
-class AccountLogMinTarificator
+class AccountLogMinTarificator implements TarificatorI
 {
     /**
      * Предварительное списание (транзакции) минимальной платы за ресурсы
      * Если указана услуга - только для нее, иначе для всех
-     * @param int $accountTariffId
+     * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificateAll($accountTariffId = null)
+    public function tarificate($accountTariffId = null)
     {
         $db = Yii::$app->db;
         $accountLogMinTableName = AccountLogMin::tableName();
