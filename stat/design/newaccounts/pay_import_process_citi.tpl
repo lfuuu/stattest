@@ -265,6 +265,7 @@
 {literal}
     jQuery(document).ready(function() {
         $('div[data-is-sber-online="1"]').hide();
+
         $('span.accounts-show').each(function() {
             var $that = $(this);
 
@@ -272,6 +273,7 @@
                 $('div[data-pay-no="' + $that.data('pay-no') + '"]').show();
             }));
         });
+
         $('span.accounts-hide').each(function() {
             var $that = $(this);
             $(this).wrap($('<a />').attr('href', 'javascript:void(0)').on('click', function() {
@@ -294,15 +296,20 @@
             $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]')
                 .parent('a')
                     .trigger('click');
-        });
+        }).trigger('change');
 
         $('input[data-client-account-id]').on('change', function() {
-            $('select[data-pay-no="' + $(this).data('pay-no') + '"]')
-                .find('option[data-client-account-id="' + $(this).data('client-account-id') + '"]')
-                    .prop('selected', true);
+            var $selectBox = $('select[data-pay-no="' + $(this).data('pay-no') + '"]');
+                current = $selectBox.find('option[data-client-account-id="' + $(this).data('client-account-id') + '"]:selected');
+
+            if (!current.length) {
+                $selectBox
+                    .find('option[data-client-account-id="' + $(this).data('client-account-id') + '"]')
+                        .prop('selected', true);
+            }
 
             $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]')
-                    .parent('a')
+                .parent('a')
                     .trigger('click');
         });
     });
