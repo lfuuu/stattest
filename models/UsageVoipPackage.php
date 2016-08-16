@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveRecord;
@@ -96,7 +97,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
                     new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
                     ->modify('first day of this month')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
-                    ->format(DateTime::ATOM);
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
             $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
         }
@@ -107,7 +108,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
                     ->modify('-1 second')
                     ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')
-                    ->format(DateTime::ATOM);
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
             $link->andWhere(['<=', 'activation_dt', $dateRangeToStr]);
         }
@@ -131,14 +132,14 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
             $link->andWhere([
                 '>=',
                 'connect_time',
-                (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTime::ATOM)
+                (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ]);
         }
         if ($dateRangeTo) {
             $link->andWhere([
                 '<=',
                 'connect_time',
-                (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTime::ATOM)
+                (new DateTime($dateRangeTo))->setTime(23, 59, 59)->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ]);
         }
 

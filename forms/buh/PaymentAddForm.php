@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\buh;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
@@ -65,7 +66,7 @@ class PaymentAddForm extends PaymentForm
         $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
         $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
         $item->comment = $this->comment;
-        $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
+        $item->add_date = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $item->add_user = \Yii::$app->user->getId();
 
         $result = $this->saveModel($item);

@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\helpers\DateTimeZoneHelper;
 use \yii\db\Expression;
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
@@ -77,7 +78,7 @@ class TroubleDao extends Singleton
             $trouble->trouble_subtype = Trouble::SUBTYPE_TROUBLE;
             $trouble->client = $clientAccount->client;
             $trouble->user_author = $author ?: $supportUser;
-            $trouble->date_creation = (new \DateTime())->format(\DateTime::ATOM);
+            $trouble->date_creation = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $trouble->problem = $problem;
             $trouble->folder = Trouble::DEFAULT_SUPPORT_FOLDER;
             $trouble->support_ticket_id = $supportTicketId;
@@ -87,7 +88,7 @@ class TroubleDao extends Singleton
             $stage->trouble_id = $trouble->id;
             $stage->state_id = Trouble::DEFAULT_SUPPORT_STATE;
             $stage->user_main = $supportUser;
-            $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
+            $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $stage->date_finish_desired = $stage->date_start;
             $stage->save();
 
@@ -123,7 +124,7 @@ class TroubleDao extends Singleton
             $stage->trouble_id = $trouble->id;
             $stage->state_id = $newStateId;
             $stage->user_main = $supportUser;
-            $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
+            $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $stage->save();
 
             $trouble->cur_stage_id = $stage->stage_id;
@@ -146,7 +147,7 @@ class TroubleDao extends Singleton
 
         $ticket = Ticket::findOne($trouble->support_ticket_id);
         $ticket->setStatusByTroubleState($stage->state_id);
-        $ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
+        $ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $ticket->save();
     }
 
@@ -194,7 +195,7 @@ class TroubleDao extends Singleton
         $stage->trouble_id = $trouble->id;
         $stage->state_id = $newStateId;
         $stage->user_main = $userMain ? $userMain->user : $curStage->user_main;
-        $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
+        $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $stage->save();
 
         $trouble->cur_stage_id = $stage->stage_id;

@@ -2,6 +2,7 @@
 
 namespace app\classes\media;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
@@ -38,7 +39,7 @@ class TroubleMedia extends MediaManager
     {
         $model = new TroubleFiles;
         $model->trouble_id = $this->trouble->id;
-        $model->ts = (new DateTime())->format(DateTime::ATOM);
+        $model->ts = (new DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $model->name = $name;
         $model->user_id = Yii::$app->user->getId();

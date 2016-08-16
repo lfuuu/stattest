@@ -1,6 +1,7 @@
 <?php
 
 use app\forms\usage\UsageVoipEditForm;
+use app\helpers\DateTimeZoneHelper;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
 use app\models\UsageVoip;
@@ -88,7 +89,7 @@ $form->edit();
 $number->refresh();
 checkHold($I, $number);
 
-$number->hold_to = $now->modify("-1 minute")->format(DateTime::ATOM);
+$number->hold_to = $now->modify("-1 minute")->format(DateTimeZoneHelper::DATETIME_FORMAT);
 $I->assertTrue($number->save());
 
 \app\commands\NumberController::actionReleaseFromHold();

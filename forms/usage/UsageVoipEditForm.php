@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -883,7 +884,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $logTariff->service = $service;
             $logTariff->id_service = $id;
             $logTariff->id_user = Yii::$app->user->id ?: 0;
-            $logTariff->ts = (new DateTime('now'))->format(DateTime::ATOM);
+            $logTariff->ts = (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $logTariff->date_activation = addslashes($dateActivation);
             $logTariff->comment = '';
             $logTariff->id_tarif = (int)$tarifId;

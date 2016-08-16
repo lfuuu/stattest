@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\traits;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\User;
 use Yii;
 use yii\db\ActiveQuery;
@@ -47,7 +48,7 @@ trait UpdateUserTrait
      */
     public function beforeSave($insert, $isCallParent = true)
     {
-        $this->update_time = date('c'); // new CDbExpression('NOW()') // для postgres нет автоинсерта, пожэтому надо указывать явно
+        $this->update_time = date(DateTimeZoneHelper::DATETIME_FORMAT); // new CDbExpression('NOW()') // для postgres нет автоинсерта, пожэтому надо указывать явно
         $this->update_user_id = Yii::$app->user->getId();
 
         if ($isCallParent) {

@@ -33,12 +33,12 @@ class UsageDateTime extends Behavior
         $event->sender->activation_dt =
             (new DateTime($event->sender->actual_from, new DateTimeZone($timezone)))
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
-                ->format(DateTime::ATOM);
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $event->sender->expire_dt =
             (new DateTime($event->sender->actual_to, new DateTimeZone($timezone)))
                 ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->modify('+1 day -1 second')
-                ->format(DateTime::ATOM);
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }

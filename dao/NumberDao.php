@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Calls;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
@@ -131,13 +132,13 @@ class NumberDao extends Singleton
         $number->status = Number::STATUS_NOTACTIVE_HOLD;
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
-        $number->hold_from = $now->format(DateTime::ATOM);
+        $number->hold_from = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($holdTo) {
-            $number->hold_to = $holdTo->format(DateTime::ATOM);
+            $number->hold_to = $holdTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
         } else {
             $now->add($number->numberType->hold);
-            $number->hold_to = $now->format(DateTime::ATOM);
+            $number->hold_to = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
         $number->save();
@@ -262,9 +263,9 @@ class NumberDao extends Singleton
         $dstNumber && $query->andWhere(['dst_number' => $dstNumber]);
 
         if ($dtTo) {
-            $query->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTime::ATOM), $dtTo->format(DateTime::ATOM)]);
+            $query->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT), $dtTo->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         } else {
-            $query->andWhere(['>=', 'connect_time', $dtFrom->format(DateTime::ATOM)]);
+            $query->andWhere(['>=', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         }
 
         if ($region == 99) {

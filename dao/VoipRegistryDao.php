@@ -138,7 +138,7 @@ class VoipRegistryDao extends Singleton
         $number->edit_user_id = \Yii::$app->user->identity->id;
         $number->operator_account_id = $registry->account_id;
         $number->country_code = $registry->city->country->code;
-        $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(\DateTime::ATOM);
+        $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $number->save();
 

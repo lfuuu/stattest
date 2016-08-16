@@ -33,8 +33,8 @@ class IpBlocker extends Singleton
         }
 
         $now = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
-        $ipBlock->block_time = $now->format(\DateTime::ATOM);
-        $ipBlock->unblock_time = $now->modify("+" . $blockTime . "seconds")->format(\DateTime::ATOM);
+        $ipBlock->block_time = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $ipBlock->unblock_time = $now->modify("+" . $blockTime . "seconds")->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         return $ipBlock->save();
     }
@@ -59,6 +59,6 @@ class IpBlocker extends Singleton
     {
         $now = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
 
-        IpBlock::deleteAll('unblock_time <= :now', [':now' => $now->format(\DateTime::ATOM)]);
+        IpBlock::deleteAll('unblock_time <= :now', [':now' => $now->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use Yii;
@@ -244,7 +245,7 @@ class BillDao extends Singleton
             if (($billResource = uuBill::find()
                 ->where([
                     'client_account_id' => $clientAccount->id,
-                    'date' => $firstDayPrevMonthBillDate->format(\DateTime::ATOM)
+                    'date' => $firstDayPrevMonthBillDate->format(DateTimeZoneHelper::DATETIME_FORMAT)
                 ])
                 ->andWhere(['>', 'price', 0])
                 ->one())

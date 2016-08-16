@@ -3,6 +3,7 @@ namespace app\commands;
 
 use app\classes\bill\ClientAccountBiller;
 use app\classes\enum\TicketStatusEnum;
+use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Payment;
@@ -21,7 +22,7 @@ class TicketController extends Controller
         $tickets =
             Ticket::find()
                 ->andWhere(['status' => TicketStatusEnum::DONE])
-                ->andWhere('updated_at < :date', [':date' => $date->format(\DateTime::ATOM)])
+                ->andWhere('updated_at < :date', [':date' => $date->format(DateTimeZoneHelper::DATETIME_FORMAT)])
                 ->all();
 
         foreach ($tickets as $ticket) {

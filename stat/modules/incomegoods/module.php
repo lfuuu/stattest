@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Business;
 
@@ -182,7 +183,7 @@ class m_incomegoods extends IModule{
         $list = array();
         foreach($_POST['item'] as $line) {
             if ($incoming_date = DateTime::createFromFormat('d.m.Y', $line['incoming_date']))
-                $incoming_date = $incoming_date->format(DateTime::ATOM);
+                $incoming_date = $incoming_date->format(DateTimeZoneHelper::DATETIME_FORMAT);
             else
                 $incoming_date = '0001-01-01T00:00:00';
 
@@ -196,7 +197,7 @@ class m_incomegoods extends IModule{
         }
 
         if ($external_date = DateTime::createFromFormat('d.m.Y', $_POST['external_date']))
-            $external_date = $external_date->format(DateTime::ATOM);
+            $external_date = $external_date->format(DateTimeZoneHelper::DATETIME_FORMAT);
         else
             $external_date = '0001-01-01T00:00:00';
 

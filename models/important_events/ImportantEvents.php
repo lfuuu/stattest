@@ -101,7 +101,7 @@ class ImportantEvents extends ActiveRecord
 
         $event->scenario = 'create';
         $event->date = (new DateTime($date,
-            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $event->event = $eventType;
         $event->from_ip = (is_a(Yii::$app, 'yii\web\Application') ? IpUtils::dtr_pton(Yii::$app->request->userIP) : null);
 
@@ -240,11 +240,11 @@ class ImportantEvents extends ActiveRecord
         $filter_from =
             (new DateTime($filter_from, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTime(0, 0, 0)
-                ->format(DateTime::ATOM);
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $filter_to =
             (new DateTime($filter_to, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTime(23, 59, 59)
-                ->format(DateTime::ATOM);
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $query->andFilterWhere(['between', 'date', $filter_from, $filter_to]);
 

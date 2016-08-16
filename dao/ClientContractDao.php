@@ -24,7 +24,7 @@ class ClientContractDao extends Singleton
             ->active()
             ->contract()
             ->andWhere(['contract_id' => $contract->id])
-            ->andWhere(['<=', 'contract_date', $date->format(\DateTime::ATOM)])
+            ->andWhere(['<=', 'contract_date', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)])
             ->last();
 
         return $contractDoc;

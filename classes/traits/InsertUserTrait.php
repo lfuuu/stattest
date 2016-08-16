@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\traits;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\User;
 use Yii;
 use yii\db\ActiveQuery;
@@ -49,7 +50,7 @@ trait InsertUserTrait
     public function beforeSave($insert, $isCallParent = true)
     {
         if ($insert) {
-            $this->insert_time = date('c');
+            $this->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
             $this->insert_user_id = Yii::$app->user->getId();
         }
 

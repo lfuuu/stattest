@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\behaviors;
 
+use app\helpers\DateTimeZoneHelper;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
@@ -15,6 +16,6 @@ class CreatedAt extends Behavior
 
     public function onBeforeInsert()
     {
-        $this->owner->created_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
+        $this->owner->created_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }

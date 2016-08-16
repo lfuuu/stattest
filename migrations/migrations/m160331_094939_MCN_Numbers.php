@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use \app\models\Region;
 use \app\models\City;
 
@@ -20,7 +21,7 @@ class m160331_094939_MCN_Numbers extends \app\classes\Migration
 
         $data = $this->getData();
         $dateStart = (new \DateTime('now',
-            new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTime::ATOM);
+            new \DateTimeZone(\app\helpers\DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $this->getDb()->transaction(function () use ($data, $dateStart) {
             $this->batchInsert(

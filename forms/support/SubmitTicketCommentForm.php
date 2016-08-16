@@ -2,6 +2,7 @@
 namespace app\forms\support;
 
 use app\classes\enum\TicketStatusEnum;
+use app\helpers\DateTimeZoneHelper;
 use app\models\support\TicketComment;
 use app\models\Trouble;
 
@@ -24,7 +25,7 @@ class SubmitTicketCommentForm extends TicketCommentForm
             if ($this->saveModel($item)) {
                 $this->id = $item->id;
 
-                $this->ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
+                $this->ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 $this->ticket->is_with_new_comment = 1;
 
                 if ($this->ticket->status != TicketStatusEnum::OPEN && $this->ticket->status != TicketStatusEnum::REOPENED) {

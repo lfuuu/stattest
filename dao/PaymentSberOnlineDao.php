@@ -146,8 +146,8 @@ class PaymentSberOnlineDao extends Singleton
         }
 
         $payment = new PaymentSberOnline;
-        $payment->payment_sent_date = $paymentSentDate->format(DateTime::ATOM);
-        $payment->payment_received_date = $paymentReceivedDate->format(DateTime::ATOM);
+        $payment->payment_sent_date = $paymentSentDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $payment->payment_received_date = $paymentReceivedDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $payment->code1 = trim($row[1]);
         $payment->code2 = trim($row[2]);
         $payment->code3 = trim($row[3]);

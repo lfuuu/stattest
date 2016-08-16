@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
 
@@ -21,7 +22,7 @@ class m160226_145950_client_account_options_delivery extends \app\classes\Migrat
             $model->client = $clientAccountName;
             $model->code = 'uspd';
             $model->tarif_id = 383; // Доставка комплекта бухгалтерских документов почтой РФ
-            $model->actual_from = (new DateTime('2016-03-01'))->format('c');
+            $model->actual_from = (new DateTime('2016-03-01'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $model->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
             $model->insert(true);
         }

@@ -3,6 +3,7 @@
 namespace tests\codeception\unit\notification;
 
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContact;
 use app\models\Currency;
 use app\models\important_events\ImportantEvents;
@@ -58,7 +59,7 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $payment->client_id = $account->id;
         $payment->sum = 120;
         $payment->currency = Currency::RUB;
-        $payment->payment_date = $now->format(\DateTime::ATOM);
+        $payment->payment_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $payment->save();
 
 

@@ -2,6 +2,7 @@
 
 namespace app\classes\media;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
@@ -71,7 +72,7 @@ class ClientMedia extends MediaManager
     {
         $model = new ClientFiles;
         $model->contract_id = $this->contract->id;
-        $model->ts = (new DateTime())->format(DateTime::ATOM);
+        $model->ts = (new DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $model->name = $name;
         $model->comment = $comment;
