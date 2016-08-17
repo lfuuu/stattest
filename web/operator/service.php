@@ -307,8 +307,7 @@ if ($action == 'add_client') {
         $usage_arr,
         $paidonly,
         $destination,
-        $direction,
-        DateTimeZoneHelper::TIMEZONE_MOSCOW
+        $direction
     );
 
 

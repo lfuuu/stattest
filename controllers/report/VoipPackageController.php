@@ -104,7 +104,6 @@ class VoipPackageController extends BaseController
                                     $paidonly = 0,
                                     $destination = 'all',
                                     $direction = 'both',
-                                    $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
                                     $is_full = false,
                                     ($filter->packages ? [$filter->packages] : [])
                                 ),

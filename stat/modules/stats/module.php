@@ -301,7 +301,7 @@ class m_stats extends IModule{
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
         $design->assign('timezone',$timezone=get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', $timezones);
-        if ($region == 'all') {
+        if ($region === 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
                 $stats[$region] = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
@@ -313,8 +313,7 @@ class m_stats extends IModule{
                     $phones_sel,
                     $paidonly,
                     $destination,
-                    $direction,
-                    $timezone
+                    $direction
                 );
             }
             $stats = $this->prepareStatArray($account, $stats, $detality);
@@ -331,8 +330,7 @@ class m_stats extends IModule{
                     $phones_sel,
                     $paidonly,
                     $destination,
-                    $direction,
-                    $timezone
+                    $direction
                 )
             )) {
                 return;
@@ -343,7 +341,7 @@ class m_stats extends IModule{
         $design->assign('price_include_vat', $account->price_include_vat);
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
-	}
+    }
 
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
