@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
  * @property int $model_id
  * @property string $date
  * @property string $data_json
+ * @property User $user
  */
 class HistoryVersion extends ActiveRecord
 {
@@ -20,6 +21,14 @@ class HistoryVersion extends ActiveRecord
     public static function tableName()
     {
         return 'history_version';
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     public static function generateVersionsJson(array $versions)

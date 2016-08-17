@@ -16,7 +16,10 @@ $links = [
         <div class="col-sm-2">
             Дата
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-2">
+            Пользователь
+        </div>
+        <div class="col-sm-8">
                 <div class="row">
                     <div class="col-sm-4">
                         Название аттрибута
@@ -41,8 +44,11 @@ $links = [
                    data-model-id="<?= $version->model_id ?>" data-date="<?= $version->date ?>"></i>
             <?php endif; ?>
         </div>
-        <div class="col-sm-10">
-        <?php foreach($version['diffs'] as $filed => $values) : ?>
+        <div class="col-sm-2">
+            <?= ($version->user_id ? $version->user->name : '') ?>
+        </div>
+        <div class="col-sm-8">
+        <?php $i=0; foreach($version['diffs'] as $filed => $values) : ?>
             <div class="row" style="background: <?= $i%2==0?'rgb(104, 199, 244)': 'rgb(65, 181, 237)'?>;">
                 <div class="col-sm-4">
                     <?= $models[$version->model]->getAttributeLabel($filed) ?>
