@@ -296,7 +296,7 @@
             $('span.accounts-hide[data-pay-no="' + $(this).data('pay-no') + '"]')
                 .parent('a')
                     .trigger('click');
-        }).trigger('change');
+        });
 
         $('input[data-client-account-id]').on('change', function() {
             var $selectBox = $('select[data-pay-no="' + $(this).data('pay-no') + '"]');
