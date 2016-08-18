@@ -48,7 +48,7 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
             'ab.`client_id` = c.`id`');
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
-        $query->andWhere(['c.is_blocked' => 0]);
+        $query->andWhere(['c.voip_disabled' => 1]);
 
         $billingQuery =
             (new Query)
