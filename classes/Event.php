@@ -35,6 +35,7 @@ class Event
             $row->event = $event;
             $row->param = $param;
             $row->code = $code;
+            $row->log_error = '';
         } else {
             $row->iteration = 0;
             $row->status = 'plan';

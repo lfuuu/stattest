@@ -32,7 +32,7 @@ class m160119_104547_create_vbpx_account_tariff extends \app\classes\Migration
             'id' => $this->primaryKey(),
 
             // text
-            'comment' => $this->text()->notNull()->defaultValue(''),
+            'comment' => $this->text(),
 
             // fk
             'client_account_id' => $this->integer()->notNull(),

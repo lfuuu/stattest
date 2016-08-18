@@ -381,8 +381,8 @@ if ($has) :
                                                 <span style="padding: 0 5px 0 5px; <?= ($package->status == 'connecting' ? 'background-color: #ffc0c0;' : '')?>"> <?= $description; ?>
                                                 (
                                                     <abbr title="Кол-во минут по тарифу"><?= $package->tariff->minutes_count; ?></abbr> /
-                                                    <abbr title="Кол-во оплаченных минут"><?= floor($package->billingStat->paid_seconds / 60); ?></abbr> /
-                                                    <abbr title="Кол-во израсходованных минут"><?= floor($package->billingStat->used_seconds / 60); ?></abbr>
+                                                    <?php // Кол-во оплаченных минут floor($package->billingStat->paid_seconds / 60); ?>
+                                                    <?php // Кол-во израсходованных минут floor($package->billingStat->used_seconds / 60); ?></abbr>
                                                 )</span><br />
                                             <?endforeach;
                                             ?>

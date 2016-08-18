@@ -329,9 +329,10 @@ class AccountTariff extends ActiveRecord
      *  - в порядке возрастания
      *  - только активные на данный момент
      *
+     * @param bool $isWithFuture
      * @return AccountTariffLog[]
      */
-    public function getUniqueAccountTariffLogs()
+    public function getUniqueAccountTariffLogs($isWithFuture = false)
     {
         $accountTariffLogs = [];
         /** @var AccountTariffLog $accountTariffLogPrev */
@@ -345,7 +346,7 @@ class AccountTariff extends ActiveRecord
                 // если переопределен в тот же день, то списываем за оба
                 continue;
             }
-            if ($accountTariffLog->actual_from > date('Y-m-d')) {
+            if (!$isWithFuture && $accountTariffLog->actual_from > date('Y-m-d')) {
                 // еще не наступил
                 continue;
             }
@@ -359,13 +360,14 @@ class AccountTariff extends ActiveRecord
      * Вернуть большие периоды, разбитые только по смене тарифов
      * У последнего тарифа dateTo может быть null (не ограничен по времени)
      *
-     * @return AccountLogFromToTariff[]
+     * @param bool $isWithFuture
+     * @return \app\classes\uu\forms\AccountLogFromToTariff[]
      */
-    public function getAccountLogHugeFromToTariffs()
+    public function getAccountLogHugeFromToTariffs($isWithFuture = false)
     {
         /** @var AccountLogFromToTariff[] $accountLogPeriods */
         $accountLogPeriods = [];
-        $uniqueAccountTariffLogs = $this->getUniqueAccountTariffLogs();
+        $uniqueAccountTariffLogs = $this->getUniqueAccountTariffLogs($isWithFuture);
         foreach ($uniqueAccountTariffLogs as $uniqueAccountTariffLog) {
 
             // начало нового периода
@@ -721,7 +723,13 @@ class AccountTariff extends ActiveRecord
     public function isCancelable()
     {
         $accountTariffLogs = $this->accountTariffLogs;
-        return reset($accountTariffLogs)->actual_from > date('Y-m-d');
+        $accountTariffLog = reset($accountTariffLogs);
+        if (!$accountTariffLog) {
+            return false;
+        }
+
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+        return $accountTariffLog->actual_from > $dateTimeNow->format('Y-m-d');
     }
 
     /**

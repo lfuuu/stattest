@@ -34,7 +34,7 @@ class RealtimeBalanceTarificator implements TarificatorI
             CREATE TEMPORARY TABLE clients_tmp
             SELECT
                 clients.id,
-                SUM(payment.sum) - SUM(bill.price) AS balance
+                COALESCE(SUM(payment.sum), 0) - COALESCE(SUM(bill.price), 0) AS balance
             FROM
                 {$clientAccountTableName} clients
             LEFT JOIN {$paymentTableName} payment
@@ -59,6 +59,13 @@ SQL;
                 clients.balance = clients_tmp.balance
             WHERE
                 clients.id = clients_tmp.id
+SQL;
+        $db->createCommand($updateSQL)
+            ->query();
+        echo '. ';
+
+        $updateSQL = <<<SQL
+            DROP TABLE clients_tmp
 SQL;
         $db->createCommand($updateSQL)
             ->query();

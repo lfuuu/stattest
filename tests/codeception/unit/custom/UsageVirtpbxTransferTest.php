@@ -94,6 +94,7 @@ class UsageVirtpbxTransferTest extends \yii\codeception\TestCase
         $usage->actual_to = $actualTo;
         $usage->client = $client;
         $usage->tarif_id = $tariffId;
+        $usage->moved_from = 0;
         $usage->save();
 
         $logTariff = new LogTarif;

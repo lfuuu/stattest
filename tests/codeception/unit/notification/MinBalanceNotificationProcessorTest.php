@@ -50,6 +50,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $row->client_contact_id = $c->id;
         $row->min_balance = 1;
         $row->status = LkNoticeSetting::STATUS_WORK;
+        $row->activate_code = '';
         $row->save();
 
         $row = new LkClientSettings();

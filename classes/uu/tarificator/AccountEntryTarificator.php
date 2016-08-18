@@ -142,7 +142,7 @@ SQL;
                    account_entry_id,
                    SUM(price) AS price
                 FROM
-                   {$accountLogTableName}
+                   {$accountLogTableName} account_log
                 WHERE
                     true
                     {$sqlAndWhere}

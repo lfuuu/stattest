@@ -57,7 +57,7 @@ abstract class AccountTariffForm extends Form
         $this->accountTariff = $this->getAccountTariffModel();
 
         $this->accountTariffLog = new AccountTariffLog();
-        $this->accountTariffLog->actual_from = (new DateTime())->modify($this->accountTariff->isNewRecord ? '+0 day' : '+1 day')->format('Y-m-d');
+        $this->accountTariffLog->actual_from = (new DateTime())->modify('+1 day')->format('Y-m-d');
 
         if ($this->serviceTypeId === null) {
             throw new \InvalidArgumentException(\Yii::t('tariff', 'You should enter usage type'));

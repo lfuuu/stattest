@@ -35,7 +35,7 @@ class Region extends ActiveRecord
 
     public static function getTimezoneList()
     {
-        $arr = self::find()->groupBy(['timezone_name'])->all();
+        $arr = self::find()->select(['timezone_name'])->groupBy(['timezone_name'])->all();
         return ArrayHelper::map($arr, 'timezone_name', 'timezone_name');
     }
 

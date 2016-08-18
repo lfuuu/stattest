@@ -25,6 +25,8 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
         $line7800->client = $this->client;
         $line7800->type_id = 'line';
         $line7800->address = 'test address line 7800';
+        $line7800->region = 99;
+        $line7800->create_params = '';
         $line7800->save();
 
         $logTariff = new LogTarif;
@@ -41,6 +43,8 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
         $usage->address = 'test address';
         $usage->E164 = '123456' . mt_rand(0, 9);
         $usage->line7800_id = $line7800->id;
+        $usage->region = 99;
+        $usage->create_params = '';
         $usage->save();
 
         $logTariff = new LogTarif;

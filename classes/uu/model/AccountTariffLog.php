@@ -2,15 +2,13 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\uu\AccountTariffBiller;
+use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
-use app\classes\uu\tarificator\AccountEntryTarificator;
-use app\classes\uu\tarificator\AccountLogMinTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
-use app\classes\uu\tarificator\BillTarificator;
-use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\models\ClientAccount;
 use DateTimeImmutable;
 use Yii;
@@ -77,6 +75,17 @@ class AccountTariffLog extends ActiveRecord
     }
 
     /**
+     * @return []
+     */
+    public function behaviors()
+    {
+        return [
+            'SyncAccountTariffLight' => SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
+            'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+        ];
+    }
+
+    /**
      * @return ActiveQuery
      */
     public function getTariffPeriod()
@@ -135,10 +144,10 @@ class AccountTariffLog extends ActiveRecord
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
         }
 
-        if (self::find()
-            ->where(['account_tariff_id' => $this->account_tariff_id])
-            ->andWhere(['=', 'actual_from', $currentDate])
-            ->count()
+        if ($this->actual_from == $currentDate && self::find()
+                ->where(['account_tariff_id' => $this->account_tariff_id])
+                ->andWhere(['=', 'actual_from', $currentDate])
+                ->count()
         ) {
             $this->addError($attribute, 'Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
         }
@@ -244,7 +253,6 @@ class AccountTariffLog extends ActiveRecord
                 // сегодня смена тарифа при отрицательном балансе (или блокировке). Откладываем +1 день, пока деньги не появятся (или не разблокируется)
                 $this->actual_from = $datimeNow->modify('+1 day')->format('Y-m-d');
             }
-            // @todo надо отправить данные на платформу
             return;
         }
 
@@ -285,7 +293,6 @@ class AccountTariffLog extends ActiveRecord
         // AccountLogResourceTarificator пока нет
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
         $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
-
         $priceMin = $tariffPeriod->price_min * $accountLogPeriod->coefficient;
         $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceMin;
 
@@ -304,23 +311,6 @@ class AccountTariffLog extends ActiveRecord
 
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
-
-        // списать деньги (транзакции)
-        if (!$accountLogSetup->save()) {
-            $this->addError($attribute, implode('. ', $accountLogSetup->getFirstErrors()));
-            return;
-        }
-        if (!$accountLogPeriod->save()) {
-            $this->addError($attribute, implode('. ', $accountLogPeriod->getFirstErrors()));
-            return;
-        }
-        ob_start();
-        (new AccountLogMinTarificator)->tarificate($this->account_tariff_id);
-        (new AccountEntryTarificator)->tarificate($this->account_tariff_id);
-        (new BillTarificator)->tarificate($this->account_tariff_id);
-        (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
-        ob_end_clean();
-
-        // @todo надо отправить данные на платформу
+        // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
     }
 }

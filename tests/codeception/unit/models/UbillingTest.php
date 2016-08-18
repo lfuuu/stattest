@@ -2,7 +2,13 @@
 
 namespace tests\codeception\unit\models;
 
+use app\classes\uu\model\AccountEntry;
+use app\classes\uu\model\AccountLogMin;
+use app\classes\uu\model\AccountLogPeriod;
+use app\classes\uu\model\AccountLogResource;
+use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\Bill;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
@@ -40,6 +46,12 @@ class UbillingTest extends TestCase
 
     protected function unload()
     {
+        AccountLogSetup::deleteAll();
+        AccountLogPeriod::deleteAll();
+        AccountLogResource::deleteAll();
+        AccountLogMin::deleteAll();
+        AccountEntry::deleteAll();
+        Bill::deleteAll();
         (new AccountTariffLogFixture)->unload();
         (new AccountTariffFixture)->unload();
         (new TariffPeriodFixture)->unload();

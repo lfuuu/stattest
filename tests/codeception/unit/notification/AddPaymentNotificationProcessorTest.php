@@ -50,6 +50,7 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $row->client_contact_id = $c->id;
         $row->add_pay_notif = 1;
         $row->status = LkNoticeSetting::STATUS_WORK;
+        $row->activate_code = '';
         $row->save();
 
 
@@ -60,6 +61,7 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $payment->sum = 120;
         $payment->currency = Currency::RUB;
         $payment->payment_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $payment->comment = '';
         $payment->save();
 
 

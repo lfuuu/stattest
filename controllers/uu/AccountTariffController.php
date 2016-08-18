@@ -8,8 +8,8 @@ namespace app\controllers\uu;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\forms\AccountTariffAddForm;
+use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
@@ -288,6 +288,7 @@ class AccountTariffController extends BaseController
     public function actionCancel($tariffPeriodId = null)
     {
         $id = 0;
+        $serviceTypeId = null;
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $ids = Yii::$app->request->get('ids');
@@ -303,6 +304,7 @@ class AccountTariffController extends BaseController
 
                 // найти услугу телефонии или пакета телефонии
                 $accountTariff = $this->findAccountTariff($accountTariffId, $tariffPeriodId);
+                $serviceTypeId = $accountTariff->service_type_id;
 
                 // лог тарифов
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
@@ -310,13 +312,19 @@ class AccountTariffController extends BaseController
                 // отменяемый тариф
                 /** @var AccountTariffLog $accountTariffLogCancelled */
                 $accountTariffLogCancelled = array_shift($accountTariffLogs);
-                if (strtotime($accountTariffLogCancelled->actual_from) < time()) {
+                if (!$accountTariff->isCancelable()) {
                     throw new LogicException('Нельзя отменить уже примененный тариф');
+                }
+
+                // отменить (удалить) последний тариф
+                if (!$accountTariffLogCancelled->delete()) {
+                    $errors = $accountTariffLogCancelled->getFirstErrors();
+                    throw new LogicException(reset($errors));
                 }
 
                 if (!count($accountTariffLogs)) {
 
-                    // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью. Лог тарифов должен удалиться каскадно
+                    // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
                     if (!$accountTariff->delete()) {
                         $errors = $accountTariff->getFirstErrors();
                         throw new LogicException(reset($errors));
@@ -326,12 +334,6 @@ class AccountTariffController extends BaseController
                     $id = null;
 
                 } else {
-
-                    // отменить (удалить) последний тариф
-                    if (!$accountTariffLogCancelled->delete()) {
-                        $errors = $accountTariffLogCancelled->getFirstErrors();
-                        throw new LogicException(reset($errors));
-                    }
 
                     // предпоследний тариф становится текущим
                     /** @var AccountTariffLog $accountTariffLogActual */
@@ -372,9 +374,12 @@ class AccountTariffController extends BaseController
             ]);
         } else {
             // редактировали много - на их список
+            if (!$serviceTypeId || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE) {
+                $serviceTypeId = ServiceType::ID_VOIP;
+            }
             return $this->redirect([
                 'index',
-                'serviceTypeId' => ServiceType::ID_VOIP,
+                'serviceTypeId' => $serviceTypeId,
             ]);
         }
     }
