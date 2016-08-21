@@ -39,6 +39,7 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
             'attribute' => 'tariff_period_id',
             'format' => 'html',
             'value' => function (AccountTariffLog $accountTariffLog) {
+                $accountTariff = $accountTariffLog->accountTariff;
                 return
                     ($accountTariffLog->tariffPeriod ?
                         Html::a(
@@ -56,7 +57,7 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
                                 'aria-hidden' => 'true',
                             ]) . ' ' .
                             Yii::t('common', 'Cancel'),
-                            Url::toRoute(['/uu/account-tariff/cancel', 'id' => $accountTariffLog->account_tariff_id, 'tariffPeriodId' => $accountTariffLog->tariff_period_id]),
+                            Url::toRoute(['/uu/account-tariff/cancel', 'id' => $accountTariff->id, 'accountTariffHash' => $accountTariff->getHash()]),
                             [
                                 'class' => 'btn btn-danger account-tariff-button-cancel btn-xs',
                                 'title' => 'Отменить смену тарифа',

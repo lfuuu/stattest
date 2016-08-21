@@ -58,6 +58,7 @@ class AccountTariffLog extends ActiveRecord
             [['account_tariff_id'], 'required'],
             ['actual_from', 'date', 'format' => 'php:Y-m-d'],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
+            ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
         ];
@@ -312,5 +313,45 @@ class AccountTariffLog extends ActiveRecord
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
+    }
+
+    /**
+     * Валидировать, что дата включения пакета не раньше даты включения услуги
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorPackage($attribute, $params)
+    {
+        $isNewRecord = !$this->getCountLogs();
+        if (!$isNewRecord) {
+            // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        if ($accountTariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
+            // не пакет телефонии
+            return;
+        }
+
+        $prevAccountTariff = $accountTariff->prevAccountTariff;
+        if (!$prevAccountTariff) {
+            $this->addError($attribute, 'Не указана основная услуга телефонии для пакета телефонии');
+            return;
+        }
+
+        $prevAccountTariffLogs = $prevAccountTariff->accountTariffLogs;
+        if (count($prevAccountTariffLogs)>1) {
+            // основная услуга уже действует
+            return;
+        }
+
+        $prevAccountTariffLog = reset($prevAccountTariffLogs);
+        if ($prevAccountTariffLog->actual_from > $this->actual_from) {
+            $this->addError($attribute, sprintf('Пакет телефонии может начать действовать (%s) только после начала действия (%s) основной услуги телефонии', $this->actual_from, $prevAccountTariffLog->actual_from));
+            return;
+        }
+
     }
 }

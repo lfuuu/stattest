@@ -95,7 +95,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                                             'aria-hidden' => 'true',
                                         ]) . ' ' .
                                         Yii::t('common', 'Cancel'),
-                                        Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffFirst->tariff_period_id]),
+                                        Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffFirst->getHash()]),
                                         [
                                             'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                             'title' => 'Отменить смену тарифа',
@@ -154,7 +154,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                                                 'aria-hidden' => 'true',
                                             ]) . ' ' .
                                             Yii::t('common', 'Cancel'),
-                                            Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'tariffPeriodId' => $accountTariffPackage->tariff_period_id]),
+                                            Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffPackage->getHash()]),
                                             [
                                                 'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
                                                 'title' => 'Отменить смену тарифа для пакета',
@@ -266,6 +266,12 @@ $rows = AccountTariff::getGroupedObjects($query);
         $(".account-tariff-button-cancel")
             .on("click", function (e, item) {
                 return confirm("Отменить смену тарифа или закрытие услуги?");
+            });
+
+        $("body")
+            .on("click", ".resource-tariff-form .btn-cancel", function (e, item) {
+                e.preventDefault();
+                $(this).parents('.account-tariff-voip-form').prev().click();
             });
 
     });

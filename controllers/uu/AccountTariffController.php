@@ -196,19 +196,33 @@ class AccountTariffController extends BaseController
                     $post['AccountTariff']['tariff_period_id'],
                     $post['AccountTariffLog'],
                     $post['AccountTariffLog']['tariff_period_id'],
-                    $post['AccountTariffLog']['actual_from']
+                    $post['AccountTariffLog']['actual_from'],
+                    $post['accountTariffId']
                 )
                 || !($actualFromTimestamp = strtotime($post['AccountTariffLog']['actual_from']))
-                || ($tariffPeriodIdOld = (int)$post['AccountTariff']['tariff_period_id']) === ($tariffPeriodIdNew = (isset($post['closeTariff']) ? null : (int)$post['AccountTariffLog']['tariff_period_id']))
             ) {
                 throw new InvalidArgumentException('Неправильные параметры');
             }
+
+            // id первой услуги (тарифа или пакета) или 0 (добавление пакета)
+            $accountTariffFirstId = (int)$post['accountTariffId'];
+            if ($accountTariffFirstId) {
+                $accountTariffFirst = AccountTariff::findOne(['id' => $accountTariffFirstId]);
+                if (!$accountTariffFirst) {
+                    throw new InvalidArgumentException(Yii::t('common', 'Wrong first ID ' . $accountTariffFirstId));
+                }
+                $accountTariffFirstHash = $accountTariffFirst->getHash();
+            } else {
+                $accountTariffFirstHash = null;
+            }
+
+            $tariffPeriodIdNew = (isset($post['closeTariff']) ? null : (int)$post['AccountTariffLog']['tariff_period_id']);
 
             $accountTariffIds = (array)$post['AccountTariff']['ids'];
             foreach ($accountTariffIds as $accountTariffId) {
 
                 // найти услугу телефонии или пакета телефонии
-                $accountTariff = $this->findAccountTariff($accountTariffId, $tariffPeriodIdOld);
+                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffFirstHash);
 
                 // изменить услугу
                 $accountTariff->tariff_period_id = $tariffPeriodIdNew;
@@ -283,14 +297,19 @@ class AccountTariffController extends BaseController
     /**
      * Отменить последнюю смену тарифа
      *
+     * @param string $accountTariffHash хэш услуги
      * @return string|Response
      */
-    public function actionCancel($tariffPeriodId = null)
+    public function actionCancel($accountTariffHash = null)
     {
         $id = 0;
         $serviceTypeId = null;
         $transaction = \Yii::$app->db->beginTransaction();
         try {
+            if (!$accountTariffHash) {
+                throw new InvalidArgumentException('Неправильные параметры (accountTariffHash)');
+            }
+
             $ids = Yii::$app->request->get('ids');
             $id = (int)Yii::$app->request->get('id');
             if (!$ids || !is_array($ids) || !count($ids)) {
@@ -303,7 +322,7 @@ class AccountTariffController extends BaseController
             foreach ($ids as $accountTariffId) {
 
                 // найти услугу телефонии или пакета телефонии
-                $accountTariff = $this->findAccountTariff($accountTariffId, $tariffPeriodId);
+                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffHash);
                 $serviceTypeId = $accountTariff->service_type_id;
 
                 // лог тарифов
@@ -387,10 +406,10 @@ class AccountTariffController extends BaseController
     /**
      * найти услугу телефонии или пакета телефонии
      * @param int $accountTariffId
-     * @param int $tariffPeriodIdOld
+     * @param string $accountTariffFirstHash хэш первой услуги (тарифа или пакета) или null (добавление пакета)
      * @return AccountTariff
      */
-    protected function findAccountTariff($accountTariffId, $tariffPeriodIdOld)
+    protected function findAccountTariff($accountTariffId, $accountTariffFirstHash)
     {
         $accountTariffId = (int)$accountTariffId;
         if (!$accountTariffId) {
@@ -399,27 +418,10 @@ class AccountTariffController extends BaseController
 
         $accountTariff = AccountTariff::findOne($accountTariffId);
         if (!$accountTariff) {
-            throw new InvalidArgumentException(Yii::t('common', 'Wrong ID'));
+            throw new InvalidArgumentException(Yii::t('common', 'Wrong ID ' . $accountTariffId));
         }
 
-        if ($accountTariff->tariff_period_id == $tariffPeriodIdOld &&
-            ($tariffPeriodIdOld || $accountTariff->isCancelable())
-        ) {
-            // тариф телефонии
-            return $accountTariff;
-        }
-
-        foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
-            if ($accountTariffPackage->tariff_period_id == $tariffPeriodIdOld &&
-                ($tariffPeriodIdOld || $accountTariffPackage->isCancelable())
-            ) {
-                // тариф пакета телефонии
-                return $accountTariffPackage;
-            }
-        }
-        unset($accountTariffPackage);
-
-        if (!$tariffPeriodIdOld) {
+        if (!$accountTariffFirstHash) {
             // создание нового пакета
             $accountTariffPackage = new AccountTariff;
             $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
@@ -430,7 +432,19 @@ class AccountTariffController extends BaseController
             return $accountTariffPackage;
         }
 
-        throw new InvalidArgumentException(sprintf('Услуга %d с тарифом %d не найдена', $accountTariffId,
-            $tariffPeriodIdOld));
+        if ($accountTariff->getHash() == $accountTariffFirstHash) {
+            // тариф телефонии
+            return $accountTariff;
+        }
+
+        foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
+            if ($accountTariffPackage->getHash() == $accountTariffFirstHash) {
+                // тариф пакета телефонии
+                return $accountTariffPackage;
+            }
+        }
+        unset($accountTariffPackage);
+
+        throw new InvalidArgumentException(sprintf('Услуга %d с хэшем %s не найдена', $accountTariffId, $accountTariffFirstHash));
     }
 }

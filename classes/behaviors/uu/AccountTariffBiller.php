@@ -38,8 +38,8 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $accountTariff->id;
 
         ob_start();
-        (new AccountLogSetupTarificator)->tarificate($accountTariffId);
-        (new AccountLogPeriodTarificator)->tarificate($accountTariffId);
+        (new AccountLogSetupTarificator)->tarificate($accountTariffId, false);
+        (new AccountLogPeriodTarificator)->tarificate($accountTariffId, false);
         (new AccountLogMinTarificator)->tarificate($accountTariffId);
         (new AccountEntryTarificator)->tarificate($accountTariffId);
         (new BillTarificator)->tarificate($accountTariffId);

@@ -744,41 +744,50 @@ class AccountTariff extends ActiveRecord
         /** @var AccountTariff $accountTariff */
         foreach ($query->each() as $accountTariff) {
 
-            $hashes = [];
-
-            // город
-            $hashes[] = $accountTariff->city_id;
-
-            // лог тарифа и даты
-            foreach ($accountTariff->accountTariffLogs as $accountTariffLog) {
-                $hashes[] = $accountTariffLog->tariff_period_id ?: '';
-                $hashes[] = $accountTariffLog->actual_from;
-
-                if (strtotime($accountTariffLog->actual_from) < time()) {
-                    // показываем только текущий. Старье не нужно
-                    break;
-                }
-            }
-
-            // Пакет. Лог тарифа  и даты
-            foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
-                foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
-                    // лог тарифа
-                    $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
-                    $hashes[] = $accountTariffPackageLog->actual_from;
-
-                    if (strtotime($accountTariffPackageLog->actual_from) < time()) {
-                        // показываем только текущий. Старье не нужно
-                        break;
-                    }
-                }
-            }
-
-            $hash = md5(implode('_', $hashes));
+            $hash = $accountTariff->getHash();
             !isset($rows[$hash]) && $rows[$hash] = [];
             $rows[$hash][$accountTariff->id] = $accountTariff;
         }
         return $rows;
+    }
+
+    /**
+     * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным номерам.
+     * @return string
+     */
+    public function getHash()
+    {
+        $hashes = [];
+
+        // город
+        $hashes[] = $this->city_id;
+
+        // лог тарифа и даты
+        foreach ($this->accountTariffLogs as $accountTariffLog) {
+            $hashes[] = $accountTariffLog->tariff_period_id ?: '';
+            $hashes[] = $accountTariffLog->actual_from;
+
+            if (strtotime($accountTariffLog->actual_from) < time()) {
+                // показываем только текущий. Старье не нужно
+                break;
+            }
+        }
+
+        // Пакет. Лог тарифа  и даты
+        foreach ($this->nextAccountTariffs as $accountTariffPackage) {
+            foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
+                // лог тарифа
+                $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
+                $hashes[] = $accountTariffPackageLog->actual_from;
+
+                if (strtotime($accountTariffPackageLog->actual_from) < time()) {
+                    // показываем только текущий. Старье не нужно
+                    break;
+                }
+            }
+        }
+
+        return md5(implode('_', $hashes));
     }
 
     /**

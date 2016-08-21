@@ -17,8 +17,9 @@ class AccountLogPeriodTarificator implements TarificatorI
     /**
      * Рассчитать плату всех услуг
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @param bool $isWithTransaction
      */
-    public function tarificate($accountTariffId = null)
+    public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
@@ -44,12 +45,12 @@ class AccountLogPeriodTarificator implements TarificatorI
                 continue;
             }
 
-            $transaction = Yii::$app->db->beginTransaction();
+            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
                 $this->tarificateAccountTariff($accountTariff);
-                $transaction->commit();
+                $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
-                $transaction->rollBack();
+                $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
