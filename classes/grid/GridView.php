@@ -195,7 +195,7 @@ HTML;
     {
         parent::init();
 
-        $this->_toggleDataKey = '_tog' . hash('crc32', Yii::$app->user->id . $this->dataProvider->query->modelClass);
+        $this->_toggleDataKey = '_tog' . hash('crc32', Yii::$app->user->id . $this->_toggleDataKey);
 
         if (isset($_COOKIE[$this->pageSizeCookie])) {
             $pageSizeValue = Json::decode($_COOKIE[$this->pageSizeCookie]);
