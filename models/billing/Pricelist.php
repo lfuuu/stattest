@@ -23,6 +23,18 @@ class Pricelist extends ActiveRecord
     const TYPE_OPERATOR = 'operator';
     const TYPE_LOCAL = 'network_prices';
 
+    const STATE_STORED = 1;
+    const STATE_PUBLIC = 2;
+    const STATE_SPECIAL = 3;
+    const STATE_UNIVERSAL = 4;
+
+    public static $states = [
+        self::STATE_STORED => 'Архивный',
+        self::STATE_PUBLIC => 'Публичный',
+        self::STATE_SPECIAL => 'Специальный',
+        self::STATE_UNIVERSAL => 'Универсальный',
+    ];
+
     public static function tableName()
     {
         return 'voip.pricelist';

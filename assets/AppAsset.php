@@ -27,6 +27,7 @@ class AppAsset extends AssetBundle
         'js/script.js',
         'js/optools.js',
         'js/statlib/main.js',
+        'js/js.cookie.js',
     ];
 
     public $jsOptions = [

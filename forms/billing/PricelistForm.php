@@ -2,6 +2,7 @@
 namespace app\forms\billing;
 
 use app\classes\Form;
+use app\models\billing\Pricelist;
 
 class PricelistForm extends Form
 {
@@ -18,6 +19,7 @@ class PricelistForm extends Form
     public $local_network_config_id;
     public $price_include_vat;
     public $is_global;
+    public $status;
 
     public function rules()
     {
@@ -27,6 +29,7 @@ class PricelistForm extends Form
             [['type'], 'string'],
             [['orig', 'tariffication_by_minutes', 'tariffication_full_first_minute', 'price_include_vat', 'is_global'], 'boolean'],
             [['initiate_mgmn_cost', 'initiate_zona_cost'], 'number'],
+            ['status', 'in', 'range' => array_keys(Pricelist::$states)],
         ];
     }
 
@@ -45,6 +48,7 @@ class PricelistForm extends Form
             'initiate_mgmn_cost' => 'Инициация МГМН вызова',
             'initiate_zona_cost' => 'Инициация зонового вызова',
             'is_global' => 'Глобальный прайс-лист',
+            'status' => 'Статус',
         ];
     }
 }
