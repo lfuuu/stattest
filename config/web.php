@@ -121,7 +121,7 @@ $config = [
             'translations' => [
                 '*' => [
                     'class' => 'yii\i18n\PhpMessageSource',
-                    'sourceLanguage' => 'ru-RU'
+                    //'sourceLanguage' => 'ru-RU'
                 ],
             ],
         ],
