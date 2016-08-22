@@ -399,6 +399,19 @@ function smarty_modifier_currencySymbol($currency)
 	return Currency::symbol($currency);
 }
 
+function smarty_date_full($date)
+{
+	if (!$date || $date == "0000-00-00 00:00:00") {
+		return "";
+	}
+
+	if ($date instanceof DateTime) {
+		$date = $date->getTimestamp();
+	}
+
+	return Yii::t('tariff', '{0,date,dd MMMM yyyy HH:mm:ss}', [(is_numeric($date) ? $date : strtotime($date))]);
+}
+
 class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
@@ -445,6 +458,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('client_options', 'smarty_modifier_client_options');
 		$this->register_modifier('money_currency', 'smarty_modifier_moneyAndCurrency');
 		$this->register_modifier('currency_symbol', 'smarty_modifier_currencySymbol');
+		$this->register_modifier('date_full', 'smarty_date_full');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

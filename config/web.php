@@ -120,8 +120,8 @@ $config = [
         'i18n' => [
             'translations' => [
                 '*' => [
-                    'class' => 'yii\i18n\PhpMessageSource'
-                    //, 'sourceLanguage' => 'ru'
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'sourceLanguage' => 'ru-RU'
                 ],
             ],
         ],
