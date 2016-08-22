@@ -8,7 +8,8 @@ use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
 use app\models\billing\Clients;
 use app\models\billing\Counter;
-use app\models\billing\Locks;
+use app\models\ClientAccount;
+use app\models\ClientContract;
 
 class AutoBlockDayLimitFolder extends AccountGridFolder
 {
@@ -37,19 +38,6 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->addSelect('ab.block_date');
-        $query->leftJoin(
-            '(
-                SELECT `client_id`, MAX(`date`) AS block_date
-                FROM `lk_notice_log`
-                WHERE `event` = "day_limit"
-                GROUP BY `client_id`
-            ) AS ab',
-            'ab.`client_id` = c.`id`');
-        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
-        $query->andWhere(['c.voip_disabled' => 1]);
-
         $billingQuery =
             (new Query)
                 ->select('clients.id')
@@ -58,14 +46,41 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
                 ->andWhere(new Expression('clients.voip_limit_day > 0'))
                 ->andWhere(new Expression('clients.voip_limit_day < counter.amount_day_sum'));
 
-        $clientsIDs = $billingQuery->column(Clients::getDb());
+        $clientsIDs = (array)$billingQuery->column(Clients::getDb());
 
-        if (count($clientsIDs)) {
-            $query->andWhere(['IN', 'c.id', $clientsIDs]);
-        }
-        else {
+        $statBillingQuery =
+            (new Query)
+                ->select('clients.id')
+                ->from(['clients' => ClientAccount::tableName()])
+                ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
+                ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
+                ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
+                ->andWhere(['IN', 'clients.id', $clientsIDs]);
+
+        $statQuery =
+            (new Query)
+                ->select('clients.id')
+                ->from(['clients' => ClientAccount::tableName()])
+                ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
+                ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
+                ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
+                ->andWhere(['clients.voip_disabled' => 1]);
+
+        $resultIDs = array_merge($statBillingQuery->column(), $statQuery->column());
+
+        if (count($resultIDs)) {
+            $query->addSelect('ab.block_date');
+            $query->leftJoin(
+                '(
+                    SELECT `client_id`, MAX(`date`) AS block_date
+                    FROM `lk_notice_log`
+                    WHERE `event` = "day_limit"
+                    GROUP BY `client_id`
+                ) AS ab',
+                'ab.`client_id` = c.`id`');
+            $query->where(['IN', 'c.id', $resultIDs]);
+        } else {
             $query->andWhere('false');
         }
-
     }
 }
