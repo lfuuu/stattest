@@ -1859,10 +1859,6 @@ class m_newaccounts extends IModule
         }
 
         $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
-        if ($billModel) {
-            $organization = $billModel->clientAccount->contract->organization;
-            $design->assign("organization", $organization);
-        }
 
         switch ($obj) {
             case 'receipt': {
@@ -2675,6 +2671,7 @@ class m_newaccounts extends IModule
 
             $organization_info = $organization->getOldModeInfo();
 
+            $design->assign("organization", $organization);
             $design->assign('firm', $organization_info);
             $design->assign('firma', $organization_info);
             $design->assign('firm_director', $organization->director->getOldModeInfo());
