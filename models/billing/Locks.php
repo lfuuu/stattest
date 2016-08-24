@@ -37,6 +37,8 @@ class Locks extends ActiveRecord
             $query->addSelect([
                 'voip_auto_disabled',
                 'voip_auto_disabled_local',
+                'is_overran',
+                'is_finance_block',
             ]);
     }
 

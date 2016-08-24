@@ -695,8 +695,16 @@ class ClientAccount extends HistoryActiveRecord
         if ($need_lock_limit_month) {
             $warnings[self::WARNING_LIMIT_MONTH] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
         }
-        if ($need_lock_credit) {
-            $warnings[self::WARNING_CREDIT] = 'Превышен лимит кредита: ' . sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit;
+        if ($need_lock_credit || array_key_exists(self::WARNING_FINANCE, $warnings)) {
+            $warnings[self::WARNING_CREDIT] =
+                'Превышен лимит кредита: ' .
+                sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
+                (
+                    array_key_exists(self::WARNING_FINANCE, $warnings)
+                        ? ' (на уровне биллинга)'
+                        : ''
+
+                );
         }
 
         return $warnings;
