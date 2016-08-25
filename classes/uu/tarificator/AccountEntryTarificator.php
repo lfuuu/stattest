@@ -293,7 +293,7 @@ SQL;
             ->createCommand($sql)
             ->queryOne();
 
-        if ($ids) {
+        if ($ids && $ids['ids']) {
             return explode(',', $ids['ids']);
         }
 
