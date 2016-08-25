@@ -14,6 +14,18 @@ class RenderParams extends Singleton
 {
 
     /**
+     * @return []
+     */
+    public static function getListOfVariables()
+    {
+        $result = [];
+        foreach (Yii::$app->params['mail_map_names'] as $key => $data) {
+            $result[$key] = isset($data['descr']) ? $data['descr'] : 'Описание не найдено';
+        }
+        return $result;
+    }
+
+    /**
      * @param string $name
      * @param array $args
      * @return mixed
@@ -34,8 +46,11 @@ class RenderParams extends Singleton
     {
         Assert::isNotEmpty($tpl);
 
-        foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $call) {
-            $replaceTo = $this->{$call}($clientAccountId, $eventId);
+        foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $data) {
+            if (!isset($data['method'])) {
+                continue;
+            }
+            $replaceTo = $this->{$data['method']}($clientAccountId, $eventId);
             $tpl = str_replace($replaceFrom, $replaceTo, $tpl);
         }
 

@@ -150,6 +150,23 @@ echo Breadcrumbs::widget([
 
     ActiveForm::end();
     ?>
+    <br />
+    <table class="table table-bordered ">
+        <thead>
+            <tr class="info">
+                <th>Переменная</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach (\app\helpers\RenderParams::getListOfVariables() as $variable => $descr): ?>
+                <tr>
+                    <td><?= $variable ?></td>
+                    <td><?= $descr ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 
 <script type="text/javascript">
