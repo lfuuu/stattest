@@ -82,7 +82,7 @@ class UsageVoipForm extends Form
                     'tariff_group_intern_price',
                     'tariff_group_price'
                 ],
-                'number'
+                'integer', 'integerOnly' => false
             ],
             ['status', 'default', 'value' => 'connecting'],
             [['connecting_date'], 'validateDate', 'on' => 'edit'],
