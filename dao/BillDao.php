@@ -181,6 +181,8 @@ class BillDao extends Singleton
      */
     public function transferUniversalBillsToBills(ClientAccount $clientAccount)
     {
+        $transaction = Yii::$app->getDb()->beginTransaction();
+
         /** @var uuBill $uuBill $uuBill */
         foreach (uuBill::find()
                      ->where([
@@ -307,5 +309,6 @@ class BillDao extends Singleton
                 Bill::dao()->recalcBill($bill);
             }
         }
+        $transaction->commit();
     }
 }

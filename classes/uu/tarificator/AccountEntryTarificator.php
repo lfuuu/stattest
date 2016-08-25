@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\Event;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
@@ -69,6 +70,13 @@ class AccountEntryTarificator implements TarificatorI
         // Расчёт НДС
         echo PHP_EOL . 'Расчёт НДС';
         $this->_tarificateVat($accountTariffId);
+
+        // очищаем флаг
+        $this->cleanUpdateFlag();
+
+        // получаем accountId изменившихся проводок
+        // и генерируем события об этом
+        $this->makeUpdateEvents($this->getUpdatedAccountIds());
 
         echo PHP_EOL;
     }
@@ -183,7 +191,7 @@ SQL;
         $clientContractTableName = ClientContract::tableName();
         $organizationTableName = Organization::tableName();
         $updateSql = <<<SQL
-            UPDATE
+        UPDATE
             {$accountEntryTableName} account_entry,
             {$accountTariffTableName} account_tariff,
             {$clientAccountTableName} client_account,
@@ -225,10 +233,11 @@ SQL;
             ON account_entry.type_id = tariff_resource.id
         SET
             account_entry.price_without_vat = IF(
-                (account_entry.type_id < 0  AND tariff.is_include_vat) OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id = {$resourceIdVoipCalls}),
+                (account_entry.type_id < 0 AND tariff.is_include_vat) OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id = {$resourceIdVoipCalls}),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
-               )
+               ),
+            is_updated = 1
         WHERE
             account_entry.vat_rate IS NOT NULL
             AND account_entry.account_tariff_id = account_tariff.id
@@ -248,7 +257,8 @@ SQL;
             {$accountEntryTableName} account_entry
         SET
             vat = price_without_vat * vat_rate / 100,
-            price_with_vat = price_without_vat * (100 + vat_rate) / 100
+            price_with_vat = price_without_vat * (100 + vat_rate) / 100,
+            is_updated = 1
         WHERE
             price_without_vat IS NOT NULL
             {$sqlAndWhere}
@@ -256,5 +266,70 @@ SQL;
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
+    }
+
+    /**
+     * Возвращает массив id ЛС, в которых были измененны проводки
+     *
+     * @return array
+     */
+    public function getUpdatedAccountIds()
+    {
+        $accountEntryTableName = AccountEntry::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+
+        $sql = <<<SQL
+        SELECT 
+            GROUP_CONCAT(DISTINCT account_tariff.client_account_id) AS ids
+        FROM 
+            {$accountEntryTableName} account_entry,
+            {$accountTariffTableName} account_tariff
+        WHERE 
+          account_entry.is_updated = 1
+          AND account_entry.account_tariff_id = account_tariff.id
+SQL;
+
+        $ids = Yii::$app->db
+            ->createCommand($sql)
+            ->queryOne();
+
+        if ($ids) {
+            return explode(',', $ids['ids']);
+        }
+
+        return [];
+    }
+
+    /**
+     * Создает событие на обновление счетов, сделаных из проводок.
+     *
+     * @param int[]
+     */
+    public function makeUpdateEvents(array $ids)
+    {
+        foreach ($ids as $id) {
+            Event::go('uu_tarificate', ['account_id' => $id]);
+        }
+    }
+
+    /**
+     * Снимаем флаг-признак с проводок, что они обновлены
+     */
+    public function cleanUpdateFlag()
+    {
+        $accountEntryTableName = AccountEntry::tableName();
+
+        $sql = <<<SQL
+        UPDATE
+            {$accountEntryTableName}
+        SET 
+            is_updated = 0
+        WHERE
+            is_updated = 1
+SQL;
+
+        Yii::$app->db
+            ->createCommand($sql)
+            ->execute();
     }
 }

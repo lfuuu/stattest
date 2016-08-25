@@ -259,9 +259,7 @@ class UbillerController extends Controller
         foreach ($clientAccounts as $clientAccount) {
             echo PHP_EOL . 'client: ' . $clientAccount->id;
 
-            $transaction = Yii::$app->getDb()->beginTransaction();
             stdBill::dao()->transferUniversalBillsToBills($clientAccount);
-            $transaction->commit();
         }
 
         echo PHP_EOL . 'done.';
