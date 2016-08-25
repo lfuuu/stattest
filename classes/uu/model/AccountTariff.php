@@ -580,7 +580,11 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            throw new RangeException(
+                PHP_EOL .
+                sprintf('Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs)))
+                . PHP_EOL
+            );
         }
 
         return $untarificatedPeriods;
@@ -623,7 +627,11 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            throw new \LogicException(
+                PHP_EOL .
+                sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)))
+                . PHP_EOL
+            );
         }
 
         return $untarificatedPeriods;
@@ -657,8 +665,8 @@ class AccountTariff extends ActiveRecord
             // остался неизвестный период, который уже рассчитан
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
-            printf('Error. There are unknown calculated accountLogResource for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs)));
-            foreach($accountLogs as $accountLog) {
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
                 $accountLog->delete();
             }
         }

@@ -35,6 +35,11 @@ class UbillerController extends Controller
         $this->actionResource();
         $this->actionMin();
 
+        // Не списывать абонентку и минималку при финансовой блокировке
+        // Ибо аккаунт все равно не может пользоваться услугами
+        // Обязательно после транзакций и до проводок
+        $this->actionFreePeriodInFinanceBlock();
+
         // проводки
         $this->actionEntry();
 
@@ -139,7 +144,7 @@ class UbillerController extends Controller
 
 
     /**
-     * Проверить баланс при смене тарифа
+     * Проверить баланс при смене тарифа. 1 секунда
      * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
      */
     public function actionChangeTariff()
@@ -148,7 +153,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * пересчитать realtimeBalance
+     * пересчитать realtimeBalance. 1 секунда
      */
     public function actionRealtimeBalance()
     {
@@ -156,11 +161,20 @@ class UbillerController extends Controller
     }
 
     /**
-     * Месячную финансовую блокировку заменить на постоянную
+     * Месячную финансовую блокировку заменить на постоянную. 1 секунда
      */
     public function actionFinanceBlock()
     {
         $this->_tarificate('FinanceBlockTarificator', 'Месячную финансовую блокировку заменить на постоянную');
+    }
+
+    /**
+     * Не списывать абонентку и минималку при финансовой блокировке. 1 секунда
+     * Ибо аккаунт все равно не может пользоваться услугами
+     */
+    public function actionFreePeriodInFinanceBlock()
+    {
+        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
     }
 
     /**
