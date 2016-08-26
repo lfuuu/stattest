@@ -3,16 +3,13 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
-use app\models\VirtpbxStat;
+use app\models\SmsStat;
 use DateTimeImmutable;
 use yii\base\Object;
 
-abstract class VpbxResourceReader extends Object implements ResourceReaderInterface
+class SmsResourceReader extends Object implements ResourceReaderInterface
 {
-    protected $fieldName = '';
-
     /** @var [] кэш данных */
-    protected $usageToDateToValue = [];
     protected $clientToDateToValue = [];
 
     public function __construct()
@@ -20,20 +17,16 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
         parent::__construct();
 
         $minLogDatetime = AccountTariff::getMinLogDatetime();
-        $virtpbxStatQuery = VirtpbxStat::find()
+        $smsStatQuery = SmsStat::find()
             ->where(['>=', 'date', $minLogDatetime->format('Y-m-d')]);
 
-        /** @var VirtpbxStat $virtpbxStat */
-        foreach ($virtpbxStatQuery->each() as $virtpbxStat) {
-            $usageId = $virtpbxStat->usage_id;
-            $clientId = $virtpbxStat->client_id;
-            $date = $virtpbxStat->date;
+        /** @var SmsStat $smsStat */
+        foreach ($smsStatQuery->each() as $smsStat) {
+            $clientId = $smsStat->sender;
+            $date = $smsStat->date_hour;
 
-            !isset($this->usageToDateToValue[$usageId]) && ($this->usageToDateToValue[$usageId] = []);
             !isset($this->clientToDateToValue[$clientId]) && ($this->clientToDateToValue[$clientId] = []);
-
-            // записать сразу в два кэша (по услуге и клиенту), потому что в таблице virtpbx_stat все сделано костыльно
-            $this->clientToDateToValue[$clientId][$date] = $this->usageToDateToValue[$usageId][$date] = $virtpbxStat->{$this->fieldName};
+            $this->clientToDateToValue[$clientId][$date] = $smsStat->count;
         }
     }
 
@@ -46,19 +39,12 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $usageId = $accountTariff->getNonUniversalId();
         $clientId = $accountTariff->client_account_id;
         $date = $dateTime->format('Y-m-d');
         return
-            // по-новому (через услугу)
-            isset($this->usageToDateToValue[$usageId][$date]) ?
-                $this->usageToDateToValue[$usageId][$date] :
-                (
-                    // по-старому (через клиента)
-                isset($this->clientToDateToValue[$clientId][$date]) ?
-                    $this->clientToDateToValue[$clientId][$date] :
-                    null
-                );
+            isset($this->clientToDateToValue[$clientId][$date]) ?
+                $this->clientToDateToValue[$clientId][$date] :
+                null;
     }
 
     /**

@@ -108,8 +108,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_VOIP_PACKAGE => '',
 
         ServiceType::ID_INTERNET => '/pop_services.php?table=usage_ip_ports&id=%d',
-        ServiceType::ID_COLLOCATION => '',
-        ServiceType::ID_VPN => '',
+        ServiceType::ID_COLLOCATION => '/pop_services.php?table=usage_ip_ports&id=%d',
+        ServiceType::ID_VPN => '/pop_services.php?table=usage_ip_ports&id=%d',
 
         ServiceType::ID_IT_PARK => '/pop_services.php?table=usage_extra&id=%d',
         ServiceType::ID_DOMAIN => '/pop_services.php?table=usage_extra&id=%d', // /pop_services.php?id=%d&table=domains

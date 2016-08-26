@@ -72,7 +72,7 @@ class m160212_160100_convert_collocation_tariff extends \app\classes\Migration
         ]);
 
         $this->insert($tableName, [
-            'id' => Resource::ID_COLLOCATION_TRAFFIC_FOREINGN,
+            'id' => Resource::ID_COLLOCATION_TRAFFIC_FOREIGN,
             'name' => 'Трафик Foreign',
             'unit' => 'Мб.',
             'min_value' => 0,
@@ -91,7 +91,7 @@ class m160212_160100_convert_collocation_tariff extends \app\classes\Migration
             'id' => [
                 Resource::ID_COLLOCATION_TRAFFIC_RUSSIA,
                 Resource::ID_COLLOCATION_TRAFFIC_RUSSIA2,
-                Resource::ID_COLLOCATION_TRAFFIC_FOREINGN,
+                Resource::ID_COLLOCATION_TRAFFIC_FOREIGN,
             ]
         ]);
     }
