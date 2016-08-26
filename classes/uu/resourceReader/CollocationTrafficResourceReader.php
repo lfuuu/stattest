@@ -93,7 +93,7 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
                     WHERE
                         usage_ip_ports.port_id = usage_ip_routes.port_id
                         AND usage_ip_ports.actual_to >= :date
-                        AND usage_ip_routes.net LIKE  '%.%'
+                        AND LOCATE('.', usage_ip_routes.net) > 0
                         AND usage_ip_ports.id = :account_tariff_id
                 ) t1
             ) t2,

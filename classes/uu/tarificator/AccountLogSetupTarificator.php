@@ -105,6 +105,9 @@ class AccountLogSetupTarificator implements TarificatorI
             // телефонный номер кроме телефонной линии (4-5 знаков)
             // только первое подключение. При смене тарифа на том же аккаунте не считать
             $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
+            if (is_null($accountLogSetup->price_number)) {
+                throw new \Exception('Не указана стоимость подключения номера ' . $accountTariff->voip_number);
+            }
         } else {
             $accountLogSetup->price_number = 0;
         }

@@ -18,7 +18,7 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
 
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         $smsStatQuery = SmsStat::find()
-            ->where(['>=', 'date', $minLogDatetime->format('Y-m-d')]);
+            ->where(['>=', 'date_hour', $minLogDatetime->format('Y-m-d')]);
 
         /** @var SmsStat $smsStat */
         foreach ($smsStatQuery->each() as $smsStat) {
