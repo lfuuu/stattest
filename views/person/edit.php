@@ -2,14 +2,17 @@
 
 use app\assets\AppAsset;
 use app\classes\Html;
+use kartik\tabs\TabsX;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use app\helpers\MediaFileHelper;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\forms\person\PersonForm;
+use app\models\Language;
 
-/** @var $model PersonForm */
+/** @var PersonForm $model */
+/** @var \app\models\Person $person */
 
 $this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::className()]]);
@@ -28,44 +31,39 @@ echo Breadcrumbs::widget([
         'Редактирование ответственного лица'
     ],
 ]);
+
+$tabs = [];
+foreach(Language::getList() as $languageCode => $languageTitle) {
+    $tabs[] = [
+        'label' =>
+            Html::tag(
+                'div', '',
+                ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
+            ) . $languageTitle,
+        'content' => $this->render('i18n/' . $languageCode, [
+            'form' => $form,
+            'person' => $person,
+            'lang' => $languageCode,
+        ]),
+        'headerOptions' => [],
+        'options' => ['style' => 'white-space: nowrap;'],
+    ];
+}
 ?>
 
 <div class="container well" style="width: 100%; padding-top: 20px;">
     <fieldset style="width: 100%;">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'name_nominative');
-                    ?>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'name_genitive');
-                    ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'post_nominative');
-                    ?>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'post_genitive');
-                    ?>
-                </div>
-            </div>
-        </div>
+        <?= TabsX::widget([
+            'id' => 'tabs-person-i18n',
+            'items' => $tabs,
+            'position' => TabsX::POS_ABOVE,
+            'bordered' => false,
+            'encodeLabels' => false,
+            'containerOptions' => [
+                'class' => 'i18n-tabs',
+            ],
+        ]);
+        ?>
 
         <div class="row">
             <div class="col-sm-6">

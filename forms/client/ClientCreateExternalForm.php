@@ -104,7 +104,7 @@ class ClientCreateExternalForm extends Form
             ['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
             ['timezone', 'in', 'range' => Region::getTimezoneList()],
             ['country_id', 'default', 'value' => Country::RUSSIA],
-            ['country_id', 'in', 'range' => array_keys(Country::dao()->getList())],
+            ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
             ['ip', 'safe']
 

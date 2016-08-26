@@ -6,7 +6,8 @@ use yii\widgets\Breadcrumbs;
 use yii\bootstrap\Tabs;
 use app\forms\organization\OrganizationForm;
 
-/** @var $model OrganizationForm */
+/** @var OrganizationForm $model  */
+/** @var \app\models\Organization $history */
 
 $items = [];
 
@@ -15,7 +16,11 @@ foreach ($history as $record):
         $items[] = [
             'label'     => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
             'active'    => true,
-            'content'   => $this->render('form', ['model' => $model, 'mode' => 'edit']),
+            'content'   => $this->render('form', [
+                'model' => $model,
+                'history' => $record,
+                'mode' => 'edit'
+            ]),
         ];
     else:
         $items[] = [
@@ -25,11 +30,11 @@ foreach ($history as $record):
     endif;
 endforeach;
 
-echo Html::formLabel('История изменений ' . $model->name);
+echo Html::formLabel('История изменений организации');
 echo Breadcrumbs::widget([
     'links' => [
         ['label' => 'Организации', 'url' => Url::toRoute(['/organization'])],
-        'История изменений ' . $model->name
+        'История изменений организации'
     ],
 ]);
 ?>

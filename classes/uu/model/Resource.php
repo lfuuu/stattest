@@ -2,13 +2,15 @@
 
 namespace app\classes\uu\model;
 
+use Yii;
+use app\models\Language;
+use yii\db\ActiveQuery;
 use app\classes\uu\resourceReader\DummyResourceReader;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
 use app\classes\uu\resourceReader\VoipCallsResourceReader;
 use app\classes\uu\resourceReader\VpbxAbonentResourceReader;
 use app\classes\uu\resourceReader\VpbxDiskResourceReader;
 use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
-use yii\db\ActiveQuery;
 
 /**
  * Ресурс (дисковое пространство, абоненты, линии и пр.)
@@ -165,11 +167,17 @@ class Resource extends \yii\db\ActiveRecord
 
     /**
      * Вернуть полное имя (с типом услуги)
+     * @param string $langCode
      * @return string
      */
-    public function getFullName()
+    public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
     {
-        return $this->serviceType->name . '. ' . $this->name;
+        $dictionary = 'models/' . self::tableName();
+
+        return Yii::t($dictionary, 'title', [
+            'resource' => Yii::t($dictionary, $this->id, [], $langCode),
+            'id' => $this->id,
+        ], $langCode);
     }
 
     /**

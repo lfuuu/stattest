@@ -1,6 +1,9 @@
 <?php
 
 use app\assets\AppAsset;
+use app\models\Language;
+use app\models\OrganizationSettlementAccount;
+use kartik\tabs\TabsX;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
@@ -13,7 +16,9 @@ use app\forms\organization\OrganizationForm;
 use app\models\Country;
 use app\models\Person;
 
-/** @var $model OrganizationForm */
+/** @var OrganizationForm $model */
+/** @var \app\models\Organization $history */
+/** @var string $mode */
 
 $this->registerCssFile('@web/css/behaviors/autocomplete-loading.css', ['depends' => [AppAsset::className()]]);
 $this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
@@ -39,27 +44,46 @@ if (!empty($title)) {
         'type' => ActiveForm::TYPE_VERTICAL,
         'id' => 'OrganizationFrm',
     ];
-    if ($mode == 'duplicate')
+    if ($mode === 'duplicate') {
         $form_options['action'] = '/organization/add';
+    }
     $form = ActiveForm::begin($form_options);
+
+    $languagesTabs = [];
+    foreach(Language::getList() as $languageCode => $languageTitle) {
+        $languagesTabs[] = [
+            'label' =>
+                Html::tag(
+                    'div', '',
+                    ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
+                ) . $languageTitle,
+            'content' => $this->render('i18n/' . $languageCode, [
+                'form' => $form,
+                'organization' => $history,
+                'lang' => $languageCode,
+            ]),
+            'headerOptions' => [],
+            'options' => ['style' => 'white-space: nowrap;'],
+        ];
+    }
     ?>
 
     <fieldset style="width: 100%;">
         <div class="row">
             <div class="col-sm-3">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'firma')
-                        ->textInput(['readonly' => $mode == 'duplicate' ? true : false])
-                        ->label('Код организации ("mcn", "ooomcn" etc)');
+                    <?= $form->field($model, 'firma')
+                            ->textInput([
+                                'readonly' => $mode === 'duplicate',
+                            ])
+                            ->label('Код организации ("mcn", "ooomcn" etc)');
                     ?>
                 </div>
             </div>
 
             <div class="col-sm-3">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'country_id')
+                    <?= $form->field($model, 'country_id')
                         ->dropDownList(
                             ArrayHelper::map(
                                 Country::find()->where(['in_use' => 1])->orderBy('code desc')->all(),
@@ -69,7 +93,7 @@ if (!empty($title)) {
                             [
                                 'prompt' => 'Выберите страну',
                                 'id' => 'Country',
-                                'readonly' => $mode == 'duplicate' ? true : false,
+                                'readonly' => $mode === 'duplicate',
                             ]
                         )
                         ->label('Страна');
@@ -79,8 +103,7 @@ if (!empty($title)) {
 
             <div class="col-sm-3">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'lang_code')
+                    <?= $form->field($model, 'lang_code')
                         ->dropDownList(
                             ArrayHelper::map(
                                 Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('lang desc')->all(),
@@ -88,7 +111,7 @@ if (!empty($title)) {
                                 'lang'
                             ),
                             [
-                                'readonly' => $mode == 'duplicate' ? true : false
+                                'readonly' => $mode === 'duplicate',
                             ]
                         )
                         ->label('Язык');
@@ -98,12 +121,11 @@ if (!empty($title)) {
 
             <div class="col-sm-3">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'actual_from')
+                    <?= $form->field($model, 'actual_from')
                         ->widget(DateControl::classname(), [
                             'type' => DateControl::FORMAT_DATE,
                             'ajaxConversion' => false,
-                            'disabled' => $mode == 'edit',
+                            'disabled' => $mode === 'edit',
                             'options' => [
                                 'pluginOptions' => [
                                     'autoclose' => true,
@@ -122,81 +144,53 @@ if (!empty($title)) {
     </fieldset>
 
     <fieldset style="width: 100%;">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'name')->label('Краткое название');
-                    ?>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'legal_address')->label('Юридический адрес');
-                    ?>
-                </div>
-            </div>
-        </div>
+        <?php
+        echo TabsX::widget([
+            'id' => 'tabs-organization-lang',
+            'items' => $languagesTabs,
+            'containerOptions' => [
+                'class' => 'col-sm-12 localization-tabs',
+            ],
+            'position' => TabsX::POS_ABOVE,
+            'bordered' => false,
+            'encodeLabels' => false,
+        ]);
+        ?>
 
         <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'full_name')->label('Полное название');
-                    ?>
-                </div>
+            <div class="col-sm-6" style="padding-left: 30px;">
+                <?= $form
+                    ->field($model, 'director_id')
+                    ->dropDownList(
+                        Person::find()->indexBy('id')->all(),[
+                            'prompt' => 'Выберите директора',
+                            'style' => 'width: 80%;',
+                        ]
+                    )
+                    ->label('Директор');
+                ?>
+                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    Добавить
+                </a>
             </div>
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'post_address')->label('Почтовый адрес');
-                    ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'director_id')
-                        ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominative'),[
-                                'prompt' => 'Выберите директора',
-                                'style' => 'width: 80%;',
-                            ]
-                        )
-                        ->label('Директор');
-                    ?>
-                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        Добавить
-                    </a>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'accountant_id')
-                        ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominative'), [
-                                'prompt' => 'Выберите бухгалтера',
-                                'style' => 'width: 80%;',
-                            ]
-                        )
-                        ->label('Главный бухгалтер');
-                    ?>
-                    <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        Добавить
-                    </a>
-                </div>
+            <div class="col-sm-6" style="padding-left: 30px;">
+                <?= $form
+                    ->field($model, 'accountant_id')
+                    ->dropDownList(
+                        Person::find()->indexBy('id')->all(), [
+                            'prompt' => 'Выберите бухгалтера',
+                            'style' => 'width: 80%;',
+                        ]
+                    )
+                    ->label('Главный бухгалтер');
+                ?>
+                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    Добавить
+                </a>
             </div>
         </div>
-
-        <div style="height: 25px;">&nbsp;</div>
     </fieldset>
 
     <fieldset style="width: 50%; padding-right: 15px; float: left;">
@@ -223,123 +217,96 @@ if (!empty($title)) {
 
             <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'tax_registration_id')->label('ИНН');
-                    ?>
+                    <?= $form->field($model, 'tax_registration_id')->label('ИНН') ?>
                 </div>
 
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'tax_registration_reason')->label('КПП');
-                    ?>
+                    <?= $form->field($model, 'tax_registration_reason')->label('КПП') ?>
                 </div>
 
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'registration_id')->label('ОГРН');
-                    ?>
+                    <?= $form->field($model, 'registration_id')->label('ОГРН') ?>
                 </div>
             </div>
+
         </div>
     </fieldset>
 
     <fieldset style="width: 50%; padding-left: 15px;">
+        <?php
+        echo TabsX::widget([
+            'id' => 'tabs-organization-settlement-account',
+            'items' => [
+                [
+                    'label' => 'Рассчетный счет',
+                    'content' => $this->render('settlement-account/russia', [
+                        'form' => $form,
+                        'organization' => $history,
+                    ]),
+                ],
+                [
+                    'label' => 'IBAN',
+                    'content' => $this->render('settlement-account/iban', [
+                        'form' => $form,
+                        'organization' => $history,
+                    ]),
+                ],
+                [
+                    'label' => 'SWIFT',
+                    'content' => $this->render('settlement-account/swift', [
+                        'form' => $form,
+                        'organization' => $history,
+                    ]),
+                ],
+            ],
+            'containerOptions' => [
+                'class' => 'col-sm-12',
+            ],
+            'position' => TabsX::POS_ABOVE,
+            'bordered' => false,
+            'encodeLabels' => false,
+        ]);
+        ?>
+    </fieldset>
+
+    <div style="height: 15px;">&nbsp;</div>
+
+    <fieldset>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'bank_account')->label('Расчетный счет');
-                    ?>
+                    <?= $form->field($model, 'contact_phone')->label('Телефон') ?>
                 </div>
             </div>
+
+            <div class="col-sm-6">
+                <div class="col-sm-12">
+                    <?= $form->field($model, 'contact_fax')->label('Факс') ?>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">
             <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'bank_bik')->textInput([
-                        'class' => 'search-bik',
-                    ])->label('БИК');
-                    ?>
+                    <?= $form->field($model, 'contact_email')->input('email')->label('E-mail') ?>
                 </div>
             </div>
 
             <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'bank_swift')->label('SWIFT');
-                    ?>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'bank_name')->label('Название банка');
-                    ?>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'bank_correspondent_account')->label('Кор. счет');
-                    ?>
+                    <?= $form->field($model, 'contact_site')->label('Сайт URL') ?>
                 </div>
             </div>
         </div>
     </fieldset>
 
-    <div style="height: 25px;">&nbsp;</div>
-
-    <fieldset style="width: 50%; padding-right: 15px; float: left;">
+    <fieldset>
         <div class="row">
             <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'contact_phone')->label('Телефон');
-                    ?>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'contact_fax')->label('Факс');
-                    ?>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'contact_email')->input('email')->label('E-mail');
-                    ?>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'contact_site')->label('Сайт URL');
-                    ?>
-                </div>
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset style="width: 50%; padding-left: 15px; ">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'logo_file_name')
+                    <?= $form->field($model, 'logo_file_name')
                         ->dropDownList(
                             MediaFileHelper::findByPattern('ORGANIZATION_LOGO_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
@@ -356,8 +323,7 @@ if (!empty($title)) {
             </div>
             <div class="col-sm-6">
                 <div class="col-sm-12">
-                    <?php
-                    echo $form->field($model, 'stamp_file_name')
+                    <?= $form->field($model, 'stamp_file_name')
                         ->dropDownList(
                             MediaFileHelper::findByPattern('STAMP_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [

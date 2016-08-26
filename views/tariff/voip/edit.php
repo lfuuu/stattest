@@ -18,7 +18,7 @@ $this->registerJsFile('@web/js/behaviors/connection-point-voip-filter.js', ['dep
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
-$countries = Country::dao()->getList(true);
+$countries = Country::getList(true);
 
 $connectionPoints = Region::find()->orderBy('name')->all();
 $connectionPointsOptions = [];

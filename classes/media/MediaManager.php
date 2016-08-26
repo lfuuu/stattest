@@ -39,6 +39,7 @@ abstract class MediaManager
         'xlsx',
         'ppt',
         'txt',
+        'html',
     ];
 
     /**
@@ -170,17 +171,18 @@ abstract class MediaManager
 
     /**
      * @param ActiveRecord $fileModel
+     * @param boolean $isDownload
      * @throws \yii\base\ExitException
      * @throws \yii\web\HttpException
      */
-    public function getContent(ActiveRecord $fileModel)
+    public function getContent(ActiveRecord $fileModel, $isDownload = false)
     {
         $filePath = $this->getFilePath($fileModel);
 
         if (file_exists($filePath)) {
             $fileData = $this->getFile($fileModel);
 
-            if (in_array($fileData['ext'], $this->downloadable, true)) {
+            if ($isDownload && in_array($fileData['ext'], $this->downloadable, true)) {
                 Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
                 Yii::$app->end();
             } else {

@@ -18,4 +18,6 @@ return [
     'price_with_vat' => 'Стоимость с НДС, у.е.',
 
     'update_time' => 'Время расчёта',
+
+    'title' => '{name} ({descr}). {serviceTypeName}',
 ];

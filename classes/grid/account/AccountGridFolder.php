@@ -121,7 +121,7 @@ abstract class AccountGridFolder extends Model
             $this->grid = $grid;
         }
 
-        $this->organizationList = ArrayHelper::map(Organization::getList(), 'organization_id', 'name');
+        $this->organizationList = Organization::dao()->getList();
 
         parent::__construct();
     }

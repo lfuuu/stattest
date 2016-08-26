@@ -386,3 +386,7 @@ a.nohover:hover {
     margin-top: -10px;
     margin-bottom: 0;
 }
+
+.i18n-tabs .col-sm-6 {
+    padding-left: 5px;
+}

@@ -1,11 +1,12 @@
 <?php
-namespace app\controllers\document;
+namespace app\controllers\templates\document;
 
-use yii\filters\AccessControl;
+use Yii;
 use app\classes\BaseController;
-use app\models\document\DocumentTemplate;
+use yii\filters\AccessControl;
+use app\models\document\DocumentFolder;
 
-class TemplateController extends BaseController
+class FolderController extends BaseController
 {
     public function behaviors()
     {
@@ -29,14 +30,15 @@ class TemplateController extends BaseController
 
     public function actionEdit($id = false)
     {
-        $model = DocumentTemplate::findOne($id);
+        $model = DocumentFolder::findOne($id);
 
         if (!$model) {
-            $model = new DocumentTemplate;
+            $model = new DocumentFolder;
         }
 
         if ($model->load(\Yii::$app->request->post()) && $model->save()) {
-            \Yii::$app->session->setFlash('success');
+            Yii::$app->session->setFlash('success');
+            Yii::$app->response->redirect('/templates/document/template');
         }
 
         return $this->render('edit', ['model' => $model]);

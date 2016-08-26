@@ -11,6 +11,11 @@ use yii\helpers\ArrayHelper;
  */
 class CountryDao extends Singleton
 {
+
+    /**
+     * @param int $countryCode
+     * @return string
+     */
     public function getNameByCode($countryCode)
     {
         if ($countryCode == 0) {
@@ -19,24 +24,6 @@ class CountryDao extends Singleton
 
         $country = Country::findOne(['code' => $countryCode]);
         return $country ? $country->name : '';
-    }
-
-    public function getList($isWithEmpty = false)
-    {
-        $list =
-            ArrayHelper::map(
-                Country::find()
-                    ->andWhere(['in_use' => 1])
-                    ->orderBy('name')
-                    ->asArray()
-                    ->all(),
-                'code',
-                'name'
-            );
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-        return $list;
     }
 
 }

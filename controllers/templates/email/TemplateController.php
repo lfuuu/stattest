@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\message;
+namespace app\controllers\templates\email;
 
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -8,7 +8,6 @@ use app\classes\BaseController;
 use app\classes\Assert;
 use app\models\message\Template;
 use app\models\message\TemplateContent;
-use app\forms\message\TemplateContentForm;
 
 class TemplateController extends BaseController
 {
@@ -55,7 +54,7 @@ class TemplateController extends BaseController
             }
 
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-            return $this->redirect(['message/template/edit', 'id' => $model->id]);
+            return $this->redirect(['templates/email/template/edit', 'id' => $model->id]);
         }
 
         return $this->render('form', [
@@ -75,7 +74,7 @@ class TemplateController extends BaseController
 
         $template->delete();
 
-        return $this->redirect(['message/template']);
+        return $this->redirect(['templates/email/template']);
     }
 
     /**

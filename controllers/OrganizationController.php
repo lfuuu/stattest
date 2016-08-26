@@ -12,6 +12,9 @@ use app\forms\organization\OrganizationForm;
 class OrganizationController extends BaseController
 {
 
+    /**
+     * @return []
+     */
     public function behaviors()
     {
         return [
@@ -33,6 +36,9 @@ class OrganizationController extends BaseController
         ];
     }
 
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         return $this->render('list', [
@@ -40,6 +46,10 @@ class OrganizationController extends BaseController
         ]);
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function actionAdd()
     {
         $model = new OrganizationForm;
@@ -49,14 +59,28 @@ class OrganizationController extends BaseController
 
         return $this->render('form', [
             'model' => $model,
+            'history' => new Organization,
             'title' => $model::NEW_TITLE,
         ]);
     }
 
-    public function actionEdit($id, $date)
+    /**
+     * @param int $id
+     * @param string $date
+     * @return string
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     */
+    public function actionEdit($id, $date = '')
     {
-        $record = Organization::findOne(['organization_id' => $id, 'actual_from' => $date]);
-
+        /** @var Organization $record */
+        $record = Organization::find()->where(['organization_id' => $id]);
+        if ($date) {
+            $record->andWhere(['actual_from' => $date]);
+        } else {
+            $record->orderBy(['actual_from' => SORT_DESC]);
+        }
+        $record = $record->one();
         Assert::isObject($record);
 
         $model = new OrganizationForm;
@@ -73,6 +97,12 @@ class OrganizationController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @param string $date
+     * @return string
+     * @throws \yii\base\Exception
+     */
     public function actionDuplicate($id, $date)
     {
         $organization = Organization::find()->byId($id)->actual($date)->one();

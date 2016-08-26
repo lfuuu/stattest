@@ -1,6 +1,6 @@
 <?php
 use app\classes\grid\column\CityColumn;
-use app\classes\grid\column\CountryColumn;
+use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\IdColumn;
 use app\classes\grid\column\NameColumn;
 use app\classes\Html;
@@ -14,7 +14,11 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         ['class' => IdColumn::className()],
-        ['class' => CountryColumn::className()],
+        [
+            'attribute' => 'country_id',
+            'class' => CountryColumn::className(),
+            'label' => 'Страна',
+        ],
         ['class' => CityColumn::className()],
         ['class' => NameColumn::className()],
         ['class' => DataColumn::className(), 'attribute' => 'activation_fee', 'label' => 'Подключение'],

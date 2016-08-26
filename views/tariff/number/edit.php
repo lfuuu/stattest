@@ -52,7 +52,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 4,
         'attributes' => [
-            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::dao()->getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionEditDisabled],
+            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::getList(true), 'options' => ['id' => 'country_id', 'class' => 'select2'] + $optionEditDisabled],
             'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList(true, $model->country_id), 'options' => ['id' => 'city_id', 'class' => 'select2'] + $optionEditDisabled + $optionCityDisabled],
             'did_group_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => DidGroup::dao()->getList(true, $model->city_id), 'options' => ['class' => 'select2'] + $optionEditDisabled + $optionDidGroupDisabled],
             'name' => ['type' => Form::INPUT_TEXT],
