@@ -434,7 +434,7 @@ class AccountTariff extends ActiveRecord
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
-        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
+        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs($isWithFuture = true);
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
             $dateTo = $accountLogHugePeriod->dateTo;
@@ -478,6 +478,7 @@ class AccountTariff extends ActiveRecord
 
         }
 
+        $isNeedAutoClose = false; // @todo надо продумать, как отменять отмену (сменить тестовый тариф на другой тестовый)
         if (!$dateTo && $isNeedAutoClose && $this->clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
             // нужно закрыть автоматически
             $accountTariffLog = new AccountTariffLog();

@@ -102,7 +102,6 @@ abstract class AccountTariffForm extends Form
                     // услуга
                     $accountTariff = clone $this->accountTariff;
                     $accountTariff->voip_number = $voipNumber;
-                    $accountTariff->tariff_period_id = $this->accountTariffLog->tariff_period_id;
                     $accountTariff->id = 0;
                     if (!$accountTariff->validate() || !$accountTariff->save()) {
                         $this->validateErrors += $accountTariff->getFirstErrors();
@@ -127,7 +126,6 @@ abstract class AccountTariffForm extends Form
                         $accountTariffPackage->region_id = $accountTariff->region_id;
                         $accountTariffPackage->city_id = $accountTariff->city_id;
                         $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
-                        $accountTariffPackage->tariff_period_id = $voipPackageTariffPeriodId;
                         if (!$accountTariffPackage->validate() || !$accountTariffPackage->save()) {
                             $this->validateErrors += $accountTariffPackage->getFirstErrors();
                             throw new InvalidArgumentException('');
@@ -154,7 +152,6 @@ abstract class AccountTariffForm extends Form
             if ($this->accountTariff->load($post)) {
 
                 // услуга
-                $this->accountTariff->tariff_period_id = isset($post['AccountTariffLog']['tariff_period_id']) ? $post['AccountTariffLog']['tariff_period_id'] : null;
                 if ($this->accountTariff->save()) {
                     $this->id = $this->accountTariff->id;
                     $this->isSaved = true;
@@ -183,9 +180,6 @@ abstract class AccountTariffForm extends Form
                 if ($this->accountTariffLog->validate(null, false)) {
                     $this->accountTariffLog->save();
 
-                    $this->accountTariff->tariff_period_id = $this->accountTariffLog->tariff_period_id;
-                    $this->accountTariff->save();
-
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
@@ -199,12 +193,6 @@ abstract class AccountTariffForm extends Form
                         if (!$accountTariffPackage->tariff_period_id) {
                             // эта услуга и так закрыта
                             continue;
-                        }
-
-                        // изменить услугу
-                        $accountTariffPackage->tariff_period_id = null;
-                        if (!$accountTariffPackage->save()) {
-                            $this->validateErrors += $accountTariffPackage->getFirstErrors();
                         }
 
                         // записать в лог тарифа

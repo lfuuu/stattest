@@ -9,6 +9,7 @@ use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
 use app\classes\uu\tarificator\BillTarificator;
 use app\classes\uu\tarificator\RealtimeBalanceTarificator;
+use app\classes\uu\tarificator\SetCurrentTariffTarificator;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
@@ -38,6 +39,7 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $accountTariff->id;
 
         ob_start();
+        (new SetCurrentTariffTarificator())->tarificate($accountTariffId, false);
         (new AccountLogSetupTarificator)->tarificate($accountTariffId, false);
         (new AccountLogPeriodTarificator)->tarificate($accountTariffId, false);
         (new AccountLogMinTarificator)->tarificate($accountTariffId);

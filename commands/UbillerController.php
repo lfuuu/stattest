@@ -29,6 +29,9 @@ class UbillerController extends Controller
         // обязательно это вызывать ДО транзакций
         $this->actionChangeTariff();
 
+        // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+        $this->actionSetCurrentTariff();
+
         // транзакции
         $this->actionSetup();
         $this->actionPeriod();
@@ -150,6 +153,14 @@ class UbillerController extends Controller
     public function actionChangeTariff()
     {
         $this->_tarificate('ChangeTariffTarificator', 'Проверить баланс при смене тарифа');
+    }
+
+    /**
+     * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 1 секунда
+     */
+    public function actionSetCurrentTariff()
+    {
+        $this->_tarificate('SetCurrentTariffTarificator', 'Обновить AccountTariff.TariffPeriod');
     }
 
     /**
