@@ -9,7 +9,8 @@ use yii\db\ActiveRecord;
  * @property string $date
  * @property int $use_space
  * @property int $numbers
- * @property
+ * @property int $call_recording_enabled
+ * @property int $faxes_enabled
  */
 class Virtpbx extends ActiveRecord
 {

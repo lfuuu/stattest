@@ -140,6 +140,8 @@ class VatsController extends Controller
                 ($record['disk_space_bytes'] ?: 0),
                 ($record['int_number_count'] ?: 0),
                 ($record['ext_did_count'] ?: 0),
+                ($record['call_recording_enabled'] ?: null),
+                ($record['faxes_enabled'] ?: null),
             ];
 
             $this->stdout(
@@ -149,6 +151,8 @@ class VatsController extends Controller
                 $this->ansiFormat(' space:' . $record['disk_space_bytes'], Console::FG_GREY) .
                 $this->ansiFormat(' ports:' . $record['int_number_count'], Console::FG_GREY) .
                 $this->ansiFormat(' ext DID counts:' . $record['ext_did_count'], Console::FG_GREY) .
+                $this->ansiFormat(' call_recording_enabled:' . $record['call_recording_enabled'], Console::FG_GREY) .
+                $this->ansiFormat(' faxes_enabled:' . $record['faxes_enabled'], Console::FG_GREY) .
                 "\n\n",
                 Console::FG_YELLOW
             );
@@ -175,7 +179,7 @@ class VatsController extends Controller
 
             Yii::$app->db->createCommand()->batchInsert(
                 Virtpbx::tableName(),
-                ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count'],
+                ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count', 'call_recording_enabled', 'faxes_enabled'],
                 $insert
             )->execute();
         } catch (\Exception $e) {

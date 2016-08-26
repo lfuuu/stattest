@@ -13,6 +13,8 @@ use app\classes\uu\resourceReader\VoipCallsResourceReader;
 use app\classes\uu\resourceReader\VpbxAbonentResourceReader;
 use app\classes\uu\resourceReader\VpbxDiskResourceReader;
 use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
+use app\classes\uu\resourceReader\VpbxFaxResourceReader;
+use app\classes\uu\resourceReader\VpbxRecordResourceReader;
 use app\classes\uu\resourceReader\VpnTrafficResourceReader;
 use yii\db\ActiveQuery;
 
@@ -110,8 +112,8 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_DISK => VpbxDiskResourceReader::className(), // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
             self::ID_VPBX_ABONENT => VpbxAbonentResourceReader::className(), // Абоненты (шт, int). Берется из virtpbx_stat.numbers
             self::ID_VPBX_EXT_DID => VpbxExtDidResourceReader::className(), // Подключение номера другого оператора (шт, int). Берется из virtpbx_stat.ext_did_count
-            self::ID_VPBX_RECORD => DummyResourceReader::className(), // @todo Запись звонков (call recording) (bool). Брать из: https://vpbx.mcn.ru/core/swagger/index.html находим в разделе vpbx → "Статистика использования ресурсов ВАТС" →  метод "/get_resource_usage_per_day/"
-            self::ID_VPBX_FAX => DummyResourceReader::className(), // @todo Факс (bool). tarifs_virtpbx.is_fax. см. Запись звонков выше.
+            self::ID_VPBX_RECORD => VpbxRecordResourceReader::className(), // Запись звонков (call recording) (bool). Берется из virtpbx_stat.call_recording_enabled
+            self::ID_VPBX_FAX => VpbxFaxResourceReader::className(), // Факс (bool). Берется из virtpbx_stat.faxes_enabled
 
             self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo Линии (шт, int). usage_voip.no_of_lines;
             self::ID_VOIP_CALLS => VoipCallsResourceReader::className(), // Звонки (у.е, float). Берется из calls_aggr.calls_aggr

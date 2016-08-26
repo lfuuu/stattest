@@ -581,11 +581,12 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(
-                PHP_EOL .
-                sprintf('Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs)))
-                . PHP_EOL
-            );
+            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+            // Решили пока игнорировать
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
+                $accountLog->delete();
+            }
         }
 
         return $untarificatedPeriods;
@@ -628,11 +629,12 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(
-                PHP_EOL .
-                sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)))
-                . PHP_EOL
-            );
+            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+            // Решили пока игнорировать
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
+                $accountLog->delete();
+            }
         }
 
         return $untarificatedPeriods;

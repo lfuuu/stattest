@@ -156,7 +156,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 1 секунда
+     * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 10 секунд
      */
     public function actionSetCurrentTariff()
     {
