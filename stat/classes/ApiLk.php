@@ -1577,7 +1577,7 @@ class ApiLk
         ];
     }
 
-    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $onlypay = 0, $isFull = 0)
+    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'Europe/Moscow', $onlypay = 0, $isFull = 0)
     {
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
