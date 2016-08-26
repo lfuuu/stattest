@@ -84,7 +84,7 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
                         usage_ip_ports.actual_to,
                         REPLACE(
                             TRIM(' ' FROM TRIM('	' FROM usage_ip_routes.net)),
-                            '\\',
+                            '\\\\',
                             '/'
                         ) as cidr
                     FROM
