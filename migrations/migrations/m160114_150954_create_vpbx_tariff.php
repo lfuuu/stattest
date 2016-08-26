@@ -327,15 +327,6 @@ class m160114_150954_create_vpbx_tariff extends \app\classes\Migration
         ]);
 
         $this->insert($tableName, [
-            'id' => Resource::ID_VPBX_WEB_CALL,
-            'name' => 'Звонки с сайта',
-            'unit' => '',
-            'min_value' => 0,
-            'max_value' => 1,
-            'service_type_id' => ServiceType::ID_VPBX,
-        ]);
-
-        $this->insert($tableName, [
             'id' => Resource::ID_VPBX_FAX,
             'name' => 'Факс',
             'unit' => '',

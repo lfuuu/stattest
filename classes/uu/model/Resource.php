@@ -37,7 +37,6 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VPBX_ABONENT = 2; // ВАТС. Абоненты
     const ID_VPBX_EXT_DID = 3; // ВАТС. Подключение номера другого оператора
     const ID_VPBX_RECORD = 4; // ВАТС. Запись звонков с сайта
-    const ID_VPBX_WEB_CALL = 5; // ВАТС. Звонки с сайта
     const ID_VPBX_FAX = 6; // ВАТС. Факс
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
@@ -112,7 +111,6 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_ABONENT => VpbxAbonentResourceReader::className(), // Абоненты (шт, int). Берется из virtpbx_stat.numbers
             self::ID_VPBX_EXT_DID => VpbxExtDidResourceReader::className(), // Подключение номера другого оператора (шт, int). Берется из virtpbx_stat.ext_did_count
             self::ID_VPBX_RECORD => DummyResourceReader::className(), // @todo Запись звонков (call recording) (bool). Брать из: https://vpbx.mcn.ru/core/swagger/index.html находим в разделе vpbx → "Статистика использования ресурсов ВАТС" →  метод "/get_resource_usage_per_day/"
-            self::ID_VPBX_WEB_CALL => DummyResourceReader::className(), // @todo Звонки с сайта (bool). Звонок с сайта это отдельный продукт. Тут соответственно есть услуга в usage_call_chat или нет. Если есть, то звонок с сайта возможно включён (если в настройках звончата это настроено);
             self::ID_VPBX_FAX => DummyResourceReader::className(), // @todo Факс (bool). tarifs_virtpbx.is_fax. см. Запись звонков выше.
 
             self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo Линии (шт, int). usage_voip.no_of_lines;
