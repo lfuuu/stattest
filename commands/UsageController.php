@@ -101,6 +101,8 @@ class UsageController extends Controller
     private function cleanUsages(\DateTime $date, $action)
     {
         $now = new DateTime("now");
+        $yesterday = clone $now;
+        $yesterday->modify('-1 day');
 
         $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format("Y-m-d")])->all();
 
@@ -116,7 +118,7 @@ class UsageController extends Controller
 
                     $model = new UsageVoipEditForm();
                     $model->initModel($account, $usage);
-                    $model->disconnecting_date = $now->modify('-1 day')->format("Y-m-d");
+                    $model->disconnecting_date = $yesterday->format("Y-m-d");
                     $model->edit();
                 }
             } elseif (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
