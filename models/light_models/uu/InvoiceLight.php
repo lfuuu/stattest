@@ -222,7 +222,13 @@ class InvoiceLight extends Model
         $smarty = Smarty::init();
         $smarty->assign($this->get());
 
-        return $smarty->fetch(Yii::getAlias(InvoiceForm::getPath() . $this->language . '.' . InvoiceForm::TEMPLATE_EXTENSION));
+        $invoiceTemplate = new InvoiceForm($this->language);
+
+        if ($invoiceTemplate->fileExists()) {
+            $smarty->fetch(Yii::getAlias(InvoiceForm::getPath() . $this->language . '.' . InvoiceForm::TEMPLATE_EXTENSION));
+        } else {
+            Yii::$app->session->addFlash('error', 'Шаблон счета-фактура для языка "' . $this->language . '" не найден');
+        }
     }
 
 }
