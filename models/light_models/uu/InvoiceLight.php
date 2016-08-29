@@ -170,6 +170,14 @@ class InvoiceLight extends Model
 
             /** @var AccountEntry $item */
             foreach ($items as $item) {
+                /** Пересчет НДС если используется отличный от оригинального */
+                if (!is_null($invoiceSetting) && $invoiceSetting->vat_rate != $item->vat && $invoiceSetting->vat_rate > 0) {
+                    $item->vat_rate = $invoiceSetting->vat_rate;
+                    $item->price_with_vat = $item->price_without_vat * (100 + $item->vat_rate) / 100;
+                    $item->vat = $item->price_without_vat * $item->vat_rate / 100;
+                }
+
+                /** Подсчет сумму счета */
                 $this->bill['summary']['without_vat'] += $item->price_without_vat;
                 $this->bill['summary']['vat'] += $item->vat;
                 $this->bill['summary']['with_vat'] += $item->price_with_vat;
@@ -182,6 +190,10 @@ class InvoiceLight extends Model
                     'price_with_vat' => sprintf('%.2f', $item->price_with_vat),
                 ];
             }
+
+            $this->bill['summary']['without_vat'] = sprintf('%.2f', $this->bill['summary']['without_vat']);
+            $this->bill['summary']['vat'] = sprintf('%.2f', $this->bill['summary']['vat']);
+            $this->bill['summary']['with_vat'] = sprintf('%.2f', $this->bill['summary']['with_vat']);
 
             $this->bill['in_total'] = Wordifier::Make($this->bill['summary']['with_vat'], Currency::RUB);
         }
