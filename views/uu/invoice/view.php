@@ -3,13 +3,12 @@
  * Счет-фактура
  *
  * @var \yii\web\View $this
- * @var ClientAccount $clientAccount
- * @var AccountEntry[] $accountEntries
  * @var string $date
+ * @var [] $invoice
+ * @var string $invoiceContent
  */
 
 use app\classes\uu\model\AccountEntry;
-use app\models\ClientAccount;
 use app\widgets\MonthPicker;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -23,7 +22,6 @@ echo Breadcrumbs::widget([
 ]);
 
 $attributeLabels = (new AccountEntry)->attributeLabels();
-
 ?>
 
     <div class="row">
@@ -51,7 +49,7 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
 
                 <?= $this->render('//layouts/_link', [
                     'text' => 'Печать',
-                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'print', 'month' => $month]),
+                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'print', 'month' => $month, 'langCode' => $langCode]),
                     'glyphicon' => 'glyphicon glyphicon-print',
                     'params' => [
                         'class' => 'btn btn-primary',
@@ -61,7 +59,7 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
 
                 <?= $this->render('//layouts/_link', [
                     'text' => 'Скачать в PDF',
-                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'pdf', 'month' => $month]),
+                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'pdf', 'month' => $month, 'langCode' => $langCode]),
                     'glyphicon' => 'glyphicon glyphicon-download-alt',
                     'params' => [
                         'class' => 'btn btn-success',
@@ -70,7 +68,7 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
 
                 <?= $this->render('//layouts/_link', [
                     'text' => 'Скачать в Word',
-                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'mhtml', 'month' => $month]),
+                    'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'mhtml', 'month' => $month, 'langCode' => $langCode]),
                     'glyphicon' => 'glyphicon glyphicon-download-alt',
                     'params' => [
                         'class' => 'btn btn-success',
@@ -82,7 +80,4 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
     </div>
     <br/>
 
-<?= $this->render('invoice', [
-    'accountEntries' => $accountEntries,
-    'clientAccount' => $clientAccount,
-]) ?>
+<?= $invoiceContent ?>

@@ -74,41 +74,37 @@ class InvoiceController extends BaseController
             $invoice->setDate($date);
         }
 
-        echo $invoice->render();
-        exit;
+        $invoiceData = $invoice->get();
 
         switch ($renderMode) {
             case 'pdf': {
                 return $this->renderAsPDF('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
-                    'modePDF' => true,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                 ], [
                     'cssFile' => '@web/invoice.css',
                 ]);
             }
             case 'mhtml': {
                 return $this->renderAsMHTML('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                     'inline_img' => false,
                 ]);
             }
             case 'print': {
                 $this->layout = 'empty';
                 return $this->render('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                     'modePDF' => false,
                 ]);
             }
             default: {
                 return $this->render('view', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
+                    'langCode' => $langCode,
                     'date' => $date,
                 ]);
             }
