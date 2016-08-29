@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\classes\Html;
 
@@ -19,7 +20,21 @@ echo GridView::widget([
             'label' => 'Дата / Время',
             'format' => 'raw',
             'value' => function ($data) {
-                return $data['tsf1'];
+                $datetime = $data['tsf1'];
+
+                if (!is_null($data['ts1'])) {
+                    $datetime =
+                        (
+                        new DateTimeWithUserTimezone(
+                            $data['tsf1'],
+                            new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)
+                        )
+                        )
+                            ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW))
+                            ->format('Y-m-d H:i:s');
+                }
+
+                return $datetime;
             },
         ],
         [

@@ -82,6 +82,12 @@ SQL;
             /** @var ClientAccount $client */
             $client = ClientAccount::findOne($row['id']);
 
+            if ($client->billingCounters->getRealtimeBalance() > 0) {
+                // какая-то ошибка! баланс положительный, но находится месяц в финансовой блокировке
+                // @todo записать в лог
+                continue;
+            }
+
             echo $client->id . ' ';
             $client->is_blocked = 1;
             $client->save();

@@ -95,11 +95,16 @@ trait _TransferTrait
     private function createSingleClientAccount()
     {
         $client = new ClientAccount;
+        $client->sale_channel = 0;
+        $client->consignee = '';
         $client->is_active = 0;
+        $client->client = 'id';
         $client->validate();
         $client->save();
+
         $client->client = 'id' . $client->id;
         $client->save();
+
         return $client->id;
     }
 

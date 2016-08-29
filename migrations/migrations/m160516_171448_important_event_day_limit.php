@@ -55,7 +55,7 @@ class m160516_171448_important_event_day_limit extends \app\classes\Migration
 
         $this->renameColumn(LkNoticeSetting::tableName(), 'day_limit', 'min_day_limit');
 
-        $this->addColumn(LkClientSettings::tableName(), 'day_limit_sent', $this->timestamp()->notNull()->defaultValue('0000-00-00 00:00:00'));
+        $this->addColumn(LkClientSettings::tableName(), 'day_limit_sent', $this->timestamp()->notNull()->defaultValue('1970-01-02 00:00:00'));
         $this->addColumn(LkClientSettings::tableName(), 'is_day_limit_sent', $this->integer(4)->notNull()->defaultValue(0));
 
         $this->alterColumn(\app\models\LkNotificationLog::tableName(), 'event', "enum('add_pay_notif','day_limit','zero_balance','prebil_prepayers_notif','min_balance', 'min_day_limit') DEFAULT NULL");

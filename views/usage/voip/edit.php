@@ -19,9 +19,6 @@ use app\classes\DateTimeWithUserTimezone;
 /** @var $usage \app\models\UsageVoip */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 
-$this->registerCssFile('@web/css/behaviors/text-field-help-icon.css', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/usage-voip-address-from-datacenter.js', ['depends' => [AppAsset::className()]]);
-
 $types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
 $noYes = [
@@ -51,6 +48,18 @@ if ($usage->actual_to == '2029-01-01') {
 }
 $now = new DateTime('now', $clientAccount->timezone);
 $date_activation = '';
+
+$model->tariffGroupRussiaPrice   = $model->getMinByTariff($model->tariff_russia_id);
+$model->tariffGroupLocalMobPrice = $model->getMinByTariff($model->tariff_local_mob_id);
+$model->tariffGroupInternPrice   = $model->getMinByTariff($model->tariff_intern_id);
+
+$model->tariff_group_russia_price == $model->tariffGroupRussiaPrice && $model->tariff_group_russia_price = null;
+$model->tariff_group_local_mob_price == $model->tariffGroupLocalMobPrice && $model->tariff_group_local_mob_price  = null;
+$model->tariff_group_intern_price == $model->tariffGroupInternPrice && $model->tariff_group_intern_price = null;
+
+
+
+
 
 echo Html::formLabel('Редактирование номера');
 echo Breadcrumbs::widget([
@@ -345,48 +354,96 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tariff_main_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getMainList(false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status),
+                'items' => TariffVoip::dao()->getMainList(false, $model->connection_point_id, $clientAccount->currency,
+                    $model->tariff_main_status),
                 'options' => ['class' => 'select2'],
-                'hint' => !$model->tariff_main_id ? Html::tag('span', 'Текущее значение тарифа не установлено!', ['class' => 'alert-danger']) : '',
+                'hint' => !$model->tariff_main_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
+                    ['class' => 'alert-danger']) : '',
             ],
-            'tariff_main_status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $tariffStatus, 'options' => ['class' => 'form-reload2']],
+            'tariff_main_status' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $tariffStatus,
+                'options' => ['class' => 'form-reload2']
+            ],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency),
-                'options' => ['class' => 'select2 form-reload2', 'data' => ['tariff-group' => 'tariff_local_mob_id']],
-                'hint' => !$model->tariff_local_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!', ['class' => 'alert-danger']) : '',
+                'options' => [
+                    'class' => 'select2 form-reload2',
+                ],
+                'hint' => !$model->tariff_local_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
+                    ['class' => 'alert-danger']) : '',
             ],
-            'tariff_group_local_mob_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariffGroupLocalMobPrice],
-            'tariff_group_local_mob' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload2']],
+            'tariff_group_local_mob_price' => [
+                'type' => Form::INPUT_TEXT,
+                'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariffGroupLocalMobPrice,
+                'options' => [
+                    'placeholder' => sprintf("%0.2f", $model->tariffGroupLocalMobPrice)
+                ],
+            ],
+            'tariff_group_local_mob' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $noYes,
+                'options' => ['class' => 'form-reload2']
+            ],
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency),
-                'options' => ['class' => 'select2 form-reload2', 'data' => ['tariff-group' => 'tariff_russia_id']],
-                'hint' => !$model->tariff_russia_id ? Html::tag('span', 'Текущее значение тарифа не установлено!', ['class' => 'alert-danger']) : '',
+                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id,
+                    $clientAccount->currency),
+                'options' => [
+                    'class' => 'select2 form-reload2'
+                ],
+                'hint' => !$model->tariff_russia_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
+                    ['class' => 'alert-danger']) : '',
             ],
-            'tariff_group_russia_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariffGroupRussiaPrice],
-            'tariff_group_russia' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload2']],
+            'tariff_group_russia_price' => [
+                'type' => Form::INPUT_TEXT,
+                'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariffGroupRussiaPrice,
+                'options' => [
+                    'placeholder' => sprintf("%0.2f", $model->tariffGroupRussiaPrice)
+                ],
+            ],
+            'tariff_group_russia' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $noYes,
+                'options' => ['class' => 'form-reload2']
+            ],
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency),
                 'options' => ['class' => 'select2'],
-                'hint' => !$model->tariff_russia_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!', ['class' => 'alert-danger']) : '',
+                'hint' => !$model->tariff_russia_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
+                    ['class' => 'alert-danger']) : '',
             ],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency),
-                'options' => ['class' => 'select2 form-reload2', 'data' => ['tariff-group' => 'tariff_intern_id']],
-                'hint' => !$model->tariff_intern_id ? Html::tag('span', 'Текущее значение тарифа не установлено!', ['class' => 'alert-danger']) : '',
+                'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id,
+                    $clientAccount->currency),
+                'options' => [
+                    'class' => 'select2 form-reload2'
+                ],
+                'hint' => !$model->tariff_intern_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
+                    ['class' => 'alert-danger']) : '',
             ],
-            'tariff_group_intern_price' => ['type' => Form::INPUT_TEXT, 'hint' => 'Гарантированный платеж в тарифе: ' . (float) $model->tariffGroupInternPrice],
-            'tariff_group_intern' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $noYes, 'options' => ['class' => 'form-reload2']],
+            'tariff_group_intern_price' => [
+                'type' => Form::INPUT_TEXT,
+                'hint' => 'Гарантированный платеж в тарифе: ' . (float)$model->tariffGroupInternPrice,
+                'options' => [
+                    'placeholder' => sprintf("%0.2f", $model->tariffGroupInternPrice),
+                ],
+            ],
+            'tariff_group_intern' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $noYes,
+                'options' => ['class' => 'form-reload2']
+            ],
         ],
     ]);
 
@@ -434,16 +491,7 @@ echo Breadcrumbs::widget([
 
 
     echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario2']);
-    echo $form->field($model, 'needSetDefaultPrice',
-        [
-            'options' => [
-                'class' => 'hidden'
-            ],
-            'inputOptions' => [
-                'id' => 'needSetDefaultPrice'
-            ]
-        ]
-    )->hiddenInput();
+
     ActiveForm::end();
     ?>
 </div>
@@ -454,7 +502,6 @@ echo Breadcrumbs::widget([
         $('#<?=$form->getId()?>')[0].submit();
     }
     $('.form-reload2').change(function(e) {
-        $('#needSetDefaultPrice').val($(e.target).data('tariff-group'));
         submitForm2('default');
     });
 </script>

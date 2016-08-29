@@ -103,7 +103,7 @@ class VoipController extends BaseController
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
             if ($model->scenario === 'change-tariff' && $model->validate() && $model->changeTariff()) {
-                Yii::$app->session->addFlash('success', 'Тариф тариф сохранен');
+                Yii::$app->session->addFlash('success', 'Тариф сохранен');
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
@@ -113,6 +113,7 @@ class VoipController extends BaseController
                 ->andWhere(['service' => 'usage_voip'])
                 ->andWhere(['id_service' => $usage->id])
                 ->andWhere('id_tarif!=0')
+                ->andWhere(['<', 'date_activation', $usage->actual_to])
                 ->orderBy('date_activation desc, id desc')
                 ->all();
 

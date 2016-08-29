@@ -49,6 +49,8 @@ class _ClientAccount extends \app\models\ClientAccount
         $contragent = new ClientContragent();
         $contragent->country_id = Country::RUSSIA;
         $contragent->super_id = $super->id;
+        $contragent->ogrn = '';
+        $contragent->comment = '';
         $contragent->save();
 
         $contract = new ClientContract();
@@ -68,8 +70,12 @@ class _ClientAccount extends \app\models\ClientAccount
         $account->is_active = 1;
         $account->credit = 1000;
         $account->voip_credit_limit_day = 500;
+        $account->client = '';
+        $account->sale_channel = 0;
+        $account->consignee = '';
         $account->validate();
         $account->save();
+
         $account->client = 'id' . $account->id;
         $account->save();
 

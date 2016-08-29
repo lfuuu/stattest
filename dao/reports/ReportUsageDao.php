@@ -22,8 +22,6 @@ class ReportUsageDao extends Singleton
     const REPORT_MAX_ITEMS = 50000;
     const REPORT_MAX_VIEW_ITEMS = 5000;
 
-    private static $timezone;
-
     /**
      * @param string $region
      * @param string $from
@@ -34,7 +32,6 @@ class ReportUsageDao extends Singleton
      * @param int $paidonly
      * @param string $destination
      * @param string $direction
-     * @param string $timezone
      * @param bool|false $isFull
      * @param array $packages
      * @return array
@@ -50,29 +47,16 @@ class ReportUsageDao extends Singleton
         $paidonly = 0,
         $destination = 'all',
         $direction = 'both',
-        $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW,
         $isFull = false,
         $packages = []
     ) {
-        if (!$timezone) {
-            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
-        }
-
-        if (!($timezone instanceof DateTimeZone)) {
-            $timezone = new DateTimeZone($timezone);
-        }
-
-        self::$timezone = $timezone;
-
         $from =
-            (new DateTime('now', self::$timezone))
+            (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTimestamp($from)
-                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(0, 0, 0);
         $to =
-            (new DateTime('now', self::$timezone))
+            (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTimestamp($to)
-                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                 ->setTime(23, 59, 59);
 
         $clientAccount = ClientAccount::findOne($clientId);
@@ -254,13 +238,10 @@ class ReportUsageDao extends Singleton
                 }
             }
 
-            $ts =
-                (new DateTimeWithUserTimezone($record['ts1'],
-                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)))
-                    ->setTimezone(self::$timezone);
+            $ts = new DateTime($record['ts1']);
 
             $record['tsf1'] = $ts->format('Y-m-d H:i:s');
-            $record['mktime'] = $ts->getTimestamp() + $ts->getOffset();
+            $record['mktime'] = $ts->getTimestamp();
             $record['is_total'] = false;
 
             if ($record['ts2'] >= 24 * 60 * 60) {
@@ -278,7 +259,7 @@ class ReportUsageDao extends Singleton
             $rt['ts2'] += $record['ts2'];
         }
 
-        $rt['ts1'] = 'Итого';
+        $rt['ts1'] = null;
         $rt['tsf1'] = 'Итого';
         $rt['num_to'] = '&nbsp;';
         $rt['num_from'] = '&nbsp;';

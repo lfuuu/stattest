@@ -2,11 +2,11 @@
 
 namespace app\classes\behaviors\important_events;
 
+use app\classes\important_events\ImportantEventsRunner;
+use app\models\important_events\ImportantEventsProperties;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use app\classes\important_events\ImportantEventsRunner;
-use app\models\important_events\ImportantEventsProperties;
 
 class ImportantEventsBehavior extends Behavior
 {
@@ -25,6 +25,7 @@ class ImportantEventsBehavior extends Behavior
                 ['event_id', 'property', 'value'],
                 array_map(function ($row) use ($event) {
                     $row[0] = $event->sender->id;
+                    is_null($row[2]) && $row[2] = '';
                     return $row;
                 }, $event->sender->propertiesCollection)
             )->execute();

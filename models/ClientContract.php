@@ -290,10 +290,15 @@ class ClientContract extends HistoryActiveRecord
             $client->country_id = $contragent->country_id;
             $client->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
             $client->is_active = 0;
+            $client->client = '';
+            $client->sale_channel = 0;
+            $client->consignee = '';
             $client->validate();
             $client->save();
+
             $client->client = 'id' . $client->id;
             $client->save();
+
             $this->newClient = $client;
             $this->number = (string)$client->id;
             $this->save();

@@ -61,12 +61,16 @@ class PricelistController extends BaseController
             $connectionPointId = $model->connection_point_id;
             $query->andWhere(['region' => $model->connection_point_id]);
         }
+        if ($model->status) {
+            $query->andWhere(['status' => $model->status]);
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false,
         ]);
 
-        return $this->render("list", [
+        return $this->render('list', [
             'connectionPointId' => $connectionPointId,
             'connectionPoints' => Region::dao()->getList(),
             'networkConfigs' => NetworkConfig::dao()->getList(),
@@ -93,7 +97,7 @@ class PricelistController extends BaseController
             return $this->redirect(['edit', 'id' => $model->id]);
         }
 
-        return $this->render("add", [
+        return $this->render('add', [
             'model' => $model,
         ]);
     }
@@ -112,7 +116,7 @@ class PricelistController extends BaseController
             return $this->redirect(['edit', 'id' => $model->id]);
         }
 
-        return $this->render("edit", [
+        return $this->render('edit', [
             'model' => $model,
             'pricelist' => $pricelist,
         ]);
@@ -130,7 +134,7 @@ class PricelistController extends BaseController
                     ->orderBy('startdate desc, date desc'),
         ]);
 
-        return $this->render("files", [
+        return $this->render('files', [
             'pricelist' => $pricelist,
             'dataProvider' => $dataProvider,
         ]);
@@ -237,7 +241,7 @@ class PricelistController extends BaseController
             MegafonPricelistLoader::className() => MegafonPricelistLoader::getName(),
         ];
 
-        return $this->render("file_parse", [
+        return $this->render('file_parse', [
             'parser' => $parser,
             'loaders' => $loaders,
             'pricelist' => $file->pricelist,

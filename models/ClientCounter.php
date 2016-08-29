@@ -194,6 +194,12 @@ class ClientCounter extends ActiveRecord
         if (is_null($counter)) {
             $counter = new ClientCounter;
             $counter->client_id = $clientAccountId;
+            $counter->amount_sum = 0;
+            $counter->amount_day_sum = 0;
+            $counter->amount_month_sum = 0;
+            $counter->subscription_rt_balance = 0;
+            $counter->subscription_rt_last_month = 0;
+            $counter->subscription_rt = 0;
             if (!$counter->save(true)) {
                 throw new \yii\db\Exception("Can't create local counters for clientAccount #" . $clientAccountId);
             }

@@ -2,7 +2,7 @@
 
 namespace app\classes\uu\resourceReader;
 
-class VpbxExtDidResourceReader extends VpbxResourceReader implements ResourceReaderInterface
+class VpbxExtDidResourceReader extends VpbxResourceReader
 {
     protected $fieldName = 'ext_did_count';
 }

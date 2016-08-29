@@ -26,7 +26,7 @@ use yii\helpers\Url;
  *
  * @property integer $is_autoprolongation
  * @property integer $is_charge_after_blocking
- * @property integer $is_charge_after_period
+ * @property integer $is_charge_after_period @todo
  * @property integer $is_include_vat
  * @property integer $is_default
  *

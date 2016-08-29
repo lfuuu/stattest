@@ -2,8 +2,10 @@
 
 namespace app\classes\model;
 
-use app\models\HistoryVersion;
+use Yii;
 use yii\db\ActiveRecord;
+use app\models\HistoryVersion;
+use app\models\User;
 
 class HistoryActiveRecord extends ActiveRecord
 {
@@ -116,6 +118,7 @@ class HistoryActiveRecord extends ActiveRecord
             'date' => $date,
             'data_json' => json_encode($this->toArray(),
                 JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
+            'user_id' => Yii::$app->user->getId() ?: User::SYSTEM_USER_ID,
         ];
 
         $model = HistoryVersion::findOne([

@@ -108,12 +108,13 @@ if ($action == 'add_client') {
             throw new BadRequestHttpException('E-mail уже зарегистрирован.', Errors::ERROR_EMAIL_ALREADY);
         }
 
-        $info = '1'; //ask: "ok:1"
         $transaction = Yii::$app->db->beginTransaction();
 
         if (!$f->create()) {
             throw new \Exception('Ошибка создания клиента');
         }
+
+        $info = $f->account_id; //ask: "ok:123456"
 
         if ($isOldSchema) {  //старая схема не передает номера
             $info = $f->account_id . ($f->info ? ":" . $f->info : "");
@@ -307,8 +308,7 @@ if ($action == 'add_client') {
         $usage_arr,
         $paidonly,
         $destination,
-        $direction,
-        DateTimeZoneHelper::TIMEZONE_MOSCOW
+        $direction
     );
 
 

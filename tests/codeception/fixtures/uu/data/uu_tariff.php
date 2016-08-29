@@ -14,6 +14,9 @@ return [
         'country_id' => Country::RUSSIA,
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,
         'is_autoprolongation' => 1,
+        'is_charge_after_period' => 0,
+        'is_charge_after_blocking' => 0,
+        'is_include_vat' => 1,
     ],
     [
         'id' => 2,
@@ -24,6 +27,9 @@ return [
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,
         'is_autoprolongation' => 0,
         'count_of_validity_period' => 0,
+        'is_charge_after_period' => 0,
+        'is_charge_after_blocking' => 0,
+        'is_include_vat' => 1,
     ],
     [
         'id' => 3,
@@ -34,5 +40,8 @@ return [
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,
         'is_autoprolongation' => 0,
         'count_of_validity_period' => 1,
+        'is_charge_after_period' => 0,
+        'is_charge_after_blocking' => 0,
+        'is_include_vat' => 1,
     ],
 ];

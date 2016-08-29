@@ -17,8 +17,9 @@ class AccountLogSetupTarificator implements TarificatorI
     /**
      * Рассчитать плату всех услуг
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @param bool $isWithTransaction
      */
-    public function tarificate($accountTariffId = null)
+    public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить слишком старые данные
@@ -44,12 +45,12 @@ class AccountLogSetupTarificator implements TarificatorI
                 continue;
             }
 
-            $transaction = Yii::$app->db->beginTransaction();
+            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
                 $this->tarificateAccountTariff($accountTariff);
-                $transaction->commit();
+                $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
-                $transaction->rollBack();
+                $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
@@ -104,6 +105,9 @@ class AccountLogSetupTarificator implements TarificatorI
             // телефонный номер кроме телефонной линии (4-5 знаков)
             // только первое подключение. При смене тарифа на том же аккаунте не считать
             $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
+            if (is_null($accountLogSetup->price_number)) {
+                throw new \Exception('Не указана стоимость подключения номера ' . $accountTariff->voip_number);
+            }
         } else {
             $accountLogSetup->price_number = 0;
         }

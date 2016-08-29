@@ -12,7 +12,7 @@ class m160225_130010_call_chat extends \app\classes\Migration
             "price_include_vat" => "tinyint(1) DEFAULT '1'",
             "status" => "enum('public','archive') NOT NULL DEFAULT 'public'",
             "edit_user" => "int(11) NOT NULL DEFAULT '0'",
-            "edit_time" => "datetime NOT NULL DEFAULT '0000-00-00 00:00:00'"
+            "edit_time" => "datetime NOT NULL DEFAULT '1970-01-02 00:00:00'"
 
         ], 'ENGINE=InnoDB CHARSET=utf8');
 

@@ -64,6 +64,8 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
             $line7800->client = $client;
             $line7800->type_id = 'line';
             $line7800->address = 'test address line 7800';
+            $line7800->region = 99;
+            $line7800->create_params = '';
             $line7800->save();
             $line7800_id = $line7800->id;
 
@@ -81,6 +83,8 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
         $usage->client = $client;
         $usage->address = 'test address';
         $usage->line7800_id = $line7800_id;
+        $usage->region = 9;
+        $usage->create_params = '';
         $usage->save();
 
         $logTariff = new LogTarif;

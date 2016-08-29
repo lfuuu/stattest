@@ -668,23 +668,23 @@ class UuController extends ApiInternalController
             // отменяемый тариф
             /** @var AccountTariffLog $accountTariffLogCancelled */
             $accountTariffLogCancelled = array_shift($accountTariffLogs);
-            if (strtotime($accountTariffLogCancelled->actual_from) < time()) {
+            if (!$accountTariff->isCancelable()) {
                 throw new LogicException('Нельзя отменить уже примененный тариф');
+            }
+
+            // отменить (удалить) последний тариф
+            if (!$accountTariffLogCancelled->delete()) {
+                throw new ExceptionValidationForm($accountTariffLogCancelled);
             }
 
             if (!count($accountTariffLogs)) {
 
-                // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью. Лог тарифов должен удалиться каскадно
+                // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
                 if (!$accountTariff->delete()) {
                     throw new ExceptionValidationForm($accountTariff);
                 }
 
             } else {
-
-                // отменить (удалить) последний тариф
-                if (!$accountTariffLogCancelled->delete()) {
-                    throw new ExceptionValidationForm($accountTariffLogCancelled);
-                }
 
                 // предпоследний тариф становится текущим
                 /** @var AccountTariffLog $accountTariffLogActual */

@@ -82,12 +82,14 @@ class UsageVoipForm extends Form
                     'tariff_group_intern_price',
                     'tariff_group_price'
                 ],
-                'number'
+                'integer', 'integerOnly' => false
             ],
             ['status', 'default', 'value' => 'connecting'],
             [['connecting_date'], 'validateDate', 'on' => 'edit'],
             [['connecting_date'], 'validateUsageDate'],
             [['disconnecting_date'], 'validateDependPackagesDate', 'on' => 'edit'],
+            [['disconnecting_date'], 'validateDisconnectingDate', 'on' => 'edit'],
+            ['tariff_change_date', 'validateChangeTariff', 'on' => 'change-tariff'],
         ];
     }
 
@@ -168,4 +170,35 @@ class UsageVoipForm extends Form
         }
     }
 
+    /**
+     * Валидация даты изменения тарифа
+     */
+    public function validateChangeTariff()
+    {
+        if ($this->tariff_change_date > ($this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE) || $this->tariff_change_date < $this->connecting_date) {
+            $this->addError('tariff_change_date', 'Дата начала тарифа должна быть во время действия услуги');
+            return;
+        }
+
+        $tariffDate = new \DateTime($this->tariff_change_date);
+        $firstDayOfThisMonth = (new \DateTime('now'))->modify('first day of this month')->setTime(0, 0, 0);
+
+        if ($tariffDate < $firstDayOfThisMonth) {
+            $this->addError('tariff_change_date', 'Разрешено изменение даты тарифа не раньше начала текущего месяца');
+        }
+
+    }
+
+    /**
+     * Валидация даты отключения услуги
+     */
+    public function validateDisconnectingDate()
+    {
+        $disconnectDate = new \DateTime($this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE);
+        $now = (new \DateTime('now'))->setTime(0, 0, 0);
+
+        if ($disconnectDate < $now) {
+            $this->addError('disconnecting_date', 'Отключить услугу можно только в будущем, или сегодня');
+        }
+    }
 }

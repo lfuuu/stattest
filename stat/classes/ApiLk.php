@@ -947,25 +947,33 @@ class ApiLk
 
     public static function orderVoip($clientId, $did)
     {
-        $clientAccount = ClientAccount::findOne($clientId);
-        Assert::isObject($clientAccount);
+        try {
+            $clientAccount = ClientAccount::findOne($clientId);
+            Assert::isObject($clientAccount);
 
-        $number = Number::findOne($did);
-        Assert::isObject($number);
-        if ($number->status != Number::STATUS_INSTOCK) {
+            $number = Number::findOne($did);
+            Assert::isObject($number);
+            if ($number->status != Number::STATUS_INSTOCK) {
+                return [
+                    'status' => 'error',
+                    'message' => 'voip_number_not_free'
+                ];
+            }
+
+            $mainTariff = TariffVoip::findOne([
+                'status' => TariffVoip::STATUS_TEST,
+                'connection_point_id' => $number->city->connection_point_id
+            ]);
+
+            Assert::isObject($mainTariff);
+            Assert::isEqual($clientAccount->currency, $mainTariff->currency_id);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage());
             return [
                 'status' => 'error',
-                'message' => 'voip_number_not_free'
+                'message' => 'order_validate_data_error',
             ];
         }
-
-        $mainTariff = TariffVoip::findOne([
-            'status' => TariffVoip::STATUS_TEST,
-            'connection_point_id' => $number->city->connection_point_id
-        ]);
-
-        Assert::isObject($mainTariff);
-        Assert::isEqual($clientAccount->currency, $mainTariff->currency_id);
 
         $model = new UsageVoipEditForm();
         $model->scenario = 'add';
@@ -1569,7 +1577,7 @@ class ApiLk
         ];
     }
 
-    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'UTC', $onlypay = 0, $isFull = 0)
+    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'Europe/Moscow', $onlypay = 0, $isFull = 0)
     {
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
@@ -1608,8 +1616,7 @@ class ApiLk
                     $phones_sel,
                     $onlypay,
                     $destination,
-                    $direction,
-                    $timezone
+                    $direction
                 );
             }
 
@@ -1627,7 +1634,6 @@ class ApiLk
                 $onlypay,
                 $destination,
                 $direction,
-                $timezone,
                 $isFull
             );
         }

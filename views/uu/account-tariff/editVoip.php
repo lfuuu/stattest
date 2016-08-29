@@ -23,11 +23,12 @@ ob_end_clean(); // форма уже есть на странице, а здес
     ])
     ?>
 
+    <?= Html::hiddenInput('accountTariffId', $formModel->id ?: 0) ?>
     <?= Html::activeHiddenInput($formModel->accountTariff, 'tariff_period_id') ?>
 
-    <?php if ($formModel->accountTariff->isNewRecord) : ?>
-        <div class="row">
-            <div class="col-sm-4">
+    <div class="row">
+        <div class="col-sm-6">
+            <?php if ($formModel->accountTariff->isNewRecord) : ?>
                 <?= Html::submitButton(
                     Html::tag('i', '', [
                         'class' => 'glyphicon glyphicon-edit',
@@ -39,8 +40,12 @@ ob_end_clean(); // форма уже есть на странице, а здес
                         'data-old-tariff-period-id' => $formModel->accountTariff->tariff_period_id,
                     ]
                 ) ?>
-            </div>
+            <?php endif ?>
+
+            <?= $this->render('//layouts/_buttonCancel', ['url' => '#']) ?>
+
         </div>
-    <?php endif ?>
+    </div>
+
 
 </div>

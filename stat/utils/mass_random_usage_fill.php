@@ -23,20 +23,18 @@ $address = ''; //142800, Российская Федерация, Московс
 
 
 $confs = [
-    /*
     [
         "didGroupId" => 17,
-        "region" => 96,
-        "count_numbers" => 25,
+        "region" => 96, // Самара
+        "count_numbers" => 30,
 
-        "id_tarif" => 665,
+        "id_tarif" => 667, //Партнёр 1000 и более (118.00-413.00)
         "id_tarif_local_mob" => 117,
         "id_tarif_russia" => 173,
         "id_tarif_russia_mob" => 173,
         "id_tarif_intern" => 174
 
     ],
-    */
 /*
     [
         "didGroupId" => 12, //Стандартный
@@ -90,7 +88,7 @@ $confs = [
 
     ],
 */
-
+/*
     [
         "didGroupId" => 22,
         "region" => 95, //Екатеринбуг
@@ -102,7 +100,7 @@ $confs = [
         "id_tarif_russia_mob" => 160,
         "id_tarif_intern" => 162
     ],
-
+*/
     /*
     [
         "didGroupId" => 42, //Стандартные

@@ -41,6 +41,12 @@ class UsageTrunkTransferTest extends \yii\codeception\TestCase
         $usage->actual_to = $actualTo;
         $usage->client_account_id = $client->id;
         $usage->connection_point_id = Region::MOSCOW;
+
+        if ($usage instanceof UsageTrunk) {
+            $usage->trunk_id = 0;
+            $usage->operator_id = 0;
+        }
+
         $usage->save();
 
         return $usage->id;

@@ -4,6 +4,7 @@ class m160218_150650_virtpbx_stat_missdata extends \app\classes\Migration
 {
     public function up()
     {
+        return; // она разово запустилась, выполнилась и хватит. А на тесте она не нужна
         $dates = Yii::$app->db->createCommand('
             SELECT
                 missed.*,

@@ -97,4 +97,27 @@ class TemplateController extends BaseController
         }
     }
 
+    /**
+     * @param int $countryId
+     * @param int $templateId
+     * @param string $langCode
+     * @throws \yii\base\Exception
+     * @throws \yii\base\ExitException
+     * @throws \yii\web\HttpException
+     */
+    public function actionDownloadTemplate($countryId, $templateId, $langCode)
+    {
+        /** @var TemplateContent $templateContent */
+        $templateContent = TemplateContent::findOne([
+            'country_id' => $countryId,
+            'template_id' => $templateId,
+            'lang_code' => $langCode,
+            'type' => 'email',
+        ]);
+
+        Assert::isObject($templateContent);
+
+        $templateContent->mediaManager->getContent($templateContent, $isDownload = true);
+    }
+
 }

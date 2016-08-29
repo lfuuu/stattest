@@ -7,6 +7,7 @@ use kartik\builder\Form;
 use app\models\Region;
 use app\models\Currency;
 use app\models\billing\NetworkConfig;
+use app\models\billing\Pricelist;
 
 echo Html::formLabel('Добавление прайс-листа');
 echo Breadcrumbs::widget([
@@ -32,11 +33,20 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
             'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true), 'options' => ['class' => 'select2']],
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2']],
+            'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=>['' => '----'] + Pricelist::$states, 'options' => ['class' => 'select2']],
+        ],
+    ]);
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'columns' => 3,
+        'attributes' => [
             'orig' => ['type' => Form::INPUT_CHECKBOX],
             'tariffication_by_minutes' => ['type' => Form::INPUT_CHECKBOX],
             'price_include_vat' => ['type' => Form::INPUT_CHECKBOX],
@@ -44,7 +54,7 @@ echo Breadcrumbs::widget([
             'type' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['client' => 'Клиент', 'operator' => 'Оператор', 'network_prices' => 'Местные'], 'options' => ['disabled' => true]],
             'tariffication_full_first_minute' => ['type' => Form::INPUT_CHECKBOX],
             'initiate_zona_cost' => ['type' => Form::INPUT_TEXT],
-            'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
+            'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '----'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
             'is_global' => ['type' => Form::INPUT_CHECKBOX],
         ],
     ]);

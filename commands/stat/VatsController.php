@@ -1,13 +1,13 @@
 <?php
 namespace app\commands\stat;
 
-use Yii;
-use DateTime;
-use yii\console\Controller;
-use yii\helpers\Console;
-use yii\helpers\ArrayHelper;
 use app\models\ActualVirtpbx;
 use app\models\Virtpbx;
+use DateTime;
+use Yii;
+use yii\console\Controller;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Console;
 
 class VatsController extends Controller
 {
@@ -140,6 +140,8 @@ class VatsController extends Controller
                 ($record['disk_space_bytes'] ?: 0),
                 ($record['int_number_count'] ?: 0),
                 ($record['ext_did_count'] ?: 0),
+                ($record['call_recording_enabled'] ? 1 : 0),
+                ($record['faxes_enabled'] ? 1 : 0),
             ];
 
             $this->stdout(
@@ -149,6 +151,8 @@ class VatsController extends Controller
                 $this->ansiFormat(' space:' . $record['disk_space_bytes'], Console::FG_GREY) .
                 $this->ansiFormat(' ports:' . $record['int_number_count'], Console::FG_GREY) .
                 $this->ansiFormat(' ext DID counts:' . $record['ext_did_count'], Console::FG_GREY) .
+                $this->ansiFormat(' call_recording_enabled:' . $record['call_recording_enabled'], Console::FG_GREY) .
+                $this->ansiFormat(' faxes_enabled:' . $record['faxes_enabled'], Console::FG_GREY) .
                 "\n\n",
                 Console::FG_YELLOW
             );
@@ -173,11 +177,13 @@ class VatsController extends Controller
                 ]
             );
 
-            Yii::$app->db->createCommand()->batchInsert(
-                Virtpbx::tableName(),
-                ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count'],
-                $insert
-            )->execute();
+            if (count($insert)) {
+                Yii::$app->db->createCommand()->batchInsert(
+                    Virtpbx::tableName(),
+                    ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count', 'call_recording_enabled', 'faxes_enabled'],
+                    $insert
+                )->execute();
+            }
         } catch (\Exception $e) {
             $transaction->rollBack();
             $this->throwError($e->getMessage());

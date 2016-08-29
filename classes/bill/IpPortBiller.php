@@ -341,7 +341,7 @@ class IpPortBiller extends Biller
         }
 
         // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
-        if ($logTariff->internetTariff->isTested()) {
+        if ($logTariff->internetTariff->isTest()) {
             $logTariff =
                 LogTarif::find()
                     ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])

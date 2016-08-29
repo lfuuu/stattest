@@ -108,8 +108,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_VOIP_PACKAGE => '',
 
         ServiceType::ID_INTERNET => '/pop_services.php?table=usage_ip_ports&id=%d',
-        ServiceType::ID_COLLOCATION => '',
-        ServiceType::ID_VPN => '',
+        ServiceType::ID_COLLOCATION => '/pop_services.php?table=usage_ip_ports&id=%d',
+        ServiceType::ID_VPN => '/pop_services.php?table=usage_ip_ports&id=%d',
 
         ServiceType::ID_IT_PARK => '/pop_services.php?table=usage_extra&id=%d',
         ServiceType::ID_DOMAIN => '/pop_services.php?table=usage_extra&id=%d', // /pop_services.php?id=%d&table=domains
@@ -329,9 +329,10 @@ class AccountTariff extends ActiveRecord
      *  - в порядке возрастания
      *  - только активные на данный момент
      *
+     * @param bool $isWithFuture
      * @return AccountTariffLog[]
      */
-    public function getUniqueAccountTariffLogs()
+    public function getUniqueAccountTariffLogs($isWithFuture = false)
     {
         $accountTariffLogs = [];
         /** @var AccountTariffLog $accountTariffLogPrev */
@@ -345,7 +346,7 @@ class AccountTariff extends ActiveRecord
                 // если переопределен в тот же день, то списываем за оба
                 continue;
             }
-            if ($accountTariffLog->actual_from > date('Y-m-d')) {
+            if (!$isWithFuture && $accountTariffLog->actual_from > date('Y-m-d')) {
                 // еще не наступил
                 continue;
             }
@@ -359,13 +360,14 @@ class AccountTariff extends ActiveRecord
      * Вернуть большие периоды, разбитые только по смене тарифов
      * У последнего тарифа dateTo может быть null (не ограничен по времени)
      *
-     * @return AccountLogFromToTariff[]
+     * @param bool $isWithFuture
+     * @return \app\classes\uu\forms\AccountLogFromToTariff[]
      */
-    public function getAccountLogHugeFromToTariffs()
+    public function getAccountLogHugeFromToTariffs($isWithFuture = false)
     {
         /** @var AccountLogFromToTariff[] $accountLogPeriods */
         $accountLogPeriods = [];
-        $uniqueAccountTariffLogs = $this->getUniqueAccountTariffLogs();
+        $uniqueAccountTariffLogs = $this->getUniqueAccountTariffLogs($isWithFuture);
         foreach ($uniqueAccountTariffLogs as $uniqueAccountTariffLog) {
 
             // начало нового периода
@@ -432,7 +434,7 @@ class AccountTariff extends ActiveRecord
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
-        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
+        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs($isWithFuture = true);
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
             $dateTo = $accountLogHugePeriod->dateTo;
@@ -476,6 +478,7 @@ class AccountTariff extends ActiveRecord
 
         }
 
+        $isNeedAutoClose = false; // @todo надо продумать, как отменять отмену (сменить тестовый тариф на другой тестовый)
         if (!$dateTo && $isNeedAutoClose && $this->clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
             // нужно закрыть автоматически
             $accountTariffLog = new AccountTariffLog();
@@ -578,7 +581,12 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new RangeException(sprintf('Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+            // Решили пока игнорировать
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
+                $accountLog->delete();
+            }
         }
 
         return $untarificatedPeriods;
@@ -621,7 +629,12 @@ class AccountTariff extends ActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(sprintf('Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs))));
+            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+            // Решили пока игнорировать
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
+                $accountLog->delete();
+            }
         }
 
         return $untarificatedPeriods;
@@ -655,8 +668,8 @@ class AccountTariff extends ActiveRecord
             // остался неизвестный период, который уже рассчитан
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
-            printf('Error. There are unknown calculated accountLogResource for accountTariffId %d: %s', $this->id, implode(', ', array_keys($accountLogs)));
-            foreach($accountLogs as $accountLog) {
+            printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            foreach ($accountLogs as $accountLog) {
                 $accountLog->delete();
             }
         }
@@ -721,7 +734,13 @@ class AccountTariff extends ActiveRecord
     public function isCancelable()
     {
         $accountTariffLogs = $this->accountTariffLogs;
-        return reset($accountTariffLogs)->actual_from > date('Y-m-d');
+        $accountTariffLog = reset($accountTariffLogs);
+        if (!$accountTariffLog) {
+            return false;
+        }
+
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+        return $accountTariffLog->actual_from > $dateTimeNow->format('Y-m-d');
     }
 
     /**
@@ -736,41 +755,50 @@ class AccountTariff extends ActiveRecord
         /** @var AccountTariff $accountTariff */
         foreach ($query->each() as $accountTariff) {
 
-            $hashes = [];
-
-            // город
-            $hashes[] = $accountTariff->city_id;
-
-            // лог тарифа и даты
-            foreach ($accountTariff->accountTariffLogs as $accountTariffLog) {
-                $hashes[] = $accountTariffLog->tariff_period_id ?: '';
-                $hashes[] = $accountTariffLog->actual_from;
-
-                if (strtotime($accountTariffLog->actual_from) < time()) {
-                    // показываем только текущий. Старье не нужно
-                    break;
-                }
-            }
-
-            // Пакет. Лог тарифа  и даты
-            foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
-                foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
-                    // лог тарифа
-                    $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
-                    $hashes[] = $accountTariffPackageLog->actual_from;
-
-                    if (strtotime($accountTariffPackageLog->actual_from) < time()) {
-                        // показываем только текущий. Старье не нужно
-                        break;
-                    }
-                }
-            }
-
-            $hash = md5(implode('_', $hashes));
+            $hash = $accountTariff->getHash();
             !isset($rows[$hash]) && $rows[$hash] = [];
             $rows[$hash][$accountTariff->id] = $accountTariff;
         }
         return $rows;
+    }
+
+    /**
+     * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным номерам.
+     * @return string
+     */
+    public function getHash()
+    {
+        $hashes = [];
+
+        // город
+        $hashes[] = $this->city_id;
+
+        // лог тарифа и даты
+        foreach ($this->accountTariffLogs as $accountTariffLog) {
+            $hashes[] = $accountTariffLog->tariff_period_id ?: '';
+            $hashes[] = $accountTariffLog->actual_from;
+
+            if (strtotime($accountTariffLog->actual_from) < time()) {
+                // показываем только текущий. Старье не нужно
+                break;
+            }
+        }
+
+        // Пакет. Лог тарифа  и даты
+        foreach ($this->nextAccountTariffs as $accountTariffPackage) {
+            foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
+                // лог тарифа
+                $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
+                $hashes[] = $accountTariffPackageLog->actual_from;
+
+                if (strtotime($accountTariffPackageLog->actual_from) < time()) {
+                    // показываем только текущий. Старье не нужно
+                    break;
+                }
+            }
+        }
+
+        return md5(implode('_', $hashes));
     }
 
     /**

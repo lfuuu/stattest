@@ -159,20 +159,6 @@ class TariffConverterVpbx extends TariffConverterA
                 AND new.service_type_id = {$serviceTypeId}
         ");
 
-        // ВАТС. Звонки с сайта
-        $resourceIdWebCall = Resource::ID_VPBX_WEB_CALL;
-        $this->execute("INSERT INTO tariff_resource_tmp
-            SELECT 
-                is_web_call AS amount, 
-                354 AS price_per_unit, 
-                0 AS price_min, 
-                {$resourceIdWebCall} AS resource_id, 
-                new.id AS tariff_id
-            FROM tarifs_virtpbx old, {$tariffTableName} new
-            WHERE old.description = new.name
-                AND new.service_type_id = {$serviceTypeId}
-        ");
-
         // ВАТС. Факс
         $resourceIdFax = Resource::ID_VPBX_FAX;
         $this->execute("INSERT INTO tariff_resource_tmp

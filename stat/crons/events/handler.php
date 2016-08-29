@@ -177,6 +177,13 @@ function do_events()
                     break;
                 }
 
+                case 'uu_tarificate': {
+                    $clientAccount = \app\models\ClientAccount::findOne(['id' => $param['account_id']]);
+                    if ($clientAccount) {
+                        \app\models\Bill::dao()->transferUniversalBillsToBills($clientAccount);
+                    }
+                }
+
             }
 
             if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {

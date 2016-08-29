@@ -14,7 +14,7 @@ class PricelistEditForm extends PricelistForm
 
     public function save()
     {
-        if ($this->type == 'network_prices' && !$this->local_network_config_id) {
+        if ($this->type === 'network_prices' && !$this->local_network_config_id) {
             $this->addError('orig', 'Поле Местные префиксы должно быть заполнено');
             return false;
         }
@@ -27,8 +27,9 @@ class PricelistEditForm extends PricelistForm
         $pricelist->tariffication_by_minutes = $this->tariffication_by_minutes;
         $pricelist->tariffication_full_first_minute = $this->tariffication_full_first_minute;
         $pricelist->price_include_vat = $this->price_include_vat;
-        $pricelist->local_network_config_id = $this->type == 'network_prices' ? $this->local_network_config_id : null;
+        $pricelist->local_network_config_id = $this->type === 'network_prices' ? $this->local_network_config_id : null;
         $pricelist->is_global = $this->is_global;
+        $pricelist->status = $this->status;
 
         $pricelist->save();
 

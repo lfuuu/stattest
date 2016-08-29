@@ -3,7 +3,6 @@ namespace app\commands;
 
 use app\classes\uu\converter\AccountTariffConverter;
 use app\classes\uu\converter\TariffConverter;
-use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\exceptions\api\internal\ExceptionValidationForm;
@@ -240,32 +239,5 @@ class UconverterController extends Controller
             printf('%s %s', $e->getMessage(), $e->getTraceAsString());
             return Controller::EXIT_CODE_ERROR;
         }
-    }
-
-    /**
-     * Удалить все универсальные тарифы и услуги
-     */
-    public function actionClear()
-    {
-        $this->actionClearAccountTariff();
-        $this->actionClearTariff();
-    }
-
-    /**
-     * Удалить все универсальные тарифы
-     */
-    public function actionClearTariff()
-    {
-        Tariff::deleteAll();
-        echo '. ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить все универсальные услуги
-     */
-    public function actionClearAccountTariff()
-    {
-        AccountTariff::deleteAll();
-        echo '. ' . PHP_EOL;
     }
 }

@@ -5,7 +5,7 @@ namespace app\classes\uu\resourceReader;
 use app\classes\uu\model\AccountTariff;
 use DateTimeImmutable;
 
-class VpbxDiskResourceReader extends VpbxResourceReader implements ResourceReaderInterface
+class VpbxDiskResourceReader extends VpbxResourceReader
 {
     protected $fieldName = 'use_space';
 

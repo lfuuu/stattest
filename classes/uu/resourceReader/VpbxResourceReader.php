@@ -46,7 +46,7 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $usageId = $accountTariff->id;
+        $usageId = $accountTariff->getNonUniversalId();
         $clientId = $accountTariff->client_account_id;
         $date = $dateTime->format('Y-m-d');
         return

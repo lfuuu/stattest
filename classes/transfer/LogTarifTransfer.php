@@ -30,7 +30,6 @@ abstract class LogTarifTransfer
                 ->andWhere('id_tarif != 0')
                 ->andWhere('date_activation <= :date', ['date' => $serviceTransfer->getActualDate()])
                 ->orderBy('date_activation desc, id desc')
-                ->limit(1)
                 ->one();
 
         if (!($logTariff instanceof LogTarif)) {
@@ -42,7 +41,7 @@ abstract class LogTarifTransfer
             $targetLogTariff = new $logTariff;
             $targetLogTariff->setAttributes($logTariff->getAttributes(), false);
             unset($targetLogTariff->id);
-            //$targetLogTariff->date_activation = $serviceTransfer->getActualDate(); // переносим дату активации как есть
+            $targetLogTariff->date_activation = $serviceTransfer->getActualDate(); // переносим дату активации как есть
             $targetLogTariff->ts = $serviceTransfer->getActivationDatetime();
             $targetLogTariff->id_service = $targetServiceId;
 

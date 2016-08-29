@@ -1,4 +1,5 @@
 <?php
+use app\classes\DateTimeWithUserTimezone;
 use app\models\Currency;
 use app\classes\Wordifier;
 use app\classes\Utils;
@@ -230,6 +231,24 @@ function smarty_modifier_udate_with_timezone($value, $format = 'Y-m-d H:i:s', $i
 	return \app\helpers\DateTimeZoneHelper::getDateTime($value, $format, $isShowTimezone);
 }
 
+/**
+ * @param string $date
+ * @param string $showedTimezone
+ * @param string $format
+ * @return string
+ */
+function smarty_modifier_datetime_with_timezone($value, $showedTimezone, $format = 'Y-m-d H:i:s') {
+    return
+        (
+        new DateTimeWithUserTimezone(
+            $value,
+            new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)
+        )
+        )
+            ->setTimezone(new DateTimeZone($showedTimezone))
+            ->format($format);
+}
+
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
     $user_timezone = isset(Yii::$app->user->identity) ? Yii::$app->user->identity->timezone_name : 'UTC';
 
@@ -380,6 +399,19 @@ function smarty_modifier_currencySymbol($currency)
 	return Currency::symbol($currency);
 }
 
+function smarty_date_full($date)
+{
+	if (!$date || $date == "0000-00-00 00:00:00") {
+		return "";
+	}
+
+	if ($date instanceof DateTime) {
+		$date = $date->getTimestamp();
+	}
+
+	return Yii::t('tariff', '{0,date,dd MMMM yyyy HH:mm:ss}', [(is_numeric($date) ? $date : strtotime($date))]);
+}
+
 class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
@@ -416,6 +448,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('mdate','smarty_modifier_mdate');
         $this->register_modifier('udate','smarty_modifier_udate');
         $this->register_modifier('udate_with_timezone','smarty_modifier_udate_with_timezone');
+        $this->register_modifier('datetime_with_timezone','smarty_modifier_datetime_with_timezone');
 		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
@@ -425,6 +458,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('client_options', 'smarty_modifier_client_options');
 		$this->register_modifier('money_currency', 'smarty_modifier_moneyAndCurrency');
 		$this->register_modifier('currency_symbol', 'smarty_modifier_currencySymbol');
+		$this->register_modifier('date_full', 'smarty_date_full');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

@@ -44,7 +44,7 @@ $accountTariffLog = $formModel->accountTariffLog;
             'pluginOptions' => [
                 'autoclose' => true,
                 'format' => 'yyyy-mm-dd',
-                'startDate' => (new DateTime())->modify($accountTariff->isNewRecord ? '+0 day' : '+1 day')->format('Y-m-d'),
+                'startDate' => date('Y-m-d'),
                 'todayHighlight' => true,
             ]
         ]) ?>

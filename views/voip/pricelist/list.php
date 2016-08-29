@@ -1,24 +1,40 @@
 <?php
 use app\models\billing\Pricelist;
 use app\classes\Html;
-use kartik\grid\GridView;
-use kartik\grid\DataColumn;
+use app\classes\grid\GridView;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 
-if ($type == Pricelist::TYPE_CLIENT && $orig == 1) {
-    echo Html::formLabel('Прайc-листы Клиентские Оригинация');
-}
-elseif ($type == Pricelist::TYPE_CLIENT && $orig == 0) {
-    echo Html::formLabel('Прайc-листы Клиентские Терминация');
-}
-elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 1) {
-    echo Html::formLabel('Прайc-листы Операторские Оригинация');
-}
-elseif ($type == Pricelist::TYPE_OPERATOR && $orig == 0) {
-    echo Html::formLabel('Прайc-листы Операторские Терминация');
-}
-elseif ($type == Pricelist::TYPE_LOCAL && $orig == 0) {
-    echo Html::formLabel('Прайc-листы Местные Терминация');
+/** @var ActiveDataProvider $dataProvider */
+/** @var Pricelist $filterModel */
+/** @var int $connectionPointId */
+/** @var int $orig */
+/** @var string $type */
+
+if ($orig == 1) {
+    switch ($type) {
+        case Pricelist::TYPE_CLIENT:
+            echo Html::formLabel('Прайc-листы Клиентские Оригинация');
+            break;
+
+        case Pricelist::TYPE_OPERATOR:
+            echo Html::formLabel('Прайc-листы Операторские Оригинация');
+            break;
+    }
+} elseif ($orig == 0) {
+    switch ($type) {
+        case Pricelist::TYPE_CLIENT:
+            echo Html::formLabel('Прайc-листы Клиентские Терминация');
+            break;
+
+        case Pricelist::TYPE_OPERATOR:
+            echo Html::formLabel('Прайc-листы Операторские Терминация');
+            break;
+
+        case Pricelist::TYPE_LOCAL:
+            echo Html::formLabel('Прайc-листы Местные Терминация');
+            break;
+    }
 }
 
 $columns = [
@@ -28,6 +44,15 @@ $columns = [
         'label' => 'Точка присоединения',
         'value' => function ($data) use ($connectionPoints) {
             return $connectionPoints[ $data->region ];
+        },
+    ],
+    [
+        'attribute' => 'status',
+        'filter' => ['' => '----'] + Pricelist::$states,
+        'filterType' => GridView::FILTER_SELECT2,
+        'label' => 'Статус',
+        'value' => function ($data) {
+            return Pricelist::$states[$data->status];
         },
     ],
     [
@@ -141,21 +166,10 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'toolbar'=> [
+    'extraButtons' => $this->render(
+        '//layouts/_buttonCreate',
         [
-            'content' =>
-                Html::a(
-                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['add', 'type' => $type, 'orig' => $orig, 'connectionPointId' => $connectionPointId],
-                    [
-                        'data-pjax' => 0,
-                        'class' => 'btn btn-success btn-sm form-lnk',
-                    ]
-                ),
-        ],
-        '{toggleData}',
-    ],
-    'panel'=>[
-        'type' => GridView::TYPE_DEFAULT,
-    ],
+            'url' => Url::toRoute(['add', 'type' => $type, 'orig' => $orig, 'connectionPointId' => $connectionPointId])
+        ]
+    ),
 ]);

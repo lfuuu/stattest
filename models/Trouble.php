@@ -35,10 +35,10 @@ class Trouble extends ActiveRecord
 
     const EVENT_AFTER_SAVE = 'afterSave';
 
-    const DEFAULT_SUPPORT_USER = 'koshelev';     // Кошелев Сергей
+    const DEFAULT_SUPPORT_USER =  'nick'; // Михайлов Николай
     const DEFAULT_SUPPORT_SALES = 'ava';      // Ан Владимир
     const DEFAULT_SUPPORT_ACCOUNTING = 'istomina'; // Истомина Ирина
-    const DEFAULT_SUPPORT_TECHNICAL = 'koshelev';     // Кошелев Сергей
+    const DEFAULT_SUPPORT_TECHNICAL = 'nick'; // Михайлов Николай
     const DEDAULT_API_AUTHOR = 'AutoLK';
     const DEFAULT_SUPPORT_FOLDER = 257;
     const DEFAULT_SUPPORT_STATE = 1;

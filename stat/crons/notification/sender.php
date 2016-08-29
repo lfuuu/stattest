@@ -67,9 +67,6 @@ runChecker::run();
         } catch(Exception $e)
         {
             "\nerrror: ".$e->getMessage();
-
-            $db->QueryDelete("lk_notice_settings", array("client_contact_id" => $email["contact_id"]));
-            $db->QueryDelete("client_contacts", array("id" => $email["contact_id"]));
         }
         
         $db->QueryDelete("lk_notice", array("id" => $email["id"]));

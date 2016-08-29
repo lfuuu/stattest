@@ -114,7 +114,7 @@ class TariffConverterCollocation extends TariffConverterA
         ");
 
         // Collocation. Трафик Foreign
-        $resourceIdTrafficForeign = Resource::ID_COLLOCATION_TRAFFIC_FOREINGN;
+        $resourceIdTrafficForeign = Resource::ID_COLLOCATION_TRAFFIC_FOREIGN;
         $this->execute("INSERT INTO tariff_resource_tmp
            SELECT
                 month_f AS amount,

@@ -79,12 +79,12 @@
 	<TD>{if isset($r.objects) && count($r.objects)}
 		<table cellspacing=2 cellpadding=1 border=0 class=mform>
 		{foreach from=$r.objects item=obj name=inner}
-			<tr><td>{$obj.object_type}</td><td>{$obj.object_param}</td><td>{if ($obj.view_count)}{$obj.view_ts}{else}&nbsp;&nbsp;&nbsp;&nbsp;{/if}</td></tr>
+			<tr{if ($obj.view_count)} style="color: #00aa00;"{/if}><td>{$obj.object_type}</td><td>{$obj.object_param}</td><td>{if ($obj.view_count)}<small>{$obj.view_ts|date_full}{else}&nbsp;&nbsp;&nbsp;&nbsp;{/if}</small></td></tr>
 		{/foreach}
 		</table>
 	{/if}</TD>
 	<TD>{$r.letter_state}</TD>
-	<TD>{if $r.send_date!="0000-00-00 00:00:00"}{$r.send_date}{/if}</TD>
+	<TD>{$r.send_date|date_full}</TD>
 	<TD style='font-size:80%'>{$r.send_message}</TD>
 </TR>
 {/foreach}

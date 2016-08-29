@@ -1,9 +1,15 @@
 <?php
 namespace app\classes\grid;
 
-use app\classes\Html;
+use app\models\billing\Pricelist;
+use ReflectionClass;
 use Yii;
+use DateTime;
 use yii\base\Widget;
+use yii\helpers\Json;
+use yii\web\Cookie;
+use yii\web\JsExpression;
+use app\classes\Html;
 
 class GridView extends \kartik\grid\GridView
 {
@@ -79,6 +85,23 @@ HTML;
         'showConfirmAlert' => false, // boolean, whether to show a confirmation alert dialog before download. This confirmation dialog will notify user about the type of exported file for download and to disable popup blockers.
         'target' => GridView::TARGET_SELF, // no window is popped up in this case, but download is submitted on same page.
     ];
+
+    /**
+     * @var string the name of the parameter used to specify the size of the page.
+     * This will be used as the input name of the dropdown list with page size options.
+     */
+    public $pageSizeParam = 'per-page';
+
+    /**
+     * @var string the name of the parameter used to specify the size of the page.
+     * This will be used as the cookie name
+     */
+    public $pageSizeCookie = 'GridViewPageSize';
+
+    /**
+     * @var [] the list of page sizes
+     */
+    public $pageSizes = [10 => 'по 10 на стр.', 20 => 'по 20 на стр.', 50 => 'по 50 на стр.', 100 => 'по 100 на стр.', 500 => 'по 500 на стр.', -1 => '- Все -'];
 
     /**
      * @var null|string
@@ -166,6 +189,31 @@ HTML;
     }
 
     /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        $this->_toggleDataKey = '_tog' . hash('crc32', Yii::$app->user->id . $this->_toggleDataKey);
+
+        if (isset($_COOKIE[$this->pageSizeCookie])) {
+            $pageSizeValue = Json::decode($_COOKIE[$this->pageSizeCookie]);
+
+            if (isset($pageSizeValue[$this->_toggleDataKey])) {
+                switch ($pageSizeValue) {
+                    case -1:
+                        $this->dataProvider->pagination = false;
+                        break;
+                    default:
+                        $this->dataProvider->pagination->pageSize = (int)$pageSizeValue[$this->_toggleDataKey];
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
      * Initalize grid layout
      */
     protected function initLayout()
@@ -235,11 +283,33 @@ HTML;
      */
     public function renderToggleData()
     {
+        if (!$this->toggleData) {
+            return '';
+        }
+
         if (!$this->dataProvider->getTotalCount()) {
             // не показывать кнопку "все", если нет данных
             return '';
         }
-        return parent::renderToggleData();
+
+        $view = $this->getView();
+        $view->registerJs(new JsExpression('
+            $("select[name=\"' . $this->pageSizeParam . '\"]").on("change", function() {
+                var data = Cookies.get("' . $this->pageSizeCookie . '");
+                data = !data ? {} : $.parseJSON(data);
+                data["' . $this->_toggleDataKey . '"] = $(this).find("option:selected").val();
+                Cookies.set("' . $this->pageSizeCookie . '", data, { path: "/" });
+                self.location.reload(true);
+            });
+        '));
+
+        return
+            Html::beginTag('div', ['class' => 'btn-group']) .
+                Html::dropDownList($this->pageSizeParam, $this->dataProvider->pagination->pageSize ?: -1, $this->pageSizes, [
+                    'class' => 'form-control',
+                    'style' => 'width:140px;'
+                ]) .
+            Html::endTag('div');
     }
 
     /**
