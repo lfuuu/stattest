@@ -35,6 +35,8 @@ class TariffConverter
         ServiceType::ID_SMS => '\app\classes\uu\converter\TariffConverterSms',
 
         ServiceType::ID_WELLTIME_SAAS => '\app\classes\uu\converter\TariffConverterWelltimeSaas',
+
+        ServiceType::ID_CALL_CHAT => '\app\classes\uu\converter\TariffConverterCallChat',
     ];
 
     /**

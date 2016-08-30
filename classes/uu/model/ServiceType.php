@@ -40,6 +40,8 @@ class ServiceType extends \yii\db\ActiveRecord
 
     const ID_WELLTIME_SAAS = 18; // Welltime как сервис. welltime
 
+    const ID_CALL_CHAT = 19; // Звонок-чат
+
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
@@ -69,6 +71,8 @@ class ServiceType extends \yii\db\ActiveRecord
         self::ID_SMS,
 
         self::ID_WELLTIME_SAAS,
+
+        self::ID_CALL_CHAT,
     ];
 
     /**

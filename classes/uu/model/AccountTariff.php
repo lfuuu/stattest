@@ -75,6 +75,8 @@ class AccountTariff extends ActiveRecord
 
     const DELTA_WELLTIME_SAAS = 90000;
 
+    const DELTA_CALL_CHAT = 95000;
+
     const DELTA = 100000;
 
     public $serviceIdToDelta = [
@@ -100,6 +102,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_SMS => self::DELTA_SMS,
 
         ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
+
+        ServiceType::ID_CALL_CHAT => self::DELTA_CALL_CHAT,
     ];
 
     public $serviceIdToUrl = [
@@ -125,6 +129,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_SMS => '/pop_services.php?table=usage_sms&id=%d',
 
         ServiceType::ID_WELLTIME_SAAS => '/pop_services.php?table=usage_welltime&id=%d',
+
+        ServiceType::ID_CALL_CHAT => '/usage/call-chat/edit?id=%d',
     ];
 
     /** @var int */

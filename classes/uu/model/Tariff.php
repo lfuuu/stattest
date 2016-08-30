@@ -87,6 +87,8 @@ class Tariff extends \yii\db\ActiveRecord
 
     const DELTA_WELLTIME_SAAS = 6000;
 
+    const DELTA_CALL_CHAT = 7000;
+
     const DELTA = 10000;
 
     const NUMBER_TYPE_NUMBER = 'number';
@@ -117,6 +119,8 @@ class Tariff extends \yii\db\ActiveRecord
         ServiceType::ID_SMS => self::DELTA_SMS,
 
         ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
+
+        ServiceType::ID_CALL_CHAT => self::DELTA_CALL_CHAT,
     ];
 
     public $serviceIdToUrl = [
@@ -142,6 +146,8 @@ class Tariff extends \yii\db\ActiveRecord
         ServiceType::ID_SMS => '/?module=tarifs&action=edit&m=sms&id=%d',
 
         ServiceType::ID_WELLTIME_SAAS => '/?module=tarifs&action=edit&m=welltime&id=%d',
+
+        ServiceType::ID_CALL_CHAT => '/tariff/call-chat/edit?id=%d',
     ];
 
     /**
