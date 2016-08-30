@@ -203,9 +203,12 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                        VirtPbx3::check();//$param[0]);
+                    case 'uu_account_tariff_vpbx':
+                        VirtPbx3::check();
                         break;
 
+                    case 'uu_account_tariff_voip':
+                        \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     case 'actualize_number':
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                         break;

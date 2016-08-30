@@ -4,90 +4,134 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\ActaulizerVoipNumbers;
+use app\models\ActualVirtpbx;
+use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
 use app\classes\Event;
 
 class VirtPbx3Checker
 {
+    const LOAD_ACTUAL = 'actual';
+    const LOAD_SAVED = 'saved';
+
     public static function check($usageId = 0)
     {
-        l::ll(__CLASS__,__FUNCTION__);
+        l::ll(__CLASS__, __FUNCTION__);
 
-        $actual = self::load("actual", $usageId);
-
-        if($diff = self::diff(self::load("saved", $usageId), $actual))
+        if ($diff = self::diff(
+            self::load(self::LOAD_SAVED, $usageId),
+            self::load(self::LOAD_ACTUAL, $usageId))
+        ) {
             VirtPbx3Diff::apply($diff);
+        }
     }
 
     private static $sqlActual = "
-            SELECT
-                u.id as usage_id,
-                c.id as client_id,
-                IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
-                u.region as region_id,
-                prev_usage_id,
-                next_usage_id
-            FROM
-                usage_virtpbx u, clients c
-            WHERE
-                    actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
-                AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
-                AND u.client = c.client
-            ORDER BY u.id";
+            SELECT * FROM (
+                SELECT
+                    u.id as usage_id,
+                    c.id as client_id,
+                    IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
+                    u.region as region_id,
+                    prev_usage_id,
+                    next_usage_id,
+                    :version_biller_usage  as biller_version
+                FROM
+                    usage_virtpbx u, clients c
+                WHERE
+                        actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
+                    AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                    AND u.client = c.client
+                
+                UNION 
+                
+                SELECT
+                    account_tariff.id AS usage_id,
+                    account_tariff.client_account_id AS client_id,
+                    tariff_period.tariff_id,
+                    account_tariff.region_id,
+                    0 AS prev_usage_id,
+                    0 AS next_usage_id,
+                    :version_biller_universal AS biller_version
+                FROM
+                    uu_account_tariff account_tariff,
+                    uu_tariff_period tariff_period,
+                    clients client
+                WHERE
+                    tariff_period.id = account_tariff.tariff_period_id
+                    AND client.id = account_tariff.client_account_id
+                    AND account_tariff.service_type_id = 1
+                    AND tariff_period_id is not null
+                    AND client.account_version = :version_biller_universal
+            ) a
+            ORDER BY usage_id, biller_version
+            ";
 
-    private static $sqlSaved=
+    private static $sqlSaved =
         "SELECT usage_id, client_id, tarif_id, region_id
         FROM actual_virtpbx
         order by usage_id";
 
-    private function load($type, $usageId = 0)
+    private static function load($type, $usageId = 0)
     {
-        l::ll(__CLASS__,__FUNCTION__,$type);
-        global $db, $db_ats;
+        l::ll(__CLASS__, __FUNCTION__, $type);
 
-        switch($type)
-        {
-            case 'actual': $sql = self::$sqlActual; break;
-            case 'saved':  $sql = self::$sqlSaved;  break;
-            default: throw new Exception("Unknown type");
+        switch ($type) {
+            case self::LOAD_ACTUAL:
+                $sql = self::$sqlActual;
+                break;
+            case self::LOAD_SAVED:
+                $sql = self::$sqlSaved;
+                break;
+            default:
+                throw new Exception("Unknown type");
         }
 
         $d = array();
-        foreach($db->AllRecords($sql) as $l) {
+        $query = Yii::$app->getDb()->createCommand($sql);
+
+        if ($type == self::LOAD_ACTUAL) {
+            $query->bindValue(':version_biller_usage', ClientAccount::VERSION_BILLER_USAGE);
+            $query->bindValue(':version_biller_universal', ClientAccount::VERSION_BILLER_UNIVERSAL);
+        }
+
+        foreach ($query->query() as $l) {
+
             if (!$usageId || $usageId == $l["usage_id"]) {
                 $d[$l["usage_id"]] = $l;
             }
         }
 
-        if (!$usageId && !$d)
+        if (!$usageId && !$d) {
             throw new Exception("Data not load");
+        }
 
         return $d;
     }
 
-    private function diff(&$saved, &$actual)
+    private static function diff($saved, $actual)
     {
-        l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
+        l::ll(__CLASS__, __FUNCTION__,/*$saved, $actual,*/
+            "...", "...");
 
         $d = array(
-                "added" => [],
-                "deleted" => [],
-                "changed_data" => [],
-                "changed_client" => []
-                );
+            "added" => [],
+            "deleted" => [],
+            "changed_data" => [],
+            "changed_client" => []
+        );
 
-        foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
+        foreach (array_diff(array_keys($saved), array_keys($actual)) as $l) {
             $d["deleted"][$l] = $saved[$l];
+        }
 
-        foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
+        foreach (array_diff(array_keys($actual), array_keys($saved)) as $l) {
             $d["added"][$l] = $actual[$l];
+        }
 
-        if ($d["added"] && $d["deleted"])
-        {
-            foreach($d["added"] as $addId => $add)
-            {
-                if ($add["prev_usage_id"] && isset($d["deleted"][$add["prev_usage_id"]]))
-                {
+        if ($d["added"] && $d["deleted"]) {
+            foreach ($d["added"] as $addId => $add) {
+                if ($add["prev_usage_id"] && isset($d["deleted"][$add["prev_usage_id"]])) {
                     $d["changed_client"][$addId] = $add;
                     unset($d["added"][$addId], $d["deleted"][$add["prev_usage_id"]]);
                 }
@@ -95,23 +139,26 @@ class VirtPbx3Checker
         }
 
 
-        foreach($actual as $usageId => $l)
-            if(isset($saved[$usageId])) {
+        foreach ($actual as $usageId => $l) {
+            if (isset($saved[$usageId])) {
                 if (
                     $saved[$usageId]["tarif_id"] != $l["tarif_id"]
-                        ||
+                    ||
                     $saved[$usageId]["region_id"] != $l["region_id"]
                 ) {
                     $d["changed_data"][$usageId] = $l + [
-                        "prev_tarif_id" => $saved[$usageId]["tarif_id"],
-                        "prev_region_id" => $saved[$usageId]["region_id"],
-                    ];
+                            "prev_tarif_id" => $saved[$usageId]["tarif_id"],
+                            "prev_region_id" => $saved[$usageId]["region_id"],
+                        ];
                 }
             }
+        }
 
-        foreach($d as $k => $v)
-            if($v)
+        foreach ($d as $k => $v) {
+            if ($v) {
                 return $d;
+            }
+        }
 
         return false;
     }
@@ -121,7 +168,7 @@ class VirtPbx3
 {
     public static function check($usageId = 0)
     {
-        l::ll(__CLASS__,__FUNCTION__);
+        l::ll(__CLASS__, __FUNCTION__);
         VirtPbx3Checker::check($usageId);
     }
 
@@ -130,8 +177,7 @@ class VirtPbx3
         if (ApiPhone::isAvailable()) {
             try {
                 return ApiPhone::exec('numbers_state', ['account_id' => $clientId]);
-            }catch(Exception $e)
-            {
+            } catch (Exception $e) {
                 trigger_error2($e->getMessage());
                 return [];
             }
@@ -145,44 +191,50 @@ class VirtPbx3Diff
 {
     public static function apply(&$diff)
     {
-        l::ll(__CLASS__,__FUNCTION__,$diff);
+        l::ll(__CLASS__, __FUNCTION__, $diff);
         $exception = null;
 
-        if($diff["added"])
+        if ($diff["added"]) {
             self::add($diff["added"], $exception);
+        }
 
-        if($diff["deleted"])
+        if ($diff["deleted"]) {
             self::del($diff["deleted"], $exception);
+        }
 
-        if($diff["changed_client"])
+        if ($diff["changed_client"]) {
             self::clientChanged($diff["changed_client"], $exception);
+        }
 
-        if($diff["changed_data"])
+        if ($diff["changed_data"]) {
             self::dataChanged($diff["changed_data"], $exception);
+        }
 
         if ($exception instanceof Exception) {
             throw $exception;
         }
     }
 
-    private function add(&$d, &$exception)
+    private static function add(&$d, &$exception)
     {
-        l::ll(__CLASS__,__FUNCTION__, $d);
+        l::ll(__CLASS__, __FUNCTION__, $d);
 
-        foreach($d as $l) {
+        foreach ($d as $l) {
             try {
                 VirtPbx3Action::add($l);
             } catch (Exception $e) {
-                if (!$exception) $exception = $e;
+                if (!$exception) {
+                    $exception = $e;
+                }
             }
         }
     }
 
-    private function del(&$d, &$exception)
+    private static function del(&$d, &$exception)
     {
-        l::ll(__CLASS__,__FUNCTION__, $d);
+        l::ll(__CLASS__, __FUNCTION__, $d);
 
-        foreach($d as $l) {
+        foreach ($d as $l) {
             try {
                 VirtPbx3Action::del($l);
             } catch (Exception $e) {
@@ -193,28 +245,32 @@ class VirtPbx3Diff
         }
     }
 
-    private function clientChanged(&$d, &$exception)
+    private static function clientChanged(&$d, &$exception)
     {
-        l::ll(__CLASS__,__FUNCTION__, $d);
+        l::ll(__CLASS__, __FUNCTION__, $d);
 
-        foreach($d as $l) {
+        foreach ($d as $l) {
             try {
                 VirtPbx3Action::clientChanged($l);
             } catch (Exception $e) {
-                if (!$exception) $exception = $e;
+                if (!$exception) {
+                    $exception = $e;
+                }
             }
         }
     }
 
-    private function dataChanged(&$d, &$exception)
+    private static function dataChanged(&$d, &$exception)
     {
-        l::ll(__CLASS__,__FUNCTION__, $d);
+        l::ll(__CLASS__, __FUNCTION__, $d);
 
-        foreach($d as $l) {
+        foreach ($d as $l) {
             try {
                 VirtPbx3Action::dataChanged($l);
             } catch (Exception $e) {
-                if (!$exception) $exception = $e;
+                if (!$exception) {
+                    $exception = $e;
+                }
             }
         }
     }
@@ -225,16 +281,13 @@ class VirtPbx3Action
 {
     public static function add(&$l)
     {
-        global $db;
-
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        l::ll(__CLASS__, __FUNCTION__, $l);
 
         if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX) {
             return null;
         }
-        
-        if (ApiVpbx::isAvailable())
-        {
+
+        if (ApiVpbx::isAvailable()) {
             $exceptionProduct = null;
             try {
 
@@ -247,7 +300,7 @@ class VirtPbx3Action
             $exceptionVpbx = null;
             try {
 
-                ApiVpbx::create($l["client_id"], $l["usage_id"]);
+                ApiVpbx::create($l["client_id"], $l["usage_id"], $l['biller_version']);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
@@ -263,20 +316,19 @@ class VirtPbx3Action
 
         }
 
-        return $db->QueryInsert("actual_virtpbx", array(
-                "usage_id" => $l["usage_id"],
-                "client_id" => $l["client_id"],
-                "tarif_id" => $l["tarif_id"],
-                "region_id" => $l["region_id"],
-            )
-        );
+        $row = new ActualVirtpbx();
+        $row->usage_id = $l["usage_id"];
+        $row->client_id = $l["client_id"];
+        $row->tarif_id = $l["tarif_id"];
+        $row->region_id = $l["region_id"];
+        $row->biller_version = $l['biller_version'];
+
+        return $row->save();
     }
 
     public static function del(&$l)
     {
-        global $db;
-
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        l::ll(__CLASS__, __FUNCTION__, $l);
 
         if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::isAvailable()) {
             return null;
@@ -284,42 +336,43 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::stop($l["client"], $l["usage_id"]);
+            ApiVpbx::stop($l["client_id"], $l["usage_id"]);
             ApiCore::remoteProduct('vpbx', $l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
-            if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS)
-            {
+            if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {
                 throw $e;
             }
         }
 
-        return $db->QueryDelete("actual_virtpbx", array(
-                "usage_id" => $l["usage_id"],
-            )
-        );
+        $row = ActualVirtpbx::findOne(['usage_id' => $l["usage_id"]]);
+        if ($row) {
+            return $row->delete();
+        }
 
+        return false;
     }
 
     public static function clientChanged($l)
     {
-        global $db;
-
-        l::ll(__CLASS__,__FUNCTION__, $l);
-
+        l::ll(__CLASS__, __FUNCTION__, $l);
 
         $toUsage = UsageVirtpbx::findOne($l["usage_id"]);
-        if (!$toUsage)
+        if (!$toUsage) {
             return;
+        }
 
         $fromUsage = UsageVirtpbx::findOne($toUsage->prev_usage_id);
 
-        if(!$fromUsage)
+        if (!$fromUsage) {
             return;
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
 
         try {
+
+            $numInfo = [];
 
             if (ApiVpbx::isAvailable()) {
 
@@ -333,21 +386,19 @@ class VirtPbx3Action
                 );
             }
 
-            $data = Yii::$app->db->createCommand()->update("actual_virtpbx", 
-                [
-                    "usage_id" => $toUsage->id,
-                    "client_id" => $toUsage->clientAccount->id
-                ],
-                [
-                    "usage_id" => $fromUsage->id,
-                    "client_id" => $fromUsage->clientAccount->id
-                ]
-            )->execute();
+            $row = ActualVirtpbx::findOne([
+                "usage_id" => $fromUsage->id,
+                "client_id" => $fromUsage->clientAccount->id
+            ]);
 
-            foreach($numInfo as $number => $info)
-            {
-                if ($info["stat_product_id"] == $fromUsage->id)
-                {
+            if ($row) {
+                $row->usage_id = $toUsage->id;
+                $row->client_id = $toUsage->clientAccount->id;
+                $row->save();
+            }
+
+            foreach ($numInfo as $number => $info) {
+                if ($info["stat_product_id"] == $fromUsage->id) {
                     ActaulizerVoipNumbers::transferNumberWithVpbx($number, $toUsage->clientAccount->id);
                 }
             }
@@ -355,7 +406,7 @@ class VirtPbx3Action
             Event::go("update_products", ["account_id" => $toUsage->clientAccount->id]);
             Event::go("update_products", ["account_id" => $fromUsage->clientAccount->id]);
 
-            ApiCore::addProduct(   'vpbx', $toUsage->clientAccount->id,   $toUsage->id);
+            ApiCore::addProduct('vpbx', $toUsage->clientAccount->id, $toUsage->id);
             ApiCore::remoteProduct('vpbx', $fromUsage->clientAccount->id, $fromUsage->id);
 
             $dbTransaction->commit();
@@ -368,25 +419,27 @@ class VirtPbx3Action
 
     public static function dataChanged($l)
     {
-        global $db;
-
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        l::ll(__CLASS__, __FUNCTION__, $l);
 
         try {
-
-            ApiVpbx::update($l["client_id"], $l["usage_id"], $l["region_id"]);
-
+            ApiVpbx::update($l["client_id"], $l["usage_id"], $l["region_id"], $l['biller_version']);
         } catch (Exception $e) {
             throw $e;
         }
 
-        $db->QueryUpdate("actual_virtpbx", "client_id", array(
-            "usage_id" => $l["usage_id"],
+        $row = ActualVirtpbx::findOne([
             "client_id" => $l["client_id"],
-            "tarif_id" => $l["tarif_id"],
-            "region_id" => $l["region_id"],
-        ));
+            "usage_id" => $l["usage_id"]
+        ]);
 
+        if ($row) {
+            $row->tarif_id = $l["tarif_id"];
+            $row->region_id = $l["region_id"];
+
+            return $row->save();
+        }
+
+        return false;
     }
 
 }

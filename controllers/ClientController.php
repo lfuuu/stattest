@@ -1,6 +1,9 @@
 <?php
 namespace app\controllers;
 
+use app\classes\uu\filter\AccountTariffFilter;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\ServiceType;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -30,9 +33,12 @@ use app\models\Saldo;
 use app\forms\important_events\ImportantEventsNoticesForm;
 use app\forms\important_events\filter\ImportantEventsNoticesFilter;
 use app\models\ClientAccountOptions;
+use app\classes\traits\AddClientAccountFilterTraits;
 
 class ClientController extends BaseController
 {
+    use AddClientAccountFilterTraits;
+
     public function behaviors()
     {
         return [
@@ -139,6 +145,12 @@ class ClientController extends BaseController
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
+        $uuFilterModel = null;
+        if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $uuFilterModel = new AccountTariffFilter(ServiceType::ID_VOIP);
+            $this->addClientAccountFilter($uuFilterModel);
+        }
+
         return
             $this->render(
                 'view',
@@ -149,6 +161,7 @@ class ClientController extends BaseController
                     'troubles' => $troubles,
                     'serverTroubles' => $serverTroubles,
                     'services' => $services,
+                    'uuFilterModel' => $uuFilterModel
                 ]
             );
     }

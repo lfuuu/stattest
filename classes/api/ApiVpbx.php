@@ -1,6 +1,9 @@
 <?php
 namespace app\classes\api;
 
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\Resource;
+use app\classes\uu\model\ServiceType;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
@@ -49,19 +52,37 @@ class ApiVpbx
         return $result;
     }
 
-    public static function create($clientId, $usageId)
+    public static function create($clientId, $usageId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
     {
-        $tariff = self::getTariff($usageId);
+        $tariff = null;
 
         $regionId = Region::MOSCOW;
 
-        try {
-            $u = UsageVirtpbx::findOne($usageId);
-            if ($u) {
-                $regionId = $u->region;
+        switch ($billerVersion) {
+
+            case ClientAccount::VERSION_BILLER_USAGE: {
+                $tariff = self::getTariff($usageId);
+                $usage = UsageVirtpbx::findOne(['id' => $usageId]);
+                if ($usage) {
+                    $regionId = $usage->region;
+                }
+                break;
             }
-        } catch (Exception $e) {
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
+                $tariff = self::getTariffUniversal($usageId);
+                $accountTariff = AccountTariff::findOne(['id' => $usageId]);
+                if ($accountTariff) {
+                    $regionId = $accountTariff->region_id;
+                }
+                break;
+            }
         }
+
+        if (!$tariff) {
+            throw new \Exception('bad tariff');
+        }
+
 
         ApiVpbx::exec(
             'create',
@@ -107,9 +128,19 @@ class ApiVpbx
         );
     }
 
-    public static function update($clientId, $usageId, $regionId)
+    public static function update($clientId, $usageId, $regionId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
     {
-        $tariff = self::getTariff($usageId);
+        if ($billerVersion == ClientAccount::VERSION_BILLER_USAGE) {
+            $tariff = self::getTariff($usageId);
+        } elseif ($billerVersion == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $tariff = self::getTariffUniversal($usageId);
+        } else {
+            throw new \Exception('bad biller version');
+        }
+
+        if (!$tariff) {
+            throw new \Exception('bad tariff');
+        }
 
         ApiVpbx::exec(
             'update',
@@ -225,6 +256,51 @@ class ApiVpbx
             ", [':usageId' => $usageId]);
 
         return $command->queryOne();
+    }
+
+    public static function getTariffUniversal($usageId)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $usageId]);
+
+        if (!$accountTariff || $accountTariff->service_type_id != ServiceType::ID_VPBX) {
+            throw new \Exception('bad tariff');
+        }
+
+        $data = [
+            "num_ports" => 0,
+            "space" => 0,
+            "is_record" => 0,
+            "is_fax" => 0,
+            "is_web_call" => 0,
+        ];
+
+        foreach ($accountTariff->tariffPeriod->tariff->tariffResources as $tariffResource) {
+            switch ($tariffResource->resource_id) {
+
+                case Resource::ID_VPBX_ABONENT: {
+                    $data['num_ports'] = $tariffResource->amount;
+                    break;
+                }
+
+                case Resource::ID_VPBX_DISK: {
+                    $data['space'] = $tariffResource->amount?: 1; //TODO не работает с 0
+                    break;
+                }
+
+                case Resource::ID_VPBX_RECORD: {
+                    $data['is_record'] = $tariffResource->amount ? 1 : 0;
+                    break;
+                }
+
+                case Resource::ID_VPBX_FAX: {
+                    $data['is_fax'] = $tariffResource->amount ? 1 : 0;
+                    break;
+                }
+            }
+
+        }
+
+        return $data;
     }
 
 }

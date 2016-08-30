@@ -188,7 +188,8 @@ class UbillerController extends Controller
      */
     public function actionAutoCloseAccountTariff()
     {
-        $this->_tarificate('AutoCloseAccountTariffTarificator', 'Автоматически закрыть услугу по истечению тестового периода');
+        $this->_tarificate('AutoCloseAccountTariffTarificator',
+            'Автоматически закрыть услугу по истечению тестового периода');
     }
 
     /**
@@ -197,7 +198,8 @@ class UbillerController extends Controller
      */
     public function actionFreePeriodInFinanceBlock()
     {
-        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
+        $this->_tarificate('FreePeriodInFinanceBlockTarificator',
+            'Не списывать абонентку и минималку при финансовой блокировке');
     }
 
     /**

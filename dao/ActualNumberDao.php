@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\classes\Singleton;
 use app\models\ActualNumber;
+use app\models\ClientAccount;
 
 /**
  * @method static ActualNumberDao me($args = null)
@@ -23,12 +24,18 @@ class ActualNumberDao extends Singleton
         }
 
 
-        $data = ActualNumber::getDb()->createCommand("
+        $numbersSQL = "
 
             SELECT 
-                client_id, number, region, call_count, 
-                number_type, number7800,
-                is_blocked, is_disabled 
+                client_id, 
+                number,
+                region,
+                call_count, 
+                number_type,
+                number7800,
+                is_blocked,
+                is_disabled,
+                " . ClientAccount::VERSION_BILLER_USAGE . " as biller_version
             FROM
             ( SELECT 
                 a.*, 
@@ -79,8 +86,34 @@ class ActualNumberDao extends Singleton
                     )a
                 WHERE e164 NOT LIKE '7800%'
                 )a
-            )a
-                    ", $params)->queryAll();
+            )a";
+
+        $uuNumbersSQL = "
+            select
+                account_tariff.client_account_id as client_id,
+                account_tariff.voip_number as number,
+                number.region,
+                1 as call_count,
+                IF(LENGTH(account_tariff.voip_number) > 5,'number','nonumber') AS number_type,
+                '' as number7800,
+                c.is_blocked,
+                c.voip_disabled as is_disabled,
+                " . ClientAccount::VERSION_BILLER_UNIVERSAL . " as biller_version
+            from
+                uu_account_tariff account_tariff,
+                voip_numbers number,
+                clients c
+            where
+                number.number = account_tariff.voip_number
+                and tariff_period_id is not null
+                and voip_number is not null
+                and c.id = account_tariff.client_account_id
+                " . ($number ? "and account_tariff.voip_number = :number" : "") . "
+                " . ($clientId ? "and account_tariff.client_account_id = :client_id" : "") . "
+                and c.account_version = " . ClientAccount::VERSION_BILLER_UNIVERSAL . "
+            ";
+
+        $data = ActualNumber::getDb()->createCommand($numbersSQL . ' UNION ' . $uuNumbersSQL, $params)->queryAll();
 
         $d = array();
         foreach ($data as $l) {
@@ -107,7 +140,7 @@ class ActualNumberDao extends Singleton
                 SELECT 
                     client_id, number, region, call_count, 
                     number_type, number7800,
-                    is_blocked, is_disabled 
+                    is_blocked, is_disabled
                 FROM 
                     actual_number a
                 WHERE number not like '7800%'

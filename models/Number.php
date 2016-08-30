@@ -17,6 +17,7 @@ use yii\helpers\Url;
  * @property int region
  * @property int client_id
  * @property int usage_id
+ * @property int uu_account_tariff_id
  * @property string reserved_free_date
  * @property string used_until_date
  * @property int edit_user_id
