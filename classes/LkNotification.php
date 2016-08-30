@@ -139,21 +139,6 @@ class LkNotification
         $subject = $this->getSubject();
         $msg = $this->getMessage();
 
-        if (defined('MONITORING_EMAIL')) {
-            $params = [
-                'data' => MONITORING_EMAIL,
-                'subject' => $this->Contact->data . ' - ' . $subject,
-                'message' => $msg,
-                'type' => LkNotice::TYPE_EMAIL,
-                'contact_id' => $this->Contact->id,
-                'lang' => $this->Client->country->lang,
-            ];
-
-            $row = new LkNotice;
-            $row->setAttributes($params, false);
-            $row->save();
-        }
-
         $params = [
             'data' => $this->Contact->data,
             'subject' => $subject,
@@ -172,21 +157,6 @@ class LkNotification
     private function sendSMS()
     {
         $phoneNumber = preg_replace('/[^\d]+/', '', $this->Contact->data);
-
-        if (defined('MONITORING_EMAIL')) {
-            $params = [
-                'data' => MONITORING_EMAIL,
-                'message' => 'SMS: ' . $this->getMessage(),
-                'subject' => 'SMS - ' . $phoneNumber,
-                'type' => LkNotice::TYPE_EMAIL,
-                'contact_id' => $this->Contact->id,
-                'lang' => $this->Client->country->lang,
-            ];
-
-            $row = new LkNotice;
-            $row->setAttributes($params, false);
-            $row->save();
-        }
 
         $params = [
             'data' => $phoneNumber,
