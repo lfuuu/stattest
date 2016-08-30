@@ -1,5 +1,7 @@
 <?php
 
+/** @var $this \app\classes\BaseView */
+
 use app\assets\AppAsset;
 use app\classes\Html;
 use kartik\widgets\ActiveForm;
@@ -23,11 +25,13 @@ $contragent->formLang = $language;
                 <?= $f->field($account, 'admin_email', ['options' => ['style' => 'width: 100%']]); ?>
             </div>
         </div>
+<?php
 
-        <?= $this->render('../contragent/' . $language . '/form', ['model' => $contragent, 'f' => $f]); ?>
-        <?= $this->render('../contract/' . $language . '/form', ['model' => $contract, 'f' => $f]); ?>
-        <?= $this->render('../account/' . $language . '/form', ['model' => $account, 'f' => $f]); ?>
+foreach (['contragent', 'contract', 'account'] as $formName) {
+    echo $this->render($this->getFormPath($formName, $language), ['model' => $$formName, 'f' => $f]);
+}
 
+?>
         <div class="row" style="width: 1100px;">
             <div class="col-sm-12 form-group">
                 <?= Html::button('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'name' => 'save']); ?>

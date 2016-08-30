@@ -1,5 +1,7 @@
 <?php
 
+/** @var $this \app\classes\BaseView */
+
 use app\assets\AppAsset;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
@@ -27,9 +29,8 @@ foreach ($contragents as $contragent) {
         'data-legal-type' => $contragent->legal_type,
     ];
 }
+$language = Language::getLanguageByCountryId($contragents[0]->country_id?: \app\models\Country::RUSSIA);
 $contragents = ArrayHelper::map($contragents, 'id', 'name');
-
-$language = Language::getLanguageByCountryId($contragents[0]['country_id']?: \app\models\Country::RUSSIA);
 
 if (!$model->id) {
     $model->organization_id = ClientContragent::$defaultOrganization[ $model->contract->contragent->legal_type ];
@@ -42,7 +43,7 @@ if (!$model->id) {
 
         <?php $f = ActiveForm::begin(); ?>
 
-        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f, 'contragents' => $contragents, 'contragentsOptions' => $contragentsOptions]); ?>
+        <?= $this->render($this->getFormPath('contract', $language), ['model' => $model, 'f' => $f, 'contragents' => $contragents, 'contragentsOptions' => $contragentsOptions]); ?>
 
         <div class="row" style="width: 1100px;">
             <div class="row">

@@ -1,5 +1,7 @@
 <?php
 
+/** @var $this \app\classes\BaseView */
+
 use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
@@ -18,7 +20,7 @@ $model->formLang = $language;
         <?php endif; ?>
 
         <?php $f = ActiveForm::begin(); ?>
-        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f]); ?>
+        <?= $this->render($this->getFormPath('contragent', $language), ['model' => $model, 'f' => $f]); ?>
         <div class="row" style="width: 1100px;">
             <div class="col-sm-6">
                 <div class="row">

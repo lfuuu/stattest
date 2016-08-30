@@ -2,6 +2,8 @@
 
 namespace app\classes;
 
+use app\models\Language as LanguageModel;
+use app\classes\Language as LanguageClasses;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\AssetBundle;
@@ -59,6 +61,62 @@ class BaseView extends View
             ]);
             $this->registerAssetBundle($key);
         }
+    }
+
+    /**
+     * Возвращаем путь к view-файлу формы, в зависимости от языка
+     *
+     * @param string $formName
+     * @param string $language
+     * @return string
+     */
+    public function getFormPath($formName, $language = LanguageModel::LANGUAGE_DEFAULT)
+    {
+        $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
+
+        return $this->getRealFormPath($formName, $formLanguage);
+        // когда у нас появятся формы на разных языках, в разных странах, этот код понадобится
+        /*
+        $formLanguage = $language;
+
+        $viewPath = $this->getRealFormPath($formName, $formLanguage);
+        if ($this->isFormExists($viewPath)) {
+            return $viewPath;
+        }
+
+        $formLanguage = LanguageClasses::getCurrentLanguage();
+        $viewPath = $this->getRealFormPath($formName, $formLanguage);
+        if ($this->isFormExists($viewPath)) {
+            return $viewPath;
+        }
+
+        $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
+
+        return $this->getRealFormPath($formName, $formLanguage);
+        */
+    }
+
+    /**
+     * Существует ли форма
+     *
+     * @param $path
+     * @return bool
+     */
+    private function isFormExists($path)
+    {
+        return file_exists(Yii::getAlias($path . '.php'));
+    }
+
+    /**
+     * Возвращает путь к view'шке формы по имени и языку
+     *
+     * @param $formName
+     * @param $language
+     * @return string
+     */
+    private function getRealFormPath($formName, $language)
+    {
+        return '@app/views/' . $formName . '/' . $language . '/form';
     }
 
 }
