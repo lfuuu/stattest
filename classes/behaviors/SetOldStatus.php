@@ -50,8 +50,10 @@ class SetOldStatus extends Behavior
     private function setStatusForChildAccounts(ClientContract $model, $status)
     {
         foreach ($model->getAccounts(false) as $account) {
-            $account->status = $status;
-            $account->save();
+            if ($account->status != $status) {
+                $account->status = $status;
+                $account->save();
+            }
         }
     }
 }

@@ -174,10 +174,12 @@ class ClientDocument extends ActiveRecord
                 $this->dao()->generateFile($this, $this->template_id);
             }
 
-            $contract = $this->getContract();
-            if ($contract->is_external != $this->is_external) {
-                $contract->is_external = $this->is_external;
-                $contract->save();
+            if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {
+                $contract = $this->getContract();
+                if ($contract->is_external != $this->is_external) {
+                    $contract->is_external = $this->is_external;
+                    $contract->save();
+                }
             }
         } elseif ($this->content !== null) {
             $this->dao()->updateFile($this);
