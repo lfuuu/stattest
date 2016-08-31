@@ -610,7 +610,7 @@ class ClientController extends ApiInternalController
      * Возвращает массив super_client_id
      * (для функции get-full-client-struct)
      *
-     * @return array
+     * @return int[]
      */
     private function getIdsForFullClientStruct()
     {
@@ -699,6 +699,12 @@ class ClientController extends ApiInternalController
     }
 
 
+    /**
+     * Возвращает массив продуктов и их статус у клиента
+     *
+     * @param string $client
+     * @return array
+     */
     private function getPlatformaServicesCleaned($client)
     {
         return array_map(function ($row) {
