@@ -40,12 +40,12 @@ SQL;
         $dataReader = $db->createCommand($sql, [':date' => $minLogDatetime->format('Y-m-d')])
             ->query();
         foreach ($dataReader as $row) {
-            $usageId = $row['usage_id'];
+            $accountTariffId = $row['usage_id'];
             $date = $row['date'];
             $value = (int)$row['in'] + (int)$row['in'];
 
-            !isset($this->usageToDateToValue[$usageId]) && ($this->usageToDateToValue[$usageId] = []);
-            $this->usageToDateToValue[$usageId][$date] = $value;
+            !isset($this->usageToDateToValue[$accountTariffId]) && ($this->usageToDateToValue[$accountTariffId] = []);
+            $this->usageToDateToValue[$accountTariffId][$date] = $value;
         }
     }
 
@@ -58,11 +58,11 @@ SQL;
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $usageId = $accountTariff->getNonUniversalId();
+        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $date = $dateTime->format('Y-m-d');
         return
-            isset($this->usageToDateToValue[$usageId][$date]) ?
-                $this->usageToDateToValue[$usageId][$date] :
+            isset($this->usageToDateToValue[$accountTariffId][$date]) ?
+                $this->usageToDateToValue[$accountTariffId][$date] :
                 null;
     }
 
