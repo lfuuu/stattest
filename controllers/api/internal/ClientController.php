@@ -535,53 +535,18 @@ class ClientController extends ApiInternalController
      *   )
      * )
      */
+    public function actionGetFullClientStruct() {
 
-    public function actionGetFullClientStruct(
-        $id = null,
-        $name = null,
-        $contract_id = null,
-        $contragent_id = null,
-        $contragent_name = null,
-        $account_id = null
-    ) {
-
-        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
-            $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
-        }
-
-        $ids = [];
-        if (empty($id)) {
-            if (empty($name)) {
-                if (empty($contragent_id)) {
-                    if (empty($contragent_name)) {
-                        if (empty($contract_id)) {
-                            if (empty($account_id)) {
-                                return false;
-                            } else {
-                                $account = ClientAccount::findOne(['id' => $account_id]);
-                                $ids [] = $account->super_id;
-                            }
-                        } else {
-                            ($contract = ClientContract::findOne(['id' => $contract_id]))
-                                && $ids[] = $contract->super_id;
-                        }
-                    } else {
-                        $ids = array_keys(ClientContragent::find()->andWhere(['name' => $contragent_name])->indexBy('super_id')->all());
-                    }
-                } else {
-                    $contragent = ClientContragent::findOne(['id' => $contragent_id]);
-                    $ids [] = $contragent->super_id;
-                }
-            } else {
-                $ids = array_keys(ClientSuper::find()->andWhere(['name' => $name])->indexBy('id')->all());
-            }
-        } else {
-            $ids [] = $id;
-        }
+        $ids = $this->getIdsForFullClientStruct();
 
         $fullResult = [];
         foreach ($ids as $id) {
-            $super = ClientSuper::find()->where(['id' => $id])->with('contragents')->with('contracts')->with('accounts')->one();
+            $super = ClientSuper::find()
+                ->where(['id' => $id])
+                ->with('contragents')
+                ->with('contracts')
+                ->with('accounts')
+                ->one();
 
             $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
 
@@ -639,6 +604,61 @@ class ClientController extends ApiInternalController
         }
 
         return $fullResult;
+    }
+
+    /**
+     * Возвращает массив super_client_id
+     * (для функции get-full-client-struct)
+     *
+     * @return array
+     */
+    private function getIdsForFullClientStruct()
+    {
+        $id = $name = $contract_id = $contragent_id = $contragent_name = $account_id = null;
+
+        foreach (['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
+            $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
+        }
+
+        if ($id) {
+            return [$id];
+        }
+
+        if ($name) {
+            return array_keys(ClientSuper::find()
+                ->andWhere(['name' => $name])
+                ->indexBy('id')
+                ->all());
+        }
+
+        if ($contragent_id) {
+            $contragent = ClientContragent::findOne(['id' => $contragent_id]);
+            if ($contragent) {
+                return [$contragent->super_id];
+            }
+        }
+
+        if ($contragent_name) {
+            return array_keys(ClientContragent::find()
+                ->andWhere(['name' => $contragent_name])
+                ->indexBy('super_id')->all());
+        }
+
+        if ($contract_id) {
+            $contract = ClientContract::findOne(['id' => $contract_id]);
+            if ($contract) {
+                return [$contract->super_id];
+            }
+        }
+
+        if ($account_id) {
+            $account = ClientAccount::findOne(['id' => $account_id]);
+            if ($account) {
+                return [$account->super_id];
+            }
+        }
+
+        return [];
     }
 
     private function getPlatformaServices($client)
