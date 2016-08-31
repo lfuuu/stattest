@@ -53,17 +53,15 @@ class UconverterController extends Controller
         foreach ($serviceTypeIds as $serviceTypeIdTmp) {
             try {
                 $tariffConverter->convertByServiceTypeId($serviceTypeIdTmp);
-
-                echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-                return Controller::EXIT_CODE_NORMAL;
-
             } catch (\Exception $e) {
                 Yii::error('Ошибка конвертации');
                 Yii::error($e);
                 printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-                return Controller::EXIT_CODE_ERROR;
             }
         }
+
+        echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**
