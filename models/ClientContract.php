@@ -222,9 +222,13 @@ class ClientContract extends HistoryActiveRecord
     /**
      * @return array|ClientAccount[]
      */
-    public function getAccounts()
+    public function getAccounts($isFromHistory = true)
     {
         $models = ClientAccount::findAll(['contract_id' => $this->id]);
+        
+        if (!$isFromHistory) {
+            return $models;
+        }
         foreach ($models as &$model) {
             if ($model && $this->historyVersionRequestedDate) {
                 $model->loadVersionOnDate($this->historyVersionRequestedDate);
