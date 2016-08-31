@@ -152,11 +152,19 @@ abstract class NotificationProcessor
     {
         /** Оправка самих сообщений по старому */
         foreach ($this->getContactsForSend() as $contact) {
-            $Notification = new LkNotification($this->client->id, $contact->id, $this->getEvent(), $this->getValue(),
-                $this->client->balance);
+            $balance = round($this->client->billingCountersFastMass->realtimeBalance, 2);
+
+            $Notification = new LkNotification(
+                $this->client->id, $contact->id,
+                $this->getEvent(), $this->getValue(), $balance
+            );
             if ($Notification->send()) {
-                $this->oldAddLogRaw($this->client->id, $contact->id, $this->getEvent(), true,
-                    $this->client->balance, $this->getLimit(), $this->getValue());
+                $this->oldAddLogRaw(
+                    $this->client->id, $contact->id,
+                    $this->getEvent(), true,
+                    $balance, $this->getLimit(), $this->getValue()
+                );
+
             }
         }
     }
