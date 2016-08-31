@@ -9,7 +9,7 @@ use DateTimeZone;
 use Yii;
 
 /**
- *  Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+ * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
  */
 class SetCurrentTariffTarificator implements TarificatorI
 {
