@@ -370,6 +370,277 @@ class ClientController extends ApiInternalController
         return $fullResult;
     }
 
+    /**
+     * @SWG\Definition(
+     *   definition="get-full-client-struct-applications",
+     *   type="object",
+     *   required={"id","name","is_enabled"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор"
+     *   ),
+     *   @SWG\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Название"
+     *   ),
+     *   @SWG\Property(
+     *     property="is_enabled",
+     *     type="boolean",
+     *     description="Признак отключенного"
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="get-full-client-struct-account",
+     *   type="object",
+     *   required={"id","is_disabled","version","applications"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор ЛС"
+     *   ),
+     *   @SWG\Property(
+     *     property="is_disabled",
+     *     type="boolean",
+     *     description="Признак отключенного"
+     *   ),
+     *   @SWG\Property(
+     *     property="version",
+     *     type="integer",
+     *     description="Версия биллера ЛС"
+     *   ),
+     *   @SWG\Property(
+     *     property="applications",
+     *     type="array",
+     *     description="Массив приложений",
+     *     @SWG\Items(
+     *       ref="#/definitions/get-full-client-struct-applications"
+     *     )
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="get-full-client-struct-contract",
+     *   type="object",
+     *   required={"id","number","state","is_partner","accounts"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="number",
+     *     type="string",
+     *     description="Номер договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="state",
+     *     type="string",
+     *     description="Состояние договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="is_partner",
+     *     type="boolean",
+     *     description="Признак партнерского договора"
+     *   ),
+     *   @SWG\Property(
+     *     property="accounts",
+     *     type="array",
+     *     description="Массив ЛС",
+     *     @SWG\Items(
+     *       ref="#/definitions/get-full-client-struct-account"
+     *     )
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="get-full-client-struct-contragent",
+     *   type="object",
+     *   required={"id","name","country","contracts"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор контрагента"
+     *   ),
+     *   @SWG\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Имя контагента"
+     *   ),
+     *   @SWG\Property(
+     *     property="country",
+     *     type="string",
+     *     description="Страна"
+     *   ),
+     *   @SWG\Property(
+     *     property="contracts",
+     *     type="array",
+     *     description="Массив ЛС",
+     *     @SWG\Items(
+     *       ref="#/definitions/get-full-client-struct-contract"
+     *     )
+     *   )
+     * ),
+     * @SWG\Definition(
+     *   definition="get-full-client-struct",
+     *   type="object",
+     *   required={"id","name","timezone","contragents"},
+     *   @SWG\Property(
+     *     property="id",
+     *     type="integer",
+     *     description="Идентификатор супер-клиента"
+     *   ),
+     *   @SWG\Property(
+     *     property="name",
+     *     type="string",
+     *     description="Название супер-клиента"
+     *   ),
+     *   @SWG\Property(
+     *     property="timezone",
+     *     type="string",
+     *     description="Таймзона"
+     *   ),
+     *   @SWG\Property(
+     *     property="contragents",
+     *     type="array",
+     *     description="Массив контрагентов",
+     *     @SWG\Items(
+     *       ref="#/definitions/get-full-client-struct-contragent"
+     *     )
+     *   )
+     * ),
+     * @SWG\Post(
+     *   tags={"Работа с клиентами. Полная структура."},
+     *   path="/internal/client/get-full-client-struct/",
+     *   summary="Получение полной структуры клиента",
+     *   operationId="Получение полной структуры клиента",
+     *   @SWG\Parameter(name="id",type="integer",description="идентификатор супер-клиента",in="formData"),
+     *   @SWG\Parameter(name="name",type="string",description="имя супер-клиента",in="formData"),
+     *   @SWG\Parameter(name="contraсt_id",type="integer",description="идентификатор договора",in="formData"),
+     *   @SWG\Parameter(name="contragent_id",type="integer",description="идентификатор контрагента",in="formData"),
+     *   @SWG\Parameter(name="contragent_name",type="string",description="имя контрагента",in="formData"),
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор ЛС",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о клиенте",
+     *     @SWG\Schema(
+     *       ref="#/definitions/get-full-client-struct"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+
+    public function actionGetFullClientStruct(
+        $id = null,
+        $name = null,
+        $contract_id = null,
+        $contragent_id = null,
+        $contragent_name = null,
+        $account_id = null
+    ) {
+
+        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
+            $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
+        }
+
+        $ids = [];
+        if (empty($id)) {
+            if (empty($name)) {
+                if (empty($contragent_id)) {
+                    if (empty($contragent_name)) {
+                        if (empty($contract_id)) {
+                            if (empty($account_id)) {
+                                return false;
+                            } else {
+                                $account = ClientAccount::findOne(['id' => $account_id]);
+                                $ids [] = $account->super_id;
+                            }
+                        } else {
+                            ($contract = ClientContract::findOne(['id' => $contract_id]))
+                                && $ids[] = $contract->super_id;
+                        }
+                    } else {
+                        $ids = array_keys(ClientContragent::find()->andWhere(['name' => $contragent_name])->indexBy('super_id')->all());
+                    }
+                } else {
+                    $contragent = ClientContragent::findOne(['id' => $contragent_id]);
+                    $ids [] = $contragent->super_id;
+                }
+            } else {
+                $ids = array_keys(ClientSuper::find()->andWhere(['name' => $name])->indexBy('id')->all());
+            }
+        } else {
+            $ids [] = $id;
+        }
+
+        $fullResult = [];
+        foreach ($ids as $id) {
+            $super = ClientSuper::find()->where(['id' => $id])->with('contragents')->with('contracts')->with('accounts')->one();
+
+            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
+
+            $resultContragents = [];
+
+            /** @var ClientContragent $contragent */
+            foreach ($super->contragents as $contragent) {
+                $resultContracts = [];
+                /** @var ClientContract $contract */
+                foreach ($contragent->contracts as $contract) {
+                    if ($contract->is_external != ClientContract::IS_INTERNAL) {
+                        continue;
+                    }
+                    $resultAccounts = [];
+                    /** @var ClientAccount $account */
+                    foreach ($contract->accounts as $account) {
+                        $resultAccounts[] = [
+                            'id' => $account->id,
+                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'version' => $account->account_version,
+                            'applications' => $this->getPlatformaServicesCleaned($account->client)
+                        ];
+                        $timezone = $account->timezone_name;
+                    }
+
+                    if ($resultAccounts) {
+                        $resultContracts[] = [
+                            'id' => $contract->id,
+                            'number' => $contract->number,
+                            'state' => $contract->state,
+                            'is_partner' => $contract->isPartner(),
+                            'accounts' => $resultAccounts
+                        ];
+                    }
+                }
+
+                if ($resultContracts) {
+                    $resultContragents[] = [
+                        'id' => $contragent->id,
+                        'name' => $contragent->name,
+                        'country' => $contragent->country->alpha_3,
+                        'contracts' => $resultContracts
+                    ];
+                }
+            }
+
+            if ($resultContragents) {
+                $fullResult[] = [
+                    'id' => $super->id,
+                    'timezone' => $timezone,
+                    'name' => $super->name,
+                    'contragents' => $resultContragents
+                ];
+            }
+        }
+
+        return $fullResult;
+    }
+
     private function getPlatformaServices($client)
     {
         return array_map(function ($row) {
@@ -404,6 +675,40 @@ class ClientController extends ApiInternalController
                     ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 
                 from `usage_call_chat`
                 where client = :client
+        ", [":client" => $client])->queryAll());
+    }
+
+
+    private function getPlatformaServicesCleaned($client)
+    {
+        return array_map(function ($row) {
+            $row['id'] = (int)$row['id'];
+            $row['is_enabled'] = (bool)$row['is_enabled'];
+            return $row;
+        },
+            Yii::$app->db->createCommand("
+                SELECT 
+                    `usage_voip`.`id` AS `id`,
+                    'phone' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_voip`  
+                WHERE client = :client
+                
+                UNION ALL 
+                SELECT 
+                    `usage_virtpbx`.`id` AS `id`,
+                    'vpbx' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_virtpbx`
+                WHERE client = :client
+                  
+                UNION ALL 
+                SELECT 
+                    `usage_call_chat`.`id` AS `id`,
+                    'feedback' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_call_chat`
+                WHERE client = :client
         ", [":client" => $client])->queryAll());
     }
 
