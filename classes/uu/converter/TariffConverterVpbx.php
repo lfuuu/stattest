@@ -24,6 +24,7 @@ class TariffConverterVpbx extends TariffConverterA
         $statusIdPublic = TariffStatus::ID_PUBLIC;
         $statusIdSpecial = TariffStatus::ID_SPECIAL;
         $statusIdArchive = TariffStatus::ID_ARCHIVE;
+        $statusIdTest = TariffStatus::ID_TEST;
 
         $groupIdAll = TariffPerson::ID_ALL;
 
@@ -41,9 +42,10 @@ class TariffConverterVpbx extends TariffConverterA
                 currency AS currency_id,
                 description AS name,
                 CASE status
-                WHEN 'public' THEN {$statusIdPublic}
-                WHEN 'special' THEN {$statusIdSpecial}
-                WHEN 'archive' THEN {$statusIdArchive}
+                    WHEN 'public' THEN {$statusIdPublic}
+                    WHEN 'special' THEN {$statusIdSpecial}
+                    WHEN 'archive' THEN {$statusIdArchive}
+                    WHEN 'test' THEN {$statusIdTest}
                 END AS tariff_status_id,
                 price_include_vat AS is_include_vat,
                 {$groupIdAll} AS tariff_person_id,

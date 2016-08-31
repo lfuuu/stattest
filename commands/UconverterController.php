@@ -40,27 +40,29 @@ class UconverterController extends Controller
      */
     public function actionTariff($serviceTypeId = null)
     {
-        try {
-            echo PHP_EOL . 'Тарифы. ' . date(DATE_ATOM) . PHP_EOL;
+        echo PHP_EOL . 'Тарифы. ' . date(DATE_ATOM) . PHP_EOL;
 
-            $tariffConverter = new TariffConverter;
+        $tariffConverter = new TariffConverter;
 
-            if ($serviceTypeId) {
-                $tariffConverter->convertByServiceTypeId($serviceTypeId);
-            } else {
-                foreach (ServiceType::$ids as $serviceTypeIdTmp) {
-                    $tariffConverter->convertByServiceTypeId($serviceTypeIdTmp);
-                }
+        if ($serviceTypeId) {
+            $serviceTypeIds = [$serviceTypeId];
+        } else {
+            $serviceTypeIds = ServiceType::$ids;
+        }
+
+        foreach ($serviceTypeIds as $serviceTypeIdTmp) {
+            try {
+                $tariffConverter->convertByServiceTypeId($serviceTypeIdTmp);
+
+                echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+                return Controller::EXIT_CODE_NORMAL;
+
+            } catch (\Exception $e) {
+                Yii::error('Ошибка конвертации');
+                Yii::error($e);
+                printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+                return Controller::EXIT_CODE_ERROR;
             }
-
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            Yii::error('Ошибка конвертации');
-            Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
         }
     }
 
