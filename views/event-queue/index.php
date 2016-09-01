@@ -11,6 +11,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
 use yii\widgets\Breadcrumbs;
@@ -105,19 +106,50 @@ $columns = [
     ],
     [
         'attribute' => 'log_error',
-        'format' => 'html',
+        'format' => 'raw',
         'class' => StringColumn::className(),
         'value' => function (EventQueue $eventQueue) {
-            return nl2br(htmlspecialchars($eventQueue->log_error));
+            if (!$eventQueue->log_error) {
+                return '';
+            }
+            return Html::tag(
+                'button',
+                mb_substr($eventQueue->log_error, 0, 20) . '...',
+                [
+                    'class' => 'btn btn-xs btn-danger',
+                    'data-toggle' => 'popover',
+                    'data-html' => 'true',
+                    'data-placement' => 'bottom',
+                    'data-content' => nl2br(htmlspecialchars($eventQueue->log_error)),
+                ]
+            );
         }
     ],
     [
         'attribute' => 'param',
-        'format' => 'html',
+        'format' => 'raw',
         'class' => StringColumn::className(),
         'value' => function (EventQueue $eventQueue) {
+            if (!$eventQueue->param) {
+                return '';
+            }
+            if ($eventQueue->param[0] !== '{') {
+                // не json
+                return $eventQueue->param;
+            }
             $paramArray = json_decode($eventQueue->param, true);
-            return nl2br(print_r($paramArray, true));
+            $paramString = print_r($paramArray, true);
+            return Html::tag(
+                'button',
+                mb_substr($paramString, 0, 20) . '...',
+                [
+                    'class' => 'btn btn-xs btn-info',
+                    'data-toggle' => 'popover',
+                    'data-html' => 'true',
+                    'data-placement' => 'bottom',
+                    'data-content' => nl2br(htmlspecialchars($paramString)),
+                ]
+            );
         }
     ],
 ];
@@ -127,3 +159,10 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => $columns,
 ]);
+
+?>
+<script type='text/javascript'>
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
+</script>
