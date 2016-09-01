@@ -71,7 +71,7 @@ function do_events()
                 }
 
                 case 'actualize_number':
-                    Number::dao()->actualizeStatusByE164($param['number']);
+                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     break;
 
                 case 'add_payment': {
