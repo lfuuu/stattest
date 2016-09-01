@@ -70,6 +70,10 @@ function do_events()
                     break;
                 }
 
+                case 'actualize_number':
+                    Number::dao()->actualizeStatusByE164($param['number']);
+                    break;
+
                 case 'add_payment': {
                     EventHandler::updateBalance($param[1]);
                     (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
