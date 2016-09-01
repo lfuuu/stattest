@@ -125,7 +125,7 @@ class NumberDao extends Singleton
 
     public function startHold(\app\models\Number $number, DateTime $holdTo = null)
     {
-        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_ACTIVE_COMMERCIAL, Number::STATUS_NOTACTIVE_HOLD]);
+        Assert::isInArray($number->status, array_merge([Number::STATUS_INSTOCK, Number::STATUS_NOTACTIVE_HOLD], Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]));
 
         $number->client_id = null;
         $number->usage_id = null;
