@@ -100,7 +100,7 @@ abstract class AccountTariffConverterA
         printf('added = %d', $affectedRows);
 
         // убрать за собой
-        $this->execute("DROP TABLE account_tariff_tmp");
+        $this->execute("DROP TEMPORARY TABLE account_tariff_tmp");
     }
 
     /**

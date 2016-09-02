@@ -3,6 +3,7 @@
 namespace app\classes\uu\forms;
 
 use app\classes\Form;
+use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\AccountTariffVoip;
@@ -56,12 +57,14 @@ abstract class AccountTariffForm extends Form
     {
         $this->accountTariff = $this->getAccountTariffModel();
 
-        $this->accountTariffLog = new AccountTariffLog();
-        $this->accountTariffLog->actual_from = (new DateTime())->modify('+1 day')->format('Y-m-d');
-
         if ($this->serviceTypeId === null) {
             throw new \InvalidArgumentException(\Yii::t('tariff', 'You should enter usage type'));
         }
+
+        $this->accountTariffLog = new AccountTariffLog();
+        $this->accountTariffLog->actual_from = (new DateTime())
+            ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
+            ->format('Y-m-d');
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -74,13 +77,14 @@ abstract class AccountTariffForm extends Form
     {
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
+
+        // при создании услуга + лог в одной форме, при редактировании - в разных
+        $isNewRecord = $this->accountTariff->isNewRecord;
+
         try {
+
             /** @var array $post */
             $post = Yii::$app->request->post();
-
-            // при создании услуга + лог в одной форме, при редактировании - в разных
-            $isNewRecord = $this->accountTariff->isNewRecord;
-
 
             // при создании услуги телефонии свой интерфейс, из которого данные надо преобразовать в нужный формат
             $accountTariffVoip = new AccountTariffVoip();
@@ -172,14 +176,10 @@ abstract class AccountTariffForm extends Form
                 } elseif (!$this->accountTariffLog->tariff_period_id) {
                     // если не закрыть, то надо явно установить тариф
                     $this->accountTariffLog->addError('tariff_period_id',
-                        Yii::t('yii', '{attribute} cannot be blank.', [
-                            'attribute' => $this->accountTariffLog->getAttributeLabel('tariff_period_id')
-                        ])
+                        Yii::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->accountTariffLog->getAttributeLabel('tariff_period_id')])
                     );
                 }
-                if ($this->accountTariffLog->validate(null, false)) {
-                    $this->accountTariffLog->save();
-
+                if ($this->accountTariffLog->validate(null, false) && $this->accountTariffLog->save()) {
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
@@ -209,11 +209,59 @@ abstract class AccountTariffForm extends Form
 
             }
 
+            if ($post && $isNewRecord && !$this->validateErrors && $this->serviceTypeId == ServiceType::ID_ONE_TIME) {
+                // разовая услуга
+
+                $tariffResources = $this->accountTariffLog->tariffPeriod->tariff->tariffResources;
+                if (count($tariffResources) != 1) {
+                    $this->validateErrors['resourceOneTimeResource'] = 'Неправильные ресурсы у тарифа';
+                    throw new InvalidArgumentException();
+
+                }
+
+                if ($this->accountTariffLog->actual_from != date('Y-m-d')) {
+                    $this->validateErrors['resourceOneTimeActualFrom'] = 'Разовая услуга должна действовать с сегодняшнего дня.';
+                    $this->accountTariffLog->addError('actual_from', $this->validateErrors['resourceOneTimeActualFrom']);
+                    throw new InvalidArgumentException();
+
+                }
+
+                if (!isset($post['resourceOneTimeCost']) || !($resourceOneTimeCost = (float)str_replace(',', '.', $post['resourceOneTimeCost']))) {
+                    $this->validateErrors['resourceOneTimeCost'] = 'Не указана стоимость разовой услуги';
+                    throw new InvalidArgumentException();
+
+                }
+
+                $resourceOneTimeCost = (float)str_replace(',', '.', $post['resourceOneTimeCost']);
+                if (!$resourceOneTimeCost) {
+                    $this->validateErrors['resourceOneTimeCost'] = 'Не указана стоимость разовой услуги';
+                    throw new InvalidArgumentException();
+                }
+
+                // сразу же закрыть
+                $accountTariffLogClosed = new AccountTariffLog;
+                $accountTariffLogClosed->account_tariff_id = $this->accountTariff->id;
+                $accountTariffLogClosed->tariff_period_id = null;
+                $accountTariffLogClosed->actual_from = (new \DateTimeImmutable())->modify('+1 day')->format('Y-m-d');
+                if (!$accountTariffLogClosed->save()) {
+                    $this->validateErrors += $accountTariffLogClosed->getFirstErrors();
+                }
+
+                // собственно, вся услуга заключается в этой стоимости ресурса
+                $accountLogResource = new AccountLogResource();
+                $accountLogResource->date = $this->accountTariffLog->actual_from;
+                $accountLogResource->tariff_period_id = $this->accountTariffLog->tariff_period_id;
+                $accountLogResource->tariff_resource_id = reset($tariffResources)->id;
+                $accountLogResource->account_tariff_id = $this->accountTariff->id;
+                $accountLogResource->amount_use = $resourceOneTimeCost;
+                $accountLogResource->amount_free = 0;
+                $accountLogResource->amount_overhead = $resourceOneTimeCost;
+                $accountLogResource->price_per_unit = 1;
+                $accountLogResource->price = $resourceOneTimeCost;
+                $accountLogResource->save();
+            }
+
             if ($this->validateErrors) {
-                if ($isNewRecord) {
-                    $this->id = $this->accountTariff->id = null;
-                    $this->accountTariff->setIsNewRecord(true);
-                };
                 throw new InvalidArgumentException();
             }
 
@@ -222,12 +270,20 @@ abstract class AccountTariffForm extends Form
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
             $this->isSaved = false;
+            if ($isNewRecord) {
+                $this->id = $this->accountTariff->id = null;
+                $this->accountTariff->setIsNewRecord(true);
+            };
 
         } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
             $this->isSaved = false;
             $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+            if ($isNewRecord) {
+                $this->id = $this->accountTariff->id = null;
+                $this->accountTariff->setIsNewRecord(true);
+            };
         }
     }
 

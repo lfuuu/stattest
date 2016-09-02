@@ -78,10 +78,18 @@ class UconverterController extends Controller
             $tariffConverter = new AccountTariffConverter;
 
             if ($serviceTypeId) {
-                $tariffConverter->convertByServiceTypeId($serviceTypeId);
+                $serviceTypeIds = [$serviceTypeId];
             } else {
-                foreach (ServiceType::$ids as $serviceTypeIdTmp) {
+                $serviceTypeIds = ServiceType::$ids;
+            }
+
+            foreach ($serviceTypeIds as $serviceTypeIdTmp) {
+                try {
                     $tariffConverter->convertByServiceTypeId($serviceTypeIdTmp);
+                } catch (\Exception $e) {
+                    Yii::error('Ошибка конвертации');
+                    Yii::error($e);
+                    printf('%s %s', $e->getMessage(), $e->getTraceAsString());
                 }
             }
 
