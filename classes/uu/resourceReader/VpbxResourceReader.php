@@ -25,15 +25,15 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
 
         /** @var VirtpbxStat $virtpbxStat */
         foreach ($virtpbxStatQuery->each() as $virtpbxStat) {
-            $usageId = $virtpbxStat->usage_id;
+            $accountTariffId = $virtpbxStat->usage_id;
             $clientId = $virtpbxStat->client_id;
             $date = $virtpbxStat->date;
 
-            !isset($this->usageToDateToValue[$usageId]) && ($this->usageToDateToValue[$usageId] = []);
+            !isset($this->usageToDateToValue[$accountTariffId]) && ($this->usageToDateToValue[$accountTariffId] = []);
             !isset($this->clientToDateToValue[$clientId]) && ($this->clientToDateToValue[$clientId] = []);
 
             // записать сразу в два кэша (по услуге и клиенту), потому что в таблице virtpbx_stat все сделано костыльно
-            $this->clientToDateToValue[$clientId][$date] = $this->usageToDateToValue[$usageId][$date] = $virtpbxStat->{$this->fieldName};
+            $this->clientToDateToValue[$clientId][$date] = $this->usageToDateToValue[$accountTariffId][$date] = $virtpbxStat->{$this->fieldName};
         }
     }
 
@@ -46,13 +46,13 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $usageId = $accountTariff->getNonUniversalId();
+        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $clientId = $accountTariff->client_account_id;
         $date = $dateTime->format('Y-m-d');
         return
             // по-новому (через услугу)
-            isset($this->usageToDateToValue[$usageId][$date]) ?
-                $this->usageToDateToValue[$usageId][$date] :
+            isset($this->usageToDateToValue[$accountTariffId][$date]) ?
+                $this->usageToDateToValue[$accountTariffId][$date] :
                 (
                     // по-старому (через клиента)
                 isset($this->clientToDateToValue[$clientId][$date]) ?
