@@ -170,7 +170,7 @@ class AccountTariffLog extends ActiveRecord
     public function validatorCreateNotClose($attribute, $params)
     {
         if (!$this->tariff_period_id && !$this->getCountLogs()) {
-            $this->addError($attribute, 'Не указан период тарифа.');
+            $this->addError($attribute, 'Не указан тариф/период.');
         }
     }
 
@@ -260,7 +260,7 @@ class AccountTariffLog extends ActiveRecord
         // создание услуги
 
         if (!$tariffPeriod) {
-            $this->addError($attribute, 'Период тарифа не указан.');
+            $this->addError($attribute, 'Не указан тариф/период.');
             return;
         }
 

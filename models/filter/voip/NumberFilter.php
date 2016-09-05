@@ -213,7 +213,7 @@ WHERE
 SQL;
             $affectedRows = $db->createCommand($sqlUpdate, $params)->execute();
 
-            $db->createCommand('DROP TABLE number_tmp')->execute();
+            $db->createCommand('DROP TEMPORARY TABLE number_tmp')->execute();
 
             Yii::$app->session->setFlash('success', Yii::t('common', '{n, plural, one{# entry was edited} other{# entries were edited}}', ['n' => $affectedRows]));
             $transaction->commit();

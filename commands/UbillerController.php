@@ -26,11 +26,15 @@ class UbillerController extends Controller
     public function actionIndex()
     {
         // проверить баланс при смене тарифа. Если денег не хватает - отложить на день
-        // обязательно это вызывать ДО транзакций
+        // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
         $this->actionChangeTariff();
 
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         $this->actionSetCurrentTariff();
+
+        // Автоматически закрыть услугу по истечению тестового периода
+        // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
+        $this->actionAutoCloseAccountTariff();
 
         // транзакции
         $this->actionSetup();
@@ -177,6 +181,14 @@ class UbillerController extends Controller
     public function actionFinanceBlock()
     {
         $this->_tarificate('FinanceBlockTarificator', 'Месячную финансовую блокировку заменить на постоянную');
+    }
+
+    /**
+     * Автоматически закрыть услугу по истечению тестового периода. 1 секунда
+     */
+    public function actionAutoCloseAccountTariff()
+    {
+        $this->_tarificate('AutoCloseAccountTariffTarificator', 'Автоматически закрыть услугу по истечению тестового периода');
     }
 
     /**

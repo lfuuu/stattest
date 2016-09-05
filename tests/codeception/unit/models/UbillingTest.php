@@ -9,6 +9,8 @@ use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Bill;
+use app\classes\uu\tarificator\AutoCloseAccountTariffTarificator;
+use app\classes\uu\tarificator\SetCurrentTariffTarificator;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
@@ -42,6 +44,16 @@ class UbillingTest extends TestCase
         (new TariffPeriodFixture)->load();
         (new AccountTariffFixture)->load();
         (new AccountTariffLogFixture)->load();
+
+        ob_start();
+
+        $setCurrentTariffTarificator = new SetCurrentTariffTarificator;
+        $setCurrentTariffTarificator->tarificate();
+
+        $autoCloseAccountTariffTarificator = new AutoCloseAccountTariffTarificator;
+        $autoCloseAccountTariffTarificator->tarificate();
+
+        ob_end_clean();
     }
 
     protected function unload()
@@ -307,7 +319,7 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(count($accountLogFromToTariffs), 2);
+        $this->assertEquals(count($accountLogFromToTariffs), 1);
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
@@ -320,14 +332,6 @@ class UbillingTest extends TestCase
         $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
 
         $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 4);
-
-        // диапазон 1
-        $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
-
-        $this->assertEmpty($accountLogFromToTariffs[1]->dateTo);
-
-        $this->assertEmpty($accountLogFromToTariffs[1]->tariffPeriod->id);
     }
 
     /**
@@ -343,7 +347,7 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(count($accountLogFromToTariffs), 3);
+        $this->assertEquals(count($accountLogFromToTariffs), 2);
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
@@ -365,14 +369,6 @@ class UbillingTest extends TestCase
         $this->assertEquals($accountLogFromToTariffs[1]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
 
         $this->assertEquals($accountLogFromToTariffs[1]->tariffPeriod->id, 5);
-
-        // диапазон 2
-        $this->assertNotEmpty($accountLogFromToTariffs[2]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[2]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format('Y-m-d'));
-
-        $this->assertEmpty($accountLogFromToTariffs[2]->dateTo);
-
-        $this->assertEmpty($accountLogFromToTariffs[2]->tariffPeriod->id);
     }
 
 

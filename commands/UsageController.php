@@ -64,20 +64,13 @@ class UsageController extends Controller
         echo "\nstart " . $now->format("Y-m-d H:i:s") . "\n";
 
         $cleanOrderOfServiceDate = (new DateTime("now"))->modify("-3 day");
-        $blockDate = (new DateTime("now"))->modify("-10 day");
-        $offDate = (new DateTime("now"))->modify("-40 day");
+        $offDate = (new DateTime("now"))->modify("-10 day");
 
-        echo $now->format("Y-m-d") . ": block: " . $blockDate->format("Y-m-d") . "\n";
         echo $now->format("Y-m-d") . ": off:   " . $offDate->format("Y-m-d") . "\n";
         echo $now->format("Y-m-d") . ": clean: " . $cleanOrderOfServiceDate->format("Y-m-d") . "\n";
 
-        $infoBlock = $this->cleanUsages($blockDate, self::ACTION_SET_BLOCK);
         $infoOff = $this->cleanUsages($offDate, self::ACTION_SET_OFF);
         $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_TRASH);
-
-        if ($infoBlock) {
-            $info = array_merge($info, $infoBlock);
-        }
 
         if ($infoOff) {
             $info = array_merge($info, $infoOff);
@@ -101,6 +94,8 @@ class UsageController extends Controller
     private function cleanUsages(\DateTime $date, $action)
     {
         $now = new DateTime("now");
+        $yesterday = clone $now;
+        $yesterday->modify('-1 day');
 
         $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format("Y-m-d")])->all();
 
@@ -111,26 +106,19 @@ class UsageController extends Controller
             $account = $usage->clientAccount;
 
             if ($action == self::ACTION_CLEAN_TRASH) {
-                if ($account->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
-                    $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean trash";
-
-                    $model = new UsageVoipEditForm();
-                    $model->initModel($account, $usage);
-                    $model->disconnecting_date = $now->modify('-1 day')->format("Y-m-d");
-                    $model->edit();
+                if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+                    continue;
                 }
-            } elseif (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
-                if ($usage->actual_to != $now->format("Y-m-d")) {// не выключенные сегодня
-                    if ($action == self::ACTION_SET_BLOCK) {
-                        if (!$account->is_blocked) {
-                            $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set block " . $tarif->status;
 
-                            $account->is_blocked = 1;
-                            $account->save();
-                        }
-                    }
+                $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean trash";
 
-                    if ($action == self::ACTION_SET_OFF) {
+                $model = new UsageVoipEditForm();
+                $model->initModel($account, $usage);
+                $model->disconnecting_date = $yesterday->format("Y-m-d");
+                $model->edit();
+            } elseif ($action == self::ACTION_SET_OFF) {
+                if (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
+                    if ($usage->actual_to != $now->format("Y-m-d")) {// не выключенные сегодня
                         $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
 
                         $model = new UsageVoipEditForm();
@@ -158,8 +146,8 @@ class UsageController extends Controller
             SELECT cc.client_id
             FROM
                 billing.clients c
-                    LEFT JOIN billing.counters cc ON c.id=cc.client_id
-                        LEFT JOIN billing.locks cl ON c.id=cl.client_id
+            LEFT JOIN billing.counters cc ON c.id=cc.client_id
+            LEFT JOIN billing.locks cl ON c.id=cl.client_id
             WHERE
                 cl.is_overran
                 AND NOT c.voip_disabled

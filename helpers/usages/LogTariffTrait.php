@@ -5,6 +5,11 @@ namespace app\helpers\usages;
 use DateTime;
 use app\models\LogTarif;
 
+/**
+ * Class LogTariffTrait
+ * @package app\helpers\usages
+ * @property  LogTarif $logTariff
+ */
 trait LogTariffTrait
 {
 

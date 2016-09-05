@@ -349,7 +349,7 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "accountTariffLogRecord", type = "object",
-     *   @SWG\Property(property = "tariff_period", type = "object", description = "Период тарифа. Если закрыто, то null", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
+     *   @SWG\Property(property = "tariff_period", type = "object", description = "Тариф/период. Если закрыто, то null", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД"),
      * ),
      *
@@ -458,7 +458,7 @@ class UuController extends ApiInternalController
      * ),
      *
      * @SWG\Definition(definition = "accountTariffLogLightRecord", type = "object",
-     *   @SWG\Property(property = "tariff_period", type = "object", description = "Период тарифа", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
+     *   @SWG\Property(property = "tariff_period", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
      *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой этот тариф был включен и сейчас действует. Всегда в прошлом. Если null - еще не включен (тогда см. activate_future_date) или уже выключен (deactivate_past_date). ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),

@@ -16,7 +16,7 @@ class CallsDao extends Singleton
 
     const CALLS_MAX_LIMIT = 10000;
 
-    public function calcByDest(UsageVoip $usage, DateTime $from, DateTime $to)
+    public static function calcByDest(UsageVoip $usage, DateTime $from, DateTime $to)
     {
         if (defined('MONTHLY_BILLING')) {
             return CallsAggrDao::calcByDest($usage, $from, $to);

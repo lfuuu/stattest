@@ -75,6 +75,8 @@ class AccountTariff extends ActiveRecord
 
     const DELTA_WELLTIME_SAAS = 90000;
 
+    const DELTA_CALL_CHAT = 95000;
+
     const DELTA = 100000;
 
     public $serviceIdToDelta = [
@@ -100,6 +102,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_SMS => self::DELTA_SMS,
 
         ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
+
+        ServiceType::ID_CALL_CHAT => self::DELTA_CALL_CHAT,
     ];
 
     public $serviceIdToUrl = [
@@ -125,6 +129,8 @@ class AccountTariff extends ActiveRecord
         ServiceType::ID_SMS => '/pop_services.php?table=usage_sms&id=%d',
 
         ServiceType::ID_WELLTIME_SAAS => '/pop_services.php?table=usage_welltime&id=%d',
+
+        ServiceType::ID_CALL_CHAT => '/usage/call-chat/edit?id=%d',
     ];
 
     /** @var int */
@@ -429,12 +435,11 @@ class AccountTariff extends ActiveRecord
         $accountLogPeriods = [];
         $dateTo = $dateFrom = null;
         $minLogDatetime = self::getMinLogDatetime();
-        $isNeedAutoClose = false;
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone();
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
-        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs($isWithFuture = true);
+        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
             $dateTo = $accountLogHugePeriod->dateTo;
@@ -444,8 +449,6 @@ class AccountTariff extends ActiveRecord
             }
 
             $tariffPeriod = $accountLogHugePeriod->tariffPeriod;
-            $tariff = $tariffPeriod->tariff;
-            $i = 0;
             $chargePeriod = $chargePeriodMain ?: $tariffPeriod->chargePeriod;
             $dateFrom = $accountLogHugePeriod->dateFrom;
             if ($dateTo) {
@@ -471,45 +474,8 @@ class AccountTariff extends ActiveRecord
                 /** @var DateTimeImmutable $dateFrom */
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
-                // продлевать бесконечно или не более определенного кол-ва раз
-                $isNeedAutoClose = !($tariff->is_autoprolongation || ++$i <= $tariff->count_of_validity_period);
+            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d'));
 
-            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d') && !$isNeedAutoClose);
-
-        }
-
-        $isNeedAutoClose = false; // @todo надо продумать, как отменять отмену (сменить тестовый тариф на другой тестовый)
-        if (!$dateTo && $isNeedAutoClose && $this->clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            // нужно закрыть автоматически
-            $accountTariffLog = new AccountTariffLog();
-            $accountTariffLog->account_tariff_id = $this->id;
-            $accountTariffLog->tariff_period_id = null;
-            if ($dateTimeNow > $dateFrom) {
-                // надо было закрыть раньше. Видимо биллер долго не запускался
-                // чтобы не было ошибки "нельзя менять задним числом", сначала закрываем сегодняшним числом, а потом сдвигаем дату на старую
-                $accountTariffLog->actual_from = $dateTimeNow->format('Y-m-d');
-                $accountTariffLog->insert_time = $dateFrom->modify('-1 day')->format('Y-m-d 20:59:58'); // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
-                $accountTariffLog->save();
-            }
-            $accountTariffLog->actual_from = $dateFrom->format('Y-m-d');
-            if (!$accountTariffLog->save()) {
-                throw new \LogicException(implode('. ', $accountTariffLog->getFirstErrors()));
-            }
-
-            $this->tariff_period_id = null;
-            if (!$this->save()) {
-                throw new \LogicException(implode('. ', $accountTariffLog->getFirstErrors()));
-            }
-
-            if ($dateFrom >= $minLogDatetime) {
-                // добавить закрытие в периоды
-                // Для оптимизации считаем только нестарые
-                $accountLogPeriod = new AccountLogFromToTariff();
-                $accountLogPeriod->tariffPeriod = null;
-                $accountLogPeriod->dateFrom = $dateFrom;
-                $accountLogPeriod->dateTo = null;
-                $accountLogPeriods[] = $accountLogPeriod;
-            }
         }
 
         if (!$isWithCurrent &&
@@ -683,7 +649,7 @@ class AccountTariff extends ActiveRecord
      */
     public function getNonUniversalId()
     {
-        if ($this->id && $this->id < self::DELTA) {
+        if ($this->id && $this->id < self::DELTA && isset($this->serviceIdToDelta[$this->service_type_id])) {
             return $this->id - $this->serviceIdToDelta[$this->service_type_id];
         } else {
             return null;

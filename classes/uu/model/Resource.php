@@ -11,6 +11,7 @@ use app\classes\uu\resourceReader\InternetTrafficResourceReader;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
 use app\classes\uu\resourceReader\SmsResourceReader;
 use app\classes\uu\resourceReader\VoipCallsResourceReader;
+use app\classes\uu\resourceReader\VoipLinesResourceReader;
 use app\classes\uu\resourceReader\VpbxAbonentResourceReader;
 use app\classes\uu\resourceReader\VpbxDiskResourceReader;
 use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
@@ -55,6 +56,12 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VPN_TRAFFIC = 13; // VPN. Трафик
 
     const ID_SMS = 14; // SMS
+
+    const ID_VM_COLLOCATION_PROCESSOR = 15; // VM collocation. Процессор
+    const ID_VM_COLLOCATION_HDD = 16; // VM collocation. Постоянная память
+    const ID_VM_COLLOCATION_RAM = 17; // VM collocation. Оперативная память
+
+    const ID_ONE_TIME = 18; // Разовая услуга
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
@@ -117,7 +124,7 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_RECORD => VpbxRecordResourceReader::className(), // Запись звонков (call recording) (bool). Берется из virtpbx_stat.call_recording_enabled
             self::ID_VPBX_FAX => VpbxFaxResourceReader::className(), // Факс (bool). Берется из virtpbx_stat.faxes_enabled
 
-            self::ID_VOIP_LINE => DummyResourceReader::className(), // @todo Линии (шт, int). usage_voip.no_of_lines;
+            self::ID_VOIP_LINE => VoipLinesResourceReader::className(), // Линии (шт, int). https://vpbx.mcn.ru/core/swagger/index.html , vpbx, /get_int_number_usage
             self::ID_VOIP_CALLS => VoipCallsResourceReader::className(), // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
 
             self::ID_INTERNET_TRAFFIC => InternetTrafficResourceReader::className(), // Трафик (Мб., float). nispd.traf_flows_1d;

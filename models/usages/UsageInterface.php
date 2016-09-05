@@ -1,6 +1,7 @@
 <?php
 namespace app\models\usages;
 
+use app\models\LogTarif;
 use DateTime;
 use app\classes\transfer\ServiceTransfer;
 use app\helpers\usages\UsageHelperInterface;
@@ -18,6 +19,8 @@ use app\models\ClientAccount;
  * @property int moved_from
  * @property int prev_usage_id
  * @property int next_usage_id
+ *
+ * @property  LogTarif $logTariff см. LogTariffTrait
  */
 interface UsageInterface
 {

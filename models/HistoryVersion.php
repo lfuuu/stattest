@@ -12,6 +12,8 @@ use yii\db\ActiveRecord;
  * @property int $model_id
  * @property string $date
  * @property string $data_json
+ * @property int $user_id
+ *
  * @property User $user
  */
 class HistoryVersion extends ActiveRecord

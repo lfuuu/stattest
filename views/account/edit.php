@@ -1,5 +1,7 @@
 <?php
 
+/** @var $this \app\classes\BaseView */
+
 use app\assets\AppAsset;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
@@ -15,7 +17,7 @@ $this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::
 $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
 
-$language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
+$language = Language::getLanguageByCountryId($model->getModel()->contragent->country_id);
 ?>
 <div class="row">
     <div class="col-sm-12">
@@ -23,7 +25,7 @@ $language = Language::getLanguageByCountryId(\app\models\Country::RUSSIA);
 
         <?php $f = ActiveForm::begin(); ?>
 
-        <?= $this->render($language . '/form', ['model' => $model, 'f' => $f]); ?>
+        <?= $this->render($this->getFormPath('account', $language), ['model' => $model, 'f' => $f]); ?>
 
         <div class="row" style="width: 1100px;">
 

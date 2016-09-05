@@ -10,6 +10,7 @@ use app\models\Business;
 
 /**
  * @var $f kartik\widgets\ActiveForm
+ * @var $model \app\forms\client\ContragentEditForm
  */
 
 ?>

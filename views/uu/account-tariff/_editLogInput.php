@@ -8,6 +8,7 @@
  */
 
 use app\classes\Html;
+use app\classes\uu\model\ServiceType;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
 use yii\widgets\ActiveForm;
@@ -26,7 +27,7 @@ $accountTariffLog = $formModel->accountTariffLog;
 
         $id = mt_rand(0, 1000000); // чтобы на одной странице можно было несколько объектов показывать
 
-        $accountTariffLog->tariffPeriodFieldName = $accountTariff->service_type_id == \app\classes\uu\model\ServiceType::ID_VOIP_PACKAGE ? 'Период пакета' : 'Период тарифа';
+        $accountTariffLog->tariffPeriodFieldName = ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE ? 'Пакет' : 'Тариф') . '/период';
         ?>
         <?= $form->field($accountTariffLog, 'tariff_period_id')
             ->widget(Select2::className(), [

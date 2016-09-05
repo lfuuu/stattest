@@ -13,7 +13,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
 {
     /** @var [] кэш данных */
     protected $dateToValue = [];
-    protected $usageVoipId = null;
+    protected $accountTariffId = null;
 
     /**
      * Вернуть количество потраченного ресурса
@@ -24,10 +24,10 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $usageVoipId = $accountTariff->getNonUniversalId();
+        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
 
         $dateStr = $dateTime->format('Y-m-d');
-        if ($this->usageVoipId === $usageVoipId) {
+        if ($this->accountTariffId === $accountTariffId) {
             // для этой услуги уже есть кэш
             if (isset($this->dateToValue[$dateStr])) {
                 return $this->dateToValue[$dateStr]['sum_cost'];
@@ -36,7 +36,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
             }
         }
 
-        $this->usageVoipId = $usageVoipId;
+        $this->accountTariffId = $accountTariffId;
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
@@ -55,7 +55,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
                 // в CallsAggr стоимость отрицательная, что означает "списание". А в AccountLogResource это должно быть положительным
                 'aggr_date' => sprintf("TO_CHAR(aggr_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
-            ->where(['number_service_id' => $usageVoipId])
+            ->where(['number_service_id' => $accountTariffId])
             ->andWhere(sprintf("aggr_time + INTERVAL '%d hours' >= :date", $hoursDelta),
                 [':date' => $dateTime->format(DATE_ATOM)])
             ->groupBy('aggr_date')

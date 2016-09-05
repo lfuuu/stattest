@@ -19,6 +19,8 @@ trait _TransferTrait
 
     /**
      * @param $usageType - Класс услуги
+     * @param $extendsData
+     * @return array
      */
     protected function checkTransfer($usageType, $extendsData)
     {

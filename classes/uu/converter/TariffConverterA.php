@@ -116,7 +116,7 @@ abstract class TariffConverterA
         printf('added = %d', $affectedRows);
 
         // убрать за собой
-        $this->execute("DROP TABLE tariff_tmp");
+        $this->execute("DROP TEMPORARY TABLE tariff_tmp");
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class TariffConverterA
         printf('added = %d', $affectedRows);
 
         // убрать за собой
-        $this->execute("DROP TABLE tariff_period_tmp");
+        $this->execute("DROP TEMPORARY TABLE tariff_period_tmp");
     }
 
     /**
@@ -218,7 +218,7 @@ abstract class TariffConverterA
         printf('added = %d', $affectedRows);
 
         // убрать за собой
-        $this->execute("DROP TABLE tariff_resource_tmp");
+        $this->execute("DROP TEMPORARY TABLE tariff_resource_tmp");
     }
 
     /**

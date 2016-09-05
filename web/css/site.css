@@ -264,6 +264,7 @@ a.nohover:hover {
     min-width: 80px;
 }
 
+.event-queue-status-column,
 .country-column,
 .tariff-status-column,
 .tariff-person-column,
@@ -272,6 +273,7 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.event-queue-event-column,
 .pricelist-column,
 .package-type-column,
 .package-period-column,
@@ -385,6 +387,10 @@ a.nohover:hover {
 .package-pricelist h2 {
     margin-top: -10px;
     margin-bottom: 0;
+}
+
+.popover-width-auto .popover {
+    max-width: none;
 }
 
 .i18n-tabs .col-sm-6 {

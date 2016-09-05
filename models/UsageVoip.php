@@ -46,6 +46,7 @@ use yii\helpers\Url;
  * @property TariffVoip tariff
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
+ * @property Number $voipNumber
  * @property UsageVoipPackage $packages
  * @property UsageVoipHelper $helper
  */

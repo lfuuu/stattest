@@ -23,6 +23,7 @@ use yii\helpers\Url;
  * @property int $super_id
  * @property int $contract_id
  * @property int $country_id
+ * @property string $status
  * @property string $currency
  * @property string $nal
  * @property int $balance

@@ -155,6 +155,21 @@ class ApiVpbx
         return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format('Y-m-d')]);
     }
 
+    /**
+     * @param int $clientAccountId
+     * @param int $usageVpbxId
+     * @param \DateTimeImmutable $date
+     * @return []. int_number_amount=>... или errors=>...
+     */
+    public static function getResourceVoipLines($clientAccountId, $usageVpbxId, \DateTimeImmutable $date)
+    {
+        return ApiVpbx::exec('get_int_number_usage', [
+            'client_id' => $clientAccountId,
+            'stat_product_id' => $usageVpbxId,
+            'date' => $date->format('Y-m-d'),
+        ]);
+    }
+
     public static function getStatistic(
         $clientId,
         $usageId,

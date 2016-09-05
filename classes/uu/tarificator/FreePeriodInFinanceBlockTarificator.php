@@ -155,7 +155,7 @@ SQL;
 
         // убрать за собой
         $sql = <<<SQL
-            DROP TABLE set_unset_zero_tmp
+            DROP TEMPORARY TABLE set_unset_zero_tmp
 SQL;
         $db->createCommand($sql)->execute();
     }

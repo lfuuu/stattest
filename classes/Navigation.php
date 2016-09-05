@@ -66,6 +66,7 @@ class Navigation
                 ->addStatModuleItems('monitoring')
                 ->addItem('Перемещаемые услуги', ['/monitoring/transfered-usages'], [])
                 ->addItem('Ключевые события', ['/monitoring'], [])
+                ->addItem('Очередь событий', ['/event-queue'], [])
         );
 
         $this->addBlock(

@@ -25,7 +25,8 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $this->createCache($accountTariff->getNonUniversalId());
+        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
+        $this->createCache($accountTariffId);
         $date = $dateTime->format('Y-m-d');
 
         return

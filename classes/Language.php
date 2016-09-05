@@ -31,7 +31,7 @@ class Language
     public static function getLanguageByCountryId($id)
     {
         $country = Country::findOne($id);
-        return $country ? $country->lang : null;
+        return $country ? $country->lang : \app\models\Language::LANGUAGE_DEFAULT;
     }
 
     private static function languageExists($lang)
