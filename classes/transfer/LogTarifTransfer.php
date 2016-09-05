@@ -45,7 +45,9 @@ abstract class LogTarifTransfer
             $targetLogTariff->ts = $serviceTransfer->getActivationDatetime();
             $targetLogTariff->id_service = $targetServiceId;
 
-            $targetLogTariff->save();
+            if (!$targetLogTariff->save()) {
+                throw new \Exception(implode(' ', $targetLogTariff->getFirstErrors()));
+            }
 
             $dbTransaction->commit();
         } catch (\Exception $e) {

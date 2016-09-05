@@ -9,8 +9,8 @@ trait _TransferLogTariff
 
     protected function checkLogTariffAfter(UsageInterface $from, UsageInterface $to)
     {
-        $this->assertNotNull($from->logTariff, 'See object "toUsage" after transfer');
-        $this->assertNotNull($to->logTariff, 'See object "toUsage" after transfer');
+        $this->assertNotNull($from->getLogTariff(UsageInterface::MIDDLE_DATE), 'See object "toUsage" after transfer');
+        $this->assertNotNull($to->getLogTariff(UsageInterface::MIDDLE_DATE), 'See object "toUsage" after transfer');
     }
 
 }
