@@ -36,7 +36,7 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
 
         // Проверка результата переноса линий
         $fromLine7800 = UsageVoip::findOne($fromUsage->line7800_id);
-        $this->assertNotNull($toUsage, 'See object "fromLine7800"');
+        $this->assertNotNull($fromUsage, 'See object "fromLine7800"');
 
         $toLine7800 = UsageVoip::findOne($toUsage->line7800_id);
         $this->assertNotNull($toUsage, 'See object "toLine7800"');
