@@ -12,9 +12,12 @@ class Smarty
     {
         if (self::$smarty == null) {
             $smarty = new \Smarty;
-            $smarty->compile_dir = Yii::$app->params['SMARTY_COMPILE_DIR'];
-            $smarty->template_dir = Yii::$app->params['SMARTY_TEMPLATE_DIR'];
-            $smarty->registerPlugin("modifier", "mdate", [new \app\classes\DateFunction, "mdate"]);
+            $smarty->setCompileDir(Yii::$app->params['SMARTY_COMPILE_DIR']);
+            $smarty->setTemplateDir(Yii::$app->params['SMARTY_TEMPLATE_DIR']);
+
+            $smarty->registerPlugin('modifier', 'mdate', [new \app\classes\DateFunction, 'mdate']);
+            $smarty->registerPlugin('modifier', 'wordify', [new \app\classes\Wordifier, 'Make']);
+
             self::$smarty = $smarty;
         }
 

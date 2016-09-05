@@ -2,6 +2,7 @@
 namespace app\forms\templates\uu;
 
 use app\classes\Smarty;
+use app\models\light_models\uu\InvoiceLight;
 use Yii;
 use app\classes\Form;
 use app\models\Language;
@@ -61,12 +62,12 @@ class InvoiceForm extends Form
             /** @var UploadedFile $file */
             $file = UploadedFile::getInstance($this, 'filename[' . $languageCode . ']');
 
-            if (is_null($file) || $file->getExtension() !== self::TEMPLATE_EXTENSION) {
+            if (!is_null($file) && $file->getExtension() !== self::TEMPLATE_EXTENSION) {
                 Yii::$app->session->addFlash('error', 'Шаблон ' . $languageCode . ' должен быть в формате HTML<br />');
                 continue;
             }
 
-            if ($file->saveAs(self::getPath() . $languageCode . '.' . $file->extension, $deleteTempFile = true)) {
+            if ($file && $file->saveAs(self::getPath() . $languageCode . '.' . $file->extension, $deleteTempFile = true)) {
                 $content = preg_replace_callback(
                     '#\{[^\}]+\}#',
                     function ($matches) {

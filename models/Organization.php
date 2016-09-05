@@ -224,6 +224,7 @@ class Organization extends ActiveRecord
 
     /**
      * @param string $langCode
+     * @return $this
      */
     public function setLanguage($langCode = Language::LANGUAGE_DEFAULT)
     {

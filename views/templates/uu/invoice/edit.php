@@ -66,4 +66,6 @@ echo Breadcrumbs::widget([
     </div>
 
     <?php ActiveForm::end() ?>
+
+    <?= $this->render('help') ?>
 </div>
