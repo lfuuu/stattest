@@ -226,15 +226,15 @@ abstract class AccountTariffForm extends Form
 
                 }
 
-                if (!isset($post['resourceOneTimeCost']) || !($resourceOneTimeCost = (float)str_replace(',', '.', $post['resourceOneTimeCost']))) {
-                    $this->validateErrors['resourceOneTimeCost'] = 'Не указана стоимость разовой услуги';
+                if (!isset($post['resourceOneTimeCost'])) {
+                    $this->validateErrors['resourceOneTimeCost'] = 'Не передана стоимость разовой услуги';
                     throw new InvalidArgumentException();
 
                 }
 
                 $resourceOneTimeCost = (float)str_replace(',', '.', $post['resourceOneTimeCost']);
                 if (!$resourceOneTimeCost) {
-                    $this->validateErrors['resourceOneTimeCost'] = 'Не указана стоимость разовой услуги';
+                    $this->validateErrors['resourceOneTimeCost'] = 'Стоимость разовой услуги не может быть нулевой';
                     throw new InvalidArgumentException();
                 }
 
