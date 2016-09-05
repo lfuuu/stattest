@@ -65,7 +65,7 @@ SQL;
         echo '. ';
 
         $updateSQL = <<<SQL
-            DROP TABLE clients_tmp
+            DROP TEMPORARY TABLE clients_tmp
 SQL;
         $db->createCommand($updateSQL)
             ->query();

@@ -256,7 +256,7 @@ class NumberController extends Controller
             Yii::$app->db->createCommand($sql)->execute();
 
             // убрать за собой
-            $sql = 'DROP TABLE voip_numbers_tmp';
+            $sql = 'DROP TEMPORARY TABLE voip_numbers_tmp';
             Yii::$app->db->createCommand($sql)->execute();
 
             $transaction->commit();

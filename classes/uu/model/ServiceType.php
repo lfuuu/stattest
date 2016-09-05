@@ -42,12 +42,17 @@ class ServiceType extends \yii\db\ActiveRecord
 
     const ID_CALL_CHAT = 19; // Звонок-чат
 
+    const ID_VM_COLLOCATION = 20; // VM collocation
+
+    const ID_ONE_TIME = 21; // Разовая услуга
+
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    // какие id конвертировать из старых
     public static $ids = [
         self::ID_VPBX,
         self::ID_VOIP,

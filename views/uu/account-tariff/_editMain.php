@@ -145,6 +145,9 @@ if (!$serviceType) {
         case ServiceType::ID_VOIP_PACKAGE:
             echo $this->render('_editMainVoipPackage', $viewParams);
             break;
+        case ServiceType::ID_ONE_TIME:
+            echo $this->render('_editMainOneTime', $viewParams);
+            break;
     }
     ?>
 
