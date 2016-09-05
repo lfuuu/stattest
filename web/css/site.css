@@ -388,3 +388,7 @@ a.nohover:hover {
     margin-top: -10px;
     margin-bottom: 0;
 }
+
+.popover-width-auto .popover {
+    max-width: none;
+}
