@@ -108,6 +108,9 @@ $columns = [
         'attribute' => 'log_error',
         'format' => 'raw',
         'class' => StringColumn::className(),
+        'contentOptions' => [
+            'class' => 'popover-width-auto',
+        ],
         'value' => function (EventQueue $eventQueue) {
             if (!$eventQueue->log_error) {
                 return '';
@@ -129,6 +132,9 @@ $columns = [
         'attribute' => 'param',
         'format' => 'raw',
         'class' => StringColumn::className(),
+        'contentOptions' => [
+            'class' => 'popover-width-auto',
+        ],
         'value' => function (EventQueue $eventQueue) {
             if (!$eventQueue->param) {
                 return '';
@@ -163,6 +169,7 @@ echo GridView::widget([
 ?>
 <script type='text/javascript'>
     $(function () {
-        $('[data-toggle="popover"]').popover()
+        var $popovers = $('[data-toggle="popover"]');
+        $popovers.length && $popovers.popover();
     })
 </script>
