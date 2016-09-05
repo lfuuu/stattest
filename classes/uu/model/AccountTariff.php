@@ -435,7 +435,6 @@ class AccountTariff extends ActiveRecord
         $accountLogPeriods = [];
         $dateTo = $dateFrom = null;
         $minLogDatetime = self::getMinLogDatetime();
-        $isNeedAutoClose = false;
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone();
 
         // взять большие периоды, разбитые только по смене тарифов
