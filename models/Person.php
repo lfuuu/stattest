@@ -3,18 +3,33 @@ namespace app\models;
 
 use Yii;
 use ReflectionClass;
-use yii\base\UnknownPropertyException;
 use yii\db\ActiveRecord;
 use app\exceptions\FormValidationException;
 use app\classes\validators\ArrayValidator;
 use app\classes\DynamicModel;
+use app\classes\traits\I18NGetTrait;
 
+/**
+ * @property int $id
+ * @property string signature_file_name         Имя файла с оттиском подписи ответственного лица
+ * @property string name_nominative             ФИО в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string name_genitive               ФИО в род. п. (виртуальное свойство, зависит от I18N)
+ * @property string post_nominative             Наименование должности в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string post_genitive               Наименование должности в род. п. (виртуальное свойство, зависит от I18N)
+ */
 class Person extends ActiveRecord
 {
+
+    use I18NGetTrait;
 
     public $canDelete = true;
 
     private $langCode = Language::LANGUAGE_DEFAULT;
+
+    // Виртуальные поля для локализации
+    private $virtualPropertiesI18N = [
+        'name_nominative', 'name_genitive', 'post_nominative', 'post_genitive',
+    ];
 
     /**
      * @return string
@@ -39,44 +54,15 @@ class Person extends ActiveRecord
     {
         return [
             'name_nominative' => 'ФИО',
-            'name_genitive' => 'Фио (род. п.)',
+            'name_genitive' => 'ФИО (род. п.)',
             'post_nominative' => 'Должность',
             'post_genitive' => 'Должность (род. п.)',
         ];
     }
 
     /**
-     * @param string $name
-     * @return string
-     */
-    public function __get($name)
-    {
-        try {
-            return parent::__get($name);
-        } catch(\Exception $e) {
-            $i18n = $this->getI18N($this->langCode);
-            if (array_key_exists($name, (array)$i18n)) {
-                return $i18n[$name];
-            }
-
-            $i18n = $this->getI18N();
-            if (array_key_exists($name, (array)$i18n)) {
-                return $i18n[$name];
-            }
-
-            if (!$this->getPrimaryKey()) {
-                return '';
-            }
-            else {
-                throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
-            }
-        }
-    }
-
-    /**
      * @param string $langCode
-     * @return object
-     * @throws \yii\base\InvalidConfigException
+     * @return []
      */
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -118,7 +104,7 @@ class Person extends ActiveRecord
         $personI18N = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [['name_nominative', 'name_genitive', 'post_nominative', 'post_genitive'], ArrayValidator::className()],
+                [$this->virtualPropertiesI18N, ArrayValidator::className()],
             ]
         );
 
@@ -130,16 +116,17 @@ class Person extends ActiveRecord
             foreach ($i18nData as $lang => $value) {
                 $transaction = PersonI18N::getDb()->beginTransaction();
                 try {
-                    PersonI18N::deleteAll([
+                    $i18n = PersonI18N::findOne([
                         'person_id' => $this->id,
                         'lang_code' => $lang,
                         'field' => $attribute,
                     ]);
-
-                    $i18n = new PersonI18N;
-                    $i18n->person_id = $this->id;
-                    $i18n->lang_code = $lang;
-                    $i18n->field = $attribute;
+                    if (!$i18n) {
+                        $i18n = new PersonI18N;
+                        $i18n->person_id = $this->id;
+                        $i18n->lang_code = $lang;
+                        $i18n->field = $attribute;
+                    }
                     $i18n->value = $value;
                     $i18n->save();
 

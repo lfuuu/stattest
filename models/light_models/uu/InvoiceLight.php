@@ -38,7 +38,7 @@ class InvoiceLight extends Component
         $this->date =
             (new DateTime)
                 ->modify('first day of previous month')
-                ->format('Y-m-d');;
+                ->format('Y-m-d');
     }
 
     /**
@@ -113,14 +113,14 @@ class InvoiceLight extends Component
     /**
      * @return []
      */
-    public function get()
+    public function getProperties()
     {
         $this->prepare();
 
         return [
             InvoiceSellerLight::getKey() => (array)$this->seller,
             InvoiceBuyerLight::getKey() => (array)$this->buyer,
-            InvoiceItemsLight::getKey() => (array)$this->items,
+            InvoiceItemsLight::getBlockKey() => (array)$this->items,
             InvoiceBillLight::getKey() => (array)$this->bill,
         ];
     }
@@ -131,14 +131,14 @@ class InvoiceLight extends Component
     public function render()
     {
         $smarty = Smarty::init();
-        $smarty->assign($this->get());
+        $smarty->assign($this->getProperties());
 
         $invoiceTemplate = new InvoiceForm($this->language);
 
         if ($invoiceTemplate->fileExists()) {
             return $smarty->fetch(Yii::getAlias(InvoiceForm::getPath() . $this->language . '.' . InvoiceForm::TEMPLATE_EXTENSION));
         } else {
-            Yii::$app->session->addFlash('error', 'Шаблон счета-фактура для языка "' . $this->language . '" не найден');
+            Yii::$app->session->addFlash('error', 'Шаблон счета-фактуры для языка "' . $this->language . '" не найден');
         }
 
         return false;

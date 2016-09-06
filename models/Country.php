@@ -83,7 +83,7 @@ class Country extends ActiveRecord
     {
         $list = self::find()
             ->where(['in_use' => 1])
-            ->orderBy(['order' => SORT_ASC])
+            ->orderBy(['code' => SORT_DESC])
             ->indexBy('code')
             ->all();
 

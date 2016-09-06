@@ -18,8 +18,8 @@ class PersonForm extends Form
     public function rules()
     {
         return [
-            [['id',], 'integer'],
-            [['signature_file_name',],'string'],
+            [['id', ], 'integer'],
+            [['signature_file_name', ],'string'],
         ];
     }
 

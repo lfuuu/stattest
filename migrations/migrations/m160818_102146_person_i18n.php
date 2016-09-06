@@ -13,8 +13,8 @@ class m160818_102146_person_i18n extends \app\classes\Migration
         $this->createTable(
             $tableName,
             [
-                'person_id' => $this->integer(11)->defaultValue(null),
-                'lang_code' => $this->string(5)->defaultValue(Language::LANGUAGE_DEFAULT),
+                'person_id' => $this->integer(11),
+                'lang_code' => $this->string(5)->notNull()->defaultValue(Language::LANGUAGE_DEFAULT),
                 'field' => $this->string(255),
                 'value' => $this->string(255)
             ],
@@ -99,13 +99,27 @@ class m160818_102146_person_i18n extends \app\classes\Migration
 
     public function down()
     {
-        $tableName = PersonI18N::tableName();
-        $this->dropTable($tableName);
-
         $personTable = Person::tableName();
+
         $this->addColumn($personTable, 'name_nominative', $this->string(250));
         $this->addColumn($personTable, 'name_genitive', $this->string(150));
         $this->addColumn($personTable, 'post_nominative', $this->string(150));
         $this->addColumn($personTable, 'post_genitive', $this->string(250));
+
+        foreach (PersonI18N::find()->where(['lang_code' => Language::LANGUAGE_DEFAULT])->each() as $record) {
+            Yii::$app->db->createCommand(
+                'UPDATE ' . $personTable . ' SET
+                    ' . $record->field . ' = :value
+                WHERE
+                    id = :person_id
+                ', [
+                    'value' => $record->value,
+                    'person_id' => $record->person_id,
+                ]
+            )->execute();
+        }
+
+        $tableName = PersonI18N::tableName();
+        $this->dropTable($tableName);
     }
 }

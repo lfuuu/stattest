@@ -74,7 +74,7 @@ class InvoiceController extends BaseController
             $invoice->setDate($date);
         }
 
-        $invoiceData = $invoice->get();
+        $invoiceData = $invoice->getProperties();
 
         switch ($renderMode) {
             case 'pdf': {

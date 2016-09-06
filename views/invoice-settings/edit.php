@@ -24,8 +24,8 @@ echo Breadcrumbs::widget([
 ]);
 ?>
 
-<div class="container well" style="width: 100%; padding-top: 20px;">
-    <fieldset style="width: 100%;">
+<div class="container well col-sm-12">
+    <fieldset class="col-sm-12">
         <div class="row">
             <div class="col-sm-6">
                 <?= $form

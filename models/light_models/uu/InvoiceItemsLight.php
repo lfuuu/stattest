@@ -76,9 +76,17 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     /**
      * @return string
      */
+    public static function getBlockKey()
+    {
+        return 'items';
+    }
+
+    /**
+     * @return string
+     */
     public static function getTitle()
     {
-        return 'Данные о проводке (используется в цикле)';
+        return 'Данные о проводке (используется в цикле $items)';
     }
 
     /**

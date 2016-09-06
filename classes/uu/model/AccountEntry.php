@@ -139,7 +139,7 @@ class AccountEntry extends ActiveRecord
 
             $dictionary = 'models/' . $tableName;
 
-            return Yii::t($dictionary, 'title', [
+            return Yii::t($dictionary, '{name} ({descr}). {serviceTypeName}', [
                 'name' => Yii::t($dictionary, $this->code, [], $langCode),
                 'serviceTypeName' => $serviceTypeName,
                 'descr' => ($this->accountTariff->service_type_id == ServiceType::ID_VOIP ? $this->accountTariff->voip_number : $this->account_tariff_id),

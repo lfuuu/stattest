@@ -13,8 +13,8 @@ class m160822_113544_organization_i18n extends \app\classes\Migration
         $this->createTable(
             $tableName,
             [
-                'organization_record_id' => $this->integer(11)->defaultValue(null),
-                'lang_code' => $this->string(5)->defaultValue(Language::LANGUAGE_DEFAULT),
+                'organization_record_id' => $this->integer(11),
+                'lang_code' => $this->string(5)->notNull()->defaultValue(Language::LANGUAGE_DEFAULT),
                 'field' => $this->string(255),
                 'value' => $this->string(255)
             ],
@@ -99,13 +99,27 @@ class m160822_113544_organization_i18n extends \app\classes\Migration
 
     public function down()
     {
-        $tableName = OrganizationI18N::tableName();
-        $this->dropTable($tableName);
-
         $organizationTable = Organization::tableName();
+
         $this->addColumn($organizationTable, 'name', $this->string(250));
         $this->addColumn($organizationTable, 'full_name', $this->string(150));
         $this->addColumn($organizationTable, 'legal_address', $this->string(150));
         $this->addColumn($organizationTable, 'post_address', $this->string(250));
+
+        foreach (OrganizationI18N::find()->where(['lang_code' => Language::LANGUAGE_DEFAULT])->each() as $record) {
+            Yii::$app->db->createCommand(
+                'UPDATE ' . $organizationTable . ' SET
+                    ' . $record->field . ' = :value
+                WHERE
+                    id = :organization_record_id
+                ', [
+                    'value' => $record->value,
+                    'organization_record_id' => $record->organization_record_id,
+                ]
+            )->execute();
+        }
+
+        $tableName = OrganizationI18N::tableName();
+        $this->dropTable($tableName);
     }
 }

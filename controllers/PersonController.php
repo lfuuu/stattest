@@ -94,14 +94,14 @@ class PersonController extends BaseController
         $person = Person::findOne($id);
         Assert::isObject($person);
 
-        $form = new PersonForm;
-        if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->save($person)) {
+        $model = new PersonForm;
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($person)) {
             $this->redirect('/person');
         }
 
-        $form->setAttributes($person->getAttributes(), false);
+        $model->setAttributes($person->getAttributes(), false);
         return $this->render('edit', [
-            'model' => $form,
+            'model' => $model,
             'person' => $person,
         ]);
     }

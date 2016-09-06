@@ -15,8 +15,9 @@ class OrganizationDao extends Singleton
     {
         $list =
             Organization::find()
+                ->select('organization_id')
                 ->groupBy('organization_id')
-                ->orderBy('actual_from ASC')
+                ->orderBy(['actual_from' => SORT_ASC])
                 ->all();
 
         $result = [];
@@ -42,8 +43,9 @@ class OrganizationDao extends Singleton
 
         $records =
             Organization::find()
+                ->select('organization_id')
                 ->groupBy('organization_id')
-                ->orderBy('actual_from ASC')
+                ->orderBy(['actual_from' => SORT_ASC])
                 ->all();
 
         foreach ($records as $record) {

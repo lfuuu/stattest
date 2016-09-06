@@ -30,14 +30,6 @@ class InvoiceBankLight extends Component implements InvoiceLightInterface
             $this->correspondent_account = $settlementAccount->bank_correspondent_account;
             $this->bik = $settlementAccount->bank_bik;
         }
-
-        /**
-         * account - RU - Расчетный счет, Swift - Номер счета, IBAN - IBAN
-         * bank_correspondent_account - RU - Кор. счет, SWIFT/IBAN - none
-         * bik - RU - БИК, Swift - Swift, IBAN - BIC
-         *
-         * Консультант - Главный бухгалтер
-         */
     }
 
     /**

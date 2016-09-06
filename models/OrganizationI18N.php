@@ -21,6 +21,14 @@ class OrganizationI18N extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public static function primaryKey()
+    {
+        return ['organization_record_id', 'lang_code', 'field'];
+    }
+
+    /**
      * @return string
      */
     public function __toString()

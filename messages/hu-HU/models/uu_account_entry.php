@@ -5,5 +5,5 @@ return [
     'period' => 'hu-HU Абонентская плата',
     'minimum' => 'hu-HU Минимальная плата',
 
-    'title' => 'hu-HU {name} ({descr}). {serviceTypeName}',
+    '{name} ({descr}). {serviceTypeName}' => 'hu-HU {name} ({descr}). {serviceTypeName}',
 ];

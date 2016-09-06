@@ -19,5 +19,5 @@ return [
 
     'update_time' => 'Время расчёта',
 
-    'title' => '{name} ({descr}). {serviceTypeName}',
+    '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];

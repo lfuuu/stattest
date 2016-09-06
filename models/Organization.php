@@ -4,11 +4,10 @@ namespace app\models;
 use Yii;
 use ReflectionClass;
 use app\exceptions\FormValidationException;
-use yii\base\UnknownPropertyException;
 use yii\db\ActiveRecord;
 use app\queries\OrganizationQuery;
-use yii\helpers\Url;
 use app\classes\DynamicModel;
+use app\classes\traits\I18NGetTrait;
 use app\classes\validators\ArrayValidator;
 use app\dao\OrganizationDao;
 
@@ -19,18 +18,22 @@ use app\dao\OrganizationDao;
  * @property string actual_from                 Дата с которой фирма начинает действовать
  * @property string actual_to                   Дата до которой фирма действует
  * @property int firma                          Ключ для связи с clients*
+ * @property string name                        Наименование (виртуальное свойство, зависит от I18N)
+ * @property string full_name                   Полное наименование (виртуальное свойство, зависит от I18N)
+ * @property string legal_address               Юр. адрес (виртуальное свойство, зависит от I18N)
+ * @property string post_address                Почтовый адрес (виртуальное свойство, зависит от I18N)
  * @property int country_id                     Код страны
  * @property string lang_code                   Код языка
- * @property int is_simple_tax_system         Упрощенная схема налогооблажения (1 - Да)
+ * @property int is_simple_tax_system           Упрощенная схема налогооблажения (1 - Да)
  * @property int vat_rate                       Ставка налога
  * @property string registration_id             Регистрационный номер (ОГРН)
  * @property string tax_registration_id         Идентификационный номер налогоплательщика (ИНН)
  * @property string tax_registration_reason     Код причины постановки (КПП)
- * @property string bank_account                Расчетный счет
- * @property string bank_name                   Название банка
- * @property string bank_correspondent_account  Кор. счет
- * @property string bank_bik                    БИК
- * @property string bank_swift                  SWIFT
+ * @property string bank_account                RU - Расчетный счет, Swift - Номер счета, IBAN - IBAN (виртуальное свойство)
+ * @property string bank_name                   Название банка (виртуальное свойство)
+ * @property string bank_correspondent_account  Кор. счет (виртуальное свойство)
+ * @property string bank_bik                    RU - БИК, Swift - Swift, IBAN - BIC (виртуальное свойство)
+ * @property string bank_address                Адрес банка (виртуальное свойство)
  * @property string contact_phone               Телефон
  * @property string contact_fax                 Факс
  * @property string contact_email               E-mail
@@ -46,6 +49,9 @@ use app\dao\OrganizationDao;
  */
 class Organization extends ActiveRecord
 {
+
+    use I18NGetTrait;
+
     const MCN_TELEKOM = 1;
     const MCM_TELEKOM = 11;
     const TEL2TEL_KFT = 10;
@@ -60,40 +66,17 @@ class Organization extends ActiveRecord
 
     private $langCode = Language::LANGUAGE_DEFAULT;
 
+    // Виртуальные поля для локализации
+    private $virtualPropertiesI18N = [
+        'name', 'legal_address', 'full_name', 'post_address',
+    ];
+
     /**
      * @return string
      */
     public static function tableName()
     {
         return 'organization';
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public function __get($name)
-    {
-        try {
-            return parent::__get($name);
-        } catch(\Exception $e) {
-            $i18n = $this->getI18N($this->langCode);
-            if (array_key_exists($name, (array)$i18n)) {
-                return $i18n[$name];
-            }
-
-            $i18n = $this->getI18N();
-            if (array_key_exists($name, (array)$i18n)) {
-                return $i18n[$name];
-            }
-
-            if (!$this->getPrimaryKey()) {
-                return '';
-            }
-            else {
-                throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
-            }
-        }
     }
 
     /**
@@ -188,8 +171,7 @@ class Organization extends ActiveRecord
 
     /**
      * @param string $langCode
-     * @return object
-     * @throws \yii\base\InvalidConfigException
+     * @return []
      */
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -202,7 +184,7 @@ class Organization extends ActiveRecord
 
     /**
      * @param int $typeId
-     * @return $this
+     * @return OrganizationSettlementAccount|null|static
      */
     public function getSettlementAccount($typeId = OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_RUSSIA)
     {
@@ -245,7 +227,7 @@ class Organization extends ActiveRecord
         $organizationI18NModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [['name', 'legal_address', 'full_name', 'post_address'], ArrayValidator::className()],
+                [$this->virtualPropertiesI18N, ArrayValidator::className()],
             ]
         );
 
@@ -257,16 +239,17 @@ class Organization extends ActiveRecord
             foreach ($i18nData as $lang => $value) {
                 $i18nTransaction = OrganizationI18N::getDb()->beginTransaction();
                 try {
-                    OrganizationI18N::deleteAll([
+                    $localization = OrganizationI18N::findOne([
                         'organization_record_id' => $this->id,
                         'lang_code' => $lang,
                         'field' => $attribute,
                     ]);
-
-                    $localization = new OrganizationI18N;
-                    $localization->organization_record_id = $this->id;
-                    $localization->lang_code = $lang;
-                    $localization->field = $attribute;
+                    if (!$localization) {
+                        $localization = new OrganizationI18N;
+                        $localization->organization_record_id = $this->id;
+                        $localization->lang_code = $lang;
+                        $localization->field = $attribute;
+                    }
                     $localization->value = $value;
                     $localization->save();
 

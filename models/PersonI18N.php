@@ -22,6 +22,14 @@ class PersonI18N extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public static function primaryKey()
+    {
+        return ['person_id', 'lang_code', 'field'];
+    }
+
+    /**
      * @return string
      */
     public function __toString()

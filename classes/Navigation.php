@@ -135,9 +135,9 @@ class Navigation
             NavigationBlock::create()
                 ->setId('templates')
                 ->setTitle('Шаблоны')
-                ->addItem('Договора', ['/templates/document/template'])
+                ->addItem('Договоры', ['/templates/document/template'])
                 ->addItem('Почтовые оповещения', ['/templates/email/template'], ['mail.w'])
-                ->addItem('Универсальные счет-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
+                ->addItem('Универсальные счета-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
         );
 
         $this->addBlockUniversalUsage();

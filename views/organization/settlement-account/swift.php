@@ -37,8 +37,8 @@ $settlementAccount = $organization->getSettlementAccount($typeId);
     <div class="col-sm-6">
         <div class="col-sm-12">
             <?= $form
-                ->field($settlementAccount, 'bank_swift[' . $typeId . ']')
-                ->textInput(['value' => $settlementAccount->bank_swift])
+                ->field($settlementAccount, 'bank_bik[' . $typeId . ']')
+                ->textInput(['value' => $settlementAccount->bank_bik])
                 ->label('SWIFT')
             ?>
         </div>

@@ -13,11 +13,11 @@ $this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset
 $this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
 $this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::className()]]);
 
-echo Html::formLabel('Универсальные счет-фактуры');
+echo Html::formLabel('Универсальные счета-фактуры');
 echo Breadcrumbs::widget([
     'links' => [
         'Шаблоны',
-        ['label' => 'Универсальные счет-фактуры', 'url' => Url::toRoute(['/templates/uu/invoice'])],
+        ['label' => 'Универсальные счета-фактуры', 'url' => Url::toRoute(['/templates/uu/invoice'])],
     ],
 ]);
 ?>
