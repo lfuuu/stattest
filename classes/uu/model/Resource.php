@@ -188,8 +188,8 @@ class Resource extends \yii\db\ActiveRecord
     {
         $dictionary = 'models/' . self::tableName();
 
-        return Yii::t($dictionary, 'title', [
-            'resource' => Yii::t($dictionary, $this->id, [], $langCode),
+        return Yii::t($dictionary, '{resource} (ID: {id})', [
+            'resource' => Yii::t($dictionary, 'Resource #' . $this->id, [], $langCode),
             'id' => $this->id,
         ], $langCode);
     }

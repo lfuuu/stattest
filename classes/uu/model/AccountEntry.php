@@ -134,7 +134,7 @@ class AccountEntry extends ActiveRecord
                 ($accountTariff = $this->accountTariff)
                 && ($serviceType = $accountTariff->serviceType)
             ) {
-                $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), $serviceType->id, [], $langCode) . '. ';
+                $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), 'Type #' . $serviceType->id, [], $langCode) . '. ';
             }
 
             $dictionary = 'models/' . $tableName;
