@@ -793,7 +793,7 @@ class UuController extends ApiInternalController
             'service_type' => $this->getIdNameRecord($tariff->serviceType),
             'country' => $this->getIdNameRecord($tariff->country, 'code'),
             'tariff_status' => $this->getIdNameRecord($tariff->status),
-            'tariff_person' => $this->getIdNameRecord($tariff->group),
+            'tariff_person' => $this->getIdNameRecord($tariff->person),
             'tariff_resources' => $this->getTariffResourceRecord($tariff->tariffResources),
             'tariff_periods' => $this->getTariffPeriodRecord($tariff->tariffPeriods),
             'voip_tarificate' => $this->getIdNameRecord($tariff->voipTarificate),

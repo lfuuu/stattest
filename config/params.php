@@ -20,4 +20,8 @@ return [
         'UDATA' => '}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu'
     ],
     'mail_map_names' => require(__DIR__ . '/mail_params_names.php'),
+    'vmCollocation' => [
+        'url' => '',
+        'authinfo' => '',
+    ],
 ];

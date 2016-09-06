@@ -35,7 +35,7 @@ use yii\helpers\Url;
  * @property ServiceType $serviceType
  * @property Country $country
  * @property TariffStatus $status
- * @property TariffPerson $group
+ * @property TariffPerson $person
  * @property TariffPeriod[] $tariffPeriods
  *
  * VOIP && VOIP package only!
@@ -47,6 +47,10 @@ use yii\helpers\Url;
  * @property PackageMinute[] packageMinutes
  * @property PackagePrice[] packagePrices
  * @property PackagePricelist[] packagePricelists
+ *
+ * VO collocation only!
+ * @property integer $vm_id
+ * @property TariffVm $vm
  *
  * @property TariffVoipTarificate $voipTarificate
  * @property TariffVoipGroup $voipGroup
@@ -180,7 +184,8 @@ class Tariff extends \yii\db\ActiveRecord
                     'is_charge_after_blocking',
                     'is_charge_after_period',
                     'is_default',
-                    'country_id'
+                    'country_id',
+                    'vm_id',
                 ],
                 'integer'
             ],
@@ -188,6 +193,7 @@ class Tariff extends \yii\db\ActiveRecord
             [['name'], 'string', 'max' => 255],
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
+            ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
         ];
     }
 
@@ -265,7 +271,7 @@ class Tariff extends \yii\db\ActiveRecord
     public function getTariffResource($resourceId)
     {
         return $this->getTariffResources()
-            ->where('resource_id = :id', [':id' => $resourceId]);
+            ->where(['resource_id' => $resourceId]);
     }
 
     /**
@@ -274,7 +280,7 @@ class Tariff extends \yii\db\ActiveRecord
     public function getTariffResources()
     {
         return $this->hasMany(TariffResource::className(), ['tariff_id' => 'id'])
-            ->indexBy('id');
+            ->indexBy('resource_id');
     }
 
     /**
@@ -305,9 +311,17 @@ class Tariff extends \yii\db\ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getGroup()
+    public function getPerson()
     {
         return $this->hasOne(TariffPerson::className(), ['id' => 'tariff_person_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getVm()
+    {
+        return $this->hasOne(TariffVm::className(), ['id' => 'vm_id']);
     }
 
     /**
@@ -449,5 +463,19 @@ class Tariff extends \yii\db\ActiveRecord
         return $this->tariff_status_id == TariffStatus::ID_TEST ||
         $this->tariff_status_id == TariffStatus::ID_VOIP_8800_TEST;
 
+    }
+
+    /**
+     * VM должен быть заполнен
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorVm($attribute, $params)
+    {
+        if ($this->service_type_id == ServiceType::ID_VM_COLLOCATION && !$this->vm_id) {
+            $this->addError($attribute, 'Необходимо указать тариф VM collocation');
+            return;
+        }
     }
 }

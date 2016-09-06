@@ -347,11 +347,10 @@ abstract class AccountTariffForm extends Form
         $isWithEmpty = false,
         $serviceTypeId = null,
         $cityId = null,
-        $isWithNullAndNotNull = false,
-        $isFilterUuOnly = true
+        $isWithNullAndNotNull = false
     ) {
         return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId,
-            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty, $isWithNullAndNotNull, $isFilterUuOnly);
+            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty, $isWithNullAndNotNull);
     }
 
 }
