@@ -718,7 +718,9 @@ class ClientAccount extends HistoryActiveRecord
 
     public function getHasVoip()
     {
-        return UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists();
+        return
+            UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists() ||
+            UsageTrunk::find()->andWhere(['client_account_id' => $this->id])->actual()->exists();
     }
 
     public function isMulty()
