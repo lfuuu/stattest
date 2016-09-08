@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\uu\SyncAccountTariffLight;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -40,6 +41,16 @@ class AccountLogPeriod extends ActiveRecord
             [['id', 'tariff_period_id', 'account_tariff_id'], 'integer'],
             [['period_price', 'coefficient', 'price'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 255],
+        ];
+    }
+
+    /**
+     * @return []
+     */
+    public function behaviors()
+    {
+        return [
+            'SyncAccountTariffLight' => SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
         ];
     }
 
