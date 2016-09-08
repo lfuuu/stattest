@@ -7,9 +7,9 @@ use Yii;
 
 class DateTimeWithUserTimezone extends DateTime
 {
-    const TTIMEZONE_UTC = 'UTC';
+    const TIMEZONE_UTC = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
-    const IMEZONE_DEFAULT = self::TTIMEZONE_UTC;
+    const TIMEZONE_DEFAULT = self::TTIMEZONE_UTC;
 
     const INFINITY = '∞';
 
