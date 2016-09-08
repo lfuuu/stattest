@@ -51,9 +51,16 @@ class SyncAccountTariffLight extends Behavior
             ->setTimezone($utcTimezone)
             ->format('U');
 
-        $activateTo = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
-            ->setTimezone($utcTimezone)
-            ->format('U');
+        if ($accountTariff->tariffPeriod->getIsOneTime()) {
+            // Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
+            $coefficient = 1;
+            $deactivateFrom = null;
+        } else {
+            $coefficient = $accountLogPeriod->coefficient;
+            $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
+                ->setTimezone($utcTimezone)
+                ->format('U');
+        }
 
         if (!$accountTariff->prev_account_tariff_id) {
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
@@ -65,8 +72,8 @@ class SyncAccountTariffLight extends Behavior
                 'account_client_id' => $accountTariff->client_account_id,
                 'tariff_id' => $accountTariff->tariffPeriod->tariff_id,
                 'activate_from' => $activateFrom,
-                'deactivate_from' => $activateTo,
-                'coefficient' => $accountLogPeriod->coefficient,
+                'deactivate_from' => $deactivateFrom,
+                'coefficient' => $coefficient,
             ]
         );
 
@@ -110,7 +117,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->account_client_id = $params['account_client_id'];
         $accountTariffLight->tariff_id = $params['tariff_id'];
         $accountTariffLight->activate_from = $params['activate_from'];
-        $accountTariffLight->deactivate_from = $params['deactivate_from'];
+        $accountTariffLight->deactivate_from = $params['deactivate_from'] ?: null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
