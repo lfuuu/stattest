@@ -45,6 +45,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
             [['charge_period_id'], 'required'],
             [['period_id'], 'required'],
             [['price_per_period', 'price_min', 'price_setup'], 'number'],
+            ['tariff_id', 'getIsOneTime'], // не важно, что он вернет. Важно, чтобы проверки прошли, и не было exception
         ];
     }
 
@@ -157,5 +158,38 @@ class TariffPeriod extends \yii\db\ActiveRecord
             $selectboxItems[$status][$tariffPeriod->id] = $tariffPeriod->getName();
         }
         return $selectboxItems;
+    }
+
+    /**
+     * Одноразовый ли? Относится только к пакетам
+     * Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
+     * @return bool
+     */
+    public function getIsOneTime()
+    {
+        $tariff = $this->tariff;
+
+        if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
+            // не пакет
+            return false;
+        }
+
+        if ($tariff->getIsTest()) {
+            // к тестовому неприменимо
+            return false;
+        }
+
+        if ($tariff->is_autoprolongation) {
+            // не одноразовый
+            return false;
+        }
+
+        if ($this->price_setup && !$this->price_per_period && !$this->price_min && !$tariff->count_of_validity_period) {
+            // одноразовый
+            return true;
+        }
+
+        throw new \LogicException('Одноразовый тариф не продлевается, не имеет абонентки, имеет плату за подключение');
+
     }
 }

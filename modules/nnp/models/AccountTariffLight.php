@@ -13,8 +13,9 @@ use yii\db\ActiveRecord;
  * @property int number
  * @property int account_client_id
  * @property int tariff_id
- * @property string activate_from
- * @property string deactivate_from
+ * @property int activate_from
+ * @property int deactivate_from
+ * @property float coefficient
  */
 class AccountTariffLight extends ActiveRecord
 {

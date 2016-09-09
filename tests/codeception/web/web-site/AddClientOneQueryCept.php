@@ -55,10 +55,11 @@ $I->wantTo('Web site integration');
 $I->wantTo('Add client without number');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:1');
+$I->see('ok:');
 
 $lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
 $I->assertNotNull($lastAccount);
+$I->see('ok:' . $lastAccount);
 $account = \app\models\ClientAccount::findOne(['id' => $lastAccount]);
 $I->assertNotNull($account);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]);
@@ -85,10 +86,11 @@ $I->wantTo('Web site integration');
 $I->wantTo('Add client in Russia with number');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:1');
+$I->see('ok:');
 
 $lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
 $I->assertNotNull($lastAccount);
+$I->see('ok:' . $lastAccount);
 $account = \app\models\ClientAccount::findOne(['id' => $lastAccount]);
 $I->assertNotNull($account);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]);
@@ -119,12 +121,13 @@ $I->wantTo('Web site integration');
 $I->wantTo('Add client in Russia without number, with vpbx');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:1');
+$I->see('ok:');
 
 $contact = \app\models\ClientContact::findOne(['type' => 'email', 'data' => $emailRussia]);
 $I->assertNotNull($contact);
 $account = $contact->client;
 $I->assertNotNull($account);
+$I->see('ok:' . $account->id);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]); //создается номер для ВАТС
 $I->assertNotNull($uVoip);
 $I->assertContains('749', $uVoip->E164);
@@ -155,12 +158,13 @@ $I->wantTo('Web site integration');
 $I->wantTo('Add client in Hungary, without number, with vpbx');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:1');
+$I->see('ok:');
 
 $contact = \app\models\ClientContact::findOne(['type' => 'email', 'data' => $emailHungary]);
 $I->assertNotNull($contact);
 $account = $contact->client;
 $I->assertNotNull($account);
+$I->see('ok:' . $account->id);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]); //создается номер для ВАТС
 $I->assertNotNull($uVoip);
 $I->assertContains('100', $uVoip->E164); // линия без номера. Начинаются с 1000.
@@ -189,7 +193,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Add client with error: Number already added');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->dontSee('ok:1');
+$I->dontSee('ok:');
 $I->see('error:' . \app\classes\api\Errors::ERROR_RESERVE_NUMBER_BUSY);
 
 
@@ -212,7 +216,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Add client with error: Email already');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->dontSee('ok:1');
+$I->dontSee('ok:');
 $I->see('error:' . \app\classes\api\Errors::ERROR_EMAIL_ALREADY);
 
 
@@ -236,7 +240,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Add client with error: Resend form without answer');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->dontSee('ok:1');
+$I->dontSee('ok:');
 $I->see('error:' . \app\classes\api\Errors::ERROR_EXECUTE);
 
 //internal error
@@ -258,5 +262,5 @@ $I = new _WebTester($scenario);
 $I->wantTo('Web site integration');
 $I->wantTo('Add client with error: internal error');
 $I->amOnPage('/operator/service.php?' . $query);
-$I->dontSee('ok:1');
+$I->dontSee('ok:');
 $I->see('error:' . \app\classes\api\Errors::ERROR_INTERNAL);

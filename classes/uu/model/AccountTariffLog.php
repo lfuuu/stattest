@@ -3,7 +3,6 @@
 namespace app\classes\uu\model;
 
 use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
@@ -81,7 +80,6 @@ class AccountTariffLog extends ActiveRecord
     public function behaviors()
     {
         return [
-            'SyncAccountTariffLight' => SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
             'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
         ];
     }
@@ -342,7 +340,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         $prevAccountTariffLogs = $prevAccountTariff->accountTariffLogs;
-        if (count($prevAccountTariffLogs)>1) {
+        if (count($prevAccountTariffLogs) > 1) {
             // основная услуга уже действует
             return;
         }

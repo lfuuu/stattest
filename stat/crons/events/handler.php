@@ -2,6 +2,7 @@
 
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\ActaulizerCallChatUsage;
+use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 
@@ -186,8 +187,18 @@ function do_events()
                     if ($clientAccount) {
                         \app\models\Bill::dao()->transferUniversalBillsToBills($clientAccount);
                     }
+                    break;
                 }
 
+                case SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT:
+                    // Добавить данные в AccountTariffLight
+                    SyncAccountTariffLight::addToAccountTariffLight($param);
+                    break;
+
+                case SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT:
+                    // Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
+                    SyncAccountTariffLight::deleteFromAccountTariffLight($param);
+                    break;
             }
 
             if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {

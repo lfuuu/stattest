@@ -47,9 +47,7 @@ $columns = [
             'class' => 'event-queue-event-column',
         ],
         'filterType' => GridView::FILTER_SELECT2,
-        'filter' => array_merge([
-            '' => '----',
-          ], Event::names)
+        'filter' => ['' => '----'] + Event::names
     ],
     [
         'attribute' => 'status',

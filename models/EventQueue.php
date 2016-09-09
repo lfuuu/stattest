@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\uu\SyncAccountTariffLight;
 use yii\db\ActiveRecord;
 
 /**
