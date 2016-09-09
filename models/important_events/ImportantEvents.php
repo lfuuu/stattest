@@ -11,7 +11,9 @@ use app\exceptions\FormValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\classes\IpUtils;
 use app\classes\validators\ArrayValidator;
+use app\classes\traits\TagsTrait;
 use app\models\ClientAccount;
+use app\models\TagsResource;
 
 /**
  * Class ImportantEvents
@@ -20,15 +22,20 @@ use app\models\ClientAccount;
  * @property int client_id
  * @property string event
  * @property int source_id
+ * @property string comment
  * @property ImportantEventsProperties properties
  * @package app\models\important_events
  */
 class ImportantEvents extends ActiveRecord
 {
 
+    use TagsTrait;
+
     const ROWS_PER_PAGE = 50;
 
-    public $propertiesCollection = [];
+    public
+        $propertiesCollection = [],
+        $tags_filter = [];
 
     /*
      * @return array
@@ -39,8 +46,9 @@ class ImportantEvents extends ActiveRecord
             [['event', 'source_id',], 'required', 'on' => 'create'],
             [['event',], 'trim', 'on' => 'create'],
             ['source_id', 'integer', 'on' => 'create'],
-            [['event', 'source_id'], ArrayValidator::className(), 'on' => 'default'],
+            [['event', 'source_id', 'tags_filter'], ArrayValidator::className(), 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
+            ['comment', 'string'],
         ];
     }
 
@@ -50,8 +58,8 @@ class ImportantEvents extends ActiveRecord
     public function scenarios()
     {
         return [
-            'create' => ['event', 'source', 'client_id', 'extends_data'],
-            'default' => ['event', 'client_id', 'date', 'source_id'],
+            'create' => ['event', 'source', 'client_id', 'extends_data', ],
+            'default' => ['event', 'client_id', 'date', 'source_id', 'tags_filter', ],
         ];
     }
 
@@ -65,6 +73,8 @@ class ImportantEvents extends ActiveRecord
             'date' => 'Когда произошло',
             'event' => 'Событие',
             'source_id' => 'Источник',
+            'comment' => 'Комментарий',
+            'tags' => 'Метки',
         ];
     }
 
@@ -229,10 +239,24 @@ class ImportantEvents extends ActiveRecord
             $query->andFilterWhere(['client_id' => $this->client_id]);
         }
         if (is_array($this->event) && count($this->event)) {
-            $query->andFilterWhere(['in', 'event', (array)$this->event]);
+            $query->andFilterWhere(['IN', 'event', (array)$this->event]);
         }
         if (is_array($this->source_id) && count($this->source_id)) {
-            $query->andFilterWhere(['in', 'source_id', (array)$this->source_id]);
+            $query->andFilterWhere(['IN', 'source_id', (array)$this->source_id]);
+        }
+        if (is_array($this->tags_filter) && count($this->tags_filter)) {
+            $query->innerJoin(
+                ['tags' => TagsResource::tableName()],
+                '
+                    tags.resource = :resource
+                    AND tags.resource_id = ' . self::tableName() . '.id
+                    AND tags.tag_id IN (:tags)
+                ',
+                [
+                    'resource' => $this->formName(),
+                    'tags' => $this->tags_filter,
+                ]
+            );
         }
 
         list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);
@@ -246,9 +270,9 @@ class ImportantEvents extends ActiveRecord
                 ->setTime(23, 59, 59)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        $query->andFilterWhere(['between', 'date', $filter_from, $filter_to]);
+        $query->andFilterWhere(['BETWEEN', 'date', $filter_from, $filter_to]);
 
-        $query->orderBy('date DESC');
+        $query->orderBy(['date' => SORT_DESC]);
 
         return $dataProvider;
     }

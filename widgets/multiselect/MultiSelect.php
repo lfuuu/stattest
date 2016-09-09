@@ -74,5 +74,6 @@ class MultiSelect extends InputWidget
 
         $js = "jQuery('#" . $id . "').multiselect(" . $options . ");";
         $view->registerJs($js);
+        $view->registerCss('.multiselect-container { position: relative; }');
     }
 }
