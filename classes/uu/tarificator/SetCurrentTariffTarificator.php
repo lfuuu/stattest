@@ -26,6 +26,7 @@ class SetCurrentTariffTarificator implements TarificatorI
         $db = Yii::$app->db;
         $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
 
         // выбрать все уникальные таймзоны
         $sql = <<<SQL
@@ -61,7 +62,7 @@ SQL;
                             SELECT
                                 account_tariff_log.tariff_period_id
                             FROM
-                                uu_account_tariff_log account_tariff_log
+                                {$accountTariffLogTableName} account_tariff_log
                             WHERE
                                 account_tariff.id = account_tariff_log.account_tariff_id
                                 AND account_tariff_log.actual_from <= '{$clientDate}'
@@ -78,8 +79,8 @@ SQL;
                         AND clients.timezone_name = '{$timezoneName}'
                         {$andWhereSQL}
                     HAVING 
-                        ifnull(account_tariff.tariff_period_id, 0) != ifnull(new_tariff_period_id, 0)
-                )a
+                        IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)
+                ) a
             SET
                 account_tariff.tariff_period_id = a.new_tariff_period_id,
                 account_tariff.is_updated = 1
@@ -106,7 +107,7 @@ SQL;
 
                     switch ($accountTariff->service_type_id) {
                         case ServiceType::ID_VOIP: {
-                            Event::go('uu_account_tariff_voip', [
+                            Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
                                 'account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'number' => $accountTariff->voip_number
@@ -115,7 +116,7 @@ SQL;
                         }
 
                         case ServiceType::ID_VPBX: {
-                            Event::go('uu_account_tariff_vpbx', [
+                            Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
                                 'account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                             ]);

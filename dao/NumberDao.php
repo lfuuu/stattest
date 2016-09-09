@@ -58,12 +58,14 @@ class NumberDao extends Singleton
         if ($usage) {
             $number->usage_id = $usage->id;
             $number->client_id = $usage->clientAccount->id;
-            $newStatus = $usage->tariff->isTest() ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+            $isTest= $usage->tariff->isTest();
         } else { //uuUsage
             $number->uu_account_tariff_id = $uuUsage->id;
             $number->client_id = $uuUsage->client_account_id;
-            $newStatus = $uuUsage->tariffPeriod->tariff->isTest ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+            $isTest = $uuUsage->tariffPeriod->tariff->isTest;
         }
+
+        $newStatus = $isTest ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
 
         if ($newStatus == $number->status) {
             return;
@@ -88,6 +90,9 @@ class NumberDao extends Singleton
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
         // Если тариф тестовый, то выкладываем номер минуя отстойник.
+
+        // Найти последнюю закрытую услугу с этим номером
+
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
@@ -102,18 +107,18 @@ class NumberDao extends Singleton
                 'voip_number' => $number->number,
                 'tariff_period_id' => null
             ])
-            ->orderBy(['update_time' => SORT_DESC])
+            ->orderBy(['id' => SORT_DESC])
             ->one();
 
         /** @var AccountTariffLog $accountTariffLog */
-        if ($accountTariff) {
-            $accountTariffLog = $accountTariff->getActiveAccountTariffLog();
-        }
+        $accountTariffLog = $accountTariff ? reset($accountTariff->accountTariffLogs) : null;
 
         $clientAccount = null;
+        // если найден "старая" услуга, и не найдена uu-услуга, или uu-услуга старше "старой"
         if ($usage && (!$accountTariff || ($accountTariffLog && $accountTariffLog->actual_from < $usage->actual_to))) {
             $accountTariff = null;
             $clientAccount = $usage->clientAccount;
+            // если найдена uu-услуга, и её лог тариф, и ненайдена "старая" услуга или uu-услуга новее.
         } else if ($accountTariff && $accountTariffLog && (!$usage || $accountTariffLog->actual_from > $usage->actual_to)) {
             $usage = null;
             $clientAccount = $accountTariff->clientAccount;

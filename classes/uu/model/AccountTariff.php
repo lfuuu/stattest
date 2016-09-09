@@ -494,22 +494,6 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
-     * @param DateTime $dateTime
-     * @return AccountTariffLog
-     */
-    public function getActiveAccountTariffLog($dateTime = null)
-    {
-        if (!$dateTime) {
-            $dateTime = new DateTime();
-        }
-        return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
-            ->where('actual_from <= :actual_from', [':actual_from' => $dateTime->format('Y-m-d')])
-            ->orderBy(['id' => SORT_DESC])
-            ->limit(1)
-            ->one();
-    }
-
-    /**
      * Вернуть даты периодов, по которым не произведен расчет платы за подключение
      * В отличии от getUntarificatedPeriodPeriods - в периоде учитывается только начало, а не регулярное списание
      *

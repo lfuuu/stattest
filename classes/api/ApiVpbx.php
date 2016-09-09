@@ -56,25 +56,15 @@ class ApiVpbx
     {
         $tariff = null;
 
-        $regionId = Region::MOSCOW;
-
         switch ($billerVersion) {
 
             case ClientAccount::VERSION_BILLER_USAGE: {
                 $tariff = self::getTariff($usageId);
-                $usage = UsageVirtpbx::findOne(['id' => $usageId]);
-                if ($usage) {
-                    $regionId = $usage->region;
-                }
                 break;
             }
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL: {
                 $tariff = self::getTariffUniversal($usageId);
-                $accountTariff = AccountTariff::findOne(['id' => $usageId]);
-                if ($accountTariff) {
-                    $regionId = $accountTariff->region_id;
-                }
                 break;
             }
         }
@@ -82,7 +72,6 @@ class ApiVpbx
         if (!$tariff) {
             throw new \Exception('bad tariff');
         }
-
 
         ApiVpbx::exec(
             'create',
@@ -96,7 +85,7 @@ class ApiVpbx
                 "enable_web_call" => (bool)$tariff["is_web_call"],
                 "disk_space" => (int)$tariff["space"],
                 "timezone" => ClientAccount::findOne($clientId)->timezone_name,
-                "region" => $regionId
+                "region" => $tariff['region']
             ]
         );
     }
@@ -228,6 +217,11 @@ class ApiVpbx
         return $result[$statisticField];
     }
 
+    /**
+     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. "Старые" услуги.
+     * @param $usageId
+     * @return array|false
+     */
     public static function getTariff($usageId)
     {
         $command =
@@ -237,7 +231,8 @@ class ApiVpbx
                     t.space,
                     t.is_record,
                     t.is_fax,
-                    t.is_web_call
+                    t.is_web_call,
+                    region
                 FROM (select (
                         select
                             id_tarif
@@ -249,7 +244,8 @@ class ApiVpbx
                             and date_activation < now()
                         ORDER BY
                         date_activation DESC, id DESC LIMIT 1
-                        ) as tarif_id
+                        ) as tarif_id,
+                        u.region
                     FROM usage_virtpbx u
                     WHERE u.id = :usageId ) u
                 LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
@@ -258,11 +254,17 @@ class ApiVpbx
         return $command->queryOne();
     }
 
+    /**
+     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. Универсальные услуги.
+     * @param $usageId
+     * @return array
+     * @throws \Exception
+     */
     public static function getTariffUniversal($usageId)
     {
         $accountTariff = AccountTariff::findOne(['id' => $usageId]);
 
-        if (!$accountTariff || $accountTariff->service_type_id != ServiceType::ID_VPBX) {
+        if (!$accountTariff || !$accountTariff->tariffPeriod || $accountTariff->service_type_id != ServiceType::ID_VPBX) {
             throw new \Exception('bad tariff');
         }
 
@@ -272,6 +274,7 @@ class ApiVpbx
             "is_record" => 0,
             "is_fax" => 0,
             "is_web_call" => 0,
+            "region" => $accountTariff->region_id
         ];
 
         foreach ($accountTariff->tariffPeriod->tariff->tariffResources as $tariffResource) {
@@ -283,7 +286,7 @@ class ApiVpbx
                 }
 
                 case Resource::ID_VPBX_DISK: {
-                    $data['space'] = $tariffResource->amount?: 1; //TODO не работает с 0
+                    $data['space'] = $tariffResource->amount;
                     break;
                 }
 
@@ -297,7 +300,6 @@ class ApiVpbx
                     break;
                 }
             }
-
         }
 
         return $data;

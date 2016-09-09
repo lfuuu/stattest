@@ -7,4 +7,4 @@ include INCLUDE_PATH."runChecker.php";
 echo "\n".date("r").":";
 
 
-\app\classes\Event::go("midnight");
+\app\classes\Event::go(\app\classes\Event::MIDNIGHT);

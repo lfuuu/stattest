@@ -8,7 +8,7 @@ use yii\db\ActiveRecord;
  * @property string date timestamp
  * @property string event
  * @property string param
- * @property string status 	enum('plan','ok','error','stop')
+ * @property string status    enum('plan','ok','error','stop')
  * @property int iteration
  * @property string next_start timestamp
  * @property string log_error
@@ -16,6 +16,7 @@ use yii\db\ActiveRecord;
  */
 class EventQueue extends ActiveRecord
 {
+
     public static function tableName()
     {
         return 'event_queue';
@@ -23,7 +24,7 @@ class EventQueue extends ActiveRecord
 
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     * @return [] [полеВТаблице = Перевод]
      */
     public function attributeLabels()
     {
