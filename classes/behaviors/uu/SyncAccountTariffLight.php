@@ -10,6 +10,7 @@ use DateTimeZone;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * Синхронизировать данные в AccountTariffLight
@@ -49,7 +50,7 @@ class SyncAccountTariffLight extends Behavior
 
         $activateFrom = (new \DateTimeImmutable($accountLogPeriod->date_from, $clientTimezone))
             ->setTimezone($utcTimezone)
-            ->format('U');
+            ->format('Y-m-d H:i:s');
 
         if ($accountTariff->tariffPeriod->getIsOneTime()) {
             // Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
@@ -59,7 +60,7 @@ class SyncAccountTariffLight extends Behavior
             $coefficient = $accountLogPeriod->coefficient;
             $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
                 ->setTimezone($utcTimezone)
-                ->format('U');
+                ->format('Y-m-d H:i:s');
         }
 
         if (!$accountTariff->prev_account_tariff_id) {
@@ -116,8 +117,8 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->number = $params['number'];
         $accountTariffLight->account_client_id = $params['account_client_id'];
         $accountTariffLight->tariff_id = $params['tariff_id'];
-        $accountTariffLight->activate_from = $params['activate_from'];
-        $accountTariffLight->deactivate_from = $params['deactivate_from'] ?: null;
+        $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
+        $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
