@@ -25,13 +25,13 @@ class ApiCore
         return self::isAvailable() ? 'https://' . \Yii::$app->params['CORE_SERVER'] . '/core/api/' : false;
     }
 
-    public static function exec($action, $data)
+    public static function exec($action, $data, $isPostJSON = true)
     {
         if (!self::isAvailable()) {
             throw new InvalidConfigException('API Core was not configured');
         }
 
-        $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
+        $result = JSONQuery::exec(self::getApiUrl() . $action, $data, $isPostJSON);
 
         if (isset($result["errors"]) && $result["errors"]) {
 
@@ -95,12 +95,30 @@ class ApiCore
      */
     public static function isEmailExists($email)
     {
-        $result = ApiCore::exec('is_email_exists', ['email' => $email]);
+        $result = self::exec('is_email_exists', ['email' => $email]);
 
         if (isset($result['exists'])) {
             return $result['exists'];
         }
 
         throw new \Exception('[core/is_email_exists] Ответ не найден!');
+    }
+
+    /**
+     * Проверяем, создан ли ЛК для клиента
+     *
+     * @param int $clientSuperId
+     * @return boolean
+     * @throws \Exception
+     */
+    public static function isLkExists($clientSuperId = 0)
+    {
+        $result = self::exec('client/' . $clientSuperId . '/lk_exists', null, false);
+
+        if (isset($result['exists'])) {
+            return $result['exists'];
+        }
+
+        throw new \Exception('[core/client/is_lk_exists] Ответ не найден!');
     }
 }

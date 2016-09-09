@@ -5,6 +5,9 @@ use app\models\ClientAccount;
 use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
+
+/** @var \app\models\ClientSuper $client */
+/** @var \app\models\ClientAccount $account */
 ?>
 
 <div class="main-client">
@@ -14,7 +17,7 @@ use app\models\ClientContract;
             <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?=$account->id?>"><?= $client->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER']):?>
+            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER'] && $client->isShowLkLink()):?>
             <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
                 Переход в ЛК
             </a>

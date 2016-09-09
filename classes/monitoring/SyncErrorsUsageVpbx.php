@@ -2,13 +2,9 @@
 
 namespace app\classes\monitoring;
 
-use app\classes\DBROQuery;
+use app\classes\api\ApiVpbx;
 use app\models\UsageVirtpbx;
-use Yii;
-use yii\base\Component;
-use yii\data\ArrayDataProvider;
 use app\classes\Html;
-use yii\helpers\ArrayHelper;
 
 class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
 {
@@ -37,9 +33,9 @@ class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
         return 'Ошибки синхронизации услуг ВАТС платформой';
     }
 
-    public function getServiceType()
+    public function getServiceData()
     {
-        return 'vpbx';
+        return ApiVpbx::getVpbxServices();
     }
 
     public function getServiceClass()

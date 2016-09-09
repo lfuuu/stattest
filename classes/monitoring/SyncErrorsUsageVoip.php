@@ -2,6 +2,7 @@
 
 namespace app\classes\monitoring;
 
+use app\classes\api\ApiVpbx;
 use app\models\UsageVoip;
 use Yii;
 use yii\helpers\Html;
@@ -30,12 +31,12 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
      */
     public function getDescription()
     {
-        return 'Ошибки синхронизации услуг телефонии платформой';
+        return 'Ошибки синхронизации услуг телефонии платформой. (Без "коротких" номеров и "Телемир"а)';
     }
 
-    public function getServiceType()
+    public function getServiceData()
     {
-        return 'phone';
+        return ApiVpbx::getPhoneServices();
     }
 
     public function getServiceClass()
@@ -46,6 +47,28 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
     public function getServiceIdField()
     {
         return 'E164';
+    }
+
+    /**
+     * Предварительный фильтр результат запроса
+     *
+     * @param $data
+     * @return null
+     */
+    public function filterResult(&$data)
+    {
+        $result = [];
+        foreach($data as $phone => $clientId) {
+            if ($clientId == 34523) { //Телемир, массово подключает номера 7800
+                continue;
+            }
+
+            if (strlen($phone) >= 10) {
+                $result[$phone] = $clientId;
+            }
+        }
+
+        $data = $result;
     }
 
     /**
