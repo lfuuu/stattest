@@ -21,7 +21,7 @@ class LkController extends Controller
     /**
      * Проверяем у кого включен ЛК
      */
-    public function actionCheckIsLkExists()
+    public function actionSetIsLkExists()
     {
         $clients = ClientAccount::find()
             ->select('super_id')

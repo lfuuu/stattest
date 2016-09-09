@@ -39,12 +39,12 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
     /**
      * Предварительный фильтр результат запроса
      *
-     * @param &$data
-     * @return null
+     * @param $data
+     * @return array
      */
-    public function filterResult(&$data)
+    public function filterResult($data)
     {
-        return null;
+        return $data;
     }
 
     /**
