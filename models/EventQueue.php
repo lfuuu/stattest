@@ -17,6 +17,17 @@ use yii\db\ActiveRecord;
  */
 class EventQueue extends ActiveRecord
 {
+    const STATUS_OK = 'ok';
+    const STATUS_ERROR = 'error';
+    const STATUS_PLAN = 'plan';
+    const STATUS_STOP = 'stop';
+
+    public static $statuses = [
+        self::STATUS_PLAN => 'Запланирована',
+        self::STATUS_OK => 'Задача выполнена',
+        self::STATUS_ERROR => 'Ошибка',
+        self::STATUS_STOP => 'Остановлена из-за ошибки',
+    ];
 
     public static function tableName()
     {

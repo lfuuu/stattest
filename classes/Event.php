@@ -45,7 +45,7 @@ class Event
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
 
-    const names = [
+    public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
         self::ACTUALIZE_NUMBER => 'актуализировать номер',
         self::ADD_ACCOUNT => 'Добавлен ЛС',
