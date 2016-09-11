@@ -25,8 +25,8 @@ class m160907_182850_uu_voip_status extends \app\classes\Migration
         $this->addForeignKey('fk-' . $table . '-' . 'id', Number::tableName(), 'uu_account_tariff_id', $table, 'id', 'SET NULL');
 
         // biller_version in actual tables
-        $this->addColumn(ActualNumber::tableName(), 'biller_version', $this->smallInteger()->notNull()->defaultValue(ClientAccount::VERSION_BILLER_USAGE));
-        $this->addColumn(ActualVirtpbx::tableName(), 'biller_version', $this->smallInteger()->notNull()->defaultValue(ClientAccount::VERSION_BILLER_USAGE));
+        $this->addColumn(ActualNumber::tableName(), 'biller_version', $this->integer()->notNull()->defaultValue(ClientAccount::VERSION_BILLER_USAGE));
+        $this->addColumn(ActualVirtpbx::tableName(), 'biller_version', $this->integer()->notNull()->defaultValue(ClientAccount::VERSION_BILLER_USAGE));
     }
 
     public function down()
