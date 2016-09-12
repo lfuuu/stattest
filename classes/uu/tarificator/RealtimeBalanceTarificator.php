@@ -51,12 +51,21 @@ SQL;
             ->query();
         echo '. ';
 
+        if ($accountClientId) {
+            // вызов триггером по конкретной модели (смена тарифа прямо сейчас или платеж). Но это не пересчитывает ресурсы, поэтому дату не надо обновлять
+            $updateSqlSet = '';
+        } else {
+            // по крону пересчет после ресурсов. Только в этом случае надо обновить дату. А баланс надо обновлять всегда
+            $updateSqlSet = ', clients.last_account_date = DATE(NOW())';
+        }
+
         $updateSQL = <<<SQL
             UPDATE
                 {$clientAccountTableName} clients,
                 clients_tmp
             SET
                 clients.balance = clients_tmp.balance
+                {$updateSqlSet}
             WHERE
                 clients.id = clients_tmp.id
 SQL;

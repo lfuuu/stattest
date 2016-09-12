@@ -67,27 +67,8 @@ class ClientCounter extends ActiveRecord
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
-
-                // лучше с кэшированием, который пересчитывается RealtimeBalanceTarificator
+                // пересчитывается в RealtimeBalanceTarificator
                 return $this->clientAccount->balance;
-
-                // если нужно без кэширования, то расскомментируйте эти строчки
-//                // все платежи
-//                $paymentSummary = Payment::find()
-//                    ->select(['total_price' => 'SUM(sum)'])
-//                    ->where(['client_id' => $this->client_id])
-//                    ->asArray()
-//                    ->one();
-//
-//                // все списания
-//                // счетов меньше, чем транзакций и проводок - считать быстрее
-//                $billSummary = \app\classes\uu\model\Bill::find()
-//                    ->select(['total_price' => 'SUM(price)'])
-//                    ->where(['client_account_id' => $this->client_id])
-//                    ->asArray()
-//                    ->one();
-//
-//                return $paymentSummary['total_price'] - $billSummary['total_price'];
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
