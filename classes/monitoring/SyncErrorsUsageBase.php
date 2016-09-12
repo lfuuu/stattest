@@ -2,7 +2,6 @@
 
 namespace app\classes\monitoring;
 
-use app\classes\DBROQuery;
 use app\models\ClientAccount;
 use Yii;
 use yii\base\Component;
@@ -24,19 +23,29 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
         self::STATUS_IN_PLATFORM => 'Только на платформе',
     ];
 
-    public static $statusClasses= [
+    public static $statusClasses = [
         self::STATUS_IN_STAT => 'text-warning',
         self::STATUS_ACCOUNT_DIFF => 'text-danger',
         self::STATUS_IN_PLATFORM => 'text-info',
     ];
 
-    abstract public function getServiceType();
+    abstract public function getServiceData();
 
     public function getServiceIdField()
     {
         return "id";
     }
 
+    /**
+     * Предварительный фильтр результат запроса
+     *
+     * @param $data
+     * @return array
+     */
+    public function filterResult($data)
+    {
+        return $data;
+    }
 
     /**
      * @return ArrayDataProvider
@@ -47,20 +56,12 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
 
         $result = [];
 
-        if (Yii::$app->request->get('page') && Yii::$app->cache->exists($cacheId))
-        {
+        if (Yii::$app->request->get('page') && Yii::$app->cache->exists($cacheId)) {
             $result = Yii::$app->cache->get($cacheId);
         } else {
 
-            $dbroResult = ArrayHelper::map((new DBROQuery())
-                ->select(["service_id", "account_id"])
-                ->from('services_available')
-                ->where([
-                    'service_type' => $this->getServiceType(),
-                    'enabled' => 't'
-                ])
-                ->limit(self::LIMIT_DEFAULT)
-                ->all(),
+            $platformaResult = ArrayHelper::map(
+                $this->getServiceData(),
                 "service_id",
                 "account_id"
             );
@@ -79,18 +80,21 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
                 'client_id'
             );
 
-            $dbroKeys = array_keys($dbroResult);
+            $this->filterResult($platformaResult);
+            $this->filterResult($statResult);
+
+            $platformaKeys = array_keys($platformaResult);
             $statKeys = array_keys($statResult);
 
-            foreach (array_diff($dbroKeys, $statKeys) as $dbroUsageId) {
-                $result[$dbroUsageId] = [
-                    'usage_id' => $dbroUsageId,
-                    'account_id' => $dbroResult[$dbroUsageId],
+            foreach (array_diff($platformaKeys, $statKeys) as $platformaUsageId) {
+                $result[$platformaUsageId] = [
+                    'usage_id' => $platformaUsageId,
+                    'account_id' => $platformaResult[$platformaUsageId],
                     'status' => self::STATUS_IN_PLATFORM
                 ];
             }
 
-            foreach (array_diff($statKeys, $dbroKeys) as $statUsageId) {
+            foreach (array_diff($statKeys, $platformaKeys) as $statUsageId) {
                 $result[$statUsageId] = [
                     'usage_id' => $statUsageId,
                     'account_id' => $statResult[$statUsageId],
@@ -98,12 +102,12 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
                 ];
             }
 
-            foreach (array_intersect($dbroKeys, $statKeys) as $usageId) {
-                if ($dbroResult[$usageId] != $statResult[$usageId]) {
+            foreach (array_intersect($platformaKeys, $statKeys) as $usageId) {
+                if ($platformaResult[$usageId] != $statResult[$usageId]) {
                     $result[$usageId] = [
                         'usage_id' => $usageId,
                         'account_id' => $statResult[$usageId],
-                        'account_id2' => $dbroResult[$usageId],
+                        'account_id2' => $platformaResult[$usageId],
                         'status' => self::STATUS_ACCOUNT_DIFF
                     ];
                 }

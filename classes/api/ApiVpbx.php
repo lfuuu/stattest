@@ -15,32 +15,42 @@ class ApiVpbx
 {
     public static function isAvailable()
     {
-        return self::getVpbxHost() && self::getApiUrl();
+        return self::getPhoneHost() && self::getApiUrl();
+    }
+
+    public static function getPhoneHost()
+    {
+        return isset(\Yii::$app->params['PHONE_SERVER']) ? \Yii::$app->params['PHONE_SERVER'] : false;
     }
 
     public static function getVpbxHost()
     {
-        return defined("PHONE_SERVER") ? PHONE_SERVER : false;
+        return isset(\Yii::$app->params['VPBX_SERVER']) ? \Yii::$app->params['VPBX_SERVER'] : false;
     }
 
     public static function getApiUrl()
     {
-        return defined('VIRTPBX_URL') && VIRTPBX_URL ? VIRTPBX_URL : false;
+        return isset(\Yii::$app->params['VIRTPBX_URL']) && \Yii::$app->params['VIRTPBX_URL'] ? \Yii::$app->params['VIRTPBX_URL'] : false;
     }
 
-    public static function exec($action, $data)
+    public static function exec($action, $data, $toServer = 'phone')
     {
+        $url = self::getApiUrl();
+        $host = null;
 
-        if (!self::isAvailable()) {
+        if ($toServer == 'phone') {
+            $host = self::getPhoneHost();
+        }elseif ($toServer == 'vpbx') {
+            $host = self::getVpbxHost();
+        }
+
+        if (!$url || !$host) {
             throw new Exception('API Vpbx was not configured');
         }
 
-        $url = self::getApiUrl();
-        $host = self::getVpbxHost();
-
         $url = strtr($url, array("[address]" => $host, "[action]" => $action));
 
-        $result = JSONQuery::exec($url, $data);
+        $result = JSONQuery::exec($url, $data, false);
 
         if (isset($result["errors"]) && $result["errors"]) {
             $msg = !isset($result['errors'][0]["message"]) && isset($result['errors'][0])
@@ -255,6 +265,24 @@ class ApiVpbx
     }
 
     /**
+     * Возвращает список подключенных телефонных номеров на платформе
+     * @return array
+     */
+    public static function getPhoneServices()
+    {
+        return  self::exec('services/phone/', [], 'vpbx');
+    }
+
+    /**
+     * Возвращает список подключенных телефонных номеров на платформе
+     * @return array
+     */
+    public static function getVpbxServices()
+    {
+        return  self::exec('services/vpbx/', [], 'vpbx');
+    }
+
+    /**
      * Возвращает подготовленное описание для синхронизации тарифа ВАТС. Универсальные услуги.
      * @param $usageId
      * @return array
@@ -304,5 +332,4 @@ class ApiVpbx
 
         return $data;
     }
-
 }

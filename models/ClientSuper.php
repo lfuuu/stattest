@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\api\ApiCore;
 use yii\db\ActiveRecord;
 
 /**
@@ -9,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property int $financial_manager_id
+ * @property bool $is_lk_exists
  * @property ClientContragent[] $contragents
  */
 class ClientSuper extends ActiveRecord
@@ -39,6 +41,27 @@ class ClientSuper extends ActiveRecord
     public function getAccounts()
     {
         return $this->hasMany(ClientAccount::className(), ['super_id' => 'id']);
+    }
+
+    /**
+     * Показывать ли ссылку перехода в ЛК
+     *
+     * @return bool
+     */
+    public function isShowLkLink()
+    {
+        if ($this->is_lk_exists) {
+            return true;
+        }
+
+        $isLkExists = ApiCore::isLkExists($this->id);
+
+        if ($isLkExists) {
+            $this->is_lk_exists = 1;
+            $this->save();
+        }
+
+        return $isLkExists;
     }
 
 }

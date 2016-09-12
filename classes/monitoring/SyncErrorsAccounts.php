@@ -4,10 +4,13 @@ namespace app\classes\monitoring;
 
 use app\classes\DBROQuery;
 use app\models\ClientAccount;
+use app\models\ClientSuper;
 use app\models\usages\UsageInterface;
 use Yii;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
+use yii\db\Expression;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
@@ -39,7 +42,7 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
         return 'Ошибки синхронизации лицевых счетов с платформой';
     }
 
-    public function getServiceType()
+    public function getServiceData()
     {
         //abstract interface
     }
@@ -58,10 +61,24 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
         return [
 
             [
-                'attribute' => 'ЛС',
+                'attribute' => 'Клиент Id',
                 'format' => 'html',
                 'value' => function($model) {
-                    return Html::a(' ' . $model['account_id'] . ' ', ['/client/view', 'id' => $model['account_id']]) ;
+                    return Html::a($model['client_super_id'], [
+                        'account/super-client-edit',
+                        'id' => $model['client_super_id'],
+                        'childId' => $model['account_id']
+                    ]) ;
+                }
+            ],
+            [
+                'attribute' => 'Название клиента',
+                'format' => 'html',
+                'value' => function ($model) {
+                    return Html::a($model['name'] ?: '???', [
+                        'client/view',
+                        'id' => $model['account_id']
+                    ]);
                 }
             ],
             [
@@ -90,39 +107,29 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
             $result = Yii::$app->cache->get($cacheId);
         } else {
 
-            $dbroResult = ArrayHelper::map((new DBROQuery())
-                ->select(["account_id"])
-                ->from('services_available')
-                ->where([
-                    'enabled' => 't'
+            $query = (new Query())
+                ->select([
+                    'id' => 's.id',
+                    'name' => 's.name',
+                    'account_id' => (new Expression('MIN(c.id)'))
                 ])
-                ->group('account_id')
-                ->all(),
-                "account_id",
-                "account_id"
-            );
+                ->from([
+                    'c' => ClientAccount::tableName(),
+                    's' => ClientSuper::tableName(),
+                ])
+                ->where([
+                    'c.is_active' => 1,
+                    's.is_lk_exists' => 0
+                ])
+                ->andWhere('s.id  = c.super_id')
+                ->groupBy('s.id');
 
-            $statResult = ArrayHelper::map(
-                Yii::$app->db->createCommand(
-                    "select distinct c.id from view_platforma_services_ro v, clients c where c.client = v.client and v.enabled = 1"
-                )->queryAll(),
-                'id',
-                'id'
-            );
 
-            $dbroKeys = array_keys($dbroResult);
-            $statKeys = array_keys($statResult);
-
-            foreach (array_diff($dbroKeys, $statKeys) as $accountId) {
-                $result[$accountId] = [
-                    'account_id' => $dbroResult[$accountId],
-                    'status' => self::STATUS_IN_PLATFORM
-                ];
-            }
-
-            foreach (array_diff($statKeys, $dbroKeys) as $accountId) {
-                $result[$accountId] = [
-                    'account_id' => $statResult[$accountId],
+            foreach ($query->each() as $client) {
+                $result[$client['id']] = [
+                    'client_super_id' => $client['id'],
+                    'account_id' => $client['account_id'],
+                    'name' => $client['name'],
                     'status' => self::STATUS_IN_STAT
                 ];
             }

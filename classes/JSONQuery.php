@@ -12,7 +12,7 @@ class JSONQuery
                 JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
         $defaults = array(
-            CURLOPT_POST => 1,
+            CURLOPT_POST => $isPostJSON ? 1 : 0,
             CURLOPT_HEADER => 0,
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
             CURLOPT_URL => $url,
@@ -23,10 +23,12 @@ class JSONQuery
             CURLOPT_SSL_VERIFYPEER => false
         );
 
-        if ($isPostJSON) {
-            $defaults[CURLOPT_POSTFIELDS] = json_encode($data);
-        } else {
-            $defaults[CURLOPT_URL] .= "?" . http_build_query($data);
+        if ($data) {
+            if ($isPostJSON) {
+                $defaults[CURLOPT_POSTFIELDS] = json_encode($data);
+            } else {
+                $defaults[CURLOPT_URL] .= "?" . http_build_query($data);
+            }
         }
 
         //Event::go("json", [$url, $data], true);
