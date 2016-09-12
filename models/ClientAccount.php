@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\Assert;
 use app\classes\BillContract;
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
@@ -676,10 +677,10 @@ class ClientAccount extends HistoryActiveRecord
 
             if ($locks) {
                 if ($locks->is_finance_block) {
-                    $warnings[self::WARNING_FINANCE] = true;
+                    $warnings[self::WARNING_FINANCE] = $locks->getLastLock('is_finance_block');
                 }
                 if ($locks->is_overran) {
-                    $warnings[self::WARNING_OVERRAN] = true;
+                    $warnings[self::WARNING_OVERRAN] = $locks->getLastLock('is_overran');
                 }
             }
         } catch (\Exception $e) {
@@ -702,7 +703,7 @@ class ClientAccount extends HistoryActiveRecord
                 sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
                 (
                     array_key_exists(self::WARNING_FINANCE, $warnings)
-                        ? ' (на уровне биллинга)'
+                        ? ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y')
                         : ''
 
                 );
