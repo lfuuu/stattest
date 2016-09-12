@@ -237,7 +237,7 @@ SQL;
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
                ),
-            is_updated = 1
+            account_entry.is_updated = 1
         WHERE
             account_entry.vat_rate IS NOT NULL
             AND account_entry.account_tariff_id = account_tariff.id

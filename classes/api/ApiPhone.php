@@ -49,6 +49,10 @@ class ApiPhone
         return $result;
     }
 
+    /**
+     * @param ClientAccount $client
+     * @return array
+     */
     public static function getNumbersInfo(ClientAccount $client)
     {
         return self::exec('numbers_info', ['account_id' => $client->id]);

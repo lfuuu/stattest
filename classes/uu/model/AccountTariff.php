@@ -28,6 +28,7 @@ use yii\helpers\Url;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
+ * @property int $is_updated
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
@@ -490,22 +491,6 @@ class AccountTariff extends ActiveRecord
         }
 
         return $accountLogPeriods;
-    }
-
-    /**
-     * @param DateTime $dateTime
-     * @return AccountTariffLog
-     */
-    public function getActiveAccountTariffLog($dateTime = null)
-    {
-        if (!$dateTime) {
-            $dateTime = new DateTime();
-        }
-        return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
-            ->where('actual_from <= :actual_from', [':actual_from' => $dateTime->format('Y-m-d')])
-            ->orderBy(['id' => SORT_DESC])
-            ->limit(1)
-            ->one();
     }
 
     /**

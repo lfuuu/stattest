@@ -20,6 +20,14 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
         </div>
         <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
         <?= $this->render('block/service', ['account' => $account, 'services' => $services, 'account' => $account]); ?>
+        <?php
+            if ($uuFilterModel) {
+                echo $this->render('//uu/account-tariff/_indexVoip',[
+                    'filterModel' => $uuFilterModel,
+                    'isShowAddButton' => false
+                ]);
+            }
+        ?>
 
     </div>
 

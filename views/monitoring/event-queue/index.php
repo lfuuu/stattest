@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\classes\Event;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
 use yii\widgets\Breadcrumbs;
@@ -21,7 +22,7 @@ use yii\widgets\Breadcrumbs;
 <?= app\classes\Html::formLabel($this->title = 'Очередь событий') ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        ['label' => $this->title, 'url' => '/event-queue/'],
+        ['label' => $this->title, 'url' => '/monitoring/event-queue/'],
     ],
 ]) ?>
 
@@ -46,7 +47,10 @@ $columns = [
             'class' => 'event-queue-event-column',
         ],
         'filterType' => GridView::FILTER_SELECT2,
-        'filter' => ['' => '----'] + EventQueue::$events,
+        'filter' => ['' => '----'] + Event::$names,
+        'value' => function(EventQueue $eventQueue) {
+            return isset(Event::$names[$eventQueue->event]) ? Event::$names[$eventQueue->event] : $eventQueue->event;
+        }
     ],
     [
         'attribute' => 'status',
@@ -54,13 +58,10 @@ $columns = [
             'class' => 'event-queue-status-column',
         ],
         'filterType' => GridView::FILTER_SELECT2,
-        'filter' => [
-            '' => '----',
-            'plan' => 'plan',
-            'ok' => 'ok',
-            'error' => 'error',
-            'stop' => 'stop',
-        ],
+        'filter' => ['' => '----'] + EventQueue::$statuses,
+        'value' => function(EventQueue $eventQueue) {
+            return isset(EventQueue::$statuses[$eventQueue->status]) ? EventQueue::$statuses[$eventQueue->status] : $eventQueue->status;
+        }
     ],
     [
         'attribute' => 'iteration',
