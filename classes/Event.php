@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\models\EventQueue;
 
 class Event
@@ -40,10 +41,14 @@ class Event
     const USAGE_VIRTPBX__DELETE = 'usage_virtpbx__delete';
     const USAGE_VIRTPBX__INSERT = 'usage_virtpbx__insert';
     const USAGE_VIRTPBX__UPDATE = 'usage_virtpbx__update';
+    const USAGE_VOIP__DELETE = 'usage_voip__delete';
+    const USAGE_VOIP__INSERT = 'usage_voip__insert';
+    const USAGE_VOIP__UPDATE = 'usage_voip__update';
     const UU_TARIFICATE = 'uu_tarificate';
     const UU_ACCOUNT_TARIFF_VOIP = 'uu_account_tariff_voip';
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
+    const UPDATE_BALANCE = 'update_balance';
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
@@ -81,9 +86,15 @@ class Event
         self::USAGE_VIRTPBX__INSERT => 'Услуга ВАТС добавлена',
         self::USAGE_VIRTPBX__UPDATE => 'Услуга ВАТС изменена',
         self::USAGE_VIRTPBX__DELETE => 'Услуга ВАТС удалена',
+        self::USAGE_VOIP__INSERT => 'Услуга телефонии добавлена',
+        self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
+        self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
         self::UU_TARIFICATE => 'uu-тарификатор по клиенту',
         self::UU_ACCOUNT_TARIFF_VOIP => 'uu-услуга телефонии',
         self::UU_ACCOUNT_TARIFF_VPBX => 'uu-услуга ВАТС',
+        self::UPDATE_BALANCE => 'Обновление баланса',
+        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT,
+        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT,
     ];
 
     /**
