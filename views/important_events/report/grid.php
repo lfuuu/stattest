@@ -1,15 +1,15 @@
 <?php
 
+use app\classes\grid\GridView;
 use yii\data\ActiveDataProvider;
 use app\classes\Html;
-use app\widgets\GridViewCustomFilters;
 use app\models\important_events\ImportantEvents;
-use app\classes\grid\column\important_events\details\DetailColumnFactory;
 use app\helpers\DateTimeZoneHelper;
 use app\classes\grid\column\important_events\ClientColumn;
 use app\classes\grid\column\important_events\EventNameColumn;
 use app\classes\grid\column\important_events\SourceColumn;
 use app\classes\grid\column\important_events\IpColumn;
+use app\classes\grid\column\universal\TagsColumn;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -20,9 +20,7 @@ foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $ev
     $eventsList[$event->group->title][$event->code] = $event->value;
 }
 
-echo GridViewCustomFilters::widget([
-    'id' => 'ImportantEvents',
-    'formAction' => '/important_events/report',
+echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
@@ -30,10 +28,10 @@ echo GridViewCustomFilters::widget([
             'class' => 'kartik\grid\ExpandRowColumn',
             'width' => '50px',
             'value' => function ($model, $key, $index, $column) {
-                return GridViewCustomFilters::ROW_COLLAPSED;
+                return GridView::ROW_COLLAPSED;
             },
             'detail' => function ($model, $key, $index, $column) {
-                return implode('<br />', (array) DetailColumnFactory::getColumn($model)) . '<br /><br />';
+                return $this->render('details', ['model' => $model]);
             },
             'headerOptions' => ['class' => 'kartik-sheet-style'],
         ],
@@ -55,11 +53,8 @@ echo GridViewCustomFilters::widget([
                         'separator' => ' - ',
                     ],
                 ],
-                'containerOptions' => [
-                    'style' => 'overflow: hidden;',
-                    'class' => 'drp-container input-group',
-                ],
                 'options' => [
+                    'class' => 'form-control input-sm',
                     'style' => 'font-size: 12px; height: 30px;',
                 ],
             ]),
@@ -73,24 +68,45 @@ echo GridViewCustomFilters::widget([
         ],
         [
             'class' => EventNameColumn::class,
-            'width' => '25%',
+            'width' => '20%',
         ],
         [
             'class' => SourceColumn::class,
-            'width' => '20%',
+            'width' => '10%',
         ],
         [
             'class' => IpColumn::class,
             'width' => '10%',
         ],
-    ],
-    'pjax' => false,
-    'toolbar' => [],
-    'bordered' => true,
-    'striped' => true,
-    'condensed' => true,
-    'hover' => true,
-    'panel' => [
-        'type' => GridViewCustomFilters::TYPE_DEFAULT,
+        [
+            'class' => TagsColumn::class,
+            'filter' => TagsColumn::class,
+            'width' => '*',
+        ]
     ],
 ]);
+?>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('button[data-important-event-id]').on('click', function(e) {
+        e.preventDefault();
+
+        var eventId = $(this).data('important-event-id');
+        $.ajax({
+            url: '/important_events/report/set-comment/',
+            data: {
+                'id': eventId,
+                'comment': $('input[data-important-event-id="' + eventId + '"]').val()
+            },
+            method: 'POST',
+            success: function() {
+                $.notify('Комментарий добавлен', 'success');
+            },
+            error: function() {
+                $.notify('Комментарий не может быть добавлен', 'error');
+            }
+        });
+    });
+})
+</script>

@@ -10,14 +10,14 @@ class MultiSelectAsset extends AssetBundle
     public
         $sourcePath = '@bower/bootstrap-multiselect/dist',
         $js = [
-        'js/bootstrap-multiselect.js',
-        'js/bootstrap-multiselect-collapsible-groups.js',
-    ],
+            'js/bootstrap-multiselect.js',
+            'js/bootstrap-multiselect-collapsible-groups.js',
+        ],
         $css = [
-        'css/bootstrap-multiselect.css'
-    ],
+            'css/bootstrap-multiselect.css',
+        ],
         $depends = [
-        'yii\bootstrap\BootstrapPluginAsset'
-    ];
+            'yii\bootstrap\BootstrapPluginAsset'
+        ];
 
 }
