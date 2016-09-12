@@ -10,9 +10,9 @@ trait TagsTrait
     /**
      * @return []
      */
-    public function getTagsList()
+    public function getTagList()
     {
-        return ArrayHelper::map(TagsResource::getTagsList($this->formName()), 'id', 'name');
+        return ArrayHelper::map(TagsResource::getTagList($this->formName()), 'id', 'name');
     }
 
     /**

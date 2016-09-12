@@ -17,7 +17,7 @@ class TagsColumn extends \kartik\grid\DataColumn
      */
     public function __construct($config = [])
     {
-        $this->filterWidgetOptions['data'] = $config['grid']->filterModel->getTagsList();
+        $this->filterWidgetOptions['data'] = $config['grid']->filterModel->getTagList();
         $this->filterWidgetOptions['nonSelectedText'] = '-- Метки --';
         $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '100%';
         $this->filterWidgetOptions['clientOptions']['enableCollapsibleOptGroups'] = true;

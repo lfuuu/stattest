@@ -10,31 +10,28 @@ class m160906_144552_tags extends \app\classes\Migration
         $tagsTableName = Tags::tableName();
 
         $this->createTable($tagsTableName, [
-            'id' => $this->integer(11),
+            'id' => $this->primaryKey(11),
             'name' => $this->string(255),
             'used_times' => $this->integer(6)->notNull()->defaultValue(0),
         ], 'ENGINE=InnoDB CHARSET=utf8');
 
-        $this->addPrimaryKey('id', $tagsTableName, 'id');
-        $this->execute('ALTER TABLE ' . $tagsTableName . ' MODIFY id int(11) NOT NULL AUTO_INCREMENT');
+        $tagsResourceTableName = TagsResource::tableName();
 
-        $cloudTableName = TagsResource::tableName();
-
-        $this->createTable($cloudTableName, [
+        $this->createTable($tagsResourceTableName, [
             'tag_id' => $this->integer(11),
             'resource' => $this->string(128),
             'resource_id' => $this->integer(11),
         ], 'ENGINE=InnoDB CHARSET=utf8');
 
-        $this->createIndex('tag_id-resource-resource_id', $cloudTableName, [
+        $this->createIndex('tag_id-resource-resource_id', $tagsResourceTableName, [
             'tag_id',
             'resource',
             'resource_id',
         ], $isUnique = true);
 
         $this->addForeignKey(
-            'fk-' . $cloudTableName . '-tag_id',
-            $cloudTableName,
+            'fk-' . $tagsResourceTableName . '-tag_id',
+            $tagsResourceTableName,
             'tag_id',
             $tagsTableName,
             'id',

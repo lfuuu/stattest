@@ -3,10 +3,20 @@
 namespace app\models;
 
 use Yii;
+use LogicException;
 use yii\db\ActiveRecord;
-use app\classes\validators\ArrayValidator;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
+use app\classes\validators\ArrayValidator;
 
+/**
+ * @property int $tag_id
+ * @property string $resource
+ * @property int $resource_id
+ *
+ * @property Tags $tag
+ * @property [] $tagList
+ */
 class TagsResource extends ActiveRecord
 {
 
@@ -45,7 +55,7 @@ class TagsResource extends ActiveRecord
      * @param string $resource
      * @return []
      */
-    public static function getTagsList($resource)
+    public static function getTagList($resource)
     {
         return
             (new Query)
@@ -55,7 +65,7 @@ class TagsResource extends ActiveRecord
                 ->where([
                     'tc.resource' => $resource,
                 ])
-                ->groupBy(['t.id'])
+                ->groupBy(['t.id', 't.name'])
                 ->all();
     }
 
@@ -65,31 +75,48 @@ class TagsResource extends ActiveRecord
      */
     public function saveAll()
     {
-        $transaction = \Yii::$app->db->beginTransaction();
+        $tagList = ArrayHelper::map(self::getTagList($this->resource), 'name', 'id');
 
+        self::deleteAll([
+            'resource' => $this->resource,
+            'resource_id' => $this->resource_id,
+        ]);
+
+        $transaction = self::getDb()->beginTransaction();
         try {
-            self::deleteAll([
-                'resource' => $this->resource,
-                'resource_id' => $this->resource_id,
-            ]);
-
             foreach ($this->tags as $tagName) {
-                $tag = Tags::findOne(['name' => $tagName]);
-
-                if (is_null($tag)) {
-                    $tag = new Tags;
-                    $tag->name = $tagName;
-                    $tag->save();
+                if (empty($tagName)) {
+                    continue;
                 }
 
-                $tagCloudRecord = new self;
-                $tagCloudRecord->resource = $this->resource;
-                $tagCloudRecord->resource_id = $this->resource_id;
-                $tagCloudRecord->tag_id = $tag->id;
-                $tagCloudRecord->save();
+                $tagId = 0;
+                if (!array_key_exists($tagName, $tagList)) {
+                    $tag = new Tags;
+                    $tag->name = $tagName;
+                    if ($tag->save()) {
+                        $tagId = $tag->id;
+                    } else {
+                        throw new LogicException(implode(' ', $tag->getFirstErrors()));
+                    }
+                } else {
+                    $tagId = $tagList[$tagName];
+                }
+
+                if ((int)$tagId) {
+                    $tagCloudRecord = new self;
+                    $tagCloudRecord->resource = $this->resource;
+                    $tagCloudRecord->resource_id = $this->resource_id;
+                    $tagCloudRecord->tag_id = $tagId;
+                    $tagCloudRecord->save();
+                }
             }
 
             $transaction->commit();
+        }
+        catch (LogicException $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            return false;
         }
         catch (\Exception $e) {
             $transaction->rollBack();

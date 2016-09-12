@@ -8,7 +8,7 @@ class m160909_101748_important_events_comment extends \app\classes\Migration
     {
         $tableName = ImportantEvents::tableName();
 
-        $this->addColumn($tableName, 'comment', $this->string(256));
+        $this->addColumn($tableName, 'comment', $this->string(255));
     }
 
     public function down()

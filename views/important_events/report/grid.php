@@ -92,11 +92,12 @@ jQuery(document).ready(function() {
     $('button[data-important-event-id]').on('click', function(e) {
         e.preventDefault();
 
+        var eventId = $(this).data('important-event-id');
         $.ajax({
             url: '/important_events/report/set-comment/',
             data: {
-                'id': $(this).data('important-event-id'),
-                'comment': $('input[data-important-event-id="' + $(this).data('important-event-id') + '"]').val()
+                'id': eventId,
+                'comment': $('input[data-important-event-id="' + eventId + '"]').val()
             },
             method: 'POST'
         });

@@ -46,7 +46,7 @@ class TagsController extends BaseController
                 function($row) {
                     return ['id' => $row['name'], 'text' => $row['name']];
                 },
-                TagsResource::getTagsList($resource)
+                TagsResource::getTagList($resource)
             )
         ];
     }
