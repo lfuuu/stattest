@@ -21,13 +21,18 @@ class ClientColumn extends DataColumn
 
     protected function renderDataCellContent($model, $key, $index)
     {
+        $comment =
+            !empty($model->comment)
+                ? Html::tag('br') . Html::tag('label', $model->comment, ['class' => 'label label-default'])
+                : '';
+
         return
             $model->clientAccount !== null
                 ? Html::a(
-                $model->clientAccount->contragent->name,
-                ['client/view', 'id' => $model->clientAccount->id],
-                ['target' => '_blank']
-            )
+                    $model->clientAccount->contragent->name,
+                    ['client/view', 'id' => $model->clientAccount->id],
+                    ['target' => '_blank']) .
+                  $comment
                 : '';
     }
 

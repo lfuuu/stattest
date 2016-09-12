@@ -40,6 +40,7 @@ echo "\nstop-" . date("r") . ":";
 
 function do_events()
 {
+    /** @var \EventQueue $event */
     foreach (EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event) {
         $isError = false;
         echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
@@ -63,79 +64,79 @@ function do_events()
 
         try {
             switch ($event->event) {
-                case 'client_set_status':
-                case 'usage_voip__insert':
-                case 'usage_voip__update':
-                case 'usage_voip__delete': {
+                case Event::CLIENT_SET_STATUS:
+                case Event::USAGE_VOIP__INSERT:
+                case Event::USAGE_VOIP__UPDATE:
+                case Event::USAGE_VOIP__DELETE: {
                     //ats2Numbers::check();
                     break;
                 }
 
-                case 'actualize_number':
+                case Event::ACTUALIZE_NUMBER:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     break;
 
-                case 'add_payment': {
+                case Event::ADD_PAYMENT: {
                     EventHandler::updateBalance($param[1]);
                     (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
 
                     break;
                 }
 
-                case 'update_balance': {
+                case Event::UPDATE_BALANCE: {
                     EventHandler::updateBalance($param);
                     break;
                 }
 
-                case 'midnight': {
+                case Event::MIDNIGHT: {
 
                     /* проверка необходимости включать или выключать услуги */
-                    Event::go('check__usages');
+                    Event::go(Event::CHECK__USAGES);
 
                     /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
                     if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-                        Event::go('midnight__lk_bills4all');
+                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
                     }
 
                     /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
-                        Event::go('midnight__monthly_fee_msg');
+                        Event::go(Event::MIDNIGHT__MONTHLY_FEE_MSG);
                     }
 
                     /* очистка предоплаченных счетов */
-                    Event::go('midnight__clean_pre_payed_bills');
+                    Event::go(Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS);
 
                     /* очистка очереди событий */
-                    Event::go('midnight__clean_event_queue');
+                    Event::go(Event::MIDNIGHT__CLEAN_EVENT_QUEUE);
 
                     break;
                 }
 
-                case 'check__usages': {
+                case Event::CHECK__USAGES: {
                     /* проверка необходимости включить или выключить услугу UsageVoip */
-                    Event::go('check__voip_old_numbers');
+                    Event::go(Event::CHECK__VOIP_OLD_NUMBERS);
 
                     /* проверка необходимости включить или выключить услугу в новой схеме */
-                    Event::go('check__voip_numbers');
+                    Event::go(Event::CHECK__VOIP_NUMBERS);
 
                     /* проверка необходимости включить или выключить услугу UsageVirtPbx */
-                    Event::go('check__virtpbx3');
+                    Event::go(Event::CHECK__VIRTPBX3);
 
                     /* проверка необходимости включить или выключить улугу UsageCallChat */
-                    Event::go('check__call_chat');
+                    Event::go(Event::CHECK__CALL_CHAT);
 
                     break;
                 }
 
                 /* проверка необходимости включить или выключить услугу UsageVoip */
-                case 'check__voip_old_numbers': {
+                case Event::CHECK__VOIP_OLD_NUMBERS: {
                     voipNumbers::check();
                     echo "...voipNumbers::check()";
                     break;
                 }
 
                 /* проверка необходимости включить или выключить услугу UsageVirtPbx */
-                case 'check__virtpbx3': {
+                case Event::CHECK__VIRTPBX3: {
                     VirtPbx3::check();
                     echo "...VirtPbx3::check()";
                     break;
@@ -143,20 +144,20 @@ function do_events()
 
                 /* проверка необходимости включить или выключить услугу UsageCallChat */
                 // TODO: перенести в новый демон
-                case 'check__call_chat': {
+                case Event::CHECK__CALL_CHAT: {
                     ActaulizerCallChatUsage::me()->actualizeUsages();
                     echo "...ActaulizerCallChatUsage::actualizeUsages()";
                     break;
                 }
 
                 /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
-                case 'midnight__lk_bills4all': {
+                case Event::MIDNIGHT__LK_BILLS4ALL: {
                     NewBill::setLkShowForAll();
                     break;
                 }
 
                 /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
-                case 'midnight__monthly_fee_msg': {
+                case Event::MIDNIGHT__MONTHLY_FEE_MSG: {
                     //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
                     //echo " exec: ".$execStr;
                     //exec($execStr);
@@ -164,25 +165,25 @@ function do_events()
                 }
 
                 /* очистка предоплаченных счетов */
-                case 'midnight__clean_pre_payed_bills': {
+                case Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS: {
                     Bill::cleanOldPrePayedBills();
                     echo "... clear prebilled bills";
                     break;
                 }
 
                 /* очистка очереди событий */
-                case 'midnight__clean_event_queue': {
+                case Event::MIDNIGHT__CLEAN_EVENT_QUEUE: {
                     EventQueue::clean();
                     echo "...EventQueue::clean()";
                     break;
                 }
 
-                case 'lk_settings_to_mailer': {
+                case Event::LK_SETTINGS_TO_MAILER: {
                     \app\models\LkNoticeSetting::sendToMailer($param['client_account_id']);
                     break;
                 }
 
-                case 'uu_tarificate': {
+                case Event::UU_TARIFICATE: {
                     $clientAccount = \app\models\ClientAccount::findOne(['id' => $param['account_id']]);
                     if ($clientAccount) {
                         \app\models\Bill::dao()->transferUniversalBillsToBills($clientAccount);
@@ -203,37 +204,40 @@ function do_events()
 
             if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {
                 switch ($event->event) {
-                    case 'add_account':
+                    case Event::ADD_ACCOUNT:
                         SyncCore::addAccount($param, true);
                         break;
 
-                    case 'client_set_status':
+                    case Event::CLIENT_SET_STATUS:
                         SyncCore::addAccount($param, false);
                         break;
 
-                    case 'usage_virtpbx__insert':
-                    case 'usage_virtpbx__update':
-                    case 'usage_virtpbx__delete':
-                        VirtPbx3::check();//$param[0]);
+                    case Event::USAGE_VIRTPBX__INSERT:
+                    case Event::USAGE_VIRTPBX__UPDATE:
+                    case Event::USAGE_VIRTPBX__DELETE:
+                    case Event::UU_ACCOUNT_TARIFF_VPBX:
+                        VirtPbx3::check();
                         break;
 
-                    case 'actualize_number':
+                    case Event::UU_ACCOUNT_TARIFF_VOIP:
+                        \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    case Event::ACTUALIZE_NUMBER:
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                         break;
 
-                    case 'actualize_client':
+                    case Event::ACTUALIZE_CLIENT:
                         ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
                         break;
 
-                    case 'update_products':
+                    case Event::UPDATE_PRODUCTS:
                         SyncCore::checkProductState('phone', $param['account_id']);
                         break;
 
-                    case 'check__voip_numbers':
+                    case Event::CHECK__VOIP_NUMBERS:
                         ActaulizerVoipNumbers::me()->actualizeAll();
                         break;
 
-                    case 'ats3__sync':
+                    case Event::ATS3__SYNC:
                         ActaulizerVoipNumbers::me()->sync($param["number"]);
                         SyncCore::checkProductState('phone', $param['client_id']);
                         break;
@@ -242,9 +246,9 @@ function do_events()
                 //события услуги звонок_чат
                 if (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']) {
                     switch ($event->event) {
-                        case 'call_chat__add':
-                        case 'call_chat__update':
-                        case 'call_chat__del':
+                        case Event::CALL_CHAT__ADD:
+                        case Event::CALL_CHAT__UPDATE:
+                        case Event::CALL_CHAT__DEL:
                             ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
                             break;
                     }
@@ -253,7 +257,7 @@ function do_events()
 
         } catch (Exception $e) {
             echo "\n--------------\n";
-            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->GetMessage() . " in " . $e->getFile() . " +" . $e->getLine();
+            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->getMessage() . " in " . $e->getFile() . " +" . $e->getLine();
             $event->setError($e);
             $isError = true;
         }

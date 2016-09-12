@@ -3,6 +3,8 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Calls;
 use app\models\BusinessProcessStatus;
@@ -50,16 +52,25 @@ class NumberDao extends Singleton
         Number::dao()->toInstock($number);
     }
 
-    public function startActive(\app\models\Number $number, UsageVoip $usage)
+    public function startActive(\app\models\Number $number, UsageVoip $usage = null, AccountTariff $uuUsage = null)
     {
-        $newStatus = $usage->tariff->isTest() ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+
+        if ($usage) {
+            $number->usage_id = $usage->id;
+            $number->client_id = $usage->clientAccount->id;
+            $isTest= $usage->tariff->isTest();
+        } else { //uuUsage
+            $number->uu_account_tariff_id = $uuUsage->id;
+            $number->client_id = $uuUsage->client_account_id;
+            $isTest = $uuUsage->tariffPeriod->tariff->isTest;
+        }
+
+        $newStatus = $isTest ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
 
         if ($newStatus == $number->status) {
             return;
         }
 
-        $number->client_id = $usage->clientAccount->id;
-        $number->usage_id = $usage->id;
         $number->reserve_from = null;
         $number->reserve_till = null;
         $number->hold_from = null;
@@ -79,6 +90,9 @@ class NumberDao extends Singleton
         $now = new DateTime('now', new DateTimeZone('UTC'));
 
         // Если тариф тестовый, то выкладываем номер минуя отстойник.
+
+        // Найти последнюю закрытую услугу с этим номером
+
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
@@ -87,8 +101,54 @@ class NumberDao extends Singleton
             ->limit(1)
             ->one();
 
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()
+            ->where([
+                'voip_number' => $number->number,
+                'tariff_period_id' => null
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        /** @var AccountTariffLog $accountTariffLog */
+        $accountTariffLog = $accountTariff ? reset($accountTariff->accountTariffLogs) : null;
+
+        $clientAccount = null;
+        // если найден "старая" услуга, и не найдена uu-услуга, или uu-услуга старше "старой"
+        if ($usage && (!$accountTariff || ($accountTariffLog && $accountTariffLog->actual_from < $usage->actual_to))) {
+            $accountTariff = null;
+            $clientAccount = $usage->clientAccount;
+            // если найдена uu-услуга, и её лог тариф, и ненайдена "старая" услуга или uu-услуга новее.
+        } else if ($accountTariff && $accountTariffLog && (!$usage || $accountTariffLog->actual_from > $usage->actual_to)) {
+            $usage = null;
+            $clientAccount = $accountTariff->clientAccount;
+        } else {
+            $usage = $accountTariff = null;
+        }
+
+        if ($clientAccount) {
+            if ($clientAccount->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+                Number::dao()->toInstock($number);
+                return;
+            }
+        }
+
         if ($usage) {
-            if ($usage->tariff->isTest() || $usage->clientAccount->contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH) {
+            if ($usage->tariff->isTest()) {
+                Number::dao()->toInstock($number);
+                return;
+            }
+        }
+
+        if ($accountTariff) {
+            $isLastTariffTest = false;
+            foreach($accountTariff->getAccountTariffLogs()->each() as $accountTariffLog) {
+                if ($accountTariffLog->tariff_period_id) {
+                    $isLastTariffTest = $accountTariffLog->tariffPeriod->tariff->isTest;
+                    break;
+                }
+            }
+            if ($isLastTariffTest) {
                 Number::dao()->toInstock($number);
                 return;
             }
@@ -101,6 +161,7 @@ class NumberDao extends Singleton
     {
         $number->client_id = null;
         $number->usage_id = null;
+        $number->uu_account_tariff_id = null;
         $number->hold_from = null;
         $number->hold_to = null;
 
@@ -114,6 +175,7 @@ class NumberDao extends Singleton
     {
         $number->client_id = null;
         $number->usage_id = null;
+        $number->uu_account_tariff_id = null;
         $number->hold_from = null;
         $number->hold_to = null;
 
@@ -129,6 +191,7 @@ class NumberDao extends Singleton
 
         $number->client_id = null;
         $number->usage_id = null;
+        $number->uu_account_tariff_id = null;
         $number->status = Number::STATUS_NOTACTIVE_HOLD;
 
         $now = new DateTime('now', new DateTimeZone('UTC'));
@@ -206,8 +269,19 @@ class NumberDao extends Singleton
             ->actual()
             ->one();
 
+        $uuUsage = null;
+
+        if (!$usage) {
+            $uuUsage = AccountTariff::find()
+                ->where(['voip_number' => $number])
+                ->andWhere(['not', ['tariff_period_id' => null]])
+                ->one();
+        }
+
         if ($usage) {
             Number::dao()->startActive($number, $usage);
+        }elseif($uuUsage) {
+            Number::dao()->startActive($number, null, $uuUsage);
         } else {
             Number::dao()->stopActive($number);
         }

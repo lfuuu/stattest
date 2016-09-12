@@ -2,9 +2,12 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\Event;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\ServiceType;
 use app\models\ClientAccount;
+use app\models\Number;
 use DateTimeZone;
 use Yii;
 
@@ -41,13 +44,20 @@ SQL;
                 ->setTimezone($timezone);
             $clientDate = $dateTime->format('Y-m-d');
 
+            $andWhereSQL = '';
+            if ($accountTariffId) {
+                $andWhereSQL .= " AND account_tariff.id = {$accountTariffId} ";
+            }
+
             // По каждой таймзоне обновить текущий (по его таймзоне) тариф
             $sql = <<<SQL
-                UPDATE
-                    {$clientAccountTableName} clients,
-                    {$accountTariffTableName} account_tariff
-                SET
-                    account_tariff.tariff_period_id = 
+            UPDATE
+                {$accountTariffTableName} account_tariff,
+                (
+                    SELECT
+                        account_tariff.client_account_id,
+                        account_tariff.id AS account_tariff_id,
+                        account_tariff.tariff_period_id,
                         (
                             SELECT
                                 account_tariff_log.tariff_period_id
@@ -60,20 +70,60 @@ SQL;
                                 account_tariff_log.actual_from DESC,
                                 account_tariff_log.id DESC
                             LIMIT 1
-                        )
-                WHERE
-                    clients.timezone_name = '{$timezoneName}'
-                    AND clients.id = account_tariff.client_account_id
+                        ) AS new_tariff_period_id
+                    FROM
+                        {$clientAccountTableName} clients,
+                        {$accountTariffTableName} account_tariff
+                    WHERE
+                        clients.id = account_tariff.client_account_id
+                        AND clients.timezone_name = '{$timezoneName}'
+                        {$andWhereSQL}
+                    HAVING 
+                        IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)
+                ) a
+            SET
+                account_tariff.tariff_period_id = a.new_tariff_period_id,
+                account_tariff.is_updated = 1
+            WHERE 
+                account_tariff.id = a.account_tariff_id
 SQL;
-            if ($accountTariffId) {
-                $sql .= " AND account_tariff.id = {$accountTariffId} ";
-            }
+
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
+
+                AccountTariff::updateAll(
+                    ['is_updated' => 0],
+                    ['is_updated' => 1]
+                );
 
                 $count = $db->createCommand($sql)
                     ->execute();
                 echo $count . ' ';
+
+                /** @var AccountTariff $accountTariff */
+                foreach (AccountTariff::find()
+                             ->where(['is_updated' => 1])
+                             ->each() as $accountTariff) {
+
+                    switch ($accountTariff->service_type_id) {
+                        case ServiceType::ID_VOIP: {
+                            Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
+                                'account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                                'number' => $accountTariff->voip_number
+                            ]);
+                            break;
+                        }
+
+                        case ServiceType::ID_VPBX: {
+                            Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
+                                'account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                            ]);
+                            break;
+                        }
+                    }
+                }
 
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {

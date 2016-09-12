@@ -41,8 +41,6 @@ class ActaulizerVoipNumbers
 
     private function checkSync($number = null, $clientId = null)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $number);
-
         if (
         $diff = $this->checkDiff(
             ActualNumber::dao()->loadSaved($number, $clientId),
@@ -56,8 +54,6 @@ class ActaulizerVoipNumbers
 
     public function sync($number = null)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $number);
-
         if (!$number) {
             return;
         }
@@ -75,7 +71,7 @@ class ActaulizerVoipNumbers
 
                 $transaction->commit();
             } catch (\Exception $e) {
-                $transaction->rollback();
+                $transaction->rollBack();
                 throw $e;
             }
         }
@@ -100,9 +96,6 @@ class ActaulizerVoipNumbers
 
     private function checkDiff($saved, $actual)
     {
-        \l::ll(__CLASS__, __FUNCTION__,/*$saved, $actual,*/
-            "...", "...");
-
         $d = [];
 
         foreach (array_diff(array_keys($saved), array_keys($actual)) as $l) {
@@ -142,9 +135,6 @@ class ActaulizerVoipNumbers
 
     private function diff($saved, $actual)
     {
-        \l::ll(__CLASS__, __FUNCTION__,/*$saved, $actual,*/
-            "...", "...");
-
         $d = array(
             "added" => array(),
             "deleted" => array(),
@@ -160,16 +150,17 @@ class ActaulizerVoipNumbers
         }
 
 
-        foreach ([
-                     "client_id",
-                     "region",
-                     "call_count",
-                     "number_type",
-                     "number7800",
-                     "is_blocked",
-                     "is_disabled"
-                 ] as $field) {
-            foreach ($actual as $number => $l) {
+        foreach ($actual as $number => $l) {
+            foreach ([
+                         "client_id",
+                         "region",
+                         "call_count",
+                         "number_type",
+                         "number7800",
+                         "is_blocked",
+                         "is_disabled"
+                     ] as $field) {
+
                 if (isset($saved[$number]) && $saved[$number][$field] != $l[$field]) {
                     if (!isset($d["changed"][$number]["changed_fields"])) {
                         $d["changed"][$number]["data_new"] = $l;
@@ -192,8 +183,6 @@ class ActaulizerVoipNumbers
 
     private function diffApply($diff)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $diff);
-
         if ($diff["added"]) {
             $this->applyAdd($diff["added"]);
         }
@@ -209,8 +198,6 @@ class ActaulizerVoipNumbers
 
     private function applyAdd($numbers)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $numbers);
-
         foreach ($numbers as $numberData) {
             $n = new ActualNumber();
             $n->setAttributes($numberData, false);
@@ -222,8 +209,6 @@ class ActaulizerVoipNumbers
 
     private function applyDeleted($numbers)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $numbers);
-
         foreach ($numbers as $numberData) {
             ActualNumber::findOne(["number" => $numberData["number"]])->delete();
             $this->del_event($numberData);
@@ -232,8 +217,6 @@ class ActaulizerVoipNumbers
 
     private function applyChanged($numbers)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $numbers);
-
         foreach ($numbers as $number => $data) {
             $n = ActualNumber::findOne(["number" => $number]);
 
@@ -248,8 +231,7 @@ class ActaulizerVoipNumbers
 
     private function add_event($data)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $data);
-
+        /** @var UsageVoip $usage */
         $usage = UsageVoip::find()->phone($data["number"])->actual()->one();
         $params = "{}";
         if ($usage) {
@@ -288,8 +270,6 @@ class ActaulizerVoipNumbers
 
     private function del_event($data)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $data);
-
         $s = [
             "client_id" => $data["client_id"],
             "did" => $data["number"]
@@ -300,8 +280,6 @@ class ActaulizerVoipNumbers
 
     private function change_event($number, $data)
     {
-        \l::ll(__CLASS__, __FUNCTION__, $number, $data);
-
         $old = $data["data_old"];
         $new = $data["data_new"];
         $changedFields = $data["changed_fields"];
@@ -310,7 +288,12 @@ class ActaulizerVoipNumbers
 
         //change client_id
         if (isset($changedFields["client_id"])) {
-            $isMoved = UsageVoip::find()->phone($number)->actual()->one()->prev_usage_id;
+
+            $isMoved = false;
+            $usage = UsageVoip::find()->phone($number)->actual()->one();
+            if ($usage) {
+                $isMoved = $usage->prev_usage_id;
+            }
 
             if ($isMoved) {
                 $structClientChange = [
@@ -330,10 +313,6 @@ class ActaulizerVoipNumbers
 
         // номер заблокирован (есть только входящая связь)
         if (isset($changedFields["is_blocked"])) {
-            $s = [
-                "client_id" => (int)$new["client_id"],
-                "number" => $number
-            ];
 
             if ($new["is_blocked"]) {
                 Event::go("ats3__blocked", $new);
@@ -398,7 +377,7 @@ class ActaulizerVoipNumbers
         return 'Europe/Moscow';
     }
 
-    public function transferNumberWithVpbx($number, $toClientId)
+    public static function transferNumberWithVpbx($number, $toClientId)
     {
         $actual = ActualNumber::findOne(["number" => $number]);
         if ($actual) {

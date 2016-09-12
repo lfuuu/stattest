@@ -27,6 +27,7 @@ $serviceType = $filterModel->getServiceType();
 <?php
 $viewParams = [
     'filterModel' => $filterModel,
+    'isShowAddButton' => true,
 ];
 
 if ($serviceType && $serviceType->id == ServiceType::ID_VOIP && $filterModel->client_account_id) {

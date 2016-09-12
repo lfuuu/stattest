@@ -26,7 +26,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
 <p>
-    <?= $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) ?>
+    <?= ($isShowAddButton ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : "") ?>
 </p>
 
 <?php foreach ($rows as $row) : ?>
@@ -41,7 +41,6 @@ $rows = AccountTariff::getGroupedObjects($query);
             $formModel = new AccountTariffEditForm([
                 'id' => $accountTariffFirst->id,
             ]);
-            $isEditable = $accountTariffFirst->tariff_period_id;
             ?>
             <?php // город ?>
             <h2 class="panel-title">
@@ -76,7 +75,10 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                         <?php
                         $i = 0;
+                        $isEditable = $accountTariffFirst->tariff_period_id;
                         $isCancelable = $accountTariffFirst->isCancelable();
+                        $isShowAddPackage = $isEditable || $isCancelable;
+
                         /** @var AccountTariffLog $accountTariffLog */
                         ?>
                         <?php foreach ($accountTariffFirst->accountTariffLogs as $accountTariffLog) : ?>
@@ -190,7 +192,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                         </div>
                     <?php endforeach ?>
 
-                    <?= $isEditable ?
+                    <?= $isShowAddPackage ?
                         Html::button(
                             Html::tag('i', '', [
                                 'class' => 'glyphicon glyphicon-plus',

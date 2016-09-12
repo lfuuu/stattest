@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\uu\RecalcRealtimeBalance;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -29,6 +30,7 @@ use Yii;
  * @property float $bank           банк
  *
  * @property Bill $bill счёт
+ * @property ClientAccount client
  */
 class Payment extends ActiveRecord
 {
@@ -83,11 +85,29 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * @return []
+     */
+    public function behaviors()
+    {
+        return [
+            'RecalcRealtimeBalance' => RecalcRealtimeBalance::className(), // Пересчитать realtime баланс при поступлении платежа
+        ];
+    }
+
+    /**
      * @return ActiveQuery
      */
     public function getBill()
     {
         return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClient()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
     public function afterSave($insert, $changedAttributes)

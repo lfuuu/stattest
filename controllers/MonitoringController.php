@@ -2,8 +2,10 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\classes\BaseController;
 use app\classes\monitoring\MonitorFactory;
+use app\models\filter\EventQueueFilter;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
 use app\models\UsageWelltime;
@@ -40,6 +42,16 @@ class MonitoringController extends BaseController
 
         return $this->render('transfer', [
             'result' => $usages,
+        ]);
+    }
+
+    public function actionEventQueue()
+    {
+        $filterModel = new EventQueueFilter();
+        $filterModel->load(Yii::$app->request->get());
+
+        return $this->render('event-queue/index', [
+            'filterModel' => $filterModel,
         ]);
     }
 

@@ -1,0 +1,36 @@
+<?php
+
+namespace app\models\billing;
+
+use Yii;
+use yii\db\ActiveRecord;
+
+/**
+ * @property $dt
+ * @property int $client_id
+ * @property int $region_id
+ * @property boolean $voip_auto_disabled
+ * @property boolean $voip_auto_disabled_local
+ * @property boolean $is_overran - суточная / месячная блокировка
+ * @property boolean $is_finance_block - финансовая блокировка
+ */
+class LockLogs extends ActiveRecord
+{
+
+    /**
+     * @return string
+     */
+    public static function tableName()
+    {
+        return 'billing.clients_locks_logs';
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getDb()
+    {
+        return Yii::$app->dbPg;
+    }
+
+}
