@@ -15,31 +15,36 @@ use yii\db\ActiveRecord;
 class Locks extends ActiveRecord
 {
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'billing.locks';
     }
 
+    /**
+     * @return mixed
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
     /**
-     * @inheritdoc
-     * @return ActiveQuery the newly created [[ActiveQuery]] instance.
+     * @param string|true $field
+     * @return ActiveQuery
      */
-    public static function find()
+    public function getLastLock($field = true)
     {
-        $query = parent::find();
-
         return
-            $query->addSelect([
-                'voip_auto_disabled',
-                'voip_auto_disabled_local',
-                'is_overran',
-                'is_finance_block',
-            ]);
+            LockLogs::find()
+                ->where([
+                    'client_id' => 'client_id',
+                    $field => true
+                ])
+                ->orderBy(['dt' => SORT_DESC])
+                ->one();
     }
 
 }
