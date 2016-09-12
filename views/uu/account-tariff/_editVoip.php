@@ -11,6 +11,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffStatus;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
@@ -29,9 +30,9 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 <div class="row">
 
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) // телефония               ?>
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты               ?>
-    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта                ?>
+    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) // телефония                  ?>
+    <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты                  ?>
+    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта                   ?>
 
     <div class="col-sm-2" title="Страна берётся от страны клиента">
         <?php // страна ?>
@@ -177,7 +178,17 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
     ]) ?>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-2">
+            <?php // фильтрация по статусу тарифа и пакета ?>
+            <label for="accounttarifflog-tariff_period_id" class="control-label">Статус</label>
+            <?= Select2::widget([
+                'id' => 'accountTariffPackageTariffPeriodStatus',
+                'name' => 'accountTariffPackageTariffPeriodStatus',
+                'data' => TariffStatus::getList(null, true),
+            ]);
+            ?>
+        </div>
+        <div class="col-sm-10">
             <?php // пакет. Фактически тот же тариф, но с другим serviceTypeId ?>
             <?= $form->field(new AccountTariffLog(), 'tariff_period_id')
                 ->label('Пакеты')
@@ -203,4 +214,3 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 <?php ActiveForm::end(); ?>
 
 <script type="text/javascript" src="/js/uu/accountTariffEdit.js"></script>
-

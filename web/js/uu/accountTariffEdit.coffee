@@ -19,6 +19,7 @@ class AccountTariffEdit
   tariffDiv: null
   tariffPeriod: null
   packageTariffPeriod: null
+  packageTariffPeriodStatus: null
 
   voipServiceTypeIdVal: null
   voipPackageServiceTypeIdVal: null
@@ -51,6 +52,7 @@ class AccountTariffEdit
 
       @tariffPeriod = $('.accountTariffTariffPeriod').on('change', @onTariffPeriodChange)
       @packageTariffPeriod = $('#accountTariffPackageTariffPeriod')
+      @packageTariffPeriodStatus = $('#accountTariffPackageTariffPeriodStatus').on('change', @onPackageTariffPeriodStatusChange)
 
       @voipServiceTypeIdVal = $('#voipServiceTypeId').val()
       @voipPackageServiceTypeIdVal = $('#voipPackageServiceTypeId').val()
@@ -123,15 +125,8 @@ class AccountTariffEdit
       @city.parent().parent().addClass(@errorClassName)
 
     if cityVal
-# заранее подготовить список тарифов
-      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options'}, (html) =>
-        @tariffPeriod.val('').html(html) # обновить значения
-        @tariffPeriod.trigger('change')
-
-      # заранее подготовить список пакетов
-      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options'}, (html) =>
-        @packageTariffPeriod.html(html) # обновить значения
-        @packageTariffPeriod.trigger('change')
+# заранее подготовить список тарифов и пакетов
+      @onPackageTariffPeriodStatusChange()
 
     if cityVal && numberTypeVal == 'number'
       $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: true, format: 'options'}, (html) =>
@@ -204,9 +199,22 @@ class AccountTariffEdit
     else
       @tariffPeriod.parent().parent().addClass(@errorClassName)
 
+# при изменении статуса пакета
+  onPackageTariffPeriodStatusChange: =>
+    cityVal = @city.val()
+
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options', status: @packageTariffPeriodStatus.val()}, (html) =>
+      @tariffPeriod.val('').html(html) # обновить значения
+      @tariffPeriod.trigger('change')
+
+    # заранее подготовить список пакетов
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options', status: @packageTariffPeriodStatus.val()}, (html) =>
+      @packageTariffPeriod.html(html) # обновить значения
+      @packageTariffPeriod.trigger('change')
+
 # при сабмите формы
   onFormSubmit: (e) =>
-    # чтобы раньше времени не сабмитить, когда юзер нажимает enter в фильтре
+# чтобы раньше времени не сабмитить, когда юзер нажимает enter в фильтре
     if not @tariffPeriod.val()
       e.stopPropagation()
       e.preventDefault()
