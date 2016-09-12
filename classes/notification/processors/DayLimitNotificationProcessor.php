@@ -28,7 +28,7 @@ class DayLimitNotificationProcessor extends NotificationProcessor
 
     public function getLimit()
     {
-        return -$this->client->voip_credit_limit_day;;
+        return -$this->client->voip_credit_limit_day;
     }
 
     protected function checkLimitToSkip($limit)
