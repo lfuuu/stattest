@@ -15,7 +15,17 @@
                         'tags': tags
                     },
                     dataType: 'json',
-                    method: 'POST'
+                    method: 'POST',
+                    success: function(data) {
+                        if (!data || !data.response) {
+                            $.notify('Внутренняя ошибка', 'error');
+                        } else if (data.response == 'success') {
+                            $.notify('Список меток изменен', 'success');
+                        }
+                    },
+                    error: function() {
+                        $.notify('Список меток не может быть добавлена', 'error');
+                    }
                 })
             };
 

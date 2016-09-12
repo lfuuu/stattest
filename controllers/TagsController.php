@@ -13,7 +13,7 @@ class TagsController extends BaseController
 {
 
     /**
-     * @return array
+     * @return []
      * @throws BadRequestHttpException
      * @throws FormValidationException
      */
@@ -30,7 +30,7 @@ class TagsController extends BaseController
             return ['response' => 'success'];
         }
 
-        throw new FormValidationException($tags);
+        return ['response' => implode(' ', $tags->getFirstErrors())];
     }
 
     /**

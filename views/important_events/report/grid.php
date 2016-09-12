@@ -99,7 +99,13 @@ jQuery(document).ready(function() {
                 'id': eventId,
                 'comment': $('input[data-important-event-id="' + eventId + '"]').val()
             },
-            method: 'POST'
+            method: 'POST',
+            success: function() {
+                $.notify('Комментарий добавлен', 'success');
+            },
+            error: function() {
+                $.notify('Комментарий не может быть добавлен', 'error');
+            }
         });
     });
 })

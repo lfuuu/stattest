@@ -53,11 +53,11 @@ class TagsResource extends ActiveRecord
 
     /**
      * @param string $resource
-     * @param string|false $indexBy
+     * @param string $indexBy
      * @param int $resourceId
      * @return []
      */
-    public static function getTagList($resource, $indexBy = false, $resourceId = 0)
+    public static function getTagList($resource, $indexBy = null, $resourceId = 0)
     {
         $query =
             (new Query)
@@ -70,8 +70,8 @@ class TagsResource extends ActiveRecord
         if ((int)$resourceId) {
             $query->andWhere(['resource_id' => $resourceId]);
         }
-        if ($indexBy) {
-            $query->indexBy('name');
+        if (!is_null($indexBy)) {
+            $query->indexBy($indexBy);
         }
 
         return $query->all();
@@ -86,18 +86,17 @@ class TagsResource extends ActiveRecord
         $tagList = self::getTagList($this->resource, 'name');
         $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id);
         $diffTags = array_diff(array_keys($resourceTagList), $this->tags);
-        $tagsToRemove = [];
-
-        if (count($diffTags)) {
-            foreach ($diffTags as $tagName) {
-                $tagsToRemove[] = $tagList[$tagName]['id'];
-            }
-        }
 
         $transaction = self::getDb()->beginTransaction();
 
         try {
-            if (count($tagsToRemove)) {
+            if (count($diffTags)) {
+                $tagsToRemove = [];
+
+                foreach ($diffTags as $tagName) {
+                    $tagsToRemove[] = $tagList[$tagName]['id'];
+                }
+
                 self::deleteAll([
                     'and',
                     ['resource' => $this->resource],
