@@ -40,6 +40,7 @@ echo "\nstop-" . date("r") . ":";
 
 function do_events()
 {
+    /** @var \EventQueue $event */
     foreach (EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event) {
         $isError = false;
         echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
@@ -256,7 +257,7 @@ function do_events()
 
         } catch (Exception $e) {
             echo "\n--------------\n";
-            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->GetMessage() . " in " . $e->getFile() . " +" . $e->getLine();
+            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->getMessage() . " in " . $e->getFile() . " +" . $e->getLine();
             $event->setError($e);
             $isError = true;
         }
