@@ -12,8 +12,6 @@ use app\classes\uu\model\TariffPeriod;
 use app\models\City;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
-use app\models\Number;
-use app\models\NumberType;
 use app\models\UsageVoip;
 use Yii;
 use yii\web\Response;
@@ -145,14 +143,14 @@ class VoipController extends BaseController
      * @param int $isWithEmpty
      * @param string $format
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $status = null)
     {
         if (!$cityId) {
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId,
-            $isWithEmpty);
+        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty,
+            $isWithNullAndNotNull = false, $isFilterUuOnly = true, $status);
         $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
     }
 

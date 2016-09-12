@@ -46,7 +46,7 @@ class ClientSuper extends ActiveRecord
     /**
      * Показывать ли ссылку перехода в ЛК
      *
-     * @return bool
+     * @return bool|null
      */
     public function isShowLkLink()
     {
@@ -54,14 +54,20 @@ class ClientSuper extends ActiveRecord
             return true;
         }
 
-        $isLkExists = ApiCore::isLkExists($this->id);
+        try {
+            $isLkExists = ApiCore::isLkExists($this->id);
 
-        if ($isLkExists) {
-            $this->is_lk_exists = 1;
-            $this->save();
+            if ($isLkExists) {
+                $this->is_lk_exists = 1;
+                $this->save();
+            }
+
+            return $isLkExists;
+
+        } catch (\Exception $e) {
+            // возможно, не настроено API
+            return null;
         }
-
-        return $isLkExists;
     }
 
 }
