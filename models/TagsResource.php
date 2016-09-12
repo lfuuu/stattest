@@ -53,20 +53,28 @@ class TagsResource extends ActiveRecord
 
     /**
      * @param string $resource
+     * @param string|false $indexBy
+     * @param int $resourceId
      * @return []
      */
-    public static function getTagList($resource)
+    public static function getTagList($resource, $indexBy = false, $resourceId = 0)
     {
-        return
+        $query =
             (new Query)
                 ->select(['t.id', 't.name'])
                 ->from(['tc' => self::tableName()])
                 ->innerJoin(['t' => Tags::tableName()], 't.id = tc.tag_id')
-                ->where([
-                    'tc.resource' => $resource,
-                ])
-                ->groupBy(['t.id', 't.name'])
-                ->all();
+                ->andWhere(['tc.resource' => $resource])
+                ->groupBy(['t.id', 't.name']);
+
+        if ((int)$resourceId) {
+            $query->andWhere(['resource_id' => $resourceId]);
+        }
+        if ($indexBy) {
+            $query->indexBy('name');
+        }
+
+        return $query->all();
     }
 
     /**
@@ -75,48 +83,58 @@ class TagsResource extends ActiveRecord
      */
     public function saveAll()
     {
-        $tagList = ArrayHelper::map(self::getTagList($this->resource), 'name', 'id');
+        $tagList = self::getTagList($this->resource, 'name');
+        $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id);
+        $diffTags = array_diff(array_keys($resourceTagList), $this->tags);
+        $tagsToRemove = [];
 
-        self::deleteAll([
-            'resource' => $this->resource,
-            'resource_id' => $this->resource_id,
-        ]);
+        if (count($diffTags)) {
+            foreach ($diffTags as $tagName) {
+                $tagsToRemove[] = $tagList[$tagName]['id'];
+            }
+        }
 
         $transaction = self::getDb()->beginTransaction();
+
         try {
+            if (count($tagsToRemove)) {
+                self::deleteAll([
+                    'and',
+                    ['resource' => $this->resource],
+                    ['resource_id' => $this->resource_id],
+                    ['IN', 'tag_id', $tagsToRemove],
+                ]);
+            }
+
             foreach ($this->tags as $tagName) {
                 if (empty($tagName)) {
                     continue;
                 }
 
-                $tagId = 0;
-                if (!array_key_exists($tagName, $tagList)) {
-                    $tag = new Tags;
-                    $tag->name = $tagName;
-                    if ($tag->save()) {
+                if (!array_key_exists($tagName, $resourceTagList)) {
+                    if (!array_key_exists($tagName, $tagList)) {
+                        $tag = new Tags;
+                        $tag->name = $tagName;
+                        if (!$tag->save()) {
+                            throw new LogicException(implode(' ', $tag->getFirstErrors()));
+                        }
                         $tagId = $tag->id;
+                        $tagList[$tagName] = ['id' => $tag->id, 'name' => $tagName];
                     } else {
-                        throw new LogicException(implode(' ', $tag->getFirstErrors()));
+                        $tagId = $tagList[$tagName]['id'];
                     }
-                } else {
-                    $tagId = $tagList[$tagName];
-                }
 
-                if ((int)$tagId) {
                     $tagCloudRecord = new self;
                     $tagCloudRecord->resource = $this->resource;
                     $tagCloudRecord->resource_id = $this->resource_id;
                     $tagCloudRecord->tag_id = $tagId;
-                    $tagCloudRecord->save();
+                    if (!$tagCloudRecord->save()) {
+                        throw new LogicException(implode(' ', $tagCloudRecord->getFirstErrors()));
+                    }
                 }
             }
 
             $transaction->commit();
-        }
-        catch (LogicException $e) {
-            $transaction->rollBack();
-            Yii::error($e);
-            return false;
         }
         catch (\Exception $e) {
             $transaction->rollBack();
