@@ -33,7 +33,7 @@ class ApiVpbx
         return isset(\Yii::$app->params['VIRTPBX_URL']) && \Yii::$app->params['VIRTPBX_URL'] ? \Yii::$app->params['VIRTPBX_URL'] : false;
     }
 
-    public static function exec($action, $data, $toServer = 'phone')
+    public static function exec($action, $data, $toServer = 'phone', $isSendPost = true)
     {
         $url = self::getApiUrl();
         $host = null;
@@ -50,7 +50,7 @@ class ApiVpbx
 
         $url = strtr($url, array("[address]" => $host, "[action]" => $action));
 
-        $result = JSONQuery::exec($url, $data, false);
+        $result = JSONQuery::exec($url, $data, $isSendPost);
 
         if (isset($result["errors"]) && $result["errors"]) {
             $msg = !isset($result['errors'][0]["message"]) && isset($result['errors'][0])
@@ -270,7 +270,7 @@ class ApiVpbx
      */
     public static function getPhoneServices()
     {
-        return  self::exec('services/phone/', [], 'vpbx');
+        return  self::exec('services/phone/', [], 'vpbx', false);
     }
 
     /**
@@ -279,7 +279,7 @@ class ApiVpbx
      */
     public static function getVpbxServices()
     {
-        return  self::exec('services/vpbx/', [], 'vpbx');
+        return  self::exec('services/vpbx/', [], 'vpbx', false);
     }
 
     /**
