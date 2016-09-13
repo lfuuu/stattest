@@ -38,9 +38,9 @@ class Locks extends ActiveRecord
     public function getLastLock($field = true)
     {
         return
-            LockLogs::find()
+            ClientLockLogs::find()
                 ->where([
-                    'client_id' => 'client_id',
+                    'client_id' => $this->client_id,
                     $field => true
                 ])
                 ->orderBy(['dt' => SORT_DESC])
