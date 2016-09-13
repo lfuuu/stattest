@@ -1,6 +1,8 @@
 <?php
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
+use app\models\billing\LocksLog;
 use app\models\ClientAccount;
 use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
@@ -117,7 +119,9 @@ use app\models\ClientContract;
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
                                                 <?php
                                                 if ($contractAccount->is_blocked) {
-                                                    $contractBlockers[] = 'Заблокирован';
+                                                    $lastLock = LocksLog::find()->where(['client_id' => $account->id, 'is_blocked' => true])->orderBy(['dt' => SORT_DESC])->one();
+
+                                                    $contractBlockers[] = 'Заблокирован' . ($lastLock ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') : '');
                                                 }
 
                                                 if (isset($warningsKeys[ClientAccount::WARNING_OVERRAN])) {
