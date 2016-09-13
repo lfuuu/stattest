@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\models\EventQueue;
 
@@ -52,7 +53,7 @@ class Event
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
-        self::ACTUALIZE_NUMBER => 'актуализировать номер',
+        self::ACTUALIZE_NUMBER => 'Актуализировать номер',
         self::ADD_ACCOUNT => 'Добавлен ЛС',
         self::ADD_PAYMENT => 'Платеж добавлен',
         self::YANDEX_PAYMENT => 'Платеж из Яндекс.Деньги',
@@ -68,7 +69,7 @@ class Event
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',
         self::CHECK__VOIP_NUMBERS => 'Актуализировать все номера',
-        self::CHECK__VOIP_OLD_NUMBERS => 'Синхронизировать все "старые" улуги номеров',
+        self::CHECK__VOIP_OLD_NUMBERS => 'Синхронизировать все "старые" услуги номеров',
         self::CLIENT_SET_STATUS => 'Изменился бизнес процесс ЛС',
         self::DOC_DATE_CHANGED => 'Изменился дата отгрузки счета',
         self::LK_SETTINGS_TO_MAILER => 'Передать настройки в mailer',
@@ -76,7 +77,7 @@ class Event
         self::MIDNIGHT__CLEAN_EVENT_QUEUE => 'Очистка очереди событий',
         self::MIDNIGHT__CLEAN_PRE_PAYED_BILLS => 'Удаление пустых счетов на предоплату из ЛК',
         self::MIDNIGHT__LK_BILLS4ALL => 'Принудительная публикация счетов',
-        self::MIDNIGHT__MONTHLY_FEE_MSG => 'предупреждаем о списании абонентки аваносовым клиентам',
+        self::MIDNIGHT__MONTHLY_FEE_MSG => 'Предупреждаем о списании абонентки авансовым клиентам',
         self::NEWBILLS__INSERT => 'Счет добавлен',
         self::NEWBILLS__UPDATE => 'Счет изменен',
         self::NEWBILLS__DELETE => 'Счет удален',
@@ -89,12 +90,13 @@ class Event
         self::USAGE_VOIP__INSERT => 'Услуга телефонии добавлена',
         self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
-        self::UU_TARIFICATE => 'uu-тарификатор по клиенту',
-        self::UU_ACCOUNT_TARIFF_VOIP => 'uu-услуга телефонии',
-        self::UU_ACCOUNT_TARIFF_VPBX => 'uu-услуга ВАТС',
+        self::UU_TARIFICATE => 'UU-тарификатор по клиенту',
+        self::UU_ACCOUNT_TARIFF_VOIP => 'UU-услуга телефонии',
+        self::UU_ACCOUNT_TARIFF_VPBX => 'UU-услуга ВАТС',
         self::UPDATE_BALANCE => 'Обновление баланса',
-        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT,
-        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT,
+        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'Добавление услуги в NNP',
+        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'Удаление услуги из NNP',
+        AccountTariffBiller::EVENT_RECALC => 'Билинговать UU-клиента',
     ];
 
     /**

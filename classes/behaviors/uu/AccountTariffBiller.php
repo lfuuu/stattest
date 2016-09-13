@@ -10,6 +10,7 @@ use app\classes\uu\tarificator\AccountLogSetupTarificator;
 use app\classes\uu\tarificator\BillTarificator;
 use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\classes\uu\tarificator\SetCurrentTariffTarificator;
+use Yii;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
@@ -17,6 +18,8 @@ use yii\db\ActiveRecord;
 
 class AccountTariffBiller extends Behavior
 {
+    const EVENT_RECALC = 'uu_account_tariff_biller_recalc';
+
     public function events()
     {
         return [
@@ -38,14 +41,45 @@ class AccountTariffBiller extends Behavior
         $accountTariff = $accountTariffLog->accountTariff;
         $accountTariffId = $accountTariff->id;
 
+        \app\classes\Event::go(self::EVENT_RECALC, [
+                'accountTariffId' => $accountTariffId,
+                'accountClientId' => $accountTariff->client_account_id,
+            ]
+        );
+    }
+
+    /**
+     * Билинговать
+     * @param array $params [accountTariffId, accountClientId]
+     */
+    public static function recalc(array $params)
+    {
         ob_start();
+
+        $accountTariffId = $params['accountTariffId'];
+        $accountClientId = $params['accountClientId'];
+
+        Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId, false);
+
+        Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId, false);
+
+        Yii::info('AccountTariffBiller. Before AccountLogPeriodTarificator', 'uu');
         (new AccountLogPeriodTarificator)->tarificate($accountTariffId, false);
+
+        Yii::info('AccountTariffBiller. Before AccountLogMinTarificator', 'uu');
         (new AccountLogMinTarificator)->tarificate($accountTariffId);
+
+        Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
+
+        Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);
-        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+
+        Yii::info('AccountTariffBiller. Before RealtimeBalanceTarificator', 'uu');
+        (new RealtimeBalanceTarificator)->tarificate($accountClientId);
+
         ob_end_clean();
     }
 }

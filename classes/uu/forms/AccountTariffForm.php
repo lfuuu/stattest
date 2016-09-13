@@ -75,7 +75,12 @@ abstract class AccountTariffForm extends Form
      */
     public function loadFromInput()
     {
-        // загрузить параметры от юзера
+        /** @var array $post */
+        $post = Yii::$app->request->post();
+        if (!$post) {
+            return;
+        }
+
         $transaction = \Yii::$app->db->beginTransaction();
 
         // при создании услуга + лог в одной форме, при редактировании - в разных
@@ -83,10 +88,8 @@ abstract class AccountTariffForm extends Form
 
         try {
 
-            /** @var array $post */
-            $post = Yii::$app->request->post();
-
             // при создании услуги телефонии свой интерфейс, из которого данные надо преобразовать в нужный формат
+            Yii::info('AccountTariffForm. Before accountTariffVoip', 'uu');
             $accountTariffVoip = new AccountTariffVoip();
             if ($isNewRecord && $this->serviceTypeId == ServiceType::ID_VOIP
                 && $accountTariffVoip->load($post)
@@ -104,6 +107,7 @@ abstract class AccountTariffForm extends Form
                 foreach ($accountTariffVoip->voip_numbers as $voipNumber) {
 
                     // услуга
+                    Yii::info('AccountTariffForm. Before voip $accountTariff->save', 'uu');
                     $accountTariff = clone $this->accountTariff;
                     $accountTariff->voip_number = $voipNumber;
                     $accountTariff->id = 0;
@@ -113,6 +117,7 @@ abstract class AccountTariffForm extends Form
                     }
 
                     // лог тарифов
+                    Yii::info('AccountTariffForm. Before voip $accountTariffLog->save', 'uu');
                     $accountTariffLog = clone $this->accountTariffLog;
                     $accountTariffLog->account_tariff_id = $accountTariff->id;
                     $accountTariffLog->id = 0;
@@ -124,6 +129,7 @@ abstract class AccountTariffForm extends Form
                     // пакеты
                     foreach ($accountTariffVoip->voip_package_tariff_period_ids as $voipPackageTariffPeriodId) {
                         // услуга
+                        Yii::info('AccountTariffForm. Before voip $accountTariffPackage->save', 'uu');
                         $accountTariffPackage = new AccountTariff;
                         $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
                         $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
@@ -136,6 +142,7 @@ abstract class AccountTariffForm extends Form
                         }
 
                         // лог тарифов
+                        Yii::info('AccountTariffForm. Before voip $accountTariffLogPackage->save', 'uu');
                         $accountTariffLogPackage = new AccountTariffLog;
                         $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
                         $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
@@ -144,6 +151,7 @@ abstract class AccountTariffForm extends Form
                             $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
                             throw new InvalidArgumentException('');
                         }
+                        Yii::info('AccountTariffForm. After voip $accountTariffLogPackage->save', 'uu');
                     }
                 }
 
@@ -153,6 +161,7 @@ abstract class AccountTariffForm extends Form
                 $post = []; // чтобы дальше логика универсальных услуг не отрабатывала
             }
 
+            Yii::info('AccountTariffForm. Before accountTariff->load', 'uu');
             if ($this->accountTariff->load($post)) {
 
                 // услуга
@@ -166,6 +175,7 @@ abstract class AccountTariffForm extends Form
 
             }
 
+            Yii::info('AccountTariffForm. Before accountTariffLog->load', 'uu');
             if ($this->accountTariffLog->load($post)) {
 
                 // лог тарифов
@@ -179,12 +189,15 @@ abstract class AccountTariffForm extends Form
                         Yii::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->accountTariffLog->getAttributeLabel('tariff_period_id')])
                     );
                 }
+
+                Yii::info('AccountTariffForm. Before accountTariffLog->save', 'uu');
                 if ($this->accountTariffLog->validate(null, false) && $this->accountTariffLog->save()) {
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->accountTariffLog->getFirstErrors();
                 }
+                Yii::info('AccountTariffForm. After accountTariffLog->save', 'uu');
 
                 if (isset($post['closeTariff'])) {
                     // если закрывается услуга, то надо закрыть и все пакеты
@@ -209,6 +222,7 @@ abstract class AccountTariffForm extends Form
 
             }
 
+            Yii::info('AccountTariffForm. Before разовая услуга', 'uu');
             if ($post && $isNewRecord && !$this->validateErrors && $this->serviceTypeId == ServiceType::ID_ONE_TIME) {
                 // разовая услуга
 
@@ -265,7 +279,9 @@ abstract class AccountTariffForm extends Form
                 throw new InvalidArgumentException();
             }
 
+            Yii::info('AccountTariffForm. Before commit', 'uu');
             $transaction->commit();
+            Yii::info('AccountTariffForm. After commit', 'uu');
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
