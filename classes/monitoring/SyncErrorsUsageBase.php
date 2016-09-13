@@ -80,8 +80,8 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
                 'client_id'
             );
 
-            $this->filterResult($platformaResult);
-            $this->filterResult($statResult);
+            $platformaResult = $this->filterResult($platformaResult);
+            $statResult = $this->filterResult($statResult);
 
             $platformaKeys = array_keys($platformaResult);
             $statKeys = array_keys($statResult);

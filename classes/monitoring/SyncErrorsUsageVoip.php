@@ -9,7 +9,7 @@ use yii\helpers\Html;
 
 class SyncErrorsUsageVoip extends SyncErrorsUsageBase
 {
-    const brokenAccountIds = [34523];  //Телемир, массово подключает номера 7800
+    private static $brokenAccountIds = [34523];  //Телемир, массово подключает номера 7800
 
     /**
      * @return string
@@ -60,7 +60,7 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
     {
         $result = [];
         foreach($data as $phone => $clientId) {
-            if (in_array($clientId, self::brokenAccountIds)) {
+            if (in_array($clientId, self::$brokenAccountIds)) {
                 continue;
             }
 
@@ -69,7 +69,7 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
             }
         }
 
-        return $data;
+        return $result;
     }
 
     /**
