@@ -14,7 +14,7 @@ use yii\db\ActiveRecord;
  * @property boolean $is_overran - суточная / месячная блокировка
  * @property boolean $is_finance_block - финансовая блокировка
  */
-class LockLogs extends ActiveRecord
+class ClientLockLogs extends ActiveRecord
 {
 
     /**
