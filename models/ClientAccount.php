@@ -673,6 +673,7 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         try {
+            /** @var Locks $locks */
             $locks = Locks::find()->where(['client_id' => $this->id])->one();
 
             if ($locks) {

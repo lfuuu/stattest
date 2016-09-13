@@ -132,6 +132,8 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorFuture($attribute, $params)
     {
+        Yii::info('AccountTariffLog. Before validatorFuture', 'uu');
+
         if (!$this->isNewRecord) {
             return;
         }
@@ -158,6 +160,8 @@ class AccountTariffLog extends ActiveRecord
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');
         }
+
+        Yii::info('AccountTariffLog. After validatorFuture', 'uu');
     }
 
     /**
@@ -167,9 +171,13 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorCreateNotClose($attribute, $params)
     {
+        Yii::info('AccountTariffLog. Before validatorCreateNotClose', 'uu');
+
         if (!$this->tariff_period_id && !$this->getCountLogs()) {
             $this->addError($attribute, 'Не указан тариф/период.');
         }
+
+        Yii::info('AccountTariffLog. After validatorCreateNotClose', 'uu');
     }
 
     /**
@@ -205,6 +213,8 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorBalance($attribute, $params)
     {
+        Yii::info('AccountTariffLog. Before validatorBalance', 'uu');
+
         if (!$this->isNewRecord) {
             return;
         }
@@ -311,6 +321,8 @@ class AccountTariffLog extends ActiveRecord
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
+
+        Yii::info('AccountTariffLog. After validatorBalance', 'uu');
     }
 
     /**
@@ -321,6 +333,8 @@ class AccountTariffLog extends ActiveRecord
      */
     public function validatorPackage($attribute, $params)
     {
+        Yii::info('AccountTariffLog. Before validatorPackage', 'uu');
+
         $isNewRecord = !$this->getCountLogs();
         if (!$isNewRecord) {
             // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
@@ -351,5 +365,6 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
+        Yii::info('AccountTariffLog. After validatorPackage', 'uu');
     }
 }
