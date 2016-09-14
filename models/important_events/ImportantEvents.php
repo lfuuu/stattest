@@ -5,6 +5,7 @@ namespace app\models\important_events;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use ReflectionClass;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use app\exceptions\FormValidationException;
@@ -14,6 +15,7 @@ use app\classes\validators\ArrayValidator;
 use app\classes\traits\TagsTrait;
 use app\models\ClientAccount;
 use app\models\TagsResource;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class ImportantEvents
@@ -28,8 +30,6 @@ use app\models\TagsResource;
  */
 class ImportantEvents extends ActiveRecord
 {
-
-    use TagsTrait;
 
     const ROWS_PER_PAGE = 50;
 
@@ -74,7 +74,7 @@ class ImportantEvents extends ActiveRecord
             'event' => 'Событие',
             'source_id' => 'Источник',
             'comment' => 'Комментарий',
-            'tags' => 'Метки',
+            'tags_filter' => 'Метки',
         ];
     }
 
@@ -203,6 +203,26 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * @return []
+     */
+    public function getTagList()
+    {
+        return ArrayHelper::map(
+            TagsResource::getTagList((new ReflectionClass(ImportantEventsNames::className()))->getShortName(), 'id'),
+            'id',
+            'name'
+        );
+    }
+
+    /**
+     * @return []
+     */
+    public function getTags()
+    {
+        return (!is_null($this->name) ? $this->name->tags : []);
+    }
+
+    /**
      * @return ActiveDataProvider
      */
     public function search($params)
@@ -249,14 +269,13 @@ class ImportantEvents extends ActiveRecord
                 ['tags' => TagsResource::tableName()],
                 '
                     tags.resource = :resource
-                    AND tags.resource_id = ' . self::tableName() . '.id
-                    AND tags.tag_id IN (:tags)
+                    AND tags.resource_id = ' . ImportantEventsNames::tableName() . '.id
                 ',
                 [
-                    'resource' => $this->formName(),
-                    'tags' => $this->tags_filter,
+                    'resource' => (new ReflectionClass(ImportantEventsNames::className()))->getShortName(),
                 ]
             );
+            $query->andWhere(['IN', 'tags.tag_id', $this->tags_filter]);
         }
 
         list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);

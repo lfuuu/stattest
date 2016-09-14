@@ -12,7 +12,7 @@ trait TagsTrait
      */
     public function getTagList()
     {
-        return ArrayHelper::map(TagsResource::getTagList($this->formName()), 'id', 'name');
+        return TagsResource::getTagList($this->formName(), 'id');
     }
 
     /**

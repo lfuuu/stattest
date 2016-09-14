@@ -1,17 +1,10 @@
 <?php
 
 use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use yii\helpers\ArrayHelper;
-use unclead\widgets\MultipleInput;
 use app\classes\Html;
 use app\models\important_events\ImportantEventsRules;
-use app\models\important_events\ImportantEventsNames;
-use app\models\important_events\ImportantEventsRulesConditions;
-use app\models\message\Template as MessageTemplate;
-use app\classes\actions\message\SendActionFactory;
 
 /** @var ImportantEventsRules $model */
 
@@ -26,41 +19,23 @@ echo Breadcrumbs::widget([
 ?>
 
 <div class="well">
-<?php
-$form = ActiveForm::begin([
-    'type' => ActiveForm::TYPE_VERTICAL,
-]);
+    <?php
+    $form = ActiveForm::begin([
+        'type' => ActiveForm::TYPE_VERTICAL,
+    ]);
+    echo Html::activeHiddenInput($model, 'id');
+    ?>
 
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'columns' => 4,
-    'attributes' => [
-        'title' => ['type' => Form::INPUT_TEXT,],
-    ]
-]);
+    <div class="row">
+        <div class="col-sm-12">
+            <?= $form->field($model, 'title') ?>
+        </div>
+    </div>
 
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'attributes' => [
-        'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'id')],
-        'actions' => [
-            'type' => Form::INPUT_RAW,
-            'value' =>
-                Html::tag(
-                    'div',
-                    Html::button('Отменить', [
-                        'class' => 'btn btn-link',
-                        'style' => 'margin-right: 15px;',
-                        'onClick' => 'self.location = "' . Url::toRoute(['important_events/groups']) . '";',
-                    ]) .
-                    Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
-                    ['style' => 'text-align: right; padding-right: 0px;']
-                )
-        ],
-    ],
-]);
+    <div class="form-group">
+        <?= $this->render('//layouts/_submitButtonSave') ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['important_events/groups'])]) ?>
+    </div>
 
-ActiveForm::end();
-?>
+    <?php ActiveForm::end() ?>
+</div>

@@ -32,83 +32,69 @@ foreach (ImportantEventsNames::find()->all() as $event) {
 ?>
 
 <div class="well">
-<?php
-$form = ActiveForm::begin([
-    'type' => ActiveForm::TYPE_VERTICAL,
-]);
+    <?php
+    $form = ActiveForm::begin([
+        'type' => ActiveForm::TYPE_VERTICAL,
+    ]);
+    echo Html::activeHiddenInput($model, 'id');
+    ?>
 
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'columns' => 4,
-    'attributes' => [
-        'leftBlock' => [
-            'type' => Form::INPUT_RAW,
-            'value' =>
-                $form->field($model, 'title')->textInput() .
-                $form->field($model, 'event')->dropDownList($eventsList, ['class' => 'select2']),
-        ],
-        'rightBlock' => [
-            'type' => Form::INPUT_RAW,
-            'value' =>
-                $form->field($model, 'action')->dropDownList(['' => '- Выбрать -'] + ArrayHelper::map(SendActionFactory::me()->getActions(), 'code', 'title'), ['class' => 'select2']) .
-                $form->field($model, 'message_template_id')->dropDownList(['' => '- Выбрать -'] + ArrayHelper::map(MessageTemplate::find()->all(), 'id', 'name'), ['class' => 'select2']),
-        ],
-        'conditions' => [
-            'label' => 'Условия',
-            'type' => Form::INPUT_WIDGET,
-            'widgetClass' => MultipleInput::className(),
-            'columnOptions' => [
-                'colspan' => 2,
-            ],
-            'options' => [
-                'allowEmptyList'    => true,
-                'enableGuessTitle'  => true,
-                'columns' => [
-                    [
-                        'name'  => 'property',
-                        'title' => 'Свойство',
-                        'enableError' => true,
-                    ],
-                    [
-                        'name'  => 'condition',
-                        'type'  => 'dropDownList',
-                        'items' => ImportantEventsRulesConditions::$conditions,
-                    ],
-                    [
-                        'name'  => 'value',
-                        'title' => 'Значение',
-                    ],
-                ],
-            ],
-        ],
-    ]
-]);
-
-echo Form::widget([
-    'model' => $model,
-    'form' => $form,
-    'attributes' => [
-        'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'id')],
-        'actions' => [
-            'type' => Form::INPUT_RAW,
-            'value' =>
-                Html::tag(
-                    'div',
-                    Html::button('Отменить', [
-                        'class' => 'btn btn-link',
-                        'style' => 'margin-right: 15px;',
-                        'onClick' => 'self.location = "' . Url::toRoute(['important_events/rules']) . '";',
-                    ]) .
-                    Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
-                    ['style' => 'text-align: right; padding-right: 0px;']
+    <div class="row">
+        <div class="col-sm-3">
+            <?= $form->field($model, 'title') ?>
+            <?= $form->field($model, 'event')->dropDownList($eventsList, ['class' => 'select']) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form
+                ->field($model, 'action')
+                ->dropDownList(
+                    ['' => '- Выбрать -'] + ArrayHelper::map(SendActionFactory::me()->getActions(), 'code', 'title'),
+                    ['class' => 'select2']
                 )
-        ],
-    ],
-]);
+            ?>
+            <?= $form
+                ->field($model, 'message_template_id')
+                ->dropDownList(
+                    ['' => '- Выбрать -'] + ArrayHelper::map(MessageTemplate::find()->all(), 'id', 'name'),
+                    ['class' => 'select2']
+                )
+            ?>
+        </div>
+        <div class="col-sm-6">
+            <?= $form
+                ->field($model, 'conditions')
+                ->label('Условия')
+                ->widget(MultipleInput::className(), [
+                    'allowEmptyList' => true,
+                    'enableGuessTitle' => true,
+                    'columns' => [
+                        [
+                            'name' => 'property',
+                            'title' => 'Свойство',
+                            'enableError' => true,
+                        ],
+                        [
+                            'name' => 'condition',
+                            'type' => 'dropDownList',
+                            'items' => ImportantEventsRulesConditions::$conditions,
+                        ],
+                        [
+                            'name' => 'value',
+                            'title' => 'Значение',
+                        ],
+                    ],
+                ])
+            ?>
+        </div>
+    </div>
 
-ActiveForm::end();
-?>
+    <div class="form-group">
+        <?= $this->render('//layouts/_submitButtonSave') ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['important_events/rules'])]) ?>
+    </div>
+
+    <?php ActiveForm::end() ?>
+</div>
 
 <script type="text/javascript">
 jQuery(document).ready(function() {

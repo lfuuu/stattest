@@ -2,6 +2,7 @@
 
 namespace app\models\important_events;
 
+use app\classes\traits\TagsTrait;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 
@@ -11,6 +12,8 @@ use yii\data\ActiveDataProvider;
  */
 class ImportantEventsNames extends ActiveRecord
 {
+
+    use TagsTrait;
 
     // Custom
     const IMPORTANT_EVENT_ADD_PAY_NOTIF = 'add_pay_notif';
@@ -66,8 +69,9 @@ class ImportantEventsNames extends ActiveRecord
     {
         return [
             [['code', 'value', 'group_id'], 'required'],
-            [['code', 'value',], 'trim'],
+            [['code', 'value', 'comment', ], 'trim'],
             ['group_id', 'integer'],
+            [['code', 'value', 'comment',], 'string'],
             [['code', 'group_id'], 'unique', 'targetAttribute' => ['code', 'group_id']],
         ];
     }
@@ -81,6 +85,8 @@ class ImportantEventsNames extends ActiveRecord
             'code' => 'Код',
             'value' => 'Название',
             'group_id' => 'Группа',
+            'comment' => 'Комментарий',
+            'tags' => 'Метки',
         ];
     }
 

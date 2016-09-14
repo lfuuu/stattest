@@ -22,6 +22,7 @@ class TagsColumn extends \kartik\grid\DataColumn
         $this->filterWidgetOptions['clientOptions']['buttonWidth'] = '100%';
         $this->filterWidgetOptions['clientOptions']['enableCollapsibleOptGroups'] = true;
         $this->filterWidgetOptions['clientOptions']['enableClickableOptGroups'] = true;
+        $this->filterWidgetOptions['clientOptions']['enableFiltering'] = true;
 
         $this->filterInputOptions['multiple'] = 'multiple';
 

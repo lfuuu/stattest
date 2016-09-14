@@ -2,29 +2,19 @@
 
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
 use kartik\grid\ActionColumn;
 use app\classes\Html;
 use app\models\important_events\ImportantEventsNames;
 use app\classes\grid\column\universal\WithEmptyFilterColumn;
 use app\classes\grid\column\important_events\GroupColumn;
+use app\classes\grid\column\universal\TagsColumn;
 
 /** @var ImportantEventsNames $dataProvider */
 /** @var ImportantEventsNames $filterModel */
+/** @var \yii\web\View $baseView */
 
-$recordBtns = [
-    'delete' => function($url, $model, $key) {
-        return Html::a(
-            '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            ['/important_events/names/delete', 'id' => $model->id],
-            [
-                'title' => Yii::t('kvgrid', 'Delete'),
-                'data-pjax' => 0,
-                'onClick' => 'return confirm("Вы уверены, что хотите удалить название ?")',
-            ]
-        );
-    },
-];
+$baseView = $this;
 
 echo Html::formLabel('Список групп событий');
 echo Breadcrumbs::widget([
@@ -53,9 +43,19 @@ echo GridView::widget([
             'label' => 'Название',
             'format' => 'raw',
             'value' => function($data) {
-                return Html::a($data->value, ['/important_events/names/edit', 'id' => $data->id]);
+                return
+                    Html::a($data->value, ['/important_events/names/edit', 'id' => $data->id]) .
+                    (
+                        $data->comment
+                            ? Html::tag('br') . Html::tag('label', $data->comment, ['class' => 'label label-default'])
+                            : ''
+                    );
             },
             'width' => '*',
+        ],
+        [
+            'attribute' => 'tags',
+            'class' => TagsColumn::className(),
         ],
         [
             'attribute' => 'group_id',
@@ -63,33 +63,19 @@ echo GridView::widget([
             'label' => 'Группа',
             'width' => '20%',
         ],
-        'actions' => [
-            'class' => ActionColumn::className(),
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'buttons' => $recordBtns,
-            'hAlign' => 'center',
-            'width' => '90px',
-        ]
-    ],
-    'pjax' => false,
-    'toolbar'=> [
         [
-            'content' =>
-                Html::a(
-                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['/important_events/names/edit'],
-                    [
-                        'data-pjax' => 0,
-                        'class' => 'btn btn-success btn-sm form-lnk',
-                    ]
-                ),
-        ]
+            'class' => ActionColumn::className(),
+            'template' => '{delete}',
+            'buttons' => [
+                'delete' => function ($url, ImportantEventsNames $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionDrop', [
+                            'url' => Url::toRoute(['/important_events/names/delete', 'id' => $model->id]),
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
     ],
-    'bordered' => true,
-    'striped' => true,
-    'condensed' => true,
-    'hover' => true,
-    'panel'=>[
-        'type' => GridView::TYPE_DEFAULT,
-    ],
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/important_events/names/edit']),
 ]);

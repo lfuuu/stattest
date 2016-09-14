@@ -2,12 +2,16 @@
 
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
+use kartik\grid\ActionColumn;
 use app\classes\Html;
 use app\forms\user\GroupForm;
 use app\models\important_events\ImportantEventsRulesConditions;
 
 /** @var GroupForm $dataProvider */
+/** @var \yii\web\View $baseView */
+
+$baseView = $this;
 
 $recordBtns = [
     'delete' => function($url, $model, $key) {
@@ -81,33 +85,19 @@ echo GridView::widget([
             },
             'width' => '20%',
         ],
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'buttons' => $recordBtns,
-            'hAlign' => 'center',
-            'width' => '90px',
-        ]
-    ],
-    'pjax' => false,
-    'toolbar'=> [
         [
-            'content' =>
-                Html::a(
-                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['/important_events/rules/edit'],
-                    [
-                        'data-pjax' => 0,
-                        'class' => 'btn btn-success btn-sm form-lnk',
-                    ]
-                ),
-        ]
+            'class' => ActionColumn::className(),
+            'template' => '{delete}',
+            'buttons' => [
+                'delete' => function ($url, ImportantEventsRulesConditions $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionDrop', [
+                            'url' => Url::toRoute(['/important_events/rules/delete', 'id' => $model->id]),
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
     ],
-    'bordered' => true,
-    'striped' => true,
-    'condensed' => true,
-    'hover' => true,
-    'panel'=>[
-        'type' => GridView::TYPE_DEFAULT,
-    ],
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/important_events/rules/edit']),
 ]);
