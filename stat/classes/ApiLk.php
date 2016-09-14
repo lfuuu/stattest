@@ -1936,29 +1936,56 @@ class ApiLk
     }
 
     /**
-     * Сохранение настроек
+     * Сохранение настроек уведомлений
      *
-     *@param int $client_id id клиента
-     *@param array $data данные
+     * @param string $client_id
+     * @param array $data
+     * @param int $minBalance
+     * @param int $minDayLimit
+     * @return array
      */
-    public static function saveAccountNotification($client_id = '', $data = array(), $min_balance = '0', $min_day_limit = '0')
-    {
+    public static function saveAccountNotification(
+        $client_id = '',
+        $data = [],
+        $minBalance = 0,
+        $minDayLimit = 0
+    ) {
         global $db;
-        if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'account_is_bad');
 
-        $res = array();
-        foreach ($data as $name)
-        {
+        if (!self::validateClient($client_id)) {
+            return [
+                'status' => 'error',
+                'message' => 'account_is_bad'
+            ];
+        }
+
+        $model = \app\classes\DynamicModel::validateData([
+            'min_balance' => $minBalance,
+            'min_day_limit' => $minDayLimit
+        ], [
+            ['min_balance', 'integer'],
+            ['min_day_limit', 'integer', 'min' => 0]
+        ]);
+
+        if (!$model->validate()) {
+            return [
+                'status' => 'error',
+                'message' => 'format_error' //Неверный формат данных.
+            ];
+        }
+
+        $res = [];
+        foreach ($data as $name) {
             $tmp = explode('__', $name);
 
-            if(!isset($res[$tmp[1]]))
+            if (!isset($res[$tmp[1]])) {
                 $res[$tmp[1]] = [
                     'client_contact_id' => $tmp[1],
                     ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
                     ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => 0,
                     ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0,
                 ];
+            }
 
             $res[$tmp[1]][$tmp[0]] = 1;
         }
@@ -1969,8 +1996,7 @@ class ApiLk
             'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
         ]);
 
-        foreach ($contacts as $contact)
-        {
+        foreach ($contacts as $contact) {
             $noticeSettings = LkNoticeSetting::findOne([
                 'client_contact_id' => $contact->id,
                 'client_id' => $client_id,
@@ -1996,18 +2022,17 @@ class ApiLk
             $noticeSettings->save();
         }
 
-        $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='".$client_id."'");
+        $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='" . $client_id . "'");
 
         $data = [
             'client_id' => $client_id,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $min_balance,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $min_day_limit
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $minBalance,
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $minDayLimit
         ];
-        if ($clientSettings)
-        {
+        if ($clientSettings) {
             if (
                 $clientSettings['is_min_balance_sent']
-                    &&
+                &&
                 $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE]
             ) {
                 $data['is_min_balance_sent'] = 0;
@@ -2015,18 +2040,21 @@ class ApiLk
 
             if (
                 $clientSettings['is_min_day_limit_sent']
-                    &&
+                &&
                 $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT]
             ) {
                 $data['is_min_day_limit_sent'] = 0;
             }
 
-            $db->QueryUpdate('lk_client_settings',array('client_id'),$data);
+            $db->QueryUpdate('lk_client_settings', ['client_id'], $data);
         } else {
-            $db->QueryInsert('lk_client_settings',$data);
+            $db->QueryInsert('lk_client_settings', $data);
         }
 
-        return array('status'=>'ok','message'=>'save_ok');
+        return [
+            'status' => 'ok',
+            'message' => 'save_ok'
+        ];
     }
 
     /**
@@ -2036,16 +2064,19 @@ class ApiLk
      */
     public static function getAccountSettings($client_id = '')
     {
-        if (!self::validateClient($client_id))
+        if (!self::validateClient($client_id)) {
             throw new Exception("account_is_bad");
+        }
 
-        $ret = array();
-        foreach(ClientContact::find_by_sql("
+        $ret = [];
+        foreach (ClientContact::find_by_sql("
                 select *, min_day_limit as day_limit
                 from lk_client_settings
-                where client_id='".$client_id."'
+                where client_id='" . $client_id . "'
                 ") as $v) {
-                    $ret = self::_exportModelRow(['client_id', 'min_balance', 'day_limit'], $v);
+            $ret['client_id'] = (int)$v->client_id;
+            $ret['min_balance'] = (float)$v->min_balance;
+            $ret['day_limit'] = (float)$v->day_limit;
         }
         return $ret;
     }
