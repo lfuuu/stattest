@@ -2046,12 +2046,15 @@ class ApiLk
                 $data['is_min_day_limit_sent'] = 0;
             }
 
-            $db->QueryUpdate('lk_client_settings', array('client_id'), $data);
+            $db->QueryUpdate('lk_client_settings', ['client_id'], $data);
         } else {
             $db->QueryInsert('lk_client_settings', $data);
         }
 
-        return array('status' => 'ok', 'message' => 'save_ok');
+        return [
+            'status' => 'ok',
+            'message' => 'save_ok'
+        ];
     }
 
     /**
