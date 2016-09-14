@@ -14,6 +14,47 @@ class BillingController extends ApiInternalController
     const NOA = 3;
 
     /**
+     * @SWG\Definition(
+     *   definition="test-auth-result",
+     *   type="object",
+     *   @SWG\Property(
+     *     property="report",
+     *     type="array",
+     *     description="Отчет по вычислению маршрута звонка"
+     *   ),
+     *   @SWG\Property(
+     *     property="summary",
+     *     type="string",
+     *     description="Результат вычисления маршрута звонка"
+     *   ),
+     * ),
+     * @SWG\Get(
+     *   tags={"Работа с биллингом"},
+     *   path="/internal/billing/test-auth",
+     *   summary="Тестирование маршрутизации",
+     *   operationId="Тестирование маршрутизации",
+     *   @SWG\Parameter(name="trunkName",type="string",description="название транка",in="query"),
+     *   @SWG\Parameter(name="srcNumber",type="string",description="номер с которого идет звонок",in="query"),
+     *   @SWG\Parameter(name="dstNumber",type="string",description="номер на который идет звонок",in="query"),
+     *   @SWG\Parameter(name="srcNoa",type="string",description="NOA srcNumber номера",in="query"),
+     *   @SWG\Parameter(name="dstNoa",type="string",description="NOA dstNumber номера",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Тестирование маршрутизации",
+     *     @SWG\Schema(
+     *       ref="#/definitions/test-auth-result"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
      * @param string $trunkName
      * @param string $srcNumber
      * @param string $dstNumber
@@ -43,6 +84,47 @@ class BillingController extends ApiInternalController
         );
     }
 
+    /**
+     * @SWG\Definition(
+     *   definition="test-call-result",
+     *   type="object",
+     *   @SWG\Property(
+     *     property="report",
+     *     type="array",
+     *     description="Отчет по вычислению маршрута звонка"
+     *   ),
+     *   @SWG\Property(
+     *     property="summary",
+     *     type="string",
+     *     description="Результат вычисления маршрута звонка"
+     *   ),
+     * ),
+     * @SWG\Get(
+     *   tags={"Работа с биллингом"},
+     *   path="/internal/billing/test-call",
+     *   summary="Тестирование звонка",
+     *   operationId="Тестирование звонка",
+     *   @SWG\Parameter(name="trunkName",type="string",description="название транка",in="query"),
+     *   @SWG\Parameter(name="srcNumber",type="string",description="номер с которого идет звонок",in="query"),
+     *   @SWG\Parameter(name="dstNumber",type="string",description="номер на который идет звонок",in="query"),
+     *   @SWG\Parameter(name="srcNoa",type="string",description="NOA srcNumber номера",in="query"),
+     *   @SWG\Parameter(name="dstNoa",type="string",description="NOA dstNumber номера",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Тестирование звонка",
+     *     @SWG\Schema(
+     *       ref="#/definitions/test-call-result"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
     /**
      * @param string $trunkName
      * @param string $srcNumber
