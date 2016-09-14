@@ -1,23 +1,65 @@
 <p style="font-weight: bold">Пересчет звонков</p>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-  <tr>
-    <td class=header style="min-width: 100px;" colspan="2">Регион</td><td class=header style="min-width: 100px;">Задания</td>
-  </tr>
-  {foreach from=$servers item='r'}
-  <tr class={cycle values='even,odd'}>
-  <td nowrap>{$r.id}</td>
-  <td nowrap>{$r.name}</td>
-  <td nowrap>
-    {if $tasks[$r.id].id}
-      Task: <b>{$tasks[$r.id].task}</b><br/>
-      Created: <b>{$tasks[$r.id].created}</b><br/>
-      Status: <b>{$tasks[$r.id].status}</b><br/>
-    {else}
-      <a href="index.php?module=voipnew&action=calls_recalc&region_id={$r.id}&t=current">Пересчитать текущий месяц</a>
-      <a href="index.php?module=voipnew&action=calls_recalc&region_id={$r.id}&t=last">Пересчитать прошлый месяц</a>
-    {/if}
-  </td>
-  </tr>
-  {/foreach}
+    <tr>
+        <td class=header style="min-width: 100px;" colspan="2">Регион</td>
+        <td class=header style="min-width: 100px;">Задания</td>
+    </tr>
+    {foreach from=$servers item='r'}
+    <tr class={cycle values='even,odd' }>
+        <td nowrap>{$r.id}</td>
+        <td nowrap>{$r.name}</td>
+        <td nowrap>
+            {if $tasks[$r.id].id}
+                Task: <b>{$tasks[$r.id].task}</b><br/>
+                Created: <b>{$tasks[$r.id].created}</b><br/>
+                Status: <b>{$tasks[$r.id].status}</b><br/>
+            {else}
+                <div class="btn-action" data-region_id="{$r.id}" data-region_name="{$r.name}" data-month="current">Пересчитать текущий месяц</div>
+                <div class="btn-action" data-region_id="{$r.id}" data-region_name="{$r.name}" data-month="last">Пересчитать прошлый месяц</div>
+            {/if}
+        </td>
+    </tr>
+    {/foreach}
 </table>
+
+<div id="confirm-dialog">
+    <span class="ui-icon ui-icon-alert" style="float:left; margin:0px 12px 20px 0;"></span>
+    <b>ВЫ ТОЧНО УВЕРЕНЫ?</b>
+    </br>
+    </br>
+    <small>Что хотите пересчитать за <b><span id="month_info"></span></b> месяц в регионе "<b><span id="region_info"></span></b>"</small>
+</div>
+
+<script>
+    {literal}
+
+    var regionId, month, dialog = $("#confirm-dialog").dialog({
+        autoOpen: false,
+        height: 200,
+        width: 450,
+        modal: true,
+        resizable: false,
+        buttons: {
+            "Да, уверен": function() {
+                window.location.href='./?module=voipnew&action=calls_recalc&region_id=' + regionId + '&t=' + month
+            },
+            "Нет, не уверен": function() {
+                dialog.dialog('close');
+            }
+        },
+    });
+
+    $('.btn-action').button().on('click', function(event){
+        dataClick = $(event.target.parentElement).data();
+        regionId = dataClick.region_id;
+        month = dataClick.month;
+        $('#region_info').text(dataClick.region_name);
+        $('#month_info').text(month == 'current' ? 'текущий' : 'предыдущий');
+
+        dialog.dialog('open');
+    });
+
+
+    {/literal}
+</script>
