@@ -41,7 +41,7 @@ echo GridView::widget([
         ],
         'date' => [
             'attribute' => 'date',
-            'width' => '20%',
+            'width' => '15%',
             'format' => 'raw',
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
@@ -81,7 +81,7 @@ echo GridView::widget([
         [
             'class' => TagsColumn::class,
             'filter' => TagsColumn::class,
-            'width' => '*',
+            'width' => '20%',
         ]
     ],
 ]);

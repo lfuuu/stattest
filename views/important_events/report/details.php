@@ -11,12 +11,7 @@ use app\widgets\TagsSelect2\TagsSelect2;
 <br /><br />
 
 <div class="row col-sm-12">
-    <div class="col-sm-6">
-        <?= TagsSelect2::widget([
-            'model' => $model,
-            'attribute' => 'tags',
-        ]) ?>
-    </div>
+    <div class="col-sm-6"></div>
     <div class="col-sm-6">
         <label class="control-label">Комментарий</label>
         <div class="row">

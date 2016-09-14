@@ -2,26 +2,16 @@
 
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use kartik\grid\GridView;
+use app\classes\grid\GridView;
+use kartik\grid\ActionColumn;
 use app\classes\Html;
 use app\forms\user\GroupForm;
-use app\models\important_events\ImportantEventsRulesConditions;
+use app\models\important_events\ImportantEventsSources;
 
 /** @var GroupForm $dataProvider */
+/** @var \yii\web\View $baseView */
 
-$recordBtns = [
-    'delete' => function($url, $model, $key) {
-        return Html::a(
-            '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            ['/important_events/sources/delete', 'id' => $model->id],
-            [
-                'title' => Yii::t('kvgrid', 'Delete'),
-                'data-pjax' => 0,
-                'onClick' => 'return confirm("Вы уверены, что хотите удалить источник ?")',
-            ]
-        );
-    },
-];
+$baseView = $this;
 
 echo Html::formLabel('Список источников событий');
 echo Breadcrumbs::widget([
@@ -52,33 +42,19 @@ echo GridView::widget([
             },
             'width' => '*',
         ],
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'buttons' => $recordBtns,
-            'hAlign' => 'center',
-            'width' => '90px',
-        ]
-    ],
-    'pjax' => false,
-    'toolbar'=> [
         [
-            'content' =>
-                Html::a(
-                    '<i class="glyphicon glyphicon-plus"></i> Добавить',
-                    ['/important_events/sources/edit'],
-                    [
-                        'data-pjax' => 0,
-                        'class' => 'btn btn-success btn-sm form-lnk',
-                    ]
-                ),
-        ]
+            'class' => ActionColumn::className(),
+            'template' => '{delete}',
+            'buttons' => [
+                'delete' => function ($url, ImportantEventsSources $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionDrop', [
+                            'url' => Url::toRoute(['/important_events/sources/delete', 'id' => $model->id]),
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
     ],
-    'bordered' => true,
-    'striped' => true,
-    'condensed' => true,
-    'hover' => true,
-    'panel'=>[
-        'type' => GridView::TYPE_DEFAULT,
-    ],
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/important_events/sources/edit']),
 ]);

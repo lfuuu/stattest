@@ -83,6 +83,8 @@ class TagsResource extends ActiveRecord
      */
     public function saveAll()
     {
+        $this->tags = (array) $this->tags;
+
         $tagList = self::getTagList($this->resource, 'name');
         $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id);
         $diffTags = array_diff(array_keys($resourceTagList), $this->tags);
@@ -90,13 +92,12 @@ class TagsResource extends ActiveRecord
         $transaction = self::getDb()->beginTransaction();
 
         try {
-            if (count($diffTags)) {
-                $tagsToRemove = [];
+            $tagsToRemove = [];
 
+            if (count($diffTags)) {
                 foreach ($diffTags as $tagName) {
                     $tagsToRemove[] = $tagList[$tagName]['id'];
                 }
-
                 self::deleteAll([
                     'and',
                     ['resource' => $this->resource],

@@ -40,6 +40,7 @@ class MultiSelect extends InputWidget
                 'allSelectedText' => $this->allSelectedText,
                 'selectAllText' => $this->selectAllText,
                 'nSelectedText' => 'Выбрано',
+                'filterPlaceholder' => 'Поиск'
             ]
         );
     }
