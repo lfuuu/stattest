@@ -8,11 +8,15 @@ use yii\db\ActiveRecord;
  * @property int id
  * @property string name
  * @property string hostname
+ *
+ * @property string $apiUrl
  */
 class Server extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
+
+    const API_PORT = 8032;
 
     /**
      * Вернуть имена полей
@@ -36,4 +40,10 @@ class Server extends ActiveRecord
     {
         return Yii::$app->dbPg;
     }
+
+    public function getApiUrl()
+    {
+        return 'http://' . $this->hostname . ':' . self::API_PORT;
+    }
+
 }
