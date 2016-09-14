@@ -1936,16 +1936,19 @@ class ApiLk
     }
 
     /**
-     * Сохранение настроек
+     * Сохранение настроек уведомлений
      *
-     *@param int $client_id id клиента
-     *@param array $data данные
+     * @param string $client_id
+     * @param array $data
+     * @param int $minBalance
+     * @param int $minDayLimit
+     * @return array
      */
     public static function saveAccountNotification(
         $client_id = '',
-        $data = array(),
-        $min_balance = '0',
-        $min_day_limit = '0'
+        $data = [],
+        $minBalance = 0,
+        $minDayLimit = 0
     ) {
         global $db;
 
@@ -1957,8 +1960,8 @@ class ApiLk
         }
 
         $model = \app\classes\DynamicModel::validateData([
-            'min_balance' => $min_balance,
-            'min_day_limit' => $min_day_limit
+            'min_balance' => $minBalance,
+            'min_day_limit' => $minDayLimit
         ], [
             ['min_balance', 'integer'],
             ['min_day_limit', 'integer', 'min' => 0]
@@ -2023,8 +2026,8 @@ class ApiLk
 
         $data = [
             'client_id' => $client_id,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $min_balance,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $min_day_limit
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $minBalance,
+            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $minDayLimit
         ];
         if ($clientSettings) {
             if (
