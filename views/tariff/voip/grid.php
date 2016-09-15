@@ -2,6 +2,14 @@
 
 use app\classes\Html;
 use kartik\grid\GridView;
+use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\ConnectionPointColumn;
+use app\classes\grid\column\CurrencyColumn;
+use app\classes\grid\column\NameColumn;
+use app\classes\grid\column\VoipStatusesColumn;
+use app\classes\grid\column\BooleanColumn;
+use app\classes\grid\column\MethodOfBillingColumn;
+use app\classes\grid\column\DestinationColumn;
 
 echo Html::formLabel('Тарифы IP Телефонии');
 
@@ -20,30 +28,32 @@ echo GridView::widget([
     ],
     'columns' => [
         [
-            'class' => 'app\classes\grid\column\CountryColumn',
+            'attribute' => 'country_id',
+            'label' => 'Страна',
+            'class' => CountryColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\ConnectionPointColumn',
+            'class' => ConnectionPointColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\CurrencyColumn',
+            'class' => CurrencyColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\NameColumn',
+            'class' => NameColumn::className(),
             'attribute' => 'name',
             'label' => 'Тариф',
             'vAlign' => 'top',
             'noWrap' => true,
         ],
         [
-            'class' => 'app\classes\grid\column\VoipStatusesColumn',
+            'class' => VoipStatusesColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\BooleanColumn',
+            'class' => BooleanColumn::className(),
             'attribute' => 'is_default',
             'values' => [0 => '', 1 => 'по-умолчанию'],
             'label' => 'По-умолчанию',
@@ -61,14 +71,14 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\BooleanColumn',
+            'class' => BooleanColumn::className(),
             'attribute' => 'paid_redirect',
             'values' => [0 => 'нет', 1 => 'да'],
             'label' => 'Платная переадресация',
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\MethodOfBillingColumn',
+            'class' => MethodOfBillingColumn::className(),
             'vAlign' => 'top',
         ],
         [
@@ -92,14 +102,14 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\BooleanColumn',
+            'class' => BooleanColumn::className(),
             'values' => [0 => 'Без НДС', 1 => 'Вкл. НДС'],
             'attribute' => 'price_include_vat',
             'label' => 'НДС',
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\DestinationColumn',
+            'class' => DestinationColumn::className(),
             'attribute' => 'dest',
             'vAlign' => 'top',
         ],

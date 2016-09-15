@@ -2,6 +2,12 @@
 
 use app\classes\Html;
 use kartik\grid\GridView;
+use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\ConnectionPointColumn;
+use app\classes\grid\column\CurrencyColumn;
+use app\classes\grid\column\NameColumn;
+use app\classes\grid\column\BooleanColumn;
+use app\classes\grid\column\DestinationVoipColumn;
 
 echo Html::formLabel('Тарифы IP Телефонии - Пакеты');
 
@@ -10,19 +16,21 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => 'app\classes\grid\column\CountryColumn',
+            'attribute' => 'country_id',
+            'label' => 'Страна',
+            'class' => CountryColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\ConnectionPointColumn',
+            'class' => ConnectionPointColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\CurrencyColumn',
+            'class' => CurrencyColumn::className(),
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\NameColumn',
+            'class' => NameColumn::className(),
             'attribute' => 'name',
             'label' => 'Тариф',
             'vAlign' => 'top',
@@ -44,14 +52,14 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\BooleanColumn',
+            'class' => BooleanColumn::className(),
             'values' => [0 => 'Без НДС', 1 => 'Вкл. НДС'],
             'attribute' => 'price_include_vat',
             'label' => 'НДС',
             'vAlign' => 'top',
         ],
         [
-            'class' => 'app\classes\grid\column\DestinationVoipColumn',
+            'class' => DestinationVoipColumn::className(),
             'attribute' => 'destination_id',
             'vAlign' => 'top',
         ],
