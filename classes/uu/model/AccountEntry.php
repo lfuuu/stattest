@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\model;
 
+use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -118,9 +119,10 @@ class AccountEntry extends ActiveRecord
 
     /**
      * Вернуть тип текстом
+     * @param string $langCode
      * @return string
      */
-    public function getTypeName()
+    public function getTypeName($langCode = Language::LANGUAGE_DEFAULT)
     {
         $tableName = self::tableName();
         switch ($this->type_id) {
@@ -133,22 +135,23 @@ class AccountEntry extends ActiveRecord
                 ($accountTariff = $this->accountTariff)
                 && ($serviceType = $accountTariff->serviceType)
             ) {
-                $serviceTypeName = $serviceType->name . '. ';
+                $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), 'Type #' . $serviceType->id, [], $langCode) . '. ';
             }
 
-            $name = Yii::t(
-                'models/' . $tableName,
-                $this->code
-            );
+            $dictionary = 'models/' . $tableName;
 
-            return $serviceTypeName . $name;
+            return Yii::t($dictionary, '{name} ({descr}). {serviceTypeName}', [
+                'name' => Yii::t($dictionary, $this->code, [], $langCode),
+                'serviceTypeName' => $serviceTypeName,
+                'descr' => ($this->accountTariff->service_type_id == ServiceType::ID_VOIP ? $this->accountTariff->voip_number : $this->account_tariff_id),
+            ], $langCode);
 
             default: //resources
                 if (
                     ($tariffResource = $this->tariffResource) &&
                     ($resource = $tariffResource->resource)
                 ) {
-                    return $resource->getFullName();
+                    return $resource->getFullName($langCode);
                 } else {
                     Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
                     return '';

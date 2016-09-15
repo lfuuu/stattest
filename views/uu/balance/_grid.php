@@ -1,6 +1,5 @@
 <?php
 
-use yii\helpers\Url;
 use app\classes\Html;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\Bill as uuBill;
@@ -8,7 +7,7 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Payment;
-
+use app\models\Language;
 
 /**
  * Бухгалтерский баланс. Грид
@@ -203,9 +202,24 @@ foreach ($result as $monthKey => $month):
                     <?php if (!isset($monthUuBills[$i]) && count($monthUuBills) == $i): ?>
                         <td rowspan="<?= ($totalItems - $i) ?>"></td>
                     <?php elseif (isset($monthUuBills[$i])): ?>
-                        <td>
-                            <?= Html::a('Счет-фактура № '. $monthUuBills[$i]->id, $monthUuBills[$i]->url, ['target' => '_blank']) ?>
-                            от <?=$monthUuBills[$i]->date?> на <?=$monthUuBills[$i]->price?>
+                        <td nowrap="nowrap">
+                            <?= Html::a('Счет-фактура № '. $monthUuBills[$i]->id, $monthUuBills[$i]->url, ['target' => '_blank']) ?><br />
+                            от <?= $monthUuBills[$i]->date ?> на <?= $monthUuBills[$i]->price ?>
+
+                            <br /><br />
+                            <?php
+                            foreach(Language::getList() as $languageCode => $languageTitle) {
+                                echo Html::a(
+                                    Html::tag(
+                                        'div', '',
+                                        ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
+                                    ) . 'Счет-фактура № '. $monthUuBills[$i]->id,
+                                    ['/uu/invoice/view', 'langCode' => $languageCode, 'month' => $monthKey],
+                                    ['target' => '_blank']
+                                ) .
+                                Html::tag('br');
+                            }
+                            ?>
                         </td>
                     <?php endif; ?>
                     <td>

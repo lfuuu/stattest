@@ -1,0 +1,21 @@
+<?php
+return [
+    'Type #1' => 'hu-HU ВАТС',
+    'Type #2' => 'hu-HU Телефония',
+    'Type #3' => 'hu-HU Телефония. Пакеты',
+    'Type #4' => 'hu-HU Интернет',
+    'Type #5' => 'hu-HU Collocation',
+    'Type #6' => 'hu-HU VPN',
+    'Type #7' => 'hu-HU IT Park',
+    'Type #8' => 'hu-HU Регистрация доменов',
+    'Type #9' => 'hu-HU Виртуальный почтовый сервер',
+    'Type #10' => 'hu-HU Старый ВАТС',
+    'Type #11' => 'hu-HU Сайт',
+    'Type #12' => 'hu-HU Провайдер',
+    'Type #13' => 'hu-HU Wellsystem',
+    'Type #14' => 'hu-HU Welltime как продукт',
+    'Type #15' => 'hu-HU Дополнительные услуги',
+    'Type #16' => 'hu-HU SMS Gate',
+    'Type #17' => 'hu-HU SMS',
+    'Type #18' => 'hu-HU Welltime как сервис',
+];

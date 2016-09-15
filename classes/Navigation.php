@@ -44,7 +44,6 @@ class Navigation
                 ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
                 ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
-                ->addItem('Договора (шаблоны)', ['/document/template/index'], ['tarifs.read'])
                 ->addItem('Телефония DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Телефония Номера', ['/tariff/number/index'], ['tarifs.read'])
         );
@@ -85,7 +84,6 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Письма клиентам')
                 ->addStatModuleItems('mail')
-                ->addItem('Шаблоны сообщений', ['/message/template'], ['mail.w'])
         );
 
         $this->addBlock(
@@ -130,6 +128,16 @@ class Navigation
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
+                ->addItem('Настройки платежных документов', ['/invoice-settings'])
+        );
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('templates')
+                ->setTitle('Шаблоны')
+                ->addItem('Договоры', ['/templates/document/template'])
+                ->addItem('Почтовые оповещения', ['/templates/email/template'], ['mail.w'])
+                ->addItem('Универсальные счета-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
         );
 
         $this->addBlockUniversalUsage();

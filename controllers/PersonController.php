@@ -13,6 +13,9 @@ use app\forms\person\PersonForm;
 class PersonController extends BaseController
 {
 
+    /**
+     * @return []
+     */
     public function behaviors()
     {
         return [
@@ -39,6 +42,9 @@ class PersonController extends BaseController
         ];
     }
 
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         $model = new PersonForm;
@@ -47,10 +53,6 @@ class PersonController extends BaseController
             'sort' => [
                 'attributes' => [
                     'id',
-                    'name_nominative',
-                ],
-                'defaultOrder' => [
-                    'name_nominative' => SORT_ASC,
                 ],
             ],
 
@@ -62,6 +64,10 @@ class PersonController extends BaseController
         ]);
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function actionAdd()
     {
         $model = new PersonForm;
@@ -71,14 +77,21 @@ class PersonController extends BaseController
         }
 
         return $this->render('edit', [
-            'model' => $model
+            'model' => $model,
+            'person' => new Person,
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     */
     public function actionEdit($id)
     {
+        /** @var Person $person */
         $person = Person::findOne($id);
-
         Assert::isObject($person);
 
         $model = new PersonForm;
@@ -93,13 +106,18 @@ class PersonController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     */
     public function actionDelete($id)
     {
         $person = Person::findOne($id);
         Assert::isObject($person);
 
-        $model = new PersonForm;
-        $model->delete($person);
+        $form = new PersonForm;
+        $form->delete($person);
 
         $this->redirect('/person');
     }

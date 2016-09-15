@@ -5,7 +5,6 @@ use Yii;
 use app\classes\Form;
 use app\models\Organization;
 
-
 class OrganizationForm extends Form
 {
 
@@ -18,18 +17,9 @@ class OrganizationForm extends Form
         $lang_code,
         $is_simple_tax_system = 0,
         $vat_rate = 0,
-        $name,
-        $full_name,
-        $legal_address,
-        $post_address,
         $registration_id,
         $tax_registration_id,
         $tax_registration_reason,
-        $bank_account,
-        $bank_name,
-        $bank_correspondent_account,
-        $bank_bik,
-        $bank_swift,
         $contact_phone,
         $contact_fax,
         $contact_email,
@@ -42,10 +32,13 @@ class OrganizationForm extends Form
     const NEW_TITLE = 'Новая организация';
     const EDIT_TITLE = 'Обновление данных организации';
 
+    /**
+     * @return []
+     */
     public function rules()
     {
         return [
-            [['actual_from', 'name', 'firma'], 'required'],
+            [['actual_from', 'firma'], 'required'],
             [
                 [
                     'id',
@@ -63,17 +56,9 @@ class OrganizationForm extends Form
                 [
                     'lang_code',
                     'is_simple_tax_system',
-                    'full_name',
-                    'legal_address',
-                    'post_address',
                     'registration_id',
                     'tax_registration_id',
                     'tax_registration_reason',
-                    'bank_account',
-                    'bank_name',
-                    'bank_correspondent_account',
-                    'bank_bik',
-                    'bank_swift',
                     'contact_phone',
                     'contact_fax',
                     'contact_email',
@@ -87,15 +72,23 @@ class OrganizationForm extends Form
         ];
     }
 
+    /**
+     * @return []
+     */
     public function attributeLabels()
     {
         return [
             'actual_from' => 'Дата активации',
-            'name' => 'Краткое название',
             'firma' => 'Код организации',
         ];
     }
 
+    /**
+     * @param Organization|false $organization
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     public function save($organization = false)
     {
         if (!($organization instanceof Organization)) {
@@ -106,7 +99,6 @@ class OrganizationForm extends Form
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $organization->save();
-
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();

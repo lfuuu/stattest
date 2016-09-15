@@ -5,13 +5,17 @@
 
 namespace app\controllers\uu;
 
+use app\classes\Smarty;
+use app\forms\templates\uu\InvoiceForm;
+use Yii;
+use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountTariff;
 use app\models\ClientAccount;
-use Yii;
-use yii\filters\AccessControl;
+use app\models\Language;
+use app\models\light_models\uu\InvoiceLight;
 
 class InvoiceController extends BaseController
 {
@@ -41,12 +45,10 @@ class InvoiceController extends BaseController
     /**
      * @return string
      */
-    public function actionView($clientAccountId = null, $renderMode = null, $month = null)
+    public function actionView($clientAccountId = null, $renderMode = null, $month = null, $langCode = null)
     {
         // Вернуть текущего клиента, если он есть
         !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
-
-        $accountEntries = [];
 
         if ($month) {
             $date = $month . '-01';
@@ -56,58 +58,53 @@ class InvoiceController extends BaseController
                 ->format('Y-m-d');
         }
 
+        /** @var ClientAccount $clientAccount */
         if (($clientAccount = ClientAccount::findOne($clientAccountId)) === null) {
             Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
             return $this->redirect('/');
         }
 
-        // Вернуть проводки клиента за предыдущий календарный месяц для счета-фактуры
-        $accountEntryTableName = AccountEntry::tableName();
-        $accountTariffTableName = AccountTariff::tableName();
-        $accountEntries = AccountEntry::find()
-            ->joinWith('accountTariff')
-            ->where([$accountTariffTableName . '.client_account_id' => $clientAccount->id])
-            ->orderBy([
-                'account_tariff_id' => SORT_ASC,
-                'type_id' => SORT_ASC,
-            ])
-            ->andWhere(['>', $accountEntryTableName . '.vat', 0])
-            ->andWhere([$accountEntryTableName . '.date' => $date])
-            ->all();
+        $invoice = new InvoiceLight($clientAccount);
 
+        if (!is_null($langCode)) {
+            $invoice->setLanguage($langCode);
+        }
+
+        if ($date) {
+            $invoice->setDate($date);
+        }
+
+        $invoiceData = $invoice->getProperties();
 
         switch ($renderMode) {
             case 'pdf': {
                 return $this->renderAsPDF('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
-                    'modePDF' => true,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                 ], [
                     'cssFile' => '@web/invoice.css',
                 ]);
             }
             case 'mhtml': {
                 return $this->renderAsMHTML('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                     'inline_img' => false,
                 ]);
             }
             case 'print': {
                 $this->layout = 'empty';
                 return $this->render('print', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
-                    'date' => $date,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
                     'modePDF' => false,
                 ]);
             }
             default: {
                 return $this->render('view', [
-                    'clientAccount' => $clientAccount,
-                    'accountEntries' => $accountEntries,
+                    'invoiceContent' => $invoice->render(),
+                    'invoice' => $invoiceData,
+                    'langCode' => $langCode,
                     'date' => $date,
                 ]);
             }

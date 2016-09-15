@@ -1,25 +1,149 @@
 <?php
 namespace app\models;
 
+use Yii;
+use ReflectionClass;
 use yii\db\ActiveRecord;
+use app\exceptions\FormValidationException;
+use app\classes\validators\ArrayValidator;
+use app\classes\DynamicModel;
+use app\classes\traits\I18NGetTrait;
 
 /**
  * @property int $id
- * @property string $name_nominative       ФИО в именительном падеже
- * @property string $name_genitive         ФИО в родительском падаже
- * @property string $post_nominative       Должность в именительном падеже
- * @property string $post_genitive         Должность в родительском падеже
- * @property string $signature_file_name    Название файла с подписью
+ * @property string signature_file_name         Имя файла с оттиском подписи ответственного лица
+ * @property string name_nominative             ФИО в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string name_genitive               ФИО в род. п. (виртуальное свойство, зависит от I18N)
+ * @property string post_nominative             Наименование должности в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string post_genitive               Наименование должности в род. п. (виртуальное свойство, зависит от I18N)
  */
 class Person extends ActiveRecord
 {
+
+    use I18NGetTrait;
+
     public $canDelete = true;
 
+    private $langCode = Language::LANGUAGE_DEFAULT;
+
+    // Виртуальные поля для локализации
+    private $virtualPropertiesI18N = [
+        'name_nominative', 'name_genitive', 'post_nominative', 'post_genitive',
+    ];
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'person';
     }
 
+    public function rules()
+    {
+        return [
+            ['id', 'integer'],
+            ['signature_file_name', 'string'],
+        ];
+    }
+
+    /**
+     * @return []
+     */
+    public function attributeLabels()
+    {
+        return [
+            'name_nominative' => 'ФИО',
+            'name_genitive' => 'ФИО (род. п.)',
+            'post_nominative' => 'Должность',
+            'post_genitive' => 'Должность (род. п.)',
+        ];
+    }
+
+    /**
+     * @param string $langCode
+     * @return []
+     */
+    public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
+    {
+        return
+            $this->hasMany(PersonI18N::className(), ['person_id' => 'id'])
+                ->andWhere(['lang_code' => $langCode])
+                ->indexBy('field')
+                ->all();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->name_nominative;
+    }
+
+    /**
+     * @param string $langCode
+     * @return $this
+     */
+    public function setLanguage($langCode = Language::LANGUAGE_DEFAULT)
+    {
+        $this->langCode = $langCode;
+        return $this;
+    }
+
+    /**
+     * @param bool|true $runValidation
+     * @param array $attributesName
+     * @return bool
+     * @throws \Exception
+     */
+    public function save($runValidation = true, $attributesName = [])
+    {
+        parent::save($runValidation, $attributesName);
+
+        $personI18N = DynamicModel::validateData(
+            Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
+            [
+                [$this->virtualPropertiesI18N, ArrayValidator::className()],
+            ]
+        );
+
+        if ($personI18N->hasErrors()) {
+            throw new FormValidationException($personI18N);
+        }
+
+        foreach ($personI18N->attributes as $attribute => $i18nData) {
+            foreach ($i18nData as $lang => $value) {
+                $transaction = PersonI18N::getDb()->beginTransaction();
+                try {
+                    $i18n = PersonI18N::findOne([
+                        'person_id' => $this->id,
+                        'lang_code' => $lang,
+                        'field' => $attribute,
+                    ]);
+                    if (!$i18n) {
+                        $i18n = new PersonI18N;
+                        $i18n->person_id = $this->id;
+                        $i18n->lang_code = $lang;
+                        $i18n->field = $attribute;
+                    }
+                    $i18n->value = $value;
+                    $i18n->save();
+
+                    $transaction->commit();
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    throw $e;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return []
+     */
     public function getOldModeInfo()
     {
         return [

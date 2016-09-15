@@ -94,7 +94,7 @@ class TemplateContent extends ActiveRecord
      */
     public function save($runValidation = true, $attributeNames = null)
     {
-        $countries = Country::dao()->getList();
+        $countries = Country::getList();
         $templateContentTypes = Template::$types;
 
         $filenameKey = $this->formNameKey() . '_filename';

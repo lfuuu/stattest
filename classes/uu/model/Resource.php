@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\model;
 
+use Yii;
 use app\classes\uu\resourceReader\CollocationTrafficForeignResourceReader;
 use app\classes\uu\resourceReader\CollocationTrafficRussia2ResourceReader;
 use app\classes\uu\resourceReader\CollocationTrafficRussiaResourceReader;
@@ -18,6 +19,7 @@ use app\classes\uu\resourceReader\VpbxFaxResourceReader;
 use app\classes\uu\resourceReader\VpbxRecordResourceReader;
 use app\classes\uu\resourceReader\VpnTrafficResourceReader;
 use yii\db\ActiveQuery;
+use app\models\Language;
 
 /**
  * Ресурс (дисковое пространство, абоненты, линии и пр.)
@@ -179,11 +181,17 @@ class Resource extends \yii\db\ActiveRecord
 
     /**
      * Вернуть полное имя (с типом услуги)
+     * @param string $langCode
      * @return string
      */
-    public function getFullName()
+    public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
     {
-        return $this->serviceType->name . '. ' . $this->name;
+        $dictionary = 'models/' . self::tableName();
+
+        return Yii::t($dictionary, '{resource} (ID: {id})', [
+            'resource' => Yii::t($dictionary, 'Resource #' . $this->id, [], $langCode),
+            'id' => $this->id,
+        ], $langCode);
     }
 
     /**
