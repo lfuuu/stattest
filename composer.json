@@ -25,7 +25,8 @@
     "yiisoft/yii2-httpclient": "^2.0@dev",
     "kartik-v/yii2-tabs-x": "^1.2",
     "bower/typeahead.js": "dev-master as 0.10.99",
-    "yiisoft/yii2-gii": "dev-master"
+    "yiisoft/yii2-gii": "dev-master",
+    "yiisoft/yii2-bootstrap": "dev-master"
   },
   "require-dev": {
     "yiisoft/yii2-codeception": "@stable",
@@ -81,6 +82,18 @@
           "type": "git",
           "url": "https://github.com/twitter/typeahead.js",
           "reference": "master"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "bower/bootstrap",
+        "version": "3.3.7",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/twbs/bootstrap",
+          "reference": "v3-dev"
         }
       }
     }
