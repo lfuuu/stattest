@@ -63,8 +63,9 @@ class AccountEntryTarificator implements TarificatorI
         $this->_tarificate(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
-            'date_from',
-            $accountTariffId
+            'date_to',
+            $accountTariffId,
+            $sqlAndWhere = 'AND account_log.date_to > NOW()'
         );
 
         // Расчёт НДС
@@ -88,16 +89,17 @@ class AccountEntryTarificator implements TarificatorI
      * @param int|Expression $typeId
      * @param string $dateFieldName
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @param string $sqlAndWhere
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $sqlAndWhere = '')
     {
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
+        $sqlParams = [];
 
         if ($accountTariffId) {
-            $sqlAndWhere = ' AND account_log.account_tariff_id = ' . $accountTariffId;
-        } else {
-            $sqlAndWhere = '';
+            $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
+            $sqlParams[':account_tariff_id'] = $accountTariffId;
         }
 
         // создать пустые проводки
@@ -117,7 +119,7 @@ class AccountEntryTarificator implements TarificatorI
                     {$sqlAndWhere}
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
-        $db->createCommand($insertSQL)
+        $db->createCommand($insertSQL, $sqlParams)
             ->execute();
         unset($insertSQL);
 
@@ -136,7 +138,7 @@ SQL;
                AND account_entry.account_tariff_id = account_log.account_tariff_id
                {$sqlAndWhere}
 SQL;
-        $db->createCommand($updateSql)
+        $db->createCommand($updateSql, $sqlParams)
             ->execute();
         unset($updateSql);
 
@@ -162,7 +164,7 @@ SQL;
          WHERE
             account_entry.id = t.account_entry_id
 SQL;
-        $db->createCommand($updateSql)
+        $db->createCommand($updateSql, $sqlParams)
             ->execute();
         unset($updateSql);
     }
@@ -303,7 +305,7 @@ SQL;
     /**
      * Создает событие на обновление счетов, сделаных из проводок.
      *
-     * @param int[]
+     * @param int []
      */
     public function makeUpdateEvents(array $ids)
     {
