@@ -14,6 +14,7 @@ use app\classes\grid\column\universal\TariffPersonColumn;
 use app\classes\grid\column\universal\TariffStatusColumn;
 use app\classes\grid\column\universal\TariffVoipGroupColumn;
 use app\classes\grid\column\universal\TariffVoipTarificateColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\TariffFilter;
@@ -77,6 +78,15 @@ $columns = [
     [
         'attribute' => 'tariff_person_id',
         'class' => TariffPersonColumn::className(),
+    ],
+    [
+        'label' => 'Универсальный?',
+        'attribute' => 'is_uu',
+        'class' => YesNoColumn::className(),
+        'value' => function (Tariff $tariff) {
+            $isOld = $tariff->getNonUniversalId();
+            return Yii::t('common', $isOld ? 'No' : 'Yes');
+        }
     ],
 ];
 
