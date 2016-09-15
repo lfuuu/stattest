@@ -15,18 +15,18 @@ class BillingController extends ApiInternalController
 
     /**
      * @SWG\Definition(
-     *   definition="test_auth_result",
+     *   definition="test-auth-result",
      *   type="object",
      *   @SWG\Property(
      *     property="report",
-     *     type="object",
+     *     type="array",
      *     description="Отчет по вычислению маршрута звонка"
      *   ),
      *   @SWG\Property(
      *     property="summary",
      *     type="string",
      *     description="Результат вычисления маршрута звонка"
-     *   )
+     *   ),
      * ),
      * @SWG\Get(
      *   tags={"Работа с биллингом"},
@@ -40,9 +40,9 @@ class BillingController extends ApiInternalController
      *   @SWG\Parameter(name="dstNoa",type="string",description="NOA dstNumber номера",in="query"),
      *   @SWG\Response(
      *     response=200,
-     *     description="тестирование маршрутизации",
-     *     @SWG\Definition(
-     *       ref="#/definitions/test_auth_result"
+     *     description="Тестирование маршрутизации",
+     *     @SWG\Schema(
+     *       ref="#/definitions/test-auth-result"
      *     )
      *   ),
      *   @SWG\Response(
@@ -86,11 +86,11 @@ class BillingController extends ApiInternalController
 
     /**
      * @SWG\Definition(
-     *   definition="test_call_result",
+     *   definition="test-call-result",
      *   type="object",
      *   @SWG\Property(
      *     property="report",
-     *     type="object",
+     *     type="array",
      *     description="Отчет по вычислению маршрута звонка"
      *   ),
      *   @SWG\Property(
@@ -111,9 +111,9 @@ class BillingController extends ApiInternalController
      *   @SWG\Parameter(name="dstNoa",type="string",description="NOA dstNumber номера",in="query"),
      *   @SWG\Response(
      *     response=200,
-     *     description="тестирование звонка",
-     *     @SWG\Definition(
-     *       ref="#/definitions/test_call_result"
+     *     description="Тестирование звонка",
+     *     @SWG\Schema(
+     *       ref="#/definitions/test-call-result"
      *     )
      *   ),
      *   @SWG\Response(
