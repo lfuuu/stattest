@@ -267,12 +267,19 @@ class Navigation
         // типы услуг в тарифах и услугах
         $serviceTypes = ServiceType::find()->all();
         foreach ($serviceTypes as $serviceType) {
-            $block->addItem($serviceType->name, Url::to(['/uu/tariff', 'serviceTypeId' => $serviceType->id]), ['tarifs.read']);
+
+            $block->addItem($serviceType->name, Url::to([
+                '/uu/tariff',
+                'serviceTypeId' => $serviceType->id,
+                'TariffFilter[is_uu]' => 1,
+            ]), ['tarifs.read']);
+
             $block2->addItem($serviceType->name, Url::to([
                 '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
                 //'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
             ]), ['tarifs.read']);
+            
         }
 
         $this->addBlock($block);

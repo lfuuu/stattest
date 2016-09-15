@@ -24,6 +24,8 @@ class TariffFilter extends Tariff
 
     public $service_type_id = '';
 
+    public $is_uu = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -41,7 +43,7 @@ class TariffFilter extends Tariff
         return array_merge(
             parent::rules(),
             [
-                ['voip_city_id', 'integer'],
+                [['voip_city_id', 'is_uu'], 'integer'],
             ]);
     }
 
@@ -78,6 +80,10 @@ class TariffFilter extends Tariff
         $this->currency_id !== '' && $query->andWhere([$tariffTableName . '.currency_id' => $this->currency_id]);
         $this->country_id !== '' && $query->andWhere([$tariffTableName . '.country_id' => $this->country_id]);
         $this->service_type_id !== '' && $query->andWhere([$tariffTableName . '.service_type_id' => $this->service_type_id]);
+
+        if ($this->is_uu !== '') {
+            $query->andWhere([$this->is_uu ? '>=' : '<=', $tariffTableName . '.id', Tariff::DELTA]);
+        }
 
         $this->voip_tarificate_id !== '' && $query->andWhere([$tariffTableName . '.voip_tarificate_id' => $this->voip_tarificate_id]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
