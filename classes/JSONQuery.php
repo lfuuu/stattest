@@ -71,23 +71,9 @@ class JSONQuery
         Yii::info('Json response: ' . $debugInfo);
 
         if (isset($responseArray["errors"]) && $responseArray["errors"]) {
-
-            if (isset($responseArray["errors"]["message"], $responseArray["errors"]["code"])) {
-                $msg = $responseArray["errors"]["message"];
-                $code = $responseArray["errors"]["code"];
-            } else {
-                if (isset($responseArray['errors'][0], $responseArray['errors'][0]["message"])) {
-                    $msg = $responseArray['errors'][0]["message"];
-                    $code = $responseArray['errors'][0]["code"];
-                } else {
-                    $msg = "Текст ошибки не найден! <br>\n" . var_export($responseArray, true);
-                    $code = 500;
-                }
-            }
-
-            throw new Exception($msg . ' ' . $debugInfo, $code);
+            throw new Exception($debugInfo, -1);
         }
-        
+
         return $responseArray;
     }
 
