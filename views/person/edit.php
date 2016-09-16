@@ -34,6 +34,11 @@ echo Breadcrumbs::widget([
 
 $tabs = [];
 foreach(Language::getList() as $languageCode => $languageTitle) {
+    if (!is_file(__DIR__  . DIRECTORY_SEPARATOR . 'i18n' . DIRECTORY_SEPARATOR . $languageCode . '.php')) {
+        Yii::$app->session->addFlash('error', 'Файл шаблон для языка "' . $languageTitle . '" (' . $languageCode . ') не найден');
+        $languageCode = Language::LANGUAGE_DEFAULT;
+    }
+
     $tabs[] = [
         'label' =>
             Html::tag(
