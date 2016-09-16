@@ -25,8 +25,8 @@ class EventQueue extends ActiveRecord
     public static $statuses = [
         self::STATUS_PLAN => 'Запланирована',
         self::STATUS_OK => 'Задача выполнена',
-        self::STATUS_ERROR => 'Ошибка',
-        self::STATUS_STOP => 'Остановлена из-за ошибки',
+        self::STATUS_ERROR => 'Временная ошибка',
+        self::STATUS_STOP => 'Постоянная ошибка',
     ];
 
     public static function tableName()
