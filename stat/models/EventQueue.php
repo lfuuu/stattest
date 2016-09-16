@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @property int id
+ * @property string date timestamp
+ * @property string event
+ * @property string param
+ * @property string status    enum('plan','ok','error','stop')
+ * @property int iteration
+ * @property string next_start timestamp
+ * @property string log_error
+ * @property string code
+ */
 class EventQueue extends ActiveRecord\Model
 {
     static $table_name = 'event_queue';

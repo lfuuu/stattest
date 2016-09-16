@@ -49,6 +49,7 @@ function do_events()
 
             // для того, чтобы при фатале на конкретном событии они при следующем запуске не мешало другим событиям
             $event->setError();
+            $event->iteration--;
 
             $param = $event->param;
 
