@@ -67,7 +67,7 @@ class JSONQuery
             throw new Exception($debugInfo, -1);
         }
 
-        $debugInfo .= sprintf('$responseArray = %s', $responseArray) . PHP_EOL;
+        $debugInfo .= sprintf('$responseArray = %s', print_r($responseArray, true)) . PHP_EOL;
         Yii::info('Json response: ' . $debugInfo);
 
         if (isset($responseArray["errors"]) && $responseArray["errors"]) {
