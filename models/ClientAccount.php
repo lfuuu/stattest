@@ -40,6 +40,7 @@ use yii\helpers\Url;
  * @property string $site_name
  * @property string $timezone_name
  * @property int $account_version
+ * @property int $is_postpaid
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -237,7 +238,8 @@ class ClientAccount extends HistoryActiveRecord
             'custom_properties' => 'Ввести данные вручную',
             'lk_balance_view_mode' => 'Тип отображения баланса в ЛК',
             'account_version' => 'Версия ЛС',
-            'anti_fraud_disabled' => 'Отключен анти-фрод'
+            'anti_fraud_disabled' => 'Отключен анти-фрод',
+            'is_postpaid' => 'Постоплата',
         ];
     }
 
