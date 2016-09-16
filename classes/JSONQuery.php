@@ -46,7 +46,7 @@ class JSONQuery
 
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
-        if (!$result = curl_exec($ch)) {
+        if (!$response = curl_exec($ch)) {
             $debugInfo .= sprintf('curl_error = %s', curl_error($ch)) . PHP_EOL;
             throw new Exception($debugInfo);
         }
@@ -59,18 +59,36 @@ class JSONQuery
             throw new Exception($debugInfo, $info["http_code"]);
         }
 
-        $response = $result;
-        $result = @json_decode($result, true);
+        $responseArray = @json_decode($response, true);
 
-        if ($result === null) {
+        if ($responseArray === null) {
             Yii::info('Json response raw: ' . $response);
             $debugInfo .= sprintf('$response = %s', $response) . PHP_EOL;
             throw new Exception($debugInfo, -1);
         }
 
-        Yii::info('Json response: ' . json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        $debugInfo .= sprintf('$responseArray = %s', $responseArray) . PHP_EOL;
+        Yii::info('Json response: ' . $debugInfo);
 
-        return $result;
+        if (isset($responseArray["errors"]) && $responseArray["errors"]) {
+
+            if (isset($responseArray["errors"]["message"], $responseArray["errors"]["code"])) {
+                $msg = $responseArray["errors"]["message"];
+                $code = $responseArray["errors"]["code"];
+            } else {
+                if (isset($responseArray['errors'][0], $responseArray['errors'][0]["message"])) {
+                    $msg = $responseArray['errors'][0]["message"];
+                    $code = $responseArray['errors'][0]["code"];
+                } else {
+                    $msg = "Текст ошибки не найден! <br>\n" . var_export($responseArray, true);
+                    $code = 500;
+                }
+            }
+
+            throw new Exception($msg . ' ' . $debugInfo, $code);
+        }
+        
+        return $responseArray;
     }
 
 }
