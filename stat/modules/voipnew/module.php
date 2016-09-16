@@ -129,7 +129,7 @@ class m_voipnew extends IModule
                             r.new_price - r.old_price price_diff,
                             CASE WHEN r.old_price = 0 THEN 0
                             ELSE
-                            CAST((r.new_price - r.old_price) * 100 / r.old_price as NUMERIC(6,2))
+                            CAST((r.new_price - r.old_price) * 100 / r.old_price as NUMERIC(10,2))
                             END price_diff_pr,
                             g.name as destination, d.mob
                         FROM select_rawfile_diff($id) r
