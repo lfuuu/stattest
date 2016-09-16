@@ -1,7 +1,7 @@
 <?php
 
-use app\classes\ActaulizerVoipNumbers;
 use app\classes\ActaulizerCallChatUsage;
+use app\classes\ActaulizerVoipNumbers;
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\Event;
@@ -43,39 +43,39 @@ function do_events()
 {
     /** @var \EventQueue $event */
     foreach (EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event) {
-        $isError = false;
-        echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
-
-        $param = $event->param;
-
-        if (strpos($param, "a:") === 0) {
-            $param = unserialize($param);
-        } else {
-            if (strpos($param, "|") !== false) {
-                $param = explode("|", $param);
-            } else {
-                if (strpos($param, "{\"") === 0) {
-                    $param = json_decode($param, true);
-                }
-            }
-        }
-
-        Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param,
-                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
         try {
+            echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
+
+            // для того, чтобы при фатале на конкретном событии они при следующем запуске не мешало другим событиям
+            $event->setError();
+
+            $param = $event->param;
+
+            if (strpos($param, "a:") === 0) {
+                $param = unserialize($param);
+            } else {
+                if (strpos($param, "|") !== false) {
+                    $param = explode("|", $param);
+                } else {
+                    if (strpos($param, "{\"") === 0) {
+                        $param = json_decode($param, true);
+                    }
+                }
+            }
+
+            Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param,
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
+            $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+
             switch ($event->event) {
-                case Event::CLIENT_SET_STATUS:
                 case Event::USAGE_VOIP__INSERT:
                 case Event::USAGE_VOIP__UPDATE:
                 case Event::USAGE_VOIP__DELETE: {
                     //ats2Numbers::check();
                     break;
                 }
-
-                case Event::ACTUALIZE_NUMBER:
-                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
-                    break;
 
                 case Event::ADD_PAYMENT: {
                     EventHandler::updateBalance($param[1]);
@@ -206,69 +206,64 @@ function do_events()
                     // Билинговать UU-клиента
                     AccountTariffBiller::recalc($param);
                     break;
+
+                case Event::ADD_ACCOUNT:
+                    $isCoreServer && SyncCore::addAccount($param, true);
+                    break;
+
+                case Event::CLIENT_SET_STATUS:
+                    $isCoreServer && SyncCore::addAccount($param, false);
+                    break;
+
+                case Event::USAGE_VIRTPBX__INSERT:
+                case Event::USAGE_VIRTPBX__UPDATE:
+                case Event::USAGE_VIRTPBX__DELETE:
+                case Event::UU_ACCOUNT_TARIFF_VPBX:
+                    $isCoreServer && VirtPbx3::check();
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_VOIP:
+                    $isCoreServer && \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+                    break;
+
+                case Event::ACTUALIZE_NUMBER:
+                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+                    break;
+
+                case Event::ACTUALIZE_CLIENT:
+                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
+                    break;
+
+                case Event::UPDATE_PRODUCTS:
+                    $isCoreServer && SyncCore::checkProductState('phone', $param['account_id']);
+                    break;
+
+                case Event::CHECK__VOIP_NUMBERS:
+                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeAll();
+                    break;
+
+                case Event::ATS3__SYNC:
+                    $isCoreServer && ActaulizerVoipNumbers::me()->sync($param["number"]);
+                    $isCoreServer && SyncCore::checkProductState('phone', $param['client_id']);
+                    break;
+
+                case Event::CALL_CHAT__ADD:
+                case Event::CALL_CHAT__UPDATE:
+                case Event::CALL_CHAT__DEL:
+                    // события услуги звонок_чат
+                    $isFeedbackServer = (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']);
+                    $isFeedbackServer && ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
+                    break;
             }
 
-            if (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']) {
-                switch ($event->event) {
-                    case Event::ADD_ACCOUNT:
-                        SyncCore::addAccount($param, true);
-                        break;
-
-                    case Event::CLIENT_SET_STATUS:
-                        SyncCore::addAccount($param, false);
-                        break;
-
-                    case Event::USAGE_VIRTPBX__INSERT:
-                    case Event::USAGE_VIRTPBX__UPDATE:
-                    case Event::USAGE_VIRTPBX__DELETE:
-                    case Event::UU_ACCOUNT_TARIFF_VPBX:
-                        VirtPbx3::check();
-                        break;
-
-                    case Event::UU_ACCOUNT_TARIFF_VOIP:
-                        \app\models\Number::dao()->actualizeStatusByE164($param['number']);
-                    case Event::ACTUALIZE_NUMBER:
-                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
-                        break;
-
-                    case Event::ACTUALIZE_CLIENT:
-                        ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
-                        break;
-
-                    case Event::UPDATE_PRODUCTS:
-                        SyncCore::checkProductState('phone', $param['account_id']);
-                        break;
-
-                    case Event::CHECK__VOIP_NUMBERS:
-                        ActaulizerVoipNumbers::me()->actualizeAll();
-                        break;
-
-                    case Event::ATS3__SYNC:
-                        ActaulizerVoipNumbers::me()->sync($param["number"]);
-                        SyncCore::checkProductState('phone', $param['client_id']);
-                        break;
-                }
-
-                //события услуги звонок_чат
-                if (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']) {
-                    switch ($event->event) {
-                        case Event::CALL_CHAT__ADD:
-                        case Event::CALL_CHAT__UPDATE:
-                        case Event::CALL_CHAT__DEL:
-                            ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
-                            break;
-                    }
-                }
-            }
+            $event->setOk();
 
         } catch (Exception $e) {
             echo "\n--------------\n";
             echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->getMessage() . " in " . $e->getFile() . " +" . $e->getLine();
             $event->setError($e);
-            $isError = true;
-        }
-        if (!$isError) {
-            $event->setOk();
         }
     }
 }
