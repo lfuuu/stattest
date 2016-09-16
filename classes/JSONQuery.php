@@ -56,7 +56,7 @@ class JSONQuery
 
         if ($info['http_code'] !== 200) {
             $debugInfo .= sprintf('$info = %s', $info) . PHP_EOL;
-            throw new Exception($debugInfo, $info["http_code"]);
+            throw new Exception($debugInfo, $info['http_code']);
         }
 
         $responseArray = @json_decode($response, true);
@@ -70,8 +70,22 @@ class JSONQuery
         $debugInfo .= sprintf('$responseArray = %s', print_r($responseArray, true)) . PHP_EOL;
         Yii::info('Json response: ' . $debugInfo);
 
-        if (isset($responseArray["errors"]) && $responseArray["errors"]) {
-            throw new Exception($debugInfo, -1);
+        if (isset($responseArray['errors']) && $responseArray['errors']) {
+
+            if (isset($responseArray['errors']['message'], $responseArray['errors']['code'])) {
+                $msg = $responseArray['errors']['message'];
+                $code = $responseArray['errors']['code'];
+            } else {
+                if (isset($responseArray['errors'][0], $responseArray['errors'][0]['message'])) {
+                    $msg = $responseArray['errors'][0]['message'];
+                    $code = $responseArray['errors'][0]['code'];
+                } else {
+                    $msg = '';
+                    $code = 500;
+                }
+            }
+
+            throw new Exception((is_string($msg) ? $msg : '') . ' ' . $debugInfo, is_numeric($code) ? $code : -1);
         }
 
         return $responseArray;

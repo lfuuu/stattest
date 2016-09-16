@@ -45,7 +45,7 @@ class EventQueue extends ActiveRecord\Model
 
         if ($e)
         {
-            $this->log_error = "code: ".$e->getCode()."; message: ".$e->getMessage()." in ".$e->getFile()." +".$e->getLine()."; \n".$e->getTraceAsString();
+            $this->log_error = $e->getCode().": ".$e->getMessage()." in ".$e->getFile()." +".$e->getLine()."; \n".$e->getTraceAsString();
             Yii::error($e);
         }
 
