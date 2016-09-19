@@ -3,12 +3,12 @@
 namespace app\classes\uu\model;
 
 use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
 use app\models\ClientAccount;
+use DateTime;
 use DateTimeImmutable;
 use Yii;
 use yii\db\ActiveQuery;
@@ -138,7 +138,10 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $currentDate = (new DateTimeWithUserTimezone())->format('Y-m-d');
+        $timezone = new \DateTimeZone($this->accountTariff->clientAccount->timezone_name);
+        $currentDate = (new DateTime())
+            ->setTimezone($timezone)
+            ->format('Y-m-d');
         !$this->actual_from && $this->actual_from = $currentDate;
 
         if ($this->actual_from < $currentDate) {

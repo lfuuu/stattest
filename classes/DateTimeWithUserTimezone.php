@@ -31,7 +31,7 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public function getUserTimeZoneString()
     {
-        return isset(Yii::$app->user->identity) ?
+        return (isset(Yii::$app->user->identity) && Yii::$app->user->identity->timezone_name) ?
             Yii::$app->user->identity->timezone_name :
             self::TIMEZONE_MOSCOW;
     }
