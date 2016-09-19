@@ -23,6 +23,7 @@ class MonitorFactory extends Singleton
             $this->getSyncErrorsAccounts(),
             $this->getSyncErrorsUsageVoip(),
             $this->getSyncErrorsUsageVpbx(),
+            $this->getClientsOfSlovakia(),
         ];
     }
 
@@ -121,24 +122,44 @@ class MonitorFactory extends Singleton
         return new UsageVoipNotFilledTariffs;
     }
 
+    /**
+     * @return ImportantEventsWithoutNames
+     */
     public function getImportantEventsWithoutNames()
     {
         return new ImportantEventsWithoutNames();
     }
 
+    /**
+     * @return SyncErrorsAccounts
+     */
     public function getSyncErrorsAccounts()
     {
         return new SyncErrorsAccounts();
     }
 
+    /**
+     * @return SyncErrorsUsageVoip
+     */
     public function getSyncErrorsUsageVoip()
     {
         return new SyncErrorsUsageVoip();
     }
 
+    /**
+     * @return SyncErrorsUsageVpbx
+     */
     public function getSyncErrorsUsageVpbx()
     {
         return new SyncErrorsUsageVpbx();
+    }
+
+    /**
+     * @return ClientsOfSlovakia
+     */
+    public function getClientsOfSlovakia()
+    {
+        return new ClientsOfSlovakia();
     }
 
 }
