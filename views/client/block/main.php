@@ -100,11 +100,10 @@ use app\models\ClientContract;
                                     <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                         <?php
                                         $warnings = $contractAccount->voipWarnings;
-                                        $warningsKeys = array_keys($warnings);
                                         $contractBlockers = [];
 
-                                        $lockByCredit = isset($warningsKeys[ClientAccount::WARNING_CREDIT]) || isset($warningsKeys[ClientAccount::WARNING_FINANCE]);
-                                        $lockByDayLimit = isset($warningsKeys[ClientAccount::WARNING_LIMIT_DAY]);
+                                        $lockByCredit = isset($warnings[ClientAccount::WARNING_CREDIT]) || isset($warnings[ClientAccount::WARNING_FINANCE]);
+                                        $lockByDayLimit = isset($warnings[ClientAccount::WARNING_LIMIT_DAY]);
                                         ?>
                                         <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
@@ -118,14 +117,53 @@ use app\models\ClientContract;
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
                                                 <?php
-                                                if ($contractAccount->is_blocked) {
-                                                    $lastLock = LocksLog::find()->where(['client_id' => $account->id, 'is_blocked' => true])->orderBy(['dt' => SORT_DESC])->one();
+                                                $lastLock = false;
 
-                                                    $contractBlockers[] = 'Заблокирован' . ($lastLock ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') : '');
+                                                if ($contractAccount->is_blocked) {
+                                                    $lastLock =
+                                                        LocksLog::find()
+                                                            ->where(['client_id' => $account->id, 'is_blocked' => true])
+                                                            ->orderBy(['dt' => SORT_DESC])
+                                                            ->one();
+
+                                                    $contractBlockers[] = 'Заблокирован' .
+                                                        (
+                                                            $lastLock
+                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
+                                                                : ''
+                                                        );
                                                 }
 
-                                                if (isset($warningsKeys[ClientAccount::WARNING_OVERRAN])) {
-                                                    $contractBlockers[] = Html::tag('abbr', 'Блок превышение', ['title' => 'Аккаунт заблокирован по превышению лимитов. Возможно, его взломали']);
+                                                if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
+                                                    $lastLock = $warnings[ClientAccount::WARNING_OVERRAN];
+
+                                                    $contractBlockers[] = Html::tag('abbr',
+                                                        'Блок превышение' .
+                                                        (
+                                                            $lastLock
+                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
+                                                                : ''
+                                                        ),
+                                                        [
+                                                            'title' => 'Аккаунт заблокирован по превышению лимитов. Возможно, его взломали'
+                                                        ]
+                                                    );
+                                                }
+
+                                                if (isset($warnings[ClientAccount::WARNING_MN_OVERRAN])) {
+                                                    $lastLock = $warnings[ClientAccount::WARNING_MN_OVERRAN];
+
+                                                    $contractBlockers[] = Html::tag('abbr',
+                                                        'Блок превышение МН' .
+                                                        (
+                                                            $lastLock
+                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
+                                                                : ''
+                                                        ),
+                                                        [
+                                                            'title' => 'Аккаунт заблокирован по превышению лимитов (МН). Возможно, его взломали'
+                                                        ]
+                                                    );
                                                 }
 
                                                 if ($lockByDayLimit) {

@@ -10,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property boolean $voip_auto_disabled - не используется
  * @property boolean $voip_auto_disabled_local - не используется
  * @property boolean $is_overran - суточная / месячная блокировка
+ * @property boolean $is_mn_overran - суточная / месячная блокировка (МН)
  * @property boolean $is_finance_block - финансовая блокировка
  */
 class Locks extends ActiveRecord
