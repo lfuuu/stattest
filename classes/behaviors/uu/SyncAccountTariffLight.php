@@ -69,12 +69,12 @@ class SyncAccountTariffLight extends Behavior
 
         \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
                 'id' => $accountLogPeriod->id,
-                'number' => $accountTariff->prevAccountTariff->voip_number,
                 'account_client_id' => $accountTariff->client_account_id,
                 'tariff_id' => $accountTariff->tariffPeriod->tariff_id,
                 'activate_from' => $activateFrom,
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
+                'service_number_id' => $accountTariff->id,
             ]
         );
 
@@ -103,7 +103,7 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Добавить данные в AccountTariffLight
-     * @param array $params [id, number, account_client_id, tariff_id, activate_from, deactivate_from, coefficient]
+     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, service_number_id]
      * @throws \Exception
      * @internal param AccountLogPeriod $accountLogPeriod
      */
@@ -114,12 +114,12 @@ class SyncAccountTariffLight extends Behavior
             $accountTariffLight = new AccountTariffLight;
             $accountTariffLight->id = $params['id'];
         }
-        $accountTariffLight->number = $params['number'];
         $accountTariffLight->account_client_id = $params['account_client_id'];
         $accountTariffLight->tariff_id = $params['tariff_id'];
         $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
+        $accountTariffLight->service_number_id = $params['service_number_id'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }

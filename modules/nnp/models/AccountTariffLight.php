@@ -10,12 +10,12 @@ use yii\db\ActiveRecord;
  * Копия \app\classes\uu\model\AccountTariff
  *
  * @property int id
- * @property int number
  * @property int account_client_id
  * @property int tariff_id
  * @property int activate_from
  * @property int deactivate_from
  * @property float coefficient
+ * @property int service_number_id // account_tariff_id
  */
 class AccountTariffLight extends ActiveRecord
 {
@@ -30,11 +30,11 @@ class AccountTariffLight extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'number' => 'Номер',
             'account_client_id' => 'Аккаунт клиента',
             'tariff_id' => 'Тариф', // не путайте с tariff_period_id
             'activate_from' => 'С',
             'deactivate_from' => 'По',
+            'service_number_id' => 'Услуга',
         ];
     }
 
