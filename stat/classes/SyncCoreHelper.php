@@ -1,13 +1,12 @@
 <?php
 
-use app\models\ClientContragent;
-use app\models\CoreSyncIds;
 use app\classes\Utils;
+use app\models\ClientContragent;
 
 class SyncCoreHelper
 {
 
-    private static $allowClientStatusSQL = array("income", "negotiations", "work", "connecting", "testing", "debt", "operator");
+    private static $allowClientStatusSQL = ["income", "negotiations", "work", "connecting", "testing", "debt", "operator"];
 
     static function getFullClientStruct($superId) // only super client && conragent
     {
@@ -15,12 +14,12 @@ class SyncCoreHelper
 
         $super = $db->GetRow("select id, name from client_super where id = '" . $superId . "'");
 
-        $emails = array();
+        $emails = [];
 
         $passwordAccount = null;
         $main_card_id = 0;
 
-        $data = array("client" => array("id" => $super["id"], "name" => $super["name"]), "contragents" => array());
+        $data = ["client" => ["id" => $super["id"], "name" => $super["name"]], "contragents" => []];
 
         $adminEmail = "";
         /*
@@ -47,13 +46,18 @@ class SyncCoreHelper
 
                     if ($isMainCard) {
 
-                        if (/*$isNeedAdminSync && */!$adminEmail) {
+                        if (/*$isNeedAdminSync && */
+                        !$adminEmail
+                        ) {
                             $passwordAccount = $c;
-                            $contacts  = $c->getOfficialContact();
+                            $contacts = $c->getOfficialContact();
                             if (isset($contacts["email"])) {
-                                foreach($contacts["email"] as $email) {
-                                    $adminEmail = $email;
-                                    break;
+                                foreach ($contacts["email"] as $email) {
+                                    $email = self::normalizeEmail($email);
+                                    if ($email) {
+                                        $adminEmail = $email;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -85,29 +89,31 @@ class SyncCoreHelper
             $passwordAccount->save();
         }
 
-        $data["admin"] = array(
-            "email" => $adminEmail, 
+        $data["admin"] = [
+            "email" => $adminEmail,
             "password" => $passwordAccount->password,
             "active" => false
-        );
+        ];
 
         return $data;
     }
 
     public static function getAccountStruct(\app\models\ClientAccount $cl)
     {
-        if (!in_array($cl->status, self::$allowClientStatusSQL)) return false;
+        if (!in_array($cl->status, self::$allowClientStatusSQL)) {
+            return false;
+        }
 
-        return array(
-            "contragent" => array("id" => $cl->contract->contragent_id),
-            "accounts" => array(
-                array(
+        return [
+            "contragent" => ["id" => $cl->contract->contragent_id],
+            "accounts" => [
+                [
                     "id" => $cl->id,
                     "is_partner" => $cl->businessId == \app\models\Business::PARTNER,
-                    "products" => array()//self::getProducts($cl->id)
-                )
-            )
-        );
+                    "products" => []//self::getProducts($cl->id)
+                ]
+            ]
+        ];
     }
 
     static function loadEmails(&$emails, $clientId)
@@ -128,7 +134,7 @@ class SyncCoreHelper
 
     static function getEmailStruct($email, $password)
     {
-        return array("email" => $email, "password" => $password);
+        return ["email" => self::normalizeEmail($email), "password" => $password];
     }
 
     static function getProductPhone($clientId)
@@ -145,7 +151,7 @@ class SyncCoreHelper
                     AND actual_from <= cast(now() AS date)
                     AND actual_to >= cast(now() AS date)") > 0
         ) {
-            return array("mnemonic" => "phone");
+            return ["mnemonic" => "phone"];
         }
 
         return false;
@@ -153,7 +159,7 @@ class SyncCoreHelper
 
     public static function getProductSavedState($clientId, $product, $returnObj = false)
     {
-        $state = ProductState::find("first", array("client_id" => $clientId, "product" => $product));
+        $state = ProductState::find("first", ["client_id" => $clientId, "product" => $product]);
 
         return $returnObj ? $state : (bool)$state;
     }
@@ -188,12 +194,27 @@ class SyncCoreHelper
 
     public static function getAddProductStruct($clientId, $productStruct)
     {
-        return array("account" => array("id" => $clientId), "products" => array($productStruct));
+        return ["account" => ["id" => $clientId], "products" => [$productStruct]];
     }
 
     public static function getRemoveProductStruct($clientId, $product)
     {
-        return array("account_id" => $clientId, "product" => $product);
+        return ["account_id" => $clientId, "product" => $product];
+    }
+
+    /**
+     * Убрать очевидный трэш из email
+     * @param string $email
+     * @return string
+     */
+    public static function normalizeEmail($email)
+    {
+        $email = trim($email);
+        $email = preg_replace("/[;, \t\/].*$/", '', $email);
+        if (strpos($email, '@') === false) {
+            return '';
+        }
+        return $email;
     }
 }
 
