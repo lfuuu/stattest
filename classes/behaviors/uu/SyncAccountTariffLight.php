@@ -74,7 +74,7 @@ class SyncAccountTariffLight extends Behavior
                 'activate_from' => $activateFrom,
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
-                'service_number_id' => $accountTariff->id,
+                'account_tariff_id' => $accountTariff->id,
             ]
         );
 
@@ -103,7 +103,7 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Добавить данные в AccountTariffLight
-     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, service_number_id]
+     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id]
      * @throws \Exception
      * @internal param AccountLogPeriod $accountLogPeriod
      */
@@ -119,7 +119,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
-        $accountTariffLight->service_number_id = $params['service_number_id'];
+        $accountTariffLight->account_tariff_id = $params['account_tariff_id'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }
