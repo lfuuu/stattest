@@ -21,6 +21,8 @@ class Country extends ActiveRecord
     const GERMANY = 276;
     const SLOVAKIA = 703;
 
+    const PREFIX_RUSSIA = 7;
+
     /**
      * Вернуть имена полей
      * @return [] [полеВТаблице => Перевод]
@@ -79,12 +81,12 @@ class Country extends ActiveRecord
      * @param bool $isWithEmpty
      * @return self[]
      */
-    public static function getList($isWithEmpty = false)
+    public static function getList($isWithEmpty = false, $indexBy = 'code')
     {
         $list = self::find()
             ->where(['in_use' => 1])
             ->orderBy(['order' => SORT_ASC])
-            ->indexBy('code')
+            ->indexBy($indexBy)
             ->all();
 
         if ($isWithEmpty) {

@@ -39,8 +39,9 @@ $baseView = $this;
 
 $filterColumns = [
     [
-        'attribute' => 'country_code',
+        'attribute' => 'country_prefix',
         'class' => CountryColumn::className(),
+        'indexBy' => 'prefix',
     ],
     [
         'label' => 'Кол-во номеров',

@@ -16,7 +16,7 @@ use yii\db\ActiveQuery;
  */
 class NumberRangeFilter extends NumberRange
 {
-    public $country_code = '';
+    public $country_prefix = '';
     public $ndc = '';
     public $number_from = ''; // чтобы не изобретать новое поле, назвоно как существующее. Хотя фактически это number
     public $operator_source = '';
@@ -36,7 +36,7 @@ class NumberRangeFilter extends NumberRange
     {
         return [
             [['operator_source', 'region_source'], 'string'],
-            [['country_code', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
+            [['country_prefix', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
@@ -65,7 +65,7 @@ class NumberRangeFilter extends NumberRange
             'query' => $query,
         ]);
 
-        $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);
+        $this->country_prefix && $query->andWhere([$numberRangeTableName . '.country_prefix' => $this->country_prefix]);
         $this->ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $this->ndc]);
 
         $this->is_mob !== '' && $query->andWhere([$numberRangeTableName . '.is_mob' => (bool)$this->is_mob]);
