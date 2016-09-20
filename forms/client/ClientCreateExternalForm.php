@@ -61,6 +61,7 @@ class ClientCreateExternalForm extends Form
 
     public $ip = "";
     public $connect_region = "";
+    public $account_version = "";
 
 
     public function rules()
@@ -99,13 +100,14 @@ class ClientCreateExternalForm extends Form
             ],
             ['company', 'default', 'value' => 'Клиент без названия'],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
-            [['partner_id'], 'integer'],
+            [['partner_id', 'account_version'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
             ['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
             ['timezone', 'in', 'range' => Region::getTimezoneList()],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
+            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
             ['ip', 'safe']
 
         ];
@@ -124,7 +126,8 @@ class ClientCreateExternalForm extends Form
             'comment' => 'Комментарий',
             'timezone' => 'Временная зона',
             'country_id' => 'Код страны',
-            'site_name' => 'Сайт'
+            'site_name' => 'Сайт',
+            'account_version' => 'Версия биллера',
         ];
     }
 
@@ -243,6 +246,7 @@ class ClientCreateExternalForm extends Form
         $account->status = "income";
         $account->timezone_name = $this->timezone;
         $account->site_name = $this->site_name;
+        $account->account_version = $this->account_version;
         $account->validate();
 
         $account->save();

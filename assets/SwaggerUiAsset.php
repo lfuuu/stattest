@@ -15,7 +15,7 @@ class SwaggerUiAsset extends AssetBundle
         'lib/jquery.slideto.min.js',
         'lib/jquery.wiggle.min.js',
         'lib/jquery.ba-bbq.min.js',
-        'lib/handlebars-2.0.0.js',
+        'lib/handlebars-4.0.5.js',
         'lib/js-yaml.min.js',
         'lib/lodash.min.js',
         'lib/backbone-min.js',
