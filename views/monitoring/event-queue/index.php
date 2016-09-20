@@ -6,13 +6,13 @@
  * @var EventQueueFilter $filterModel
  */
 
+use app\classes\Event;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\classes\Event;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
 use yii\widgets\Breadcrumbs;
@@ -48,7 +48,7 @@ $columns = [
         ],
         'filterType' => GridView::FILTER_SELECT2,
         'filter' => ['' => '----'] + Event::$names,
-        'value' => function(EventQueue $eventQueue) {
+        'value' => function (EventQueue $eventQueue) {
             return isset(Event::$names[$eventQueue->event]) ? Event::$names[$eventQueue->event] : $eventQueue->event;
         }
     ],
@@ -59,7 +59,7 @@ $columns = [
         ],
         'filterType' => GridView::FILTER_SELECT2,
         'filter' => ['' => '----'] + EventQueue::$statuses,
-        'value' => function(EventQueue $eventQueue) {
+        'value' => function (EventQueue $eventQueue) {
             return isset(EventQueue::$statuses[$eventQueue->status]) ? EventQueue::$statuses[$eventQueue->status] : $eventQueue->status;
         }
     ],
@@ -80,9 +80,9 @@ $columns = [
             }
             return Html::tag(
                 'button',
-                mb_substr($eventQueue->log_error, 0, 20) . '...',
+                $eventQueue->log_error,
                 [
-                    'class' => 'btn btn-xs btn-danger',
+                    'class' => 'btn btn-xs btn-danger event-queue-log-error-button text-overflow-ellipsis',
                     'data-toggle' => 'popover',
                     'data-html' => 'true',
                     'data-placement' => 'bottom',
@@ -110,9 +110,9 @@ $columns = [
             $paramString = print_r($paramArray, true);
             return Html::tag(
                 'button',
-                mb_substr($paramString, 0, 20) . '...',
+                $paramString,
                 [
-                    'class' => 'btn btn-xs btn-info',
+                    'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
                     'data-toggle' => 'popover',
                     'data-html' => 'true',
                     'data-placement' => 'bottom',
@@ -123,10 +123,24 @@ $columns = [
     ],
 ];
 
+if ($filterModel->status == EventQueue::STATUS_STOP) {
+    $extraButtons = $this->render('//layouts/_link', [
+        'url' => '/monitoring/event-queue/?submitButtonRepeatStopped=1',
+        'text' => 'Ошибочные обработать повторно',
+        'glyphicon' => 'glyphicon-repeat',
+        'params' => [
+            'class' => 'btn btn-warning',
+        ],
+    ]);
+} else {
+    $extraButtons = '';
+}
+
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'extraButtons' => $extraButtons,
 ]);
 
 ?>

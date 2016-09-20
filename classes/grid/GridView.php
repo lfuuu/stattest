@@ -1,22 +1,18 @@
 <?php
 namespace app\classes\grid;
 
-use app\models\billing\Pricelist;
-use ReflectionClass;
+use app\classes\Html;
 use Yii;
-use DateTime;
 use yii\base\Widget;
 use yii\helpers\Json;
-use yii\web\Cookie;
 use yii\web\JsExpression;
-use app\classes\Html;
 
 class GridView extends \kartik\grid\GridView
 {
 
     const DEFAULT_HEADER_CLASS = \kartik\grid\GridView::TYPE_INFO; // голубой фон th
 
-    const FLOAT_HEADER_TOP = 85; // px. @todo менять динамически в заивимости от выбрать клиент или нет. По аналогии с позиционированием "floatTableClass":"kv-table-float","floatContainerClass":"kv-thead-float"
+    const FLOAT_HEADER_TOP = 85; // px. @todo менять динамически в зависимости от выбрать клиент или нет. По аналогии с позиционированием "floatTableClass":"kv-table-float","floatContainerClass":"kv-thead-float"
 
     /**
      * @var boolean whether the grid table will highlight row on `hover`.
@@ -206,7 +202,7 @@ HTML;
                         $this->dataProvider->pagination = false;
                         break;
                     default:
-                        $this->dataProvider->pagination->pageSize = (int)$pageSizeValue[$this->_toggleDataKey];
+                        $this->dataProvider->getPagination()->pageSize = (int)$pageSizeValue[$this->_toggleDataKey];
                         break;
                 }
             }
@@ -305,10 +301,10 @@ HTML;
 
         return
             Html::beginTag('div', ['class' => 'btn-group']) .
-                Html::dropDownList($this->pageSizeParam, $this->dataProvider->pagination->pageSize ?: -1, $this->pageSizes, [
-                    'class' => 'form-control',
-                    'style' => 'width:140px;'
-                ]) .
+            Html::dropDownList($this->pageSizeParam, $this->dataProvider->getPagination()->pageSize ?: -1, $this->pageSizes, [
+                'class' => 'form-control',
+                'style' => 'width:140px;'
+            ]) .
             Html::endTag('div');
     }
 

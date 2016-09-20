@@ -396,3 +396,14 @@ a.nohover:hover {
 .i18n-tabs .col-sm-6 {
     padding-left: 5px;
 }
+
+.event-queue-log-param-button,
+.event-queue-log-error-button {
+    max-width: 150px;
+}
+
+.text-overflow-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

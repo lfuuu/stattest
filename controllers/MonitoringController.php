@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\EventQueue;
 use Yii;
 use app\classes\BaseController;
 use app\classes\monitoring\MonitorFactory;
@@ -15,6 +16,7 @@ use app\models\UsageIpPorts;
 use app\models\UsageExtra;
 use app\models\UsageEmails;
 use app\dao\MonitoringDao;
+use yii\db\Expression;
 
 class MonitoringController extends BaseController
 {
@@ -45,10 +47,28 @@ class MonitoringController extends BaseController
         ]);
     }
 
+    /**
+     * Очередь событий
+     * @return string
+     */
     public function actionEventQueue()
     {
+        $get = Yii::$app->request->get();
+
+        if (isset($get['submitButtonRepeatStopped'])) {
+            EventQueue::updateAll(
+                [
+                    'status' => EventQueue::STATUS_OK,
+                    'iteration' => EventQueue::ITERATION_MAX_VALUE - 1,
+                    'next_start' => new Expression('NOW()'),
+                ],
+                [
+                    'status' => EventQueue::STATUS_STOP,
+                ]
+            );
+        }
         $filterModel = new EventQueueFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $filterModel->load($get);
 
         return $this->render('event-queue/index', [
             'filterModel' => $filterModel,
