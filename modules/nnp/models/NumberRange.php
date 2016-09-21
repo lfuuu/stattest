@@ -11,7 +11,7 @@ use yii\helpers\Url;
 
 /**
  * @property int id
- * @property int country_code
+ * @property int $country_prefix
  * @property int ndc
  * @property int number_from
  * @property int number_to
@@ -23,7 +23,6 @@ use yii\helpers\Url;
  * @property bool is_mob true - DEF, false - ABC
  * @property bool is_active
  *
- * @property Country country
  * @property City city
  * @property Operator operator
  * @property Region region
@@ -34,11 +33,6 @@ class NumberRange extends ActiveRecord
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
 
-    // дубль из models/Country.php
-    const COUNTRY_CODE_RUSSIA = 643;
-    const COUNTRY_CODE_HUNGARY = 348;
-    const COUNTRY_CODE_GERMANY = 276;
-
     /**
      * имена полей
      * @return [] [полеВТаблице => Перевод]
@@ -47,7 +41,7 @@ class NumberRange extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'country_code' => 'Страна', // country.code. Не путайте с префиксом!
+            'country_prefix' => 'Страна',
             'ndc' => 'NDC',
             'number_from' => 'Номер от',
             'number_to' => 'Номер до',
@@ -124,14 +118,6 @@ class NumberRange extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getCountry()
-    {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
     }
 
     /**

@@ -42,6 +42,12 @@ if (!$numberRange->isNewRecord) {
 
     <div class="row">
 
+        <?php // страна ?>
+        <div class="col-sm-2">
+            <label><?= $numberRange->getAttributeLabel('country_prefix') ?></label>
+            <div><?= $numberRange->country_prefix ?></div>
+        </div>
+
         <?php // ABC/DEF код ?>
         <div class="col-sm-2">
             <label><?= $numberRange->getAttributeLabel('ndc') ?></label>

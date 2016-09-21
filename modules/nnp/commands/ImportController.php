@@ -2,6 +2,7 @@
 namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
+use app\models\Country;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
 use Yii;
@@ -55,7 +56,7 @@ class ImportController extends Controller
                 $this->rusByUrl($dbPgNnp, $rusUrl, $isMob);
             }
 
-            $this->postImport($dbPgNnp, NumberRange::COUNTRY_CODE_RUSSIA);
+            $this->postImport($dbPgNnp, Country::PREFIX_RUSSIA);
 
             $transaction->commit();
 
@@ -101,7 +102,6 @@ class ImportController extends Controller
             }
 
             $insertValues[] = [
-//                NumberRange::COUNTRY_CODE_RUSSIA,
                 (int)$bufferArray[0], // ndc
                 (int)$bufferArray[1], // number_from
                 (int)$bufferArray[2], // number_to
@@ -167,10 +167,10 @@ SQL;
      * Из временной таблицы перенести в постоянную
      *
      * @param Connection $dbPgNnp
-     * @param string $countryCode
+     * @param string $countryPrefix
      * @throws \yii\db\Exception
      */
-    protected function postImport($dbPgNnp, $countryCode)
+    protected function postImport($dbPgNnp, $countryPrefix)
     {
         $tableName = NumberRange::tableName();
 
@@ -178,9 +178,9 @@ SQL;
         $sql = <<<SQL
     UPDATE {$tableName}
     SET is_active = false
-    WHERE country_code = :country_code
+    WHERE country_prefix = :country_prefix
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
 
         // обновить и включить
         $sql = <<<SQL
@@ -196,12 +196,12 @@ SQL;
     FROM
         number_range_tmp
     WHERE
-        number_range.country_code = :country_code
+        number_range.country_prefix = :country_prefix
         AND number_range.ndc = number_range_tmp.ndc
         AND number_range.number_from = number_range_tmp.number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRows = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
         printf("Updated: %d\n", $affectedRows);
 
         // удалить из временной таблицы уже обработанное
@@ -211,19 +211,19 @@ SQL;
     USING
         {$tableName} number_range
     WHERE
-        number_range.country_code = :country_code
+        number_range.country_prefix = :country_prefix
         AND number_range.ndc = number_range_tmp.ndc
         AND number_range.number_from = number_range_tmp.number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
 
         // добавить в основную таблицу всё оставшееся из временной
         $sql = <<<SQL
     INSERT INTO
         {$tableName}
     (
-        country_code,
+        country_prefix,
         ndc,
         number_from,
         number_to,
@@ -232,7 +232,7 @@ SQL;
         region_source
     )
     SELECT 
-        :country_code as country_code, 
+        :country_prefix as country_prefix, 
         ndc,
         number_from,
         number_to,
@@ -242,7 +242,7 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRows = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
         printf("Added: %d\n", $affectedRows);
 
         $sql = <<<SQL
