@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
+use yii\db\ActiveQuery;
 use yii\filters\AccessControl;
 use app\models\Organization;
 use app\forms\organization\OrganizationForm;
@@ -73,7 +74,7 @@ class OrganizationController extends BaseController
      */
     public function actionEdit($id, $date = '')
     {
-        /** @var Organization $record */
+        /** @var ActiveQuery $record */
         $record = Organization::find()->where(['organization_id' => $id]);
         if ($date) {
             $record->andWhere(['actual_from' => $date]);
@@ -118,6 +119,7 @@ class OrganizationController extends BaseController
 
         return $this->render('form', [
             'model' => $model,
+            'history' => $organization,
             'frm_header' => $model::EDIT_TITLE,
             'mode' => 'duplicate',
         ]);

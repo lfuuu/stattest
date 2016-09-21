@@ -93,11 +93,11 @@ class Person extends ActiveRecord
 
     /**
      * @param bool|true $runValidation
-     * @param array $attributesName
+     * @param null|[] $attributesName
      * @return bool
      * @throws \Exception
      */
-    public function save($runValidation = true, $attributesName = [])
+    public function save($runValidation = true, $attributesName = null)
     {
         parent::save($runValidation, $attributesName);
 

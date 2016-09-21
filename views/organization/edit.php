@@ -11,24 +11,24 @@ use app\forms\organization\OrganizationForm;
 
 $items = [];
 
-foreach ($history as $record):
-    if ($record->organization_id == $model->organization_id && $record->actual_from == $model->actual_from):
+foreach ($history as $record) {
+    if ($record->organization_id == $model->organization_id && $record->actual_from == $model->actual_from) {
         $items[] = [
-            'label'     => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
-            'active'    => true,
-            'content'   => $this->render('form', [
+            'label' => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
+            'active' => true,
+            'content' => $this->render('form', [
                 'model' => $model,
                 'history' => $record,
                 'mode' => 'edit'
             ]),
         ];
-    else:
+    } else {
         $items[] = [
             'label' => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
-            'url'   => '/organization/edit/?id=' . $record->organization_id . '&date=' . $record->actual_from,
+            'url' => Url::toRoute(['/organization/edit/', 'id' => $record->organization_id, 'date' => $record->actual_from]),
         ];
-    endif;
-endforeach;
+    }
+};
 
 echo Html::formLabel('История изменений организации');
 echo Breadcrumbs::widget([
@@ -54,7 +54,7 @@ echo Breadcrumbs::widget([
 
     <?= Tabs::widget([
         'id' => 'tabs-' . $model->id,
-        'items' => $items
+        'items' => $items,
     ]);
     ?>
 </div>
