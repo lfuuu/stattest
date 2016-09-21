@@ -47,6 +47,8 @@ class AccountEditForm extends Form
         $voip_disabled,
         $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
         $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
+        $voip_limit_mn_day = ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY,
+        $voip_is_mn_day_calc = ClientAccount::DEFAULT_VOIP_IS_MN_DAY_CALC,
         $mail_who,
         $head_company,
         $head_company_address_jur,
@@ -132,6 +134,8 @@ class AccountEditForm extends Form
                     'voip_disabled',
                     'voip_credit_limit_day',
                     'voip_is_day_calc',
+                    'voip_limit_mn_day',
+                    'voip_is_mn_day_calc',
                     'is_with_consignee',
                     'is_upd_without_sign',
                     'is_agent',
@@ -149,7 +153,6 @@ class AccountEditForm extends Form
                     'voip_credit_limit',
                     'is_agent',
                     'voip_disabled',
-                    'voip_credit_limit_day',
                     'is_with_consignee',
                     'is_upd_without_sign',
                 ],
@@ -157,9 +160,11 @@ class AccountEditForm extends Form
                 'value' => 0
             ],
             [['voip_credit_limit_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
+            [['voip_limit_mn_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY],
             ['admin_email', 'email'],
             ['credit', 'integer', 'min' => 0],
             ['voip_is_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_DAY_CALC],
+            ['voip_is_mn_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_MN_DAY_CALC],
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
@@ -224,11 +229,15 @@ class AccountEditForm extends Form
             $this->clientM->super_id = $this->super_id;
             $this->clientM->country_id = $contragent->country_id;
             $this->clientM->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
+
             $this->setAttributes($this->clientM->getAttributes(), false);
+
             $this->admin_contact_id = 0;
             $this->admin_is_active = 0;
             $this->voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY;
             $this->voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC;
+            $this->voip_limit_mn_day = ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY;
+            $this->voip_is_mn_day_calc = ClientAccount::DEFAULT_VOIP_IS_MN_DAY_CALC;
             $this->anti_fraud_disabled = 0;
             $this->bill_rename1 = 'no';
         } else {

@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property int $balance
  * @property int $credit
  * @property int $voip_credit_limit_day
+ * @property int $voip_limit_mn_day
  * @property int $business_id
  * @property int $price_include_vat
  * @property int $is_active
@@ -83,7 +84,9 @@ class ClientAccount extends HistoryActiveRecord
 
     const DEFAULT_REGION = Region::MOSCOW;
     const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 1000;
+    const DEFAULT_VOIP_MN_LIMIT_DAY = 1000;
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
+    const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
 
     const VERSION_BILLER_USAGE = 4;
@@ -93,6 +96,7 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
     const WARNING_FINANCE = 'lock.is_finance_block'; // Финансовая блокировка
     const WARNING_OVERRAN = 'lock.is_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали
+    const WARNING_MN_OVERRAN = 'lock.is_mn_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали (МН)
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
     const WARNING_LIMIT_MONTH = 'lock.limit_month'; // Превышен месячный лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
@@ -164,6 +168,7 @@ class ClientAccount extends HistoryActiveRecord
         $rules = [];
         $rules[] = ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY];
         $rules[] = ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC];
+        $rules[] = ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC];
         $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
         $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
         $rules[] = ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE];
@@ -212,8 +217,10 @@ class ClientAccount extends HistoryActiveRecord
             'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
             'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
             'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
+            'voip_limit_mn_day' => 'Телефония (МН), лимит использования (день)',
             'balance' => 'Баланс',
             'voip_is_day_calc' => 'Пересчет дневного лимита',
+            'voip_is_mn_day_calc' => 'Пересчет дневного (МН) лимита',
             'region' => 'Регион',
             'mail_who' => '"Кому" письмо',
             'head_company' => 'Головная компания',
@@ -682,6 +689,9 @@ class ClientAccount extends HistoryActiveRecord
                 }
                 if ($locks->is_overran) {
                     $warnings[self::WARNING_OVERRAN] = $locks->getLastLock('is_overran');
+                }
+                if ($locks->is_mn_overran) {
+                    $warnings[self::WARNING_MN_OVERRAN] = $locks->getLastLock('is_mn_overran');
                 }
             }
         } catch (\Exception $e) {
