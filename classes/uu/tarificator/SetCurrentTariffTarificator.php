@@ -7,7 +7,6 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\models\ClientAccount;
-use app\models\Number;
 use DateTimeZone;
 use Yii;
 
@@ -130,6 +129,9 @@ SQL;
                 $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
+                if ($accountTariffId) {
+                    throw $e;
+                }
             }
         }
     }

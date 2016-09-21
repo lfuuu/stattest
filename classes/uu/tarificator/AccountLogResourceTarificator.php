@@ -62,6 +62,9 @@ class AccountLogResourceTarificator implements TarificatorI
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
+                if ($accountTariffId) {
+                    throw $e;
+                }
             }
         }
     }
