@@ -29,6 +29,8 @@ class EventQueue extends ActiveRecord
         self::STATUS_STOP => 'Постоянная ошибка',
     ];
 
+    const ITERATION_MAX_VALUE = 20;
+
     public static function tableName()
     {
         return 'event_queue';
