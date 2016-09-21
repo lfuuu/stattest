@@ -58,7 +58,7 @@ class MonitoringController extends BaseController
         if (isset($get['submitButtonRepeatStopped'])) {
             EventQueue::updateAll(
                 [
-                    'status' => EventQueue::STATUS_OK,
+                    'status' => EventQueue::STATUS_PLAN,
                     'iteration' => EventQueue::ITERATION_MAX_VALUE - 1,
                     'next_start' => new Expression('NOW()'),
                 ],
