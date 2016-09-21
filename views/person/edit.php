@@ -34,10 +34,10 @@ echo Breadcrumbs::widget([
 
 $tabs = [];
 foreach(Language::getList() as $languageCode => $languageTitle) {
-    if (!is_file(__DIR__  . DIRECTORY_SEPARATOR . 'i18n' . DIRECTORY_SEPARATOR . $languageCode . '.php')) {
-        Yii::$app->session->addFlash('error', 'Файл шаблон для языка "' . $languageTitle . '" (' . $languageCode . ') не найден');
-        $languageCode = Language::LANGUAGE_DEFAULT;
-    }
+    $language =
+        !is_file(__DIR__  . DIRECTORY_SEPARATOR . 'i18n' . DIRECTORY_SEPARATOR . $languageCode . '.php')
+            ? Language::LANGUAGE_DEFAULT
+            : $languageCode;
 
     $tabs[] = [
         'label' =>
@@ -45,10 +45,10 @@ foreach(Language::getList() as $languageCode => $languageTitle) {
                 'div', '',
                 ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
             ) . $languageTitle,
-        'content' => $this->render('i18n/' . $languageCode, [
+        'content' => $this->render('i18n/' . $language, [
             'form' => $form,
             'person' => $person,
-            'lang' => $languageCode,
+            'lang' => $language,
         ]),
         'headerOptions' => [],
         'options' => ['style' => 'white-space: nowrap;'],
