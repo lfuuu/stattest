@@ -375,7 +375,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "master"
+                "reference": "tags/v2.2.3"
             },
             "type": "library",
             "time": "2016-05-23 23:12:41"
