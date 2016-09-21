@@ -108,6 +108,9 @@ SQL;
                 $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
+                if ($accountTariffId) {
+                    throw $e;
+                }
             }
         }
     }

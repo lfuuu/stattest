@@ -60,13 +60,13 @@ class AccountTariffBiller extends Behavior
         $accountClientId = $params['accountClientId'];
 
         Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
-        (new SetCurrentTariffTarificator())->tarificate($accountTariffId, false);
+        (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
-        (new AccountLogSetupTarificator)->tarificate($accountTariffId, false);
+        (new AccountLogSetupTarificator)->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountLogPeriodTarificator', 'uu');
-        (new AccountLogPeriodTarificator)->tarificate($accountTariffId, false);
+        (new AccountLogPeriodTarificator)->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountLogMinTarificator', 'uu');
         (new AccountLogMinTarificator)->tarificate($accountTariffId);
