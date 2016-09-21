@@ -15,6 +15,8 @@ use yii\helpers\Url;
  * @property int ndc
  * @property int number_from
  * @property int number_to
+ * @property int full_number_from bigint
+ * @property int full_number_to bigint
  * @property string operator_source
  * @property int operator_id
  * @property string region_source
@@ -45,6 +47,8 @@ class NumberRange extends ActiveRecord
             'ndc' => 'NDC',
             'number_from' => 'Номер от',
             'number_to' => 'Номер до',
+            'full_number_from' => 'Полный номер от',
+            'full_number_to' => 'Полный номер до',
             'operator_source' => 'Исходный оператор',
             'operator_id' => 'Оператор',
             'region_source' => 'Исходный регион',

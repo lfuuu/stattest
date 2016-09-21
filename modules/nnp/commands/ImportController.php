@@ -108,13 +108,15 @@ class ImportController extends Controller
                 $isMob, // is_mob
                 trim($bufferArray[4]), // operator_source
                 trim($bufferArray[5]), // region_source
+                Country::PREFIX_RUSSIA . $bufferArray[0] . $bufferArray[1], // full_number_from
+                Country::PREFIX_RUSSIA . $bufferArray[0] . $bufferArray[2], // full_number_to
             ];
 
             if (count($insertValues) % 1000 === 0) {
                 echo '. ';
                 $dbPgNnp->createCommand()->batchInsert(
                     $tableName,
-                    ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source'],
+                    ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
                     $insertValues
                 )->execute();
                 $insertValues = [];
@@ -130,11 +132,11 @@ class ImportController extends Controller
             echo '. ';
             $dbPgNnp->createCommand()->batchInsert(
                 $tableName,
-                ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source'],
+                ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
                 $insertValues
             );
         }
-        
+
         echo PHP_EOL;
         return Controller::EXIT_CODE_NORMAL;
     }
@@ -156,7 +158,9 @@ CREATE TEMPORARY TABLE number_range_tmp
   number_to integer,
   is_mob boolean NOT NULL,
   operator_source character varying(255),
-  region_source character varying(255)
+  region_source character varying(255),
+  full_number_from bigint NOT NULL,
+  full_number_to bigint NOT NULL
 )
 SQL;
         $dbPgNnp->createCommand($sql)->execute();
@@ -175,6 +179,7 @@ SQL;
         $tableName = NumberRange::tableName();
 
         // всё выключить
+        // @todo надо выключать триггеры автоматически или вручную, иначе все повиснет. Подробности у Дениса
         $sql = <<<SQL
     UPDATE {$tableName}
     SET is_active = false
@@ -196,12 +201,10 @@ SQL;
     FROM
         number_range_tmp
     WHERE
-        number_range.country_prefix = :country_prefix
-        AND number_range.ndc = number_range_tmp.ndc
-        AND number_range.number_from = number_range_tmp.number_from
+        number_range.full_number_from = number_range_tmp.full_number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        $affectedRows = $dbPgNnp->createCommand($sql)->execute();
         printf("Updated: %d\n", $affectedRows);
 
         // удалить из временной таблицы уже обработанное
@@ -211,12 +214,10 @@ SQL;
     USING
         {$tableName} number_range
     WHERE
-        number_range.country_prefix = :country_prefix
-        AND number_range.ndc = number_range_tmp.ndc
-        AND number_range.number_from = number_range_tmp.number_from
+        number_range.full_number_from = number_range_tmp.full_number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        $dbPgNnp->createCommand($sql)->execute();
 
         // добавить в основную таблицу всё оставшееся из временной
         $sql = <<<SQL
@@ -229,7 +230,9 @@ SQL;
         number_to,
         is_mob,
         operator_source,
-        region_source
+        region_source,
+        full_number_from,
+        full_number_to
     )
     SELECT 
         :country_prefix as country_prefix, 
@@ -238,7 +241,9 @@ SQL;
         number_to,
         is_mob,
         operator_source,
-        region_source
+        region_source,
+        full_number_from,
+        full_number_to
     FROM
         number_range_tmp
 SQL;

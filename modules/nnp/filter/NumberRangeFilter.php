@@ -18,7 +18,7 @@ class NumberRangeFilter extends NumberRange
 {
     public $country_prefix = '';
     public $ndc = '';
-    public $number_from = ''; // чтобы не изобретать новое поле, назвоно как существующее. Хотя фактически это number
+    public $full_number_from = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это full_number
     public $operator_source = '';
     public $operator_id = '';
     public $region_source = '';
@@ -35,8 +35,8 @@ class NumberRangeFilter extends NumberRange
     public function rules()
     {
         return [
-            [['operator_source', 'region_source'], 'string'],
-            [['country_prefix', 'ndc', 'number_from', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
+            [['operator_source', 'region_source', 'full_number_from'], 'string'],
+            [['country_prefix', 'ndc', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
@@ -124,9 +124,9 @@ class NumberRangeFilter extends NumberRange
         $this->operator_source && $query->andWhere(['LIKE', $numberRangeTableName . '.operator_source', $this->operator_source]);
         $this->region_source && $query->andWhere(['LIKE', $numberRangeTableName . '.region_source', $this->region_source]);
 
-        if ($this->number_from) {
-            $query->andWhere(['<=', $numberRangeTableName . '.number_from', $this->number_from]);
-            $query->andWhere(['>=', $numberRangeTableName . '.number_to', $this->number_from]);
+        if ($this->full_number_from) {
+            $query->andWhere(['<=', $numberRangeTableName . '.full_number_from', $this->full_number_from]);
+            $query->andWhere(['>=', $numberRangeTableName . '.full_number_to', $this->full_number_from]);
         }
 
         $this->numbers_count_from && $query->andWhere('1 + ' . $numberRangeTableName . '.number_to - ' . $numberRangeTableName . '.number_from >= :numbers_count_from', [':numbers_count_from' => $this->numbers_count_from]);
