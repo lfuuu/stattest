@@ -110,14 +110,15 @@ class OrganizationForm extends Form
         return true;
     }
 
+    /**
+     * @param Organization $organization
+     */
     public function duplicate(Organization $organization)
     {
         $record = clone $organization;
         unset($record->actual_from);
         unset($record->id);
         $this->setAttributes($record->getAttributes());
-
-        return $this;
     }
 
 }

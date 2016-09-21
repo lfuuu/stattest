@@ -40,14 +40,14 @@ if (!empty($title)) {
 
 <div class="container<?= (!empty($title) ? ' well' : '')?>" style="width: 100%; padding-top: 20px;">
     <?php
-    $form_options = [
+    $formOptions = [
         'type' => ActiveForm::TYPE_VERTICAL,
         'id' => 'OrganizationFrm',
     ];
     if ($mode === 'duplicate') {
-        $form_options['action'] = '/organization/add';
+        $formOptions['action'] = '/organization/add';
     }
-    $form = ActiveForm::begin($form_options);
+    $form = ActiveForm::begin($formOptions);
 
     $languagesTabs = [];
     foreach(Language::getList() as $languageCode => $languageTitle) {
