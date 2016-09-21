@@ -79,6 +79,10 @@ SQL;
 
                 $accountTariff = AccountTariff::findOne(['id' => $accountTariffArray['account_tariff_id']]);
                 $accountTariffLog = AccountTariffLog::findOne(['id' => $accountTariffArray['account_tariff_log_id']]);
+                if (!$accountTariffLog->tariff_period_id) {
+                    // закрыть можно при любом балансе
+                    continue;
+                }
 
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
@@ -107,8 +111,6 @@ SQL;
                                 $credit, $clientAccount->currency)
                         );
                     }
-
-                    // @todo надо отправить данные на платформу
 
                     $transaction->commit();
                 } catch (\Exception $e) {
