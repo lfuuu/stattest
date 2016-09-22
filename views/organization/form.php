@@ -2,7 +2,6 @@
 
 use app\assets\AppAsset;
 use app\models\Language;
-use app\models\OrganizationSettlementAccount;
 use kartik\tabs\TabsX;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
@@ -65,7 +64,7 @@ if (!empty($title)) {
             'content' => $this->render('i18n/' . $language, [
                 'form' => $form,
                 'organization' => $history,
-                'lang' => $language,
+                'lang' => $languageCode,
             ]),
             'headerOptions' => [],
             'options' => ['style' => 'white-space: nowrap;'],
@@ -134,7 +133,7 @@ if (!empty($title)) {
                             'options' => [
                                 'pluginOptions' => [
                                     'autoclose' => true,
-                                    'orientation' => 'top left',
+                                    'orientation' => 'bottom left',
                                     'startDate' =>  'today',
                                 ]
                             ]

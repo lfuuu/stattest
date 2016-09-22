@@ -66,6 +66,12 @@ class InvoiceLight extends Component
      */
     public function prepare()
     {
+        // Устанавливаем язык для универсального шаблона
+        $dataLanguage =
+            $this->language == InvoiceForm::UNIVERSAL_INVOICE_KEY
+                ? Language::LANGUAGE_ENGLISH
+                : $this->language;
+
         /** @var InvoiceSettings $invoiceSetting */
         // Настройки счета-фактуры
         $invoiceSetting = InvoiceSettings::findOne([
@@ -78,7 +84,7 @@ class InvoiceLight extends Component
             $this->language,
             $this->clientAccount->contract
                 ->getOrganization($this->date)
-                ->setLanguage($this->language),
+                ->setLanguage($dataLanguage),
             $invoiceSetting
         );
 
@@ -104,7 +110,7 @@ class InvoiceLight extends Component
             // Первая проводка
             $firstAccountEntry = reset($items);
             // Данные о счете
-            $this->bill = new InvoiceBillLight($firstAccountEntry->bill_id, $firstAccountEntry->date, $this->language);
+            $this->bill = new InvoiceBillLight($firstAccountEntry->bill_id, $firstAccountEntry->date, $dataLanguage);
             // Данные проводках
             $this->items = (new InvoiceItemsLight($this->bill, $items, $invoiceSetting))->getAll();
         }

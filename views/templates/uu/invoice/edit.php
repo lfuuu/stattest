@@ -33,6 +33,15 @@ echo Breadcrumbs::widget([
 
     $tabs = [];
 
+    $tabs[] = [
+        'label' => 'Универсальный шаблон',
+        'content' => $this->render('form', [
+            'model' => new InvoiceForm(InvoiceForm::UNIVERSAL_INVOICE_KEY),
+        ]),
+        'headerOptions' => [],
+        'options' => ['style' => 'white-space: nowrap;'],
+    ];
+
     foreach (Language::getList() as $languageCode => $languageTitle) {
         $tabs[] = [
             'label' =>

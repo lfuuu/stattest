@@ -13,7 +13,7 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
         $name,
         $legal_address,
         $post_address,
-        $country_name,
+        $country,
         $tax_registration_id,
         $tax_registration_reason,
         $contact_email,
@@ -35,7 +35,7 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
         $this->name = $organization->name;
         $this->legal_address = $organization->legal_address;
         $this->post_address = $organization->post_address;
-        $this->country_name = $organization->country->name;
+        $this->country = $organization->country->name;
         $this->tax_registration_id = $organization->tax_registration_id;
         $this->tax_registration_reason = $organization->tax_registration_reason;
         $this->contact_email = $organization->contact_email;
