@@ -74,10 +74,10 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_extra.actual_from, usage_extra.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+  SELECT usage_extra.activation_dt, usage_extra.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
       null, usage_extra.activation_dt
 
   FROM usage_extra,
@@ -89,10 +89,10 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 to
         $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_extra.actual_to, usage_extra.id + {$deltaAccountTariff}, null,
+  SELECT usage_extra.expire_dt, usage_extra.id + {$deltaAccountTariff}, null,
       null, usage_extra.activation_dt
 
   FROM usage_extra,

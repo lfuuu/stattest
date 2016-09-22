@@ -138,14 +138,13 @@ abstract class AccountTariffConverterA
           WHERE
             closed.tariff_period_id IS NULL
             AND closed.account_tariff_id = active.account_tariff_id
-            AND active.actual_from > closed.actual_from
+            AND active.actual_from_utc > closed.actual_from_utc
           ");
 
         $this->calcAccountTariffTariff($serviceTypeId);
     }
 
     /**
-     * @todo кэш последнего тарифа
      * @param int $serviceTypeId
      */
     protected function calcAccountTariffTariff($serviceTypeId)
@@ -161,7 +160,7 @@ abstract class AccountTariffConverterA
             WHERE
               {$accountTariffTableName}.id = {$accountTariffLogTableName}.account_tariff_id
             ORDER BY
-              {$accountTariffLogTableName}.actual_from DESC,
+              {$accountTariffLogTableName}.actual_from_utc DESC,
               {$accountTariffLogTableName}.id DESC
             LIMIT 1
           )

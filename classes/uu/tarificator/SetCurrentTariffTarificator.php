@@ -7,8 +7,6 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
-use DateTimeZone;
 use Yii;
 
 /**
@@ -19,117 +17,110 @@ class SetCurrentTariffTarificator implements TarificatorI
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      */
-    public function tarificate($accountTariffId = null, $isWithTransaction = true)
+    public function tarificate($accountTariffId = null)
     {
-        // перебирать все услуги слишком долго. Быстрее по логу тарифов найти нужное
-        // Надо учесть таймзону клиента
         $db = Yii::$app->db;
-        $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
 
-        // выбрать все уникальные таймзоны
+        // найти все услуги, у которых надо обновить тариф
         $sql = <<<SQL
-            SELECT DISTINCT timezone_name
-            FROM {$clientAccountTableName}
-SQL;
-        $timezoneQuery = $db->createCommand($sql)
-            ->query();
-
-        foreach ($timezoneQuery as $timezone) {
-            echo '# ';
-            $timezoneName = $timezone['timezone_name'];
-            $timezone = new DateTimeZone($timezoneName);
-            $dateTime = (new \DateTimeImmutable())
-                ->setTimezone($timezone);
-            $clientDate = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-
-            $andWhereSQL = '';
-            if ($accountTariffId) {
-                $andWhereSQL .= " AND account_tariff.id = {$accountTariffId} ";
-            }
-
-            // По каждой таймзоне обновить текущий (по его таймзоне) тариф
-            $sql = <<<SQL
-            UPDATE
-                {$accountTariffTableName} account_tariff,
+            SELECT
+                account_tariff.id,
+                account_tariff.tariff_period_id,
                 (
                     SELECT
-                        account_tariff.client_account_id,
-                        account_tariff.id AS account_tariff_id,
-                        account_tariff.tariff_period_id,
-                        (
-                            SELECT
-                                account_tariff_log.tariff_period_id
-                            FROM
-                                {$accountTariffLogTableName} account_tariff_log
-                            WHERE
-                                account_tariff.id = account_tariff_log.account_tariff_id
-                                AND account_tariff_log.actual_from <= '{$clientDate}'
-                            ORDER BY
-                                account_tariff_log.actual_from DESC,
-                                account_tariff_log.id DESC
-                            LIMIT 1
-                        ) AS new_tariff_period_id
+                        account_tariff_log.tariff_period_id
                     FROM
-                        {$clientAccountTableName} clients,
-                        {$accountTariffTableName} account_tariff
+                        {$accountTariffLogTableName} account_tariff_log
                     WHERE
-                        clients.id = account_tariff.client_account_id
-                        AND clients.timezone_name = '{$timezoneName}'
-                        {$andWhereSQL}
-                    HAVING 
-                        IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)
-                ) a
-            SET
-                account_tariff.tariff_period_id = a.new_tariff_period_id,
-                account_tariff.is_updated = 1
-            WHERE 
-                account_tariff.id = a.account_tariff_id
+                        account_tariff.id = account_tariff_log.account_tariff_id
+                        AND account_tariff_log.actual_from_utc <= :now
+                    ORDER BY
+                        account_tariff_log.actual_from_utc DESC,
+                        account_tariff_log.id DESC
+                    LIMIT 1
+                ) AS new_tariff_period_id
+            FROM
+                {$accountTariffTableName} account_tariff
+            WHERE
+                account_tariff.id > :delta
+            HAVING 
 SQL;
+        if ($accountTariffId) {
+            // только конкретную услугу, даже если не надо менять тариф
+            $sql .= " account_tariff.id = {$accountTariffId} ";
+        } else {
+            // все услуги, где надо менять тариф
+            $sql .= ' IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)';
+        }
 
-            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
+        $query = $db->createCommand(
+            $sql,
+            [
+                ':delta' => AccountTariff::DELTA, // только новые, а не сконвертированные
+                ':now' => DateTimeZoneHelper::getUtcDateTime()
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+            ]
+        )
+            ->query();
+
+        foreach ($query as $row) {
+
+            $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
+
+            $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                $count = $db->createCommand($sql)
-                    ->execute();
-                echo $count . ' ';
-
-                /** @var AccountTariff $accountTariff */
-                $activeQuery = AccountTariff::find()
-                    ->where(['is_updated' => 1]);
-                if ($accountTariffId) {
-                    // даже если тариф не изменился (такое бывает при insert), то все равно уведомим платформу
-                    $activeQuery->orWhere(['id' => $accountTariffId]);
+                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
+                    // Проверить баланс при смене тарифа (но не при закрытии услуги)
+                    $this->checkBalance($accountTariff);
                 }
-                foreach ($activeQuery->each() as $accountTariff) {
 
-                    switch ($accountTariff->service_type_id) {
-                        case ServiceType::ID_VOIP: {
-                            Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
-                                'account_id' => $accountTariff->client_account_id,
-                                'account_tariff_id' => $accountTariff->id,
-                                'number' => $accountTariff->voip_number
-                            ]);
-                            break;
-                        }
-
-                        case ServiceType::ID_VPBX: {
-                            Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
-                                'account_id' => $accountTariff->client_account_id,
-                                'account_tariff_id' => $accountTariff->id,
-                            ]);
-                            break;
-                        }
+                // доп. обработка в зависимости от типа услуги
+                switch ($accountTariff->service_type_id) {
+                    case ServiceType::ID_VOIP: {
+                        Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
+                            'account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                            'number' => $accountTariff->voip_number
+                        ]);
+                        break;
                     }
 
-                    $accountTariff->is_updated = 0;
+                    case ServiceType::ID_VPBX: {
+                        Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
+                            'account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+                    }
+                }
+
+                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
+                    // сменить тариф
+                    $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
                     $accountTariff->save();
                 }
 
-                $isWithTransaction && $transaction->commit();
+                $transaction->commit();
+
+            } catch (\LogicException $e) {
+                $transaction->rollBack();
+                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                Yii::error($e->getMessage());
+
+                // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
+                $transaction = Yii::$app->db->beginTransaction();
+                $accountTariffLog = reset($accountTariff->accountTariffLogs);
+                $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
+                    ->modify('+1 day')
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                $accountTariffLog->save();
+                $transaction->commit();
+
             } catch (\Exception $e) {
-                $isWithTransaction && $transaction->rollBack();
+                $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
@@ -137,5 +128,42 @@ SQL;
                 }
             }
         }
+    }
+
+    /**
+     * Проверить баланс при смене тарифа
+     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
+     *
+     * @param AccountTariff $accountTariff
+     * @return bool
+     */
+    protected function checkBalance(AccountTariff $accountTariff)
+    {
+        $clientAccount = $accountTariff->clientAccount;
+
+        ob_start();
+        (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
+        (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
+        (new AccountLogResourceTarificator)->tarificateAccountTariff($accountTariff);
+        (new AccountLogMinTarificator)->tarificate($accountTariff->id);
+        (new AccountEntryTarificator)->tarificate($accountTariff->id);
+        (new BillTarificator)->tarificate($accountTariff->id);
+        (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
+        ob_end_clean();
+
+        $credit = $clientAccount->credit; // кредитный лимит
+        $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
+        $realtimeBalanceWithCredit = $realtimeBalance + $credit;
+
+        if ($realtimeBalanceWithCredit < 0) {
+            throw new \LogicException(
+                sprintf('У клиента %d нет денег на смену тарифа по услуге %d. После смены получится на счету %.2f %s и кредит %.2f %s',
+                    $accountTariff->client_account_id,
+                    $accountTariff->id,
+                    $realtimeBalance, $clientAccount->currency,
+                    $credit, $clientAccount->currency)
+            );
+        }
+
     }
 }

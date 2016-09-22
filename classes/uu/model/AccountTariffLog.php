@@ -11,6 +11,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use DateTime;
 use DateTimeImmutable;
+use DateTimeZone;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -21,10 +22,11 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $account_tariff_id
  * @property int $tariff_period_id если null, то закрыто
- * @property string $actual_from !
+ * @property string $actual_from_utc
  *
  * @property TariffPeriod $tariffPeriod
  * @property AccountTariff $accountTariff
+ * @property string $actual_from
  */
 class AccountTariffLog extends ActiveRecord
 {
@@ -139,19 +141,22 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $timezone = $this->accountTariff->clientAccount->getTimezone();
-        $currentDate = (new DateTime())
-            ->setTimezone($timezone)
-            ->format(DateTimeZoneHelper::DATE_FORMAT);
-        !$this->actual_from && $this->actual_from = $currentDate;
+        $currentDateTimeUtc = $this->accountTariff
+            ->clientAccount
+            ->getDatetimeWithTimezone()
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($this->actual_from < $currentDate) {
+        !$this->actual_from && $this->actual_from = $currentDateTimeUtc;
+
+        if ($this->actual_from < $currentDateTimeUtc) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
         }
 
-        if ($this->actual_from == $currentDate && self::find()
+        if ($this->actual_from == $currentDateTimeUtc && self::find()
                 ->where(['account_tariff_id' => $this->account_tariff_id])
-                ->andWhere(['=', 'actual_from', $currentDate])
+                ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
                 ->count()
         ) {
             $this->addError($attribute, 'Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
@@ -159,7 +164,7 @@ class AccountTariffLog extends ActiveRecord
 
         if (self::find()
             ->where(['account_tariff_id' => $this->account_tariff_id])
-            ->andWhere(['>', 'actual_from', $currentDate])
+            ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
             ->count()
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');
@@ -370,5 +375,55 @@ class AccountTariffLog extends ActiveRecord
         }
 
         Yii::info('AccountTariffLog. After validatorPackage', 'uu');
+    }
+
+    /**
+     * Установить actual_from из date в таймзоне клиента в datetime UTC
+     * Для совместимости, ибо старое поле actual_from удалено
+     * @param string $date
+     */
+    public function setActual_from($date)
+    {
+        $this->actual_from_utc = $this->getClientDateTime($date)
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+    }
+
+    /**
+     * Вернуть actual_from в виде date в таймзоне клиента, а не datetime UTC
+     * Для совместимости, ибо старое поле actual_from удалено
+     * @return string
+     */
+    public function getActual_from()
+    {
+        return (new DateTime($this->actual_from_utc, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+            ->setTimezone($this->getClientTimeZone())
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
+
+    }
+
+    /**
+     * Вернуть DateTime в таймзоне клиента
+     * @param string $date в таймзоне клиента
+     * @return DateTimeImmutable
+     */
+    public function getClientDateTime($date = 'now')
+    {
+        return new DateTimeImmutable($date, $this->getClientTimeZone());
+    }
+
+    /**
+     * Вернуть DateTimeZone клиента
+     * @return DateTimeZone
+     */
+    public function getClientTimeZone()
+    {
+        if ($this->accountTariff && $this->accountTariff->clientAccount) {
+            return $this->accountTariff->clientAccount->getTimezone();
+        } else {
+            return new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
+        }
     }
 }

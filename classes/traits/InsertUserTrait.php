@@ -50,7 +50,8 @@ trait InsertUserTrait
     public function beforeSave($insert, $isCallParent = true)
     {
         if ($insert) {
-            $this->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
+            $this->insert_time = DateTimeZoneHelper::getUtcDateTime()
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $this->insert_user_id = Yii::$app->user->getId();
         }
 

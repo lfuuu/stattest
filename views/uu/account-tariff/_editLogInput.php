@@ -41,15 +41,18 @@ $accountTariffLog = $formModel->accountTariffLog;
     </div>
 
     <div class="col-sm-3">
-        <?= $form->field($accountTariffLog, 'actual_from')->widget(DatePicker::className(), [
-            'removeButton' => false,
-            'pluginOptions' => [
-                'autoclose' => true,
-                'format' => 'yyyy-mm-dd',
-                'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
-                'todayHighlight' => true,
-            ]
-        ]) ?>
+        <?= $form->field($accountTariffLog, 'actual_from')
+            ->widget(DatePicker::className(), [
+                'removeButton' => false,
+                'pluginOptions' => [
+                    'autoclose' => true,
+                    'format' => 'yyyy-mm-dd',
+                    'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
+                    'todayHighlight' => true,
+                ]
+            ])
+            ->label($accountTariffLog->getAttributeLabel('actual_from_utc'))
+        ?>
     </div>
 
     <?php if (!$accountTariff->isNewRecord) : ?>

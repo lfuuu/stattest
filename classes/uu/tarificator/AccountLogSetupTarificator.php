@@ -40,7 +40,7 @@ class AccountLogSetupTarificator implements TarificatorI
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT))
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
             ) {
                 // услуга отключена давно - в целях оптимизации считать нет смысла
                 continue;

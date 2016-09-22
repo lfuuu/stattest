@@ -51,10 +51,10 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT GREATEST(log_tarif.date_activation, usage_voip_package.actual_from), usage_voip_package.id + {$deltaVoipAccountTariffPackage}, {$tariffPeriodTableName}.id,
+  SELECT GREATEST(log_tarif.date_activation, usage_voip_package.activation_dt), usage_voip_package.id + {$deltaVoipAccountTariffPackage}, {$tariffPeriodTableName}.id,
       user_users.id, log_tarif.ts
 
   FROM
@@ -79,10 +79,10 @@ class AccountTariffConverterVoipPackage extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 to
         $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT actual_to, id + {$deltaVoipAccountTariffPackage}, null,
+  SELECT expire_dt, id + {$deltaVoipAccountTariffPackage}, null,
       null, expire_dt
 
   FROM usage_voip_package

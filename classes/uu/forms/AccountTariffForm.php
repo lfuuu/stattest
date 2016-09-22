@@ -10,7 +10,6 @@ use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
 use app\helpers\DateTimeZoneHelper;
-use DateTime;
 use InvalidArgumentException;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -63,7 +62,9 @@ abstract class AccountTariffForm extends Form
         }
 
         $this->accountTariffLog = new AccountTariffLog();
-        $this->accountTariffLog->actual_from = (new DateTime())
+        $this->accountTariffLog->account_tariff_id = $this->accountTariff->id;
+        $this->accountTariffLog->actual_from = $this->accountTariffLog
+            ->getClientDateTime()
             ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
@@ -234,7 +235,9 @@ abstract class AccountTariffForm extends Form
 
                 }
 
-                if ($this->accountTariffLog->actual_from != date(DateTimeZoneHelper::DATE_FORMAT)) {
+                $clientDateTime = $this->accountTariffLog->getClientDateTime();
+                if ($this->accountTariffLog->actual_from != $clientDateTime->format(DateTimeZoneHelper::DATE_FORMAT)
+                ) {
                     $this->validateErrors['resourceOneTimeActualFrom'] = 'Разовая услуга должна действовать с сегодняшнего дня.';
                     $this->accountTariffLog->addError('actual_from', $this->validateErrors['resourceOneTimeActualFrom']);
                     throw new InvalidArgumentException();
@@ -257,7 +260,7 @@ abstract class AccountTariffForm extends Form
                 $accountTariffLogClosed = new AccountTariffLog;
                 $accountTariffLogClosed->account_tariff_id = $this->accountTariff->id;
                 $accountTariffLogClosed->tariff_period_id = null;
-                $accountTariffLogClosed->actual_from = (new \DateTimeImmutable())->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountTariffLogClosed->actual_from = $clientDateTime->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
                 if (!$accountTariffLogClosed->save()) {
                     $this->validateErrors += $accountTariffLogClosed->getFirstErrors();
                 }
@@ -312,7 +315,7 @@ abstract class AccountTariffForm extends Form
         return new ActiveDataProvider([
             'query' => AccountTariffLog::find()
                 ->where('account_tariff_id = :id', ['id' => $this->accountTariff->id])
-                ->orderBy(['actual_from' => SORT_DESC, 'id' => SORT_DESC]),
+                ->orderBy(['actual_from_utc' => SORT_DESC, 'id' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 10,
             ],

@@ -3,6 +3,7 @@
 namespace app\helpers;
 
 use app\models\usages\UsageInterface;
+use DateTimeImmutable;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -125,4 +126,14 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         }
     }
 
+    /**
+     * Вернуть DateTime в таймзоне UTC
+     * @param string $date в дефолтной (московской?) таймзоне
+     * @return DateTimeImmutable
+     */
+    public static function getUtcDateTime($date = 'now')
+    {
+        return (new DateTimeImmutable($date))
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+    }
 }
