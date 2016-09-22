@@ -42,28 +42,16 @@ if (!$numberRange->isNewRecord) {
 
     <div class="row">
 
-        <?php // страна ?>
-        <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('country_prefix') ?></label>
-            <div><?= $numberRange->country_prefix ?></div>
-        </div>
-
-        <?php // ABC/DEF код ?>
-        <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('ndc') ?></label>
-            <div><?= $numberRange->ndc ?></div>
-        </div>
-
         <?php // Номер от ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('number_from') ?></label>
-            <div><?= $numberRange->number_from ?></div>
+            <label><?= $numberRange->getAttributeLabel('full_number_from') ?></label>
+            <div><?= $numberRange->full_number_from ?></div>
         </div>
 
         <?php // Номер до ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('number_to') ?></label>
-            <div><?= $numberRange->number_to ?></div>
+            <label><?= $numberRange->getAttributeLabel('full_number_to') ?></label>
+            <div><?= $numberRange->full_number_to ?></div>
         </div>
 
         <?php // ABC / DEF ?>
