@@ -14,7 +14,9 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
         $address,
         $tax_registration_id,
         $tax_registration_reason,
-        $consignee;
+        $consignee,
+        $currency,
+        $currency_symbol;
 
     /**
      * @param ClientAccount $clientAccount
@@ -28,6 +30,8 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
         $this->tax_registration_id = $clientAccount->inn;
         $this->tax_registration_reason = $clientAccount->kpp;
         $this->consignee = ($clientAccount->is_with_consignee && $clientAccount->consignee) ? $clientAccount->consignee : '------';
+        $this->currency = $clientAccount->currencyModel->name;
+        $this->currency_symbol = $clientAccount->currencyModel->symbol;
     }
 
     /**
@@ -57,6 +61,8 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
             'tax_registration_id' => 'ИНН',
             'tax_registration_reason' => 'КПП',
             'consignee' => 'Грузополучатель',
+            'currency' => 'Наименование валюты',
+            'currency_symbol' => 'Символ валюты',
         ];
     }
 

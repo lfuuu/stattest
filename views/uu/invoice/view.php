@@ -48,6 +48,14 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
             <div class="pull-right">
 
                 <?= $this->render('//layouts/_link', [
+                    'text' => 'Универсальная счет-фактура',
+                    'url' => Url::toRoute(['/uu/invoice/view', 'month' => $month, 'langCode' => \app\forms\templates\uu\InvoiceForm::UNIVERSAL_INVOICE_KEY]),
+                    'params' => [
+                        'class' => 'btn btn-warning',
+                    ],
+                ]) ?>
+
+                <?= $this->render('//layouts/_link', [
                     'text' => 'Печать',
                     'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'print', 'month' => $month, 'langCode' => $langCode]),
                     'glyphicon' => 'glyphicon glyphicon-print',
