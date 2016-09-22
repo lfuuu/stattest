@@ -3,6 +3,7 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageIpPorts;
 use DateTimeImmutable;
 use yii\base\Object;
@@ -27,7 +28,7 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $this->createCache($accountTariffId);
-        $date = $dateTime->format('Y-m-d');
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
 
         return
             isset($this->dateToValue[$date]) ?
@@ -110,7 +111,7 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
 SQL;
         $db = UsageIpPorts::getDb();
         $dataReader = $db->createCommand($sql, [
-            ':date' => AccountTariff::getMinLogDatetime()->format('Y-m-d'),
+            ':date' => AccountTariff::getMinLogDatetime()->format(DateTimeZoneHelper::DATE_FORMAT),
             ':account_tariff_id' => $accountTariffId,
         ])
             ->query();

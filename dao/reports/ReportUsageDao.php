@@ -67,8 +67,8 @@ class ReportUsageDao extends Singleton
         $query->andWhere([
             'between',
             'cr.connect_time',
-            $from->format('Y-m-d H:i:s'),
-            $to->format('Y-m-d H:i:s.999999')
+            $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
         ]);
 
         if ($direction !== 'both') {
@@ -240,7 +240,7 @@ class ReportUsageDao extends Singleton
 
             $ts = new DateTime($record['ts1']);
 
-            $record['tsf1'] = $ts->format('Y-m-d H:i:s');
+            $record['tsf1'] = $ts->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $record['mktime'] = $ts->getTimestamp();
             $record['is_total'] = false;
 

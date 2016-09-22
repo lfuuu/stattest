@@ -9,6 +9,7 @@
 
 use app\classes\Html;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
 use yii\widgets\ActiveForm;
@@ -45,7 +46,7 @@ $accountTariffLog = $formModel->accountTariffLog;
             'pluginOptions' => [
                 'autoclose' => true,
                 'format' => 'yyyy-mm-dd',
-                'startDate' => date('Y-m-d'),
+                'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
                 'todayHighlight' => true,
             ]
         ]) ?>

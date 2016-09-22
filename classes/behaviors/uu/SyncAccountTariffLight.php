@@ -45,13 +45,12 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        $clientTimezoneName = $accountTariff->clientAccount->timezone_name;
-        $clientTimezone = new DateTimeZone($clientTimezoneName);
+        $clientTimezone = $accountTariff->clientAccount->getTimezone();
         $utcTimezone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
         $activateFrom = (new \DateTimeImmutable($accountLogPeriod->date_from, $clientTimezone))
             ->setTimezone($utcTimezone)
-            ->format('Y-m-d H:i:s');
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($accountTariff->tariffPeriod->getIsOneTime()) {
             // Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
@@ -61,7 +60,7 @@ class SyncAccountTariffLight extends Behavior
             $coefficient = $accountLogPeriod->coefficient;
             $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
                 ->setTimezone($utcTimezone)
-                ->format('Y-m-d H:i:s');
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
         if (!$accountTariff->prev_account_tariff_id) {

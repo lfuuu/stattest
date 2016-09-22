@@ -9,6 +9,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use InvalidArgumentException;
 use Yii;
@@ -64,7 +65,7 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffLog = new AccountTariffLog();
         $this->accountTariffLog->actual_from = (new DateTime())
             ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
-            ->format('Y-m-d');
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -233,7 +234,7 @@ abstract class AccountTariffForm extends Form
 
                 }
 
-                if ($this->accountTariffLog->actual_from != date('Y-m-d')) {
+                if ($this->accountTariffLog->actual_from != date(DateTimeZoneHelper::DATE_FORMAT)) {
                     $this->validateErrors['resourceOneTimeActualFrom'] = 'Разовая услуга должна действовать с сегодняшнего дня.';
                     $this->accountTariffLog->addError('actual_from', $this->validateErrors['resourceOneTimeActualFrom']);
                     throw new InvalidArgumentException();
@@ -256,7 +257,7 @@ abstract class AccountTariffForm extends Form
                 $accountTariffLogClosed = new AccountTariffLog;
                 $accountTariffLogClosed->account_tariff_id = $this->accountTariff->id;
                 $accountTariffLogClosed->tariff_period_id = null;
-                $accountTariffLogClosed->actual_from = (new \DateTimeImmutable())->modify('+1 day')->format('Y-m-d');
+                $accountTariffLogClosed->actual_from = (new \DateTimeImmutable())->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
                 if (!$accountTariffLogClosed->save()) {
                     $this->validateErrors += $accountTariffLogClosed->getFirstErrors();
                 }

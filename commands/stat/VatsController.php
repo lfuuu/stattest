@@ -1,6 +1,7 @@
 <?php
 namespace app\commands\stat;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ActualVirtpbx;
 use app\models\Virtpbx;
 use DateTime;
@@ -55,7 +56,7 @@ class VatsController extends Controller
         $this->stdout('prevmonth: ' . $this->ansiFormat('получить и сохранить статистику с первого дня предыдущего месяца, по сегодня'),
             Console::FG_RED);
         $this->stdout("\n\n\t");
-        $this->stdout('Y-m-d: ' . $this->ansiFormat('получить и сохранить статистику за указанную дату'),
+        $this->stdout(DateTimeZoneHelper::DATE_FORMAT . ': ' . $this->ansiFormat('получить и сохранить статистику за указанную дату'),
             Console::FG_YELLOW);
         $this->stdout("\n");
     }
@@ -125,7 +126,7 @@ class VatsController extends Controller
      */
     private function setDayStatistic($list, $date)
     {
-        $day = $date->format('Y-m-d');
+        $day = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $insert = [];
 
         foreach ($list as $record) {

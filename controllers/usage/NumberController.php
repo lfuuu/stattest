@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers\usage;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\NumberType;
 use Yii;
 use DateTime;
@@ -184,7 +185,7 @@ class NumberController extends BaseController
         if (!empty($viewTypeFile)) {
             $result = implode("\r\n", ArrayHelper::getColumn($numbers, 'number'));
             Yii::$app->response->sendContentAsFile($result,
-                'numbers--' . (new DateTime('now'))->format('Y-m-d') . '.txt');
+                'numbers--' . (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT) . '.txt');
             Yii::$app->end();
         }
 

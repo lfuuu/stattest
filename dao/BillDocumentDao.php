@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\helpers\DateTimeZoneHelper;
 use app\models\BillDocument;
 
 /**
@@ -83,7 +84,7 @@ class BillDocumentDao extends Singleton
             $docs->bill_no = $billNo;
         }
         $data['bill_no'] = $billNo;
-        $docs->ts = date('Y-m-d H:i:s');
+        $docs->ts = date(DateTimeZoneHelper::DATETIME_FORMAT);
         $docs->setAttributes($doctypes, false);
         $docs->save();
 

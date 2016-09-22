@@ -2,6 +2,7 @@
 
 namespace app\models\filter;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\data\ArrayDataProvider;
 use app\classes\DynamicModel;
@@ -48,11 +49,11 @@ class ClientAccountAgentFilter extends DynamicModel
         $this->filterDateFrom =
             !empty($dateFrom)
                 ? $dateFrom
-                : (new DateTimeWithUserTimezone('first day of previous month'))->format('Y-m-d');
+                : (new DateTimeWithUserTimezone('first day of previous month'))->format(DateTimeZoneHelper::DATE_FORMAT);
         $this->filterDateTo =
             !empty($dateTo)
                 ? $dateTo :
-                (new DateTimeWithUserTimezone('last day of previous month'))->format('Y-m-d');
+                (new DateTimeWithUserTimezone('last day of previous month'))->format(DateTimeZoneHelper::DATE_FORMAT);
 
         return $this;
     }

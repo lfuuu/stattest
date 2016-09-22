@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\validators\InnValidator;
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
 class ClientInn extends ActiveRecord
@@ -20,7 +21,7 @@ class ClientInn extends ActiveRecord
             ['inn', InnValidator::className()],
 
             ['user_id', 'default', 'value' => \Yii::$app->user->id],
-            ['ts', 'default', 'value' => date('Y-m-d H-i-s')],
+            ['ts', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
             ['is_active', 'default', 'value' => 1],
         ];
     }

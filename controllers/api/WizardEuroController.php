@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use app\forms\lk_wizard\AcceptsForm;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
 use yii;
 use app\models\document\DocumentTemplate;
@@ -137,7 +138,7 @@ class WizardEuroController extends WizardBaseController
             $clientDocument->contract_id = $this->account->contract->id;
             $clientDocument->type = 'contract';
             $clientDocument->contract_no = $this->accountId;
-            $clientDocument->contract_date = date("Y-m-d");
+            $clientDocument->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
             $clientDocument->template_id = ($this->account->contract->contragent->legal_type == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);

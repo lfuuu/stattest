@@ -4,6 +4,7 @@ namespace app\classes\uu\model;
 
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
@@ -353,7 +354,7 @@ class AccountTariff extends ActiveRecord
                 // если переопределен в тот же день, то списываем за оба
                 continue;
             }
-            if (!$isWithFuture && $accountTariffLog->actual_from > date('Y-m-d')) {
+            if (!$isWithFuture && $accountTariffLog->actual_from > date(DateTimeZoneHelper::DATE_FORMAT)) {
                 // еще не наступил
                 continue;
             }
@@ -387,8 +388,8 @@ class AccountTariff extends ActiveRecord
                 $prevTariffPeriodChargePeriod = $prevAccountTariffLog->tariffPeriod->chargePeriod;
 
                 // старый тариф должен закончиться не раньше этой даты
-                $dateActualFromYmd = $dateActualFrom->format('Y-m-d');
-                $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format('Y-m-d');
+                $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+                $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
                     $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
 //                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
@@ -475,7 +476,7 @@ class AccountTariff extends ActiveRecord
                 /** @var DateTimeImmutable $dateFrom */
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
-            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d'));
+            } while ($dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) <= $dateToLimited->format(DateTimeZoneHelper::DATE_FORMAT));
 
         }
 
@@ -562,7 +563,7 @@ class AccountTariff extends ActiveRecord
                 // такой период рассчитан
                 // проверим, все ли корректно
                 $accountLog = $accountLogs[$uniqueId];
-                $dateToTmp = $accountLogFromToTariff->dateTo->format('Y-m-d');
+                $dateToTmp = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($accountLog->date_to !== $dateToTmp) {
                     throw new \LogicException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
                 }
@@ -605,7 +606,7 @@ class AccountTariff extends ActiveRecord
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->dateFrom->format('Y-m-d');
+            $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             if (isset($accountLogs[$dateFromYmd])) {
                 // такой период рассчитан
                 unset($accountLogs[$dateFromYmd]);
@@ -691,7 +692,7 @@ class AccountTariff extends ActiveRecord
         }
 
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
-        return $accountTariffLog->actual_from > $dateTimeNow->format('Y-m-d');
+        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**

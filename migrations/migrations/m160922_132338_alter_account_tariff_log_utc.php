@@ -15,9 +15,10 @@ class m160922_132338_alter_account_tariff_log_utc extends \app\classes\Migration
         $activeQuery = AccountTariffLog::find();
         /** @var AccountTariffLog $accountTariffLog */
         foreach($activeQuery->each() as $accountTariffLog) {
-            $timezone = $accountTariffLog->accountTariff->clientAccount->getTimezone();
-            new DateTimeImmutable($accountTariffLog->actual_from)
-            ;
+            $clientTimezone = $accountTariffLog->accountTariff->clientAccount->getTimezone();
+            (new DateTimeImmutable($accountTariffLog->actual_from, $clientTimezone))
+            ->setTimezone($utcTimezone)
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
     }
 

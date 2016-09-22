@@ -8,8 +8,6 @@ use Yii;
 
 class DateTimeWithUserTimezone extends DateTime
 {
-    const INFINITY = '∞';
-
     /**
      * @param string $time
      * @param DateTimeZone $timezone
@@ -71,7 +69,7 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public function formatWithInfinity($format)
     {
-        return $this->isInfinity() ? self::INFINITY : $this->format($format);
+        return $this->isInfinity() ? DateTimeZoneHelper::INFINITY : $this->format($format);
     }
 
     /**

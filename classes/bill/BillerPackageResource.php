@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Transaction;
 use Yii;
 use DateTime;
@@ -69,14 +70,14 @@ class BillerPackageResource extends BillerPackage
         $transaction = new Transaction();
         $transaction->client_account_id = $this->clientAccount->id;
         $transaction->source = Transaction::SOURCE_STAT;
-        $transaction->billing_period = $this->billerPeriodFrom->format('Y-m-d');
+        $transaction->billing_period = $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT);
         $transaction->service_type = $this->usage->getServiceType();
         $transaction->service_id = $this->usage->id;
         $transaction->transaction_type = Transaction::TYPE_RESOURCE;
         $transaction->name = $name;
-        $transaction->transaction_date = $transactionDate->format('Y-m-d H:i:s');
-        $transaction->period_from = $from->format('Y-m-d H:i:s');
-        $transaction->period_to = $to->format('Y-m-d H:i:s');
+        $transaction->transaction_date = $transactionDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $transaction->period_from = $from->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $transaction->period_to = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $transaction->amount = $amount;
         $transaction->price = $price;
         $transaction->is_partial_write_off = false;

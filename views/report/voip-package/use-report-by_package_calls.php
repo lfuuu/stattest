@@ -32,7 +32,7 @@ echo GridView::widget([
                         )
                         )
                             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW))
-                            ->format('Y-m-d H:i:s');
+                            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 }
 
                 return $datetime;

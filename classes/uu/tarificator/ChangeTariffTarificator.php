@@ -5,6 +5,7 @@ namespace app\classes\uu\tarificator;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use DateTimeZone;
 use Yii;
@@ -42,7 +43,7 @@ SQL;
             $timezone = new DateTimeZone($timezoneName);
             $dateTime = (new \DateTimeImmutable())
                 ->setTimezone($timezone);
-            $clientDate = $dateTime->format('Y-m-d');
+            $clientDate = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
             $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
 
             // По каждой таймзоне выбрать всех, кому сегодня (по его таймзоне) надо менять тариф и кого пока не билинговали (достаточно проверить абонентку)
@@ -120,7 +121,7 @@ SQL;
 
                     // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
                     $transaction = Yii::$app->db->beginTransaction();
-                    $accountTariffLog->actual_from = $dateTime->modify('+1 day')->format('Y-m-d');
+                    $accountTariffLog->actual_from = $dateTime->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
                     $accountTariffLog->save();
                     $transaction->commit();
                 }

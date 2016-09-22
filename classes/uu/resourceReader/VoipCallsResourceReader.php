@@ -27,7 +27,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
 
-        $dateStr = $dateTime->format('Y-m-d');
+        $dateStr = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         if ($this->accountTariffId === $accountTariffId) {
             // для этой услуги уже есть кэш
             if (isset($this->dateToValue[$dateStr])) {

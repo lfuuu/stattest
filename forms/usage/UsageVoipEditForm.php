@@ -360,7 +360,7 @@ class UsageVoipEditForm extends UsageVoipForm
         }
 
         if (!$this->connecting_date) {
-            $this->connecting_date = date('Y-m-d');
+            $this->connecting_date = date(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         if (!$this->tariff_local_mob_id && $this->clientAccount && $this->connection_point_id) {
@@ -388,7 +388,7 @@ class UsageVoipEditForm extends UsageVoipForm
     {
         $actualFrom = $this->connecting_date;
         $activationDt = (new DateTime($actualFrom,
-            $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+            $this->timezone))->setTimezone(new DateTimeZone('UTC'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $this->usage->actual_from = $actualFrom;
         $this->usage->activation_dt = $activationDt;
@@ -466,7 +466,7 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->connection_point_id = $usage->region;
             $this->connecting_date = $usage->actual_from;
             $this->disconnecting_date = (new DateTime($usage->actual_to))->format('Y') === '4000' ? '' : $usage->actual_to;
-            $this->tariff_change_date = $this->today->format('Y-m-d');
+            $this->tariff_change_date = $this->today->format(DateTimeZoneHelper::DATE_FORMAT);
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
@@ -518,7 +518,7 @@ class UsageVoipEditForm extends UsageVoipForm
             // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
             $this->tariff_main_status = $this->tariffMainStatus = $tariff->status;
         } else {
-            $this->connecting_date = $this->today->format('Y-m-d');
+            $this->connecting_date = $this->today->format(DateTimeZoneHelper::DATE_FORMAT);
         }
     }
 
@@ -898,7 +898,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $timezone = $this->usage->clientAccount->timezone;
         if (!empty($this->disconnecting_date)) {
             $closeDate = new DateTime($this->disconnecting_date, $timezone);
-            $this->usage->actual_to = $closeDate->format('Y-m-d');
+            $this->usage->actual_to = $closeDate->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         $nextHistoryItems =

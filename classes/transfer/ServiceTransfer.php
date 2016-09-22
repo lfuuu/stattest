@@ -2,6 +2,7 @@
 
 namespace app\classes\transfer;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
@@ -112,7 +113,7 @@ abstract class ServiceTransfer extends \yii\base\Component
             $movedService = new $this->service;
             $movedService = $movedService->find()
                 ->andWhere(['id' => $this->service->next_usage_id])
-                ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
+                ->andWhere('actual_from > :date', [':date' => date(DateTimeZoneHelper::DATE_FORMAT)])
                 ->one();
             Assert::isObject($movedService);
 
@@ -135,12 +136,12 @@ abstract class ServiceTransfer extends \yii\base\Component
         $activationDatetime = clone $this->activationDate;
         return $activationDatetime
             ->setTimezone(new DateTimeZone('UTC'))
-            ->format('Y-m-d H:i:s');
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
     public function getActualDate()
     {
-        return $this->activationDate->format('Y-m-d');
+        return $this->activationDate->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     public function getExpireDatetime()
@@ -150,7 +151,7 @@ abstract class ServiceTransfer extends \yii\base\Component
             ->modify('-1 day')
             ->setTime(23, 59, 59)
             ->setTimezone(new DateTimeZone('UTC'))
-            ->format('Y-m-d H:i:s');
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
     public function getExpireDate()
@@ -158,7 +159,7 @@ abstract class ServiceTransfer extends \yii\base\Component
         $expireDate = clone $this->activationDate;
         return $expireDate
             ->modify('-1 day')
-            ->format('Y-m-d');
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
 }

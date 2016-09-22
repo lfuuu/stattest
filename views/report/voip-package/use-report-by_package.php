@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\ArrayHelper;
 use app\classes\grid\GridView;
 use app\classes\DateTimeWithUserTimezone;
@@ -43,9 +44,9 @@ echo GridView::widget([
                     Html::tag(
                         'i',
                         ' / ' .
-                        (new DateTimeWithUserTimezone($package->actual_from))->formatWithInfinity('Y-m-d') .
+                        (new DateTimeWithUserTimezone($package->actual_from))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT) .
                         ' : ' .
-                        (new DateTimeWithUserTimezone($package->actual_to))->formatWithInfinity('Y-m-d')
+                        (new DateTimeWithUserTimezone($package->actual_to))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT)
                     );
             },
         ],

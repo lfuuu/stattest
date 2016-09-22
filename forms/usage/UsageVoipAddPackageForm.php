@@ -49,7 +49,7 @@ class UsageVoipAddPackageForm extends Form
             ->where('id = :id AND ( actual_to = :max OR actual_to >= :now )', [
                 'id' => $this->usage_voip_id,
                 'max' => UsageInterface::MAX_POSSIBLE_DATE,
-                'now' => (new DateTime('now'))->format('Y-m-d H:i:s')
+                'now' => (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ])
             ->one();
 

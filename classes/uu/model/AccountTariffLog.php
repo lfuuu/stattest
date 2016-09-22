@@ -7,6 +7,7 @@ use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use DateTime;
 use DateTimeImmutable;
@@ -55,7 +56,7 @@ class AccountTariffLog extends ActiveRecord
         return [
             [['account_tariff_id', 'tariff_period_id'], 'integer'],
             [['account_tariff_id'], 'required'],
-            ['actual_from', 'date', 'format' => 'php:Y-m-d'],
+            ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
@@ -138,10 +139,10 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $timezone = new \DateTimeZone($this->accountTariff->clientAccount->timezone_name);
+        $timezone = $this->accountTariff->clientAccount->getTimezone();
         $currentDate = (new DateTime())
             ->setTimezone($timezone)
-            ->format('Y-m-d');
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
         !$this->actual_from && $this->actual_from = $currentDate;
 
         if ($this->actual_from < $currentDate) {
@@ -259,11 +260,11 @@ class AccountTariffLog extends ActiveRecord
 
             $datimeNow = $clientAccount->getDatetimeWithTimezone();
             if (
-                $tariffPeriod && $datimeNow->format('Y-m-d') == $this->actual_from
+                $tariffPeriod && $datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from
                 && ($realtimeBalanceWithCredit < 0 || $clientAccount->is_blocked || isset($warnings[ClientAccount::WARNING_OVERRAN]) || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT]))
             ) {
                 // сегодня смена тарифа при отрицательном балансе (или блокировке). Откладываем +1 день, пока деньги не появятся (или не разблокируется)
-                $this->actual_from = $datimeNow->modify('+1 day')->format('Y-m-d');
+                $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
             }
             return;
         }

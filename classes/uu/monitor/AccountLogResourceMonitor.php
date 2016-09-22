@@ -4,6 +4,7 @@ namespace app\classes\uu\monitor;
 
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 
 /**
@@ -45,8 +46,8 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
                         'cnt_entry' => 'COUNT(account_entry_id)',
                     ])
                     ->where('date BETWEEN :date_from AND :date_to', [
-                        ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
-                        ':date_to' => $monthDateTime->modify('last day of this month')->format('Y-m-d'),
+                        ':date_from' => $monthDateTime->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
+                        ':date_to' => $monthDateTime->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
                     ])
                     ->groupBy('date')
                     ->indexBy('date')

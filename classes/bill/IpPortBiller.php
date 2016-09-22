@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\LogTarif;
 use app\models\TariffInternet;
 use app\models\UsageTechCpe;
@@ -275,8 +276,8 @@ class IpPortBiller extends Biller
                         " . ($filter ? ' and (' . $filter . ')' : '') . "
                 ",
                 [
-                    ':from' => $this->billerActualFrom->format('Y-m-d'),
-                    ':to' => $this->billerActualTo->format('Y-m-d'),
+                    ':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                    ':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT),
                 ]
             )
                 ->queryOne();
@@ -316,8 +317,8 @@ class IpPortBiller extends Biller
                         " . ($filter ? ' and (' . $filter . ')' : '') . "
                 ",
                 [
-                    ':from' => $this->billerActualFrom->format('Y-m-d'),
-                    ':to' => $this->billerActualTo->format('Y-m-d'),
+                    ':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                    ':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT),
                 ]
             )
                 ->queryOne();
@@ -331,7 +332,7 @@ class IpPortBiller extends Biller
         $logTariff =
             LogTarif::find()
                 ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
-                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->andWhere('id_tarif != 0')
                 ->orderBy('date_activation desc, id desc')
                 ->one();
@@ -345,7 +346,7 @@ class IpPortBiller extends Biller
             $logTariff =
                 LogTarif::find()
                     ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
-                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                     ->andWhere('id_tarif != 0')
                     ->leftJoin(['tv' => TariffInternet::tableName()], 'tv.id = id_tarif')
                     ->andWhere(['not', ['tv.status' => TariffInternet::STATUS_TEST]])
@@ -353,7 +354,7 @@ class IpPortBiller extends Biller
                     ->one();
 
             // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
-            if ($logTariff === null || $logTariff->date_activation >= $this->billerActualTo->format('Y-m-d')) {
+            if ($logTariff === null || $logTariff->date_activation >= $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 return false;
             }
 

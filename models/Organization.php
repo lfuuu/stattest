@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use ReflectionClass;
 use app\exceptions\FormValidationException;
@@ -103,7 +104,7 @@ class Organization extends ActiveRecord
                 ", [
                     ':id' => $this->organization_id,
                     ':date' => $this->actual_from,
-                    ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format('Y-m-d')
+                    ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT)
                 ]
             )
             ->execute();
@@ -115,7 +116,7 @@ class Organization extends ActiveRecord
             ->orderBy('actual_from asc')
             ->one();
         if ($next_record instanceof Organization) {
-            $this->actual_to = (new \DateTime($next_record->actual_from))->modify('-1 day')->format('Y-m-d');
+            $this->actual_to = (new \DateTime($next_record->actual_from))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         return parent::beforeSave($insert);

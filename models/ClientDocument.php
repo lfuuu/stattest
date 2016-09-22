@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\BillContract;
 use app\classes\Encrypt;
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\db\ActiveRecord;
 use app\queries\ClientDocumentQuery;
@@ -65,7 +66,7 @@ class ClientDocument extends ActiveRecord
             [['contract_date', 'contract_dop_date', 'comment', 'content'], 'string'],
             ['type', 'in', 'range' => array_keys(static::$types)],
             ['is_external', 'in', 'range' => array_keys(ClientContract::$externalType)],
-            ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
+            ['ts', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
             ['is_active', 'default', 'value' => 1],
             ['user_id', 'default', 'value' => Yii::$app->user->id],
         ];
@@ -141,10 +142,10 @@ class ClientDocument extends ActiveRecord
                 $lastContract = BillContract::getLastContract($this->contract_id, $utime);
 
                 $this->contract_no = $this->contract_no ? $this->contract_no : ($lastContract ? $lastContract['no'] : 1);
-                $this->contract_date = $this->contract_date ? $this->contract_date : date('Y-m-d',
+                $this->contract_date = $this->contract_date ? $this->contract_date : date(DateTimeZoneHelper::DATE_FORMAT,
                     $lastContract ? $lastContract['date'] : time());
                 $this->contract_dop_no = $this->contract_no;
-                $this->contract_dop_date = ($this->type == self::DOCUMENT_AGREEMENT_TYPE) ? $this->contract_date : date('Y-m-d');
+                $this->contract_dop_date = ($this->type == self::DOCUMENT_AGREEMENT_TYPE) ? $this->contract_date : date(DateTimeZoneHelper::DATE_FORMAT);
             }
 
             if ($this->type == self::DOCUMENT_CONTRACT_TYPE) {

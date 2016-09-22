@@ -6,6 +6,7 @@ use app\classes\Event;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use DateTimeZone;
 use Yii;
@@ -41,7 +42,7 @@ SQL;
             $timezone = new DateTimeZone($timezoneName);
             $dateTime = (new \DateTimeImmutable())
                 ->setTimezone($timezone);
-            $clientDate = $dateTime->format('Y-m-d');
+            $clientDate = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
 
             $andWhereSQL = '';
             if ($accountTariffId) {

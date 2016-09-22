@@ -4,6 +4,7 @@ namespace app\classes\uu\monitor;
 
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 
 /**
@@ -40,8 +41,8 @@ class AccountLogPeriodMonitor extends AccountLogPeriod implements AccountLogMoni
             self::$logs = $accountTariff
                 ->getAccountLogPeriods()
                 ->where('((date_from BETWEEN :date_from AND :date_to) OR (date_to BETWEEN :date_from AND :date_to))', [
-                    ':date_from' => $monthDateTime->modify('first day of this month')->format('Y-m-d'),
-                    ':date_to' => $monthDateTime->modify('last day of this month')->format('Y-m-d'),
+                    ':date_from' => $monthDateTime->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
+                    ':date_to' => $monthDateTime->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
                 ])
                 ->all();
         }

@@ -268,7 +268,7 @@ echo Breadcrumbs::widget([
                 $isActive = $actualFrom <= $now && ($actualTo === null || $actualTo >= $now);
                 ?>
                 <tr style="<?= $isActive ? 'font-weight: bold;' : '' ?>">
-                    <td nowrap><?= $actualFrom->format('Y-m-d') . ' - ' . ($actualTo !== null ? $actualTo->format('Y-m-d') :  '') ?></td>
+                    <td nowrap><?= $actualFrom->format(DateTimeZoneHelper::DATE_FORMAT) . ' - ' . ($actualTo !== null ? $actualTo->format(DateTimeZoneHelper::DATE_FORMAT) :  '') ?></td>
                     <td width="100%">
                         <?= Html::encode($item->voipTariffMain->name) ?>
                         (<?= $item->voipTariffMain->month_number; ?>-<?= $item->voipTariffMain->month_line; ?>)
@@ -529,8 +529,8 @@ echo Breadcrumbs::widget([
         <?php
         foreach ($usagePackages as $package): ?>
             <?php
-            $actualTo = (new DateTimeWithUserTimezone($package->expire_dt))->formatWithInfinity('Y-m-d');
-            $isActive = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
+            $actualTo = (new DateTimeWithUserTimezone($package->expire_dt))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT);
+            $isActive = $package->actual_from <= $now->format(DateTimeZoneHelper::DATE_FORMAT) && $package->actual_to >= $now->format(DateTimeZoneHelper::DATE_FORMAT);
             ?>
             <tr style="<?= ($isActive ? 'font-weight: bold;' : '') . ($package->status === 'connecting' ? 'background-color: #ffe0e0;' : ''); ?>">
                 <td nowrap="nowrap">
@@ -565,14 +565,14 @@ echo Breadcrumbs::widget([
 
                 <td align="center">
                     <?php
-                    if ($package->actual_from > $now->format('Y-m-d')) {
+                    if ($package->actual_from > $now->format(DateTimeZoneHelper::DATE_FORMAT)) {
                         echo Html::a('Удалить', ['/usage/voip/detach-package', 'id' => $package->id], [
                             'class' => 'btn btn-primary btn-xs',
                             'onClick' => 'return confirm("Вы уверены, что хотите отменить пакет ?")',
                         ]);
                     }
                     else {
-                        if ($package->actual_from <= $now->format('Y-m-d') && $now->format('Y-m-d') <= $package->actual_to) {
+                        if ($package->actual_from <= $now->format(DateTimeZoneHelper::DATE_FORMAT) && $now->format(DateTimeZoneHelper::DATE_FORMAT) <= $package->actual_to) {
                             echo Html::a('Редактировать', ['/usage/voip/edit-package', 'id' => $package->id], [
                                 'class' => 'btn btn-info btn-link btn-xs'
                             ]);
@@ -592,7 +592,7 @@ $formModel = new \app\forms\usage\UsageVoipAddPackageForm;
 $formModel->usage_voip_id = $usage->id;
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
 
-$formModel->actual_from = $model->today->format('Y-m-d');
+$formModel->actual_from = $model->today->format(DateTimeZoneHelper::DATE_FORMAT);
 
 echo Html::activeHiddenInput($formModel, 'usage_voip_id');
 

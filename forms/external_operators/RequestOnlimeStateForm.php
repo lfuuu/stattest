@@ -2,6 +2,7 @@
 
 namespace app\forms\external_operators;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -62,7 +63,7 @@ class RequestOnlimeStateForm extends Form
                 }
             }
 
-            $nowDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+            $nowDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
             $currentStage = TroubleStage::findOne($trouble->currentStage->stage_id);
             $currentStage->date_edit = $nowDateTime;

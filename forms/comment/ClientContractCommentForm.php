@@ -2,6 +2,7 @@
 
 namespace app\forms\comment;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -41,7 +42,7 @@ class ClientContractCommentForm extends Form
         $comment->setAttributes($this->getAttributes(), false);
 
         $comment->user = $this->user ?: (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
-        $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+        $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $comment->is_publish = 0;
 
         $transaction = Yii::$app->db->beginTransaction();

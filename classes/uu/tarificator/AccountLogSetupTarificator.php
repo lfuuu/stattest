@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 
 /**
@@ -23,7 +24,7 @@ class AccountLogSetupTarificator implements TarificatorI
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить слишком старые данные
-        AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
+        AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         $accountTariffs = AccountTariff::find();
         $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
@@ -39,7 +40,7 @@ class AccountLogSetupTarificator implements TarificatorI
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT))
             ) {
                 // услуга отключена давно - в целях оптимизации считать нет смысла
                 continue;
@@ -98,7 +99,7 @@ class AccountLogSetupTarificator implements TarificatorI
         $tariffPeriod = $accountLogFromToTariff->tariffPeriod;
 
         $accountLogSetup = new AccountLogSetup();
-        $accountLogSetup->date = $accountLogFromToTariff->dateFrom->format('Y-m-d');
+        $accountLogSetup->date = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
         $accountLogSetup->tariff_period_id = $tariffPeriod->id;
         $accountLogSetup->account_tariff_id = $accountTariff->id;
 

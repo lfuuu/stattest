@@ -4,6 +4,7 @@ namespace app\classes\api;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
@@ -183,7 +184,7 @@ class ApiVpbx
      */
     public static function getResourceStatistics(\DateTime $date)
     {
-        return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format('Y-m-d')]);
+        return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
     }
 
     /**
@@ -197,7 +198,7 @@ class ApiVpbx
         return ApiVpbx::exec('get_int_number_usage', [
             'client_id' => $clientAccountId,
             'stat_product_id' => $usageVpbxId,
-            'date' => $date->format('Y-m-d'),
+            'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
         ]);
     }
 
