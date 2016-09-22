@@ -2,6 +2,7 @@
 
 namespace app\models\light_models\uu;
 
+use app\classes\Assert;
 use Yii;
 use DateTime;
 use yii\base\Component;
@@ -37,7 +38,7 @@ class InvoiceLight extends Component
         $this->clientAccount = $clientAccount;
         $this->date =
             (new DateTime)
-                ->modify('first day of previous month')
+                ->modify('last day of previous month')
                 ->format('Y-m-d');
     }
 
@@ -80,11 +81,12 @@ class InvoiceLight extends Component
         ]);
 
         // Данные организации продавца
+        $sellerOrganization = $this->clientAccount->contract->getOrganization($this->date);
+        Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $this->date . '" не найдены');
+
         $this->seller = new InvoiceSellerLight(
             $this->language,
-            $this->clientAccount->contract
-                ->getOrganization($this->date)
-                ->setLanguage($dataLanguage),
+            $sellerOrganization->setLanguage($dataLanguage),
             $invoiceSetting
         );
 

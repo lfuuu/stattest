@@ -1,0 +1,21 @@
+<?php
+return [
+    'Type #1' => 'VPBX',
+    'Type #2' => 'Voip',
+    'Type #3' => 'Voip. Packages',
+    'Type #4' => 'Internet',
+    'Type #5' => 'Collocation',
+    'Type #6' => 'VPN',
+    'Type #7' => 'IT Park',
+    'Type #8' => 'Domain registration',
+    'Type #9' => 'Virtual email server',
+    'Type #10' => 'Old VPBX',
+    'Type #11' => 'Web-site',
+    'Type #12' => 'Provider',
+    'Type #13' => 'Wellsystem',
+    'Type #14' => 'Welltime как продукт',
+    'Type #15' => 'Additional services',
+    'Type #16' => 'SMS Gate',
+    'Type #17' => 'SMS',
+    'Type #18' => 'Welltime (SaaS)',
+];

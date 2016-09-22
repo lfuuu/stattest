@@ -6,6 +6,7 @@
  * @var string $date
  * @var [] $invoice
  * @var string $invoiceContent
+ * @var string $langCode
  */
 
 use app\classes\uu\model\AccountEntry;
@@ -13,6 +14,7 @@ use app\widgets\MonthPicker;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+use app\forms\templates\uu\InvoiceForm;
 
 echo Breadcrumbs::widget([
     'links' => [
@@ -47,13 +49,32 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
         <div class="col-sm-10">
             <div class="pull-right">
 
-                <?= $this->render('//layouts/_link', [
-                    'text' => 'Универсальная счет-фактура',
-                    'url' => Url::toRoute(['/uu/invoice/view', 'month' => $month, 'langCode' => \app\forms\templates\uu\InvoiceForm::UNIVERSAL_INVOICE_KEY]),
-                    'params' => [
-                        'class' => 'btn btn-warning',
-                    ],
-                ]) ?>
+                <?php
+                if ($langCode === InvoiceForm::UNIVERSAL_INVOICE_KEY) {
+                    echo $this->render('//layouts/_link', [
+                        'text' => 'Стандартная счет-фактура',
+                        'url' => Url::toRoute([
+                            '/uu/invoice/view',
+                            'month' => $month,
+                        ]),
+                        'params' => [
+                            'class' => 'btn btn-warning',
+                        ],
+                    ]);
+                } else {
+                    echo $this->render('//layouts/_link', [
+                        'text' => 'Универсальная счет-фактура',
+                        'url' => Url::toRoute([
+                            '/uu/invoice/view',
+                            'month' => $month,
+                            'langCode' => InvoiceForm::UNIVERSAL_INVOICE_KEY
+                        ]),
+                        'params' => [
+                            'class' => 'btn btn-warning',
+                        ],
+                    ]);
+                }
+                ?>
 
                 <?= $this->render('//layouts/_link', [
                     'text' => 'Печать',

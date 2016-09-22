@@ -85,7 +85,7 @@ class InvoiceForm extends Form
         $file = UploadedFile::getInstance($this, 'filename[' . $key . ']');
 
         if (!is_null($file) && $file->getExtension() !== self::TEMPLATE_EXTENSION) {
-            Yii::$app->session->addFlash('error', 'Шаблон ' . $key . ' должен быть в формате HTML<br />');
+            Yii::$app->session->addFlash('error', 'Шаблон ' . $key . ' должен быть с расширением ' . self::TEMPLATE_EXTENSION . '<br />');
             return;
         }
 
@@ -101,8 +101,6 @@ class InvoiceForm extends Form
             try {
                 $smarty = Smarty::init();
                 $smarty->fetch('string:' . $content);
-            } catch (\SmartyException $e) {
-                Yii::$app->session->addFlash('error', 'Шаблон ' . $key . ' не может быть преобразован<br />' . $e->getMessage());
             } catch (\Exception $e) {
                 Yii::$app->session->addFlash('error', 'Шаблон ' . $key . ' не может быть преобразован<br />' . $e->getMessage());
             }
