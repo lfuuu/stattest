@@ -4,6 +4,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\forms\client\ClientAccountOptionsForm;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\CurrencyRate;
 
 define('NO_WEB',1);
 define('NUM',20);
@@ -141,16 +142,29 @@ foreach ($clients as $clientId => $data) {
         Yii::error('Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_MN_VALUE . '" not saved for client #' . $clientId . ': ' . implode(',', (array)$option->getFirstErrors()));
     }
 
-    //TODO: 1000 это сумма в рублях. Для не рублевых клиентов сделать конвертацию по курсу
-    $clients[$clientId]['new_day_limit'] =
-        $clients[$clientId]['new_day_limit'] > ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY
-            ? $clients[$clientId]['new_day_limit']
+    $currencyRate = CurrencyRate::find()->currency($data['currency']);
+
+    // Курс валюты найден - пересчить, иначе взять по-умолчанию
+    $defaultVoipCreditLimitDay =
+        !is_null($currencyRate)
+            ? ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY / $currencyRate->rate
             : ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY;
 
-    $clients[$clientId]['new_day_limit_mn'] =
-        $clients[$clientId]['new_day_limit_mn'] > ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY
-            ? $clients[$clientId]['new_day_limit_mn']
+    $clients[$clientId]['new_day_limit'] =
+        $clients[$clientId]['new_day_limit'] > $defaultVoipCreditLimitDay
+            ? $clients[$clientId]['new_day_limit']
+            : $defaultVoipCreditLimitDay;
+
+    // Курс валюты найден - пересчить, иначе взять по-умолчанию
+    $defaultVoipMNLimitDay =
+        !is_null($currencyRate)
+            ? ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY / $currencyRate->rate
             : ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY;
+
+    $clients[$clientId]['new_day_limit_mn'] =
+        $clients[$clientId]['new_day_limit_mn'] > $defaultVoipMNLimitDay
+            ? $clients[$clientId]['new_day_limit_mn']
+            : $defaultVoipMNLimitDay;
 }
 
 $updated = 0;
