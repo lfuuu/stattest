@@ -183,7 +183,7 @@ foreach ($clients as $client) {
 
     if ($client['new_day_limit_mn'] > $client['voip_limit_mn_day']) {
         echo 'MN - ' . $client['id'] . ': ' . $client['voip_limit_mn_day'] . ' - ' . $client['new_day_limit_mn'] . PHP_EOL;
-        $clientAccount->voip_limit_mn_day = $client['new_day_limit'];
+        $clientAccount->voip_limit_mn_day = $client['new_day_limit_mn'];
     }
 
     if (!$clientAccount->save()) {
