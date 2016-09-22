@@ -285,9 +285,10 @@ class Navigation
             $block2->addItem($serviceType->name, Url::to([
                 '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
-                //'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET
+//                'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET,
+                'AccountTariffFilter[is_uu]' => 1,
             ]), ['tarifs.read']);
-            
+
         }
 
         $this->addBlock($block);

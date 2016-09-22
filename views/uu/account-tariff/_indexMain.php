@@ -11,6 +11,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
@@ -43,6 +44,15 @@ $columns = [
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
+    ],
+    [
+        'label' => 'Универсальный?',
+        'attribute' => 'is_uu',
+        'class' => YesNoColumn::className(),
+        'value' => function (AccountTariff $tariff) {
+            $isOld = $tariff->getNonUniversalId();
+            return Yii::t('common', $isOld ? 'No' : 'Yes');
+        }
     ],
 ];
 

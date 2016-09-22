@@ -3,6 +3,7 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 
 echo Html::label('Отчет по звонкам в пакете на номере');
 
@@ -27,10 +28,10 @@ echo GridView::widget([
                         (
                         new DateTimeWithUserTimezone(
                             $data['tsf1'],
-                            new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)
+                            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)
                         )
                         )
-                            ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW))
+                            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW))
                             ->format('Y-m-d H:i:s');
                 }
 

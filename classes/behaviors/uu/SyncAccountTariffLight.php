@@ -5,6 +5,7 @@ namespace app\classes\behaviors\uu;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\AccountTariffLight;
 use DateTimeZone;
 use yii\base\Behavior;
@@ -46,7 +47,7 @@ class SyncAccountTariffLight extends Behavior
 
         $clientTimezoneName = $accountTariff->clientAccount->timezone_name;
         $clientTimezone = new DateTimeZone($clientTimezoneName);
-        $utcTimezone = new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_UTC);
+        $utcTimezone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
         $activateFrom = (new \DateTimeImmutable($accountLogPeriod->date_from, $clientTimezone))
             ->setTimezone($utcTimezone)
