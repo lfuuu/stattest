@@ -27,16 +27,25 @@ class CurrencyRate extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'currency_rate';
     }
 
+    /**
+     * @return CurrencyRateDao
+     */
     public static function dao()
     {
         return CurrencyRateDao::me();
     }
 
+    /**
+     * @return CurrencyRateQuery
+     */
     public static function find()
     {
         return new CurrencyRateQuery(get_called_class());
