@@ -911,7 +911,7 @@ class ApiLk
         $skipFrom = 1;
         $areaLen = 3;
         
-        foreach($numbers->each()->result(null) as $number) {
+        foreach($numbers->result(null) as $number) {
             $line = [
                 'number' => $number->number,
                 'full_number' => $number->number,
