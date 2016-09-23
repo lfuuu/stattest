@@ -3,6 +3,7 @@ namespace app\classes;
 
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 
 class Event
@@ -102,9 +103,9 @@ class Event
     /**
      * Функция добавления события в очередь обработки
      *
-     * @param string $event Название собятия
-     * @param string|array $param Данные для обработки собятия
-     * @param bool $isForceAdd Принудительное добавления собятия. (Если событие уже есть в очереди, то оно не добавляется)
+     * @param string $event Название события
+     * @param string|array $param Данные для обработки события
+     * @param bool $isForceAdd Принудительное добавления события. (Если событие уже есть в очереди, то оно не добавляется)
      */
     public static function go($event, $param = "", $isForceAdd = false)
     {
@@ -116,12 +117,12 @@ class Event
 
         $row = null;
         if (!$isForceAdd) {
-            $row =
-                EventQueue::find()
-                    ->andWhere(['code' => $code])
-                    ->andWhere("status not in ('ok', 'stop')")
-                    ->limit(1)
-                    ->one();
+            /** @var EventQueue $row */
+            $row = EventQueue::find()
+                ->andWhere(['code' => $code])
+                ->andWhere("status not in ('ok', 'stop')")
+                ->limit(1)
+                ->one();
         }
 
         if (!$row) {
@@ -130,6 +131,7 @@ class Event
             $row->param = $param;
             $row->code = $code;
             $row->log_error = '';
+            $row->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
         } else {
             $row->iteration = 0;
             $row->status = 'plan';

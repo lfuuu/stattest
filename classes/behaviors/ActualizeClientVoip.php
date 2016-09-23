@@ -27,7 +27,7 @@ class ActualizeClientVoip extends Behavior
 
                 //TODO: need log event
 
-                Event::go("actualize_client", ["client_id" => $event->sender->id]);
+                Event::go(Event::ACTUALIZE_CLIENT, ["client_id" => $event->sender->id]);
 
             }
         }

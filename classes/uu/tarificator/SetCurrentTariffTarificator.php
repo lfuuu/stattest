@@ -90,19 +90,18 @@ SQL;
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                AccountTariff::updateAll(
-                    ['is_updated' => 0],
-                    ['is_updated' => 1]
-                );
-
                 $count = $db->createCommand($sql)
                     ->execute();
                 echo $count . ' ';
 
                 /** @var AccountTariff $accountTariff */
-                foreach (AccountTariff::find()
-                             ->where(['is_updated' => 1])
-                             ->each() as $accountTariff) {
+                $activeQuery = AccountTariff::find()
+                    ->where(['is_updated' => 1]);
+                if ($accountTariffId) {
+                    // даже если тариф не изменился (такое бывает при insert), то все равно уведомим платформу
+                    $activeQuery->orWhere(['id' => $accountTariffId]);
+                }
+                foreach ($activeQuery->each() as $accountTariff) {
 
                     switch ($accountTariff->service_type_id) {
                         case ServiceType::ID_VOIP: {
@@ -122,6 +121,9 @@ SQL;
                             break;
                         }
                     }
+
+                    $accountTariff->is_updated = 0;
+                    $accountTariff->save();
                 }
 
                 $isWithTransaction && $transaction->commit();

@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
  * @property string next_start timestamp
  * @property string log_error
  * @property string code
+ * @property string insert_time
  */
 class EventQueue extends ActiveRecord
 {
@@ -44,6 +45,7 @@ class EventQueue extends ActiveRecord
     {
         return [
             'id' => 'ID',
+            'insert_time' => 'Время создания',
             'date' => 'Время запуска',
             'next_start' => 'Время следующего запуска',
             'event' => 'Событие',

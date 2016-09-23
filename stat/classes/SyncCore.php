@@ -99,12 +99,12 @@ class SyncCore
 
                     if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
                     {
-                        //Event::go("add_account", $account->id, true);
+                        //Event::go(Event::ADD_ACCOUNT, $account->id, true);
                     }
 
                     if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                     {
-                        //Event::go("add_account", $account->id, true);
+                        //Event::go(Event::ADD_ACCOUNT, $account->id, true);
                     }
 
                     if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
