@@ -75,19 +75,19 @@ class ActaulizerCallChatUsage extends Singleton
     {
         if (isset($diff['add'])) {
             foreach ($diff['add'] as $row) {
-                Event::go('call_chat__add', $row);
+                Event::go(Event::CALL_CHAT__ADD, $row);
             }
         }
 
         if (isset($diff['change'])) {
             foreach ($diff['change'] as $row) {
-                Event::go('call_chat__update', $row);
+                Event::go(Event::CALL_CHAT__UPDATE, $row);
             }
         }
 
         if (isset($diff['del'])) {
             foreach ($diff['del'] as $row) {
-                Event::go('call_chat__del', $row);
+                Event::go(Event::CALL_CHAT__DEL, $row);
             }
         }
     }

@@ -232,7 +232,7 @@ class ContractEditForm extends Form
             }
 
             foreach ($contract->getAccounts() as $account) {
-                Event::go('client_set_status', $account->id);
+                Event::go(Event::CLIENT_SET_STATUS, $account->id);
             }
 
             return true;

@@ -1344,7 +1344,7 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
 
-        Event::go('ats2_numbers_check');
+        Event::go(Event::ATS2_NUMBERS_CHECK);
 
         if ($result=='delete') {
             header('Location: /?module=services&action=vo_view');
@@ -1377,7 +1377,7 @@ class m_services extends IModule{
                     )
                 );
 
-        Event::go('ats2_numbers_check');
+        Event::go(Event::ATS2_NUMBERS_CHECK);
 
         trigger_error2('Номер отключен, создайте заявку на отключение');
 

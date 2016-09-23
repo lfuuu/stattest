@@ -18,13 +18,13 @@ class ActualizeVoipNumber extends Behavior
 
     public function actualizeNumberAfterInsert($event)
     {
-        Event::go('actualize_number', ['number' => $event->sender->E164]);
+        Event::go(Event::ACTUALIZE_NUMBER, ['number' => $event->sender->E164]);
     }
 
     public function actualizeNumberAfterUpdate($event)
     {
         if (count($event->changedAttributes)) {
-            Event::go('actualize_number', ['number' => $event->sender->E164]);
+            Event::go(Event::ACTUALIZE_NUMBER, ['number' => $event->sender->E164]);
         }
     }
 

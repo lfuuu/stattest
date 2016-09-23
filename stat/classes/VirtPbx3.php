@@ -403,8 +403,8 @@ class VirtPbx3Action
                 }
             }
 
-            Event::go("update_products", ["account_id" => $toUsage->clientAccount->id]);
-            Event::go("update_products", ["account_id" => $fromUsage->clientAccount->id]);
+            Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $toUsage->clientAccount->id]);
+            Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $fromUsage->clientAccount->id]);
 
             ApiCore::addProduct('vpbx', $toUsage->clientAccount->id, $toUsage->id);
             ApiCore::remoteProduct('vpbx', $fromUsage->clientAccount->id, $fromUsage->id);

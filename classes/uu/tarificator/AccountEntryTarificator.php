@@ -310,7 +310,7 @@ SQL;
     public function makeUpdateEvents(array $ids)
     {
         foreach ($ids as $id) {
-            Event::go('uu_tarificate', ['account_id' => $id]);
+            Event::go(Event::UU_TARIFICATE, ['account_id' => $id]);
         }
     }
 

@@ -23,7 +23,7 @@ class ActaulizeCallChat extends Behavior
     public function actualizeCallChat($event)
     {
         if ($event->changedAttributes) {
-            Event::go("check__call_chat");
+            Event::go(Event::CHECK__CALL_CHAT);
         }
     }
 
