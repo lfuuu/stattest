@@ -14,7 +14,6 @@ use app\classes\uu\model\TariffResource;
 $tariffResourceTableName = TariffResource::tableName();
 $resourceTableName = Resource::tableName();
 
-$tariff = $formModel->tariff;
 $tariffResources = $formModel->tariffResources;
 ?>
 
@@ -34,9 +33,6 @@ $tariffResources = $formModel->tariffResources;
         foreach ($tariffResources as $i => $tariffResource) {
             $tariffResource->id = $tariffResource->isNewRecord ? $i : $tariffResource->id;
             $resource = $tariffResource->resource;
-            if ($resource->service_type_id != $tariff->service_type_id) {
-                continue;
-            }
             $isNumber = $resource->isNumber();
             ?>
             <div class="row">
