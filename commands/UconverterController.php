@@ -3,8 +3,11 @@ namespace app\commands;
 
 use app\classes\uu\converter\AccountTariffConverter;
 use app\classes\uu\converter\TariffConverter;
+use app\classes\uu\model\AccountLogResource;
+use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
+use app\classes\uu\model\TariffResource;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\models\TariffVoipPackage;
 use app\modules\nnp\models\Destination;
@@ -248,4 +251,61 @@ class UconverterController extends Controller
             return Controller::EXIT_CODE_ERROR;
         }
     }
+
+    /**
+     * Удалить кривые ресурсы тарифа
+     * @return int
+     */
+    public function actionFixTariffResource()
+    {
+        $tariffTableName = Tariff::tableName();
+        $resourceTableName = Resource::tableName();
+        $tariffResourceTableName = TariffResource::tableName();
+        $accountLogResourceTableName = AccountLogResource::tableName();
+
+        $sql = <<<SQL
+            CREATE TEMPORARY TABLE tariff_resource_tmp
+            SELECT
+                tariff_resource.id
+            FROM
+                {$tariffResourceTableName} tariff_resource,
+                {$tariffTableName} tariff,
+                {$resourceTableName} resource
+            WHERE
+                tariff_resource.tariff_id = tariff.id
+                AND tariff_resource.resource_id = resource.id 
+                AND tariff.service_type_id != resource.service_type_id
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = <<<SQL
+            DELETE
+                account_log_resource.*
+            FROM
+                {$accountLogResourceTableName} account_log_resource,
+                tariff_resource_tmp
+            WHERE
+                account_log_resource.tariff_resource_id = tariff_resource_tmp.id
+SQL;
+        echo Yii::$app->db->createCommand($sql)->execute() . ' ';
+
+        $sql = <<<SQL
+            DELETE
+                tariff_resource.*
+            FROM
+                {$tariffResourceTableName} tariff_resource,
+                tariff_resource_tmp
+            WHERE
+                tariff_resource.id = tariff_resource_tmp.id
+SQL;
+        echo Yii::$app->db->createCommand($sql)->execute() . ' ';
+
+        $sql = <<<SQL
+            DROP TEMPORARY TABLE tariff_resource_tmp
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
+
 }

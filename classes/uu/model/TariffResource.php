@@ -2,8 +2,6 @@
 
 namespace app\classes\uu\model;
 
-use Yii;
-
 /**
  * Стоимость ресурса (дисковое пространство, абоненты, линии и пр.)
  *
@@ -39,6 +37,7 @@ class TariffResource extends \yii\db\ActiveRecord
             [['amount', 'price_per_unit'], 'number'],
             [['resource_id', 'tariff_id'], 'integer'],
             [['resource_id', 'amount', 'price_per_unit', 'price_min'], 'required'],
+            ['resource_id', 'validateServiceType'],
         ];
     }
 
@@ -66,4 +65,16 @@ class TariffResource extends \yii\db\ActiveRecord
         return $this->tariff->name;
     }
 
+    /**
+     * Валидировать тип услуги
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validateServiceType($attribute, $params)
+    {
+        if ($this->tariff->service_type_id != $this->resource->service_type_id) {
+            $this->addError($attribute, 'Этот ресурс от другого типа услуги.');
+        }
+    }
 }
