@@ -26,6 +26,8 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_ZERO_BALANCE = 'zero_balance';
     const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
     const IMPORTANT_EVENT_CR_TOKEN = 'cr_token';
+    const IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT = 'change_credit_limit';
+    const IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
 
     //Payment
     const IMPORTANT_EVENT_PAYMENT_ADD = 'payment_add';

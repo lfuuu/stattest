@@ -6,6 +6,9 @@ use app\models\Country;
 use app\classes\Assert;
 use app\classes\Language;
 use app\models\DidGroup;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsSources;
+use app\models\LkClientSettings;
 use app\models\Number;
 use app\models\TariffNumber;
 use app\models\TariffVoip;
@@ -1970,7 +1973,7 @@ class ApiLk
         if (!$model->validate()) {
             return [
                 'status' => 'error',
-                'message' => 'format_error' //Неверный формат данных.
+                'message' => 'format_error', //Неверный формат данных.
             ];
         }
 
@@ -2022,38 +2025,68 @@ class ApiLk
             $noticeSettings->save();
         }
 
-        $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='" . $client_id . "'");
+        $clientSettings = LkClientSettings::findOne(['client_id' => $client_id]);
 
-        $data = [
-            'client_id' => $client_id,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => $minBalance,
-            ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => $minDayLimit
-        ];
-        if ($clientSettings) {
-            if (
-                $clientSettings['is_min_balance_sent']
-                &&
-                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE]
-            ) {
-                $data['is_min_balance_sent'] = 0;
-            }
+        if (is_null($clientSettings)) {
+            $clientSettings = new LkClientSettings;
+            $clientSettings->client_id = $client_id;
+        }
 
-            if (
-                $clientSettings['is_min_day_limit_sent']
-                &&
-                $clientSettings[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT] < $data[ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT]
-            ) {
-                $data['is_min_day_limit_sent'] = 0;
-            }
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = number_format($minBalance, 2);
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = number_format($minDayLimit, 2);
 
-            $db->QueryUpdate('lk_client_settings', ['client_id'], $data);
-        } else {
-            $db->QueryInsert('lk_client_settings', $data);
+        if (
+            $clientSettings->is_min_balance_sent
+            &&
+            $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} < $minBalance
+        ) {
+            $clientSettings->is_min_balance_sent = 0;
+        }
+
+        if (
+            $clientSettings->is_min_day_limit_sent
+            &&
+            $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} < $minDayLimit
+        ) {
+            $clientSettings->is_min_day_limit_sent = 0;
+        }
+
+        // Логирование изменения значения критического остатка
+        if ($clientSettings->isAttributeChanged(ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE)) {
+            ImportantEvents::create(
+                $eventName = ImportantEventsNames::IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT,
+                $eventSource = ImportantEventsSources::IMPORTANT_EVENT_SOURCE_LK,
+                $eventData = [
+                    'client_id' => $client_id,
+                    'value' => $minBalance,
+                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE),
+                ]
+            );
+        }
+
+        // Логирование изменения значени суточного лимита
+        if ($clientSettings->isAttributeChanged(ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT)) {
+            ImportantEvents::create(
+                $eventName = ImportantEventsNames::IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT,
+                $eventSource = ImportantEventsSources::IMPORTANT_EVENT_SOURCE_LK,
+                $eventData = [
+                    'client_id' => $client_id,
+                    'value' => $minDayLimit,
+                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT),
+                ]
+            );
+        }
+
+        if ($clientSettings->save()) {
+            return [
+                'status' => 'ok',
+                'message' => 'save_ok'
+            ];
         }
 
         return [
-            'status' => 'ok',
-            'message' => 'save_ok'
+            'status' => 'error',
+            'message' => 'data_error',
         ];
     }
 
