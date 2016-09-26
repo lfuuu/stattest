@@ -149,6 +149,7 @@ class ApiVpbx
                 "phones" => $tariff["num_ports"],
                 "faxes" => $tariff["is_fax"] ? 5 : 0,
                 "record" => (bool)$tariff["is_record"],
+                "disk_space" => (int)$tariff["space"],
                 "enable_web_call" => (bool)$tariff["is_web_call"],
                 "region" => (int)$regionId,
             ]
